@@ -129,7 +129,7 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        this.currentLanguage.set(this.Translate.currentLang);
+        this.currentLanguage.set(this.Translate.getCurrentLang() ?? 'en');
         this.createEditorConfig();
         this.isLayoutReady.set(true);
         this.changeDetector.markForCheck();

@@ -111,7 +111,7 @@ export class MaturityService {
             warn: true,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: () => 'i18n_missing_statement',
+            hint: (exam) => (this.isMissingStatement(exam) ? 'i18n_missing_statement' : ''),
         },
         [StateName.APPROVE_LANGUAGE]: {
             id: 6,
@@ -121,7 +121,7 @@ export class MaturityService {
             warn: false,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: () => 'i18n_missing_statement',
+            hint: (exam) => (this.isMissingStatement(exam) ? 'i18n_missing_statement' : ''),
             alternateState: StateName.REJECT_LANGUAGE,
         },
         [StateName.MISSING_STATEMENT]: {

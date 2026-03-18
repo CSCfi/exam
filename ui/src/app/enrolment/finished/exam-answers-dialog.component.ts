@@ -54,11 +54,11 @@ export class ExamAnswersDialogComponent {
     }
 
     countWords(answer: ExamSectionQuestion) {
-        return this.CommonExam.countWords(answer.essayAnswer?.answer);
+        return this.CommonExam.countWords(answer.essayAnswer?.answer ?? undefined);
     }
 
     countCharacters(answer: ExamSectionQuestion) {
-        return this.CommonExam.countCharacters(answer.essayAnswer?.answer);
+        return this.CommonExam.countCharacters(answer.essayAnswer?.answer ?? undefined);
     }
 
     getAnsweredOptions(answer: ExamSectionQuestion) {

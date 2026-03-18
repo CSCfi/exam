@@ -49,8 +49,10 @@ export class ExaminationQuestionComponent {
     readonly expanded = signal(true);
 
     readonly sq = computed(() => {
-        const q = this.question() as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }; // FIXME
-        return { ...q, expanded: true };
+        // Return the original object directly – no spread – so child-component mutations
+        // (e.g. answerChanged, Object.assign for null essayAnswer) are visible to the
+        // save-all methods that iterate exam.examSections[].sectionQuestions.
+        return this.question() as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
     });
 
     readonly questionTitle = computed(() => {
@@ -82,6 +84,7 @@ export class ExaminationQuestionComponent {
                 [id]: value,
             }));
             currentSq.clozeTestAnswer.answer = JSON.stringify(this.clozeAnswer());
+            this.Examination.setAnswerStatus(currentSq);
         }
     }
 

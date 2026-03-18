@@ -33,7 +33,9 @@ describe('ApplyDstPipe', () => {
         mockDateTimeService.isDST.mockReturnValue(true);
         const input = '2024-07-15T12:00:00.000+03:00';
         const result = pipe.transform(input);
-        expect(result).toContain('11:00:00');
+        // Compare as UTC timestamps so the test is timezone-agnostic:
+        // Luxon may preserve the original offset or normalize to UTC depending on the system zone.
+        expect(new Date(result).getTime()).toBe(new Date(input).getTime() - 60 * 60 * 1000);
     });
 
     it('should return the original string when the date is not in DST', () => {

@@ -100,10 +100,11 @@ SPDX-License-Identifier: EUPL-1.2
             [collaborative]="collaborative"
             [participation]="participation()!"
             [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
+            (saved)="onExamUpdated()"
         >
         </xm-r-feedback>
     }
     @if (exam() && isUnderLanguageInspection()) {
-        <xm-r-statement [exam]="exam()!"></xm-r-statement>
+        <xm-r-statement [exam]="exam()!" (saved)="onExamUpdated()"></xm-r-statement>
     }
 </ng-template>

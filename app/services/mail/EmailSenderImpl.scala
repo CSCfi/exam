@@ -65,7 +65,12 @@ class EmailSenderImpl @Inject() (private val config: Config) extends EmailSender
     email.setHtmlMsg(content)
     if config.hasPath("play.mailer.mock") && config.getBoolean("play.mailer.mock") then
       mockSending(email, content, attachments)
-    else email.send
+    else
+      val to = recipients.mkString(", ")
+      logger.info(
+        s"Sending email: subject=${email.getSubject}, from=${email.getFromAddress}, to=$to"
+      )
+      email.send
 
   override def send(dispatch: Dispatch): Unit =
     val recipients = dispatch match
@@ -84,4 +89,4 @@ class EmailSenderImpl @Inject() (private val config: Config) extends EmailSender
       )
     ) match
       case Left(e) => logger.error("Sending mail failed with", e)
-      case _       => // OK
+      case _       => logger.info("Email sent successfully")

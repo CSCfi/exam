@@ -90,7 +90,10 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="col-12 ps-0">{{ 'i18n_exam_section' | translate }} {{ i + 1 }}: {{ section.name }}</div>
                 <div class="col-1 ms-1">
                     <div class="float-end">
-                        @if (getQuestionAmount(section, 'answered') === getQuestionAmount(section, 'total')) {
+                        @if (
+                            sectionAnswerCounts().get(section.id)?.answered ===
+                            sectionAnswerCounts().get(section.id)?.total
+                        ) {
                             <img
                                 src="/assets/images/icon_question_type_ready_grey.png"
                                 alt="{{ 'i18n_all_questions_answered' | translate }}"
@@ -105,7 +108,8 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
                 <div class="col-6 px-0">
                     {{ 'i18n_number_of_answered_questions' | translate }}
-                    {{ getQuestionAmount(section, 'answered') }} / {{ getQuestionAmount(section, 'total') }}
+                    {{ sectionAnswerCounts().get(section.id)?.answered }} /
+                    {{ sectionAnswerCounts().get(section.id)?.total }}
                 </div>
                 <div class="col">
                     <button

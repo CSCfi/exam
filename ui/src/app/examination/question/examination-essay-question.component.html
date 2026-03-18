@@ -23,7 +23,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-ckeditor
                     [ariaLabel]="questionTitle()"
                     [id]="sq().id.toString()"
-                    [data]="isPreview() ? '' : sq().essayAnswer.answer"
+                    [data]="isPreview() ? '' : (sq().essayAnswer.answer ?? '')"
                     (dataChange)="answerChanged($event)"
                 />
             }
@@ -31,11 +31,11 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 }
 
-@if (sq().autosaved) {
+@if (autosaved()) {
     <div class="row">
         <div class="col-md-12">
             <small class="autosave-text">
-                {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq().autosaved | date: 'HH:mm' }}
+                {{ 'i18n_autosaved' | translate }}:&nbsp;{{ autosaved() | date: 'HH:mm' }}
             </small>
         </div>
     </div>
@@ -49,10 +49,10 @@ SPDX-License-Identifier: EUPL-1.2
             {{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}
         }
     </div>
-    @if (exam()?.implementation !== 'CLIENT_AUTH' && sq().essayAnswer?.attachment?.fileName) {
+    @if (exam()?.implementation !== 'CLIENT_AUTH' && attachment()?.fileName) {
         <div class="col-md-9 mt-2">
             <span class="float-end">
-                <span class="pe-2">{{ sq().essayAnswer?.attachment?.fileName | uppercase }}</span>
+                <span class="pe-2">{{ attachment()?.fileName | uppercase }}</span>
                 <button class="btn btn-success" (click)="removeQuestionAnswerAttachment()">
                     {{ 'i18n_remove_answer_attachment' | translate }}
                     <img src="/assets/images/icon_attachment.svg" alt="attachment" />
@@ -70,7 +70,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (exam()?.implementation !== 'CLIENT_AUTH' && sq().essayAnswer) {
         <div class="col-md-6">
             <div class="float-end mt-1">
-                @if (!sq().essayAnswer.attachment?.fileName) {
+                @if (!attachment()?.fileName) {
                     {{ 'i18n_no_attachment' | translate }}
                 }
                 <button

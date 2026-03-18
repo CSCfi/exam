@@ -108,6 +108,10 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam());
     getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam());
     inspectionDone = () => this.updated.emit();
+    onGradeChange = () => {
+        this.setGrade();
+        this.updated.emit();
+    };
     isGraded = () => this.Assessment.isGraded(this.exam());
     isMaturityRejection = () =>
         this.exam().executionType.type === 'MATURITY' &&

@@ -109,7 +109,10 @@ export class ClozeTestComponent {
                 this.scored.emit(resp.rev);
             });
         } else {
-            this.Assessment.saveForcedScore(sq).subscribe(() => this.toast.info(this.translate.instant('i18n_graded')));
+            this.Assessment.saveForcedScore(sq).subscribe(() => {
+                this.toast.info(this.translate.instant('i18n_graded'));
+                this.scored.emit('');
+            });
         }
     };
 }

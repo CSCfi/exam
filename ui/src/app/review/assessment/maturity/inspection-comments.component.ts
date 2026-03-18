@@ -22,7 +22,7 @@ type InspectionComment = { comment: string; creator: User; created: Date };
             <div class="col-md-2 ">{{ 'i18n_inspector_comments' | translate }}:</div>
             <div class="col-md-10">
                 @if (addingVisible()) {
-                    <button class="btn btn-success me-2" (click)="addInspectionComment()">
+                    <button class="btn btn-sm btn-outline-secondary me-2" (click)="addInspectionComment()">
                         {{ 'i18n_inspection_comment_title' | translate }}
                     </button>
                 }
@@ -37,12 +37,15 @@ type InspectionComment = { comment: string; creator: User; created: Date };
         </div>
 
         @for (comment of allComments(); track comment) {
-            <div class="col-md-12 ps-0 mb-3">
+            <div class="row mb-1">
                 <div class="col-md-4">
-                    {{ comment.creator.firstName }} {{ comment.creator.lastName }}
-                    <small>({{ comment.creator.email }})</small>
+                    <small>
+                        {{ comment.creator.firstName }} {{ comment.creator.lastName }}
+                        &middot;
+                        {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
+                    </small>
                     <br />
-                    {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
+                    <small class="text-muted">{{ comment.creator.email }}</small>
                 </div>
                 <div class="col-md-8">
                     {{ comment.comment }}
@@ -73,9 +76,7 @@ export class InspectionCommentsComponent {
                 ),
             )
             .subscribe((comment) => {
-                // Update local signal (automatically triggers change detection)
-                this.localComments.update((comments) => [comment, ...comments]);
-                // Emit output signal to notify parent
                 this.commentAdded.emit(comment);
+                this.localComments.set([]);
             });
 }

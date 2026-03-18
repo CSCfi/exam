@@ -136,7 +136,10 @@ export class MultiChoiceQuestionComponent {
             });
         } else {
             this.Assessment.saveForcedScore(sq).subscribe({
-                next: () => this.toast.info(this.translate.instant('i18n_graded')),
+                next: () => {
+                    this.toast.info(this.translate.instant('i18n_graded'));
+                    this.scored.emit('');
+                },
                 error: (err) => this.toast.error(err.data),
             });
         }

@@ -20,25 +20,31 @@ import type { User } from 'src/app/session/session.model';
     selector: 'xm-exam-participant-selector',
     template: `
         <div class="row">
-            <div class="col-md-9 offset-md-3">
-                <input
-                    type="text"
-                    class="form-control w-50 make-inline"
-                    placeholder="{{ 'i18n_write_participant_name' | translate }}"
-                    [(ngModel)]="participantName"
-                    [ngbTypeahead]="listStudents$"
-                    [inputFormatter]="nameFormat"
-                    [resultFormatter]="nameFormat"
-                    (selectItem)="setExamParticipant($event)"
-                />
-                <button [disabled]="!newParticipantData().id" (click)="addParticipant()" class="btn btn-success">
-                    {{ 'i18n_add' | translate }}
-                </button>
+            <div class="col-md-5 offset-md-3">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="{{ 'i18n_write_participant_name' | translate }}"
+                        [(ngModel)]="participantName"
+                        [ngbTypeahead]="listStudents$"
+                        [inputFormatter]="nameFormat"
+                        [resultFormatter]="nameFormat"
+                        (selectItem)="setExamParticipant($event)"
+                    />
+                    <button
+                        [disabled]="!newParticipantData().id"
+                        (click)="addParticipant()"
+                        class="input-group-text btn btn-success"
+                    >
+                        {{ 'i18n_add' | translate }}
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="row mt-1">
-            <span class="col-md-9 offset-md-3 w-auto text-break mt-2">
+            <span class="col-md-9 offset-md-3 text-break mt-2">
                 {{ 'i18n_maturity_exam_participants_info' | translate }}
                 @if (exam().state === 'PUBLISHED') {
                     {{ 'i18n_exam_published' | translate }}
@@ -49,18 +55,21 @@ import type { User } from 'src/app/session/session.model';
         </div>
         @if (exam().examEnrolments.length > 0) {
             <div class="row mt-3">
-                <div class="col-md-12">{{ 'i18n_exam_participants' | translate }}:</div>
+                <div class="col-md-5 offset-md-3">{{ 'i18n_exam_participants' | translate }}:</div>
             </div>
             <!-- Students not having finished the exam, sorted alphabetically -->
             @for (enrolment of exam().examEnrolments; track enrolment) {
                 <div class="row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
-                    <div class="col-md-12">
-                        &hyphen; {{ renderParticipantLabel(enrolment) }} <small><{{ enrolment.user?.email }}></small>
-                        @if (enrolment.user?.userIdentifier) {
-                            <small> ({{ enrolment.user.userIdentifier }})</small>
-                        }
+                    <div class="col-md-5 offset-md-3 d-flex align-items-center justify-content-between mt-2">
+                        <small>
+                            {{ renderParticipantLabel(enrolment) }}
+                            &lt;{{ enrolment.user?.email }}&gt;
+                            @if (enrolment.user?.userIdentifier) {
+                                ({{ enrolment.user.userIdentifier }})
+                            }
+                        </small>
                         <button
-                            class="btn btn-danger btn-sm ms-1 w-auto m-1"
+                            class="btn btn-outline-danger btn-sm ms-3 flex-shrink-0"
                             (click)="removeParticipant(enrolment.id)"
                             [hidden]="exam().state === 'PUBLISHED'"
                             [ariaLabel]="renderParticipantLabel(enrolment)"
@@ -73,17 +82,18 @@ import type { User } from 'src/app/session/session.model';
         }
         @if (participants().length > 0) {
             <div class="row mt-3">
-                <div class="col-md-12">{{ 'i18n_finished_exam_participants' | translate }}:</div>
+                <div class="col-md-5 offset-md-3">{{ 'i18n_finished_exam_participants' | translate }}:</div>
             </div>
             <!-- Students that have finished the exam -->
             @for (participant of participants(); track participant) {
                 <div class="row">
-                    <div class="col-md-12">
-                        &hyphen; {{ participant.firstName }} {{ participant.lastName }}
-                        <small><{{ participant.email }}></small>
-                        @if (participant.userIdentifier) {
-                            ({{ participant.userIdentifier }})
-                        }
+                    <div class="col-md-5 offset-md-3 mt-2">
+                        <small>
+                            {{ participant.firstName }} {{ participant.lastName }} &lt;{{ participant.email }}&gt;
+                            @if (participant.userIdentifier) {
+                                ({{ participant.userIdentifier }})
+                            }
+                        </small>
                     </div>
                 </div>
             }

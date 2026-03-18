@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -38,6 +38,8 @@ export interface LogoutOptions {
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationService {
+    readonly answerStatusVersion = signal(0);
+
     private readonly router = inject(Router);
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
@@ -95,6 +97,7 @@ export class ExaminationService {
                     }
                 }
                 answerObj.objectVersion = a.objectVersion;
+                this.setAnswerStatus(esq);
                 return esq;
             }),
             catchError((err) => {
@@ -113,6 +116,20 @@ export class ExaminationService {
     ) => {
         const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
         const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, { autosave, canFail, external }));
+        return concat(...tasks);
+    };
+
+    saveAllClozeTestAnswersOfSection$ = (section: ExaminationSection, hash: string, options: SaveSectionOptions) => {
+        const questions = section.sectionQuestions.filter(
+            (esq) => esq.question.type === 'ClozeTestQuestion' && this.isTextualAnswer(esq, options.allowEmpty),
+        );
+        const tasks = questions.map((q) =>
+            this.saveTextualAnswer$(q, hash, {
+                autosave: options.autosave,
+                canFail: options.canFail,
+                external: options.external,
+            }),
+        );
         return concat(...tasks);
     };
 
@@ -164,6 +181,7 @@ export class ExaminationService {
             sectionQuestion.answered = false;
             sectionQuestion.questionStatus = this.translate.instant('i18n_question_unanswered');
         }
+        this.answerStatusVersion.update((v) => v + 1);
     };
 
     saveOption = (hash: string, sq: ExaminationQuestion, { preview, external }: SaveOptionOptions) => {

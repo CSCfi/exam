@@ -81,7 +81,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- answer -->
                 <div class="mb-2">
                     {{ 'i18n_exam_answer' | translate | uppercase }}
-                    <span class="d-block" [xmMath]="sectionQuestion().essayAnswer?.answer"></span>
+                    <span class="d-block" [xmMath]="sectionQuestion().essayAnswer?.answer ?? undefined"></span>
                 </div>
 
                 <!-- answer attachment -->

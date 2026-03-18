@@ -26,14 +26,13 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
             <div class="col">
                 <h2>
                     @if (!collaborative()) {
-                        <button
-                            class="exam-title-button"
+                        <a
+                            class="exam-title-link"
                             [routerLink]="['/enrolments', exam().id]"
                             [queryParams]="{ code: exam().course?.code }"
                         >
                             {{ exam().name }}
-                            <img class="arrow_icon" alt="" src="/assets/images/arrow_right.svg" />
-                        </button>
+                        </a>
                     }
                     @if (collaborative()) {
                         <span class="exam-title-text">{{ exam().name }}</span>

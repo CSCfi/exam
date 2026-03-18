@@ -21,15 +21,15 @@
 }
 
 .active-enrolment-heading {
+    h2 {
+        margin-bottom: 0;
+    }
+
     a {
         font-size: 20px;
         color: shared.$exam-blue;
         text-decoration: none;
     }
-}
-
-.exam-title-button {
-    font-size: 24px;
 }
 
 .exam-ready {

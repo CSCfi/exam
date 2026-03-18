@@ -17,64 +17,56 @@ import { MaturityService } from './maturity.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<!-- language inspection controls  -->
         @if (isOwnerOrAdmin() || isUnderLanguageInspection()) {
-            <div class="d-flex flex-row-reverse">
+            <div class="d-flex flex-row-reverse gap-2">
                 <span [hidden]="isUnderLanguageInspection()">
-                    <div class="ms-1">
-                        @if (!isReadOnly()) {
-                            <button (click)="saveAssessment()" [disabled]="!valid()" class="btn btn-success">
-                                {{ 'i18n_save' | translate }}
-                            </button>
-                        } @else {
-                            <button class="btn btn-secondary" [routerLink]="['/staff/exams', exam().parent?.id, '5']">
-                                {{ 'i18n_close' | translate }}
-                            </button>
-                        }
-                    </div>
+                    @if (!isReadOnly()) {
+                        <button (click)="saveAssessment()" [disabled]="!valid()" class="btn btn-success">
+                            {{ 'i18n_save' | translate }}
+                        </button>
+                    } @else {
+                        <button class="btn btn-secondary" [routerLink]="['/staff/exams', exam().parent?.id, '5']">
+                            {{ 'i18n_close' | translate }}
+                        </button>
+                    }
                 </span>
                 @if (!isReadOnly() && !isDisabled()) {
-                    <div class="ms-1">
-                        @let warn = getNextState().warn;
-                        <button [class.btn-outline-danger]="warn" [class.btn-success]="!warn" (click)="proceed(false)">
-                            {{ getNextState().text | translate }}
-                        </button>
-                    </div>
+                    @let warn = getNextState().warn;
+                    <button
+                        class="btn"
+                        [class.btn-outline-danger]="warn"
+                        [class.btn-success]="!warn"
+                        (click)="proceed(false)"
+                    >
+                        {{ getNextState().text | translate }}
+                    </button>
                 }
                 @if (
                     !isReadOnly() &&
                     getNextState().alternateState &&
                     !isDisabled(getAlternateState(getNextState().alternateState).name)
                 ) {
-                    <div class="ms-1">
-                        @let warn = getAlternateState(getNextState().alternateState).warn;
-                        <button
-                            class="btn"
-                            [class.btn-outline-danger]="warn"
-                            [class.btn-success]="!warn"
-                            (click)="proceed(true)"
-                        >
-                            {{ getAlternateState(getNextState().alternateState).text | translate }}
-                        </button>
-                    </div>
-                }
-                @if (!isReadOnly() && getNextState().alternateState) {
-                    @if (isMissingStatement()) {
-                        <span class="text-danger"
-                            >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                getNextState()?.hint(exam()) || '' | translate
-                            }}</span
-                        >
-                    }
-                }
-                @if (!isReadOnly() && !getNextState().alternateState) {
-                    @if (getNextState()?.hint) {
-                        <span class="text-danger"
-                            >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                getNextState()?.hint(exam()) || '' | translate
-                            }}</span
-                        >
-                    }
+                    @let warn = getAlternateState(getNextState().alternateState).warn;
+                    <button
+                        class="btn"
+                        [class.btn-outline-danger]="warn"
+                        [class.btn-success]="!warn"
+                        (click)="proceed(true)"
+                    >
+                        {{ getAlternateState(getNextState().alternateState).text | translate }}
+                    </button>
                 }
             </div>
+            @let hint = getNextState()?.hint;
+            @if (!isReadOnly() && hint) {
+                @let hintText = hint(exam()) || '';
+                @if (hintText) {
+                    <div class="d-flex justify-content-end mt-2">
+                        <small class="text-danger">
+                            <i class="bi-exclamation-circle me-1"></i>{{ hintText | translate }}
+                        </small>
+                    </div>
+                }
+            }
         }`,
     imports: [RouterLink, TranslateModule],
 })

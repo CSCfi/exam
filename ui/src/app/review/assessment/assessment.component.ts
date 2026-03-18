@@ -135,7 +135,15 @@ export class AssessmentComponent {
         this.startReview();
     };
 
-    gradingUpdated = () => this.startReview();
+    gradingUpdated = () => {
+        this.startReview();
+        this.onExamUpdated();
+    };
+
+    onExamUpdated = () => {
+        const examValue = this.exam();
+        if (examValue) this.exam.set({ ...examValue });
+    };
 
     isOwnerOrAdmin = () => {
         const examValue = this.exam();

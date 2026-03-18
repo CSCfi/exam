@@ -3,7 +3,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, DecimalPipe, KeyValuePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+    afterNextRender,
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    DestroyRef,
+    inject,
+    signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -61,9 +69,10 @@ export class ExamSummaryComponent {
         this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
             this.reviews.set(data.reviews);
             this.exam.set(this.Tabs.getExam());
-            this.refresh();
             this.Tabs.notifyTabChange(7);
         });
+
+        afterNextRender(() => this.refresh());
 
         // Had to manually update chart locales
         this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.updateChartLocale());

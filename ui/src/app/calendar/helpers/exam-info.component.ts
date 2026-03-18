@@ -49,8 +49,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                                     {{ examInfo().course.name }}
                                 }
                             </div>
-                            <div class="clearfix visible-xs"></div>
-                            <div class="clearfix visible-sm"></div>
                             <div class=" mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
                                 {{ 'i18n_exam_validity' | translate }}:
                             </div>
@@ -58,7 +56,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                                 {{ examInfo().periodStart | date: 'dd.MM.yyyy' }} -
                                 {{ examInfo().periodEnd | date: 'dd.MM.yyyy' }}
                             </div>
-                            <div class="clearfix visible-md"></div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
                                 {{ 'i18n_exam_duration' | translate }}:
                             </div>

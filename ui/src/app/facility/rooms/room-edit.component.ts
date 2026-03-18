@@ -197,8 +197,8 @@ export class RoomEditComponent {
             roomCode: this.roomDetailsForm.roomCode().value() || '',
             buildingName: this.roomDetailsForm.buildingName().value() || '',
             campus: this.roomDetailsForm.campus().value() || '',
-            internalPassword: this.roomDetailsForm.internalPassword().value() || undefined,
-            externalPassword: this.roomDetailsForm.externalPassword().value() || undefined,
+            internalPassword: this.roomDetailsForm.internalPassword().value() || '',
+            externalPassword: this.roomDetailsForm.externalPassword().value() || '',
         });
     }
 }

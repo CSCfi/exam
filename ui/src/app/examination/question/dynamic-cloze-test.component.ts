@@ -8,7 +8,6 @@ import {
     AfterViewInit,
     ChangeDetectionStrategy,
     Component,
-    computed,
     effect,
     ElementRef,
     inject,
@@ -19,13 +18,14 @@ import {
     runInInjectionContext,
     viewChild,
 } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 
 type ClozeTestAnswer = Record<string, string>;
 
 @Component({
     selector: 'xm-dynamic-cloze-test',
-    template: `<div #clozeContainer [innerHTML]="sanitizedContent()"></div>`,
+    template: `<div #clozeContainer [xmMath]="content()"></div>`,
+    imports: [MathDirective],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
@@ -35,20 +35,6 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
     readonly content = input('');
     readonly answerChanged = output<{ id: string; value: string }>();
 
-    // Only recompute when content changes, not when answer changes
-    readonly sanitizedContent = computed(() => {
-        const currentContent = this.content();
-        // html is already sanitized by the server
-        if (!currentContent) return this.sanitizer.bypassSecurityTrustHtml('');
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(currentContent, 'text/html');
-
-        // Use bypassSecurityTrustHtml to allow input elements
-        // Don't set answer values here - that would make this reactive to answer changes
-        return this.sanitizer.bypassSecurityTrustHtml(doc.body.innerHTML);
-    });
-
     private inputListener?: () => void;
     private focusInTracker?: () => void;
     private focusOutTracker?: () => void;
@@ -56,7 +42,6 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
 
     private readonly injector = inject(Injector);
     private readonly renderer = inject(Renderer2);
-    private readonly sanitizer = inject(DomSanitizer);
 
     constructor() {
         // React to answer changes - update values without recreating HTML

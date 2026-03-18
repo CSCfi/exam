@@ -37,28 +37,30 @@ SPDX-License-Identifier: EUPL-1.2
             {{ 'i18n_graded' | translate | lowercase }}
         </div>
     </div>
-    <div class="row">
-        @let hasAnswerInstructions = selectedReview() && selectedReview()!.question.defaultAnswerInstructions;
-        <div
-            [class.col-md-10]="hasAnswerInstructions"
-            [class.col-md-11]="!hasAnswerInstructions"
-            [class.col-md-offset-1]="hasAnswerInstructions"
-        >
-            <div class="" [xmMath]="selectedReview()!.question.question"></div>
-        </div>
-        @if (selectedReview() && selectedReview()!.question.defaultAnswerInstructions) {
-            <div class="col-md-1">
-                <button type="button" class="btn btn-link" (click)="toggleSelectedReviewExpanded()">
-                    @if (!selectedReview()!.expanded) {
-                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                    }
-                    @if (selectedReview()!.expanded) {
-                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
-                    }
-                </button>
+    @if (selectedReview()) {
+        <div class="row">
+            @let hasAnswerInstructions = selectedReview()!.question.defaultAnswerInstructions;
+            <div
+                [class.col-md-10]="hasAnswerInstructions"
+                [class.col-md-11]="!hasAnswerInstructions"
+                [class.col-md-offset-1]="hasAnswerInstructions"
+            >
+                <div class="" [xmMath]="selectedReview()!.question.question"></div>
             </div>
-        }
-    </div>
+            @if (selectedReview() && selectedReview()!.question.defaultAnswerInstructions) {
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-link" (click)="toggleSelectedReviewExpanded()">
+                        @if (!selectedReview()!.expanded) {
+                            <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                        }
+                        @if (selectedReview()!.expanded) {
+                            <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                        }
+                    </button>
+                </div>
+            }
+        </div>
+    }
     @if (selectedReview() && selectedReview()!.expanded && selectedReview()!.question.defaultAnswerInstructions) {
         <div class="row mt-2">
             <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box" role="note">

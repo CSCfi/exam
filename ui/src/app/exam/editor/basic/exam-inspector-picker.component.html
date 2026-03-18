@@ -14,10 +14,10 @@ SPDX-License-Identifier: EUPL-1.2
             ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
     </div>
-    <div class="col-md-9">
+    <div class="col-md-5">
         <input
             type="text"
-            class="form-control w-50 make-inline"
+            class="form-control"
             [(ngModel)]="inspectorName"
             [ngbTypeahead]="listInspectors$"
             (selectItem)="setInspector($event)"
@@ -25,7 +25,9 @@ SPDX-License-Identifier: EUPL-1.2
             [resultFormatter]="nameFormatter"
             placeholder="{{ 'i18n_name' | translate }}"
         />
-        <label class="ms-2">
+    </div>
+    <div class="col-md-4 d-flex align-items-center">
+        <label class="mb-0">
             <input
                 type="checkbox"
                 [checked]="newInspector().sendMessage"
@@ -36,36 +38,31 @@ SPDX-License-Identifier: EUPL-1.2
         </label>
     </div>
 </div>
-<div class="row mt-3">
-    <div class="col-md-9 offset-md-3">
+<div class="row mt-2">
+    <div class="col-md-5 offset-md-3">
         <textarea
-            class="form-control w-50 make-inline"
+            class="form-control"
             placeholder="{{ 'i18n_message' | translate }}"
             [value]="newInspector().comment || ''"
             (input)="onCommentInput($event)"
             [disabled]="!newInspector().sendMessage"
         ></textarea>
-        <span class="ms-2"
-            ><button (click)="addInspector()" class="btn btn-success vbottom mb-2">
-                {{ 'i18n_add' | translate }}
-            </button>
-        </span>
+    </div>
+    <div class="col-md-4 d-flex align-items-end pb-1">
+        <button (click)="addInspector()" class="btn btn-success">
+            {{ 'i18n_add' | translate }}
+        </button>
     </div>
 </div>
-<div class="row mt-3">
+<div class="row">
     <div class="col-md-5 offset-md-3">
         @for (inspection of examInspections(); track inspection) {
-            <div class="d-flex align-items-center mt-1">
-                <div class="w-50">
-                    <small
-                        >{{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{
-                            inspection.user.email
-                        }})</small
-                    >
-                </div>
-                <!-- Remove button -->
+            <div class="d-flex align-items-center justify-content-between mt-2">
+                <small>
+                    {{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{ inspection.user.email }})
+                </small>
                 <button
-                    class="btn btn-danger btn-sm ms-2"
+                    class="btn btn-outline-danger btn-sm ms-3 flex-shrink-0"
                     (click)="removeInspector(inspection.id)"
                     [ariaLabel]="inspection.user.firstName + ' ' + inspection.user.lastName"
                 >

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, ViewChild, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
@@ -13,7 +13,7 @@ import luxon2Plugin from '@fullcalendar/luxon3';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { skip } from 'rxjs';
+import { combineLatest, skip } from 'rxjs';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CalendarService } from './calendar.service';
@@ -35,7 +35,7 @@ import { CalendarService } from './calendar.service';
     imports: [FullCalendarModule],
 })
 export class BookingCalendarComponent {
-    @ViewChild('fc') calendar!: FullCalendarComponent;
+    readonly calendar = viewChild<FullCalendarComponent>('fc');
 
     readonly eventSelected = output<EventApi>();
     readonly moreEventsNeeded = output<{
@@ -67,9 +67,9 @@ export class BookingCalendarComponent {
             plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',
             firstDay: 1,
-            locale: this.resolveCalendarLocale(this.translate.currentLang),
+            locale: this.resolveCalendarLocale(this.translate.getCurrentLang() ?? 'en'),
             locales: [fiLocale, svLocale, enLocale],
-            ...this.getFormatOverrides(this.translate.currentLang),
+            ...this.getFormatOverrides(this.translate.getCurrentLang() ?? 'en'),
             allDaySlot: false,
             height: 'auto',
             nowIndicator: true,
@@ -109,27 +109,26 @@ export class BookingCalendarComponent {
                     slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
                     timeZone: roomVal.localTimezone,
                 }));
-                this.calendar?.getApi().refetchEvents();
+                this.calendar()?.getApi().refetchEvents();
             });
 
         toObservable(this.accessibilities)
             .pipe(skip(1), takeUntilDestroyed())
-            .subscribe(() => this.calendar?.getApi().refetchEvents());
+            .subscribe(() => this.calendar()?.getApi().refetchEvents());
 
-        if (this.minDate() && this.maxDate()) {
-            this.calendarOptions.update((options) => ({
-                ...options,
-                validRange: {
-                    end: DateTime.fromJSDate(this.maxDate() as Date)
-                        .endOf('week')
-                        .plus({ hours: 1 })
-                        .toFormat('yyyy-MM-dd'),
-                    start: DateTime.fromJSDate(this.minDate() as Date)
-                        .startOf('week')
-                        .toFormat('yyyy-MM-dd'),
-                },
-            }));
-        }
+        combineLatest([toObservable(this.minDate), toObservable(this.maxDate)])
+            .pipe(takeUntilDestroyed())
+            .subscribe(([min, max]) => {
+                if (min && max) {
+                    this.calendarOptions.update((options) => ({
+                        ...options,
+                        validRange: {
+                            start: DateTime.fromJSDate(min).startOf('week').toFormat('yyyy-MM-dd'),
+                            end: DateTime.fromJSDate(max).endOf('week').plus({ hours: 1 }).toFormat('yyyy-MM-dd'),
+                        },
+                    }));
+                }
+            });
     }
 
     refetch(input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) {

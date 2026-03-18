@@ -61,11 +61,11 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     id="sectionName_{{ section().id }}"
                     type="text"
-                    class="form-control mb-3 w-50"
+                    class="form-control mb-1 w-50"
+                    [class.is-invalid]="sectionForm.name().invalid() && sectionForm.name().touched()"
                     [formField]="sectionForm.name"
                     (change)="renameSection()"
                 />
-
                 <label for="sectionDescription_{{ section().id }}" class="form-label">
                     {{ 'i18n_section_description' | translate }}
                     <sup
@@ -89,7 +89,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- Section material resources-->
                 <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
                 <!-- exam-material-selector [section]="section()" [allMaterials]="materials()"
-        (changed)="materialsChanged.emit()"></exam-material-selector -->
+                         (changed)="materialsChanged.emit()"></exam-material-selector -->
                 @if (!collaborative() && canBeOptional()) {
                     <div class="form-check mb-3">
                         <input
@@ -145,12 +145,15 @@ SPDX-License-Identifier: EUPL-1.2
                                 }}]</label
                             >
                         </div>
-                        <div class="col-1">
+                        <div class="col-auto">
                             <input
                                 id="sectionLotteryCount_{{ section().id }}"
                                 class="form-control"
                                 type="number"
                                 lang="en"
+                                [class.is-invalid]="
+                                    sectionForm.lotteryItemCount().invalid() && sectionForm.lotteryItemCount().touched()
+                                "
                                 [formField]="sectionForm.lotteryItemCount"
                                 (change)="updateLotteryCount()"
                             />

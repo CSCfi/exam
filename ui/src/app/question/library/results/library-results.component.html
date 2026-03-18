@@ -116,13 +116,13 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                             <span class="d-block">
                                 @if (!disableLinks()) {
-                                    <button
+                                    <a
                                         class="pointer btn btn-link btn-sm"
                                         [routerLink]="[question.id, 'edit']"
                                         [queryParams]="{ nextState: 'questions' }"
                                     >
                                         {{ question.id }}
-                                    </button>
+                                    </a>
                                 }
                                 @if (disableLinks()) {
                                     <span>#{{ question.id }}</span>

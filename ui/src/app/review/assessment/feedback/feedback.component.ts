@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -32,11 +32,11 @@ export class FeedbackComponent {
     readonly participation = input<ExamParticipation>();
     readonly hidden = input(false);
 
+    readonly saved = output<void>();
+
     readonly hideEditor = linkedSignal(() => this.exam().executionType.type !== 'MATURITY');
     readonly shouldHide = computed(() => this.hidden());
-    readonly attachment = computed(() => this._localAttachment() ?? this.exam().examFeedback?.attachment);
-
-    private readonly _localAttachment = signal<Attachment | undefined>(undefined);
+    readonly attachment = linkedSignal<Attachment | undefined>(() => this.exam().examFeedback?.attachment);
 
     private readonly id: number;
     private readonly ref: string;
@@ -72,9 +72,9 @@ export class FeedbackComponent {
 
     save = () => {
         if (this.collaborative()) {
-            this._saveCollaborativeFeedback$().subscribe();
+            this._saveCollaborativeFeedback$().subscribe({ next: () => this.saved.emit() });
         } else {
-            this._saveFeedback$().subscribe();
+            this._saveFeedback$().subscribe({ next: () => this.saved.emit() });
         }
     };
 
@@ -92,11 +92,10 @@ export class FeedbackComponent {
     removeAttachment = () => {
         const examValue = this.exam();
         const participationValue = this.participation();
-        if (this.collaborative()) {
-            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, participationValue!);
-        } else {
-            this.Attachment.removeFeedbackAttachment(examValue);
-        }
+        const removal$ = this.collaborative()
+            ? this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, participationValue!)
+            : this.Attachment.removeFeedbackAttachment(examValue);
+        removal$.subscribe({ next: () => this.attachment.set(undefined) });
     };
 
     commentChanged = (event: string) => {
@@ -127,7 +126,7 @@ export class FeedbackComponent {
                         participationValue._rev = resp.rev;
                         delete resp.rev;
                     }
-                    this._localAttachment.set(resp);
+                    this.attachment.set(resp);
                 });
         });
     };

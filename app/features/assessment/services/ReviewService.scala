@@ -40,6 +40,8 @@ class ReviewService @Inject() (
       .find(classOf[ExamParticipation])
       .fetch("exam", "id, state, anonymous")
       .fetch("exam.grade", "id, name")
+      .fetch("reservation")
+      .fetch("examinationEvent")
       .where()
       .eq("user", exam.creator)
       .eq("exam.parent", exam.parent)
@@ -68,7 +70,7 @@ class ReviewService @Inject() (
       examId: Long,
       user: User,
       blankAnswerText: String
-  ): Either[ReviewError, ExamParticipation] =
+  ): Either[ReviewError, (ExamParticipation, PathProperties)] =
     val isAdmin = user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
     val states = Set(
       ExamState.REVIEW,
@@ -101,7 +103,7 @@ class ReviewService @Inject() (
                 esq.update()
               esq.clozeTestAnswer.setQuestionWithResults(esq, blankAnswerText, true)
             )
-          Right(participation)
+          Right((participation, reviewQueryPP))
       case None => Left(ReviewError.ParticipationNotFound)
 
   def listReviews(parentExamId: Long, user: User): (List[Exam], List[Long]) =
@@ -448,42 +450,44 @@ class ReviewService @Inject() (
   def getBlankAnswerText(user: User): String =
     messaging("clozeTest.blank.answer")(using Lang.get(user.language.code).get)
 
-  private def createQuery(): Query[ExamParticipation] =
-    val pp = PathProperties.parse(
-      "(" +
-        "user(firstName, lastName, email, userIdentifier), " +
-        "exam(" +
-        "state, name, additionalInfo, gradedTime, gradingType, assessmentInfo, " +
-        "subjectToLanguageInspection, answerLanguage, customCredit, " +
-        "course(*, organisation(*), gradeScale(*, grades(*))), " +
-        "parent(*, creator(*), gradeScale(*, grades(*))), " +
-        "examOwners(*), " +
-        "examEnrolments(*, reservation(*, machine(*, room(*))), examinationEventConfiguration(*, examinationEvent(*))), " +
-        "examInspections(*, user(*)), " +
-        "examType(*), " +
-        "executionType(*), " +
-        "examSections(*, " +
-        "sectionQuestions(sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, " +
-        "question(id, type, question, shared, attachment(fileName)), " +
-        "options(*, option(id, option, correctOption, claimChoiceType)), " +
-        "essayAnswer(id, answer, evaluatedScore, attachment(fileName)), " +
-        "clozeTestAnswer(id, question, answer, score)" +
-        ")" +
-        "), " +
-        "gradeScale(*, grades(*)), " +
-        "grade(*), " +
-        "inspectionComments(*, creator(firstName, lastName, email)), " +
-        "languageInspection(*, assignee(firstName, lastName, email), statement(*, attachment(*))), " +
-        "examFeedback(*, attachment(*)), " +
-        "creditType(*), " +
-        "attachment(*), " +
-        "examLanguages(*)" +
-        ")" +
-        ")"
-    )
+  private val reviewQueryPP = PathProperties.parse(
+    """(
+      |  started, ended, duration, deadline,
+      |  user(firstName, lastName, email, userIdentifier),
+      |  examinationEvent(*),
+      |  exam(
+      |    id, state, name, additionalInfo, gradedTime, gradingType, assessmentInfo,
+      |    subjectToLanguageInspection, answerLanguage, customCredit,
+      |    course(*, organisation(*), gradeScale(*, grades(*))),
+      |    parent(*, creator(*), gradeScale(*, grades(*)), examOwners(*), examFeedbackConfig(*)),
+      |    examOwners(*),
+      |    examEnrolments(information, reservation(*, machine(*, room(*))), examinationEventConfiguration(*, examinationEvent(*))),
+      |    examInspections(*, user(*)),
+      |    examType(*),
+      |    executionType(*),
+      |    examSections(*,
+      |      sectionQuestions(id, sequenceNumber, maxScore, forcedScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType,
+      |        question(id, type, question, shared, attachment(fileName)),
+      |        options(*, option(id, option, correctOption, claimChoiceType)),
+      |        essayAnswer(id, answer, evaluatedScore, attachment(fileName)),
+      |        clozeTestAnswer(id, question, answer, score)
+      |      )
+      |    ),
+      |    gradeScale(*, grades(*)),
+      |    grade(*),
+      |    inspectionComments(*, creator(firstName, lastName, email)),
+      |    languageInspection(*, assignee(firstName, lastName, email), statement(*, attachment(*))),
+      |    examFeedback(*, attachment(*)),
+      |    creditType(*),
+      |    attachment(*),
+      |    examLanguages(*)
+      |  )
+      |)""".stripMargin
+  )
 
+  private def createQuery(): Query[ExamParticipation] =
     val query = DB.find(classOf[ExamParticipation])
-    pp.apply(query)
+    reviewQueryPP.apply(query)
     query
 
   private def isDisallowedToModify(exam: Exam, user: User, newState: Exam.State) =

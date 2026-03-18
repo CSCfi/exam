@@ -43,6 +43,9 @@ import { FileService } from 'src/app/shared/file/file.service';
                 </div>
                 <div class="col-9 attachment-file">
                     {{ fileObject()?.name }}
+                    @if (fileObject()) {
+                        <span class="text-muted small">({{ getFileSize() }})</span>
+                    }
                 </div>
             </div>
             <div class="row pt-2">
@@ -99,5 +102,13 @@ export class AttachmentSelectorComponent {
                 break;
             }
         }
+    }
+
+    getFileSize(): string {
+        const size = this.fileObject()?.size ?? 0;
+        if (size < 1000) {
+            return size + ' B';
+        }
+        return size < 1_000_000 ? Math.round(size / 1000) + ' kB' : Math.round(size / 1_000_000) + ' MB';
     }
 }

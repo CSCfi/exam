@@ -13,7 +13,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
 @Component({
     selector: 'xm-room-address',
     template: `
-        <form role="form" novalidate id="roomAddress" (ngSubmit)="validateAndUpdateAddress()">
+        <form role="form" novalidate id="roomAddress" (submit)="validateAndUpdateAddress()">
             <div class="row">
                 <div class="col-md-6">
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_street' | translate }}</div>

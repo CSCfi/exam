@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 <div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper" [hidden]="shouldHide()">
-    <div class="row align-items-center">
+    <div class="row align-items-center" cdkDragHandle>
         <div class="col-1">
             <button
                 type="button"
@@ -24,7 +24,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         <div class="col-11">{{ title | translate }}</div>
     </div>
-    <div [ngbCollapse]="hideEditor()" class="body">
+    <div [ngbCollapse]="hideEditor()" class="body" (mousedown)="$event.stopPropagation()">
         <div class="row mt-2 mb-1">
             <div class="col-md-12">
                 <xm-ckeditor

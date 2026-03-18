@@ -16,6 +16,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <span class="me-2" [hidden]="!showName()" onclick="document.getElementById('name_field').select()">
                         {{ room()?.name || 'i18n_no_name' | translate }}
                         <button
+                            type="button"
                             class="btn btn-link btn-lg text-body width-auto"
                             (click)="toggleShowName()"
                             triggers="mouseenter:mouseleave"
@@ -25,6 +26,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <i class="bi-pencil ms-2"></i>
                         </button>
                         <button
+                            type="button"
                             class="btn btn-link btn-lg width-auto"
                             (click)="disableRoom()"
                             triggers="mouseenter:mouseleave"
@@ -47,7 +49,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 (blur)="toggleShowName()"
                             />
                             <div class="input-group-append">
-                                <button class="btn btn-primary" (click)="toggleShowName()">
+                                <button type="button" class="btn btn-primary" (click)="toggleShowName()">
                                     <i class="bi-check"></i>
                                 </button>
                             </div>
@@ -55,7 +57,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </span>
                 </span>
             </div>
-            <form role="form" novalidate id="roomForm" (ngSubmit)="validateAndUpdateRoom()">
+            <form role="form" novalidate id="roomForm" (submit)="$event.preventDefault(); validateAndUpdateRoom()">
                 <!-- Room Code & Building name -->
                 <div class="row">
                     <div class="col-md-6">
@@ -284,7 +286,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row mt-2">
         <div class="col-md-12">
-            <button class="btn btn-success" (click)="updateRoom()">{{ 'i18n_save' | translate }}</button>
+            <button type="button" class="btn btn-success" (click)="updateRoom()">{{ 'i18n_save' | translate }}</button>
         </div>
     </div>
     <!-- Postal address-->
@@ -339,7 +341,12 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Button row -->
     <div class="row mt-2">
         <div class="col-md-12">
-            <button [disabled]="roomDetailsForm.roomCode().invalid()" (click)="saveRoom()" class="btn btn-success">
+            <button
+                type="button"
+                [disabled]="roomDetailsForm.roomCode().invalid()"
+                (click)="saveRoom()"
+                class="btn btn-success"
+            >
                 {{ 'i18n_save' | translate }}
             </button>
         </div>

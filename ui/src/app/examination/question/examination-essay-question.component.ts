@@ -3,14 +3,24 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    signal,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { EssayAnswer } from 'src/app/question/question.model';
-import type { AnsweredQuestion } from 'src/app/shared/attachment/attachment.model';
+import type { AnsweredQuestion, Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -34,9 +44,15 @@ export class ExaminationEssayQuestionComponent {
         return doc.documentElement.innerText;
     });
 
+    readonly autosaved = signal<Date | undefined>(undefined);
+    readonly attachment = linkedSignal<Attachment | undefined>(() => this.sq().essayAnswer?.attachment);
+
     private readonly Examination = inject(ExaminationService);
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly toast = inject(ToastrService);
+    private readonly translate = inject(TranslateService);
 
     constructor() {
         toObservable(this.sq)
@@ -47,10 +63,23 @@ export class ExaminationEssayQuestionComponent {
                 }
                 this.Examination.setAnswerStatus(sq);
             });
+
+        const autosaveInterval = window.setInterval(() => {
+            const sq = this.sq();
+            if (this.isPreview() || !sq.essayAnswer?.answer) return;
+            this.Examination.saveTextualAnswer$(sq, this.exam()?.hash ?? '', {
+                autosave: true,
+                canFail: true,
+                external: this.exam()?.external ?? false,
+            }).subscribe({ next: () => this.autosaved.set(new Date()) });
+        }, 60 * 1000);
+        this.destroyRef.onDestroy(() => window.clearInterval(autosaveInterval));
     }
 
     answerChanged(event: string) {
-        this.sq().essayAnswer.answer = event;
+        const sq = this.sq();
+        sq.essayAnswer.answer = event;
+        this.Examination.setAnswerStatus(sq);
     }
 
     saveAnswer() {
@@ -64,11 +93,10 @@ export class ExaminationEssayQuestionComponent {
     removeQuestionAnswerAttachment() {
         const answeredQuestion = this.sq() as AnsweredQuestion; // TODO: no casting
         const currentExam = this.exam();
-        if (currentExam?.external) {
-            this.Attachment.removeExternalQuestionAnswerAttachment(answeredQuestion, currentExam.hash);
-            return;
-        }
-        this.Attachment.removeQuestionAnswerAttachment(answeredQuestion);
+        const removal$ = currentExam?.external
+            ? this.Attachment.removeExternalQuestionAnswerAttachment(answeredQuestion, currentExam.hash)
+            : this.Attachment.removeQuestionAnswerAttachment(answeredQuestion);
+        removal$.subscribe({ next: () => this.attachment.set(undefined) });
     }
 
     selectFile() {
@@ -78,22 +106,31 @@ export class ExaminationEssayQuestionComponent {
         }
         this.Attachment.selectFile$(false).subscribe((data) => {
             const currentSq = this.sq();
-            if (currentExam?.external) {
-                this.Files.uploadAnswerAttachment(
-                    '/app/iop/attachment/question/answer',
-                    data.$value.attachmentFile,
-                    { questionId: currentSq.id.toString(), examId: currentExam.hash },
-                    currentSq.essayAnswer,
-                );
-                return;
-            }
-            const params = { questionId: currentSq.id.toString() };
-            this.Files.uploadAnswerAttachment(
-                '/app/attachment/question/answer',
-                data.$value.attachmentFile,
-                currentSq.essayAnswer.id ? { ...params, answerId: currentSq.essayAnswer.id.toString() } : params,
-                currentSq.essayAnswer,
-            );
+            const essayAnswer = currentSq.essayAnswer;
+            const url = currentExam.external
+                ? '/app/iop/attachment/question/answer'
+                : '/app/attachment/question/answer';
+            const baseParams = { questionId: currentSq.id.toString() };
+            const params = currentExam.external
+                ? { ...baseParams, examId: currentExam.hash }
+                : essayAnswer.id
+                  ? { ...baseParams, answerId: essayAnswer.id.toString() }
+                  : baseParams;
+
+            this.Files.upload$<EssayAnswer | Attachment>(url, data.$value.attachmentFile, params).subscribe({
+                next: (resp) => {
+                    if ('fileName' in resp) {
+                        this.attachment.set(resp);
+                    } else {
+                        essayAnswer.objectVersion = resp.objectVersion;
+                        this.attachment.set(resp.attachment);
+                    }
+                },
+                error: (resp) => {
+                    const msg = resp?.error?.data;
+                    if (msg) this.toast.error(this.translate.instant(msg));
+                },
+            });
         });
     }
 }

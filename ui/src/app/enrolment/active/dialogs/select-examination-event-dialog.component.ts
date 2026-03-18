@@ -21,32 +21,28 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
         </div>
         <div class="modal-body">
             @if (exam()) {
-                <div class="row mb-2">
-                    <div class="col-md-12">
-                        {{ 'i18n_exam_duration' | translate }}: {{ exam()!.duration }}
-                        {{ 'i18n_minutes' | translate }}
-                    </div>
-                </div>
+                <p class="text-muted mb-3">
+                    {{ 'i18n_exam_duration' | translate }}: {{ exam()!.duration }}
+                    {{ 'i18n_minutes' | translate }}
+                </p>
             }
-            @for (config of configs(); track config) {
-                <div class="row">
-                    <div class="col-md-12">
-                        {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <span>{{ config.examinationEvent.description }}</span>
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-12 mt-1">
-                        <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
+            <div class="list-group">
+                @for (config of configs(); track config) {
+                    <div class="list-group-item d-flex justify-content-between align-items-center gap-3">
+                        <div>
+                            <div class="fw-semibold">
+                                {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}
+                            </div>
+                            @if (config.examinationEvent.description) {
+                                <small class="text-muted">{{ config.examinationEvent.description }}</small>
+                            }
+                        </div>
+                        <button class="btn btn-sm btn-success flex-shrink-0" (click)="selectEvent(config)" autofocus>
                             {{ 'i18n_select' | translate }}
                         </button>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
         <div class="modal-footer">
             <div class="col-md-12">

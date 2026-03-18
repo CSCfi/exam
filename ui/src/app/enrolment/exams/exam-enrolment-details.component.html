@@ -10,7 +10,7 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <div class="row m-2 xm-study-item-container">
         <div class="col-md-9 col-6">
-            <h2>{{ exam().name }}</h2>
+            <h4>{{ exam().name }}</h4>
             <div class="student-details-subtitle">
                 @if (!exam().reservationMade && exam().alreadyEnrolled && !exam().noTrialsLeft) {
                     <span class="text-danger">
@@ -113,15 +113,15 @@ SPDX-License-Identifier: EUPL-1.2
         @if (exam().executionType.type !== 'MATURITY' && exam().enrollInstruction) {
             <div class="row mt-3 mb-2">
                 <div class="col-md-3">{{ 'i18n_view_instructions' | translate }}:</div>
-                <div class="col-md-9">
+                <div class="col-md-9 ps-3">
                     <div [xmMath]="exam().enrollInstruction"></div>
                 </div>
             </div>
         }
-        @if (exam().executionType.type !== 'MATURITY' && exam().enrollInstruction) {
+        @if (exam().executionType.type === 'MATURITY' && exam().enrollInstruction) {
             <div class="row mt-3 mb-2">
                 <div class="col-md-3">{{ 'i18n_maturity_instructions' | translate }}:</div>
-                <div class="col-md-9">
+                <div class="col-md-9 ps-0">
                     <div [xmMath]="exam().maturityInstructions || ''"></div>
                 </div>
             </div>

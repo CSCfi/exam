@@ -278,7 +278,7 @@ class EnrolmentRepository @Inject() (
       val threshold = clock.now().plusMinutes(5)
       val start     = enrolment.examinationEventConfiguration.examinationEvent.start
       if start.isBefore(threshold) then
-        headers.put("x-exam-upcoming-exam", s"$getExamHash(enrolment)}:::${enrolment.id}")
+        headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.id}")
     else if isMachineOk(enrolment, request, headers, eppn) then
       if Option(enrolment.exam).exists(_.implementation == ExamImplementation.AQUARIUM) then
         // Aquarium exam
@@ -288,14 +288,14 @@ class EnrolmentRepository @Inject() (
           dateTimeHandler.normalize(enrolment.reservation.startAt, enrolment.reservation)
         // if start is within 5 minutes, set the upcoming exam header
         if start.isBefore(threshold) then
-          headers.put("x-exam-upcoming-exam", s"$getExamHash(enrolment)}:::${enrolment.id}")
+          headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.id}")
         // otherwise set the early login header if start is within today. For dev purposes skip requirement
         else if start.isBefore(thresholdEarly) && start.isAfterNow && environment.mode != Mode.Dev
         then
-          headers.put("x-exam-aquarium-login", s"$getExamHash(enrolment)}:::${enrolment.id}")
+          headers.put("x-exam-aquarium-login", s"${getExamHash(enrolment)}:::${enrolment.id}")
       else
         // SEB exam
-        headers.put("x-exam-upcoming-exam", s"$getExamHash(enrolment)}:::${enrolment.id}")
+        headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.id}")
 
   private def isInsideBounds(ee: ExamEnrolment, minutesToFuture: Int): Boolean =
     val earliest = Option(ee.examinationEventConfiguration) match

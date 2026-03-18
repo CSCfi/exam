@@ -37,7 +37,7 @@ SPDX-License-Identifier: EUPL-1.2
             {{ 'i18n_attach_file' | translate }}
         </button>
 
-        @if (question()?.attachment && !question()?.attachment?.removed) {
+        @if (attachment() && !attachment()?.removed) {
             <div class="make-inline ps-2">
                 <button
                     type="button"
@@ -50,7 +50,7 @@ SPDX-License-Identifier: EUPL-1.2
                     @if (!hasUploadedAttachment()) {
                         {{ 'i18n_uploading' | translate }}:
                     }
-                    {{ question()?.attachment?.fileName }}
+                    {{ attachment()?.fileName }}
                     @if (!hasUploadedAttachment()) {
                         <small>({{ getFileSize() }})</small>
                     }

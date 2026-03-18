@@ -3,7 +3,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,13 +35,13 @@ import { FileService } from 'src/app/shared/file/file.service';
 export class StatementComponent {
     readonly exam = input.required<Exam>();
 
+    readonly saved = output<void>();
+
     readonly hideEditor = signal(true);
     readonly shouldHide = computed(() => !!this.exam().languageInspection?.finishedAt);
-    readonly attachment = computed(
-        () => this._localAttachment() ?? this.exam().languageInspection?.statement?.attachment,
+    readonly attachment = linkedSignal<Attachment | undefined>(
+        () => this.exam().languageInspection?.statement?.attachment,
     );
-
-    private readonly _localAttachment = signal<Attachment | undefined>(undefined);
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
     private readonly Maturity = inject(MaturityService);
@@ -62,11 +71,14 @@ export class StatementComponent {
 
     toggleVisibility = () => this.hideEditor.update((value) => !value);
 
-    save = () => this.Maturity.saveInspectionStatement$(this.exam()).subscribe();
+    save = () => this.Maturity.saveInspectionStatement$(this.exam()).subscribe({ next: () => this.saved.emit() });
 
     downloadAttachment = () => this.Attachment.downloadStatementAttachment(this.exam());
 
-    removeAttachment = () => this.Attachment.removeStatementAttachment(this.exam());
+    removeAttachment = () =>
+        this.Attachment.removeStatementAttachment(this.exam()).subscribe({
+            next: () => this.attachment.set(undefined),
+        });
 
     selectFile = () =>
         this.Attachment.selectFile$(false, {})
@@ -85,6 +97,6 @@ export class StatementComponent {
                 }),
             )
             .subscribe((resp) => {
-                this._localAttachment.set(resp);
+                this.attachment.set(resp);
             });
 }

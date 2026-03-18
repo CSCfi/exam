@@ -2,13 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { Reservation } from 'src/app/reservation/reservation.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
@@ -21,13 +23,19 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 export class ActiveEnrolmentMenuComponent {
     readonly enrolment = input.required<ExamEnrolment>();
     readonly removed = output<number>();
+    readonly reservationRemoved = output<number>();
+    readonly eventConfigSelected = output<ExaminationEventConfiguration>();
 
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
     private readonly Enrolment = inject(EnrolmentService);
     private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly destroyRef = inject(DestroyRef);
 
-    makeReservation = () => this.Enrolment.makeReservation(this.enrolment());
+    makeReservation = () =>
+        this.Enrolment.makeReservation$(this.enrolment())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((config) => this.eventConfigSelected.emit(config));
 
     canChangeReservation = (reservation: Reservation) => {
         const now = DateTime.now();
@@ -36,11 +44,11 @@ export class ActiveEnrolmentMenuComponent {
     };
 
     removeReservation = () => {
-        if (this.enrolment().reservation) {
-            this.Enrolment.removeReservation(this.enrolment());
-        } else {
-            this.Enrolment.removeExaminationEvent(this.enrolment());
-        }
+        const enrolment = this.enrolment();
+        const obs$ = enrolment.reservation
+            ? this.Enrolment.removeReservation$(enrolment)
+            : this.Enrolment.removeExaminationEvent$(enrolment);
+        obs$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.reservationRemoved.emit(enrolment.id));
     };
 
     removeEnrolment = () => {

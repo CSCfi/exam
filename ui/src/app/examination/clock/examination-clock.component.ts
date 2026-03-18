@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, Signal, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 import { Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs';
@@ -32,7 +32,7 @@ import { Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs
                         }
                         @if (ariaLiveTime()) {
                             <span class="exam-clock skip" role="region" [ariaLive]="'polite'">{{
-                                ('i18n_examination_time_warning' | translate) + ': ' + ariaLiveTime
+                                ('i18n_examination_time_warning' | translate) + ': ' + ariaLiveTime()
                             }}</span>
                         }
                     </div>
@@ -71,40 +71,41 @@ export class ExaminationClockComponent {
         );
         this.isTimeScarce = toSignal(this.clock.pipe(map((n) => n <= this.alarmThreshold)), { initialValue: false });
 
-        const currentExamHash = this.examHash();
-        if (!currentExamHash) return;
-
-        const sync$ = this.http.get<number>(`/app/time/${currentExamHash}`);
-        interval(this.syncInterval * 1000)
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                startWith(0),
-                switchMap(() =>
-                    sync$.pipe(
-                        switchMap((t) =>
-                            interval(1000).pipe(
-                                map((n) => Math.max(0, t - n)),
-                                take(this.syncInterval),
+        toObservable(this.examHash)
+            .pipe(filter(Boolean), take(1), takeUntilDestroyed(this.destroyRef))
+            .subscribe((currentExamHash) => {
+                const sync$ = this.http.get<number>(`/app/time/${currentExamHash}`);
+                interval(this.syncInterval * 1000)
+                    .pipe(
+                        takeUntilDestroyed(this.destroyRef),
+                        startWith(0),
+                        switchMap(() =>
+                            sync$.pipe(
+                                switchMap((t) =>
+                                    interval(1000).pipe(
+                                        map((n) => Math.max(0, t - n)),
+                                        take(this.syncInterval),
+                                    ),
+                                ),
                             ),
                         ),
-                    ),
-                ),
-            )
-            .subscribe(this.clock);
+                    )
+                    .subscribe(this.clock);
 
-        this.clock
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
-                map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
-            )
-            .subscribe((time) => this.ariaLiveTime.set(time));
+                this.clock
+                    .pipe(
+                        takeUntilDestroyed(this.destroyRef),
+                        filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
+                        map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
+                    )
+                    .subscribe((time) => this.ariaLiveTime.set(time));
 
-        this.clock.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((n) => {
-            if (n === 0) this.timedOut.emit();
-        });
+                this.clock.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((n) => {
+                    if (n === 0) this.timedOut.emit();
+                });
 
-        this.showRemainingTime.set(true);
+                this.showRemainingTime.set(true);
+            });
     }
 
     toggleShowRemainingTime() {

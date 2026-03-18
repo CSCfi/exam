@@ -3,12 +3,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Signal, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { map } from 'rxjs/operators';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -43,21 +46,31 @@ export class ActiveEnrolmentComponent {
         ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } }
     >();
     readonly removed = output<number>();
+    readonly reservationRemoved = output<number>();
+    readonly eventConfigSelected = output<ExaminationEventConfiguration>();
 
     readonly showGuide = signal(false);
     readonly showInstructions = signal(false);
+    readonly currentLang: Signal<string>;
 
     private readonly translate = inject(TranslateService);
     private readonly Enrolment = inject(EnrolmentService);
     private readonly Files = inject(FileService);
+    private readonly destroyRef = inject(DestroyRef);
+
+    constructor() {
+        this.currentLang = toSignal(this.translate.onLangChange.pipe(map((e) => e.lang)), {
+            initialValue: this.translate.getCurrentLang(),
+        });
+    }
 
     hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment());
 
-    makeReservation = () => this.Enrolment.makeReservation(this.enrolment());
-
-    addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment());
+    addEnrolmentInformation = () =>
+        this.Enrolment.addEnrolmentInformation$(this.enrolment()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
 
     enrolmentRemoved = ($event: number) => this.removed.emit($event);
+    enrolmentReservationRemoved = ($event: number) => this.reservationRemoved.emit($event);
 
     getRoomInstruction = () => {
         const reservation = this.enrolment().reservation;

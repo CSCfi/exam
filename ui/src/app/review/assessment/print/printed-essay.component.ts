@@ -33,7 +33,7 @@ export class PrintedEssayComponent {
         if (!sq.essayAnswer?.answer) {
             return 0;
         }
-        return this.CommonExam.countWords(sq.essayAnswer.answer);
+        return this.CommonExam.countWords(sq.essayAnswer.answer ?? undefined);
     };
 
     getCharacterCount = () => {
@@ -41,6 +41,6 @@ export class PrintedEssayComponent {
         if (!sq.essayAnswer?.answer) {
             return 0;
         }
-        return this.CommonExam.countCharacters(sq.essayAnswer.answer);
+        return this.CommonExam.countCharacters(sq.essayAnswer.answer ?? undefined);
     };
 }

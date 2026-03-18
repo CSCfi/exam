@@ -49,11 +49,33 @@ SPDX-License-Identifier: EUPL-1.2
     </xm-date-time-picker>
     <div class="form-group">
         <label for="description">{{ 'i18n_instructions' | translate }}:</label>
-        <textarea id="description" class="form-control" [formField]="eventForm.description"></textarea>
+        <textarea
+            id="description"
+            class="form-control"
+            [class.is-invalid]="eventForm.description().invalid() && eventForm.description().touched()"
+            [formField]="eventForm.description"
+        ></textarea>
+        @if (eventForm.description().invalid() && eventForm.description().touched()) {
+            @for (error of eventForm.description().errors(); track error.kind) {
+                <div class="invalid-feedback">{{ error.message }}</div>
+            }
+        }
     </div>
     <div class="form-group">
         <label for="capacity">{{ 'i18n_event_capacity' | translate }}:</label>
-        <input id="capacity" class="form-control" type="number" step="1" [formField]="eventForm.capacity" />
+        <input
+            id="capacity"
+            class="form-control"
+            type="number"
+            step="1"
+            [class.is-invalid]="eventForm.capacity().invalid() && eventForm.capacity().touched()"
+            [formField]="eventForm.capacity"
+        />
+        @if (eventForm.capacity().invalid() && eventForm.capacity().touched()) {
+            @for (error of eventForm.capacity().errors(); track error.kind) {
+                <div class="invalid-feedback">{{ error.message }}</div>
+            }
+        }
         <ul>
             <li>
                 {{ 'i18n_total_simultaneous_byod_capacity' | translate }}:
@@ -79,6 +101,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     type="{{ settingsPasswordInputType() }}"
                     class="form-control"
+                    [class.is-invalid]="
+                        eventForm.settingsPassword().invalid() && eventForm.settingsPassword().touched()
+                    "
                     [formField]="eventForm.settingsPassword"
                 />
                 <div class="input-group-append">
@@ -90,11 +115,21 @@ SPDX-License-Identifier: EUPL-1.2
                     </button>
                 </div>
             </div>
+            @if (eventForm.settingsPassword().invalid() && eventForm.settingsPassword().touched()) {
+                @for (error of eventForm.settingsPassword().errors(); track error.kind) {
+                    <div class="invalid-feedback d-block">{{ error.message }}</div>
+                }
+            }
         </div>
         <div class="form-group">
             <label for="quit-password">{{ 'i18n_quit_password' | translate }}:</label>
             <div id="quit-password" class="input-group">
-                <input type="{{ quitPasswordInputType() }}" class="form-control" [formField]="eventForm.quitPassword" />
+                <input
+                    type="{{ quitPasswordInputType() }}"
+                    class="form-control"
+                    [class.is-invalid]="eventForm.quitPassword().invalid() && eventForm.quitPassword().touched()"
+                    [formField]="eventForm.quitPassword"
+                />
                 <div class="input-group-append">
                     <button class="btn btn-success" type="button" (click)="toggleQuitPasswordInputType()">
                         <i
@@ -104,6 +139,11 @@ SPDX-License-Identifier: EUPL-1.2
                     </button>
                 </div>
             </div>
+            @if (eventForm.quitPassword().invalid() && eventForm.quitPassword().touched()) {
+                @for (error of eventForm.quitPassword().errors(); track error.kind) {
+                    <div class="invalid-feedback d-block">{{ error.message }}</div>
+                }
+            }
         </div>
     }
 </form>

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -13,9 +13,9 @@ import { ExaminationService } from 'src/app/examination/examination.service';
     template: `@if (!isPreview()) {
             <div class="row">
                 <div class="col-md-12">
-                    @if (sq().autosaved) {
+                    @if (autosaved()) {
                         <small class="autosave-text">
-                            {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq().autosaved | date: 'HH:mm' }}
+                            {{ 'i18n_autosaved' | translate }}:&nbsp;{{ autosaved() | date: 'HH:mm' }}
                         </small>
                     } @else {
                         <small class="autosave-text"> &nbsp; </small>
@@ -42,7 +42,23 @@ export class ExaminationClozeTestComponent {
     readonly isPreview = input(false);
     readonly isExternal = input(false);
 
+    readonly autosaved = signal<Date | undefined>(undefined);
+
     private readonly Examination = inject(ExaminationService);
+    private readonly destroyRef = inject(DestroyRef);
+
+    constructor() {
+        const autosaveInterval = window.setInterval(() => {
+            const sq = this.sq();
+            if (this.isPreview() || !sq.clozeTestAnswer?.answer) return;
+            this.Examination.saveTextualAnswer$(sq, this.examHash(), {
+                autosave: true,
+                canFail: true,
+                external: this.isExternal(),
+            }).subscribe({ next: () => this.autosaved.set(new Date()) });
+        }, 60 * 1000);
+        this.destroyRef.onDestroy(() => window.clearInterval(autosaveInterval));
+    }
 
     saveAnswer() {
         this.Examination.saveTextualAnswer$(this.sq(), this.examHash(), {

@@ -2,19 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    inject,
-    input,
-    OnInit,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, linkedSignal, OnInit } from '@angular/core';
 import { ControlContainer, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
+import type { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 
 @Component({
@@ -30,10 +23,10 @@ export class AdditionalInfoComponent implements OnInit, AfterViewInit {
     readonly showWarning = input(false);
 
     readonly additionalInfoForm: FormGroup;
+    readonly attachment = linkedSignal<Attachment | undefined>(() => this.question()?.attachment);
 
     private readonly parentForm = inject(FormGroupDirective);
     private readonly Attachment = inject(AttachmentService);
-    private readonly cdr = inject(ChangeDetectorRef);
 
     constructor() {
         this.additionalInfoForm = new FormGroup({
@@ -63,7 +56,7 @@ export class AdditionalInfoComponent implements OnInit, AfterViewInit {
         this.Attachment.selectFile$(true).subscribe((data) => {
             const questionValue = this.question();
             if (questionValue) {
-                questionValue.attachment = {
+                const newAttachment: Attachment = {
                     ...questionValue.attachment,
                     modified: true,
                     fileName: data.$value.attachmentFile.name,
@@ -71,7 +64,8 @@ export class AdditionalInfoComponent implements OnInit, AfterViewInit {
                     file: data.$value.attachmentFile,
                     removed: false,
                 };
-                this.cdr.markForCheck();
+                questionValue.attachment = newAttachment;
+                this.attachment.set(newAttachment);
             }
         });
     }
@@ -86,21 +80,18 @@ export class AdditionalInfoComponent implements OnInit, AfterViewInit {
     removeQuestionAttachment() {
         const questionValue = this.question();
         if (questionValue?.attachment) {
-            this.Attachment.removeQuestionAttachment(questionValue);
+            questionValue.attachment.removed = true;
+            this.attachment.update((a) => (a ? { ...a, removed: true } : undefined));
         }
     }
 
     getFileSize(): string {
-        const questionValue = this.question();
-        if (questionValue?.attachment) {
-            return this.Attachment.getFileSize(questionValue.attachment.size);
-        }
-        return '';
+        const a = this.attachment();
+        return a ? this.Attachment.getFileSize(a.size) : '';
     }
 
     hasUploadedAttachment(): boolean {
-        const questionValue = this.question();
-        const a = questionValue?.attachment;
+        const a = this.attachment();
         return !!(a && (a.id || a.externalId));
     }
 

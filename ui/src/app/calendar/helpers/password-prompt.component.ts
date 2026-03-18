@@ -21,7 +21,7 @@ import { TranslateModule } from '@ngx-translate/core';
     imports: [FormField, TranslateModule],
     template: `
         @if (visible()) {
-            <form role="form" (ngSubmit)="submit()" aria-labelledby="password-prompt-title">
+            <form role="form" (submit)="submit()" aria-labelledby="password-prompt-title">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="alert alert-warning mb-3" role="alert" aria-live="polite">

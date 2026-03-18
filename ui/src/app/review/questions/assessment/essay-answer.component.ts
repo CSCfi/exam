@@ -71,11 +71,11 @@ export class EssayAnswerComponent {
     }
 
     getWordCount() {
-        return this.CommonExam.countWords(this.answer().essayAnswer.answer);
+        return this.CommonExam.countWords(this.answer().essayAnswer.answer ?? undefined);
     }
 
     getCharacterCount() {
-        return this.CommonExam.countCharacters(this.answer().essayAnswer.answer);
+        return this.CommonExam.countCharacters(this.answer().essayAnswer.answer ?? undefined);
     }
 
     saveScore() {

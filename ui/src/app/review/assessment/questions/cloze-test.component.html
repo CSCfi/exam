@@ -77,7 +77,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (reviewExpanded()) {
                 <div class="mb-2">
                     {{ 'i18n_exam_answer' | translate | uppercase }}
-                    <div [innerHtml]="sectionQuestion().clozeTestAnswer?.question"></div>
+                    <div [xmMath]="sectionQuestion().clozeTestAnswer?.question"></div>
                     @if (participation().exam.executionType.type !== 'MATURITY') {
                         <div class="make-inline pe-3 mt-2">
                             <span class="text text-danger"

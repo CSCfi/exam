@@ -44,9 +44,9 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <div class="my-2 d-flex justify-content-end">
                 <div [hidden]="exam().executionType.type === 'MATURITY' || collaborative()" class="me-2">
-                    <button class="btn btn-success" [routerLink]="['/staff/assessments', exam().id, 'speedreview']">
+                    <a class="btn btn-success" [routerLink]="['/staff/assessments', exam().id, 'speedreview']">
                         {{ 'i18n_speed_review' | translate }} ({{ view()!.filtered.length }})
-                    </button>
+                    </a>
                 </div>
                 @if (!collaborative()) {
                     <button

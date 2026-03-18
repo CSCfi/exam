@@ -46,11 +46,8 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         }
     </div>
-}
-
-<!-- language inspection - statement -->
-@if (hasGoneThroughLanguageInspection()) {
-    <div class="row mt-2">
+    <!-- language inspection - statement -->
+    <div class="row">
         <div class="col-md-2">{{ 'i18n_inspector_statement' | translate }}:</div>
         <div class="col-md-10">
             <div [xmMath]="exam().languageInspection.statement.comment"></div>
@@ -88,7 +85,7 @@ SPDX-License-Identifier: EUPL-1.2
 
 <!-- exam feedback -->
 @if (isReadOnly() || isUnderLanguageInspection()) {
-    <div class="row mt-2">
+    <div class="row">
         <div class="col-md-2">{{ 'i18n_teachers_comment' | translate }}:</div>
         <div class="col-md-10">
             <div [xmMath]="exam().examFeedback.comment"></div>
@@ -157,7 +154,7 @@ SPDX-License-Identifier: EUPL-1.2
 
     <div class="row">
         <div class="col-md-3">
-            <select id="examGrade" formControlName="grade" class="form-select" (change)="setGrade()">
+            <select id="examGrade" formControlName="grade" class="form-select" (change)="onGradeChange()">
                 @for (grade of grades(); track grade) {
                     <option [ngValue]="grade">{{ grade.name }}</option>
                 }
@@ -196,7 +193,10 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Bottom toolbar for maturity -->
     <div class="row mt-4">
         <div class="col-md-12">
-            <xm-r-maturity-toolbar [exam]="exam()" [valid]="gradingForm.valid"></xm-r-maturity-toolbar>
+            <xm-r-maturity-toolbar
+                [exam]="exam()"
+                [valid]="gradingForm.valid || gradingForm.disabled"
+            ></xm-r-maturity-toolbar>
         </div>
     </div>
 </div>

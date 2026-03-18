@@ -5,9 +5,10 @@
 import { HttpClient } from '@angular/common/http';
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
     ElementRef,
+    Injector,
+    afterNextRender,
     inject,
     signal,
     viewChild,
@@ -135,7 +136,7 @@ export class ExaminationTypeSelectorComponent {
     private readonly http = inject(HttpClient);
     private readonly modal = inject(NgbActiveModal);
     private readonly Exam = inject(ExamService);
-    private readonly changeDetector = inject(ChangeDetectorRef);
+    private readonly injector = inject(Injector);
 
     constructor() {
         this.http
@@ -158,12 +159,14 @@ export class ExaminationTypeSelectorComponent {
                     this.executionTypes.set(executionTypes);
 
                     // Expand first panel and focus first link
-                    setTimeout(() => {
-                        this.acc().expand('executionType');
-                        const firstLinks = this.getCurrentPanelLinks(0);
-                        if (firstLinks.length) firstLinks[0].nativeElement.focus();
-                        this.changeDetector.markForCheck();
-                    }, 100);
+                    afterNextRender(
+                        () => {
+                            this.acc().expand('executionType');
+                            const firstLinks = this.getCurrentPanelLinks(0);
+                            if (firstLinks.length) firstLinks[0].nativeElement.focus();
+                        },
+                        { injector: this.injector },
+                    );
                 });
             });
     }
@@ -225,14 +228,16 @@ export class ExaminationTypeSelectorComponent {
         this.activePanel.set(1);
 
         // Expand second panel
-        setTimeout(() => {
-            this.acc().expand('examinationType');
-            const body = this.examTypePanel()?.nativeElement?.querySelector('.accordion-body');
-            const firstButton = body?.querySelector('button');
-            if (firstButton instanceof HTMLElement) firstButton.focus();
-            this.focusedIndex.set(0);
-            this.changeDetector.markForCheck();
-        }, 100);
+        afterNextRender(
+            () => {
+                this.acc().expand('examinationType');
+                const body = this.examTypePanel()?.nativeElement?.querySelector('.accordion-body');
+                const firstButton = body?.querySelector('button');
+                if (firstButton instanceof HTMLElement) firstButton.focus();
+                this.focusedIndex.set(0);
+            },
+            { injector: this.injector },
+        );
     }
 
     selectConfig(type: string, examinationType = 'AQUARIUM') {

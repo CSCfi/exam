@@ -54,7 +54,7 @@ class CollaborativeEnrolmentService @Inject() (
 
     orgCheck &&
     exam.state == ExamState.PUBLISHED &&
-    exam.executionType.`type` == ExamExecutionType.Type.PUBLIC.toString &&
+    Option(exam.executionType).exists(_.`type` == ExamExecutionType.Type.PUBLIC.toString) &&
     Option(exam.periodEnd).isDefined &&
     exam.periodEnd.isAfterNow
 

@@ -136,7 +136,7 @@ export class QuestionAssessmentComponent {
                 (a) => !a.essayAnswer || (!isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
             ),
         );
-        this.lockedAnswers.set(currentReview.answers.filter(this.isLocked));
+        this.lockedAnswers.set(currentReview.answers.filter((a) => this.isLocked(a)));
     }
 
     private saveEvaluation$ = (answer: ReviewQuestion): Observable<void> => {

@@ -45,7 +45,6 @@ interface LoadingState {
                             class="form-control"
                             [ariaLabel]="'i18n_search' | translate"
                             placeholder="{{ 'i18n_search' | translate }}"
-                            [disabled]="loader().loading"
                         />
                         <div class="input-group-append bi-search search-append"></div>
                     </div>

@@ -15,6 +15,7 @@ import models.exam.Exam
 import models.iop.CollaborativeExam
 import models.questions.EssayAnswer
 import models.sections.ExamSectionQuestion
+import models.user.PermissionType
 import models.user.{Role, User}
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{FileIO, Source}
@@ -25,7 +26,6 @@ import play.api.libs.json.*
 import play.api.libs.ws.WSClient
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
-import models.user.PermissionType
 import security.{Auth, BlockingIOExecutionContext, PermissionFilter}
 import services.config.ConfigReader
 import services.file.ChunkMaker

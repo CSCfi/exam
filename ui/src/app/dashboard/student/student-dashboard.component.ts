@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { take } from 'rxjs';
 import { DashboardEnrolment } from 'src/app/dashboard/dashboard.model';
 import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolment.component';
+import type { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { StudentDashboardService } from './student-dashboard.service';
@@ -18,12 +19,14 @@ import { StudentDashboardService } from './student-dashboard.service';
     template: `<xm-page-header text="i18n_user_enrolled_exams_title" />
         <xm-page-content [content]="content"></xm-page-content>
         <ng-template #content>
-            @for (enrolment of sortedEnrolments(); track enrolment) {
+            @for (enrolment of sortedEnrolments(); track enrolment.id) {
                 <div class="row mb-2">
                     <div class="col-12">
                         <xm-active-enrolment
                             [enrolment]="enrolment"
                             (removed)="enrolmentRemoved($event)"
+                            (reservationRemoved)="reservationRemoved($event)"
+                            (eventConfigSelected)="eventConfigSelected(enrolment.id, $event)"
                         ></xm-active-enrolment>
                     </div>
                 </div>
@@ -53,5 +56,19 @@ export class StudentDashboardComponent {
 
     enrolmentRemoved = (id: number) => {
         this.enrolments.update((es) => es.filter((e) => e.id !== id));
+    };
+
+    reservationRemoved = (id: number) => {
+        this.enrolments.update((es) =>
+            es.map((e) =>
+                e.id === id ? { ...e, reservation: undefined, examinationEventConfiguration: undefined } : e,
+            ),
+        );
+    };
+
+    eventConfigSelected = (enrolmentId: number, config: ExaminationEventConfiguration) => {
+        this.enrolments.update((es) =>
+            es.map((e) => (e.id === enrolmentId ? { ...e, examinationEventConfiguration: config } : e)),
+        );
     };
 }

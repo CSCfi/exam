@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { catchError, EMPTY, map, Observable, switchMap, tap } from 'rxjs';
 import type { ExamParticipation, ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { Examination } from 'src/app/examination/examination.model';
@@ -27,23 +27,17 @@ export class AttachmentService {
     private readonly toast = inject(ToastrService);
     private readonly Files = inject(FileService);
 
-    removeQuestionAttachment(question: Partial<Question>) {
-        if (question.attachment) {
-            question.attachment.removed = true;
-        }
-    }
-
     eraseQuestionAttachment$ = (question: Question) => this.http.delete<void>(this.questionAttachmentApi(question.id));
 
     eraseCollaborativeQuestionAttachment$ = (examId: number, questionId: number) =>
         this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId));
 
-    removeQuestionAnswerAttachment(question: AnsweredQuestion) {
-        this.removeAnswerAttachment(this.answerAttachmentApi(question.id), question);
+    removeQuestionAnswerAttachment(question: AnsweredQuestion): Observable<void> {
+        return this.removeAnswerAttachment$(this.answerAttachmentApi(question.id), question);
     }
 
-    removeExternalQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
-        this.removeAnswerAttachment(this.externalAnswerAttachmentApi(question.id, hash), question);
+    removeExternalQuestionAnswerAttachment(question: AnsweredQuestion, hash: string): Observable<void> {
+        return this.removeAnswerAttachment$(this.externalAnswerAttachmentApi(question.id, hash), question);
     }
 
     removeExamAttachment$ = (exam: Exam, collaborative = false): Observable<void> => {
@@ -70,42 +64,40 @@ export class AttachmentService {
         });
     };
 
-    removeFeedbackAttachment = (exam: Examination) =>
-        this.dialogs
-            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
-            .subscribe({
-                next: () => {
-                    this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe({
-                        next: () => {
-                            this.toast.info(this.translate.instant('i18n_attachment_removed'));
-                            delete exam.examFeedback?.attachment;
-                        },
-                        error: (err) => this.toast.error(err),
-                    });
-                },
-                error: (err) => this.toast.error(err),
-            });
+    removeFeedbackAttachment = (exam: Examination): Observable<void> =>
+        this.dialogs.open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure')).pipe(
+            switchMap(() => this.http.delete(this.feedbackAttachmentApi(exam.id))),
+            tap(() => {
+                this.toast.info(this.translate.instant('i18n_attachment_removed'));
+                delete exam.examFeedback?.attachment;
+            }),
+            map(() => void 0),
+            catchError((err) => {
+                this.toast.error(err);
+                return EMPTY;
+            }),
+        );
 
-    removeCollaborativeExamFeedbackAttachment = (id: number, ref: string, participation: ExamParticipation) =>
-        this.dialogs
-            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
-            .subscribe({
-                next: () => {
-                    this.http
-                        .delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`)
-                        .subscribe({
-                            next: (resp) => {
-                                this.toast.info(this.translate.instant('i18n_attachment_removed'));
-                                participation._rev = resp.rev;
-                                delete participation.exam.examFeedback?.attachment;
-                            },
-                            error: (resp) => this.toast.error(resp),
-                        });
-                },
-                error: (err) => this.toast.error(err),
-            });
+    removeCollaborativeExamFeedbackAttachment = (
+        id: number,
+        ref: string,
+        participation: ExamParticipation,
+    ): Observable<void> =>
+        this.dialogs.open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure')).pipe(
+            switchMap(() => this.http.delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`)),
+            tap((resp) => {
+                this.toast.info(this.translate.instant('i18n_attachment_removed'));
+                participation._rev = resp.rev;
+                delete participation.exam.examFeedback?.attachment;
+            }),
+            map(() => void 0),
+            catchError((err) => {
+                this.toast.error(err);
+                return EMPTY;
+            }),
+        );
 
-    removeStatementAttachment = (exam: Exam) =>
+    removeStatementAttachment = (exam: Exam): Observable<void> =>
         this.dialogs
             .open$(
                 this.translate.instant('i18n_confirm'),
@@ -113,18 +105,18 @@ export class AttachmentService {
                 this.translate.instant('i18n_remove'),
                 this.translate.instant('i18n_button_cancel'),
             )
-            .subscribe({
-                next: () => {
-                    this.http.delete(this.statementAttachmentApi(exam.id)).subscribe({
-                        next: () => {
-                            this.toast.info(this.translate.instant('i18n_attachment_removed'));
-                            delete exam.languageInspection?.statement.attachment;
-                        },
-                        error: (err) => this.toast.error(err),
-                    });
-                },
-                error: (err) => this.toast.error(err),
-            });
+            .pipe(
+                switchMap(() => this.http.delete(this.statementAttachmentApi(exam.id))),
+                tap(() => {
+                    this.toast.info(this.translate.instant('i18n_attachment_removed'));
+                    delete exam.languageInspection?.statement.attachment;
+                }),
+                map(() => void 0),
+                catchError((err) => {
+                    this.toast.error(err);
+                    return EMPTY;
+                }),
+            );
 
     downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
         if (sq.question.attachment) {
@@ -210,22 +202,20 @@ export class AttachmentService {
         return this.modal.result$<FileResult>(modalRef);
     };
 
-    private removeAnswerAttachment = (url: string, question: AnsweredQuestion) =>
-        this.dialogs
-            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
-            .subscribe({
-                next: () => {
-                    this.http.delete<{ objectVersion?: number }>(url, {}).subscribe({
-                        next: (resp) => {
-                            this.toast.info(this.translate.instant('i18n_attachment_removed'));
-                            question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
-                            delete question.essayAnswer.attachment;
-                        },
-                        error: (err) => this.toast.error(err),
-                    });
-                },
-                error: (err) => this.toast.error(err),
-            });
+    private removeAnswerAttachment$ = (url: string, question: AnsweredQuestion): Observable<void> =>
+        this.dialogs.open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure')).pipe(
+            switchMap(() => this.http.delete<{ objectVersion?: number }>(url, {})),
+            tap((resp) => {
+                this.toast.info(this.translate.instant('i18n_attachment_removed'));
+                question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
+                delete question.essayAnswer.attachment;
+            }),
+            map(() => void 0),
+            catchError((err) => {
+                this.toast.error(err);
+                return EMPTY;
+            }),
+        );
 
     private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;
     private collaborativeQuestionAttachmentApi = (eid: number, qid: number) =>

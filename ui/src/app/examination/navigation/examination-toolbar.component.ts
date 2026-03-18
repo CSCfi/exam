@@ -4,7 +4,7 @@
 
 import { SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,6 +36,19 @@ export class ExaminationToolbarComponent implements OnInit {
 
     readonly room = signal<ExamRoom | undefined>(undefined);
     readonly tab: number;
+
+    readonly sectionAnswerCounts = computed(() => {
+        this.Examination.answerStatusVersion();
+        return new Map(
+            this.exam().examSections.map((s) => [
+                s.id,
+                {
+                    total: s.sectionQuestions.length,
+                    answered: s.sectionQuestions.filter(this.Examination.isAnswered).length,
+                },
+            ]),
+        );
+    });
 
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
@@ -131,19 +144,6 @@ export class ExaminationToolbarComponent implements OnInit {
 
     selectSection(section: ExaminationSection) {
         this.pageSelected.emit({ page: { id: section.id, type: 'section' } });
-    }
-
-    getQuestionAmount(section: ExaminationSection, type: string) {
-        if (type === 'total') {
-            return section.sectionQuestions.length;
-        } else if (type === 'answered') {
-            return section.sectionQuestions.filter(this.Examination.isAnswered).length;
-        } else if (type === 'unanswered') {
-            return (
-                section.sectionQuestions.length - section.sectionQuestions.filter(this.Examination.isAnswered).length
-            );
-        }
-        return 0;
     }
 
     displayRoomInstructions() {

@@ -2,10 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, OnDestroy } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { combineLatest } from 'rxjs';
 import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { ExaminationQuestionComponent } from 'src/app/examination/question/examination-question.component';
@@ -82,40 +80,14 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     styleUrls: ['../examination.shared.scss', './examination-section.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationSectionComponent implements OnDestroy {
+export class ExaminationSectionComponent {
     readonly exam = input.required<Examination>();
     readonly section = input.required<ExaminationSection>();
     readonly index = input<number | undefined>(undefined);
     readonly isPreview = input(false);
     readonly isCollaborative = input(false);
 
-    private autosaver?: number;
-
     private readonly Examination = inject(ExaminationService);
-
-    constructor() {
-        combineLatest([toObservable(this.section), toObservable(this.isPreview), toObservable(this.exam)])
-            .pipe(takeUntilDestroyed())
-            .subscribe(([section, isPreview, exam]) => {
-                this.cancelAutosaver();
-                if (section && !isPreview) {
-                    this.autosaver = window.setInterval(
-                        () =>
-                            this.Examination.saveAllTextualAnswersOfSection$(section, exam.hash, {
-                                autosave: true,
-                                allowEmpty: false,
-                                canFail: false,
-                                external: exam.external,
-                            }).subscribe(),
-                        1000 * 60,
-                    );
-                }
-            });
-    }
-
-    ngOnDestroy() {
-        this.cancelAutosaver();
-    }
 
     getSectionMaxScore() {
         return this.Examination.getSectionMaxScore(this.section());
@@ -123,12 +95,5 @@ export class ExaminationSectionComponent implements OnDestroy {
 
     getAmountOfSelectionEvaluatedQuestions() {
         return this.section().sectionQuestions.filter((esq) => esq.evaluationType === 'Selection').length;
-    }
-
-    private cancelAutosaver() {
-        if (this.autosaver) {
-            window.clearInterval(this.autosaver);
-            delete this.autosaver;
-        }
     }
 }

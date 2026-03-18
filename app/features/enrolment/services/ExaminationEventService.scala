@@ -125,7 +125,9 @@ class ExaminationEventService @Inject() (
                         case Right(_) =>
                           eec.save()
                           Right(eec)
-                    case _ => Right(eec)
+                    case _ =>
+                      eec.save()
+                      Right(eec)
 
   def updateExaminationEvent(
       examId: Long,

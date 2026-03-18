@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -46,7 +46,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
                 </div>
                 <div class="col-md-6 justify-content-center">
                     <ul class="list-inline pt-2">
-                        @for (config of sortByString(exam().examinationEventConfigurations); track config) {
+                        @for (config of sortByString(configurations()); track config) {
                             <li class="list-inline-item mb-3">
                                 <span
                                     title="{{ 'i18n_edit' | translate }}"
@@ -56,7 +56,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
                                     {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm'
                                     }}<i class="bi-pencil ms-1"></i>
                                 </span>
-                                @if (config.examEnrolments.length === 0) {
+                                @if (!config.examEnrolments?.length) {
                                     <span (click)="removeExaminationEvent(config)" class="text text-danger pointer">
                                         <i
                                             title="{{ 'i18n_remove' | translate }}"
@@ -76,8 +76,9 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
         }
     `,
 })
-export class ExaminationEventsComponent {
+export class ExaminationEventsComponent implements OnInit {
     readonly exam = input.required<Exam>();
+    readonly configurations = signal<ExaminationEventConfiguration[]>([]);
 
     readonly maintenancePeriods = signal<MaintenancePeriod[]>([]);
 
@@ -94,6 +95,10 @@ export class ExaminationEventsComponent {
         );
     }
 
+    ngOnInit() {
+        this.configurations.set(this.exam().examinationEventConfigurations);
+    }
+
     isPeriodOver() {
         return DateTime.fromISO(this.exam().periodEnd as string).startOf('day') < DateTime.now().startOf('day');
     }
@@ -108,7 +113,7 @@ export class ExaminationEventsComponent {
         modalRef.componentInstance.examId.set(currentExam.id);
         modalRef.componentInstance.duration.set(currentExam.duration);
         this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((data) =>
-            currentExam.examinationEventConfigurations.push(data),
+            this.configurations.update((cs) => [...cs, data]),
         );
     }
 
@@ -121,14 +126,13 @@ export class ExaminationEventsComponent {
         modalRef.componentInstance.maintenancePeriods.set(this.maintenancePeriods());
         modalRef.componentInstance.examId.set(currentExam.id);
         modalRef.componentInstance.duration.set(currentExam.duration);
-        this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((config) => {
-            const index = currentExam.examinationEventConfigurations.indexOf(configuration);
-            currentExam.examinationEventConfigurations.splice(index, 1, config);
-        });
+        this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((config) =>
+            this.configurations.update((cs) => cs.map((c) => (c === configuration ? config : c))),
+        );
     }
 
     removeExaminationEvent(configuration: ExaminationEventConfiguration) {
-        if (configuration.examEnrolments.length > 0) {
+        if (configuration.examEnrolments?.length) {
             return;
         }
         const currentExam = this.exam();
@@ -138,18 +142,13 @@ export class ExaminationEventsComponent {
         ).subscribe({
             next: () =>
                 this.ExamService.removeExaminationEvent$(currentExam.id, configuration).subscribe({
-                    next: () => {
-                        currentExam.examinationEventConfigurations.splice(
-                            currentExam.examinationEventConfigurations.indexOf(configuration),
-                            1,
-                        );
-                    },
+                    next: () => this.configurations.update((cs) => cs.filter((c) => c !== configuration)),
                     error: (err) => this.ToastrService.error(err),
                 }),
         });
     }
 
     sortByString(prop: ExaminationEventConfiguration[]): ExaminationEventConfiguration[] {
-        return prop.sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
+        return [...prop].sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
     }
 }

@@ -63,9 +63,9 @@ class ReviewController @Inject() (
         val user            = request.attrs(Auth.ATTR_USER)
         val blankAnswerText = reviewService.getBlankAnswerText(user)
         reviewService.getReview(eid, user, blankAnswerText) match
-          case Right(participation) =>
+          case Right((participation, pp)) =>
             val exam = participation.exam
-            writeAnonymousResult(request, Ok(participation.asJson), exam.anonymous)
+            writeAnonymousResult(request, Ok(participation.asJson(pp)), exam.anonymous)
           case Left(ReviewError.AccessForbidden) =>
             Forbidden(ReviewError.AccessForbidden.message)
           case Left(ReviewError.ParticipationNotFound) =>
