@@ -62,20 +62,22 @@ class SettingsController @Inject() (
       Ok(gs.asJson)
     }
 
-  def setDeadline(): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) {
-      request =>
-        request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)) match
-          case Some(deadline) => Ok(settingsService.setDeadline(deadline).asJson)
-          case None           => BadRequest("Missing value")
+  def setDeadline(): Action[JsValue] =
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited)(
+      parse.json
+    ) { request =>
+      (request.body \ "value").asOpt[String] match
+        case Some(deadline) => Ok(settingsService.setDeadline(deadline).asJson)
+        case None           => BadRequest("Missing value")
     }
 
-  def setReservationWindowSize(): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) {
-      request =>
-        request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)) match
-          case Some(size) => Ok(settingsService.setReservationWindowSize(size).asJson)
-          case None       => BadRequest("Missing value")
+  def setReservationWindowSize(): Action[JsValue] =
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited)(
+      parse.json
+    ) { request =>
+      (request.body \ "value").asOpt[String] match
+        case Some(size) => Ok(settingsService.setReservationWindowSize(size).asJson)
+        case None       => BadRequest("Missing value")
     }
 
   def getHostname: Action[AnyContent] = authenticated { _ =>

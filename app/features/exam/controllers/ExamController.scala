@@ -173,15 +173,15 @@ class ExamController @Inject() (
           case Right(_)    => Future.successful(Ok)
       }
 
-  def copyExam(id: Long): Action[AnyContent] =
+  def copyExam(id: Long): Action[JsValue] =
     authenticated
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
       .andThen(audited)
-      .async { request =>
+      .async(parse.json) { request =>
         val user             = request.attrs(Auth.ATTR_USER)
-        val formData         = request.body.asFormUrlEncoded.getOrElse(Map.empty)
-        val examinationType  = formData.get("examinationType").flatMap(_.headOption)
-        val executionTypeStr = formData.get("type").flatMap(_.headOption)
+        val body             = request.body
+        val examinationType  = (body \ "examinationType").asOpt[String]
+        val executionTypeStr = (body \ "type").asOpt[String]
         examService.copyExam(id, user, examinationType, executionTypeStr) match
           case Left(error) => Future.successful(toResult(error))
           case Right(copy) => Future.successful(Ok(copy.asJson))

@@ -51,7 +51,7 @@ class ReservationController @Inject() (
 
   def removeReservation(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
-      val message = request.body.asFormUrlEncoded.flatMap(_.get("msg").flatMap(_.headOption))
+      val message = request.getQueryString("msg")
       reservationService.removeReservation(id, message).map {
         case Right(_) => Ok
         case Left(ReservationError.ReservationNotFound) =>

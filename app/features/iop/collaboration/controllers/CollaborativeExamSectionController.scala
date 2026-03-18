@@ -105,26 +105,22 @@ class CollaborativeExamSectionController @Inject() (
       update(request, examId, updater, _ => None)
     }
 
-  def updateSection(examId: Long, sectionId: Long): Action[AnyContent] = audited
+  def updateSection(examId: Long, sectionId: Long): Action[JsValue] = audited
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-    .async { request =>
+    .async(controllerComponents.parsers.json) { request =>
       val updater = (exam: Exam, _: User) =>
         exam.examSections.asScala.find(_.id == sectionId) match
-          case None     => Some(NotFound("i18n_error_not_found"))
+          case None => Some(NotFound("i18n_error_not_found"))
           case Some(es) =>
-            // Bind form data
-            val formData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
-            formData.get("name").flatMap(_.headOption).foreach(v => es.name = v)
-            formData.get("expanded").flatMap(_.headOption).foreach(v => es.expanded = v.toBoolean)
-            formData.get("lotteryOn").flatMap(_.headOption).foreach(v =>
-              es.lotteryOn = v.toBoolean
+            val body = request.body
+            (body \ "name").asOpt[String].foreach(v => es.name = v)
+            (body \ "expanded").asOpt[Boolean].foreach(v => es.expanded = v)
+            (body \ "lotteryOn").asOpt[Boolean].foreach(v => es.lotteryOn = v)
+            (body \ "lotteryItemCount").asOpt[Int].foreach(v =>
+              es.lotteryItemCount = Math.max(1, v)
             )
-            formData
-              .get("lotteryItemCount")
-              .flatMap(_.headOption)
-              .foreach(v => es.lotteryItemCount = Math.max(1, v.toInt))
-            formData.get("description").flatMap(_.headOption).foreach(v => es.description = v)
+            (body \ "description").asOpt[String].foreach(v => es.description = v)
             None
 
       update(
@@ -135,16 +131,13 @@ class CollaborativeExamSectionController @Inject() (
       )
     }
 
-  def reorderSections(examId: Long): Action[AnyContent] = audited
+  def reorderSections(examId: Long): Action[JsValue] = audited
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-    .async { request =>
+    .async(controllerComponents.parsers.json) { request =>
       val updater = (exam: Exam, _: User) =>
-        val formData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
-        (formData.get("from").flatMap(_.headOption), formData.get("to").flatMap(_.headOption)) match
-          case (Some(fromStr), Some(toStr)) =>
-            val from = fromStr.toInt
-            val to   = toStr.toInt
+        ((request.body \ "from").asOpt[Int], (request.body \ "to").asOpt[Int]) match
+          case (Some(from), Some(to)) =>
             checkBounds(from, to) match
               case Some(err) => Some(err)
               case None      =>
@@ -163,16 +156,13 @@ class CollaborativeExamSectionController @Inject() (
       update(request, examId, updater, _ => None)
     }
 
-  def reorderSectionQuestions(examId: Long, sectionId: Long): Action[AnyContent] = audited
+  def reorderSectionQuestions(examId: Long, sectionId: Long): Action[JsValue] = audited
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-    .async { request =>
+    .async(controllerComponents.parsers.json) { request =>
       val updater = (exam: Exam, _: User) =>
-        val formData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
-        (formData.get("from").flatMap(_.headOption), formData.get("to").flatMap(_.headOption)) match
-          case (Some(fromStr), Some(toStr)) =>
-            val from = fromStr.toInt
-            val to   = toStr.toInt
+        ((request.body \ "from").asOpt[Int], (request.body \ "to").asOpt[Int]) match
+          case (Some(from), Some(to)) =>
             checkBounds(from, to) match
               case Some(err) => Some(err)
               case None =>
