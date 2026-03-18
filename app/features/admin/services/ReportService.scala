@@ -17,7 +17,6 @@ import services.excel.ExcelBuilder
 
 import java.io.OutputStream
 import javax.inject.Inject
-import scala.jdk.CollectionConverters.*
 
 class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
     extends EbeanQueryExtensions with EbeanJsonExtensions with Logging:

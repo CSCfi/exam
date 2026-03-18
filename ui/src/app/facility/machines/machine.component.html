@@ -18,34 +18,6 @@ SPDX-License-Identifier: EUPL-1.2
                 <input id="machineName" type="text" class="form-control" [formField]="machineForm.name" autofocus />
             </div>
         </div>
-        <div class="row mt-2">
-            <div class="col-md-12">
-                <div class="form-check">
-                    <input
-                        id="accessible"
-                        type="checkbox"
-                        class="form-check-input"
-                        [formField]="machineForm.accessible"
-                    />
-                    <label class="form-check-label" for="accessible">
-                        {{ 'i18n_machine_accessible' | translate }}
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-2">
-            <div class="col-md-12">
-                <label for="machineAccessibility" class="form-label">
-                    {{ 'i18n_machine_accessibility' | translate }}
-                </label>
-                <input
-                    id="machineAccessibility"
-                    type="text"
-                    class="form-control"
-                    [formField]="machineForm.accessibilityInfo"
-                />
-            </div>
-        </div>
         <!-- Other indentifier & Surveillance camera information -->
         <div class="row mt-2">
             <div class="col-md-6">

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -87,21 +87,25 @@ type Organisation = {
 export class OrganisationSelectorComponent {
     readonly exam = input.required<Exam>();
 
-    readonly organisations = signal<Organisation[]>([]);
-    readonly selectedOrganisations = signal<Organisation[]>([]);
+    readonly selectedOrganisations = linkedSignal<Organisation[]>(() => {
+        const all = this.allOrganisations();
+        const exam = this.exam();
+        return all.filter((o) => exam.organisations?.split(';').includes(o._id));
+    });
+    readonly organisations = linkedSignal<Organisation[]>(() => {
+        const all = this.allOrganisations();
+        const selectedIds = new Set(this.exam().organisations?.split(';') ?? []);
+        return all.map((o) => ({ ...o, filtered: selectedIds.has(o._id) }));
+    });
 
-    private allOrganisations: Organisation[] = [];
-
+    private readonly allOrganisations = signal<Organisation[]>([]);
     private readonly http = inject(HttpClient);
     private readonly Exam = inject(ExamService);
 
     constructor() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {
-            this.allOrganisations = resp.filter((org) => !org.homeOrg);
-            this.updateOrganisations(this.exam());
+            this.allOrganisations.set(resp.filter((org) => !org.homeOrg));
         });
-
-        effect(() => this.updateOrganisations(this.exam()));
     }
 
     addOrganisation(organisation: Organisation) {
@@ -138,15 +142,5 @@ export class OrganisationSelectorComponent {
                 orgs.map((o) => (o._id === organisation._id ? { ...o, filtered: false } : o)),
             );
         });
-    }
-
-    private updateOrganisations(exam: Exam) {
-        if (this.allOrganisations.length === 0) return;
-        const selected = this.allOrganisations.filter(
-            (o) => exam.organisations && exam.organisations.split(';').includes(o._id),
-        );
-        this.selectedOrganisations.set(selected);
-        const filtered = selected.map((o) => o._id);
-        this.organisations.set(this.allOrganisations.map((o) => ({ ...o, filtered: filtered.includes(o._id) })));
     }
 }

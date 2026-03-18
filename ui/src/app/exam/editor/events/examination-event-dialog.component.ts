@@ -4,12 +4,13 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, model, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { disabled, form, FormField, min, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { take } from 'rxjs';
+import { combineLatest, map, switchMap } from 'rxjs';
 import type { ExaminationEvent, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
@@ -22,7 +23,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     templateUrl: './examination-event-dialog.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationEventDialogComponent {
+export class ExaminationEventDialogComponent implements OnInit {
     readonly examId = model.required<number>();
     readonly duration = model.required<number>();
     readonly config = model<ExaminationEventConfiguration | undefined>(undefined);
@@ -62,42 +63,41 @@ export class ExaminationEventDialogComponent {
     private now = new Date();
 
     constructor() {
-        effect(() => {
-            const currentStart = this.start();
-            this.http
-                .get<ExaminationEvent[]>('/app/examinationevents/conflicting', {
-                    params: { start: currentStart.toISOString(), duration: this.duration().toString() },
-                })
-                .pipe(take(1))
-                .subscribe((events) => {
-                    const currentConfig = this.config();
-                    this.conflictingEvents.set(events.filter((e) => e.id !== currentConfig?.examinationEvent.id));
-                });
-        });
-
-        effect(() => {
-            const currentConfig = this.config();
-            if (currentConfig) {
-                this.start.set(new Date(currentConfig.examinationEvent.start));
-                this.eventForm.description().value.set(currentConfig.examinationEvent.description);
-                this.eventForm.capacity().value.set(currentConfig.examinationEvent.capacity);
-                this.eventForm.settingsPassword().value.set(currentConfig.settingsPassword ?? '');
-                this.eventForm.quitPassword().value.set(currentConfig.quitPassword ?? '');
-                this.hasEnrolments.set(currentConfig.examEnrolments.length > 0);
-            } else {
-                // set start to next full hour
-                this.start.update((d) => {
-                    const nextHour = new Date(d.getTime());
-                    nextHour.setMinutes(0, 0, 0);
-                    nextHour.setHours(nextHour.getHours() + 1);
-                    return nextHour;
-                });
-            }
-        });
+        combineLatest([toObservable(this.start), toObservable(this.duration)])
+            .pipe(
+                switchMap(([start, duration]) =>
+                    this.http.get<ExaminationEvent[]>('/app/examinationevents/conflicting', {
+                        params: { start: start.toISOString(), duration: duration.toString() },
+                    }),
+                ),
+                map((events) => events.filter((e) => e.id !== this.config()?.examinationEvent.id)),
+                takeUntilDestroyed(),
+            )
+            .subscribe((events) => this.conflictingEvents.set(events));
 
         this.http
             .get<{ max: number }>('/app/settings/byodmaxparticipants')
             .subscribe((value) => this.maxSimultaneousCapacity.set(value.max));
+    }
+
+    ngOnInit() {
+        const currentConfig = this.config();
+        if (currentConfig) {
+            this.start.set(new Date(currentConfig.examinationEvent.start));
+            this.eventForm.description().value.set(currentConfig.examinationEvent.description);
+            this.eventForm.capacity().value.set(currentConfig.examinationEvent.capacity);
+            this.eventForm.settingsPassword().value.set(currentConfig.settingsPassword ?? '');
+            this.eventForm.quitPassword().value.set(currentConfig.quitPassword ?? '');
+            this.hasEnrolments.set(currentConfig.examEnrolments.length > 0);
+        } else {
+            // set start to next full hour
+            this.start.update((d) => {
+                const nextHour = new Date(d.getTime());
+                nextHour.setMinutes(0, 0, 0);
+                nextHour.setHours(nextHour.getHours() + 1);
+                return nextHour;
+            });
+        }
     }
 
     toggleSettingsPasswordInputType() {

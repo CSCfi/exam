@@ -172,11 +172,11 @@ export class ExamPublicationComponent {
 
         if (errors.length > 0) {
             const modal = this.modal.openRef(PublicationErrorDialogComponent);
-            modal.componentInstance.errors = errors;
+            modal.componentInstance.errors.set(errors);
         } else {
             const modal = this.modal.openRef(PublicationDialogComponent);
-            modal.componentInstance.exam = currentExam;
-            modal.componentInstance.prePublication = this.isDraftCollaborativeExam();
+            modal.componentInstance.exam.set(currentExam);
+            modal.componentInstance.prePublication.set(this.isDraftCollaborativeExam());
             this.modal.result$(modal).subscribe(() => {
                 const state = {
                     state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',

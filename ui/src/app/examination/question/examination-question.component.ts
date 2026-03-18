@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { SlicePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -39,7 +39,13 @@ export class ExaminationQuestionComponent {
     readonly isPreview = input(false);
     readonly isCollaborative = input(false);
 
-    readonly clozeAnswer = signal<{ [key: string]: string }>({});
+    readonly clozeAnswer = linkedSignal<{ [key: string]: string }>(() => {
+        const sq = this.sq();
+        if (sq.question.type === 'ClozeTestQuestion' && sq.clozeTestAnswer?.answer) {
+            return JSON.parse(sq.clozeTestAnswer.answer);
+        }
+        return {};
+    });
     readonly expanded = signal(true);
 
     readonly sq = computed(() => {
@@ -58,17 +64,6 @@ export class ExaminationQuestionComponent {
     private readonly Examination = inject(ExaminationService);
     private readonly Attachment = inject(AttachmentService);
     private readonly translate = inject(TranslateService);
-
-    constructor() {
-        // Initialize clozeAnswer when question changes
-        effect(() => {
-            const currentSq = this.sq();
-            if (currentSq.question.type === 'ClozeTestQuestion' && currentSq.clozeTestAnswer?.answer) {
-                const { answer } = currentSq.clozeTestAnswer;
-                this.clozeAnswer.set(JSON.parse(answer));
-            }
-        });
-    }
 
     parseAriaLabel(expanded: string): string {
         return `${this.translate.instant(expanded)} ${this.translate.instant('i18n_question')} ${this.questionTitle()}`;

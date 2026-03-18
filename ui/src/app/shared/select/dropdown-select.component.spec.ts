@@ -208,7 +208,6 @@ describe('DropdownSelectComponent', () => {
             // Headers cannot be selected, so they should only have dropdown-header class
             expect(classes).not.toContain('active');
             expect(classes).toContain('dropdown-header');
-            // Note: selected can be set manually, but getClasses prevents 'active' class for headers
         });
 
         it('should return empty array when no special classes apply', () => {
@@ -257,6 +256,55 @@ describe('DropdownSelectComponent', () => {
 
             expect(component.selected()).toBeUndefined();
             expect(component.optionSelected.emit).toHaveBeenCalled();
+        });
+    });
+
+    describe('initial input reactivity', () => {
+        it('should update selected when initial input changes after initialization', async () => {
+            const first = mockOptions[0];
+            const second = mockOptions[1];
+            fixture.componentRef.setInput('options', mockOptions);
+            fixture.componentRef.setInput('initial', first);
+            fixture.detectChanges();
+            expect(component.selected()).toEqual(first);
+
+            fixture.componentRef.setInput('initial', second);
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(component.selected()).toEqual(second);
+        });
+
+        it('should override manual selection when initial input changes', async () => {
+            fixture.componentRef.setInput('options', mockOptions);
+            fixture.componentRef.setInput('initial', mockOptions[0]);
+            fixture.detectChanges();
+
+            component.selectOption(mockOptions[2]);
+            fixture.detectChanges();
+            expect(component.selected()).toEqual(mockOptions[2]);
+
+            fixture.componentRef.setInput('initial', mockOptions[1]);
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(component.selected()).toEqual(mockOptions[1]);
+        });
+
+        it('should preserve manual selection when initial input is set to the same reference', async () => {
+            fixture.componentRef.setInput('options', mockOptions);
+            fixture.componentRef.setInput('initial', mockOptions[0]);
+            fixture.detectChanges();
+
+            component.selectOption(mockOptions[2]);
+            fixture.detectChanges();
+            expect(component.selected()).toEqual(mockOptions[2]);
+
+            fixture.componentRef.setInput('initial', mockOptions[0]);
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(component.selected()).toEqual(mockOptions[2]);
         });
     });
 

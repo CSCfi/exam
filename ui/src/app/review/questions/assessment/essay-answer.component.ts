@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { disabled, form, FormField, min, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
@@ -49,21 +50,24 @@ export class EssayAnswerComponent {
     private readonly Attachment = inject(AttachmentService);
 
     constructor() {
-        effect(() => {
-            this.initializeAnswer();
-            const score = this.answer().essayAnswer.temporaryScore ?? null;
-            if (this.pointsForm.score().value() !== score) {
-                this.pointsForm.score().value.set(score);
-            }
-        });
-        effect(() => {
-            if (this.answer().evaluationType === 'Points') {
-                const score = this.pointsForm.score().value();
-                if (score != null) {
+        toObservable(this.answer)
+            .pipe(takeUntilDestroyed())
+            .subscribe((answer) => {
+                if (answer.expanded === undefined) answer.expanded = true;
+                answer.essayAnswer = answer.essayAnswer || {};
+                if (answer.essayAnswer.temporaryScore === undefined) {
+                    answer.essayAnswer.temporaryScore = answer.essayAnswer.evaluatedScore;
+                }
+                this.pointsForm.score().value.set(answer.essayAnswer.temporaryScore ?? null);
+            });
+
+        toObservable(this.pointsForm.score().value)
+            .pipe(takeUntilDestroyed())
+            .subscribe((score) => {
+                if (this.answer().evaluationType === 'Points' && score != null) {
                     this.answer().essayAnswer.temporaryScore = score;
                 }
-            }
-        });
+            });
     }
 
     getWordCount() {
@@ -96,19 +100,5 @@ export class EssayAnswerComponent {
     toggleExpanded() {
         const currentAnswer = this.answer();
         currentAnswer.expanded = !currentAnswer.expanded;
-    }
-
-    private initializeAnswer() {
-        const answer = this.answer();
-        // Initialize expanded state if not set
-        if (answer.expanded === undefined) {
-            answer.expanded = true;
-        }
-        // Ensure essayAnswer object exists
-        answer.essayAnswer = answer.essayAnswer || {};
-        // Initialize temporaryScore from evaluatedScore if not already set
-        if (answer.essayAnswer.temporaryScore === undefined) {
-            answer.essayAnswer.temporaryScore = answer.essayAnswer.evaluatedScore;
-        }
     }
 }

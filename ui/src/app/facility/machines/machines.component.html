@@ -49,7 +49,6 @@ SPDX-License-Identifier: EUPL-1.2
                     <tr>
                         <th>{{ 'i18n_name' | translate }}</th>
                         <th>{{ 'i18n_machine_other_identifier' | translate }}</th>
-                        <th>{{ 'i18n_room_accessibility_info' | translate }}</th>
                         <th>{{ 'i18n_machine_softwares' | translate }}</th>
                         <th>{{ 'i18n_status' | translate }}</th>
                     </tr>
@@ -63,7 +62,6 @@ SPDX-License-Identifier: EUPL-1.2
                                 </a>
                             </td>
                             <td>{{ machine.otherIdentifier }}</td>
-                            <td>{{ machine.accessibilityInfo }}</td>
                             <td>
                                 <ul>
                                     @for (software of machine.softwareInfo; track software; let l = $last) {

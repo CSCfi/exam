@@ -31,8 +31,6 @@ export class MachineComponent {
     readonly machineForm = form(
         signal({
             name: '',
-            accessible: false,
-            accessibilityInfo: '',
             otherIdentifier: '',
             surveillanceCamera: '',
             videoRecordings: '',
@@ -43,7 +41,6 @@ export class MachineComponent {
         (path) => {
             required(path.name);
             required(path.ipAddress);
-            disabled(path.accessibilityInfo, ({ valueOf }) => !valueOf(path.accessible));
             disabled(path.statusComment, ({ valueOf }) => !valueOf(path.outOfService));
         },
     );
@@ -60,8 +57,6 @@ export class MachineComponent {
             next: (machine) => {
                 this.machine.set(machine);
                 this.machineForm.name().value.set(machine.name);
-                this.machineForm.accessible().value.set(machine.accessible);
-                this.machineForm.accessibilityInfo().value.set(machine.accessibilityInfo);
                 this.machineForm.otherIdentifier().value.set(machine.otherIdentifier);
                 this.machineForm.surveillanceCamera().value.set(machine.surveillanceCamera);
                 this.machineForm.videoRecordings().value.set(machine.videoRecordings);
@@ -120,8 +115,6 @@ export class MachineComponent {
         const updatedMachine: ExamMachine = {
             ...currentMachine,
             name: this.machineForm.name().value() || '',
-            accessible: this.machineForm.accessible().value() === true,
-            accessibilityInfo: this.machineForm.accessibilityInfo().value() || '',
             otherIdentifier: this.machineForm.otherIdentifier().value() || '',
             surveillanceCamera: this.machineForm.surveillanceCamera().value() || '',
             videoRecordings: this.machineForm.videoRecordings().value() || '',

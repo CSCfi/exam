@@ -311,7 +311,7 @@ export class SessionService {
             // redirect to SP-logout directly
             location.href = localLogout;
         } else {
-            // DEV logout - update signal to trigger effect in app.component
+            // DEV logout - notify subscribers
             this._devLogoutChange.set(Date.now());
         }
     }

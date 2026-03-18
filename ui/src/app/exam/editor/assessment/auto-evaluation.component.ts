@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { startWith } from 'rxjs';
+import { skip, startWith } from 'rxjs';
 import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -23,7 +23,7 @@ type ReleaseType = { name: string; translation: string };
     imports: [NgbPopover, NgbCollapse, ReactiveFormsModule, NgbDropdownModule, DatePickerComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AutoEvaluationComponent {
+export class AutoEvaluationComponent implements OnInit {
     readonly exam = input.required<Exam>();
     readonly enabled = output<void>();
     readonly disabled = output<void>();
@@ -56,51 +56,38 @@ export class AutoEvaluationComponent {
 
     private readonly Exam = inject(ExamService);
     private readonly CommonExam = inject(CommonExamService);
-    // Track if form has been initialized to prevent overwriting user changes
-    private formInitialized = false;
 
     constructor() {
-        // Subscribe to form's releaseType valueChanges to update signal (for computed reactivity)
-        effect(() => {
-            const exam = this.exam();
-            if (!exam) return;
-            const config = exam.autoEvaluationConfig ?? this.createDefaultConfig(exam);
-            const hasConfig = exam.autoEvaluationConfig != null;
-
-            // Only initialize form on first load or when exam ID changes
-            // This prevents overwriting user changes when exam signal updates
-            const shouldInitialize = !this.formInitialized;
-
-            if (shouldInitialize) {
-                // populate form
-                this.buildGradeArray(config);
-                const releaseType = config.releaseType || 'IMMEDIATE';
-                // Patch releaseType separately with emitEvent: true so subscription handles signal update
-                this.form.get('releaseType')?.patchValue(releaseType, { emitEvent: true });
-                // Patch other fields with emitEvent: false to avoid unnecessary emissions
-                this.form.patchValue(
-                    {
-                        amountDays: config.amountDays ?? 0,
-                        releaseDate: config.releaseDate ?? null,
-                    },
-                    { emitEvent: false },
-                );
-
-                this.updateValidators();
-                this.formInitialized = true;
-            }
-
-            // Enable/disable form based on config state
-            if (hasConfig) {
-                this.form.enable({ emitEvent: false });
-            } else {
-                this.form.disable({ emitEvent: false });
-            }
-        });
+        toObservable(this.exam)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((exam) => {
+                if (exam.autoEvaluationConfig != null) {
+                    this.form.enable({ emitEvent: false });
+                } else {
+                    this.form.disable({ emitEvent: false });
+                }
+            });
     }
 
     get gradeArray(): FormArray<FormGroup> {
         return this.form.get('gradeEvaluations') as FormArray<FormGroup>;
+    }
+
+    ngOnInit() {
+        const exam = this.exam();
+        const config = exam.autoEvaluationConfig ?? this.createDefaultConfig(exam);
+        this.buildGradeArray(config);
+        this.form.get('releaseType')?.patchValue(config.releaseType || 'IMMEDIATE', { emitEvent: true });
+        this.form.patchValue(
+            { amountDays: config.amountDays ?? 0, releaseDate: config.releaseDate ?? null },
+            { emitEvent: false },
+        );
+        this.updateValidators();
+        if (exam.autoEvaluationConfig != null) {
+            this.form.enable({ emitEvent: false });
+        } else {
+            this.form.disable({ emitEvent: false });
+        }
     }
 
     togglePanel() {

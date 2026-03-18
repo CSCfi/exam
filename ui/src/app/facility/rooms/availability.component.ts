@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
-import type { OpeningHours } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
 import { Availability } from 'src/app/facility/facility.model';
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
@@ -33,34 +32,22 @@ type ExceptionHour = ExceptionWorkingHours & { start: string; end: string; descr
 export class AvailabilityComponent {
     readonly room = input.required<ExamRoom>();
 
-    readonly openingHours = signal<OpeningHours[]>([]);
-    readonly exceptionHours = signal<ExceptionHour[]>([]);
-    readonly newExceptions = signal<ExceptionHour[]>([]);
+    readonly openingHours = computed(() => this.calendar.processOpeningHours(this.room()));
+    readonly exceptionHours = computed<ExceptionHour[]>(() =>
+        this.calendar
+            .getExceptionalAvailability(this.room())
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()),
+    );
+    readonly newExceptions = computed(() =>
+        this.exceptionHours().filter(
+            (ee) => new Date(ee.endDate) > new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000),
+        ),
+    );
     readonly oldExceptionsHidden = signal(true);
 
     private readonly toast = inject(ToastrService);
     private readonly roomService = inject(RoomService);
     private readonly calendar = inject(CalendarService);
-
-    constructor() {
-        effect(() => {
-            const currentRoom = this.room();
-            if (!currentRoom) {
-                console.error('No room given for availability.component');
-                return;
-            }
-            this.openingHours.set(this.calendar.processOpeningHours(currentRoom));
-            const exceptionalAvailability = this.calendar
-                .getExceptionalAvailability(currentRoom)
-                .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
-            this.exceptionHours.set(exceptionalAvailability);
-            this.newExceptions.set(
-                exceptionalAvailability.filter(
-                    (ee) => new Date(ee.endDate) > new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000),
-                ),
-            );
-        });
-    }
 
     query$(date: string) {
         return this.roomService.getAvailability$(this.room().id, date);

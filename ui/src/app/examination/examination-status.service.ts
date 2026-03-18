@@ -6,8 +6,7 @@ import { computed, Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationStatusService {
-    // Signal-based API
-    // Using timestamps for void events - each notification updates the timestamp, triggering effects
+    // Bundles all status signals into one so consumers only need a single subscription
     readonly combinedStatusSignal = computed(() => ({
         starting: this.examinationStartingSignal(),
         upcoming: this.upcomingExamSignal(),
@@ -15,13 +14,13 @@ export class ExaminationStatusService {
         aquarium: this.aquariumLoggedInSignal(),
     }));
 
+    // number signals carry a timestamp so repeated notifications always produce a new value
     private readonly examinationEnding = signal<number | undefined>(undefined);
     private readonly wrongLocation = signal<number | undefined>(undefined);
     private readonly upcomingExam = signal<number | undefined>(undefined);
     private readonly examinationStarting = signal<number | undefined>(undefined);
     private readonly aquariumLoggedIn = signal<boolean>(true);
 
-    // Readonly signals for components (preferred API)
     get examinationEndingSignal() {
         return this.examinationEnding.asReadonly();
     }

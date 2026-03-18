@@ -135,7 +135,7 @@ class QuestionService @Inject() (
           |tags(id, name, creator(id)),
           |examSectionQuestions(
           |  examSection(
-          |    exam(id, name, code, state, periodEnd, course(id, name, code))
+          |    exam(id, name, state, periodEnd, course(id, name, code))
           |  )
           |)
           |)""".stripMargin

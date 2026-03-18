@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, ViewChild, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
 import enLocale from '@fullcalendar/core/locales/en-gb';
@@ -12,6 +13,7 @@ import luxon2Plugin from '@fullcalendar/luxon3';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
+import { combineLatest, skip } from 'rxjs';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CalendarService } from './calendar.service';
@@ -85,35 +87,32 @@ export class BookingCalendarComponent {
             });
         });
 
-        effect(() => {
-            const roomVal = this.room(); // track signal
-            const earliestOpening = this.Calendar.getEarliestOpening(roomVal, this.searchStart(), this.searchEnd());
-            const latestClosing = this.Calendar.getLatestClosing(roomVal, this.searchStart(), this.searchEnd());
+        combineLatest([toObservable(this.room), toObservable(this.searchStart), toObservable(this.searchEnd)])
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe(([roomVal, searchStart, searchEnd]) => {
+                const earliestOpening = this.Calendar.getEarliestOpening(roomVal, searchStart, searchEnd);
+                const latestClosing = this.Calendar.getLatestClosing(roomVal, searchStart, searchEnd);
+                const minTime =
+                    earliestOpening.getHours() > 1
+                        ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
+                        : earliestOpening;
+                const maxTime =
+                    latestClosing.getHours() < 23
+                        ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
+                        : latestClosing;
+                this.calendarOptions.update((cos) => ({
+                    ...cos,
+                    hiddenDays: this.Calendar.getClosedWeekdays(roomVal, searchStart, searchEnd),
+                    slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
+                    slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
+                    timeZone: roomVal.localTimezone,
+                }));
+                this.calendar?.getApi().refetchEvents();
+            });
 
-            const minTime =
-                earliestOpening.getHours() > 1
-                    ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
-                    : earliestOpening;
-            const maxTime =
-                latestClosing.getHours() < 23
-                    ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
-                    : latestClosing;
-
-            this.calendarOptions.update((cos) => ({
-                ...cos,
-                hiddenDays: this.Calendar.getClosedWeekdays(roomVal, this.searchStart(), this.searchEnd()),
-                slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
-                slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
-                timeZone: roomVal.localTimezone,
-            }));
-
-            this.calendar?.getApi().refetchEvents();
-        });
-
-        effect(() => {
-            this.accessibilities(); // track signal
-            this.calendar?.getApi().refetchEvents();
-        });
+        toObservable(this.accessibilities)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe(() => this.calendar?.getApi().refetchEvents());
 
         if (this.minDate() && this.maxDate()) {
             this.calendarOptions.update((options) => ({

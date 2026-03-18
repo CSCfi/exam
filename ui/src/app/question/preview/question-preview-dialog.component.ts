@@ -3,9 +3,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { combineLatestWith, filter, switchMap } from 'rxjs';
 import { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationQuestionComponent } from 'src/app/examination/question/examination-question.component';
 import { Question } from 'src/app/question/question.model';
@@ -43,18 +45,17 @@ export class QuestionPreviewDialogComponent {
     private readonly http = inject(HttpClient);
 
     constructor() {
-        // Watch for when question is set and load preview
-        effect(() => {
-            const questionValue = this.question();
-            const isExamQuestionValue = this.isExamQuestion();
-
-            if (questionValue?.id) {
-                const urlSuffix = isExamQuestionValue ? 'exam' : 'library';
-                const id = questionValue.id;
-                this.http.get<ExaminationQuestion>(`/app/questions/${id}/preview/${urlSuffix}`).subscribe({
-                    next: (res) => this.preview.set(res),
-                });
-            }
-        });
+        toObservable(this.question)
+            .pipe(
+                combineLatestWith(toObservable(this.isExamQuestion)),
+                filter(([q]) => !!q?.id),
+                switchMap(([q, isExam]) =>
+                    this.http.get<ExaminationQuestion>(
+                        `/app/questions/${q!.id}/preview/${isExam ? 'exam' : 'library'}`,
+                    ),
+                ),
+                takeUntilDestroyed(),
+            )
+            .subscribe((res) => this.preview.set(res));
     }
 }

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -48,7 +48,7 @@ export class AccessibilitySelectorComponent {
     readonly room = input.required<ExamRoom>();
 
     readonly accessibilities = signal<Accessibility[]>([]);
-    readonly roomAccessibilities = signal<Accessibility[]>([]);
+    readonly roomAccessibilities = linkedSignal<Accessibility[]>(() => [...this.room().accessibilities]);
     readonly selectedAccessibilities = computed(() => {
         const accessibilities = this.roomAccessibilities();
         return accessibilities.length === 0
@@ -63,12 +63,6 @@ export class AccessibilitySelectorComponent {
     constructor() {
         this.accessibilityService.getAccessibilities().subscribe((resp) => {
             this.accessibilities.set(resp);
-        });
-
-        // Sync roomAccessibilities signal with room input
-        effect(() => {
-            const currentRoom = this.room();
-            this.roomAccessibilities.set([...currentRoom.accessibilities]);
         });
     }
 

@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ArchiveDownloadComponent } from 'src/app/review/listing/dialogs/archive-download.component';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
-import type { Review, ReviewListView } from 'src/app/review/review.model';
+import type { Review } from 'src/app/review/review.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
@@ -47,16 +47,14 @@ export class InProgressReviewsComponent {
     readonly reviews = input<Review[]>([]);
     readonly collaborative = input(false);
 
-    readonly view = signal<ReviewListView | undefined>(undefined);
+    readonly view = linkedSignal(() =>
+        this.ReviewList.prepareView(this.reviews(), (r) => r, 'examParticipation.deadline'),
+    );
 
     private readonly modal = inject(ModalService);
     private readonly ReviewList = inject(ReviewListService);
     private readonly Session = inject(SessionService);
     private readonly Files = inject(FileService);
-
-    constructor() {
-        effect(() => this.init(this.reviews()));
-    }
 
     isOwner(user: User) {
         const currentExam = this.exam();
@@ -68,39 +66,33 @@ export class InProgressReviewsComponent {
     }
 
     pageSelected(event: { page: number }) {
-        this.view.update((v) => ({ ...v!, page: event.page }));
+        this.view.update((v) => ({ ...v, page: event.page }));
     }
 
     updateFilter(value: string) {
-        this.view.update((v) => {
-            if (!v) return v;
-            return {
-                ...v,
-                filter: value,
-                filtered: this.ReviewList.applyFilter(value, v.items),
-            };
-        });
+        this.view.update((v) => ({
+            ...v,
+            filter: value,
+            filtered: this.ReviewList.applyFilter(value, v.items),
+        }));
     }
 
     applyFreeSearchFilter() {
-        const currentView = this.view();
-        if (!currentView) return;
         this.view.update((v) => ({
-            ...v!,
-            filtered: this.ReviewList.applyFilter(v!.filter, v!.items),
+            ...v,
+            filtered: this.ReviewList.applyFilter(v.filter, v.items),
         }));
     }
 
     setPredicate(predicate: string) {
         this.view.update((v) => {
-            if (!v) return v;
             const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
             return { ...v, predicate, reverse };
         });
     }
 
     toggleView() {
-        this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
+        this.view.update((v) => ({ ...v, toggle: !v.toggle }));
     }
 
     getAnswerAttachments() {
@@ -118,9 +110,4 @@ export class InProgressReviewsComponent {
         this.updateFilter((event.target as HTMLInputElement).value);
         this.applyFreeSearchFilter();
     };
-
-    private init(reviews: Review[]) {
-        const initialView = this.ReviewList.prepareView(reviews, (r) => r, 'examParticipation.deadline');
-        this.view.set(initialView);
-    }
 }

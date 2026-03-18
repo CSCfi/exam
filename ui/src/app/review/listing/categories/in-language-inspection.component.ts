@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
-import type { Review, ReviewListView } from 'src/app/review/review.model';
+import type { Review } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
@@ -41,69 +41,52 @@ export class InLanguageInspectionReviewsComponent {
     readonly exam = input.required<Exam>();
     readonly reviews = input<Review[]>([]);
 
-    readonly view = signal<ReviewListView | undefined>(undefined);
+    readonly view = linkedSignal(() =>
+        this.ReviewList.prepareView(this.reviews(), (r) => this.handleGradedReviews(r), 'examParticipation.deadline'),
+    );
 
     private readonly ReviewList = inject(ReviewListService);
     private readonly Session = inject(SessionService);
     private readonly CommonExam = inject(CommonExamService);
-
-    constructor() {
-        effect(() => this.init(this.reviews()));
-    }
 
     showId() {
         return this.Session.getUser().isAdmin && this.exam()?.anonymous;
     }
 
     updateFilter(value: string) {
-        this.view.update((v) => {
-            if (!v) return v;
-            return {
-                ...v,
-                filter: value,
-                filtered: this.ReviewList.applyFilter(value, v.items),
-            };
-        });
+        this.view.update((v) => ({
+            ...v,
+            filter: value,
+            filtered: this.ReviewList.applyFilter(value, v.items),
+        }));
     }
 
     applyFreeSearchFilter() {
-        const currentView = this.view();
-        if (!currentView) return;
         this.view.update((v) => ({
-            ...v!,
-            filtered: this.ReviewList.applyFilter(v!.filter, v!.items),
+            ...v,
+            filtered: this.ReviewList.applyFilter(v.filter, v.items),
         }));
     }
 
     pageSelected(event: { page: number }) {
-        this.view.update((v) => ({ ...v!, page: event.page }));
+        this.view.update((v) => ({ ...v, page: event.page }));
     }
 
     setPredicate(predicate: string) {
         this.view.update((v) => {
-            if (!v) return v;
             const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
             return { ...v, predicate, reverse };
         });
     }
 
     toggleView() {
-        this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
+        this.view.update((v) => ({ ...v, toggle: !v.toggle }));
     }
 
     onFreeSearchFilterInput = (event: Event) => {
         this.updateFilter((event.target as HTMLInputElement).value);
         this.applyFreeSearchFilter();
     };
-
-    private init(reviews: Review[]) {
-        const initialView = this.ReviewList.prepareView(
-            reviews,
-            (r) => this.handleGradedReviews(r),
-            'examParticipation.deadline',
-        );
-        this.view.set(initialView);
-    }
 
     private translateGrade(exam: Exam) {
         return this.ReviewList.translateGrade(exam);

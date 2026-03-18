@@ -3,10 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
+import { filter } from 'rxjs';
 import { RepetitionConfig } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { DateTimeService, REPEAT_OPTION } from 'src/app/shared/date/date.service';
@@ -55,8 +57,12 @@ export class ExceptionDialogRepetitionOptionsComponent {
     readonly wholeDay = input(false);
     readonly optionChanged = output<RepetitionConfig>();
 
-    readonly startDate = signal(new Date());
-    readonly endDate = signal(new Date());
+    readonly startDate = linkedSignal<Date>(() =>
+        this.wholeDay() ? DateTime.fromJSDate(this._startRaw()).startOf('day').toJSDate() : this._startRaw(),
+    );
+    readonly endDate = linkedSignal<Date>(() =>
+        this.wholeDay() ? DateTime.fromJSDate(this._endRaw()).endOf('day').toJSDate() : this._endRaw(),
+    );
     readonly wholeWeek = signal(false);
     readonly weekdays = signal<WeekdayOption[]>([]);
     readonly months = signal<MonthOption[]>([]);
@@ -69,6 +75,8 @@ export class ExceptionDialogRepetitionOptionsComponent {
     readonly ordinals = ORDINAL_MAP;
     readonly REPEAT_OPTION = REPEAT_OPTION;
 
+    private readonly _startRaw = signal(new Date());
+    private readonly _endRaw = signal(new Date());
     private readonly DateTimeService = inject(DateTimeService);
 
     constructor() {
@@ -85,28 +93,10 @@ export class ExceptionDialogRepetitionOptionsComponent {
         );
         this.weekdayOfMonth.set({ name: this.weekdays()[0].day, ord: this.weekdays()[0].ord });
         this.monthOfYear.set({ name: this.months()[0].month, ord: this.months()[0].ord });
-        effect(() => {
-            if (this.wholeDay()) {
-                // Track startDate and endDate to react to changes
-                const currentStart = this.startDate();
-                const currentEnd = this.endDate();
-                const start = DateTime.fromJSDate(currentStart).startOf('day');
-                const end = DateTime.fromJSDate(currentEnd).endOf('day');
-                const startJs = start.toJSDate();
-                const endJs = end.toJSDate();
-                // Only update if the times have actually changed
-                if (currentStart.getTime() !== startJs.getTime()) {
-                    this.startDate.set(startJs);
-                }
-                if (currentEnd.getTime() !== endJs.getTime()) {
-                    this.endDate.set(endJs);
-                }
-                // getConfig() reads many signals we don't want to track
-                untracked(() => {
-                    this.optionChanged.emit(this.getConfig());
-                });
-            }
-        });
+
+        toObservable(this.wholeDay)
+            .pipe(filter(Boolean), takeUntilDestroyed())
+            .subscribe(() => this.optionChanged.emit(this.getConfig()));
     }
 
     onDayOfMonthInput = (event: Event) => this.dayOfMonthChanged(+(event.target as HTMLInputElement).value);
@@ -134,17 +124,17 @@ export class ExceptionDialogRepetitionOptionsComponent {
     }
 
     startChanged(e: { date: Date }) {
-        this.startDate.set(e.date);
+        this._startRaw.set(e.date);
         if (this.endDate() < e.date) {
-            this.endDate.set(e.date);
+            this._endRaw.set(e.date);
         }
         this.optionChanged.emit(this.getConfig());
     }
 
     endChanged(e: { date: Date }) {
-        this.endDate.set(e.date);
+        this._endRaw.set(e.date);
         if (this.startDate() > e.date) {
-            this.startDate.set(e.date);
+            this._startRaw.set(e.date);
         }
         this.optionChanged.emit(this.getConfig());
     }

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -20,8 +20,11 @@ import type { ExamMachine, ExamRoom } from 'src/app/reservation/reservation.mode
 export class MachineListComponent {
     readonly room = input.required<ExamRoom>();
 
-    readonly showMachines = signal(false);
-    readonly machines = signal<ExamMachine[]>([]);
+    readonly showMachines = linkedSignal<boolean>(() => {
+        void this.room();
+        return false;
+    });
+    readonly machines = linkedSignal(() => this.sort([...this.room().examMachines]));
 
     readonly countMachineAlerts = computed(() => {
         const currentRoom = this.room();
@@ -36,14 +39,6 @@ export class MachineListComponent {
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
-
-    constructor() {
-        effect(() => {
-            const currentRoom = this.room();
-            this.showMachines.set(false);
-            this.machines.set(this.sort([...currentRoom.examMachines]));
-        });
-    }
 
     toggleShow() {
         this.showMachines.update((v) => !v);

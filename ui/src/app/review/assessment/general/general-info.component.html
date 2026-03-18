@@ -34,7 +34,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
     <div class="col-md-2">{{ 'i18n_time_of_exam_participation' | translate }}:</div>
-    <div class="col-md-4">{{ participation().duration | date: 'HH:mm' : 'UTC' }}</div>
+    <div class="col-md-4">{{ duration() | date: 'HH:mm' : 'UTC' }}</div>
 </div>
 @let enrolmentVal = enrolment();
 @let reservationVal = reservation();

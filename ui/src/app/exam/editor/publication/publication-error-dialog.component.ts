@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -27,7 +27,7 @@ import { TranslateModule } from '@ngx-translate/core';
     </div>`,
 })
 export class PublicationErrorDialogComponent {
-    readonly errors = input<string[]>([]);
+    readonly errors = signal<string[]>([]);
 
     protected readonly activeModal = inject(NgbActiveModal);
 }

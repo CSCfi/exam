@@ -4,17 +4,8 @@
 
 import { UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    DestroyRef,
-    effect,
-    inject,
-    input,
-    output,
-    untracked,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, output } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -46,7 +37,7 @@ import { MaturityToolbarComponent } from './toolbar.component';
         TranslateModule,
     ],
 })
-export class MaturityGradingComponent extends GradingBaseComponent {
+export class MaturityGradingComponent extends GradingBaseComponent implements OnInit {
     readonly exam = input.required<Exam>();
     readonly user = input.required<User>();
     readonly questionSummary = input<unknown>();
@@ -55,6 +46,10 @@ export class MaturityGradingComponent extends GradingBaseComponent {
     private readonly translate = inject(TranslateService);
     private readonly Attachment = inject(AttachmentService);
     private readonly destroyRef = inject(DestroyRef);
+
+    private readonly formDisabled = computed(
+        () => this.isReadOnly() || !this.isOwnerOrAdmin() || this.isAwaitingInspection(),
+    );
 
     constructor() {
         const http = inject(HttpClient);
@@ -66,23 +61,15 @@ export class MaturityGradingComponent extends GradingBaseComponent {
 
         super(http, toast, Assessment, Exam, CommonExam, Language);
 
-        effect(() => {
-            if (this.isReadOnly() || !this.isOwnerOrAdmin() || this.isAwaitingInspection()) {
-                this.gradingForm.disable({ emitEvent: false });
-            } else {
-                this.gradingForm.enable({ emitEvent: false });
-            }
-        });
-
-        effect(() => {
-            const exam = this.exam();
-            untracked(() => {
-                this.initGrades(true);
-                this.initCreditTypes();
-                this.initLanguages();
-                this.gradingForm.controls.customCredit.setValue(exam.customCredit ?? null, { emitEvent: false });
+        toObservable(this.formDisabled)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((disabled) => {
+                if (disabled) {
+                    this.gradingForm.disable({ emitEvent: false });
+                } else {
+                    this.gradingForm.enable({ emitEvent: false });
+                }
             });
-        });
 
         this.gradingForm.controls.customCredit.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
@@ -98,6 +85,13 @@ export class MaturityGradingComponent extends GradingBaseComponent {
                 gs.map((g) => ({ ...g, name: this.CommonExam.getExamGradeDisplayName(g.type) })),
             );
         });
+    }
+
+    ngOnInit() {
+        this.initGrades(true);
+        this.initCreditTypes();
+        this.initLanguages();
+        this.gradingForm.controls.customCredit.setValue(this.exam().customCredit ?? null, { emitEvent: false });
     }
 
     getExam = () => this.exam();

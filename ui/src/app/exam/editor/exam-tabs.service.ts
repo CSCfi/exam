@@ -7,7 +7,6 @@ import { Exam } from 'src/app/exam/exam.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExamTabService {
-    // Using wrapper objects to ensure effects fire even if same value is set twice
     private readonly tabChange = signal<{ tab: number; timestamp: number } | undefined>(undefined);
     private readonly exam = signal<Exam | undefined>(undefined);
     private readonly collaborative = signal(false);

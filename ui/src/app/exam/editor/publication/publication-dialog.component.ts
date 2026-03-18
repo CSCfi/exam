@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -19,7 +19,7 @@ import type { Exam } from 'src/app/exam/exam.model';
             <p>
                 {{ getConfirmationText() }}
             </p>
-            @if (exam().examFeedbackConfig) {
+            @if (exam()?.examFeedbackConfig) {
                 <p>
                     {{ 'i18n_exam_feedback_config_confirmation' | translate }}
                 </p>
@@ -36,15 +36,15 @@ import type { Exam } from 'src/app/exam/exam.model';
     `,
 })
 export class PublicationDialogComponent {
-    readonly exam = input.required<Exam>();
-    readonly prePublication = input(false);
+    readonly exam = signal<Exam | undefined>(undefined);
+    readonly prePublication = signal(false);
 
     protected readonly activeModal = inject(NgbActiveModal);
     private readonly translate = inject(TranslateService);
 
     getConfirmationText() {
         const currentPrePublication = this.prePublication();
-        const currentExam = this.exam();
+        const currentExam = this.exam()!;
         let confirmation = currentPrePublication
             ? this.translate.instant('i18n_pre_publish_exam_confirm')
             : this.translate.instant('i18n_publish_exam_confirm');

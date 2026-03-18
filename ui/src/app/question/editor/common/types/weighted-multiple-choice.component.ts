@@ -8,11 +8,12 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    effect,
     inject,
     input,
+    OnInit,
     signal,
 } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     AbstractControl,
     ControlContainer,
@@ -25,7 +26,7 @@ import {
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { startWith } from 'rxjs';
+import { skip, startWith } from 'rxjs';
 import { minOptionsValidator } from 'src/app/question/editor/common/types/multiple-choice-validators';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { MultipleChoiceOption } from 'src/app/question/question.model';
@@ -39,7 +40,7 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     imports: [ReactiveFormsModule, UpperCasePipe, TranslateModule, FixedPrecisionValidatorDirective],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WeightedMultipleChoiceComponent implements AfterViewInit {
+export class WeightedMultipleChoiceComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();
     readonly lotteryOn = input(false);
     readonly showWarning = input(false);
@@ -87,71 +88,49 @@ export class WeightedMultipleChoiceComponent implements AfterViewInit {
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
     private readonly parentForm = inject(FormGroupDirective);
-    private readonly formInitialized = signal(false);
 
     constructor() {
-        // Create nested form group with FormArray for options
         this.weightedMcForm = new FormGroup({
             negativeScore: new FormControl(false),
             optionShuffling: new FormControl(false),
             options: new FormArray<FormGroup>([], [minOptionsValidator(2)]),
         });
 
-        // Subscribe to form valueChanges to update the signal
         this.weightedMcForm.valueChanges.pipe(startWith(this.weightedMcForm.value)).subscribe((value) => {
             this.formValues.set(value);
         });
 
-        // Sync form with question values
-        effect(() => {
-            const questionValue = this.question();
-            if (!this.formInitialized()) {
-                // Use reset() during initialization to mark form as pristine
-                this.weightedMcForm.reset(
-                    {
-                        negativeScore: questionValue.defaultNegativeScoreAllowed || false,
-                        optionShuffling: questionValue.defaultOptionShufflingOn || false,
-                    },
-                    { emitEvent: false },
-                );
-                this.updateFormArray(questionValue.options);
-                this.formInitialized.set(true);
-            } else {
-                // Only sync from question → form if form is pristine
-                if (this.weightedMcForm.pristine) {
-                    this.weightedMcForm.patchValue(
-                        {
-                            negativeScore: questionValue.defaultNegativeScoreAllowed || false,
-                            optionShuffling: questionValue.defaultOptionShufflingOn || false,
-                        },
-                        { emitEvent: false },
-                    );
-                    this.updateFormArray(questionValue.options);
-                }
-            }
-        });
-
-        // Update disabled state when lotteryOn changes
-        effect(() => {
-            const optionsArray = this.weightedMcForm.get('options') as FormArray;
-            optionsArray.controls.forEach((control) => {
-                const group = control as FormGroup;
-                const optionTextControl = group.get('optionText');
-                const scoreControl = group.get('defaultScore');
-
-                if (this.lotteryOn()) {
-                    optionTextControl?.disable({ emitEvent: false });
-                    scoreControl?.disable({ emitEvent: false });
-                } else {
-                    optionTextControl?.enable({ emitEvent: false });
-                    scoreControl?.enable({ emitEvent: false });
-                }
+        toObservable(this.lotteryOn)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((lotteryOn) => {
+                const optionsArray = this.weightedMcForm.get('options') as FormArray;
+                optionsArray.controls.forEach((control) => {
+                    const group = control as FormGroup;
+                    if (lotteryOn) {
+                        group.get('optionText')?.disable({ emitEvent: false });
+                        group.get('defaultScore')?.disable({ emitEvent: false });
+                    } else {
+                        group.get('optionText')?.enable({ emitEvent: false });
+                        group.get('defaultScore')?.enable({ emitEvent: false });
+                    }
+                });
             });
-        });
     }
 
     get optionsFormArray(): FormArray {
         return this.weightedMcForm.get('options') as FormArray;
+    }
+
+    ngOnInit() {
+        const questionValue = this.question();
+        this.weightedMcForm.reset(
+            {
+                negativeScore: questionValue.defaultNegativeScoreAllowed || false,
+                optionShuffling: questionValue.defaultOptionShufflingOn || false,
+            },
+            { emitEvent: false },
+        );
+        this.updateFormArray(questionValue.options);
     }
 
     ngAfterViewInit() {

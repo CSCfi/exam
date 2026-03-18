@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -45,20 +45,12 @@ export class ReservationDetailsComponent {
 
     readonly predicate = signal('reservation.startAt');
     readonly reverse = signal(false);
-    readonly fixedReservations = signal<ReservationDetail[]>([]);
+    readonly fixedReservations = linkedSignal<ReservationDetail[]>(() => this.reservations() as ReservationDetail[]);
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
     private readonly Reservation = inject(ReservationService);
-
-    constructor() {
-        // This is terrible but modeling these is a handful. Maybe we can move some reservation types to different views.
-        effect(() => {
-            const currentReservations = this.reservations();
-            this.fixedReservations.set(currentReservations as ReservationDetail[]);
-        });
-    }
 
     printExamState(reservation: Reservation) {
         return this.Reservation.printExamState(reservation);

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -40,7 +40,9 @@ export class OpenHoursComponent {
     readonly room = input.required<ExamRoom>();
 
     readonly weekdayNames = signal<string[]>([]);
-    readonly extendedRoom = signal<RoomWithAddressVisibility | undefined>(undefined);
+    readonly extendedRoom = linkedSignal<RoomWithAddressVisibility | undefined>(() =>
+        this.room() ? this.buildExtendedRoom(this.room()) : undefined,
+    );
     readonly newTime = signal<DefaultWorkingHoursWithEditing>({ ...DEFAULT_NEW_TIME });
     readonly WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
@@ -53,13 +55,6 @@ export class OpenHoursComponent {
         this.weekdayNames.set(this.dateTime.getWeekdayNames());
         this.translate.onLangChange.subscribe(() => {
             this.weekdayNames.set(this.dateTime.getWeekdayNames());
-        });
-
-        effect(() => {
-            const currentRoom = this.room();
-            if (currentRoom) {
-                this.init(currentRoom);
-            }
         });
     }
 
@@ -182,8 +177,8 @@ export class OpenHoursComponent {
         );
     }
 
-    init(room: ExamRoom) {
-        this.extendedRoom.set({
+    private buildExtendedRoom(room: ExamRoom): RoomWithAddressVisibility {
+        return {
             ...room,
             addressVisible: false,
             availabilityVisible: false,
@@ -201,7 +196,7 @@ export class OpenHoursComponent {
                     displayEndingTime: this.createTimeObject(endHour, endMinute),
                 };
             }),
-        });
+        };
     }
 
     private createTimeObject(hour: number, minute: number) {

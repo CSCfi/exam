@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,7 +25,13 @@ export class CoursePickerComponent {
     readonly course = input<Course | undefined>();
     readonly updated = output<Course>();
 
-    readonly courseFilterModel = signal({ name: '', code: '' });
+    readonly courseFilterModel = linkedSignal(() => {
+        const currentCourse = this.course();
+        if (currentCourse) {
+            return { name: currentCourse.name, code: this.CourseCode.formatCode(currentCourse.code) };
+        }
+        return { name: '', code: '' };
+    });
     readonly loaderName = signal(false);
     readonly loaderCode = signal(false);
     readonly courseFilterForm = form(this.courseFilterModel);
@@ -34,20 +40,6 @@ export class CoursePickerComponent {
     private readonly toast = inject(ToastrService);
     private readonly Course = inject(CoursePickerService);
     private readonly CourseCode = inject(CourseCodeService);
-
-    constructor() {
-        effect(() => {
-            const currentCourse = this.course();
-            if (currentCourse) {
-                this.courseFilterModel.set({
-                    name: currentCourse.name,
-                    code: this.CourseCode.formatCode(currentCourse.code),
-                });
-            } else {
-                this.courseFilterModel.set({ name: '', code: '' });
-            }
-        });
-    }
 
     getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
     getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);

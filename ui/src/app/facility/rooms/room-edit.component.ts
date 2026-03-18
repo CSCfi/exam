@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, linkedSignal, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -40,13 +40,13 @@ export class RoomEditComponent {
     readonly internalPasswordInputType = signal<'password' | 'text'>('password');
     readonly externalPasswordInputType = signal<'password' | 'text'>('password');
     readonly roomDetailsForm = form(
-        signal({
-            roomCode: '',
-            buildingName: '',
-            campus: '',
-            internalPassword: '',
-            externalPassword: '',
-        }),
+        linkedSignal(() => ({
+            roomCode: this.room()?.roomCode || '',
+            buildingName: this.room()?.buildingName || '',
+            campus: this.room()?.campus || '',
+            internalPassword: this.room()?.internalPassword || '',
+            externalPassword: this.room()?.externalPassword || '',
+        })),
         (path) => {
             required(path.roomCode);
         },
@@ -61,15 +61,6 @@ export class RoomEditComponent {
 
     constructor() {
         this.showName.set(true);
-        effect(() => {
-            const currentRoom = this.room();
-            if (!currentRoom) return;
-            this.roomDetailsForm.roomCode().value.set(currentRoom.roomCode || '');
-            this.roomDetailsForm.buildingName().value.set(currentRoom.buildingName || '');
-            this.roomDetailsForm.campus().value.set(currentRoom.campus || '');
-            this.roomDetailsForm.internalPassword().value.set(currentRoom.internalPassword || '');
-            this.roomDetailsForm.externalPassword().value.set(currentRoom.externalPassword || '');
-        });
 
         this.roomService.examVisit().subscribe((data) => {
             this.isInteroperable.set(data.isExamVisitSupported);

@@ -12,7 +12,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </div>
 <div class="modal-body">
-    @if (noShows().length === 0) {
+    @if (noShowsWithName().length === 0) {
         <div class="row my-3 align-items-center xm-paragraph-title-no-results">
             <div class="col-auto">
                 <i class="bi-exclamation-circle ps-3"></i>
@@ -58,7 +58,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 </thead>
                 <tbody>
-                    @for (noShow of noShows() | orderBy: noShowPredicate() : reverse(); track noShow) {
+                    @for (noShow of noShowsWithName() | orderBy: noShowPredicate() : reverse(); track noShow) {
                         <tr>
                             <td>
                                 {{ noShow.displayName }}

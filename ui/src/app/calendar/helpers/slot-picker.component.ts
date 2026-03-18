@@ -8,9 +8,9 @@ import {
     Component,
     ViewEncapsulation,
     computed,
-    effect,
     inject,
     input,
+    linkedSignal,
     output,
     signal,
 } from '@angular/core';
@@ -67,8 +67,14 @@ export class SlotPickerComponent {
 
     readonly accessibilities = signal<FilterableAccessibility[]>([]);
     readonly currentWeek = signal(DateTime.now());
-    readonly passwordVerified = signal(false);
-    readonly selectedRoom = signal<ExamRoom | undefined>(undefined);
+    readonly passwordVerified = linkedSignal<boolean>(() => {
+        void this.organisation();
+        return false;
+    });
+    readonly selectedRoom = linkedSignal<ExamRoom | undefined>(() => {
+        void this.organisation();
+        return undefined;
+    });
 
     // Computed state derived from organisation
     readonly rooms = computed<FilterableRoom[]>(() => {
@@ -92,7 +98,10 @@ export class SlotPickerComponent {
     // API-loaded state
     private readonly localRooms = signal<FilterableRoom[]>([]);
     private readonly localMaintenancePeriods = signal<(MaintenancePeriod & { org: '' })[]>([]);
-    private readonly filteredRoomId = signal<number | undefined>(undefined);
+    private readonly filteredRoomId = linkedSignal<number | undefined>(() => {
+        void this.organisation();
+        return undefined;
+    });
 
     private readonly translate = inject(TranslateService);
     private readonly route = inject(ActivatedRoute);
@@ -113,14 +122,6 @@ export class SlotPickerComponent {
         });
         this.Calendar.listMaintenancePeriods$().subscribe((periods) => {
             this.localMaintenancePeriods.set(periods.map((p) => ({ ...p, org: '' })));
-        });
-
-        // Reset selected room and password when organisation changes
-        effect(() => {
-            this.organisation(); // Track organisation changes
-            this.selectedRoom.set(undefined);
-            this.passwordVerified.set(false);
-            this.filteredRoomId.set(undefined);
         });
     }
 

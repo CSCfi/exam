@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
     FormControl,
@@ -12,6 +13,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { skip } from 'rxjs';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 
 @Component({
@@ -21,7 +23,7 @@ import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.m
     imports: [ReactiveFormsModule, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EssayComponent implements AfterViewInit {
+export class EssayComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();
     readonly lotteryOn = input(false);
 
@@ -30,7 +32,6 @@ export class EssayComponent implements AfterViewInit {
     private readonly parentForm = inject(FormGroupDirective);
 
     constructor() {
-        // Create nested form group for essay fields
         this.essayForm = new FormGroup({
             defaultExpectedWordCount: new FormControl<number | null>(null, [
                 Validators.min(1),
@@ -39,35 +40,18 @@ export class EssayComponent implements AfterViewInit {
             defaultEvaluationType: new FormControl<string>('Points', [Validators.required]),
         });
 
-        // Sync form from question data when available
-        effect(() => {
-            const questionValue = this.question();
-            if (questionValue && this.essayForm.pristine) {
-                this.essayForm.patchValue(
-                    {
-                        defaultExpectedWordCount: questionValue.defaultExpectedWordCount || null,
-                        defaultEvaluationType: questionValue.defaultEvaluationType || 'Points',
-                    },
-                    { emitEvent: false },
-                );
-            }
-        });
-
-        // Update disabled state when lotteryOn changes
-        effect(() => {
-            const evaluationTypeControl = this.essayForm.get('defaultEvaluationType');
-            if (evaluationTypeControl) {
-                if (this.lotteryOn()) {
-                    evaluationTypeControl.disable({ emitEvent: false });
+        toObservable(this.lotteryOn)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((lotteryOn) => {
+                const evaluationTypeControl = this.essayForm.get('defaultEvaluationType');
+                if (lotteryOn) {
+                    evaluationTypeControl?.disable({ emitEvent: false });
                 } else {
-                    evaluationTypeControl.enable({ emitEvent: false });
+                    evaluationTypeControl?.enable({ emitEvent: false });
                 }
-            }
-        });
+            });
 
-        // Handle max score when evaluation type changes to 'Selection'
         this.essayForm.get('defaultEvaluationType')?.valueChanges.subscribe((evaluationType) => {
-            // Access questionBody form via parent form (top-level questionForm)
             const maxScoreControl = this.parentForm.form.get('defaultMaxScore');
             if (maxScoreControl) {
                 if (evaluationType === 'Selection') {
@@ -78,6 +62,21 @@ export class EssayComponent implements AfterViewInit {
                 }
             }
         });
+    }
+
+    ngOnInit() {
+        const questionValue = this.question();
+        this.essayForm.patchValue(
+            {
+                defaultExpectedWordCount: questionValue.defaultExpectedWordCount || null,
+                defaultEvaluationType: questionValue.defaultEvaluationType || 'Points',
+            },
+            { emitEvent: false },
+        );
+        const evaluationTypeControl = this.essayForm.get('defaultEvaluationType');
+        if (this.lotteryOn()) {
+            evaluationTypeControl?.disable({ emitEvent: false });
+        }
     }
 
     /**
@@ -110,8 +109,7 @@ export class EssayComponent implements AfterViewInit {
         });
 
         // Handle initial state for max score if evaluation type is 'Selection'
-        const questionValue = this.question();
-        if (questionValue?.defaultEvaluationType === 'Selection') {
+        if (this.question()?.defaultEvaluationType === 'Selection') {
             const maxScoreControl = this.parentForm.form.get('defaultMaxScore');
             if (maxScoreControl) {
                 maxScoreControl.setValue(0, { emitEvent: false });

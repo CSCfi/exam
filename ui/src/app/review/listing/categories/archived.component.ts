@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
-import type { Review, ReviewListView } from 'src/app/review/review.model';
+import type { Review } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -44,8 +44,14 @@ export class ArchivedReviewsComponent {
     readonly reviews = input<Review[]>([]);
     readonly collaborative = input(false);
 
-    readonly view = signal<ReviewListView | undefined>(undefined);
-    readonly selections = signal<{ all: boolean; page: boolean }>({ all: false, page: false });
+    readonly view = linkedSignal(() => ({
+        ...this.ReviewList.prepareView(this.reviews(), (r) => this.handleGradedReviews(r), 'examParticipation.started'),
+        reverse: true,
+    }));
+    readonly selections = linkedSignal<{ all: boolean; page: boolean }>(() => {
+        void this.reviews();
+        return { all: false, page: false };
+    });
 
     private readonly ReviewList = inject(ReviewListService);
     private readonly CommonExam = inject(CommonExamService);
@@ -53,36 +59,27 @@ export class ArchivedReviewsComponent {
     private readonly Session = inject(SessionService);
     private readonly Translate = inject(TranslateService);
 
-    constructor() {
-        effect(() => this.init(this.reviews()));
-    }
-
     showId() {
         return this.Session.getUser().isAdmin && this.exam()?.anonymous;
     }
 
     updateFilter(value: string) {
-        this.view.update((v) => {
-            if (!v) return v;
-            return {
-                ...v,
-                filter: value,
-                filtered: this.ReviewList.applyFilter(value, v.items),
-            };
-        });
+        this.view.update((v) => ({
+            ...v,
+            filter: value,
+            filtered: this.ReviewList.applyFilter(value, v.items),
+        }));
     }
 
     applyFreeSearchFilter() {
-        const currentView = this.view();
-        if (!currentView) return;
         this.view.update((v) => ({
-            ...v!,
-            filtered: this.ReviewList.applyFilter(v!.filter, v!.items),
+            ...v,
+            filtered: this.ReviewList.applyFilter(v.filter, v.items),
         }));
     }
 
     pageSelected(event: { page: number }) {
-        this.view.update((v) => ({ ...v!, page: event.page }));
+        this.view.update((v) => ({ ...v, page: event.page }));
     }
 
     handleGradedReviews(r: Review) {
@@ -95,32 +92,25 @@ export class ArchivedReviewsComponent {
 
     setPredicate(predicate: string) {
         this.view.update((v) => {
-            if (!v) return v;
             const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
             return { ...v, predicate, reverse };
         });
     }
 
     selectAll() {
-        const currentView = this.view();
-        if (!currentView) return;
         const currentSelections = { ...this.selections() };
-        this.ReviewList.selectAll(currentSelections, currentView.filtered);
+        this.ReviewList.selectAll(currentSelections, this.view().filtered);
         this.selections.set(currentSelections);
     }
 
     selectPage(selector: string) {
-        const currentView = this.view();
-        if (!currentView) return;
         const currentSelections = { ...this.selections() };
-        this.ReviewList.selectPage(currentSelections, currentView.filtered, selector);
+        this.ReviewList.selectPage(currentSelections, this.view().filtered, selector);
         this.selections.set(currentSelections);
     }
 
     printSelected() {
-        const currentView = this.view();
-        if (!currentView) return;
-        const selection = this.ReviewList.getSelectedReviews(currentView.filtered);
+        const selection = this.ReviewList.getSelectedReviews(this.view().filtered);
         if (selection.length == 0) {
             return;
         }
@@ -137,7 +127,7 @@ export class ArchivedReviewsComponent {
     }
 
     toggleView() {
-        this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
+        this.view.update((v) => ({ ...v, toggle: !v.toggle }));
     }
 
     onReviewToggle = (review: Review, event: Event) => {
@@ -148,14 +138,6 @@ export class ArchivedReviewsComponent {
         this.updateFilter((event.target as HTMLInputElement).value);
         this.applyFreeSearchFilter();
     };
-
-    private init(reviews: Review[]) {
-        const initialView = {
-            ...this.ReviewList.prepareView(reviews, (r) => this.handleGradedReviews(r), 'examParticipation.started'),
-            reverse: true,
-        };
-        this.view.set(initialView);
-    }
 
     private translateGrade(exam: Exam) {
         return this.ReviewList.translateGrade(exam);

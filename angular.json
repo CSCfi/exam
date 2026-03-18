@@ -46,7 +46,12 @@
               "node_modules/mathlive/mathlive-fonts.css"
             ],
             "scripts": [],
-            "browser": "ui/src/main.ts"
+            "browser": "ui/src/main.ts",
+            "allowedCommonJsDependencies": [
+              "fuzzysort",
+              "es-toolkit/compat/isEqual",
+              "extend"
+            ]
           },
           "configurations": {
             "production": {
