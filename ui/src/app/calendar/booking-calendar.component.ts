@@ -75,7 +75,7 @@ export class BookingCalendarComponent {
             nowIndicator: true,
             slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-            eventMinHeight: 45,
+            // note: do not set eventMinHeight here, it will cause a mess in calendar grid
             events: this.refetch.bind(this),
             eventClick: this.eventClicked.bind(this),
         });
