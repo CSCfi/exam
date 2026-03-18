@@ -138,8 +138,7 @@ export class SectionQuestionComponent {
         });
 
         modal.componentInstance.lotteryOn.set(this.lotteryOn());
-        // Convert Question to ReverseQuestion by adding examSectionQuestions
-        modal.componentInstance.question.set({ ...currentSectionQuestion.question, examSectionQuestions: [] });
+        modal.componentInstance.questionId.set(currentSectionQuestion.question.id);
         modal.componentInstance.collaborative.set(this.collaborative());
         modal.componentInstance.examId.set(this.examId());
 

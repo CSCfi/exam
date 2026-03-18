@@ -22,11 +22,8 @@ import play.api.libs.ws.{WSBodyWritables, WSClient}
 import play.api.mvc.MultipartFormData
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.file.ChunkMaker
-
 import java.net.{URI, URL, URLEncoder}
 import java.nio.charset.StandardCharsets
-import java.util.Base64
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -192,21 +189,10 @@ class ExternalAttachmentService @Inject() (
         wsClient.url(attachmentUrl.toString).stream().map { response =>
           if response.status != play.api.http.Status.OK then DownloadResponse.Error(response.status)
           else
-            // Use RFC 5987 format for Content-Disposition header with UTF-8 encoding
             val escapedName        = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
             val contentDisposition = s"""attachment; filename*=UTF-8''"$escapedName""""
-
-            // Chunk the stream into 3KB chunks and encode each chunk as base64
-            val chunkSize = 3 * 1024 // 3KB
-            val base64Stream = response.bodyAsSource
-              .via(new ChunkMaker(chunkSize))
-              .map { byteString =>
-                val encoded = Base64.getEncoder.encode(byteString.toArray)
-                ByteString.fromArray(encoded)
-              }
-
             DownloadResponse.Success(
-              base64Stream,
+              response.bodyAsSource,
               mimeType,
               Map("Content-Disposition" -> contentDisposition)
             )

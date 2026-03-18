@@ -5,7 +5,7 @@
 package system
 
 import play.api.Logging
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsString, JsValue}
 import play.api.mvc.*
 
 import javax.inject.Inject
@@ -35,6 +35,8 @@ class AuditedAction @Inject() (parser: BodyParsers.Default)(implicit ec: Executi
         val json = request.body match
           case ac: AnyContent => ac.asJson
           case jv: JsValue    => Some(jv)
-          case _              => None
+          case mp: MultipartFormData[?] =>
+            mp.files.headOption.map(f => JsString(s"file: ${f.filename}"))
+          case _ => None
         logger.debug(s"$logEntry data: ${json.getOrElse("")}")
       else logger.debug(logEntry)

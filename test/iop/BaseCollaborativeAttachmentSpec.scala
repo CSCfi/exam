@@ -27,7 +27,7 @@ import play.api.mvc.Result
 import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
 import java.util.concurrent.Semaphore
-import java.util.{Base64, Objects}
+import java.util.Objects
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
@@ -95,12 +95,9 @@ trait BaseCollaborativeAttachmentSpec[T]
     implicit val mat: Materializer = Materializer.createMaterializer(actorSystem)
     try
       implicit val timeout: Timeout = Timeout(5.seconds)
-      // Use the materializer we created instead of relying on Play's
-      val contentBytes = Await.result(result.body.consumeData, 5.seconds)
-      val content      = contentBytes.utf8String
-      val decoded      = Base64.getDecoder.decode(content)
-      val f            = new File(testUpload.toString + "/image.png")
-      FileUtils.writeByteArrayToFile(f, decoded)
+      val contentBytes              = Await.result(result.body.consumeData, 5.seconds)
+      val f                         = new File(testUpload.toString + "/image.png")
+      FileUtils.writeByteArrayToFile(f, contentBytes.toArray)
       FileUtils.contentEquals(f, testImage) must be(true)
     finally actorSystem.terminate()
 

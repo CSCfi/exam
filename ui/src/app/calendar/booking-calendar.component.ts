@@ -13,7 +13,7 @@ import luxon2Plugin from '@fullcalendar/luxon3';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { combineLatest, skip } from 'rxjs';
+import { skip } from 'rxjs';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CalendarService } from './calendar.service';
@@ -87,9 +87,11 @@ export class BookingCalendarComponent {
             });
         });
 
-        combineLatest([toObservable(this.room), toObservable(this.searchStart), toObservable(this.searchEnd)])
-            .pipe(skip(1), takeUntilDestroyed())
-            .subscribe(([roomVal, searchStart, searchEnd]) => {
+        toObservable(this.room)
+            .pipe(takeUntilDestroyed())
+            .subscribe((roomVal) => {
+                const searchStart = this.searchStart();
+                const searchEnd = this.searchEnd();
                 const earliestOpening = this.Calendar.getEarliestOpening(roomVal, searchStart, searchEnd);
                 const latestClosing = this.Calendar.getLatestClosing(roomVal, searchStart, searchEnd);
                 const minTime =

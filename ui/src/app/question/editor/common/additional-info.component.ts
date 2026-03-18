@@ -26,6 +26,7 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 })
 export class AdditionalInfoComponent implements OnInit, AfterViewInit {
     readonly question = input<ReverseQuestion | QuestionDraft>();
+    readonly questionType = input<string | null>(null);
     readonly showWarning = input(false);
 
     readonly additionalInfoForm: FormGroup;
@@ -42,7 +43,7 @@ export class AdditionalInfoComponent implements OnInit, AfterViewInit {
     }
 
     get showEvaluationCriteria(): boolean {
-        return this.question()?.type === 'EssayQuestion';
+        return (this.questionType() ?? this.question()?.type) === 'EssayQuestion';
     }
 
     ngOnInit() {

@@ -9,6 +9,7 @@ import features.iop.collaboration.services.{
   CollaborativeExamLoaderService,
   CollaborativeExamService
 }
+import models.assessment.Comment
 import models.attachment.{Attachment, AttachmentContainer}
 import models.exam.Exam
 import models.iop.CollaborativeExam
@@ -24,7 +25,8 @@ import play.api.libs.json.*
 import play.api.libs.ws.WSClient
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
-import security.{Auth, BlockingIOExecutionContext}
+import models.user.PermissionType
+import security.{Auth, BlockingIOExecutionContext, PermissionFilter}
 import services.config.ConfigReader
 import services.file.ChunkMaker
 import system.AuditedAction
@@ -137,8 +139,30 @@ class CollaborativeAttachmentController @Inject() (
             logger.warn(s"External id can not be found for attachment [id=${att.id}]")
             Future.successful(NotFound)
           case Some(externalId) =>
-            downloadAttachment(externalId, att.mimeType, att.fileName)
+            streamBinaryAttachment(externalId, att.mimeType, att.fileName)
 
+  // Streams raw binary to the browser. Used by all direct-download endpoints (exam, question, statement).
+  // The UI requests these with responseType: 'blob' and does not expect base64.
+  private def streamBinaryAttachment(
+      id: String,
+      mimeType: String,
+      fileName: String
+  ): Future[Result] =
+    parseUrl("/api/attachments/%s/download", id) match
+      case None => Future.successful(InternalServerError)
+      case Some(url) =>
+        wsClient.url(url.toString).stream().map { response =>
+          if response.status != OK then Status(response.status)
+          else
+            val escapedName        = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
+            val contentDisposition = s"""attachment; filename*=UTF-8''"$escapedName""""
+            Ok.chunked(response.bodyAsSource)
+              .as(mimeType)
+              .withHeaders("Content-Disposition" -> contentDisposition)
+        }
+
+  // Streams base64-encoded chunks. Used only by the /collab/attachment/:id endpoint,
+  // which the UI fetches with responseType: 'text' and decodes via atob().
   private def downloadAttachment(id: String, mimeType: String, fileName: String): Future[Result] =
     parseUrl("/api/attachments/%s/download", id) match
       case None => Future.successful(InternalServerError)
@@ -146,19 +170,15 @@ class CollaborativeAttachmentController @Inject() (
         wsClient.url(url.toString).stream().map { response =>
           if response.status != OK then Status(response.status)
           else
-            // Use RFC 5987 format for Content-Disposition header with UTF-8 encoding
             val escapedName        = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
             val contentDisposition = s"""attachment; filename*=UTF-8''"$escapedName""""
-
-            // Chunk the stream into 3KB chunks and encode each chunk as base64
-            val chunkSize = 3 * 1024
+            val chunkSize          = 3 * 1024
             val base64Stream = response.bodyAsSource
               .via(new ChunkMaker(chunkSize))
               .map { byteString =>
                 val encoded = Base64.getEncoder.encode(byteString.toArray)
                 ByteString.fromArray(encoded)
               }
-
             Ok.chunked(base64Stream)
               .as(mimeType)
               .withHeaders("Content-Disposition" -> contentDisposition)
@@ -336,9 +356,22 @@ class CollaborativeAttachmentController @Inject() (
                   }
               }
 
-  // Stub methods for routes that aren't fully implemented for collaborative exams
   def downloadExternalAttachment(id: String): Action[AnyContent] =
-    Action { _ => Results.NotImplemented }
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { _ =>
+      parseUrl("/api/attachments/%s", id) match
+        case None => Future.successful(InternalServerError)
+        case Some(url) =>
+          wsClient.url(url.toString).get().flatMap { response =>
+            if response.status != OK then Future.successful(Status(response.status))
+            else
+              val node     = response.json
+              val mimeType = (node \ "mimeType").as[String]
+              val fileName = (node \ "displayName").as[String]
+              downloadAttachment(id, mimeType, fileName)
+          }
+    }
 
   def addAttachmentToQuestion(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
     audited
@@ -487,16 +520,104 @@ class CollaborativeAttachmentController @Inject() (
     }
 
   def addAttachmentToExam(): Action[MultipartFormData[TemporaryFile]] =
-    Action.andThen(audited)(parse.multipartFormData) { _ => Results.NotImplemented }
+    audited
+      .andThen(authenticated)
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+      .async(parse.multipartFormData) { request =>
+        request.body.asFormUrlEncoded.get("examId").flatMap(_.headOption) match
+          case None => Future.successful(BadRequest("Missing examId"))
+          case Some(examIdStr) =>
+            getExternalExam(examIdStr.toLong).flatMap {
+              case None => Future.successful(NotFound)
+              case Some(ce) =>
+                examLoader.downloadExam(ce).flatMap {
+                  case None => Future.successful(NotFound)
+                  case Some(exam) =>
+                    request.body.file("file") match
+                      case None => Future.successful(BadRequest("Missing file"))
+                      case Some(filePart) =>
+                        val user = request.attrs(Auth.ATTR_USER)
+                        uploadAttachment(filePart, ce, exam, exam, user)
+                }
+            }
+      }
 
   def deleteExamAttachment(id: Long): Action[AnyContent] =
-    Action { _ => Results.NotImplemented }
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
+      getExternalExam(id).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              val user = request.attrs(Auth.ATTR_USER)
+              deleteExternalAttachment(exam, ce, exam, user)
+          }
+      }
+    }
 
   def addStatementAttachment(id: Long): Action[MultipartFormData[TemporaryFile]] =
-    Action.andThen(audited)(parse.multipartFormData) { _ => Results.NotImplemented }
+    audited
+      .andThen(authenticated)
+      .andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE))
+      .async(parse.multipartFormData) { request =>
+        getExternalExam(id).flatMap {
+          case None => Future.successful(NotFound)
+          case Some(ce) =>
+            examLoader.downloadExam(ce).flatMap {
+              case None => Future.successful(NotFound)
+              case Some(exam) =>
+                Option(exam.languageInspection) match
+                  case None => Future.successful(NotFound)
+                  case Some(li) =>
+                    val user = request.attrs(Auth.ATTR_USER)
+                    if li.statement == null then
+                      val comment = new Comment()
+                      comment.setCreatorWithDate(user)
+                      li.statement = comment
+                    request.body.file("file") match
+                      case None => Future.successful(BadRequest("Missing file"))
+                      case Some(filePart) =>
+                        uploadAttachment(filePart, ce, exam, li.statement, user)
+            }
+        }
+      }
 
   def deleteStatementAttachment(id: Long): Action[AnyContent] =
-    Action { _ => Results.NotImplemented }
+    authenticated.andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE)).async { request =>
+      getExternalExam(id).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              val statementOpt = Option(exam.languageInspection)
+                .flatMap(li => Option(li.statement))
+                .filter(s =>
+                  Option(s.attachment).flatMap(a => Option(a.externalId)).exists(_.nonEmpty)
+                )
+              statementOpt match
+                case None => Future.successful(NotFound)
+                case Some(_) =>
+                  val user = request.attrs(Auth.ATTR_USER)
+                  deleteExternalAttachment(exam.languageInspection.statement, ce, exam, user)
+          }
+      }
+    }
 
   def downloadStatementAttachment(id: Long): Action[AnyContent] =
-    Action { _ => Results.NotImplemented }
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { _ =>
+      getExternalExam(id).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              Option(exam.languageInspection).flatMap(li => Option(li.statement)) match
+                case None            => Future.successful(NotFound)
+                case Some(statement) => downloadExternalAttachment(statement.attachment)
+          }
+      }
+    }

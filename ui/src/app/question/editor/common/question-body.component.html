@@ -85,7 +85,11 @@ SPDX-License-Identifier: EUPL-1.2
         }
 
         <!-- Additional Info -->
-        <xm-question-additional-info [question]="question()" [showWarning]="examNames().length > 1">
+        <xm-question-additional-info
+            [question]="question()"
+            [questionType]="questionType()"
+            [showWarning]="examNames().length > 1"
+        >
             <!-- Tags content projection -->
             <div tags-content>
                 <xm-question-tags

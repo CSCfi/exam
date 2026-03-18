@@ -9,7 +9,6 @@ import {
     DestroyRef,
     inject,
     input,
-    linkedSignal,
     OnInit,
     output,
     signal,
@@ -73,7 +72,7 @@ export class QuestionBodyComponent implements OnInit {
         const names = q.examSectionQuestions.map((s) => s.examSection.exam.name).filter((n): n is string => n != null);
         return names.filter((n, pos) => names.indexOf(n) === pos).sort();
     });
-    readonly questionType = linkedSignal<string | null>(() => this.question().type || null);
+    readonly questionType = signal<string | null>(null);
     readonly multichoiceFeaturesOn = signal(false);
 
     readonly questionBodyForm: FormGroup;
@@ -103,7 +102,9 @@ export class QuestionBodyComponent implements OnInit {
             { defaultMaxScore: questionValue.defaultMaxScore || null },
             { emitEvent: false },
         );
-        this.updateDefaultMaxScoreValidators(questionValue.type || null);
+        const initialType = questionValue.type || null;
+        this.questionType.set(initialType);
+        this.updateDefaultMaxScoreValidators(initialType);
     }
 
     onFormReady(form: FormGroup) {
