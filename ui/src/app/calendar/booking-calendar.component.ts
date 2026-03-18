@@ -75,7 +75,6 @@ export class BookingCalendarComponent {
             nowIndicator: true,
             slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-            eventMinHeight: 45,
             events: this.refetch.bind(this),
             eventClick: this.eventClicked.bind(this),
         });

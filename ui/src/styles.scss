@@ -39,6 +39,9 @@ html {
 .fc-timegrid-event-harness-inset .fc-timegrid-event {
     cursor: pointer;
 }
+.fc .fc-timegrid-slot {
+    height: 1.8em;
+}
 /* cloze test styles, need to be defined here because of view encapsulation */
 @mixin xm-cloze-test($bc, $bgc) {
     margin-right: 3px;

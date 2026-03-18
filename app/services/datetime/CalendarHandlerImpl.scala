@@ -100,7 +100,7 @@ class CalendarHandlerImpl @Inject() (
                   .toList
           else List.empty
 
-        Right(Json.toJson(slots))
+        Right(Json.toJson(slots.sortBy(_.interval.getStartMillis)))
 
   override def isDoable(reservation: Reservation, aids: Seq[Long]): Boolean =
     val dtz = DateTimeZone.forID(reservation.machine.room.localTimezone)
