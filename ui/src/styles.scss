@@ -103,9 +103,12 @@ textarea.ng-invalid {
     max-height: 400px;
     overflow-y: scroll;
 }
-/* to highlight ck-editor (cloze test) content marked with this class */
-.marker {
-    background-color: yellow;
+/* cloze test gap — rendered outside editor */
+.cloze-test-wrapper {
+    background-color: rgba(255, 213, 0, 0.3);
+    border-bottom: 2px solid rgba(255, 180, 0, 0.7);
+    border-radius: 2px;
+    padding: 0 3px 1px;
 }
 /* modal title */
 .xm-modal-title {
