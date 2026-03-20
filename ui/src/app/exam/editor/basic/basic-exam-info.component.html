@@ -44,6 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
                                     class="form-control w-50"
                                     [value]="exam().name"
                                     (input)="onExamNameInput($event)"
+                                    (blur)="updateExam()"
                                 />
                             </div>
                         </div>

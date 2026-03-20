@@ -13,7 +13,7 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <!-- Finished exams list -->
     <div class="row">
-        <div class="col-12">
+        <div class="col-12 exam-participations-content-max">
             <div class="row align-items-center" role="note">
                 <div class="col-auto">
                     <img src="/assets/images/icon_info.png" class="pe-1" alt="" />
@@ -29,64 +29,71 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 
     <div class="row my-3">
-        <div class="col-4">
-            <div class="input-group">
-                <input
-                    [ariaLabel]="'i18n_search' | translate"
-                    [ariaDescription]="'i18n_type_to_start_search' | translate"
-                    [value]="filterText"
-                    (input)="onFilterInput($event)"
-                    type="text"
-                    class="form-control"
-                    placeholder="{{ 'i18n_search' | translate }}"
-                />
-                <div class="input-group-append bi-search search-append"></div>
-            </div>
-        </div>
-        @if (searchDone()) {
-            <div class="row my-2">
-                <div class="col-12" aria-live="polite">
-                    {{ 'i18n_student_exam_search_result' | translate }} {{ participations().length }}
-                    {{ 'i18n_student_exam_search_result_continues' | translate }}
+        <div class="col-12 exam-participations-content-max">
+            <div class="row align-items-center g-2">
+                <div class="col-12 col-md-5">
+                    <div class="input-group">
+                        <input
+                            [ariaLabel]="'i18n_search' | translate"
+                            [ariaDescription]="'i18n_type_to_start_search' | translate"
+                            [value]="filterText"
+                            (input)="onFilterInput($event)"
+                            type="text"
+                            class="form-control"
+                            placeholder="{{ 'i18n_search' | translate }}"
+                        />
+                        <div class="input-group-append bi-search search-append"></div>
+                    </div>
                 </div>
-            </div>
-        }
-        <div class="col-8" ngbDropdown>
-            <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
-                {{ 'i18n_set_ordering' | translate }}:
-                @switch (filter().ordering) {
-                    @case ('exam.name') {
-                        {{ (filter().reverse ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending') | translate }}
-                    }
-                    @case ('ended') {
-                        {{
-                            (filter().reverse
-                                ? 'i18n_exam_participation_ascending'
-                                : 'i18n_exam_participation_descending'
-                            ) | translate
-                        }}
-                    }
-                    @default {
-                        <!-- empty -->
-                    }
-                }
-            </button>
-            <div ngbDropdownMenu role="menu">
-                <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('exam.name', false)">
-                    {{ 'i18n_exam_name_ascending' | translate }}
-                </button>
-                <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('exam.name', true)">
-                    {{ 'i18n_exam_name_descending' | translate }}
-                </button>
-                <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('ended', false)">
-                    {{ 'i18n_exam_participation_descending' | translate }}
-                </button>
-                <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('ended', true)">
-                    {{ 'i18n_exam_participation_ascending' | translate }}
-                </button>
+                <div class="col-12 col-md-7 mt-2 mt-md-0" ngbDropdown>
+                    <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
+                        {{ 'i18n_set_ordering' | translate }}:
+                        @switch (filter().ordering) {
+                            @case ('exam.name') {
+                                {{
+                                    (filter().reverse ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending')
+                                        | translate
+                                }}
+                            }
+                            @case ('ended') {
+                                {{
+                                    (filter().reverse
+                                        ? 'i18n_exam_participation_ascending'
+                                        : 'i18n_exam_participation_descending'
+                                    ) | translate
+                                }}
+                            }
+                            @default {
+                                <!-- empty -->
+                            }
+                        }
+                    </button>
+                    <div ngbDropdownMenu role="menu">
+                        <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('exam.name', false)">
+                            {{ 'i18n_exam_name_ascending' | translate }}
+                        </button>
+                        <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('exam.name', true)">
+                            {{ 'i18n_exam_name_descending' | translate }}
+                        </button>
+                        <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('ended', false)">
+                            {{ 'i18n_exam_participation_descending' | translate }}
+                        </button>
+                        <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('ended', true)">
+                            {{ 'i18n_exam_participation_ascending' | translate }}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    @if (searchDone()) {
+        <div class="row my-2">
+            <div class="col-12 exam-participations-content-max" aria-live="polite">
+                {{ 'i18n_student_exam_search_result' | translate }} {{ participations().length }}
+                {{ 'i18n_student_exam_search_result_continues' | translate }}
+            </div>
+        </div>
+    }
 
     <!-- List of finished exams -->
     @for (
@@ -96,7 +103,7 @@ SPDX-License-Identifier: EUPL-1.2
         track participation
     ) {
         <div class="row mb-3">
-            <div class="col-12">
+            <div class="col-12 exam-participations-content-max">
                 <xm-exam-participation
                     [participation]="participation"
                     [collaborative]="collaborative"
@@ -108,7 +115,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (participations()) {
         <div class="row mt-2">
             @if (participations().length > pageSize) {
-                <div class="col-md-12">
+                <div class="col-12 exam-participations-content-max">
                     <xm-paginator
                         [items]="participations()"
                         (pageSelected)="pageSelected($event)"

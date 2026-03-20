@@ -323,13 +323,18 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
             if (nextState) {
                 this.router.navigate(['/staff', ...String(nextState).split('/')]);
             } else if (this.isModalContext()) {
-                // In modal, emit saved event
                 this.saved.emit(reverseQ);
             } else {
-                // In route, navigate back to questions list (default behavior)
                 this.router.navigate(['/staff/questions']);
             }
         };
+
+        // Collaborative exam questions are saved by the caller (section-question.component)
+        // after the modal closes — skip the regular question library HTTP call here.
+        if (this.collaborative() && this.isModalContext()) {
+            ok(updatedQuestion as Question);
+            return;
+        }
 
         if (this.newQuestion()) {
             this.Question.createQuestion$(updatedQuestion as QuestionDraft).subscribe({

@@ -452,6 +452,7 @@ export class SectionComponent implements OnInit {
     private addCollabAttachment(data: ExamSectionQuestion, question: Question, callback: () => void) {
         const attachment = question.attachment;
         if (!attachment) {
+            callback();
             return;
         }
 
@@ -463,6 +464,8 @@ export class SectionComponent implements OnInit {
                 question.attachment = resp;
                 callback();
             });
+        } else {
+            callback();
         }
     }
 

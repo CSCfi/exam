@@ -242,16 +242,19 @@ export class ExamService {
             .get<Exam>(`/app/exams/${id}`)
             .pipe(map((exam) => ({ ...exam, hasEnrolmentsInEffect: this.hasEffectiveEnrolments(exam) })));
 
-    getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
+    getMaxScore = (exam: SectionContainer) =>
+        (exam.examSections ?? []).reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 
     getTotalScore = (exam: SectionContainer): number => {
-        const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0).toFixed(2);
+        const score = (exam.examSections ?? [])
+            .reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0)
+            .toFixed(2);
         // total score cannot be negative as for now
         return Math.max(0, parseFloat(score) > 0 ? parseFloat(score) : 0);
     };
 
     getSectionTotalNumericScore = (section: ExamSection): number => {
-        const score = section.sectionQuestions.reduce((n, sq) => {
+        const score = (section.sectionQuestions ?? []).reduce((n, sq) => {
             const points = this.QuestionScore.calculateAnswerScore(sq);
             // handle only numeric scores (leave out approved/rejected type of scores)
             return n + (points.rejected === false && points.approved === false ? points.score : 0);
@@ -260,7 +263,7 @@ export class ExamService {
     };
 
     getSectionTotalScore = (section: ExamSection): number => {
-        const score = section.sectionQuestions.reduce((n, sq) => {
+        const score = (section.sectionQuestions ?? []).reduce((n, sq) => {
             const points = this.QuestionScore.calculateAnswerScore(sq);
             return n + points.score;
         }, 0);
@@ -268,14 +271,15 @@ export class ExamService {
     };
 
     getSectionMaxScore = (section: ExamSection): number => {
-        let maxScore = section.sectionQuestions.reduce((n, sq) => {
+        const questions = section.sectionQuestions ?? [];
+        let maxScore = questions.reduce((n, sq) => {
             if (!sq || !sq.question) {
                 return n;
             }
             return n + this.QuestionScore.calculateMaxScore(sq);
         }, 0);
         if (section.lotteryOn) {
-            maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
+            maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, questions.length);
         }
         return Number.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };

@@ -42,7 +42,6 @@ interface LoadingState {
                         class="form-control"
                         [ariaLabel]="'i18n_search' | translate"
                         placeholder="{{ 'i18n_search' | translate }}"
-                        [disabled]="loader().loading"
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </div>
@@ -81,37 +80,43 @@ interface LoadingState {
             </div>
         </div>
 
-        <!-- Loading State -->
-        @if (loader().loading) {
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="d-flex align-items-center">
-                        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-                        <span>{{ 'i18n_searching' | translate }}...</span>
-                    </div>
-                </div>
-            </div>
-        }
-
-        @if (searchDone() && !loader().loading) {
-            <div class="row mt-2">
-                <div class="col-12" aria-live="polite">
-                    {{ 'i18n_student_exam_search_result' | translate }}
-                    {{ exams().length }}
-                    {{ 'i18n_student_exam_search_result_continues' | translate }}
-                </div>
-            </div>
-        }
-
-        <div class="row mt-3">
-            <div class="col-12">
-                @for (exam of exams() | orderBy: filterOrdering() : filterReverse(); track exam.id) {
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
+        <div
+            role="region"
+            [attr.aria-label]="'i18n_collaborative_exams' | translate"
+            [attr.aria-busy]="loader().loading ? true : null"
+        >
+            <!-- Loading State -->
+            @if (loader().loading) {
+                <div class="row mt-3" role="status">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm me-2" aria-hidden="true"></div>
+                            <span>{{ 'i18n_searching' | translate }}...</span>
                         </div>
                     </div>
-                }
+                </div>
+            }
+
+            @if (searchDone() && !loader().loading) {
+                <div class="row mt-2">
+                    <div class="col-12" aria-live="polite">
+                        {{ 'i18n_student_exam_search_result' | translate }}
+                        {{ exams().length }}
+                        {{ 'i18n_student_exam_search_result_continues' | translate }}
+                    </div>
+                </div>
+            }
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    @for (exam of exams() | orderBy: filterOrdering() : filterReverse(); track exam.id) {
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     `,

@@ -10,8 +10,8 @@ import { path as getPath } from 'src/app/shared/miscellaneous/helpers';
     name: 'orderBy',
 })
 export class OrderByPipe implements PipeTransform {
-    transform<T>(input: T[], predicate: string, reverse = false, lowercase = true): T[] {
-        if (input.length < 2) return input;
+    transform<T>(input: T[] | null | undefined, predicate: string, reverse = false, lowercase = true): T[] {
+        if (!input || input.length < 2) return input ?? [];
         const keys = predicate.split('.');
         return [...input].sort((a, b) => this.compare(reverse, lowercase, a, b, keys));
     }

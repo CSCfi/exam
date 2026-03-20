@@ -3,16 +3,30 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import { firstValueFrom, of } from 'rxjs';
 import type { Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { vi } from 'vitest';
 import { ExamTabService } from './exam-tabs.service';
 
 const mockExam = { id: 1, examSections: [] } as unknown as Exam;
 
 describe('ExamTabService', () => {
     let service: ExamTabService;
+    let updateExam$: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        updateExam$ = vi.fn().mockReturnValue(of(mockExam));
+        TestBed.configureTestingModule({
+            providers: [
+                ExamTabService,
+                { provide: ExamService, useValue: { updateExam$ } },
+                { provide: TranslateService, useValue: { instant: (key: string) => key } },
+                { provide: ToastrService, useValue: { info: vi.fn(), error: vi.fn() } },
+            ],
+        });
         service = TestBed.inject(ExamTabService);
     });
 
@@ -74,6 +88,24 @@ describe('ExamTabService', () => {
             service.setCollaborative(true);
             service.setCollaborative(false);
             expect(service.collaborativeSignal()).toBe(false);
+        });
+    });
+
+    describe('saveExam$', () => {
+        it('should call ExamService.updateExam$ with exam, overrides, and collaborative flag', async () => {
+            service.setExam(mockExam);
+            service.setCollaborative(true);
+            const saved = await firstValueFrom(service.saveExam$({ name: 'x' }, true));
+            expect(updateExam$).toHaveBeenCalledWith(mockExam, { name: 'x' }, true);
+            expect(saved).toBe(mockExam);
+        });
+
+        it('should update exam signal from server response', async () => {
+            const saved = { id: 2, examSections: [] } as unknown as Exam;
+            updateExam$.mockReturnValueOnce(of(saved));
+            service.setExam(mockExam);
+            await firstValueFrom(service.saveExam$({}, true));
+            expect(service.getExam()).toBe(saved);
         });
     });
 });

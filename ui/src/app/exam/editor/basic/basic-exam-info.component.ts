@@ -77,7 +77,10 @@ export class BasicExamInfoComponent {
         this.ExamTabs.notifyTabChange(1);
     }
 
-    onExamNameInput = (event: Event) => this.updateExamName((event.target as HTMLInputElement).value);
+    onExamNameInput = (event: Event) => {
+        const currentExam = this.exam();
+        this.ExamTabs.setExam({ ...currentExam, name: (event.target as HTMLInputElement).value });
+    };
 
     onExamAnonymousChange = (event: Event) => {
         this.updateExamAnonymous((event.target as HTMLInputElement).checked);
@@ -95,12 +98,6 @@ export class BasicExamInfoComponent {
                 ? (course.gradeScale ?? currentExam.gradeScale)
                 : currentExam.gradeScale;
         this.ExamTabs.setExam({ ...currentExam, course, gradeScale });
-    }
-
-    updateExamName(value: string) {
-        const currentExam = this.exam();
-        this.ExamTabs.setExam({ ...currentExam, name: value });
-        this.updateExam();
     }
 
     updateExamAnonymous(value: boolean) {

@@ -243,19 +243,32 @@ $border-green: 3px solid shared.$exam-dark-green;
 
     ul.submenu {
         margin-top: 20px;
-        padding: 0;
+        margin-left: 0.35em;
+        padding: 0 0.65em 0 0;
         border: 0;
-        font-size: 16px;
-        color: $nav-text;
-        letter-spacing: 0.27px;
-        line-height: 16px;
+        font-size: 14px;
+        color: rgba(231, 231, 231, 0.82);
+        letter-spacing: 0.22px;
+        line-height: 1.25;
         text-align: left;
 
         button {
             height: auto;
             border-radius: 0;
-            color: $nav-text;
+            font-size: inherit;
+            font-weight: 400;
+            color: inherit;
+            padding-left: 1em;
             @include mobile { margin: 0; }
+
+            &.selected {
+                font-weight: 700;
+                color: $nav-text;
+            }
+
+            &:hover {
+                color: $nav-text;
+            }
         }
 
         li { margin-bottom: 15px; }
@@ -266,8 +279,16 @@ $border-green: 3px solid shared.$exam-dark-green;
         }
 
         img {
-            margin-left: 0.5em;
-            margin-right: 1em;
+            margin-left: 0.25em;
+            margin-right: 0.55em;
+            max-height: 17px;
+            width: auto;
+            vertical-align: middle;
+            opacity: 0.92;
+        }
+
+        button.selected img {
+            opacity: 1;
         }
 
         @include mobile { margin-top: 10px; }

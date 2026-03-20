@@ -140,10 +140,6 @@ textarea.ng-invalid {
     @extend .xm-study-item-container;
     border-left: #b1b1b1 4px solid;
 }
-.xm-study-item-container--unseen {
-    @extend .xm-study-item-container;
-    border-color: #238635;
-}
 
 /* Standard bordered box */
 .xm-bordered-area {

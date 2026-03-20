@@ -4,14 +4,61 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-.xm-study-item-container {
-    &.unseen-review {
-        border-color: grey;
+/* List page (xm-exam-participations): align toolbar, list cards, and paginator to same max width */
+:host .exam-participations-content-max {
+    max-width: 42rem;
+}
+
+:host .xm-study-item-container {
+    padding: 10px 14px;
+    @media (max-width: 920px) {
+        padding: 8px 10px;
     }
 }
+
 .participation-heading {
-    font-size: 18px;
-    font-weight: bold;
-    color: black;
-    font-weight: bold;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #212121;
+    line-height: 1.3;
+    margin-bottom: 0;
+}
+
+.participation-meta {
+    font-size: 0.9375rem;
+}
+
+.participation-meta-line {
+    margin-bottom: 0.25rem;
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.participation-meta-label {
+    color: #5c5c5c;
+    font-weight: 500;
+    margin-right: 0.25rem;
+}
+
+.participation-meta-value {
+    word-break: break-word;
+}
+
+/* Link-style show/hide feedback: lighter than outline button */
+.exam-feedback-toggle {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-align: start;
+    line-height: 1.4;
+    box-shadow: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    &:focus-visible {
+        text-decoration: underline;
+        box-shadow: none;
+    }
 }

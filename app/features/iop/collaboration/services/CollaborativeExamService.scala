@@ -6,6 +6,7 @@ package features.iop.collaboration.services
 
 import database.EbeanQueryExtensions
 import io.ebean.DB
+import models.exam.ExamState
 import models.iop.CollaborativeExam
 import org.joda.time.DateTime
 import security.BlockingIOExecutionContext
@@ -80,6 +81,7 @@ class CollaborativeExamService @Inject() (
       ce.revision = revision
       ce.created = DateTime.now()
       ce.anonymous = anonymous
+      ce.state = ExamState.DRAFT
       ce.save()
       ce
     }(using ec)

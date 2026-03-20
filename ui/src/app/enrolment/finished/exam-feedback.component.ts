@@ -21,17 +21,8 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
     selector: 'xm-exam-feedback',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-feedback.component.html',
+    styleUrl: './exam-feedback.component.scss',
     imports: [DatePipe, TranslateModule],
-    styles: [
-        `
-            .notice-wrap {
-                margin-left: 1em;
-                display: inline-block;
-                margin-bottom: 30px;
-                margin-top: 10px;
-            }
-        `,
-    ],
 })
 export class ExamFeedbackComponent {
     readonly assessment = input.required<ReviewedExam>();

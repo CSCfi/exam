@@ -16,6 +16,11 @@ describe('OrderByPipe', () => {
         expect(pipe.transform([{ name: 'a' }], 'name')).toEqual([{ name: 'a' }]);
     });
 
+    it('should return empty array for null or undefined input (collaborative exam dates, etc.)', () => {
+        expect(pipe.transform(null, 'date')).toEqual([]);
+        expect(pipe.transform(undefined, 'date')).toEqual([]);
+    });
+
     it('should sort strings alphabetically (case-insensitive by default)', () => {
         const input = [{ name: 'Banana' }, { name: 'apple' }, { name: 'Cherry' }];
         const result = pipe.transform(input, 'name');

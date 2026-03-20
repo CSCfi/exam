@@ -182,7 +182,11 @@ export class ExamPublicationComponent {
                             ? 'i18n_exam_saved_and_pre_published'
                             : 'i18n_exam_saved_and_published';
                         this.toast.success(this.translate.instant(text));
-                        this.router.navigate(['/staff', this.isAdmin ? 'admin' : 'teacher']);
+                        if (this.collaborative()) {
+                            this.router.navigate(['/staff', 'collaborative']);
+                        } else {
+                            this.router.navigate(['/staff', this.isAdmin ? 'admin' : 'teacher']);
+                        }
                     },
                 });
             });

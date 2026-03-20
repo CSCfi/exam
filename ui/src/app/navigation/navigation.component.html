@@ -52,10 +52,7 @@ SPDX-License-Identifier: EUPL-1.2
                                     'i18n_skip_to_content' | translate
                                 }}</a>
                             }
-                            <ul
-                                class="submenu ms-4"
-                                [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0"
-                            >
+                            <ul class="submenu" [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0">
                                 @for (subitem of link.submenu.items; track subitem.name) {
                                     <li [hidden]="!subitem.visible">
                                         <button

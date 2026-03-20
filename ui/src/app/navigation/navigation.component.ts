@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -12,6 +12,9 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
 import { SessionService } from 'src/app/session/session.service';
 import type { Link } from './navigation.model';
 import { NavigationService } from './navigation.service';
+
+/** Collapsed state keyed by parent route; avoids mutating link graphs from computed `links()` (they may be recreated). */
+type SubmenuCollapsedMap = Readonly<Record<string, boolean>>;
 
 @Component({
     selector: 'xm-navigation',
@@ -32,7 +35,10 @@ export class NavigationComponent {
         return this.Navigation.getLinks(iop, byod);
     });
 
+    private readonly submenuCollapsedByRoute = signal<SubmenuCollapsedMap>({});
+
     private readonly toast = inject(ToastrService);
+    private readonly router = inject(Router);
     private readonly Navigation = inject(NavigationService);
     private readonly Session = inject(SessionService);
     private readonly ExaminationStatus = inject(ExaminationStatusService);
@@ -68,6 +74,40 @@ export class NavigationComponent {
 
     openMenu() {
         this.mobileMenuOpen.update((v) => !v);
+    }
+
+    /** `true` when submenu should be collapsed (ngbCollapse input). */
+    submenuCollapsed(link: Link): boolean {
+        if (link.submenu.items.length === 0) {
+            return false;
+        }
+        const map = this.submenuCollapsedByRoute();
+        return link.route in map ? map[link.route] : link.submenu.hidden;
+    }
+
+    toggleSubmenu(link: Link): void {
+        if (link.submenu.items.length === 0) {
+            return;
+        }
+        const key = link.route;
+        this.submenuCollapsedByRoute.update((m) => {
+            const collapsed = key in m ? m[key] : link.submenu.hidden;
+            return { ...m, [key]: !collapsed };
+        });
+    }
+
+    /** Parents with submenus: avoid RouterLink on the same control as toggle (ordering/CD conflicts with reopen). */
+    onParentNavClick(link: Link): void {
+        if (link.submenu.items.length === 0) {
+            return;
+        }
+        this.toggleSubmenu(link);
+        const path = link.route.startsWith('/') ? link.route : `/${link.route}`;
+        void this.router.navigateByUrl(path);
+    }
+
+    parentAriaExpanded(link: Link): boolean | null {
+        return link.submenu.items.length > 0 ? !this.submenuCollapsed(link) : null;
     }
 
     switchLanguage(key: string) {

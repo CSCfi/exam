@@ -88,7 +88,7 @@ import { Math } from './plugins/math/plugin';
                 [editor]="editor"
                 [config]="editorConfig"
                 tagName="textarea"
-                [ngModel]="data()"
+                [ngModel]="data() ?? ''"
                 (ngModelChange)="onDataChange($event)"
                 (ready)="onReady($event)"
                 (change)="onChange($event)"
@@ -102,7 +102,7 @@ import { Math } from './plugins/math/plugin';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CKEditorComponent implements AfterViewInit, OnDestroy {
-    readonly data = input('');
+    readonly data = input<string | null | undefined>('');
     readonly required = input(false, { transform: booleanAttribute });
     readonly enableClozeTest = input(false);
     readonly id = input('word-count-id');
@@ -376,7 +376,7 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
         }
 
         // Store current editor content to restore after recreation
-        const currentContent = this.editorInstance?.getData() || this.data();
+        const currentContent = this.editorInstance?.getData() || this.data() || '';
         this.pendingContent = currentContent;
 
         // Update language tracking

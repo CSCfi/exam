@@ -96,7 +96,7 @@ export class ExaminationEventsComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.configurations.set(this.exam().examinationEventConfigurations);
+        this.configurations.set(this.exam().examinationEventConfigurations ?? []);
     }
 
     isPeriodOver() {
@@ -149,6 +149,8 @@ export class ExaminationEventsComponent implements OnInit {
     }
 
     sortByString(prop: ExaminationEventConfiguration[]): ExaminationEventConfiguration[] {
-        return [...prop].sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
+        return [...(prop ?? [])].sort(
+            (a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start),
+        );
     }
 }

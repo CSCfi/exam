@@ -59,6 +59,7 @@ class CollaborativeExamController @Inject() (
 
     val exam = new Exam()
     exam.generateHash()
+    exam.name = ""
     exam.state = ExamState.DRAFT
     exam.executionType = examExecutionType
     CollaborativeExamProcessingService.cleanUser(user)
@@ -70,11 +71,14 @@ class CollaborativeExamController @Inject() (
     examSection.exam = exam
     examSection.expanded = true
     examSection.sequenceNumber = 0
+    examSection.sectionQuestions = Set.empty.asJava
 
     exam.examSections.add(examSection)
+    exam.examOwners = Set.empty[User].asJava
 
     exam.examLanguages.add(DB.find(classOf[Language], "fi"))
     exam.examType = DB.find(classOf[ExamType], 2) // Final
+    exam.implementation = ExamImplementation.AQUARIUM
     exam.gradeScale = DB.find(classOf[GradeScale]).list.head
 
     val start = DateTime.now().withTimeAtStartOfDay()
@@ -245,17 +249,25 @@ class CollaborativeExamController @Inject() (
 
                       examUpdater.update(exam, payload, user.loginRole)
 
-                      examLoader.uploadExam(ce, exam, user).map { result =>
-                        if result.header.status == Ok.header.status && isPrePublication then
-                          val receivers = exam.examOwners.asScala.map(_.email).toSet
-                          emailComposer.scheduleEmail(1.second) {
-                            emailComposer.composeCollaborativeExamAnnouncement(
-                              receivers,
-                              user,
-                              exam
-                            )
+                      examLoader.uploadExam(ce, exam, user).flatMap { result =>
+                        if result.header.status == Ok.header.status then
+                          if isPrePublication then
+                            val receivers = exam.examOwners.asScala.map(_.email).toSet
+                            emailComposer.scheduleEmail(1.second) {
+                              emailComposer.composeCollaborativeExamAnnouncement(
+                                receivers,
+                                user,
+                                exam
+                              )
+                            }
+                          examLoader.downloadExamJson(ce).map {
+                            case None => InternalServerError("i18n_error_exam_not_found")
+                            case Some(root) =>
+                              val jsonWithId =
+                                root.as[JsObject] + ("id" -> JsNumber(BigDecimal(ce.id)))
+                              Ok(jsonWithId)
                           }
-                        result
+                        else Future.successful(result)
                       }
               }
           }

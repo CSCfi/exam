@@ -186,6 +186,16 @@ describe('ExamService', () => {
             expect(service.getMaxScore({ examSections: [] })).toBe(0);
         });
 
+        it('should treat null/undefined examSections as empty (IOP JSON)', () => {
+            expect(service.getMaxScore({ examSections: null as unknown as ExamSection[] })).toBe(0);
+            expect(service.getMaxScore({ examSections: undefined as unknown as ExamSection[] })).toBe(0);
+        });
+
+        it('should treat null sectionQuestions as empty when summing max score', () => {
+            const section = makeSection({ sectionQuestions: null as unknown as ExamSectionQuestion[] });
+            expect(service.getMaxScore({ examSections: [section] })).toBe(0);
+        });
+
         it('should sum maxScore across all sections and questions', () => {
             const section = makeSection({
                 sectionQuestions: [

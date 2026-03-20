@@ -14,7 +14,12 @@ import type { ExamSection } from 'src/app/exam/exam.model';
 import { BaseQuestionDialogComponent } from 'src/app/question/editor/exam/base-question-dialog.component';
 import { ExamQuestionDialogComponent } from 'src/app/question/editor/exam/exam-question-dialog.component';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
-import { ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/question/question.model';
+import {
+    ExamSectionQuestion,
+    ExamSectionQuestionOption,
+    Question,
+    ReverseQuestion,
+} from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -138,9 +143,14 @@ export class SectionQuestionComponent {
         });
 
         modal.componentInstance.lotteryOn.set(this.lotteryOn());
-        modal.componentInstance.questionId.set(currentSectionQuestion.question.id);
         modal.componentInstance.collaborative.set(this.collaborative());
         modal.componentInstance.examId.set(this.examId());
+        if (this.collaborative()) {
+            // IOP question IDs can't be fetched via /app/questions — pass data directly
+            modal.componentInstance.question.set(currentSectionQuestion.question as ReverseQuestion);
+        } else {
+            modal.componentInstance.questionId.set(currentSectionQuestion.question.id);
+        }
 
         this.modal
             .result$<Question>(modal)

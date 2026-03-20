@@ -245,7 +245,12 @@ class ExamService @Inject() (
               else Left(ExamError.UpdateError(result))
             else Left(ExamError.AccessForbidden)
 
-  private def handleExamUpdate(exam: Exam, user: User, payload: Exam, rawBody: JsValue): play.api.mvc.Result =
+  private def handleExamUpdate(
+      exam: Exam,
+      user: User,
+      payload: Exam,
+      rawBody: JsValue
+  ): play.api.mvc.Result =
     val grading           = Option(payload.grade).map(_.id)
     val gradeScaleChanged = grading.exists(didGradeChange(exam, _))
     val loginRole         = user.loginRole

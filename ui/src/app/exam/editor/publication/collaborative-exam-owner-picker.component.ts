@@ -8,53 +8,50 @@ import { email, form, FormField } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-collaborative-exam-owner-selector',
-    template: `<div class="row mt-2">
-            <div class="col-md-3 ">
+    template: ` <div class="row mt-3">
+            <div class="col-md-3">
                 {{ 'i18n_exam_owners' | translate }}
                 <sup
                     ngbPopover="{{ 'i18n_exam_owner_description' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
+                    ><img src="/assets/images/icon_tooltip.svg" alt=""
+                /></sup>
             </div>
-            <div class="col-md-9">
-                <form>
+            <div class="col-md-5">
+                <div class="input-group">
                     <input
                         type="email"
                         placeholder="{{ 'i18n_write_exam_owner_email' | translate }}"
-                        class="form-control w-50 make-inline"
+                        class="form-control"
                         [formField]="ownerForm.email"
                     />
                     <button
-                        [disabled]="ownerForm.email().invalid() || !user.isAdmin"
+                        type="button"
+                        [disabled]="!ownerForm.email().value() || ownerForm.email().invalid() || !user.isAdmin"
                         (click)="addOwner()"
-                        class="btn btn-success"
+                        class="input-group-text btn btn-success"
                     >
                         {{ 'i18n_add' | translate }}
                     </button>
-                </form>
+                </div>
             </div>
         </div>
-        <div class="row mt-2">
-            <div class="col-md-3 "></div>
-            <div class="col-md-9">
-                <!-- Owners for the exam -->
+        <div class="row">
+            <div class="col-md-5 offset-md-3">
                 @for (owner of exam().examOwners; track owner) {
-                    <div class="ms-1 row" [class.hover-grey]="!user.isAdmin">
-                        <div class="row col-8">
-                            {{ owner.email }}
-                        </div>
-                        <!-- Remove button -->
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <small>{{ owner.email }}</small>
                         <button
-                            class="btn btn-danger btn-sm ms-1 w-auto m-1"
+                            type="button"
+                            class="btn btn-outline-danger btn-sm ms-3 flex-shrink-0"
                             (click)="removeOwner(owner.id)"
                             [hidden]="!user.isAdmin"
                             [ariaLabel]="owner.email"
@@ -80,6 +77,7 @@ export class CollaborativeExamOwnerSelectorComponent {
     private readonly http = inject(HttpClient);
     private readonly toast = inject(ToastrService);
     private readonly Session = inject(SessionService);
+    private readonly ExamTabs = inject(ExamTabService);
 
     constructor() {
         this.user = this.Session.getUser();
@@ -87,12 +85,13 @@ export class CollaborativeExamOwnerSelectorComponent {
 
     addOwner = () => {
         const currentExam = this.exam();
+        const owners = currentExam.examOwners ?? [];
         const emailValue = this.ownerForm.email().value();
-        const exists = currentExam.examOwners.some((o) => o.email === emailValue);
+        const exists = owners.some((o) => o.email === emailValue);
         if (!exists) {
             this.http.post<User>(`/app/iop/exams/${currentExam.id}/owners`, { email: emailValue }).subscribe({
                 next: (user) => {
-                    currentExam.examOwners.push(user);
+                    this.ExamTabs.setExam({ ...currentExam, examOwners: [...owners, user] });
                     this.ownerForm.email().value.set('');
                 },
                 error: (err) => this.toast.error(err),
@@ -102,9 +101,13 @@ export class CollaborativeExamOwnerSelectorComponent {
 
     removeOwner = (id: number) => {
         const currentExam = this.exam();
+        const owners = currentExam.examOwners ?? [];
         this.http.delete(`/app/iop/exams/${currentExam.id}/owners/${id}`).subscribe({
             next: () => {
-                currentExam.examOwners = currentExam.examOwners.filter((o) => o.id !== id);
+                this.ExamTabs.setExam({
+                    ...currentExam,
+                    examOwners: owners.filter((o) => o.id !== id),
+                });
             },
             error: (err) => this.toast.error(err),
         });

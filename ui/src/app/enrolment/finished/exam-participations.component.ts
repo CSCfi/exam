@@ -22,6 +22,7 @@ import { ExamParticipationComponent } from './exam-participation.component';
     selector: 'xm-exam-participations',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participations.component.html',
+    styleUrl: './exam-participations.component.scss',
     imports: [
         NgbDropdownModule,
         ExamParticipationComponent,
