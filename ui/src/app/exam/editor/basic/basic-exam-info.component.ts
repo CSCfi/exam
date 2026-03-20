@@ -6,8 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+import { TranslateModule } from '@ngx-translate/core';
 import { switchMap } from 'rxjs/operators';
 import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-picker.component';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
@@ -55,8 +54,6 @@ export class BasicExamInfoComponent {
     private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
-    private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
     private readonly Exam = inject(ExamService);
     private readonly ExamTabs = inject(ExamTabService);
     private readonly Attachment = inject(AttachmentService);
@@ -89,17 +86,7 @@ export class BasicExamInfoComponent {
 
     onInternalRefInput = (event: Event) => this.updateInternalRef((event.target as HTMLInputElement).value);
 
-    updateExam(resetAutoEvaluationConfig: boolean) {
-        void resetAutoEvaluationConfig;
-        const currentExam = this.exam();
-        this.Exam.updateExam$(currentExam, {}, this.collaborative()).subscribe({
-            next: () => {
-                this.toast.info(this.translate.instant('i18n_exam_saved'));
-                this.ExamTabs.setExam(currentExam);
-            },
-            error: (err) => this.toast.error(err),
-        });
-    }
+    updateExam = () => this.ExamTabs.saveExam$().subscribe();
 
     onCourseChange(course: Course) {
         const currentExam = this.exam();
@@ -113,25 +100,25 @@ export class BasicExamInfoComponent {
     updateExamName(value: string) {
         const currentExam = this.exam();
         this.ExamTabs.setExam({ ...currentExam, name: value });
-        this.updateExam(false);
+        this.updateExam();
     }
 
     updateExamAnonymous(value: boolean) {
         const currentExam = this.exam();
         this.ExamTabs.setExam({ ...currentExam, anonymous: value });
-        this.updateExam(false);
+        this.updateExam();
     }
 
     updateInternalRef(value: string) {
         const currentExam = this.exam();
         this.ExamTabs.setExam({ ...currentExam, internalRef: value });
-        this.updateExam(false);
+        this.updateExam();
     }
 
     setSubjectToLanguageInspection(value: boolean) {
         const currentExam = this.exam();
         this.ExamTabs.setExam({ ...currentExam, subjectToLanguageInspection: value });
-        this.updateExam(false);
+        this.updateExam();
     }
 
     enrollInstructionsChanged(event: string) {
@@ -162,7 +149,7 @@ export class BasicExamInfoComponent {
     }
 
     toggleAnonymous() {
-        this.updateExam(false);
+        this.updateExam();
     }
 
     toggleAnonymousDisabled() {

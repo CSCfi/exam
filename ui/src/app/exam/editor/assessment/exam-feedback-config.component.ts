@@ -72,11 +72,11 @@ export class ExamFeedbackConfigComponent implements OnInit {
     enable() {
         if (this.modifiable() === 'everything') {
             this.examFeedbackConfig.enabled = true;
-            this.enabled.emit();
             const currentConfig = this.config();
             if (currentConfig) {
                 this.updated.emit({ config: currentConfig });
             }
+            this.enabled.emit();
         }
     }
 

@@ -122,7 +122,7 @@ export class ArchivedReviewsComponent {
         this.Files.download(
             url + this.exam().id,
             `${this.Translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.xlsx`,
-            { params: { ids: ids }, method: 'POST' },
+            { params: { ids: ids.join(',') }, method: 'POST' },
         );
     }
 

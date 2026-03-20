@@ -2,14 +2,23 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamTabService {
     private readonly tabChange = signal<{ tab: number; timestamp: number } | undefined>(undefined);
     private readonly exam = signal<Exam | undefined>(undefined);
     private readonly collaborative = signal(false);
+
+    private readonly Exam = inject(ExamService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     get tabChangeSignal() {
         return this.tabChange.asReadonly();
@@ -32,4 +41,18 @@ export class ExamTabService {
     };
     setCollaborative = (collaborative: boolean) => this.collaborative.set(collaborative);
     isCollaborative = () => this.collaborative();
+
+    saveExam$ = (overrides: Record<string, unknown> = {}, silent = false): Observable<Exam> =>
+        this.Exam.updateExam$(this.getExam(), overrides, this.collaborative()).pipe(
+            tap((savedExam) => {
+                this.exam.set(savedExam);
+                if (!silent) {
+                    this.toast.info(this.translate.instant('i18n_exam_saved'));
+                }
+            }),
+            catchError((err) => {
+                this.toast.error(err);
+                return throwError(() => new Error(err));
+            }),
+        );
 }

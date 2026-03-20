@@ -28,7 +28,7 @@ SPDX-License-Identifier: EUPL-1.2
             <span>
                 <button
                     [disabled]="examTypes().length < 2"
-                    class="btn selection-button-narrow"
+                    class="btn btn-sm selection-button-narrow mt-2"
                     [class]="exam().examType.type === examType.type ? 'btn-primary' : ''"
                     (click)="setExamType(examType.type)"
                 >
@@ -55,7 +55,7 @@ SPDX-License-Identifier: EUPL-1.2
         @for (gradeScale of getSelectableScales(); track gradeScale) {
             <span>
                 <button
-                    class="btn selection-button-narrow"
+                    class="btn btn-sm selection-button-narrow mt-2"
                     [class]="checkScale(gradeScale)"
                     (click)="setScale(gradeScale)"
                     [disabled]="checkScaleDisabled(gradeScale)"
@@ -82,8 +82,8 @@ SPDX-License-Identifier: EUPL-1.2
         [exam]="exam()"
         [modifiable]="isAllowedToUpdateFeedbackConfig()"
         (updated)="feedbackConfigChanged($event)"
-        (disabled)="feedbackConfigDisabled()"
-        (enabled)="feedbackConfigEnabled()"
+        (disabled)="feedbackConfigToggled(false)"
+        (enabled)="feedbackConfigToggled(true)"
     ></xm-exam-feedback-config>
 }
 <!-- Buttons -->

@@ -10,10 +10,8 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime, Duration } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { AutoEvaluationConfig, Exam, ExaminationDate } from 'src/app/exam/exam.model';
+import type { AutoEvaluationConfig, ExaminationDate } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -126,13 +124,12 @@ export class ExamPublicationComponent {
     }
 
     updateExam() {
-        this.updateExam$().subscribe();
+        this.Tabs.saveExam$().subscribe();
     }
 
     setExamDuration(hours: number, minutes: number) {
-        const duration = hours * 60 + minutes;
-        this.Tabs.setExam({ ...this.exam(), duration });
-        this.updateExam$().subscribe();
+        this.Tabs.setExam({ ...this.exam(), duration: hours * 60 + minutes });
+        this.Tabs.saveExam$().subscribe();
     }
 
     format(minutes: number): string {
@@ -145,7 +142,7 @@ export class ExamPublicationComponent {
 
     setTrialCount(x: number | null) {
         this.Tabs.setExam({ ...this.exam(), trialCount: x });
-        this.updateExam$().subscribe();
+        this.Tabs.saveExam$().subscribe();
     }
 
     previewExam(fromTab: number) {
@@ -178,11 +175,8 @@ export class ExamPublicationComponent {
             modal.componentInstance.exam.set(currentExam);
             modal.componentInstance.prePublication.set(this.isDraftCollaborativeExam());
             this.modal.result$(modal).subscribe(() => {
-                const state = {
-                    state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',
-                };
-                // OK button clicked
-                this.updateExam$(true, state).subscribe({
+                const state = { state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED' };
+                this.Tabs.saveExam$(state, true).subscribe({
                     next: () => {
                         const text = this.isDraftCollaborativeExam()
                             ? 'i18n_exam_saved_and_pre_published'
@@ -190,7 +184,6 @@ export class ExamPublicationComponent {
                         this.toast.success(this.translate.instant(text));
                         this.router.navigate(['/staff', this.isAdmin ? 'admin' : 'teacher']);
                     },
-                    error: (err) => this.toast.error(err),
                 });
             });
         }
@@ -205,32 +198,13 @@ export class ExamPublicationComponent {
     unpublishExam() {
         if (this.isAllowedToUnpublishOrRemove()) {
             this.modal.open$(PublicationRevocationDialogComponent).subscribe(() =>
-                this.updateExam$(true, { state: this.collaborative() ? 'PRE_PUBLISHED' : 'DRAFT' }).subscribe({
-                    next: () => {
-                        this.toast.success(this.translate.instant('i18n_exam_unpublished'));
-                        this.Tabs.setExam({ ...this.exam(), state: 'DRAFT' });
-                    },
-                    error: (err) => this.toast.error(err),
+                this.Tabs.saveExam$({ state: this.collaborative() ? 'PRE_PUBLISHED' : 'DRAFT' }, true).subscribe({
+                    next: () => this.toast.success(this.translate.instant('i18n_exam_unpublished')),
                 }),
             );
         } else {
             this.toast.warning(this.translate.instant('i18n_unpublish_not_possible'));
         }
-    }
-
-    private updateExam$(silent?: boolean, overrides?: Record<string, string>): Observable<Exam> {
-        const currentExam = this.exam();
-        return this.Exam.updateExam$(currentExam, overrides, this.collaborative()).pipe(
-            tap(() => {
-                if (!silent) {
-                    this.toast.info(this.translate.instant('i18n_exam_saved'));
-                }
-            }),
-            catchError((err) => {
-                this.toast.error(err);
-                return throwError(() => new Error(err));
-            }),
-        );
     }
 
     private isAllowedToUnpublishOrRemove() {

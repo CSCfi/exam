@@ -93,15 +93,7 @@ export class SectionsComponent {
     }
 
     updateExam(silent: boolean) {
-        const currentExam = this.exam();
-        this.Exam.updateExam$(currentExam, {}, this.collaborative()).subscribe({
-            next: () => {
-                if (!silent) {
-                    this.toast.info(this.translate.instant('i18n_exam_saved'));
-                }
-            },
-            error: (resp) => this.toast.error(this.translate.instant(resp)),
-        });
+        this.Tabs.saveExam$({}, silent).subscribe();
     }
 
     previewExam(fromTab: number) {

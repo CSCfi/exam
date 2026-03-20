@@ -239,13 +239,13 @@ class ExamService @Inject() (
                 .getOrElse(
                   examUpdater
                     .updateStateAndValidate(exam, user, validatedPayload)
-                    .getOrElse(handleExamUpdate(exam, user, validatedPayload))
+                    .getOrElse(handleExamUpdate(exam, user, validatedPayload, payload))
                 )
               if result.header.status == play.api.http.Status.OK then Right(exam)
               else Left(ExamError.UpdateError(result))
             else Left(ExamError.AccessForbidden)
 
-  private def handleExamUpdate(exam: Exam, user: User, payload: Exam): play.api.mvc.Result =
+  private def handleExamUpdate(exam: Exam, user: User, payload: Exam, rawBody: JsValue): play.api.mvc.Result =
     val grading           = Option(payload.grade).map(_.id)
     val gradeScaleChanged = grading.exists(didGradeChange(exam, _))
     val loginRole         = user.loginRole
@@ -255,11 +255,10 @@ class ExamService @Inject() (
         config.delete()
         exam.autoEvaluationConfig = null
       }
-    else
-      // Always call update method - it handles null (removal) correctly
+    else if (rawBody \ "evaluationConfig").isDefined then
       examUpdater.updateAutoEvaluationConfig(exam, payload.autoEvaluationConfig)
-    // Always call update method - it handles null (removal) correctly
-    examUpdater.updateExamFeedbackConfig(exam, payload.examFeedbackConfig)
+    if (rawBody \ "feedbackConfig").isDefined then
+      examUpdater.updateExamFeedbackConfig(exam, payload.examFeedbackConfig)
     exam.save()
     play.api.mvc.Results.Ok(exam.asJson)
 

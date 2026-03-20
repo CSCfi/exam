@@ -70,97 +70,17 @@ export class ExamAssessmentComponent {
         this.updateExam(false);
     }
 
-    // when grade changes, delete autoeval config (locally) and call prepare
     updateExam(resetAutoEvaluationConfig: boolean) {
-        const currentAutoEvaluation = this.autoEvaluation();
-        const currentExam = this.exam();
-        const currentExamFeedbackConfig = this.examFeedbackConfig();
-
-        // Only sync form data if auto-evaluation is enabled
-        // If disabled, we want to save with evaluationConfig: null
         const autoEvaluationComponent = this.autoEvaluationRef();
-        if (autoEvaluationComponent && currentAutoEvaluation.enabled) {
+        if (autoEvaluationComponent && this.autoEvaluation().enabled) {
+            // Sync form data into the exam signal before saving
             autoEvaluationComponent.save();
-            // Re-read exam after save() updates it via autoEvaluationConfigChanged
-            // Since signals are synchronous, the exam should be updated immediately
-            const updatedExam = this.exam();
-            const hasAutoEvaluationConfig = !!updatedExam.autoEvaluationConfig;
-
-            const config = {
-                evaluationConfig:
-                    hasAutoEvaluationConfig && this.canBeAutoEvaluated() && !resetAutoEvaluationConfig
-                        ? {
-                              releaseType: updatedExam.autoEvaluationConfig?.releaseType,
-                              releaseDate: updatedExam.autoEvaluationConfig?.releaseDate
-                                  ? new Date(updatedExam.autoEvaluationConfig.releaseDate).getTime()
-                                  : null,
-                              amountDays: updatedExam.autoEvaluationConfig?.amountDays,
-                              gradeEvaluations: updatedExam.autoEvaluationConfig?.gradeEvaluations,
-                          }
-                        : null,
-                feedbackConfig:
-                    currentExamFeedbackConfig.enabled && !this.collaborative()
-                        ? {
-                              releaseType: updatedExam.examFeedbackConfig?.releaseType,
-                              releaseDate: updatedExam.examFeedbackConfig?.releaseDate
-                                  ? new Date(updatedExam.examFeedbackConfig.releaseDate).getTime()
-                                  : null,
-                              amountDays: updatedExam.examFeedbackConfig?.amountDays,
-                          }
-                        : null,
-            };
-            const examToUpdate = resetAutoEvaluationConfig
-                ? { ...updatedExam, autoEvaluationConfig: undefined }
-                : updatedExam;
-            this.Exam.updateExam$(examToUpdate, config, this.collaborative()).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('i18n_exam_saved'));
-                    const savedExam = { ...examToUpdate };
-                    let finalExam: Exam = { ...savedExam };
-                    if (!currentAutoEvaluation.enabled) {
-                        finalExam = { ...finalExam, autoEvaluationConfig: undefined };
-                    }
-                    if (!currentExamFeedbackConfig.enabled) {
-                        finalExam = { ...finalExam, examFeedbackConfig: undefined };
-                    }
-                    this.Tabs.setExam(finalExam);
-                },
-                error: (err) => this.toast.error(err),
-            });
-            return;
         }
-
-        // Auto-evaluation is disabled - save with evaluationConfig: null
-        const config = {
-            evaluationConfig: null,
-            feedbackConfig:
-                currentExamFeedbackConfig.enabled && !this.collaborative()
-                    ? {
-                          releaseType: currentExam.examFeedbackConfig?.releaseType,
-                          releaseDate: currentExam.examFeedbackConfig?.releaseDate
-                              ? new Date(currentExam.examFeedbackConfig.releaseDate).getTime()
-                              : null,
-                          amountDays: currentExam.examFeedbackConfig?.amountDays,
-                      }
-                    : null,
-        };
-        // Always remove autoEvaluationConfig when disabled
-        const examToUpdate = { ...currentExam, autoEvaluationConfig: undefined };
-        this.Exam.updateExam$(examToUpdate, config, this.collaborative()).subscribe({
-            next: () => {
-                this.toast.info(this.translate.instant('i18n_exam_saved'));
-                const updatedExam = { ...examToUpdate };
-                let finalExam: Exam = { ...updatedExam };
-                if (!currentAutoEvaluation.enabled) {
-                    finalExam = { ...finalExam, autoEvaluationConfig: undefined };
-                }
-                if (!currentExamFeedbackConfig.enabled) {
-                    finalExam = { ...finalExam, examFeedbackConfig: undefined };
-                }
-                this.Tabs.setExam(finalExam);
-            },
-            error: (err) => this.toast.error(err),
-        });
+        const exam = this.exam();
+        this.Tabs.saveExam$({
+            evaluationConfig: this.buildEvaluationConfig(exam, resetAutoEvaluationConfig),
+            feedbackConfig: this.buildFeedbackConfig(exam),
+        }).subscribe();
     }
 
     checkScaleDisabled(scale: GradeScale) {
@@ -231,19 +151,15 @@ export class ExamAssessmentComponent {
     }
 
     feedbackConfigChanged(event: { config: ExamFeedbackConfig }) {
-        const currentExam = this.exam();
-        this.Tabs.setExam({ ...currentExam, examFeedbackConfig: event.config });
+        this.Tabs.setExam({ ...this.exam(), examFeedbackConfig: event.config });
     }
 
-    feedbackConfigDisabled() {
-        const currentExam = this.exam();
-        // Remove examFeedbackConfig from exam immediately
-        this.Tabs.setExam({ ...currentExam, examFeedbackConfig: undefined });
-        this.examFeedbackConfig.set({ enabled: false });
-    }
-
-    feedbackConfigEnabled() {
-        this.examFeedbackConfig.set({ enabled: true });
+    feedbackConfigToggled(enabled: boolean) {
+        this.examFeedbackConfig.set({ enabled });
+        if (!enabled) {
+            this.Tabs.setExam({ ...this.exam(), examFeedbackConfig: undefined });
+        }
+        this.updateExam(false);
     }
 
     nextTab() {
@@ -273,9 +189,27 @@ export class ExamAssessmentComponent {
         });
     }
 
-    private omitProperty<T extends object, K extends keyof T>(obj: T, key: K): Omit<T, K> {
-        const { [key]: omitted, ...rest } = obj;
-        void omitted; // Explicitly mark as intentionally unused
-        return rest;
+    private buildEvaluationConfig(exam: Exam, reset: boolean): object | null {
+        if (!this.autoEvaluation().enabled || !exam.autoEvaluationConfig || !this.canBeAutoEvaluated() || reset) {
+            return null;
+        }
+        const cfg = exam.autoEvaluationConfig;
+        return {
+            releaseType: cfg.releaseType,
+            releaseDate: cfg.releaseDate ? new Date(cfg.releaseDate).getTime() : null,
+            amountDays: cfg.amountDays,
+            gradeEvaluations: cfg.gradeEvaluations,
+        };
+    }
+
+    private buildFeedbackConfig(exam: Exam): object | null {
+        if (!this.examFeedbackConfig().enabled || this.collaborative()) return null;
+        const cfg = exam.examFeedbackConfig;
+        if (!cfg?.releaseType) return null;
+        return {
+            releaseType: cfg.releaseType,
+            releaseDate: cfg.releaseDate ? new Date(cfg.releaseDate).getTime() : null,
+            amountDays: cfg.amountDays,
+        };
     }
 }

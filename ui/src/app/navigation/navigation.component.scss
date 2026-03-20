@@ -55,7 +55,7 @@ $border-green: 3px solid shared.$exam-dark-green;
     i { vertical-align: middle; }
 
     .logo img {
-        margin: 1.07em 3.57em 0;
+        margin: 1.07em 3.57em 0 2.5em;
         @include mobile {
             margin-top: 0;
             margin-left: 20px;
@@ -74,11 +74,13 @@ $border-green: 3px solid shared.$exam-dark-green;
         letter-spacing: 0.27px;
         height: auto;
         text-align: left;
-        align-items: center;
+        align-items: flex-start;
 
         @include mobile {
             border: $border-dark;
             border-radius: 50px;
+            align-items: center;
+            padding-left: 20px;
         }
 
         &.selected {
@@ -102,12 +104,12 @@ $border-green: 3px solid shared.$exam-dark-green;
     li {
         list-style: none;
         margin-bottom: 2.5em;
-        @include mobile { margin-bottom: 1em; }
+        @include mobile { margin-bottom: 0; }
     }
 
     ul {
         padding: 0;
-        @include mobile { margin: 0 1.5em; }
+        @include mobile { margin: 0; }
     }
 
     .nav-header {
@@ -163,14 +165,18 @@ $border-green: 3px solid shared.$exam-dark-green;
         text-align: left;
         padding-left: 1em;
         @include mobile {
-            padding-top: 1em;
-            padding-bottom: 1em;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
         }
     }
 
     .app-version {
-        margin-left: 3.5em;
-        padding: 0.5em 1em 1em;
+        margin-left: 2.5em;
+        padding: 0.5em 1em 1em 0;
+        @include mobile {
+            margin-left: 20px;
+            padding-left: 0;
+        }
         font-size: 14px;
         color: white;
         letter-spacing: 0.27px;
@@ -206,7 +212,10 @@ $border-green: 3px solid shared.$exam-dark-green;
         margin-left: 1.5em;
         border: 0;
 
-        @include mobile { border: 3px solid #00000000; }
+        @include mobile {
+            border: 3px solid #00000000;
+            margin-top: 1.5em;
+        }
 
         :active :hover {
             font-weight: bold;
@@ -243,7 +252,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         text-align: left;
 
         button {
-            height: 20px;
+            height: auto;
             border-radius: 0;
             color: $nav-text;
             @include mobile { margin: 0; }
