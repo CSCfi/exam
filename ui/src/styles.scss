@@ -32,6 +32,10 @@ html {
     font-family: Arimo, Helvetica-Neue, Helvetica;
 }
 /* fullcalendar overrides, need to be defined here because of view encapsulation */
+/* timeGridDay: toolbar title duplicates the column date / shows odd ranges in fi */
+.fc .fc-timeGridDay-view .fc-toolbar-title {
+    display: none;
+}
 .fc .fc-col-header-cell-cushion {
     color: black;
     text-decoration: none;

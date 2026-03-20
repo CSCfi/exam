@@ -2,7 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, output, signal, viewChild } from '@angular/core';
+import {
+    afterNextRender,
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    inject,
+    Injector,
+    input,
+    output,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
@@ -17,6 +28,9 @@ import { combineLatest, skip } from 'rxjs';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CalendarService } from './calendar.service';
+
+/** Align with `definitions.scss` `$mobile-width` — below this, use day grid instead of week. */
+const CALENDAR_MOBILE_MAX_WIDTH_PX = 920;
 
 @Component({
     selector: 'xm-booking-calendar',
@@ -59,17 +73,36 @@ export class BookingCalendarComponent {
     private readonly translate = inject(TranslateService);
     private readonly Calendar = inject(CalendarService);
     private readonly Session = inject(SessionService);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly injector = inject(Injector);
 
     constructor() {
         this.isAdmin.set(this.Session.getUser().isAdmin);
 
+        const narrowQuery =
+            typeof globalThis.matchMedia === 'function'
+                ? globalThis.matchMedia(`(max-width: ${CALENDAR_MOBILE_MAX_WIDTH_PX}px)`)
+                : null;
+        const initialNarrow = narrowQuery?.matches === true;
+
         this.calendarOptions.set({
             plugins: [luxon2Plugin, timeGridPlugin],
-            initialView: 'timeGridWeek',
+            initialView: initialNarrow ? 'timeGridDay' : 'timeGridWeek',
             firstDay: 1,
             locale: this.resolveCalendarLocale(this.translate.getCurrentLang() ?? 'en'),
             locales: [fiLocale, svLocale, enLocale],
             ...this.getFormatOverrides(this.translate.getCurrentLang() ?? 'en'),
+            /** Day view: column header already shows the date; hide toolbar title (FC may put it in left chunk if center is empty). */
+            views: {
+                timeGridDay: {
+                    headerToolbar: {
+                        left: 'prev,next',
+                        center: '',
+                        right: 'today',
+                    },
+                    titleFormat: () => '',
+                },
+            },
             allDaySlot: false,
             height: 'auto',
             nowIndicator: true,
@@ -79,6 +112,13 @@ export class BookingCalendarComponent {
             events: this.refetch.bind(this),
             eventClick: this.eventClicked.bind(this),
         });
+
+        if (narrowQuery) {
+            const onViewportChange = () => this.applyResponsiveCalendarView(narrowQuery.matches);
+            narrowQuery.addEventListener('change', onViewportChange);
+            this.destroyRef.onDestroy(() => narrowQuery.removeEventListener('change', onViewportChange));
+        }
+
         this.translate.onLangChange.subscribe((event) => {
             this.calendarOptions.set({
                 ...this.calendarOptions(),
@@ -110,6 +150,17 @@ export class BookingCalendarComponent {
                     timeZone: roomVal.localTimezone,
                 }));
                 this.calendar()?.getApi().refetchEvents();
+                this.applyResponsiveCalendarView(narrowQuery?.matches === true);
+            });
+
+        toObservable(this.visible)
+            .pipe(takeUntilDestroyed())
+            .subscribe((isVisible) => {
+                if (isVisible) {
+                    afterNextRender(() => this.applyResponsiveCalendarView(narrowQuery?.matches === true), {
+                        injector: this.injector,
+                    });
+                }
             });
 
         toObservable(this.accessibilities)
@@ -150,6 +201,17 @@ export class BookingCalendarComponent {
     eventClicked(arg: EventClickArg): void {
         if (arg.event.extendedProps?.availableMachines > 0) {
             this.eventSelected.emit(arg.event);
+        }
+    }
+
+    private applyResponsiveCalendarView(isNarrow: boolean): void {
+        const api = this.calendar()?.getApi();
+        if (!api) {
+            return;
+        }
+        const next = isNarrow ? 'timeGridDay' : 'timeGridWeek';
+        if (api.view.type !== next) {
+            api.changeView(next);
         }
     }
 
