@@ -36,7 +36,7 @@ type AvailableSlot = Slot & { availableMachines: number };
 @Component({
     selector: 'xm-calendar-slot-picker',
     templateUrl: './slot-picker.component.html',
-    styleUrls: ['../calendar.component.scss'],
+    styleUrls: ['../calendar.component.scss', './slot-picker.component.scss'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [

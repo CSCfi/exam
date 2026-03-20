@@ -10,54 +10,50 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
 @Component({
     selector: 'xm-calendar-accessibility-picker',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: `<div class="row mt-2 mb-2">
-        <div class="col-md-12 mt-2 mb-2">
-            <div class="row">
-                <div class="col-md-12">
-                    @if (!disabled()) {
-                        <button
-                            class="btn btn-outline-secondary"
-                            (click)="showMenu.set(!showMenu())"
-                            (keydown.enter)="showMenu.set(!showMenu())"
-                            [ariaExpanded]="showMenu()"
-                        >
-                            {{ 'i18n_calendar_room_accessibility_info' | translate }}
-                            @if (!showMenu()) {
-                                <i class="bi bi-chevron-right"></i>
-                            } @else {
-                                <i class="bi bi-chevron-down"></i>
-                            }
-                        </button>
+    template: `<div class="row mt-4">
+        <div class="col-md-12">
+            @if (!disabled()) {
+                <button
+                    class="btn btn-outline-secondary"
+                    (click)="showMenu.set(!showMenu())"
+                    (keydown.enter)="showMenu.set(!showMenu())"
+                    [ariaExpanded]="showMenu()"
+                >
+                    {{ 'i18n_calendar_room_accessibility_info' | translate }}
+                    @if (!showMenu()) {
+                        <i class="bi bi-chevron-right"></i>
                     } @else {
-                        <span class="text text-muted">
-                            {{ 'i18n_calendar_room_accessibility_info' | translate }}
-                        </span>
+                        <i class="bi bi-chevron-down"></i>
                     }
-                    <div [ngbCollapse]="!showMenu()">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="calendar-accs-title">
-                                    {{ 'i18n_exam_room_accessibility' | translate }}
-                                </div>
-                            </div>
+                </button>
+            } @else {
+                <span class="text text-muted">
+                    {{ 'i18n_calendar_room_accessibility_info' | translate }}
+                </span>
+            }
+            <div [ngbCollapse]="!showMenu()">
+                <div class="row mt-2 ms-2">
+                    <div class="col-md-12">
+                        <div class="calendar-accs-title">
+                            {{ 'i18n_exam_room_accessibility' | translate }}
                         </div>
-                        <div class="row">
-                            <div class="col-md-12 calendar-accs-checkboxes">
-                                @for (item of items(); track item.id) {
-                                    <span class="me-2 accs-list">
-                                        <label for="{{ item.name }}">
-                                            <input
-                                                id="{{ item.name }}"
-                                                type="checkbox"
-                                                (click)="item.filtered = !item.filtered; select()"
-                                                value="{{ item.name }}"
-                                            />
-                                        </label>
-                                        {{ item.name }}
-                                    </span>
-                                }
-                            </div>
-                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2 ms-2">
+                    <div class="col-md-12 calendar-accs-checkboxes">
+                        @for (item of items(); track item.id) {
+                            <span class="me-2 accs-list">
+                                <label for="{{ item.name }}">
+                                    <input
+                                        id="{{ item.name }}"
+                                        type="checkbox"
+                                        (click)="item.filtered = !item.filtered; select()"
+                                        value="{{ item.name }}"
+                                    />
+                                </label>
+                                {{ item.name }}
+                            </span>
+                        }
                     </div>
                 </div>
             </div>

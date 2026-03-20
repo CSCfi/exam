@@ -17,17 +17,13 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
     template: `
         <div class="row xm-study-item-container m-2 details-view">
             <div class="col-md-12">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h2 class="calendar-phase-title">1. {{ 'i18n_calendar_phase_1' | translate }}</h2>
-                    </div>
-                    <div class="col-md-4">
-                        <img
-                            class="calendar-phase-icon float-end arrow_icon"
-                            src="/assets/images/icon-phase.png"
-                            alt=""
-                        />
-                    </div>
+                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                    <h2 class="calendar-phase-title mb-0">1. {{ 'i18n_calendar_phase_1' | translate }}</h2>
+                    <img
+                        class="calendar-phase-icon arrow_icon flex-shrink-0"
+                        src="/assets/images/icon-phase.png"
+                        alt=""
+                    />
                 </div>
                 <div class="row">
                     <div class="col-md-12">
@@ -39,38 +35,46 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                         </div>
                     </div>
                 </div>
-                <div class="row mt-2">
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-6 col-sm-6 col-md-4 col-lg-4">{{ 'i18n_course_name' | translate }}:</div>
-                            <div class="col-6 col-sm-6 col-md-4 col-lg-4">
+                <div class="row mt-2 g-2">
+                    <div class="col-12">
+                        <div
+                            class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
+                        >
+                            <span class="exam-info-label flex-shrink-0">{{ 'i18n_course_name' | translate }}:</span>
+                            <span class="text-break min-w-0">
                                 @if (!collaborative() && examInfo().course) {
                                     <xm-course-code [course]="examInfo().course"></xm-course-code>
                                     {{ examInfo().course.name }}
                                 }
-                            </div>
-                            <div class=" mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
-                                {{ 'i18n_exam_validity' | translate }}:
-                            </div>
-                            <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div
+                            class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
+                        >
+                            <span class="exam-info-label flex-shrink-0">{{ 'i18n_exam_validity' | translate }}:</span>
+                            <span class="text-break min-w-0">
                                 {{ examInfo().periodStart | date: 'dd.MM.yyyy' }} -
                                 {{ examInfo().periodEnd | date: 'dd.MM.yyyy' }}
-                            </div>
-                            <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
-                                {{ 'i18n_exam_duration' | translate }}:
-                            </div>
-                            <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
-                                {{ printExamDuration(examInfo()) }}
-                            </div>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div
+                            class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
+                        >
+                            <span class="exam-info-label flex-shrink-0">{{ 'i18n_exam_duration' | translate }}:</span>
+                            <span class="text-break min-w-0">{{ printExamDuration(examInfo()) }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="row mt-2">
-                    <div class="col-md-12">
-                        <span class="" [hidden]="examInfo().executionType?.type === 'MATURITY'">
-                            {{ 'i18n_calendar_instructions' | translate }}:
-                            <span [xmMath]="examInfo().enrollInstruction"></span>
-                        </span>
+                    <div class="col-12">
+                        <div class="d-flex flex-column gap-1" [hidden]="examInfo().executionType?.type === 'MATURITY'">
+                            <span class="exam-info-label">{{ 'i18n_calendar_instructions' | translate }}:</span>
+                            <div class="text-break" [xmMath]="examInfo().enrollInstruction"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="row mt-2">
@@ -86,7 +90,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
             </div>
         </div>
     `,
-    styleUrls: ['../calendar.component.scss'],
+    styleUrls: ['./exam-info.component.scss', '../calendar.component.scss'],
     imports: [CourseCodeComponent, MathDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent {

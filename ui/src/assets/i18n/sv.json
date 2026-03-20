@@ -18,6 +18,7 @@
     "i18n_calendar_phase_1": "Tentamen",
     "i18n_calendar_phase_2": "Platsbokning",
     "i18n_calendar_phase_3": "Bokning",
+    "i18n_calendar_reservation_pending_hint": "Välj en examinationstid ovan för att granska uppgifterna och bekräfta.",
     "i18n_change_reservation": "Ändra bokning",
     "i18n_student_change_reservation": "Ändra bokning",
     "i18n_choose": "Välj",

@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -16,12 +15,12 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { ExamInfo, Organisation } from './calendar.model';
 import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
 import { OptionalSectionsComponent } from './helpers/optional-sections.component';
 import { OrganisationPickerComponent } from './helpers/organisation-picker.component';
+import { ReservationConfirmationComponent } from './helpers/reservation-confirmation.component';
 import { SlotPickerComponent } from './helpers/slot-picker.component';
 
 @Component({
@@ -34,8 +33,7 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
         OptionalSectionsComponent,
         OrganisationPickerComponent,
         SlotPickerComponent,
-        CourseCodeComponent,
-        DatePipe,
+        ReservationConfirmationComponent,
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
@@ -268,10 +266,6 @@ export class CalendarComponent {
 
     setOrganisation(org: Organisation) {
         this.selectedOrganisation.set(org);
-    }
-
-    printExamDuration(exam: ExamInfo) {
-        return this.DateTimeService.formatDuration(exam.duration);
     }
 
     private asDateTime(date: string, tz: string): DateTime {

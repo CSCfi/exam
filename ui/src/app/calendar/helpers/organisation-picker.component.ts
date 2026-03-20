@@ -74,7 +74,7 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
                 </div>
                 <!-- Selected organisation  -->
                 @if (selectedOrganisation()) {
-                    <div class="row">
+                    <div class="row mt-2">
                         <div class="col-md-12">
                             <div class="calendar-room-title">
                                 <span

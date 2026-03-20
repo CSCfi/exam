@@ -62,114 +62,12 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 
-    <!-- Reservation confirmation -->
-
-    <div class="row mb-4">
-        <div class="col-md-8 col-12 p-0">
-            <div
-                class="row m-2"
-                [class.xm-study-item-container]="reservation()"
-                [class.xm-study-item-container--inactive]="!reservation()"
-            >
-                <div class="col-md-12">
-                    <div class="row">
-                        <span class="col-md-6 mb-3">
-                            <h2 class="calendar-phase-title">
-                                {{ getSequenceNumber('confirmation') }}. {{ 'i18n_calendar_phase_3' | translate }}
-                            </h2>
-                        </span>
-                        <span class="col-md-6">
-                            <span class="calendar-phase-icon float-end" [hidden]="!reservation()">
-                                <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                            </span>
-                        </span>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="calendar-titles">
-                                <span class="calendar-course-title">{{ examInfo().name }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ 'i18n_course_name' | translate }}:
-                                </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    @if (examInfo().course) {
-                                        <xm-course-code [course]="examInfo().course"></xm-course-code>
-                                        {{ examInfo().course.name }}
-                                    }
-                                </div>
-                                <div class="mt-2 col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ 'i18n_exam_validity' | translate }}:
-                                </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ examInfo().periodStart | date: 'dd.MM.yyyy' }} -
-                                    {{ examInfo().periodEnd | date: 'dd.MM.yyyy' }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ 'i18n_examination_location' | translate }}:
-                                </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ reservation()?.room?.name }}
-                                </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-2">
-                                    {{ 'i18n_reservation' | translate }}:
-                                </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-4">
-                                    {{ reservation()?.time }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ 'i18n_exam_duration' | translate }}:
-                                </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ printExamDuration(examInfo()) }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 col-12 p-0">
-            <div class="row m-2 align-items-center">
-                <div class="col-md-12">
-                    <button
-                        [disabled]="!reservation() || confirming()"
-                        class="btn btn-lg btn-success float-end important-clear-focus"
-                        style="width: 100%; line-height: 1.5; border-radius: 3px"
-                        (click)="confirmReservation()"
-                    >
-                        {{ 'i18n_student_confirm_reservation' | translate }}
-                    </button>
-                </div>
-            </div>
-            <div class="row m-2 align-items-center">
-                <div class="col-md-12">
-                    <button
-                        class="btn btn-lg btn-outline-secondary float-end"
-                        style="width: 100%; line-height: 1.5; border-radius: 3px"
-                        (click)="cancel()"
-                    >
-                        {{ 'i18n_button_cancel' | translate }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <xm-calendar-reservation-confirmation
+        [sequenceNumber]="getSequenceNumber('confirmation')"
+        [examInfo]="examInfo()"
+        [reservation]="reservation()"
+        [confirming]="confirming()"
+        (confirmClick)="confirmReservation()"
+        (cancelClick)="cancel()"
+    />
 </ng-template>

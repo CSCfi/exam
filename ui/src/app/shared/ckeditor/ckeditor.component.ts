@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+/* Core theme ships with lazy chunk via TS import (not styleUrls — avoids anyComponentStyle budget). */
+import 'ckeditor5/ckeditor5.css';
+
 import {
     AfterViewInit,
     booleanAttribute,
@@ -13,6 +16,7 @@ import {
     OnDestroy,
     output,
     signal,
+    ViewEncapsulation,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BlurEvent, ChangeEvent, CKEditorModule } from '@ckeditor/ckeditor5-angular';
@@ -98,7 +102,8 @@ import { Math } from './plugins/math/plugin';
         <div [id]="id()"></div>
     </div> `,
     imports: [FormsModule, CKEditorModule],
-    styleUrls: ['./ckeditor.component.scss'],
+    styleUrls: ['./ckeditor.styles.scss', './ckeditor.component.scss'],
+    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CKEditorComponent implements AfterViewInit, OnDestroy {

@@ -30,7 +30,7 @@ import { SessionService } from 'src/app/session/session.service';
 import { CalendarService } from './calendar.service';
 
 /** Align with `definitions.scss` `$mobile-width` — below this, use day grid instead of week. */
-const CALENDAR_MOBILE_MAX_WIDTH_PX = 920;
+const CALENDAR_MOBILE_MAX_WIDTH_PX = 1024;
 
 @Component({
     selector: 'xm-booking-calendar',

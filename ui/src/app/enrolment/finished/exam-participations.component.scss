@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/definitions.scss' as shared;
+
 /* List page (xm-exam-participations): align toolbar, list cards, and paginator to same max width */
 :host .exam-participations-content-max {
     max-width: 42rem;
@@ -11,7 +13,7 @@
 
 :host .xm-study-item-container {
     padding: 10px 14px;
-    @media (max-width: 920px) {
+    @media (max-width: shared.$mobile-width) {
         padding: 8px 10px;
     }
 }

@@ -50,7 +50,8 @@ import { SessionService } from './session/session.service';
                 width: auto;
                 margin-left: 17.025em !important;
 
-                @media (max-width: 920px) {
+                /* Keep in sync with definitions.scss $mobile-width */
+                @media (max-width: 1024px) {
                     margin-left: 0 !important;
                     padding-left: 0;
                     padding-right: 0;

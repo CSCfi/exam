@@ -18,6 +18,7 @@
     "i18n_calendar_phase_1": "Exam",
     "i18n_calendar_phase_2": "Choose room",
     "i18n_calendar_phase_3": "Reservation",
+    "i18n_calendar_reservation_pending_hint": "Select an exam time above to review the details and confirm.",
     "i18n_change_reservation": "Change reservation.",
     "i18n_student_change_reservation": "Edit reservation",
     "i18n_choose": "Choose",

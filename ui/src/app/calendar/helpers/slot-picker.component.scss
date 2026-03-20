@@ -1,0 +1,20 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+/* Cap control width on wide viewports; stay full-width when stacked on small screens */
+.xm-slot-picker-room-actions {
+    .btn {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .btn {
+            width: auto;
+            max-width: min(40rem, 100%);
+        }
+    }
+}

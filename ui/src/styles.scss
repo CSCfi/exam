@@ -8,8 +8,6 @@
 @use 'bootstrap/scss/bootstrap';
 @use 'ngx-toastr/toastr';
 @use 'bootstrap-icons/font/bootstrap-icons.css';
-@use 'ckeditor5/ckeditor5.css';
-@use 'app/shared/ckeditor/ckeditor.styles.scss';
 
 @use './app/shared/definitions.scss' as shared;
 
@@ -24,7 +22,7 @@
 }
 html {
     font-size: 13px;
-    @media (max-width: 920px) {
+    @media (max-width: shared.$mobile-width) {
         font-size: 15px;
     }
 }
@@ -131,7 +129,7 @@ textarea.ng-invalid {
     border: 2px solid #ededed;
     border-left: #238635 4px solid;
     padding: 16px 20px;
-    @media (max-width: 920px) {
+    @media (max-width: shared.$mobile-width) {
         padding: 5px;
         margin-bottom: 5px;
     }
