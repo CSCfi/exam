@@ -80,9 +80,9 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                 <div class="row mt-2">
                     <div class="col-md-12">
                         @if (showReservationWindowDescription()) {
-                            <span class="xm-info-link" role="note">
-                                <img class="arrow_icon pe-1" src="/assets/images/icon_info.png" alt="" />
-                                {{ reservationWindowDescription() }}
+                            <span class="xm-info-link d-flex align-items-center gap-2" role="note">
+                                <img class="arrow_icon flex-shrink-0" src="/assets/images/icon_info.png" alt="" />
+                                <span class="text-break min-w-0">{{ reservationWindowDescription() }}</span>
                             </span>
                         }
                     </div>

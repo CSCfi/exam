@@ -94,8 +94,8 @@ export class RoomService {
         exceptions?: ExceptionWorkingHours[],
     ) => {
         const modalRef = this.modal.openRef(ExceptionDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.outOfService = outOfService;
-        modalRef.componentInstance.exceptions = exceptions;
+        modalRef.componentInstance.outOfService.set(outOfService ?? true);
+        modalRef.componentInstance.exceptions.set(exceptions ?? []);
         this.modal.result$<ExceptionWorkingHours[]>(modalRef).subscribe(callBack);
     };
     deleteException$ = (roomId: number, exceptionId: number) =>

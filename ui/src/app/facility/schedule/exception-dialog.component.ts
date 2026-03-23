@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -22,8 +22,8 @@ import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetitio
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDialogComponent {
-    readonly outOfService = input(true);
-    readonly exceptions = input<ExceptionWorkingHours[]>([]);
+    readonly outOfService = signal(true);
+    readonly exceptions = signal<ExceptionWorkingHours[]>([]);
 
     readonly wholeDay = signal(false);
     readonly repeats = signal<REPEAT_OPTION>(REPEAT_OPTION.once);
