@@ -202,7 +202,7 @@ class CollaborativeExamSectionController @Inject() (
 
             // Validate question
             questionService.validate(question, questionBody) match
-              case Some(error) => Some(error)
+              case Some(message) => Some(BadRequest(message))
               case None =>
                 val esq = new ExamSectionQuestion()
                 question.id = CollaborativeExamProcessingService.newId()
@@ -331,7 +331,7 @@ class CollaborativeExamSectionController @Inject() (
                         JsonDeserializer.deserialize(classOf[Question], toJacksonJson(payload))
 
                       questionService.validate(questionBody, payload) match
-                        case Some(error) => Future.successful(error)
+                        case Some(message) => Future.successful(BadRequest(message))
                         case None =>
                           questionBody.options.asScala
                             .filter(o => Option(o.id).forall(_ == 0))

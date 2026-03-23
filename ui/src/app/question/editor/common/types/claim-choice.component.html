@@ -37,7 +37,7 @@ SPDX-License-Identifier: EUPL-1.2
         @for (opt of question().options; track opt.id; let index = $index) {
             <div
                 class="row ms-2 w-50 question-editor-claim-choice-option"
-                [class]="getOptionClass(opt)"
+                [class]="getOptionClass(opt, index)"
                 [formGroupName]="index"
             >
                 <div class="col-9">
@@ -63,7 +63,7 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                 </div>
                 <div class="claim-choice-option-description m-2">
-                    {{ getOptionDescriptionTranslation(opt) | translate }}
+                    {{ getOptionDescriptionTranslation(opt, index) | translate }}
                 </div>
             </div>
         }
@@ -71,6 +71,12 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 <div class="row">
     <div class="col-md-9 claim-choice-warning-wrapper">
+        @if (claimChoiceForm.hasError('i18n_incorrect_claim_question_options')) {
+            <div class="claim-choice-warning">
+                <i class="bi-exclamation-triangle"></i>
+                {{ 'i18n_incorrect_claim_question_options' | translate }}
+            </div>
+        }
         @if (missingOption()) {
             <div class="claim-choice-warning">
                 <i class="bi-exclamation-triangle"></i>

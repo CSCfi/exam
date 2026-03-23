@@ -20,6 +20,7 @@ import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.m
 import { MultipleChoiceOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
+import { claimChoiceFormValidator } from './claim-choice-validators';
 
 @Component({
     selector: 'xm-claim-choice',
@@ -42,9 +43,12 @@ export class ClaimChoiceComponent implements OnInit, AfterViewInit {
     private readonly parentForm = inject(FormGroupDirective);
 
     constructor() {
-        this.claimChoiceForm = new FormGroup({
-            options: new FormArray<FormGroup>([]),
-        });
+        this.claimChoiceForm = new FormGroup(
+            {
+                options: new FormArray<FormGroup>([]),
+            },
+            { validators: [claimChoiceFormValidator()] },
+        );
 
         toObservable(this.lotteryOn)
             .pipe(skip(1), takeUntilDestroyed())
@@ -119,12 +123,24 @@ export class ClaimChoiceComponent implements OnInit, AfterViewInit {
         });
     }
 
-    getOptionDescriptionTranslation(option: MultipleChoiceOption): string {
-        return this.Question.determineOptionDescriptionTranslation(option.claimChoiceType as string);
+    getOptionDescriptionTranslation(option: MultipleChoiceOption, index: number): string {
+        const effectiveType = this.getEffectiveClaimChoiceType(option, index);
+        return this.Question.determineOptionDescriptionTranslation(effectiveType);
     }
 
-    getOptionClass(option: MultipleChoiceOption) {
-        return this.Question.determineClaimChoiceOptionClass(option.claimChoiceType as string);
+    getOptionClass(option: MultipleChoiceOption, index: number) {
+        const effectiveType = this.getEffectiveClaimChoiceType(option, index);
+        return this.Question.determineClaimChoiceOptionClass(effectiveType);
+    }
+
+    /** Matches persisted mapping: score sign drives correct vs incorrect; skip row stays skip. */
+    private getEffectiveClaimChoiceType(option: MultipleChoiceOption, index: number): string {
+        if (option.claimChoiceType === 'SkipOption') {
+            return 'SkipOption';
+        }
+        const rawScore = this.optionsFormArray.at(index)?.get('score')?.value ?? option.defaultScore ?? 0;
+        const score = typeof rawScore === 'number' ? rawScore : Number(rawScore);
+        return score > 0 ? 'CorrectOption' : 'IncorrectOption';
     }
 
     private updateFormArray(options: MultipleChoiceOption[]) {
@@ -189,5 +205,6 @@ export class ClaimChoiceComponent implements OnInit, AfterViewInit {
             .filter((type) => type !== 'SkipOption')
             .map((type) => this.Question.getOptionTypeTranslation(type))[0];
         this.missingOption.set(missingOptionValue || '');
+        this.claimChoiceForm.updateValueAndValidity({ emitEvent: false });
     }
 }

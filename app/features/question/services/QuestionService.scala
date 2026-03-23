@@ -17,7 +17,6 @@ import org.apache.commons.lang3.math.NumberUtils
 import org.jsoup.Jsoup
 import play.api.Logging
 import play.api.libs.json.*
-import play.api.mvc.Results
 import services.exam.{OptionUpdateOptions, SectionQuestionHandler}
 import services.xml.{MoodleXmlExporter, MoodleXmlImporter}
 import validation.core.SanitizingHelper
@@ -37,7 +36,8 @@ class QuestionService @Inject() (
     with EbeanJsonExtensions
     with Logging:
 
-  def validate(question: Question, body: JsValue): Option[play.api.mvc.Result] =
+  /** @return optional validation message (i18n key or plain string) when the body is invalid */
+  def validate(question: Question, body: JsValue): Option[String] =
     def fieldExists(name: String) = (body \ name).toOption.exists(_ != JsNull)
 
     def typeError: Option[String] =
@@ -82,7 +82,7 @@ class QuestionService @Inject() (
       "no owners defined"
     )
 
-    ownerError.orElse(questionError).map(Results.BadRequest(_))
+    ownerError.orElse(questionError)
 
   private def clozeError(body: JsValue): Option[String] =
     val questionText = (body \ "question").as[String]
@@ -365,7 +365,7 @@ class QuestionService @Inject() (
     val question = parseFromBody(body, user, None, questionText)
     question.questionOwners.add(user)
     validate(question, body) match
-      case Some(_) => Left(QuestionError.ValidationError)
+      case Some(message) => Left(QuestionError.ValidationErrorWithMessage(message))
       case None =>
         if question.`type` != QuestionType.EssayQuestion then
           processOptions(question, user, (body \ "options").asOpt[JsArray].getOrElse(Json.arr()))
@@ -393,7 +393,7 @@ class QuestionService @Inject() (
       case Some(question) =>
         val updatedQuestion = parseFromBody(body, user, Some(question), questionText)
         validate(updatedQuestion, body) match
-          case Some(_) => Left(QuestionError.ValidationError)
+          case Some(message) => Left(QuestionError.ValidationErrorWithMessage(message))
           case None =>
             if updatedQuestion.`type` != QuestionType.EssayQuestion then
               processOptions(
