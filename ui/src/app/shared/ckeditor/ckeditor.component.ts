@@ -2,9 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-/* Core theme ships with lazy chunk via TS import (not styleUrls — avoids anyComponentStyle budget). */
-import 'ckeditor5/ckeditor5.css';
-
 import {
     AfterViewInit,
     booleanAttribute,
