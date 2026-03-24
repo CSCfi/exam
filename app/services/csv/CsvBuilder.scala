@@ -5,6 +5,7 @@
 package services.csv
 
 import com.google.inject.ImplementedBy
+import com.opencsv.CSVWriter
 import com.opencsv.exceptions.CsvException
 import models.user.{Role, User}
 import play.api.libs.json.JsValue
@@ -13,6 +14,10 @@ import java.io.{File, OutputStream}
 
 @ImplementedBy(classOf[CsvBuilderImpl])
 trait CsvBuilder:
+  /** UTF-8 CSV output with flush on exit; does not close the stream. Caller must close the stream.
+    */
+  def streamTo(os: OutputStream)(build: CSVWriter => Unit): Unit
+
   /** Streams CSV (exam records by date range) to the given output stream. Caller must close the
     * stream.
     */

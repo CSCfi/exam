@@ -10,12 +10,13 @@ import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
 trait EbeanQueryExtensions:
+  // NOTE: When passing a Scala collection to Ebean's .in() or .ine(), always call .asJava on it.
+  // Scala 3 resolves member methods before extensions, so Ebean's varargs in(String, Object...)
+  // always wins over any extension — the whole Scala collection is passed as a single Object.
   extension [T <: Model](el: ExpressionList[T])
     def find: Option[T]  = el.findOneOrEmpty().toScala
     def list: List[T]    = el.findList().asScala.toList
     def distinct: Set[T] = el.findSet().asScala.toSet
-    def in[C](propertyName: String, values: Iterable[C]): ExpressionList[T] =
-      el.in(propertyName, values.toSeq.asJava)
 
   extension [T <: Model](q: Query[T])
     def find: Option[T]  = q.findOneOrEmpty().toScala

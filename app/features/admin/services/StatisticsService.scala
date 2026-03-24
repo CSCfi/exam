@@ -211,7 +211,7 @@ class StatisticsService @Inject() (
       .fetch("examRecord.examScore", "id")
       .where()
       .eq("parent.id", examId)
-      .in("id", childIds)
+      .in("id", childIds.asJava)
       .list
     excelBuilder.streamScores(parentExam, childExams)(os)
 

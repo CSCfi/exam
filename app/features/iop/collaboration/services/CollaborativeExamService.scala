@@ -13,7 +13,6 @@ import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.*
 
 /** Service for CollaborativeExam database operations
   *
@@ -53,8 +52,7 @@ class CollaborativeExamService @Inject() (
   def findAllByExternalRef(): Future[Map[String, CollaborativeExam]] =
     Future(
       DB.find(classOf[CollaborativeExam])
-        .findList()
-        .asScala
+        .list
         .map(ce => ce.externalRef -> ce)
         .toMap
     )(using ec)

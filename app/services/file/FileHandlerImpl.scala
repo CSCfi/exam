@@ -4,6 +4,7 @@
 
 package services.file
 
+import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.attachment.{Attachment, AttachmentContainer}
 import play.api.libs.Files.TemporaryFile
@@ -18,7 +19,7 @@ import javax.inject.Inject
 import scala.util.{Try, Using}
 
 class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigReader)
-    extends FileHandler with Logging:
+    extends FileHandler with EbeanQueryExtensions with Logging:
 
   private val KB = 1024
 
@@ -98,7 +99,7 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
 
       // Remove the file from the disk if no references to it are found
       val removeFromDisk =
-        DB.find(classOf[Attachment]).where().eq("filePath", filePath).findList().isEmpty
+        DB.find(classOf[Attachment]).where().eq("filePath", filePath).list.isEmpty
       if removeFromDisk then removeAttachmentFile(attachment.filePath)
     }
 

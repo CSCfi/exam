@@ -82,17 +82,19 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
 
-    <div class="row mt-4">
-        @if (getSectionMaxScore() > 0) {
-            <div class="col-md-6">
-                {{ 'i18n_word_points' | translate }}: {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}
-            </div>
-        }
-        @if (essayQuestionAmounts().total > 0) {
-            <div class="col-md-6">
-                {{ 'i18n_accepted_and_rejected' | translate }}: {{ essayQuestionAmounts().accepted }} /
-                {{ essayQuestionAmounts().rejected }}
-            </div>
-        }
-    </div>
+    @if (getSectionMaxScore() > 0 || essayQuestionAmounts().total > 0) {
+        <div class="row mt-4 gy-2">
+            @if (getSectionMaxScore() > 0) {
+                <div class="col-12">
+                    {{ 'i18n_word_points' | translate }}: {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}
+                </div>
+            }
+            @if (essayQuestionAmounts().total > 0) {
+                <div class="col-12">
+                    {{ 'i18n_accepted_and_rejected' | translate }}: {{ essayQuestionAmounts().accepted }} /
+                    {{ essayQuestionAmounts().rejected }}
+                </div>
+            }
+        </div>
+    }
 </div>

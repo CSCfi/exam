@@ -8,6 +8,7 @@ import database.EbeanJsonExtensions
 import features.assessment.services.{ExamRecordError, ExamRecordService}
 import models.user.Role
 import org.apache.pekko.stream.scaladsl.StreamConverters
+import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
@@ -16,7 +17,7 @@ import system.AuditedAction
 import validation.CommaJoinedListValidator
 import validation.core.{ScalaAttrs, Validators}
 
-import java.io.{PipedInputStream, PipedOutputStream}
+import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
 import scala.concurrent.Future
 
@@ -28,11 +29,28 @@ class ExamRecordController @Inject() (
     private val examRecordService: ExamRecordService,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
-    with EbeanJsonExtensions:
+    with EbeanJsonExtensions
+    with Logging:
 
   private val XLSX_MIME  = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   private val CSV_MIME   = "text/csv"
   private val CSV_HEADER = "Content-Disposition" -> "attachment; filename=\"examrecords.csv\""
+
+  private def streamChunked(mimeType: String, headers: (String, String)*)(
+      write: OutputStream => Unit
+  ): Future[Result] =
+    val pos = new PipedOutputStream()
+    val pis = new PipedInputStream(pos)
+    Future {
+      try write(pos)
+      catch case e: Throwable => logger.error("File generation failed", e)
+      finally pos.close()
+    }(using ec)
+    Future.successful(
+      Ok.chunked(StreamConverters.fromInputStream(() => pis))
+        .as(mimeType)
+        .withHeaders(headers*)
+    )
 
   def addExamRecord(): Action[JsValue] =
     authenticated
@@ -81,51 +99,34 @@ class ExamRecordController @Inject() (
     authenticated
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
       .async { _ =>
-        val pos = new PipedOutputStream()
-        val pis = new PipedInputStream(pos)
-        Future {
-          try examRecordService.streamExamRecordsAsCsvByDate(start, end)(pos)
-          finally pos.close()
-        }(using ec)
-        Future.successful(
-          Ok.chunked(StreamConverters.fromInputStream(() => pis))
-            .as(CSV_MIME)
-            .withHeaders(CSV_HEADER)
-        )
+        streamChunked(CSV_MIME, CSV_HEADER)(examRecordService.streamExamRecordsAsCsvByDate(
+          start,
+          end
+        ))
       }
 
-  def exportSelectedExamRecordsAsCsv(examId: Long): Action[AnyContent] = authenticated
-    .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
-    .andThen(validators.validated(CommaJoinedListValidator))
-    .async { request =>
-      val ids = request.attrs(ScalaAttrs.ID_LIST)
-      val pos = new PipedOutputStream()
-      val pis = new PipedInputStream(pos)
-      Future {
-        try examRecordService.streamSelectedExamRecordsAsCsv(examId, ids)(pos)
-        finally pos.close()
-      }(using ec)
-      Future.successful(
-        Ok.chunked(StreamConverters.fromInputStream(() => pis))
-          .as(CSV_MIME)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.csv\"")
-      )
-    }
+  def exportSelectedExamRecordsAsCsv(examId: Long): Action[JsValue] =
+    authenticated(parse.json)
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
+      .andThen(audited)
+      .andThen(validators.validated(CommaJoinedListValidator))
+      .async { request =>
+        val ids = request.attrs(ScalaAttrs.ID_LIST)
+        streamChunked(
+          CSV_MIME,
+          "Content-Disposition" -> "attachment; filename=\"exam_records.csv\""
+        )(examRecordService.streamSelectedExamRecordsAsCsv(examId, ids))
+      }
 
-  def exportSelectedExamRecordsAsExcel(examId: Long): Action[AnyContent] = authenticated
-    .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
-    .andThen(validators.validated(CommaJoinedListValidator))
-    .async { request =>
-      val ids = request.attrs(ScalaAttrs.ID_LIST)
-      val pos = new PipedOutputStream()
-      val pis = new PipedInputStream(pos)
-      Future {
-        try examRecordService.streamSelectedExamRecordsAsExcel(examId, ids)(pos)
-        finally pos.close()
-      }(using ec)
-      Future.successful(
-        Ok.chunked(StreamConverters.fromInputStream(() => pis))
-          .as(XLSX_MIME)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
-      )
-    }
+  def exportSelectedExamRecordsAsExcel(examId: Long): Action[JsValue] =
+    authenticated(parse.json)
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
+      .andThen(audited)
+      .andThen(validators.validated(CommaJoinedListValidator))
+      .async { request =>
+        val ids = request.attrs(ScalaAttrs.ID_LIST)
+        streamChunked(
+          XLSX_MIME,
+          "Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\""
+        )(examRecordService.streamSelectedExamRecordsAsExcel(examId, ids))
+      }

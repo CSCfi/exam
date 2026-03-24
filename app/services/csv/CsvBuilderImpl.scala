@@ -26,33 +26,36 @@ import scala.util.{Try, Using}
 
 class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
 
+  override def streamTo(os: OutputStream)(build: CSVWriter => Unit): Unit =
+    withCsvWriter(os)(build)
+
   override def streamExamRecordsByDate(startDate: Long, endDate: Long)(os: OutputStream): Unit =
-    val start = new Date(startDate)
-    val end   = new Date(endDate)
-    val examRecords = DB
-      .find(classOf[ExamRecord])
-      .fetch("examScore")
-      .where()
-      .between("timeStamp", start, end)
-      .findList()
-      .asScala
-      .toList
-    withCsvWriter(os)(writer => writeRecords(writer, examRecords, ExamScore.getHeaders))
+    streamTo(os) { writer =>
+      val start = new Date(startDate)
+      val end   = new Date(endDate)
+      val examRecords = DB
+        .find(classOf[ExamRecord])
+        .fetch("examScore")
+        .where()
+        .between("timeStamp", start, end)
+        .list
+      writeRecords(writer, examRecords, ExamScore.getHeaders)
+    }
 
   override def streamExamRecords(examId: Long, childIds: List[Long])(os: OutputStream): Unit =
-    val examRecords = DB
-      .find(classOf[ExamRecord])
-      .fetch("examScore")
-      .where()
-      .eq("exam.parent.id", examId)
-      .in("exam.id", childIds)
-      .findList()
-      .asScala
-      .toList
-    withCsvWriter(os)(writer => writeRecords(writer, examRecords, ExamScore.getHeaders))
+    streamTo(os) { writer =>
+      val examRecords = DB
+        .find(classOf[ExamRecord])
+        .fetch("examScore")
+        .where()
+        .eq("exam.parent.id", examId)
+        .in("exam.id", childIds.asJava)
+        .list
+      writeRecords(writer, examRecords, ExamScore.getHeaders)
+    }
 
   override def streamAssessments(node: JsValue)(os: OutputStream): Unit =
-    withCsvWriter(os) { writer =>
+    streamTo(os) { writer =>
       writer.writeNext(getHeaders)
       node.as[JsArray].value.foreach { assessment =>
         writer.writeNext(values(assessment).toArray)
@@ -165,9 +168,7 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       .where()
       .eq("name", gradeName)
       .eq("gradeScale", scale)
-      .findList()
-      .asScala
-      .toList
+      .list
 
     grades match
       case grade :: Nil => Some(grade)

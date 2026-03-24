@@ -24,6 +24,7 @@ import services.mail.EmailComposer
 import java.io.OutputStream
 import javax.inject.Inject
 import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.*
 
 class ExamRecordService @Inject() (
@@ -105,7 +106,7 @@ class ExamRecordService @Inject() (
       .fetch("examScore")
       .where()
       .eq("exam.parent.id", examId)
-      .in("exam.id", ids)
+      .in("exam.id", ids.asJava)
       .list
     excelBuilder.streamExamRecords(records)(os)
 

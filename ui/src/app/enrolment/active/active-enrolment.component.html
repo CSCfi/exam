@@ -108,7 +108,11 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-3 col-lg-2">{{ 'i18n_teachers' | translate }}:</div>
             <div class="col-md-9 col-lg-10">
                 <xm-teacher-list [exam]="exam"></xm-teacher-list>
-                <button class="btn btn-sm btn-link text-secondary" (click)="addEnrolmentInformation()">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-lg-10 offset-md-3 offset-lg-2">
+                <button class="btn btn-sm btn-link text-secondary ps-0" (click)="addEnrolmentInformation()">
                     <i class="bi bi-envelope"></i>
                     {{ 'i18n_student_edit' | translate }}
                 </button>
