@@ -24,7 +24,9 @@ import { ExaminationService } from 'src/app/examination/examination.service';
             </div>
         }
         <div class="row">
-            <div class="col-12">{{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
+            <div class="col-md-3 question-type-text">
+                {{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}
+            </div>
         </div>
         <div class="row mt-2">
             <div class="col-md-12">
@@ -34,6 +36,7 @@ import { ExaminationService } from 'src/app/examination/examination.service';
             </div>
         </div>`,
     imports: [DatePipe, TranslateModule],
+    styleUrls: ['./question.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationClozeTestComponent {

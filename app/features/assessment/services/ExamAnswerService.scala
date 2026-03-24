@@ -5,7 +5,8 @@
 package features.assessment.services
 
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
-import io.ebean.{DB, FetchConfig}
+import io.ebean.DB
+import io.ebean.text.PathProperties
 import models.assessment.ExamFeedbackReleaseType.{GIVEN_DATE, ONCE_LOCKED}
 import models.exam.Exam
 import models.exam.ExamState
@@ -25,25 +26,32 @@ class ExamAnswerService @Inject() (
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions:
 
+  private val answerQueryPP = PathProperties.parse(
+    """(*,
+      |  course(name, code, credits),
+      |  grade(name),
+      |  examFeedback(*),
+      |  examSections(*,
+      |    sectionQuestions(sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType,
+      |      question(id, type, question,
+      |        attachment(fileName)
+      |      ),
+      |      options(*,
+      |        option(id, option)
+      |      ),
+      |      essayAnswer(id, answer, evaluatedScore,
+      |        attachment(fileName)
+      |      ),
+      |      clozeTestAnswer(id, question, answer)
+      |    )
+      |  )
+      |)""".stripMargin
+  )
+
   def findExamForUser(eid: Long, user: User): Option[Exam] =
     DB
       .find(classOf[Exam])
-      .fetch("course", "name, code, credits")
-      .fetch("grade", "name")
-      .fetch("examFeedback")
-      .fetch("examSections")
-      .fetch(
-        "examSections.sectionQuestions",
-        "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType",
-        FetchConfig.ofQuery()
-      )
-      .fetch("examSections.sectionQuestions.question", "id, type, question")
-      .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-      .fetch("examSections.sectionQuestions.options")
-      .fetch("examSections.sectionQuestions.options.option", "id, option")
-      .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
-      .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
-      .fetch("examSections.sectionQuestions.clozeTestAnswer", "id, question, answer")
+      .apply(answerQueryPP)
       .where()
       .idEq(eid)
       .eq("creator", user)
@@ -74,7 +82,10 @@ class ExamAnswerService @Inject() (
     // Set derived scores
     exam.examSections.asScala
       .flatMap(_.sectionQuestions.asScala)
-      .foreach(_.setDerivedMaxScore())
+      .foreach { esq =>
+        esq.setDerivedMaxScore()
+        esq.setDerivedAssessedScore()
+      }
 
     // Set exam scores
     exam.setMaxScore()

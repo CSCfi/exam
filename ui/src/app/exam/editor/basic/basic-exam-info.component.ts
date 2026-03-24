@@ -4,6 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,6 +31,7 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     styleUrls: ['../../exam.shared.scss'],
     imports: [
         NgbPopover,
+        FormField,
         ExamCourseComponent,
         LanguageSelectorComponent,
         ExamOwnerSelectorComponent,
@@ -43,6 +45,9 @@ import { SoftwareSelectorComponent } from './software-picker.component';
 export class BasicExamInfoComponent {
     readonly exam = computed(() => this.ExamTabs.examSignal()!);
     readonly collaborative = signal(false);
+    readonly examNameForm = form(signal({ name: '' }), (path) => {
+        required(path.name);
+    });
     readonly byodExaminationSupported = signal(false);
     readonly anonymousReviewEnabled = signal(false);
     readonly gradeScaleSetting = signal({ overridable: false });
@@ -63,6 +68,7 @@ export class BasicExamInfoComponent {
     constructor() {
         this.user = this.Session.getUser();
         this.collaborative.set(this.ExamTabs.isCollaborative());
+        this.examNameForm.name().value.set(this.ExamTabs.getExam().name || '');
         this.http
             .get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod')
             .subscribe((setting) =>
@@ -77,9 +83,8 @@ export class BasicExamInfoComponent {
         this.ExamTabs.notifyTabChange(1);
     }
 
-    onExamNameInput = (event: Event) => {
-        const currentExam = this.exam();
-        this.ExamTabs.setExam({ ...currentExam, name: (event.target as HTMLInputElement).value });
+    onExamNameInput = () => {
+        this.ExamTabs.setExam({ ...this.exam(), name: this.examNameForm.name().value() || '' });
     };
 
     onExamAnonymousChange = (event: Event) => {
@@ -89,7 +94,11 @@ export class BasicExamInfoComponent {
 
     onInternalRefInput = (event: Event) => this.updateInternalRef((event.target as HTMLInputElement).value);
 
-    updateExam = () => this.ExamTabs.saveExam$().subscribe();
+    updateExam = () => {
+        if (this.examNameForm.name().invalid()) return;
+        this.ExamTabs.setExam({ ...this.exam(), name: this.examNameForm.name().value() || '' });
+        this.ExamTabs.saveExam$().subscribe();
+    };
 
     onCourseChange(course: Course) {
         const currentExam = this.exam();

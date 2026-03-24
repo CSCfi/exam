@@ -109,6 +109,18 @@ export class TeacherDashboardComponent {
 
     changeTab = (event: NgbNavChangeEvent) => this.activeTab.set(event.nextId);
 
+    removeExam = (id: number) => {
+        const without = (exams: DashboardExam[]) => exams.filter((e) => e.id !== id);
+        this.activeExams.update(without);
+        this.filteredActive.update(without);
+        this.finishedExams.update(without);
+        this.filteredFinished.update(without);
+        this.archivedExams.update(without);
+        this.filteredArchived.update(without);
+        this.draftExams.update(without);
+        this.filteredDrafts.update(without);
+    };
+
     search = (text: string) => {
         // Helper to check ownership
         const isOwner = (exam: Exam) => exam.examOwners.some((eo) => eo.id === this.userId);

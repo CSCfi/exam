@@ -18,6 +18,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
     selector: 'xm-exam-answers-dialog',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-answers-dialog.component.html',
+    styleUrl: './exam-answers-dialog.component.scss',
     imports: [TranslateModule, MathDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
 export class ExamAnswersDialogComponent {

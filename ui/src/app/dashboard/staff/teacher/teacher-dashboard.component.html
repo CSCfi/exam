@@ -46,8 +46,8 @@ SPDX-License-Identifier: EUPL-1.2
                             defaultPredicate="periodEnd"
                             [extraData]="activeExtraData"
                             (filtered)="search($event)"
-                        >
-                        </xm-exam-list-category>
+                            (deleted)="removeExam($event)"
+                        />
                     </ng-template>
                 </li>
                 <li [ngbNavItem]="2">
@@ -64,8 +64,8 @@ SPDX-License-Identifier: EUPL-1.2
                             [defaultReverse]="true"
                             [extraData]="finishedExtraData"
                             (filtered)="search($event)"
-                        >
-                        </xm-exam-list-category>
+                            (deleted)="removeExam($event)"
+                        />
                     </ng-template>
                 </li>
                 <li [ngbNavItem]="3">
@@ -82,8 +82,8 @@ SPDX-License-Identifier: EUPL-1.2
                             [defaultReverse]="true"
                             [extraData]="archivedExtraData"
                             (filtered)="search($event)"
-                        >
-                        </xm-exam-list-category>
+                            (deleted)="removeExam($event)"
+                        />
                     </ng-template>
                 </li>
                 <li [ngbNavItem]="4">
@@ -100,8 +100,8 @@ SPDX-License-Identifier: EUPL-1.2
                             [defaultReverse]="true"
                             [extraData]="[]"
                             (filtered)="search($event)"
-                        >
-                        </xm-exam-list-category>
+                            (deleted)="removeExam($event)"
+                        />
                     </ng-template>
                 </li>
             </ul>

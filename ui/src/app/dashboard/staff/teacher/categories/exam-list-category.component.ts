@@ -46,6 +46,7 @@ export class ExamListCategoryComponent implements OnInit {
     readonly defaultPredicate = input('');
     readonly defaultReverse = input(false);
     readonly filtered = output<string>();
+    readonly deleted = output<number>();
     readonly sorting = signal<{ predicate: string; reverse: boolean }>({ predicate: '', reverse: false });
     filterText = '';
 
@@ -138,9 +139,7 @@ export class ExamListCategoryComponent implements OnInit {
                             .subscribe({
                                 next: () => {
                                     this.toast.success(this.translate.instant('i18n_exam_removed'));
-                                    // Note: items is an input signal, so we can't mutate it directly
-                                    // The parent component should handle the removal
-                                    // For now, we'll emit an event or the parent will refresh
+                                    this.deleted.emit(exam.id);
                                 },
                                 error: (err) => this.toast.error(err),
                             }),

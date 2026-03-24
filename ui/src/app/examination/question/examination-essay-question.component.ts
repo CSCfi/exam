@@ -120,9 +120,12 @@ export class ExaminationEssayQuestionComponent {
             this.Files.upload$<EssayAnswer | Attachment>(url, data.$value.attachmentFile, params).subscribe({
                 next: (resp) => {
                     if ('fileName' in resp) {
+                        essayAnswer.attachment = resp;
                         this.attachment.set(resp);
                     } else {
+                        essayAnswer.id = resp.id;
                         essayAnswer.objectVersion = resp.objectVersion;
+                        essayAnswer.attachment = resp.attachment;
                         this.attachment.set(resp.attachment);
                     }
                 },

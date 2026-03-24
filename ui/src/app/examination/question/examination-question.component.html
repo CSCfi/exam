@@ -54,10 +54,10 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <!-- instruction -->
             @if (sq().answerInstructions && expanded()) {
-                <div class="row">
-                    <div class="col-md-12 ps-4">
+                <div class="row mt-2 mb-3">
+                    <div class="col-md-12">
                         <p class="question-text question-type-text info" role="note">
-                            <img class="me-4" src="/assets/images/icon_info.svg" alt="" />
+                            <img class="me-2" src="/assets/images/icon_info.svg" alt="" />
                             {{ 'i18n_instructions' | translate }}:&nbsp;{{ sq().answerInstructions }}
                         </p>
                     </div>

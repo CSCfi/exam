@@ -42,10 +42,16 @@ SPDX-License-Identifier: EUPL-1.2
                             <div class="col-md-9">
                                 <input
                                     class="form-control w-50"
-                                    [value]="exam().name"
-                                    (input)="onExamNameInput($event)"
+                                    [formField]="examNameForm.name"
+                                    [class.is-invalid]="examNameForm.name().invalid() && examNameForm.name().touched()"
+                                    (input)="onExamNameInput()"
                                     (blur)="updateExam()"
                                 />
+                                @if (examNameForm.name().invalid() && examNameForm.name().touched()) {
+                                    <div class="invalid-feedback d-block">
+                                        {{ 'i18n_exam_name_missing_or_too_short' | translate }}
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -318,7 +324,7 @@ SPDX-License-Identifier: EUPL-1.2
 <!-- Buttons -->
 <div class="row d-flex flex-row-reverse flex-align-r m-4">
     <div class="col-auto p1">
-        <button class="btn btn-success" (click)="updateExam()">
+        <button class="btn btn-success" (click)="updateExam()" [disabled]="examNameForm.name().invalid()">
             {{ 'i18n_save' | translate }}
         </button>
     </div>
