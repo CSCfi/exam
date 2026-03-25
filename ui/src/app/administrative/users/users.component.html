@@ -71,7 +71,7 @@ SPDX-License-Identifier: EUPL-1.2
                     {{ 'i18n_filter_by_permission' | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
-                    @for (permission of permissions(); track permission) {
+                    @for (permission of permissions(); track permission.type) {
                         <button
                             ngbDropdownItem
                             role="presentation"
@@ -115,7 +115,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <tbody>
                     @for (
                         user of filteredUsers() | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
-                        track user
+                        track user.id
                     ) {
                         <tr>
                             <td>{{ user.lastName }}</td>
@@ -149,7 +149,7 @@ SPDX-License-Identifier: EUPL-1.2
                                         @if (user.availableRoles.length > 0) {
                                             <div ngbDropdownMenu role="menu" aria-labelledby="addRoleDropdown">
                                                 <div class="dropdown-header">{{ 'i18n_add' | translate }}</div>
-                                                @for (role of user.availableRoles; track role) {
+                                                @for (role of user.availableRoles; track role.type) {
                                                     <button
                                                         ngbDropdownItem
                                                         (click)="addRole(user, role)"
@@ -190,7 +190,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                 aria-labelledby="removeRoleDropdown"
                                             >
                                                 <div class="dropdown-header">{{ 'i18n_remove' | translate }}</div>
-                                                @for (role of user.removableRoles; track role) {
+                                                @for (role of user.removableRoles; track role.type) {
                                                     <button
                                                         ngbDropdownItem
                                                         (click)="removeRole(user, role)"
@@ -237,7 +237,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                 role="menu"
                                             >
                                                 <div class="dropdown-header">{{ 'i18n_add' | translate }}</div>
-                                                @for (permission of user.availablePermissions; track permission) {
+                                                @for (permission of user.availablePermissions; track permission.type) {
                                                     <button
                                                         ngbDropdownItem
                                                         (click)="addPermission(user, permission)"
@@ -274,7 +274,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                 role="menu"
                                             >
                                                 <div class="dropdown-header">{{ 'i18n_remove' | translate }}</div>
-                                                @for (permission of user.removablePermissions; track permission) {
+                                                @for (permission of user.removablePermissions; track permission.type) {
                                                     <button
                                                         ngbDropdownItem
                                                         (click)="removePermission(user, permission)"

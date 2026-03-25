@@ -100,9 +100,8 @@ class EnrolmentRepository @Inject() (
         |)
         |)""".stripMargin
     )
-    val query = db.find(classOf[ExamEnrolment])
-    pp.apply(query)
-    val enrolments = query
+    val enrolments = db.find(classOf[ExamEnrolment])
+      .apply(pp)
       .where()
       .eq("user", user)
       .or()

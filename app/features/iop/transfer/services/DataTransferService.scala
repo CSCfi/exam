@@ -86,11 +86,9 @@ class DataTransferService @Inject() (
         val ids    = (body \ "ids").as[Seq[Long]].toSet
         val orgRef = (body \ "orgRef").as[String]
 
-        val pp    = PathProperties.parse("(*, options(*), tags(name))")
-        val query = DB.find(classOf[Question])
-        query.apply(pp)
-
-        val questions = query
+        val pp = PathProperties.parse("(*, options(*), tags(name))")
+        val questions = DB.find(classOf[Question])
+          .apply(pp)
           .where()
           .idIn(ids.map(Long.box).asJava)
           .or()

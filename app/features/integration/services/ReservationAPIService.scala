@@ -44,8 +44,7 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
         |)
         |)""".stripMargin
     )
-    val query = DB.find(classOf[Reservation])
-    pp.apply(query)
+    val query = DB.find(classOf[Reservation]).apply(pp)
     val baseQuery = query
       .where()
       .or()  // *
@@ -82,16 +81,12 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
       .sortBy(r => r.startAt.getMillis)
 
   def getRooms: List[ExamRoom] =
-    val pp    = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
-    val query = DB.find(classOf[ExamRoom])
-    pp.apply(query)
-    query.orderBy("name").list
+    val pp = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
+    DB.find(classOf[ExamRoom]).apply(pp).orderBy("name").list
 
   def getRoomOpeningHours(roomId: Long, date: String): Option[ExamRoom] =
-    val pp    = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
-    val query = DB.find(classOf[ExamRoom])
-    pp.apply(query)
-    query.where().idEq(roomId).find match
+    val pp = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
+    DB.find(classOf[ExamRoom]).apply(pp).where().idEq(roomId).find match
       case None => None
       case Some(room) =>
         val searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date)

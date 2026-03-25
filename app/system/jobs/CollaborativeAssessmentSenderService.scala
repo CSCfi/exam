@@ -46,10 +46,10 @@ class CollaborativeAssessmentSenderService @Inject() (
   private def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Starting collaborative assessment sending check ->")
-      val query = DB.find(classOf[ExamParticipation])
-      val pp    = collaborativeExamLoader.getAssessmentPath
-      pp.apply(query)
-      query.where
+      val pp = collaborativeExamLoader.getAssessmentPath
+      DB.find(classOf[ExamParticipation])
+        .apply(pp)
+        .where
         .isNotNull("collaborativeExam")
         .in("exam.state", ExamState.ABORTED, ExamState.REVIEW)
         .isNull("sentForReview")

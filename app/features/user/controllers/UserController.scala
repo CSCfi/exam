@@ -46,7 +46,7 @@ class UserController @Inject() (
       .andThen(audited) { request =>
         val body             = request.body
         val permissionString = (body \ "permission").as[String]
-        val userId           = (body \ "id").as[String]
+        val userId           = (body \ "id").as[Long]
 
         userService.grantUserPermission(userId, permissionString) match
           case Left(error) => toResult(error)
@@ -58,7 +58,7 @@ class UserController @Inject() (
       request =>
         val body             = request.body
         val permissionString = (body \ "permission").as[String]
-        val userId           = (body \ "id").as[String]
+        val userId           = (body \ "id").as[Long]
 
         userService.revokeUserPermission(userId, permissionString) match
           case Left(error) => toResult(error)

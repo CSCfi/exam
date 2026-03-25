@@ -33,9 +33,8 @@ class ExamAPIService @Inject() () extends EbeanQueryExtensions:
       .map(ISODateTimeFormat.dateTimeParser().parseDateTime)
       .getOrElse(DateTime.now())
 
-    val query = DB.find(classOf[Exam])
-    query.apply(pp)
-    query
+    DB.find(classOf[Exam])
+      .apply(pp)
       .where()
       .eq("state", ExamState.PUBLISHED)
       .ge("periodEnd", dateTime)

@@ -21,7 +21,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
   def listPermissions: Seq[Permission] =
     DB.find(classOf[Permission]).list
 
-  def grantUserPermission(userId: String, permissionString: String): Either[UserError, Unit] =
+  def grantUserPermission(userId: Long, permissionString: String): Either[UserError, Unit] =
     Option(DB.find(classOf[User], userId)) match
       case None => Left(UserNotFound)
       case Some(user) =>
@@ -37,7 +37,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
             case None => Left(InvalidPermissionType)
         else Right(())
 
-  def revokeUserPermission(userId: String, permissionString: String): Either[UserError, Unit] =
+  def revokeUserPermission(userId: Long, permissionString: String): Either[UserError, Unit] =
     Option(DB.find(classOf[User], userId)) match
       case None => Left(UserNotFound)
       case Some(user) =>
@@ -55,8 +55,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
 
   def listUsers(filter: Option[String]): (Seq[User], PathProperties) =
     val pp    = PathProperties.parse("(*, roles(*), permissions(*))")
-    val query = DB.find(classOf[User])
-    pp.apply(query)
+    val query = DB.find(classOf[User]).apply(pp)
 
     val results = filter match
       case Some(f) =>

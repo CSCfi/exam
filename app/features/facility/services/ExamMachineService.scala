@@ -24,12 +24,9 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
     DB.find(classOf[ExamMachine]).where().eq("archived", false).isNotNull("name").list
 
   def getExamMachine(id: Long): Either[ExamMachineError, (ExamMachine, PathProperties)] =
-    val pp    = defaultPathProperties
-    val query = DB.find(classOf[ExamMachine])
-    pp.apply(query)
-    query.where().idEq(id).find match
+    DB.find(classOf[ExamMachine]).apply(defaultPathProperties).where().idEq(id).find match
       case None          => Left(MachineNotFound)
-      case Some(machine) => Right((machine, pp))
+      case Some(machine) => Right((machine, defaultPathProperties))
 
   def getExamMachineReservationsFromNow(id: Long): List[Reservation] =
     DB.find(classOf[Reservation])

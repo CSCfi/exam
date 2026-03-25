@@ -54,10 +54,8 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
       start: Option[String],
       end: Option[String]
   ): (List[ExamEnrolment], PathProperties) =
-    val query = DB.find(classOf[ExamEnrolment])
-    pathProperties.apply(query)
-
-    val participations = query
+    val participations = DB.find(classOf[ExamEnrolment])
+      .apply(pathProperties)
       .where()
       .or()
       .ne("exam.state", ExamState.PUBLISHED)

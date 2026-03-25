@@ -63,7 +63,6 @@ class StatisticsService @Inject() (
     )
     val enrolments = DB
       .find(classOf[ExamEnrolment])
-      .where
       .apply(pp)
       .where()
       .or()
@@ -114,7 +113,7 @@ class StatisticsService @Inject() (
   ): List[Reservation] =
     val pp =
       PathProperties.parse("*, enrolment(noShow, externalExam(finished)), externalReservation(*)")
-    val query = DB.find(classOf[Reservation]).where().apply(pp)
+    val query = DB.find(classOf[Reservation]).apply(pp)
     val el    = query.where().isNotNull("externalRef")
     withFilters(el, "enrolment.exam.course", "startAt", dept, start, end).distinct
       .filter(r =>
@@ -179,36 +178,39 @@ class StatisticsService @Inject() (
       examId: Long,
       childIds: List[Long]
   )(os: java.io.OutputStream): Unit =
+    val parentProps = PathProperties.parse(
+      """(id,
+        |examSections(name,
+        |  sectionQuestions(id,
+        |    question(id,
+        |      parent(id)))))""".stripMargin
+    )
     val parentExam = DB
       .find(classOf[Exam])
-      .select("id")
-      .fetch("examSections", "name")
-      .fetch("examSections.sectionQuestions", "id")
-      .fetch("examSections.sectionQuestions.question", "id")
-      .fetch("examSections.sectionQuestions.question.parent", "id")
+      .apply(parentProps)
       .where()
       .eq("id", examId)
       .find
       .getOrElse(throw new RuntimeException(s"parent exam $examId not found"))
+
+    val childProps = PathProperties.parse(
+      """(id, state,
+        |examParticipation(
+        |  user(id, eppn, firstName, lastName, email, userIdentifier)),
+        |examSections(name,
+        |  sectionQuestions(evaluationType, forcedScore, maxScore, negativeScoreAllowed,
+        |    question(id, type,
+        |      parent(id)),
+        |    options(answered, score,
+        |      option(id, correctOption, defaultScore)),
+        |    essayAnswer(evaluatedScore),
+        |    clozeTestAnswer(*))),
+        |examRecord(
+        |  examScore(id)))""".stripMargin
+    )
     val childExams = DB
       .find(classOf[Exam])
-      .select("id, state")
-      .fetch(
-        "examParticipation.user",
-        "id, eppn, firstName, lastName, email, identifier, userIdentifier"
-      )
-      .fetch("examSections", "name")
-      .fetch(
-        "examSections.sectionQuestions",
-        "evaluationType, forcedScore, maxScore, negativeScoreAllowed"
-      )
-      .fetch("examSections.sectionQuestions.question", "id, type")
-      .fetch("examSections.sectionQuestions.question.parent", "id")
-      .fetch("examSections.sectionQuestions.options")
-      .fetch("examSections.sectionQuestions.options.option", "id, correctOption, score")
-      .fetch("examSections.sectionQuestions.essayAnswer", "evaluatedScore")
-      .fetch("examSections.sectionQuestions.clozeTestAnswer")
-      .fetch("examRecord.examScore", "id")
+      .apply(childProps)
       .where()
       .eq("parent.id", examId)
       .in("id", childIds.asJava)

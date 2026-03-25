@@ -109,7 +109,6 @@ class ExamService @Inject() (
     el.list
 
   def getTeachersExams(user: User): List[Exam] =
-    val query = DB.createQuery(classOf[Exam])
     val props = PathProperties.parse(
       "(*, course(id, code), " +
         "children(id, state, examInspections(user(id, firstName, lastName))), " +
@@ -118,8 +117,8 @@ class ExamService @Inject() (
         "examInspections(id, user(id, firstName, lastName)), " +
         "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
     )
-    props.apply(query)
-    query
+    DB.find(classOf[Exam])
+      .apply(props)
       .where()
       .in("state", ExamState.PUBLISHED, ExamState.SAVED, ExamState.DRAFT)
       .disjunction()
@@ -341,9 +340,7 @@ class ExamService @Inject() (
               "softwares(*)" +
               ")"
           )
-          val query = DB.find(classOf[Exam])
-          pp.apply(query)
-          query.where().idEq(id).find match
+          DB.find(classOf[Exam]).apply(pp).where().idEq(id).find match
             case None => Left(ExamError.NotFound)
             case Some(prototype) =>
               DB.find(classOf[ExamExecutionType]).where().eq("type", execType).find match

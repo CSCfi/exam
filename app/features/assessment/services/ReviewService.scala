@@ -138,7 +138,6 @@ class ReviewService @Inject() (
     )
     val baseQuery = DB
       .find(classOf[Exam])
-      .where()
       .apply(pp)
       .where
       .eq("parent.id", parentExamId)
@@ -486,9 +485,7 @@ class ReviewService @Inject() (
   )
 
   private def createQuery(): Query[ExamParticipation] =
-    val query = DB.find(classOf[ExamParticipation])
-    reviewQueryPP.apply(query)
-    query
+    DB.find(classOf[ExamParticipation]).apply(reviewQueryPP)
 
   private def isDisallowedToModify(exam: Exam, user: User, newState: Exam.State) =
     !exam.parent.isOwnedOrCreatedBy(user) &&

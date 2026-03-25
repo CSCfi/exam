@@ -19,8 +19,9 @@ object CommaJoinedListValidator extends PlayJsonValidator:
       case Some(_) => (json \ "params").as[JsValue]
       case None    => json
 
-    // Try parsing as Long IDs first
-    PlayJsonHelper.parseCommaSeparatedLongs("ids", root) match
+    // Try parsing as Long IDs — both comma-separated string and JSON array formats
+    PlayJsonHelper.parseCommaSeparatedLongs("ids", root)
+      .orElse(PlayJsonHelper.parseLongArray("ids", root)) match
       case Some(ids) if ids.nonEmpty =>
         Right(request.addAttr(ScalaAttrs.ID_LIST, ids))
       case Some(_) =>

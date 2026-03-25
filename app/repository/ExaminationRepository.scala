@@ -146,10 +146,7 @@ class ExaminationRepository @Inject() (
         createQuery(pp).where().eq("hash", hash).isNull("parent").find
       }
 
-  private def createQuery(pp: PathProperties): Query[Exam] =
-    val query = db.find(classOf[Exam])
-    pp.apply(query)
-    query
+  private def createQuery(pp: PathProperties): Query[Exam] = db.find(classOf[Exam]).apply(pp)
 
   private def isInEffect(ee: ExamEnrolment): Boolean =
     val now = Option(ee.examinationEventConfiguration)

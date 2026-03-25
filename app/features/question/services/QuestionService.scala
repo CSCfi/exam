@@ -140,10 +140,11 @@ class QuestionService @Inject() (
           |)
           |)""".stripMargin
       )
-      val query = DB.find(classOf[Question])
-      pp.apply(query)
       val baseQuery =
-        query.where().isNull("parent").endJunction().ne("state", QuestionState.DELETED.toString)
+        DB.find(classOf[Question]).apply(pp).where().isNull("parent").endJunction().ne(
+          "state",
+          QuestionState.DELETED.toString
+        )
       val withOwnerFilter =
         if user.hasRole(Role.Name.TEACHER) then
           if ownerIds.isEmpty then baseQuery.eq("questionOwners", user)
@@ -194,8 +195,7 @@ class QuestionService @Inject() (
         |)
         |)""".stripMargin
     )
-    pp.apply(query)
-    val expr = query.where().idEq(id)
+    val expr = DB.find(classOf[Question]).apply(pp).where().idEq(id)
     getQuestionOfUser(expr, user) match
       case Some(q) =>
         val sortedOptions = q.options.asScala.toSeq.sorted

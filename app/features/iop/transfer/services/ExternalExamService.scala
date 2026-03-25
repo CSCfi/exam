@@ -135,10 +135,7 @@ class ExternalExamService @Inject() (
       case None => Left(ExternalExamError.EnrolmentNotFound)
 
   private def createQuery =
-    val query = DB.find(classOf[ExamEnrolment])
-    val props = ExaminationService.getPath(true)
-    props.apply(query)
-    query
+    DB.find(classOf[ExamEnrolment]).apply(ExaminationService.getPath(true))
 
   private def getPrototype(ref: String): Option[ExamEnrolment] =
     createQuery

@@ -298,12 +298,11 @@ class ExamSectionService @Inject() (
     }
     val dto = SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
 
-    val baseQuery = DB.find(classOf[ExamSectionQuestion]).where().idEq(questionId)
+    val pp        = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))")
+    val baseQuery = DB.find(classOf[ExamSectionQuestion]).apply(pp).where().idEq(questionId)
     val query =
       if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("examSection.exam.examOwners", user)
       else baseQuery
-    val pp = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))")
-    query.apply(pp)
     query.find match
       case None => Left(AccessForbidden)
       case Some(examSectionQuestion) =>
@@ -358,13 +357,12 @@ class ExamSectionService @Inject() (
       questionId: Long,
       user: User
   ): Either[ExamSectionError, ExamSectionQuestion] =
-    val baseQuery = DB.find(classOf[ExamSectionQuestion]).where().idEq(questionId)
+    val pp =
+      PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
+    val baseQuery = DB.find(classOf[ExamSectionQuestion]).apply(pp).where().idEq(questionId)
     val query =
       if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("examSection.exam.examOwners", user)
       else baseQuery
-    val pp =
-      PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
-    query.apply(pp)
     query.find match
       case None => Left(AccessForbidden)
       case Some(examSectionQuestion) =>

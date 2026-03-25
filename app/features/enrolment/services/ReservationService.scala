@@ -42,10 +42,8 @@ class ReservationService @Inject() (
 
   def getExams(filter: Option[String], user: User): List[Exam] =
     val props = PathProperties.parse("(id, name)")
-    val q     = DB.createQuery(classOf[Exam])
-    props.apply(q)
-
-    val baseQuery = q
+    val baseQuery = DB.find(classOf[Exam])
+      .apply(props)
       .where()
       .isNull("parent") // only Exam prototypes
       .eq("state", ExamState.PUBLISHED)
@@ -184,10 +182,8 @@ class ReservationService @Inject() (
     (reservationOpt, roomOpt) match
       case (Some(reservation), Some(room)) =>
         val props = PathProperties.parse("(id, name)")
-        val query = DB.createQuery(classOf[ExamMachine])
-        props.apply(query)
-
-        val candidates = query
+        val candidates = DB.find(classOf[ExamMachine])
+          .apply(props)
           .where()
           .eq("room.id", roomId)
           .ne("outOfService", true)

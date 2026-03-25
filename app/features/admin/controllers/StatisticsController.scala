@@ -8,6 +8,7 @@ import database.EbeanJsonExtensions
 import features.admin.services.StatisticsService
 import models.user.Role
 import org.apache.pekko.stream.scaladsl.StreamConverters
+import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.*
 import security.Auth.authorized
@@ -27,7 +28,8 @@ class StatisticsController @Inject() (
     audited: AuditedAction,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
-    with EbeanJsonExtensions:
+    with EbeanJsonExtensions
+    with Logging:
 
   private val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
@@ -98,6 +100,7 @@ class StatisticsController @Inject() (
         val pis      = new PipedInputStream(pos)
         Future {
           try statisticsService.streamExamQuestionScoresAsExcel(examId, childIds)(pos)
+          catch case e: Exception => logger.error("Failed to stream question scores Excel", e)
           finally pos.close()
         }(using ec)
         Future.successful(
