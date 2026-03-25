@@ -28,7 +28,7 @@ export class LanguageInspectionService {
 
     showStatement = (statement: { comment: string }) => {
         const modalRef = this.modal.openRef(InspectionStatementDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.statement = statement.comment;
+        modalRef.componentInstance.statement.set(statement.comment);
     };
 
     assignInspection = (inspection: LanguageInspection) =>

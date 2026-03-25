@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -26,7 +26,7 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
 })
 export class InspectionStatementDialogComponent {
-    readonly statement = input('');
+    statement = signal('');
 
     protected readonly activeModal = inject(NgbActiveModal);
 }
