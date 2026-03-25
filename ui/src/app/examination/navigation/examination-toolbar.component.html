@@ -4,116 +4,116 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row">
-    <!-- SECTIONS AREA -->
-    <div class="row mt-4 pb-4 pe-4 order-1">
-        <!-- USERNAME -->
-        <div class="col-md-12 ms-2 py-1 pb-2 right-column-box">
-            <img src="/assets/images/icon_user.svg" alt="" /><span class="user-span">{{ displayUser() }}</span>
-        </div>
+<div class="toolbar-wrapper">
+    <!-- USERNAME -->
+    <div class="right-column-box px-3 py-2 mb-4">
+        <img src="/assets/images/icon_user.svg" alt="" />
+        <span class="user-span">{{ displayUser() }}</span>
     </div>
 
-    <div class="order-3">
-        <!-- COURSE NAME -->
-        @if (exam().course) {
-            <div class="row my-3">
-                <div class="col-md-12 ms-3">
-                    <div class="right-title">{{ exam().course!.name }}</div>
-                </div>
+    <!-- RETURN / ABORT: early in DOM so keyboard/SR users reach it without tabbing all sections -->
+    @if (!isPreview()) {
+        <div class="d-flex flex-column gap-2 my-4 visually-last">
+            <button class="btn btn-success" (click)="turnExam()">
+                {{ 'i18n_save_and_return_exam' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary" (click)="abortExam()">
+                {{ 'i18n_abort_exam' | translate }}
+                <i class="bi bi-x ps-2"></i>
+            </button>
+        </div>
+    }
+
+    <!-- EXAM NAME -->
+    @if (exam().course) {
+        <div class="right-title mb-3">{{ exam().name }}</div>
+    }
+
+    <!-- INSTRUCTION BUTTONS + ATTACHMENT -->
+    <div class="d-flex flex-column gap-2 mb-4">
+        @if (exam().attachment) {
+            <div>
+                <button class="btn btn-success btn-sm" (click)="downloadExamAttachment()">
+                    {{ 'i18n_open_it' | translate }} {{ 'i18n_exam_attachment' | translate }}
+                    <i class="bi bi-paperclip ps-2"></i>
+                </button>
+                <small class="d-block text-truncate text-muted mt-1" [title]="exam().attachment?.fileName">
+                    {{ exam().attachment?.fileName | uppercase | slice: 0 : 50 }}
+                </small>
             </div>
         }
-
-        <!-- ATTACHMENT -->
-        <div class="row mt-4 ms-2 align-items-center" [hidden]="!exam().attachment">
-            <div class="col-6">
+        <div class="d-flex flex-wrap gap-2">
+            <button
+                class="btn btn-success btn-sm"
+                [class.notactive]="!activeSection()"
+                (click)="selectGuidePage()"
+                (keydown.enter)="selectGuidePage()"
+            >
+                {{ 'i18n_exam_guide' | translate }}
+                <i class="bi bi-info-square ps-2"></i>
+            </button>
+            @if (displayRoomInstructions()) {
                 <button
-                    class="btn btn-success"
-                    [title]="exam().attachment?.fileName"
-                    (click)="downloadExamAttachment()"
-                >
-                    {{ 'i18n_open_it' | translate }} {{ 'i18n_exam_attachment' | translate }}
-                    <img src="/assets/images/icon_attachment.svg" alt="attachment" />
-                </button>
-            </div>
-            <div class="col-6" [title]="exam().attachment?.fileName">
-                {{ exam().attachment?.fileName | uppercase | slice: 0 : 50 }}
-            </div>
-        </div>
-
-        <div class="row mt-3 ms-2">
-            <div class="col-12">
-                <button
-                    class="btn btn-success me-2 mb-2"
-                    [class.notactive]="!activeSection()"
-                    (click)="selectGuidePage()"
-                    (keydown.enter)="selectGuidePage()"
-                >
-                    {{ 'i18n_exam_guide' | translate }}
-                    <i class="bi bi-info-square ps-2"></i>
-                </button>
-                <!-- ROOM INSTRUCTIONS -->
-                <button
-                    class="btn btn-success me-2 mb-2"
+                    class="btn btn-success btn-sm"
                     ngbPopover="{{ displayRoomInstructions() }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    [hidden]="!room()"
                 >
                     {{ 'i18n_room_guidance' | translate }}
                     <i class="bi bi-info-square ps-2"></i>
                 </button>
-                <!-- MATURITY INSTRUCTIONS -->
-                <button
-                    class="btn btn-success"
-                    (click)="showMaturityInstructions()"
-                    [hidden]="exam().executionType.type !== 'MATURITY'"
-                >
+            }
+            @if (exam().executionType.type === 'MATURITY') {
+                <button class="btn btn-success btn-sm" (click)="showMaturityInstructions()">
                     {{ 'i18n_maturity_instructions' | translate }}
                     <i class="bi bi-info-square ps-2"></i>
                 </button>
-
-                <a
-                    class="skip"
-                    id="skip-button-instructions"
-                    [href]="getSkipLinkPath('#examination-section')"
-                    [hidden]="!!activeSection()"
-                >
-                    {{ 'i18n_skip_to_content' | translate }}
-                </a>
-            </div>
+            }
         </div>
+        <a
+            class="skip"
+            id="skip-button-instructions"
+            [href]="getSkipLinkPath('#examination-section')"
+            [hidden]="!!activeSection()"
+        >
+            {{ 'i18n_skip_to_content' | translate }}
+        </a>
+    </div>
 
+    <!-- SECTIONS -->
+    <div class="d-flex flex-column gap-2">
         @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section.id; let i = $index) {
             <div
-                class="row mt-3 ms-2 align-items-center phase-box"
+                class="phase-box d-flex align-items-center gap-2"
                 [class.notactive]="activeSection()?.sequenceNumber !== i"
             >
-                <div class="col-12 ps-0">{{ 'i18n_exam_section' | translate }} {{ i + 1 }}: {{ section.name }}</div>
-                <div class="col-1 ms-1">
-                    <div class="float-end">
-                        @if (
-                            sectionAnswerCounts().get(section.id)?.answered ===
-                            sectionAnswerCounts().get(section.id)?.total
-                        ) {
-                            <img
-                                src="/assets/images/icon_question_type_ready_grey.png"
-                                alt="{{ 'i18n_all_questions_answered' | translate }}"
-                            />
-                        } @else {
-                            <img
-                                src="/assets/images/icon_question_type_waiting.svg"
-                                alt="{{ 'i18n_unanswered_questions_remain' | translate }}"
-                            />
-                        }
+                <div class="flex-shrink-0">
+                    @if (
+                        sectionAnswerCounts().get(section.id)?.answered === sectionAnswerCounts().get(section.id)?.total
+                    ) {
+                        <img
+                            src="/assets/images/icon_question_type_ready_grey.png"
+                            alt="{{ 'i18n_all_questions_answered' | translate }}"
+                        />
+                    } @else {
+                        <img
+                            src="/assets/images/icon_question_type_waiting.svg"
+                            alt="{{ 'i18n_unanswered_questions_remain' | translate }}"
+                        />
+                    }
+                </div>
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold text-truncate">
+                        {{ 'i18n_exam_section' | translate }} {{ i + 1 }}: {{ section.name }}
+                    </div>
+                    <div class="small text-muted">
+                        {{ 'i18n_number_of_answered_questions' | translate }}
+                        {{ sectionAnswerCounts().get(section.id)?.answered }} /
+                        {{ sectionAnswerCounts().get(section.id)?.total }}
                     </div>
                 </div>
-                <div class="col-6 px-0">
-                    {{ 'i18n_number_of_answered_questions' | translate }}
-                    {{ sectionAnswerCounts().get(section.id)?.answered }} /
-                    {{ sectionAnswerCounts().get(section.id)?.total }}
-                </div>
-                <div class="col">
+                <div class="flex-shrink-0">
                     <button
-                        class="btn btn-success"
+                        class="btn btn-success btn-sm"
                         (click)="selectSection(section)"
                         (keydown.enter)="selectSection(section)"
                         [ariaCurrent]="activeSection()?.sequenceNumber === i"
@@ -131,40 +131,20 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
         }
-        <!-- EXIT PREVIEW -->
-        <div class="row mt-3 ms-2" [hidden]="!isPreview()">
-            <div class="col-md-12">
-                <button
-                    tabindex="0"
-                    class="btn btn-outline-secondary"
-                    (click)="exitPreview()"
-                    (keydown.enter)="exitPreview()"
-                >
-                    {{ 'i18n_exit_preview' | translate }}
-                    <i class="bi bi-x ps-2"></i>
-                </button>
-            </div>
-        </div>
     </div>
 
-    <div class="order-2">
-        <!-- RETURN -->
-        <div class="row" [hidden]="isPreview()">
-            <div class="col-md-12 ms-3">
-                <button class="btn btn-success" (click)="turnExam()">
-                    {{ 'i18n_save_and_return_exam' | translate }}
-                </button>
-            </div>
+    <!-- EXIT PREVIEW -->
+    @if (isPreview()) {
+        <div class="mt-4">
+            <button
+                tabindex="0"
+                class="btn btn-outline-secondary"
+                (click)="exitPreview()"
+                (keydown.enter)="exitPreview()"
+            >
+                {{ 'i18n_exit_preview' | translate }}
+                <i class="bi bi-x ps-2"></i>
+            </button>
         </div>
-
-        <!-- ABORT -->
-        <div class="row mt-3" [hidden]="isPreview()">
-            <div class="col-md-12 ms-3">
-                <button class="btn btn-outline-secondary" (click)="abortExam()">
-                    {{ 'i18n_abort_exam' | translate }}
-                    <i class="bi bi-x ps-2"></i>
-                </button>
-            </div>
-        </div>
-    </div>
+    }
 </div>

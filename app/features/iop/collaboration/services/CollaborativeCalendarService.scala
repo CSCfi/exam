@@ -43,13 +43,6 @@ class CollaborativeCalendarService @Inject() (
     with Logging:
   implicit private val executionContext: BlockingIOExecutionContext = ec
 
-  /** Get exam information for a collaborative exam
-    *
-    * @param id
-    *   the collaborative exam ID
-    * @return
-    *   Future containing Some(JsValue) with the raw exam JSON if found, None otherwise
-    */
   def getExamInfo(id: Long): Future[Option[JsValue]] =
     collaborativeExamService.findById(id).flatMap {
       case None => Future.successful(None)
@@ -59,17 +52,6 @@ class CollaborativeCalendarService @Inject() (
         })
     }
 
-  /** Check if an enrolment is valid for reservation changes
-    *
-    * @param enrolment
-    *   the enrolment to check
-    * @param exam
-    *   the exam
-    * @param user
-    *   the user
-    * @return
-    *   Some(error message) if invalid, None if valid
-    */
   private def checkEnrolmentValidity(
       enrolment: ExamEnrolment,
       exam: Exam,
@@ -84,17 +66,6 @@ class CollaborativeCalendarService @Inject() (
       Some("i18n_no_trials_left")
     else None
 
-  /** Find an enrolment for a user and collaborative exam
-    *
-    * @param examId
-    *   the collaborative exam ID
-    * @param userId
-    *   the user ID
-    * @param now
-    *   the current time (adjusted for DST)
-    * @return
-    *   Future containing Some(ExamEnrolment) if found, None otherwise
-    */
   def findEnrolment(examId: Long, userId: Long, now: DateTime): Future[Option[ExamEnrolment]] =
     Future(
       DB.find(classOf[ExamEnrolment])
@@ -109,25 +80,6 @@ class CollaborativeCalendarService @Inject() (
         .find
     )(using ec)
 
-  /** Create a reservation for a collaborative exam
-    *
-    * @param examId
-    *   the collaborative exam ID
-    * @param roomId
-    *   the room ID
-    * @param userId
-    *   the user ID
-    * @param start
-    *   reservation start time
-    * @param end
-    *   reservation end time
-    * @param aids
-    *   accessibility IDs
-    * @param sectionIds
-    *   optional section IDs
-    * @return
-    *   Future containing Either[error message, (ExamEnrolment, Reservation)]
-    */
   def createReservation(
       examId: Long,
       roomId: Long,
@@ -210,21 +162,6 @@ class CollaborativeCalendarService @Inject() (
               }.get // Extract from Try
     ).recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }
 
-  /** Get available slots for a collaborative exam
-    *
-    * @param examId
-    *   the collaborative exam ID
-    * @param roomId
-    *   the room ID
-    * @param day
-    *   the day string
-    * @param aids
-    *   accessibility IDs
-    * @param userId
-    *   the user ID
-    * @return
-    *   Future containing Either[error message, JsValue with slots]
-    */
   def getSlots(
       examId: Long,
       roomId: Long,
@@ -233,7 +170,6 @@ class CollaborativeCalendarService @Inject() (
       userId: Long
   ): Future[Either[String, play.api.libs.json.JsValue]] =
     val now = dateTimeHandler.adjustDST(clock.now())
-
     (for
       ceOpt <- collaborativeExamService.findById(examId)
       ce <- ceOpt match

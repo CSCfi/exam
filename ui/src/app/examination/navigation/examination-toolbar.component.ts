@@ -149,7 +149,7 @@ export class ExaminationToolbarComponent implements OnInit {
     displayRoomInstructions() {
         const currentRoom = this.room();
         if (currentRoom) {
-            switch (this.translate.currentLang) {
+            switch (this.translate.getCurrentLang()) {
                 case 'fi':
                     return currentRoom.roomInstruction;
                 case 'sv':

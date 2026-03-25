@@ -16,21 +16,20 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                 <div class="exam-header-img-wrap">
                     <img src="/assets/images/exam-logo-mobile.svg" alt="" />
                 </div>
-                <div class="exam-header-title divider"></div>
-                <div class="exam-header-title w-100 ms-4 me-2">
+                <div class="exam-header-divider ms-2"></div>
+                <div class="exam-header-title ms-2  ">
                     {{ exam().course?.name }}
                     @if (exam().course) {
                         <xm-course-code [course]="exam().course!"></xm-course-code>
                     }
                 </div>
                 <div class="language-selector">
-                    <button class="btn btn-success ms-1" (click)="switchLanguage('fi')">FI</button>
-                    <button class="btn btn-success ms-1" (click)="switchLanguage('sv')">SV</button>
-                    <button class="btn btn-success ms-1" (click)="switchLanguage('en')">EN</button>
-                    <div class="divider-free"></div>
+                    <button class="btn btn-success btn-sm" (click)="switchLanguage('fi')">FI</button>
+                    <button class="btn btn-success btn-sm" (click)="switchLanguage('sv')">SV</button>
+                    <button class="btn btn-success btn-sm" (click)="switchLanguage('en')">EN</button>
                 </div>
                 @if (!isPreview()) {
-                    <xm-examination-clock [examHash]="exam().hash" (timedOut)="notifyTimeout()"> </xm-examination-clock>
+                    <xm-examination-clock [examHash]="exam().hash" (timedOut)="notifyTimeout()"></xm-examination-clock>
                 }
             </div>
         </div>

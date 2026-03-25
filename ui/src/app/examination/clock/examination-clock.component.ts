@@ -12,37 +12,35 @@ import { Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs
 @Component({
     selector: 'xm-examination-clock',
     template: `<div class="floating-clock">
-        <div class="row">
-            <div class="header-wrapper col-12">
-                <div class="row align-items-start p-2">
-                    @if (showRemainingTime()) {
-                        <div class="col-5">
-                            <span class="text-white">{{ 'i18n_exam_time_left' | translate }}: </span>
-                        </div>
-                    } @else {
-                        <div class="col-5 clock-hide text-muted">
-                            {{ 'i18n_clock_hidden' | translate }}
-                        </div>
-                    }
-                    <div class="col-5">
-                        @if (showRemainingTime()) {
-                            <span class="exam-clock" role="region" [class.text-warning]="isTimeScarce()">{{
-                                remainingTime()
-                            }}</span>
-                        }
-                        @if (ariaLiveTime()) {
-                            <span class="exam-clock skip" role="region" [ariaLive]="'polite'">{{
-                                ('i18n_examination_time_warning' | translate) + ': ' + ariaLiveTime()
-                            }}</span>
-                        }
-                    </div>
-                    <div class="col-2">
-                        <button (click)="toggleShowRemainingTime()" class="border-none background-none">
-                            <img src="/assets/images/icon_clock.svg" alt="{{ 'i18n_show_hide_clock' | translate }}" />
-                        </button>
-                    </div>
-                </div>
+        <div class="header-wrapper">
+            <div class="clock-content">
+                @if (showRemainingTime()) {
+                    <span class="text-white">{{ 'i18n_exam_time_left' | translate }}: </span>
+                    <span class="exam-clock" role="region" [class.text-warning]="isTimeScarce()">{{
+                        remainingTime()
+                    }}</span>
+                } @else {
+                    <span class="clock-hide text-muted">{{ 'i18n_clock_hidden' | translate }}</span>
+                }
+                @if (ariaLiveTime()) {
+                    <span class="exam-clock skip" role="region" [ariaLive]="'polite'">{{
+                        ('i18n_examination_time_warning' | translate) + ': ' + ariaLiveTime()
+                    }}</span>
+                }
             </div>
+            <button
+                (click)="toggleShowRemainingTime()"
+                class="btn btn-sm btn-success flex-shrink-0"
+                [title]="'i18n_show_hide_clock' | translate"
+                [attr.aria-label]="'i18n_show_hide_clock' | translate"
+            >
+                <i
+                    [class.bi-eye-slash]="showRemainingTime()"
+                    [class.bi-eye]="!showRemainingTime()"
+                    class="bi text-white"
+                    aria-hidden="true"
+                ></i>
+            </button>
         </div>
     </div>`,
     imports: [TranslateModule],

@@ -7,24 +7,17 @@
 @use '../../shared/definitions.scss' as shared;
 
 .exam-header {
-    background-color: black;
+    background-color: #212121;
     display: flex;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    .language-selector {
-        margin-right: 450px;
-    }
-    button {
-        max-height: 45px;
-    }
-    img {
-        align-self: center;
-    }
+    align-items: center;
+    padding: 8px 420px 8px 0; // right padding reserves space for the fixed-position clock (~20em wide at right: 3em)
+    gap: 12px;
     @media (max-width: shared.$mobile-width) {
+        padding-right: 16px;
     }
 }
 .exam-mobile-header {
-    background-color: black;
+    background-color: #212121;;
     button {
         max-height: 45px;
     }
@@ -41,35 +34,30 @@
 
 .exam-header-img-wrap {
     display: flex;
+    flex-shrink: 0;
     min-width: 100px;
-    align-content: flex-start;
     justify-content: flex-end;
+    align-self: flex-end;
+    padding-bottom: 4px;
     @media (max-width: shared.$mobile-width) {
-        align-content: flex-start;
         justify-content: flex-start;
         margin: 10px;
         width: auto;
     }
 }
 
+.exam-header-divider {
+    flex-shrink: 0;
+    width: 1px;
+    height: 40px;
+    background-color: #e7e7e7;
+}
+
 .exam-header-title {
-    color: white;
-    line-height: 55px;
-    font-size: 28px;
-
-    &.divider {
-        border-left: 1px solid white;
-        margin-left: 18px;
-        padding: 0;
-    }
-
-    &.mobile-divider {
-        width: auto;
-        height: 1px;
-        margin: 0 20px;
-        padding: 0;
-        background: white;
-    }
+    flex: 1;
+    min-width: 0;
+    color: #e7e7e7;
+    font-size: 20px;
 
     span {
         font-size: 15px;
@@ -77,22 +65,21 @@
 }
 
 .language-selector {
-    justify-self: flex-end;
+    flex-shrink: 0;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
     white-space: nowrap;
-    margin-top: 10px;
-    margin-right: 20px;
+
+    button {
+        width: 2.5rem;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
     a {
         cursor: pointer;
-        color: white;
+        color: #e7e7e7;
         text-decoration: none;
     }
-}
-.divider-free {
-    margin-left: 25px;
-    margin-top: 1px;
-    background-color: white;
-    width: 1px;
-    height: 40px;
 }

@@ -9,28 +9,41 @@
 .floating-clock {
     display: inline-block;
     position: fixed;
+    top: 0;
     right: 3em;
     z-index: 9999;
     @media (max-width: shared.$mobile-width) {
         top: 0;
     }
     .header-wrapper {
-        background-color: black;
-        padding-right: 25px;
+        background-color: 212121;
         min-width: 20em;
+        min-height: 57px;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        gap: 8px;
+
+        .clock-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
     }
 
     .exam-clock {
         font-size: 28px;
         letter-spacing: 1.5px;
-        color: #fff;
+        color: #e7e7e7;
         font-weight: bold;
         margin-left: 10px;
+        font-variant-numeric: tabular-nums;
     }
     .exam-clock-text {
         font-size: 18px;
         letter-spacing: 1.5px;
-        color: #fff;
+        color: #e7e7e7;
         margin-left: 20px;
     }
 

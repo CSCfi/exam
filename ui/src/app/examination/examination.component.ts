@@ -121,7 +121,7 @@ export class ExaminationComponent implements OnDestroy {
     private setActiveSection(page: Partial<NavigationPage>) {
         const currentActiveSection = this.activeSection();
         const currentExam = this.exam();
-        if (currentActiveSection && currentExam) {
+        if (currentActiveSection && currentExam && !this.isPreview()) {
             this.Examination.saveAllTextualAnswersOfSection$(currentActiveSection, currentExam.hash, {
                 autosave: true,
                 allowEmpty: false,
