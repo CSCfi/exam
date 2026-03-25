@@ -14,6 +14,7 @@ import models.sections.ExamSection
 import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
+import play.api.libs.json.{JsObject, JsValue, Json}
 import security.BlockingIOExecutionContext
 import services.datetime.*
 import services.enrolment.EnrolmentHandler
@@ -47,12 +48,15 @@ class CollaborativeCalendarService @Inject() (
     * @param id
     *   the collaborative exam ID
     * @return
-    *   Future containing Some(Exam) if found, None otherwise
+    *   Future containing Some(JsValue) with the raw exam JSON if found, None otherwise
     */
-  def getExamInfo(id: Long): Future[Option[Exam]] =
+  def getExamInfo(id: Long): Future[Option[JsValue]] =
     collaborativeExamService.findById(id).flatMap {
-      case None     => Future.successful(None)
-      case Some(ce) => examLoader.downloadExam(ce)
+      case None => Future.successful(None)
+      case Some(ce) =>
+        examLoader.downloadExamJson(ce).map(_.map { json =>
+          json.as[JsObject] ++ Json.obj("id" -> ce.id.longValue, "externalRef" -> ce.externalRef)
+        })
     }
 
   /** Check if an enrolment is valid for reservation changes

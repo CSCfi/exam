@@ -4,7 +4,6 @@
 
 package features.iop.collaboration.controllers
 
-import database.EbeanJsonExtensions
 import features.iop.collaboration.services.CollaborativeCalendarService
 import models.user.Role
 import play.api.libs.json.JsValue
@@ -26,14 +25,13 @@ class CollaborativeCalendarController @Inject() (
     clock: AppClock,
     val controllerComponents: ControllerComponents,
     implicit val ec: BlockingIOExecutionContext
-) extends BaseController
-    with EbeanJsonExtensions:
+) extends BaseController:
 
   def getExamInfo(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { _ =>
       collaborativeCalendarService.getExamInfo(id).map {
         case None       => NotFound("i18n_error_exam_not_found")
-        case Some(exam) => Ok(exam.asJson)
+        case Some(json) => Ok(json)
       }
     }
 
@@ -68,7 +66,7 @@ class CollaborativeCalendarController @Inject() (
       day: String,
       aids: Option[Seq[Long]]
   ): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
 
       collaborativeCalendarService

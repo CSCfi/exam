@@ -89,7 +89,7 @@ class CollaborativeExternalCalendarController @Inject() (
       org: Option[String],
       date: Option[String]
   ): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
       (org, date) match
         case (Some(orgValue), Some(dateValue)) =>
           val user = request.attrs(Auth.ATTR_USER)

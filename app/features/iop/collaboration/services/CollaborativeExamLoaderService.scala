@@ -193,7 +193,7 @@ class CollaborativeExamLoaderService @Inject() (
             val revision = (root \ "_rev").asOpt[String].orElse((root \ "rev").asOpt[String])
             revision.foreach(v => ce.revision = v)
 
-            // Convert JsValue to Jackson JsonNode for.exam
+            // Convert JsValue to Jackson JsonNode for exam
             val jacksonNode = play.libs.Json.parse(Json.stringify(root))
             val exam        = ce.getExam(jacksonNode)
 
