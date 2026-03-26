@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "6.4.0",
+  "version": "7.0.0",
   "description": "EXAM – electronic exam software for higher education",
   "packageManager": "pnpm@10.32.1",
   "repository": {
