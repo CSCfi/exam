@@ -29,7 +29,13 @@ class EnrolmentInterfaceSpec
   private var emptyResponse: Boolean = false
 
   class CourseInfoServlet extends HttpServlet:
+    @volatile private var receivedApiKey: Option[String] = None
+
+    def lastReceivedApiKey: Option[String] = receivedApiKey
+    def resetReceivedApiKey(): Unit        = receivedApiKey = None
+
     override def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
+      receivedApiKey = Option(request.getHeader("X-Api-Key"))
       if emptyResponse then RemoteServerHelper.writeEmptyJsonResponse(response)
       else RemoteServerHelper.writeResponseFromFile(response, "test/resources/enrolments.json")
 
@@ -49,6 +55,7 @@ class EnrolmentInterfaceSpec
   override def beforeEach(): Unit =
     super.beforeEach()
     emptyResponse = false
+    courseInfoServlet.resetReceivedApiKey()
 
   private def setupExamData(): Unit =
     // Fake API shall return a course with code 810136P. Let's make a referenced exam active in the DB so it should
@@ -91,3 +98,11 @@ class EnrolmentInterfaceSpec
 
         val examsJson = contentAsJsonOf(result).as[JsArray]
         examsJson.value must be(empty)
+
+      "include configured api key header in outbound requests" in:
+        val (_, session) = runIO(loginAsStudent())
+        setupExamData()
+
+        runIO(get("/app/student/exams", session = session))
+
+        courseInfoServlet.lastReceivedApiKey must be(Some("test-secret"))

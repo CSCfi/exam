@@ -31,11 +31,15 @@ class ExternalCourseHandlerSpec
   private var server: Server = uninitialized
 
   class CourseInfoServlet extends HttpServlet:
-    private var jsonFile: File = uninitialized
+    private var jsonFile: File                           = uninitialized
+    @volatile private var receivedApiKey: Option[String] = None
 
-    def setFile(file: File): Unit = jsonFile = file
+    def setFile(file: File): Unit          = jsonFile = file
+    def lastReceivedApiKey: Option[String] = receivedApiKey
+    def resetReceivedApiKey(): Unit        = receivedApiKey = None
 
     override def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
+      receivedApiKey = Option(request.getHeader("X-Api-Key"))
       response.setContentType("application/json")
       response.setStatus(HttpServletResponse.SC_OK)
       val result = Using.Manager { use =>
@@ -73,7 +77,9 @@ class ExternalCourseHandlerSpec
     finally
       super.afterAll()
 
-  override def beforeEach(): Unit = super.beforeEach()
+  override def beforeEach(): Unit =
+    super.beforeEach()
+    courseInfoServlet.resetReceivedApiKey()
 
   private def setUserOrg(code: Option[String]): Unit =
     ensureTestDataLoaded()
@@ -303,6 +309,16 @@ class ExternalCourseHandlerSpec
 
         val result = runIO(get("/app/courses?filter=code&q=2121219"))
         statusOf(result).must(be(Status.UNAUTHORIZED))
+
+    "sending api key" should:
+      "include configured api key header in outbound requests" in:
+        val (_, session) = runIO(loginAsTeacher())
+        setUserOrg(None)
+        courseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"))
+
+        runIO(get("/app/courses?filter=code&q=2121219", session = session))
+
+        courseInfoServlet.lastReceivedApiKey must be(Some("test-secret"))
 
     "handling expired courses" should:
       "return empty result for expired courses" in:
