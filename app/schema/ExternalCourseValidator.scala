@@ -20,11 +20,10 @@ object ExternalCourseValidator:
     implicit val gradeReads: Reads[Grade] = (
       (JsPath \ "grade").read[String](using readInt) and
         (JsPath \ "description").read[String] and
-        (JsPath \ "scale").read[Int] and
         (JsPath \ "isFailed").readWithDefault(false)(using readString)
     )(Grade.apply)
 
-  case class Grade(grade: String, description: String, scale: Int, isFailed: Boolean = false)
+  case class Grade(grade: String, description: String, isFailed: Boolean = false)
 
   object GradeScale:
     implicit val scaleReads: Reads[GradeScale] = (

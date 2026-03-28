@@ -46,6 +46,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         display: flex;
         flex-direction: column;
         height: 100%;
+        background-color: $nav-bg;
         @include mobile {
             display: block;
             height: auto;
@@ -133,6 +134,7 @@ $border-green: 3px solid shared.$exam-dark-green;
     .nav-body {
         flex: 1;
         overflow-y: auto;
+        overscroll-behavior: contain;
         background-color: $nav-bg;
         padding-top: 4px;
         @include mobile { display: none; }
