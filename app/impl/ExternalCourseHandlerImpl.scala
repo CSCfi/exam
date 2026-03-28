@@ -15,7 +15,7 @@ import org.apache.pekko.util.ByteString
 import org.joda.time.DateTime
 import org.springframework.beans.BeanUtils
 import play.api.Logging
-import play.api.libs.json.{JsResultException, JsValue, Json}
+import play.api.libs.json.*
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
 import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
@@ -148,7 +148,14 @@ class ExternalCourseHandlerImpl @Inject (
 
   private def parseCourses(root: JsValue): Seq[CourseUnitInfo] =
     (root \\ "CourseUnitInfo").flatMap { node =>
-      node.asOpt[CourseUnitInfo].toSeq ++ node.asOpt[Seq[CourseUnitInfo]].getOrElse(Seq.empty)
+      node.validate[CourseUnitInfo] match
+        case JsSuccess(cui, _) => Seq(cui)
+        case JsError(_) =>
+          node.validate[Seq[CourseUnitInfo]] match
+            case JsSuccess(cuis, _) => cuis
+            case JsError(errors) =>
+              logger.warn(s"Failed to parse CourseUnitInfo: ${JsError.toJson(errors)}")
+              Seq.empty
     }.toSeq
 
   private def parseCourse(cui: CourseUnitInfo): Option[Course] =

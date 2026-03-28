@@ -20,11 +20,10 @@ object ExternalCourseValidator:
     implicit val gradeReads: Reads[Grade] = (
       (JsPath \ "grade").read[String](readInt) and
         (JsPath \ "description").read[String] and
-        (JsPath \ "scale").read[Int] and
-        (JsPath \ "isFailed").readWithDefault(false)(readString)
+        (JsPath \ "isFailed").readWithDefault(false)(using readString)
     )(Grade.apply)
 
-  case class Grade(grade: String, description: String, scale: Int, isFailed: Boolean = false)
+  case class Grade(grade: String, description: String, isFailed: Boolean = false)
 
   object GradeScale:
     implicit val scaleReads: Reads[GradeScale] = (
@@ -65,16 +64,17 @@ object ExternalCourseValidator:
 
   object CourseUnitInfo:
     private def readNameFieldSeq[A](fromName: String => A)(using r: Reads[A]): Reads[Seq[A]] =
-      implicitly[Reads[String]].map(s => Seq(fromName(s)))
+      implicitly[Reads[String]]
+        .map(s => Seq(fromName(s)))
         .orElse(r.map(Seq(_)))
         .orElse(implicitly[Reads[Seq[A]]])
     private val asScales: Reads[Seq[GradeScale]] = implicitly[Reads[GradeScale]].map(Seq(_))
     private val readScale: Reads[Seq[GradeScale]] =
       implicitly[Reads[Seq[GradeScale]]].orElse(asScales)
-    private val readCreditsLanguage: Reads[Seq[CreditLanguage]] = readNameFieldSeq(CreditLanguage.apply)
+    private val readCreditsLanguage: Reads[Seq[CreditLanguage]]  = readNameFieldSeq(CreditLanguage.apply)
     private val readCampus: Reads[Seq[Campus]]                   = readNameFieldSeq(Campus.apply)
     private val readDegreeProgramme: Reads[Seq[DegreeProgramme]] = readNameFieldSeq(DegreeProgramme.apply)
-    private val readDepartment: Reads[Seq[Department]]            = readNameFieldSeq(Department.apply)
+    private val readDepartment: Reads[Seq[Department]]           = readNameFieldSeq(Department.apply)
     private val readLecturerResponsible: Reads[Seq[LecturerResponsible]] =
       readNameFieldSeq(LecturerResponsible.apply)
     private val readLecturer: Reads[Seq[Lecturer]] = readNameFieldSeq(Lecturer.apply)
