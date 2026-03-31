@@ -1,174 +1,167 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "exam": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        },
-        "@schematics/angular:application": {
-          "strict": true
-        }
-      },
-      "root": "",
-      "sourceRoot": "ui/src",
-      "prefix": "xm",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:application",
-          "options": {
-            "outputPath": {
-              "base": "dist/exam"
-            },
-            "index": "ui/src/index.html",
-            "polyfills": ["@angular/localize/init"],
-            "tsConfig": "ui/tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "ui/src/favicon.ico", 
-              "ui/src/assets",
-              {
-                "glob": "**/*",
-                "input": "node_modules/mathlive/fonts/",
-                "output": "/fonts/"
-              },
-              {
-                "glob": "mathlive-fonts.css",
-                "input": "node_modules/mathlive/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "ui/src/styles.scss",
-              "node_modules/mathlive/mathlive-fonts.css"
-            ],
-            "scripts": [],
-            "browser": "ui/src/main.ts",
-            "allowedCommonJsDependencies": [
-              "fuzzysort",
-              "es-toolkit/compat/isEqual",
-              "extend"
-            ]
-          },
-          "configurations": {
-            "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "1.6mb",
-                  "maximumError": "2mb"
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+        "exam": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
                 },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "5kb",
-                  "maximumError": "10kb"
+                "@schematics/angular:application": {
+                    "strict": true
                 }
-              ],
-              "fileReplacements": [
-                {
-                  "replace": "ui/src/environments/environment.ts",
-                  "with": "ui/src/environments/environment.prod.ts"
+            },
+            "root": "",
+            "sourceRoot": "ui/src",
+            "prefix": "xm",
+            "architect": {
+                "build": {
+                    "builder": "@angular/build:application",
+                    "options": {
+                        "outputPath": {
+                            "base": "dist/exam"
+                        },
+                        "index": "ui/src/index.html",
+                        "polyfills": ["@angular/localize/init"],
+                        "tsConfig": "ui/tsconfig.app.json",
+                        "inlineStyleLanguage": "scss",
+                        "assets": [
+                            "ui/src/favicon.ico",
+                            "ui/src/assets",
+                            {
+                                "glob": "**/*",
+                                "input": "node_modules/mathlive/fonts/",
+                                "output": "/fonts/"
+                            },
+                            {
+                                "glob": "mathlive-fonts.css",
+                                "input": "node_modules/mathlive/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["ui/src/styles.scss", "node_modules/mathlive/mathlive-fonts.css"],
+                        "scripts": [],
+                        "browser": "ui/src/main.ts",
+                        "allowedCommonJsDependencies": ["fuzzysort", "es-toolkit/compat/isEqual", "extend"]
+                    },
+                    "configurations": {
+                        "production": {
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "1.6mb",
+                                    "maximumError": "2mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "5kb",
+                                    "maximumError": "10kb"
+                                }
+                            ],
+                            "fileReplacements": [
+                                {
+                                    "replace": "ui/src/environments/environment.ts",
+                                    "with": "ui/src/environments/environment.prod.ts"
+                                }
+                            ],
+                            "outputHashing": "all",
+                            "sourceMap": true
+                        },
+                        "development": {
+                            "optimization": false,
+                            "extractLicenses": false,
+                            "sourceMap": {
+                                "scripts": true,
+                                "styles": false,
+                                "vendor": false
+                            },
+                            "namedChunks": true
+                        }
+                    },
+                    "defaultConfiguration": "production"
+                },
+                "serve": {
+                    "builder": "@angular/build:dev-server",
+                    "options": {
+                        "buildTarget": "exam:build:development",
+                        "proxyConfig": "ui/src/proxy.conf.js",
+                        "hmr": true,
+                        "liveReload": true,
+                        "watch": true,
+                        "poll": 1000,
+                        "headers": {
+                            "Content-Security-Policy": "default-src 'self'; connect-src 'self'; form-action 'none'; img-src 'self' data: blob:; font-src 'self' about: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src 'self' http://localhost:3000; frame-ancestors 'none'; base-uri 'self';"
+                        }
+                    },
+                    "configurations": {
+                        "production": {
+                            "buildTarget": "exam:build:production"
+                        },
+                        "development": {
+                            "buildTarget": "exam:build:development"
+                        }
+                    },
+                    "defaultConfiguration": "development"
+                },
+                "extract-i18n": {
+                    "builder": "@angular/build:extract-i18n",
+                    "options": {
+                        "buildTarget": "exam:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular/build:unit-test",
+                    "options": {
+                        "tsConfig": "ui/tsconfig.spec.json",
+                        "runner": "vitest",
+                        "buildTarget": "exam:build:development"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-eslint/builder:lint",
+                    "options": {
+                        "lintFilePatterns": ["ui/src/**/*.ts", "ui/src/**/*.html"]
+                    }
                 }
-              ],
-              "outputHashing": "all",
-              "sourceMap": true
-            },
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": {
-                "scripts": true,
-                "styles": false,
-                "vendor": false
-              },
-              "namedChunks": true
             }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "options": {
-            "buildTarget": "exam:build:development",
-            "proxyConfig": "ui/src/proxy.conf.js",
-            "hmr": true,
-            "liveReload": true,
-            "watch": true,
-            "poll": 1000,
-            "headers": {
-              "Content-Security-Policy": "default-src 'self'; connect-src 'self'; form-action 'none'; img-src 'self' data: blob:; font-src 'self' about: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src 'self' http://localhost:3000; frame-ancestors 'none'; base-uri 'self';"
-            }
-          },
-          "configurations": {
-            "production": {
-              "buildTarget": "exam:build:production"
-            },
-            "development": {
-              "buildTarget": "exam:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n",
-          "options": {
-            "buildTarget": "exam:build"
-          }
-        },
-        "test": {
-          "builder": "@angular/build:unit-test",
-          "options": {
-            "tsConfig": "ui/tsconfig.spec.json",
-            "runner": "vitest",
-            "buildTarget": "exam:build:development"
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": ["ui/src/**/*.ts", "ui/src/**/*.html"]
-          }
         }
-      }
+    },
+    "cli": {
+        "schematicCollections": ["@angular-eslint/schematics"],
+        "analytics": false
+    },
+    "schematics": {
+        "@angular-eslint/schematics:application": {
+            "setParserOptionsProject": true
+        },
+        "@angular-eslint/schematics:library": {
+            "setParserOptionsProject": true
+        },
+        "@schematics/angular:component": {
+            "type": "component"
+        },
+        "@schematics/angular:directive": {
+            "type": "directive"
+        },
+        "@schematics/angular:service": {
+            "type": "service"
+        },
+        "@schematics/angular:guard": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:interceptor": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:module": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:pipe": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:resolver": {
+            "typeSeparator": "."
+        }
     }
-  },
-  "cli": {
-    "schematicCollections": ["@angular-eslint/schematics"],
-    "analytics": false
-  },
-  "schematics": {
-    "@angular-eslint/schematics:application": {
-      "setParserOptionsProject": true
-    },
-    "@angular-eslint/schematics:library": {
-      "setParserOptionsProject": true
-    },
-    "@schematics/angular:component": {
-      "type": "component"
-    },
-    "@schematics/angular:directive": {
-      "type": "directive"
-    },
-    "@schematics/angular:service": {
-      "type": "service"
-    },
-    "@schematics/angular:guard": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:interceptor": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:module": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:pipe": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:resolver": {
-      "typeSeparator": "."
-    }
-  }
 }

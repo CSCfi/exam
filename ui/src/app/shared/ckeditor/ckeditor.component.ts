@@ -124,7 +124,6 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
     private initializationService = new CKEditorInitializationService(this.changeDetector);
 
     constructor() {
-        // Subscribe to language changes
         this.languageSubscription = this.Translate.onLangChange.subscribe(() => {
             this.updateEditorLanguage();
         });
