@@ -11,9 +11,9 @@ import models.exam.{Exam, ExamState}
 import models.iop.{CollaborativeExam, ExternalExam}
 import models.sections.ExamSection
 import models.user.User
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 
+import java.time.Instant
 import java.util.Random
 import scala.compiletime.uninitialized
 
@@ -49,9 +49,8 @@ class ExamEnrolment extends GeneratedIdentityModel with Ordered[ExamEnrolment]:
   )
   var optionalSections: java.util.Set[ExamSection] = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var enrolledOn: DateTime = uninitialized
+  @JsonInstant
+  var enrolledOn: Instant = uninitialized
 
   var information: String          = uninitialized
   var reservationCanceled: Boolean = false

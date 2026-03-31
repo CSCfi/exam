@@ -9,11 +9,11 @@ import cats.syntax.all.*
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.user.User
-import org.joda.time.{DateTime, DateTimeConstants, Seconds}
 import play.api.Logging
 import services.config.ConfigReader
 import services.mail.EmailComposer
 
+import java.time.{DayOfWeek, Duration, ZonedDateTime}
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.util.Try
@@ -26,33 +26,27 @@ class WeeklyReportService @Inject() (
     with EbeanQueryExtensions:
 
   private def secondsUntilNextMondayRun(): Long =
-    val now             = DateTime.now
-    val defaultTimeZone = configReader.getDefaultTimeZone
-    // Every Monday at 5AM UTC
-    val adjustedHours = if defaultTimeZone.isStandardOffset(now.getMillis) then 5 else 4
+    val zoneId = configReader.getDefaultTimeZone
+    val now    = ZonedDateTime.now(zoneId)
+    val isDST  = zoneId.getRules.isDaylightSavings(now.toInstant)
+    // Every Monday at 5AM UTC; shift by 1 hour if DST is in effect to maintain same wall time
+    val adjustedHours = if !isDST then 5 else 4
     val normalNextRun = now
-      .withHourOfDay(adjustedHours)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
-      .plusWeeks(
-        if (now.getDayOfWeek == DateTimeConstants.MONDAY) 0
-        else 1
-      )
-      .withDayOfWeek(DateTimeConstants.MONDAY)
+      .withHour(adjustedHours).withMinute(0).withSecond(0).withNano(0)
+      .plusWeeks(if now.getDayOfWeek == DayOfWeek.MONDAY then 0 else 1)
+      .`with`(DayOfWeek.MONDAY)
     // If it's a Monday after scheduled run time -> postpone
     val postponedRun =
       if !normalNextRun.isAfter(now) then normalNextRun.plusWeeks(1) else normalNextRun
+    val nextDST = zoneId.getRules.isDaylightSavings(postponedRun.toInstant)
     val nextRun =
       // Case for: now there's no DST in effect, but by the next run there will be.
-      if adjustedHours == 5 && !defaultTimeZone.isStandardOffset(postponedRun.getMillis) then
-        postponedRun.minusHours(1)
+      if !isDST && nextDST then postponedRun.minusHours(1)
       // Case for: now there's DST in effect, but by the next run there won't be
-      else if adjustedHours != 5 && defaultTimeZone.isStandardOffset(postponedRun.getMillis) then
-        postponedRun.plusHours(1)
+      else if isDST && !nextDST then postponedRun.plusHours(1)
       else postponedRun
 
-    val delaySeconds = Seconds.secondsBetween(now, nextRun).getSeconds + 1
+    val delaySeconds = Duration.between(now.toInstant, nextRun.toInstant).toSeconds + 1
     // Safeguard: Ensure delay is always positive and at least 1 hour to prevent loops
     // If calculation results in a negative or very small delay (e.g., due to DST edge cases),
     // schedule for next week instead
@@ -61,7 +55,7 @@ class WeeklyReportService @Inject() (
         s"Calculated delay ($delaySeconds seconds) too small, scheduling for next week instead"
       )
       val nextWeekRun = nextRun.plusWeeks(1)
-      Seconds.secondsBetween(now, nextWeekRun).getSeconds + 1
+      Duration.between(now.toInstant, nextWeekRun.toInstant).toSeconds + 1
     else delaySeconds
     logger.info(s"Scheduled next weekly report to be run at $nextRun (in ${safeDelay} seconds)")
     safeDelay

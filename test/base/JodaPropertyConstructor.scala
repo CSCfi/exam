@@ -4,7 +4,6 @@
 
 package base
 
-import org.joda.time.{DateTime, DateTimeZone}
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.constructor.{Construct, Constructor}
 import org.yaml.snakeyaml.error.YAMLException
@@ -13,6 +12,7 @@ import org.yaml.snakeyaml.nodes.*
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.{Field, Method, ParameterizedType}
+import java.time.Instant
 import java.util.Date
 
 class JodaPropertyConstructor(options: LoaderOptions) extends Constructor(options):
@@ -77,10 +77,10 @@ class JodaPropertyConstructor(options: LoaderOptions) extends Constructor(option
     override def construct(nnode: Node): AnyRef =
       if nnode.getTag == Tag.TIMESTAMP then
         val dateConstructor = yamlConstructors.get(Tag.TIMESTAMP)
-        if nnode.getType != null && classOf[DateTime].isAssignableFrom(nnode.getType) then
-          val date = dateConstructor.construct(nnode).asInstanceOf[Date]
-          new DateTime(date, DateTimeZone.UTC)
-        else dateConstructor.construct(nnode)
+        val date            = dateConstructor.construct(nnode).asInstanceOf[Date]
+        if nnode.getType != null && classOf[Instant].isAssignableFrom(nnode.getType) then
+          date.toInstant
+        else date
       else
         // For non-timestamp scalars, use the default scalar construction
         val scalarNode = nnode.asInstanceOf[ScalarNode]

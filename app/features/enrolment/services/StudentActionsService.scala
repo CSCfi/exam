@@ -11,7 +11,6 @@ import io.ebean.{DB, FetchConfig, Model}
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.*
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsValue, Json}
@@ -22,6 +21,7 @@ import services.exam.ExternalCourseHandler
 import services.excel.ExcelBuilder
 import services.user.UserHandler
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -316,7 +316,7 @@ class StudentActionsService @Inject() (
       .where()
       .eq("state", ExamState.PUBLISHED)
       .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
-      .gt("periodEnd", DateTime.now().toDate)
+      .gt("periodEnd", Instant.now())
 
     val withCourseFilter =
       if courseCodes.nonEmpty then baseQuery.in("course.code", courseCodes.asJava)
@@ -342,7 +342,7 @@ class StudentActionsService @Inject() (
         e.implementation == ExamImplementation.AQUARIUM ||
         e.examinationEventConfigurations.asScala
           .map(_.examinationEvent)
-          .exists(_.start.isAfter(DateTime.now()))
+          .exists(_.start.isAfter(Instant.now()))
       }
 
     exams.asJson

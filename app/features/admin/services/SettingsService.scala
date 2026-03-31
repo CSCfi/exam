@@ -165,7 +165,7 @@ class SettingsService @Inject() (
       "supportsPrintouts"            -> configReader.isPrintoutSupported,
       "maxFileSize"                  -> configReader.getMaxFileSize,
       "expirationPeriod"             -> configReader.getExamExpirationPeriod,
-      "defaultTimeZone"              -> configReader.getDefaultTimeZone.getID,
+      "defaultTimeZone"              -> configReader.getDefaultTimeZone.getId,
       "sebQuitLink"                  -> configReader.getQuitExaminationLink,
       "isSebExaminationSupported"    -> configReader.isSebExaminationSupported,
       "isHomeExaminationSupported"   -> configReader.isHomeExaminationSupported

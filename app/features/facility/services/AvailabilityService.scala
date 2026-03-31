@@ -8,10 +8,14 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.Reservation
 import models.facility.ExamRoom
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, Interval}
 import services.datetime.DateTimeHandler
+import services.datetime.Interval
+import services.datetime.IntervalExtensions.*
+import services.datetime.TimeUtils
 
+import java.time.format.DateTimeFormatter
+import java.time.temporal.{ChronoUnit, TemporalAdjusters}
+import java.time.{DayOfWeek, Instant, ZoneOffset}
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
@@ -19,8 +23,8 @@ import AvailabilityError.*
 
 object AvailabilityService:
   case class Availability(interval: Interval, total: Int, reserved: Int):
-    val start: String = ISODateTimeFormat.dateTime().print(interval.getStart)
-    val end: String   = ISODateTimeFormat.dateTime().print(interval.getEnd)
+    val start: String = DateTimeFormatter.ISO_INSTANT.format(interval.start)
+    val end: String   = DateTimeFormatter.ISO_INSTANT.format(interval.end)
 
 class AvailabilityService @Inject() (
     private val dateTimeHandler: DateTimeHandler
@@ -39,21 +43,18 @@ class AvailabilityService @Inject() (
           .find(classOf[Reservation])
           .where()
           .eq("machine.room.id", roomId)
-          .between("startAt", searchStart.toDate, searchEnd.toDate)
+          .between("startAt", searchStart, searchEnd)
           .list
 
+        val startDate = searchStart.atZone(ZoneOffset.UTC).toLocalDate
+        val endDate   = searchEnd.atZone(ZoneOffset.UTC).toLocalDate
         val allSlots = Iterator
-          .iterate(searchStart.toLocalDate)(_.plusDays(1))
-          .takeWhile(!_.isAfter(searchEnd.toLocalDate))
+          .iterate(startDate)(_.plusDays(1))
+          .takeWhile(!_.isAfter(endDate))
           .flatMap { date =>
             dateTimeHandler
               .getWorkingHoursForDate(date, room)
-              .map { oh =>
-                new Interval(
-                  oh.hours.getStart.minusMillis(oh.timezoneOffset),
-                  oh.hours.getEnd.minusMillis(oh.timezoneOffset)
-                )
-              }
+              .map(oh => oh.hours)
               .map(round)
               .flatMap(toOneHourChunks)
           }
@@ -67,11 +68,20 @@ class AvailabilityService @Inject() (
         }.toSeq
         Right(availability)
 
-  private def parseSearchStartDate(day: String): DateTime =
-    ISODateTimeFormat.dateTimeParser().parseDateTime(day).withDayOfWeek(1).withMillisOfDay(0)
+  private def parseSearchStartDate(day: String): Instant =
+    TimeUtils.parseInstant(day)
+      .atZone(ZoneOffset.UTC)
+      .`with`(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+      .truncatedTo(ChronoUnit.DAYS)
+      .toInstant
 
-  private def getSearchEndDate(start: DateTime): DateTime =
-    start.dayOfWeek().withMaximumValue().millisOfDay().withMaximumValue()
+  private def getSearchEndDate(start: Instant): Instant =
+    start.atZone(ZoneOffset.UTC)
+      .`with`(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+      .plusDays(1)
+      .truncatedTo(ChronoUnit.DAYS)
+      .minusNanos(1)
+      .toInstant
 
   private def getReservationsDuring(
       reservations: Seq[Reservation],
@@ -81,13 +91,16 @@ class AvailabilityService @Inject() (
 
   private def toOneHourChunks(i: Interval): Seq[Interval] =
     Iterator
-      .iterate(i.getStart)(_.plusHours(1))
-      .takeWhile(_.isBefore(i.getEnd))
-      .map(start => new Interval(start, start.plusHours(1)))
+      .iterate(i.start)(_.plus(java.time.Duration.ofHours(1)))
+      .takeWhile(_.isBefore(i.end))
+      .map(start => start to start.plus(java.time.Duration.ofHours(1)))
       .toSeq
 
   private def round(slot: Interval): Interval =
-    val cleanedStart = slot.getStart.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
-    val newEnd = if slot.getEnd.getMinuteOfHour != 0 then slot.getEnd.plusHours(1) else slot.getEnd
-    val cleanedEnd = newEnd.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
-    slot.withStart(cleanedStart).withEnd(cleanedEnd)
+    val cleanedStart = slot.start.truncatedTo(ChronoUnit.HOURS)
+    val endZdt       = slot.end.atZone(ZoneOffset.UTC)
+    val roundedEnd =
+      if endZdt.getMinute != 0 then
+        endZdt.plusHours(1).truncatedTo(ChronoUnit.HOURS).toInstant
+      else slot.end.truncatedTo(ChronoUnit.HOURS)
+    cleanedStart to roundedEnd

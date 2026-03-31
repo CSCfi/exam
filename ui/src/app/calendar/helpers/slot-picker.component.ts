@@ -258,8 +258,6 @@ export class SlotPickerComponent {
     }
 
     private adjust(date: string, tz: string): Date {
-        const adjusted = DateTime.fromISO(date, { zone: tz });
-        const offset = adjusted.isInDST ? -1 : 0;
-        return adjusted.plus({ hours: offset }).toJSDate();
+        return DateTime.fromISO(date, { zone: tz }).toJSDate();
     }
 }

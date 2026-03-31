@@ -7,7 +7,9 @@ package services.json
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility
 import com.fasterxml.jackson.annotation.{JsonIgnoreType, PropertyAccessor}
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.introspect.{AnnotatedMember, JacksonAnnotationIntrospector}
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ebean.bean.EntityBeanIntercept
 import org.slf4j.Logger
 import play.api.Logger as PlayLogger
@@ -38,6 +40,8 @@ private class EbeanInternalFieldIntrospector extends JacksonAnnotationIntrospect
 object EbeanMapper:
   def create(): ObjectMapper =
     val om = new ObjectMapper()
+    om.registerModule(new JavaTimeModule())
+    om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     om.setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
     om.setAnnotationIntrospector(new EbeanInternalFieldIntrospector())
     om.addMixIn(classOf[EntityBeanIntercept], classOf[EbeanMapperIgnoreMixin])

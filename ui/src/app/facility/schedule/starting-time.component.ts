@@ -6,7 +6,6 @@ import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal
 import { FormField, form, max, min } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { DateTime } from 'luxon';
 import { WorkingHour } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 
@@ -85,18 +84,16 @@ export class StartingTimeComponent {
     readonly examStartingHourOffset = linkedSignal<number>(() => {
         const hours = this.startingHours();
         if (!hours || hours.length === 0) return 0;
-        return DateTime.fromISO(hours[0].startingHour).minute;
+        return parseInt(hours[0].startingHour.split(':')[1]);
     });
     readonly examStartingHours = linkedSignal<WorkingHour[]>(() => {
         const hours = this.startingHours();
         const initialHours = [...Array(24)].map((_, i) => ({ startingHour: `${i}:00`, selected: true }));
         if (!hours || hours.length === 0) return initialHours;
-        const startingHourDates = hours.map((h) => DateTime.fromISO(h.startingHour));
-        const offset = startingHourDates[0].minute;
-        const formattedStartingHours = startingHourDates.map((h) => h.toFormat('H:mm'));
+        const offset = parseInt(hours[0].startingHour.split(':')[1]);
         return initialHours.map((hour) => {
             const withOffset = hour.startingHour.split(':')[0] + ':' + this.zeropad(offset);
-            return { startingHour: withOffset, selected: formattedStartingHours.includes(withOffset) };
+            return { startingHour: withOffset, selected: hours.some((h) => h.startingHour === withOffset) };
         });
     });
     readonly unsavedProgress = signal(false);
@@ -111,11 +108,7 @@ export class StartingTimeComponent {
     private readonly Room = inject(RoomService);
 
     updateStartingHours() {
-        this.Room.updateStartingHours$(
-            this.examStartingHours(),
-            this.examStartingHourOffset(),
-            this.roomIds(),
-        ).subscribe({
+        this.Room.updateStartingHours$(this.examStartingHours(), this.roomIds()).subscribe({
             next: () => {
                 this.unsavedProgress.set(false);
             },

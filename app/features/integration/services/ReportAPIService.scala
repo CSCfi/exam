@@ -10,9 +10,10 @@ import io.ebean.text.PathProperties
 import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.exam.ExamState
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, Interval}
+import services.datetime.IntervalExtensions.*
+import services.datetime.TimeUtils
 
+import java.time.{Duration, Instant}
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
@@ -100,22 +101,19 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
       start: Option[String],
       end: Option[String]
   ): Boolean =
-    val min       = start.getOrElse(new DateTime(0L).toDateTimeISO.toString)
-    val max       = end.getOrElse(new DateTime(Long.MaxValue).toDateTimeISO.toString)
-    val startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(min)
-    val endDate   = ISODateTimeFormat.dateTimeParser().parseDateTime(max)
-    val range     = new Interval(startDate, endDate)
+    val startDate = start.map(TimeUtils.parseInstant).getOrElse(Instant.EPOCH)
+    val endDate   = end.map(TimeUtils.parseInstant).getOrElse(Instant.MAX)
+    val range     = startDate to endDate
 
     Option(enrolment.reservation)
       .map { reservation =>
-        val period = new Interval(reservation.startAt, reservation.endAt)
-        range.contains(period)
+        range.contains(reservation.startAt to reservation.endAt)
       }
       .orElse {
         Option(enrolment.examinationEventConfiguration).map { config =>
-          val event    = config.examinationEvent
-          val duration = enrolment.exam.duration
-          val period   = new Interval(event.start, event.start.plusMinutes(duration))
+          val event = config.examinationEvent
+          val period =
+            event.start to event.start.plus(Duration.ofMinutes(enrolment.exam.duration.toLong))
           range.contains(period)
         }
       }

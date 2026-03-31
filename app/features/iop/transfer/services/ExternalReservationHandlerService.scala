@@ -15,7 +15,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.*
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.datetime.{AppClock, DateTimeHandler}
+import services.datetime.AppClock
 import services.mail.EmailComposer
 
 import java.net.URI
@@ -31,7 +31,6 @@ import scala.util.{Failure, Success, Try}
 class ExternalReservationHandlerService @Inject() (
     wsClient: WSClient,
     emailComposer: EmailComposer,
-    dateTimeHandler: DateTimeHandler,
     configReader: ConfigReader,
     clock: AppClock
 )(implicit ec: BlockingIOExecutionContext)
@@ -80,7 +79,7 @@ class ExternalReservationHandlerService @Inject() (
       case Some(enrolment) =>
         // Removal is not permitted if the reservation is in the past or ongoing
         val reservation = enrolment.reservation
-        val now         = dateTimeHandler.adjustDST(clock.now(), reservation.externalReservation)
+        val now         = clock.now()
 
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Future.successful(Forbidden("i18n_reservation_in_effect"))

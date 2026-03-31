@@ -10,7 +10,6 @@ import models.exam.{Course, Grade, GradeScale}
 import models.facility.Organisation
 import models.user.User
 import org.apache.pekko.util.ByteString
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.*
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -21,7 +20,8 @@ import services.config.ConfigReader
 
 import java.net.*
 import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
 import javax.inject.Inject
 import scala.collection.immutable.TreeSet
 import scala.concurrent.Future
@@ -39,7 +39,7 @@ class ExternalCourseHandlerImpl @Inject (
   private val COURSE_CODE_PLACEHOLDER = "${course_code}"
   private val USER_ID_PLACEHOLDER     = "${employee_number}"
   private val USER_LANG_PLACEHOLDER   = "${employee_lang}"
-  private val DF                      = new SimpleDateFormat("yyyyMMdd")
+  private val DF                      = DateTimeFormatter.ofPattern("yyyyMMdd")
   private val BOM = ByteString.fromArray(Array[Byte](0xef.toByte, 0xbb.toByte, 0xbf.toByte))
 
   private def getLocalCourses(code: String) = DB
@@ -48,14 +48,14 @@ class ExternalCourseHandlerImpl @Inject (
     .ilike("code", code + "%")
     .disjunction
     .isNull("endDate")
-    .gt("endDate", DateTime.now)
+    .gt("endDate", Instant.now())
     .endJunction
     .orderBy("code")
     .distinct
     .filter(c =>
       Option(c.startDate).isEmpty || configReader.getCourseValidityDate(
-        new DateTime(c.startDate)
-      ).isBeforeNow
+        c.startDate.toInstant
+      ).isBefore(Instant.now())
     )
 
   override def getCoursesByCode(user: User, code: String): Future[Set[Course]] =
@@ -188,8 +188,8 @@ class ExternalCourseHandlerImpl @Inject (
     (validateStart(cui.startDate), validateEnd(cui.endDate)) match
       case (Right(start), Right(end)) => // good to go
         val model = new Course
-        model.startDate = start.map(_.toDate).orNull
-        model.endDate = end.map(_.toDate).orNull
+        model.startDate = start.map(java.util.Date.from).orNull
+        model.endDate = end.map(java.util.Date.from).orNull
         model.identifier = cui.identifier
         model.name = cui.title
         model.code = cui.code
@@ -253,15 +253,15 @@ class ExternalCourseHandlerImpl @Inject (
   private def validateStart(date: Option[String]) = date match
     case None => Right(None)
     case Some(d) =>
-      val date  = new DateTime(DF.parse(d))
-      val limit = configReader.getCourseValidityDate(date)
-      if limit.isAfterNow then Left("too soon") else Right(Some(date))
+      val instant = java.time.LocalDate.parse(d, DF).atStartOfDay(ZoneOffset.UTC).toInstant
+      val limit   = configReader.getCourseValidityDate(instant)
+      if limit.isAfter(Instant.now()) then Left("too soon") else Right(Some(instant))
 
   private def validateEnd(date: Option[String]) = date match
     case None => Right(None)
     case Some(d) =>
-      val date = new DateTime(DF.parse(d))
-      if date.isBeforeNow then Left("too late") else Right(Some(date))
+      val instant = java.time.LocalDate.parse(d, DF).atStartOfDay(ZoneOffset.UTC).toInstant
+      if instant.isBefore(Instant.now()) then Left("too late") else Right(Some(instant))
 
   private def queryRequest(url: URL) =
     val host        = url.toString.split("\\?").head

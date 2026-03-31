@@ -10,13 +10,15 @@ import io.ebean.text.PathProperties
 import models.calendar.MaintenancePeriod
 import models.enrolment.{ExaminationEvent, ExaminationEventConfiguration}
 import models.exam.*
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, Interval, LocalDate}
 import play.api.Logging
 import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
+import services.datetime.Interval
+import services.datetime.IntervalExtensions.*
+import services.datetime.TimeUtils
 import validation.exam.ExaminationEventDTO
 
+import java.time.*
 import java.util.UUID
 import javax.inject.Inject
 import scala.util.Try
@@ -37,7 +39,7 @@ class ExaminationEventService @Inject() (
       case None => Left(ExaminationEventError.ExamNotFound)
       case Some(exam) =>
         val ed = new ExaminationDate()
-        ed.date = date.toDate
+        ed.date = java.util.Date.from(date.atStartOfDay(ZoneOffset.UTC).toInstant)
         ed.exam = exam
         ed.save()
         Right(ed)
@@ -49,12 +51,12 @@ class ExaminationEventService @Inject() (
         ed.delete()
         Right(())
 
-  private def getEventEnding(ee: ExaminationEvent): DateTime =
+  private def getEventEnding(ee: ExaminationEvent): Instant =
     Option(ee.examinationEventConfiguration) match
       case None         => ee.start
-      case Some(config) => ee.start.plusMinutes(config.exam.duration)
+      case Some(config) => ee.start.plus(Duration.ofMinutes(config.exam.duration.toLong))
 
-  private def getParticipantUpperBound(start: DateTime, end: DateTime, id: Option[Long]): Int =
+  private def getParticipantUpperBound(start: Instant, end: Instant, id: Option[Long]): Int =
     val baseQuery = DB.find(classOf[ExaminationEvent]).where().le("start", end)
     val query     = id.fold(baseQuery) { i => baseQuery.ne("id", i) }
 
@@ -67,8 +69,7 @@ class ExaminationEventService @Inject() (
     DB.find(classOf[MaintenancePeriod])
       .distinct
       .exists { p =>
-        val maintenanceInterval = new Interval(p.startsAt, p.endsAt)
-        maintenanceInterval.overlaps(interval)
+        (p.startsAt to p.endsAt).overlaps(interval)
       }
 
   def insertExaminationEvent(
@@ -80,10 +81,11 @@ class ExaminationEventService @Inject() (
       case Some(exam) =>
         val start = dto.start
 
-        if start.isBeforeNow then Left(ExaminationEventError.EventInThePast)
+        if start.isBefore(Instant.now()) then Left(ExaminationEventError.EventInThePast)
         else
-          val end = start.plusMinutes(exam.duration)
-          if isWithinMaintenancePeriod(new Interval(start, end)) then
+          val end      = start.plus(Duration.ofMinutes(exam.duration.toLong))
+          val interval = start to end
+          if isWithinMaintenancePeriod(interval) then
             Left(ExaminationEventError.ConflictsWithMaintenancePeriod)
           else
             val ub       = getParticipantUpperBound(start, end, None)
@@ -158,12 +160,14 @@ class ExaminationEventService @Inject() (
             Left(ExaminationEventError.NoSettingsPasswordProvided)
           else
             val start = dto.start
-            if !hasEnrolments && start.isBeforeNow then Left(ExaminationEventError.EventInThePast)
+            if !hasEnrolments && start.isBefore(Instant.now()) then
+              Left(ExaminationEventError.EventInThePast)
             else
               if !hasEnrolments then ee.start = start
 
-              val end = start.plusMinutes(exam.duration)
-              if isWithinMaintenancePeriod(new Interval(start, end)) then
+              val end      = start.plus(Duration.ofMinutes(exam.duration.toLong))
+              val interval = start to end
+              if isWithinMaintenancePeriod(interval) then
                 Left(ExaminationEventError.ConflictsWithMaintenancePeriod)
               else
                 val ub       = getParticipantUpperBound(start, end, Some(ee.id))
@@ -284,20 +288,18 @@ class ExaminationEventService @Inject() (
     val baseQuery = DB.find(classOf[ExaminationEventConfiguration]).apply(pp).where()
 
     val withStartFilter = start.fold(baseQuery) { s =>
-      val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
-      baseQuery.ge("examinationEvent.start", startDate.toDate)
+      baseQuery.ge("examinationEvent.start", TimeUtils.parseInstant(s))
     }
 
     val withEndFilter = end.fold(withStartFilter) { e =>
-      val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
-      withStartFilter.lt("examinationEvent.start", endDate.toDate)
+      withStartFilter.lt("examinationEvent.start", TimeUtils.parseInstant(e))
     }
 
     withEndFilter.eq("exam.state", ExamState.PUBLISHED).distinct.toList
 
   def listOverlappingExaminationEvents(start: String, duration: Int): List[ExaminationEvent] =
-    val startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser())
-    val endDate   = startDate.plusMinutes(duration)
+    val startDate = TimeUtils.parseInstant(start)
+    val endDate   = startDate.plus(Duration.ofMinutes(duration.toLong))
     val pp        = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))")
 
     DB.find(classOf[ExaminationEvent])

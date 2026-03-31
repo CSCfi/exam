@@ -11,10 +11,10 @@ import io.ebean.DB
 import models.assessment.ExamRecord
 import models.exam.Exam
 import models.exam.ExamState
-import org.joda.time.DateTime
 import play.api.Logging
 import services.config.ConfigReader
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.duration.*
 
@@ -43,7 +43,6 @@ class ExamExpirationService @Inject() (private val configReader: ConfigReader)
         .eq("state", ExamState.REJECTED)
         .endJunction
         .list
-      val now = DateTime.now
       exams
         .map(exam =>
           val expirationDate =
@@ -53,7 +52,7 @@ class ExamExpirationService @Inject() (private val configReader: ConfigReader)
         )
         .foreach((exam, expiration) =>
           expiration match
-            case Some(date) if configReader.getExamExpirationDate(date).isBeforeNow =>
+            case Some(date) if configReader.getExamExpirationDate(date).isBefore(Instant.now()) =>
               cleanExamData(exam)
               logger.info(s"Marked exam ${exam.id} as expired")
             case None => logger.error(s"no grading time for exam ${exam.id}")

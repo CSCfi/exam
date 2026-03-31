@@ -5,10 +5,10 @@
 package system
 
 import com.google.inject.AbstractModule
-import org.joda.time.DateTimeZone
 import play.api.Logging
 
 import java.nio.charset.Charset
+import java.util.TimeZone
 import javax.inject.Singleton
 
 @Singleton
@@ -20,6 +20,6 @@ class App extends AbstractModule with Logging:
       logger.warn(
         s"Default encoding is other than UTF-8 ($encoding). This might cause problems with non-ASCII character handling!"
       )
-  DateTimeZone.setDefault(DateTimeZone.forID("UTC"))
+  TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
 
   override def configure(): Unit = bind(classOf[SystemInitializer]).asEagerSingleton()

@@ -18,7 +18,6 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
@@ -39,7 +38,6 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
         LowerCasePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         OrderByPipe,
     ],
     styleUrls: ['./print.shared.scss'],

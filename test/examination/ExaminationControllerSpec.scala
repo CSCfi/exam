@@ -16,13 +16,13 @@ import models.facility.{ExamMachine, ExamRoom}
 import models.questions.{ClaimChoiceOptionType, QuestionType}
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Language, User}
-import org.joda.time.DateTime
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status
 import play.api.libs.json.{JsArray, JsNumber, Json}
 import play.api.test.Helpers.*
 import services.json.JsonDeserializer
 
+import java.time.{Duration, Instant}
 import java.util
 import scala.jdk.CollectionConverters.*
 
@@ -74,8 +74,8 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
     val reservation = new Reservation()
     reservation.machine = machine
     reservation.user = user
-    reservation.startAt = DateTime.now().minusMinutes(10)
-    reservation.endAt = DateTime.now().plusMinutes(70)
+    reservation.startAt = Instant.now().minus(Duration.ofMinutes(10))
+    reservation.endAt = Instant.now().plus(Duration.ofMinutes(70))
     reservation.save()
 
     val enrolment = new ExamEnrolment()

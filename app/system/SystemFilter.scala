@@ -5,10 +5,10 @@
 package system
 
 import org.apache.pekko.stream.Materializer
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import play.api.mvc.{Filter, RequestHeader, Result}
 
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,13 +53,15 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
             s.get("upcomingExamHash") match {
               case Some(_) => // Don't let the session expire when awaiting the exam to start
                 response.withSession(
-                  s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now))
+                  s + ("since" -> DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 )
               case _ => response.withSession(s)
             }
           case path if path.contains("logout") => response.withSession(s)
           case _ =>
-            response.withSession(s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
+            response.withSession(
+              s + ("since" -> DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+            )
 
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
     rh.path match

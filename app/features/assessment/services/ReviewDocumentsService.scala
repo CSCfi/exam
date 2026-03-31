@@ -12,15 +12,14 @@ import models.questions.QuestionType
 import models.user.{Role, User}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.io.IOUtils
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import play.api.Logging
 import services.csv.CsvBuilder
 
 import java.io.*
 import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import scala.collection.mutable
@@ -52,10 +51,11 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
       start: Option[String],
       end: Option[String]
   )(os: OutputStream): Unit =
-    val df = new SimpleDateFormat("dd.MM.yyyy")
+    val df = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val startDate =
-      start.map(txt => new DateTime(df.parse(txt)).withTimeAtStartOfDay)
-    val endDate = end.map(txt => new DateTime(df.parse(txt)).withTimeAtStartOfDay)
+      start.map(txt => java.time.LocalDate.parse(txt, df).atStartOfDay(ZoneOffset.UTC).toInstant)
+    val endDate =
+      end.map(txt => java.time.LocalDate.parse(txt, df).atStartOfDay(ZoneOffset.UTC).toInstant)
     Try {
       val gzip = new GZIPOutputStream(os)
       val tar  = new TarArchiveOutputStream(gzip)
@@ -73,7 +73,7 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
       _ => ()
     )
 
-  private def isEligibleForArchiving(exam: Exam, start: Option[DateTime], end: Option[DateTime]) =
+  private def isEligibleForArchiving(exam: Exam, start: Option[Instant], end: Option[Instant]) =
     exam.hasState(ExamState.ABORTED, ExamState.REVIEW, ExamState.REVIEW_STARTED) &&
       start.forall(!exam.created.isBefore(_)) &&
       end.forall(!exam.created.isAfter(_))
@@ -81,8 +81,8 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
   private def createArchive(
       prototype: Exam,
       aos: TarArchiveOutputStream,
-      start: Option[DateTime],
-      end: Option[DateTime]
+      start: Option[Instant],
+      end: Option[Instant]
   ): Unit =
     val children  = prototype.children.asScala.filter(isEligibleForArchiving(_, start, end))
     val questions = mutable.LinkedHashMap.empty[Long, String]
@@ -138,15 +138,15 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
 
   private def createSummaryFile(
       aos: TarArchiveOutputStream,
-      start: Option[DateTime],
-      end: Option[DateTime],
+      start: Option[Instant],
+      end: Option[Instant],
       exam: Exam,
       questions: Map[Long, String]
   ): Unit =
-    val dtf = DateTimeFormat.forPattern("dd.MM.yyyy")
+    val dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val periodLine = Option.when(start.isDefined || end.isDefined) {
-      val s = start.map(dtf.print).getOrElse("")
-      val e = end.map(dtf.print).getOrElse("")
+      val s = start.map(i => dtf.format(i.atZone(ZoneOffset.UTC).toLocalDate)).getOrElse("")
+      val e = end.map(i => dtf.format(i.atZone(ZoneOffset.UTC).toLocalDate)).getOrElse("")
       s"period: $s-$e"
     }
     val lines = periodLine.toSeq ++ Seq(

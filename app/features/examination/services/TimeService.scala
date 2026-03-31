@@ -8,16 +8,15 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
 import models.user.User
-import org.joda.time.{DateTime, Seconds}
-import services.datetime.{AppClock, DateTimeHandler}
+import services.datetime.AppClock
 
+import java.time.{Duration, Instant}
 import javax.inject.Inject
 import scala.util.Try
 
 import TimeError.*
 
 class TimeService @Inject() (
-    private val dateTimeHandler: DateTimeHandler,
     private val clock: AppClock
 ) extends EbeanQueryExtensions:
 
@@ -35,19 +34,13 @@ class TimeService @Inject() (
       case Some(enrolment) =>
         val start    = getStart(enrolment)
         val duration = getDuration(enrolment)
-        val now      = currentTime(enrolment)
-        val timeLeft = Seconds.secondsBetween(now, start.plusMinutes(duration))
-        Right(timeLeft.getSeconds)
+        val end      = start.plus(Duration.ofMinutes(duration.toLong))
+        Right(Duration.between(clock.now(), end).toSeconds)
 
-  private def getStart(enrolment: ExamEnrolment): DateTime =
+  private def getStart(enrolment: ExamEnrolment): Instant =
     Option(enrolment.examinationEventConfiguration) match
       case Some(config) => config.examinationEvent.start
       case None         => enrolment.reservation.startAt
-
-  private def currentTime(enrolment: ExamEnrolment): DateTime =
-    Option(enrolment.examinationEventConfiguration) match
-      case Some(_) => clock.now()
-      case None    => dateTimeHandler.adjustDST(clock.now(), enrolment.reservation)
 
   private def getDuration(enrolment: ExamEnrolment): Int =
     Option(enrolment.exam) match

@@ -20,7 +20,6 @@ import models.facility.ExamRoom
 import models.iop.ExternalExam
 import models.user.User
 import org.eclipse.jetty.server.Server
-import org.joda.time.DateTime
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
 import play.api.libs.json.Json
@@ -29,6 +28,7 @@ import services.json.JsonDeserializer
 
 import java.io.File
 import java.nio.charset.Charset
+import java.time.{Duration, Instant}
 import java.util.UUID
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 import scala.compiletime.uninitialized
@@ -233,7 +233,7 @@ class EnrolmentControllerSpec
         val ee = new ExternalExam()
         ee.externalRef = UUID.randomUUID().toString
         ee.hash = UUID.randomUUID().toString
-        ee.created = DateTime.now()
+        ee.created = Instant.now()
         ee.creator = user
         ee.content =
           EJson.parseObject(
@@ -248,8 +248,8 @@ class EnrolmentControllerSpec
         machine.update()
 
         reservation.machine = machine
-        reservation.startAt = DateTime.now().plusMinutes(30)
-        reservation.endAt = DateTime.now().plusMinutes(75)
+        reservation.startAt = Instant.now().plus(Duration.ofMinutes(30))
+        reservation.endAt = Instant.now().plus(Duration.ofMinutes(75))
         reservation.externalUserRef = user.eppn
         reservation.externalRef = "foobar"
         reservation.save()
@@ -336,7 +336,7 @@ class EnrolmentControllerSpec
         val (exam, enrolment, _, _) = setupTestData()
 
         // Setup existing enrolment
-        val enrolledOn = DateTime.now()
+        val enrolledOn = Instant.now()
         enrolment.enrolledOn = enrolledOn
         enrolment.save()
 
@@ -362,11 +362,11 @@ class EnrolmentControllerSpec
 
         // Setup future reservation
         reservation.machine = room.examMachines.get(0)
-        reservation.startAt = DateTime.now().plusDays(1)
-        reservation.endAt = DateTime.now().plusDays(2)
+        reservation.startAt = Instant.now().plus(Duration.ofDays(1))
+        reservation.endAt = Instant.now().plus(Duration.ofDays(2))
         reservation.save()
 
-        val enrolledOn = DateTime.now()
+        val enrolledOn = Instant.now()
         enrolment.enrolledOn = enrolledOn
         enrolment.reservation = reservation
         enrolment.save()
@@ -393,11 +393,11 @@ class EnrolmentControllerSpec
 
         // Set up ongoing reservation
         reservation.machine = room.examMachines.get(0)
-        reservation.startAt = DateTime.now().minusDays(1)
-        reservation.endAt = DateTime.now().plusDays(1)
+        reservation.startAt = Instant.now().minus(Duration.ofDays(1))
+        reservation.endAt = Instant.now().plus(Duration.ofDays(1))
         reservation.save()
 
-        val enrolledOn = DateTime.now()
+        val enrolledOn = Instant.now()
         enrolment.enrolledOn = enrolledOn
         enrolment.reservation = reservation
         enrolment.save()
@@ -424,11 +424,11 @@ class EnrolmentControllerSpec
 
         // Setup past reservation
         reservation.machine = room.examMachines.get(0)
-        reservation.startAt = DateTime.now().minusDays(2)
-        reservation.endAt = DateTime.now().minusDays(1)
+        reservation.startAt = Instant.now().minus(Duration.ofDays(2))
+        reservation.endAt = Instant.now().minus(Duration.ofDays(1))
         reservation.save()
 
-        val enrolledOn = DateTime.now()
+        val enrolledOn = Instant.now()
         enrolment.enrolledOn = enrolledOn
         enrolment.reservation = reservation
         enrolment.save()

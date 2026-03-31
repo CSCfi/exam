@@ -173,9 +173,9 @@ SPDX-License-Identifier: EUPL-1.2
                 }
                 @if (r.enrolment.exam.external || r.enrolment.exam.implementation === 'AQUARIUM') {
                     <td class="reservation-search">
-                        {{ r.startAt | applyDst | date: 'dd.MM.yyyy' }} <br />{{
-                            r.startAt | applyDst | date: 'HH:mm'
-                        }}-{{ r.endAt | applyDst | date: 'HH:mm' }}
+                        {{ r.startAt | date: 'dd.MM.yyyy' }} <br />{{ r.startAt | date: 'HH:mm' }}-{{
+                            r.endAt | date: 'HH:mm'
+                        }}
                     </td>
                 }
                 @if (!r.enrolment.exam.external && r.enrolment.exam.implementation !== 'AQUARIUM') {

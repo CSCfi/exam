@@ -12,7 +12,6 @@ import { switchMap } from 'rxjs/operators';
 import type { CollaborativeParticipation, ParticipationLike, ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
@@ -29,15 +28,7 @@ type Scores = {
     selector: 'xm-exam-participation',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participation.component.html',
-    imports: [
-        CourseCodeComponent,
-        TeacherListComponent,
-        NgbCollapse,
-        ExamFeedbackComponent,
-        DatePipe,
-        TranslateModule,
-        ApplyDstPipe,
-    ],
+    imports: [CourseCodeComponent, TeacherListComponent, NgbCollapse, ExamFeedbackComponent, DatePipe, TranslateModule],
     styleUrl: './exam-participations.component.scss',
 })
 export class ExamParticipationComponent {

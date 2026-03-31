@@ -7,9 +7,8 @@ package services.config
 import com.google.inject.ImplementedBy
 import models.admin.GeneralSettings
 import models.user.Role
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 
+import java.time.{Instant, ZoneId}
 import scala.jdk.CollectionConverters.*
 
 @ImplementedBy(classOf[ConfigReaderImpl])
@@ -19,7 +18,7 @@ trait ConfigReader:
       value: Option[String],
       defaultValue: Option[String]
   ): GeneralSettings
-  def getDefaultTimeZone: DateTimeZone
+  def getDefaultTimeZone: ZoneId
   def getHostName: String
   def getMaxFileSize: Int
   def getExamDurations: List[Int]
@@ -37,8 +36,8 @@ trait ConfigReader:
   def isSebExaminationSupported: Boolean
   def isCourseSearchActive: Boolean
   def getCourseIntegrationUrls: Map[String, String]
-  def getExamExpirationDate(timeOfSubmission: DateTime): DateTime
-  def getCourseValidityDate(startDate: DateTime): DateTime
+  def getExamExpirationDate(timeOfSubmission: Instant): Instant
+  def getCourseValidityDate(startDate: Instant): Instant
   def getExamExpirationPeriod: String
   def isMaturitySupported: Boolean
   def isPrintoutSupported: Boolean

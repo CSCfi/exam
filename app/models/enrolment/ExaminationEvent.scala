@@ -4,11 +4,14 @@
 
 package models.enrolment
 
-import jakarta.persistence.*
+import jakarta.persistence.{Entity, OneToOne}
 import models.base.GeneratedIdentityModel
 import models.exam.Exam
-import org.joda.time.{DateTime, Interval}
+import services.datetime.Interval
+import services.datetime.IntervalExtensions.*
+import services.datetime.JsonInstant
 
+import java.time.{Duration, Instant}
 import scala.compiletime.uninitialized
 
 @Entity
@@ -16,14 +19,13 @@ class ExaminationEvent extends GeneratedIdentityModel:
   @OneToOne(mappedBy = "examinationEvent")
   var examinationEventConfiguration: ExaminationEventConfiguration = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  var start: DateTime = uninitialized
+  @JsonInstant var start: Instant = uninitialized
 
   var description: String = uninitialized
   var capacity: Int       = 0
 
   def toInterval(exam: Exam): Interval =
-    new Interval(start, start.plusMinutes(exam.duration))
+    start to start.plus(Duration.ofMinutes(exam.duration.toLong))
 
   override def equals(o: Any): Boolean = o match
     case e: ExaminationEvent => this.id == e.id

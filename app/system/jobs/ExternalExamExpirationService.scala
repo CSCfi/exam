@@ -17,6 +17,7 @@ import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import java.net.{MalformedURLException, URI}
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
@@ -76,9 +77,9 @@ class ExternalExamExpirationService @Inject() (
           IO(logger.error(s"Failed in deleting attachments for external exam ${ee.id}", e))
         )
         .flatMap(_ =>
-          if ee.sent.plusMonths(
-              ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION
-            ).isBeforeNow
+          if ee.sent.atZone(java.time.ZoneOffset.UTC)
+              .plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION)
+              .toInstant.isBefore(Instant.now())
           then
             IO.blocking {
               ee.content = Map.empty[String, Object].asJava
@@ -87,7 +88,9 @@ class ExternalExamExpirationService @Inject() (
             }
           else IO.unit
         )
-    else if ee.sent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow
+    else if ee.sent.atZone(java.time.ZoneOffset.UTC)
+        .plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION)
+        .toInstant.isBefore(Instant.now())
     then
       IO.blocking {
         ee.content = Map.empty[String, Object].asJava

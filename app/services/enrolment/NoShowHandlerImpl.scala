@@ -10,7 +10,6 @@ import cats.effect.unsafe.implicits.global
 import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.ExamState
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
@@ -20,6 +19,7 @@ import services.config.ConfigReader
 import services.mail.EmailComposer
 
 import java.net.URI
+import java.time.Instant
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
@@ -152,7 +152,7 @@ class NoShowHandlerImpl @Inject (
     else
       newEnrolment.preEnrolledUserEmail = enrolment.preEnrolledUserEmail
     newEnrolment.exam = enrolment.exam
-    newEnrolment.enrolledOn = DateTime.now()
+    newEnrolment.enrolledOn = Instant.now()
     newEnrolment.information = enrolment.information
     newEnrolment.setRandomDelay()
     newEnrolment.save()

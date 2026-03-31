@@ -14,15 +14,16 @@ import io.ebean.text.PathProperties
 import models.calendar.{DefaultWorkingHours, ExceptionWorkingHours}
 import models.facility.*
 import models.user.User
-import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue}
 import security.BlockingIOExecutionContext
 import services.cache.FacilityCache
 import services.config.ConfigReader
 import services.datetime.DateTimeHandler
+import services.datetime.TimeUtils
 
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -38,7 +39,7 @@ class RoomService @Inject() (
     with Logging:
 
   private val examVisitActivated = configReader.isVisitingExaminationSupported
-  private val defaultTimeZoneId  = configReader.getDefaultTimeZone.getID
+  private val defaultTimeZoneId  = configReader.getDefaultTimeZone.getId
   private val EPOCH              = 1970
 
   private def updateRemote(room: ExamRoom): Future[Unit] =
@@ -185,16 +186,11 @@ class RoomService @Inject() (
 
   private def parseWorkingHours(body: JsValue): DefaultWorkingHours =
     val node      = body \ "workingHours"
-    val formatter = ISODateTimeFormat.dateTimeParser()
+    val formatter = DateTimeFormatter.ofPattern("H:mm")
     val dwh       = new DefaultWorkingHours()
     dwh.weekday = (node \ "weekday").as[String]
-    // Deliberately use Jan to have no DST in effect
-    val startTime =
-      DateTime.parse((node \ "startTime").as[String], formatter).withDayOfYear(1).withYear(EPOCH)
-    val endTime =
-      DateTime.parse((node \ "endTime").as[String], formatter).withDayOfYear(1).withYear(EPOCH)
-    dwh.startTime = startTime
-    dwh.endTime = endTime
+    dwh.startTime = LocalTime.parse((node \ "startTime").as[String], formatter)
+    dwh.endTime = LocalTime.parse((node \ "endTime").as[String], formatter)
     dwh
 
   def updateExamRoomWorkingHours(body: JsValue): Long =
@@ -203,7 +199,6 @@ class RoomService @Inject() (
     val hours   = parseWorkingHours(body)
 
     rooms.foreach { examRoom =>
-      // Find out if there's any overlap. Remove those
       val existing = DB
         .find(classOf[DefaultWorkingHours])
         .where()
@@ -216,11 +211,6 @@ class RoomService @Inject() (
       overlapping.foreach(examRoom.defaultWorkingHours.remove)
 
       hours.room = examRoom
-      val end            = new DateTime(hours.endTime)
-      val offset         = DateTimeZone.forID(examRoom.localTimezone).getOffset(end)
-      val endMillisOfDay = dateTimeHandler.resolveEndWorkingHourMillis(end, offset) - offset
-      hours.endTime = end.withMillisOfDay(endMillisOfDay)
-      hours.timezoneOffset = offset
       hours.save()
       examRoom.defaultWorkingHours.add(hours)
       asyncUpdateRemote(examRoom)
@@ -243,7 +233,7 @@ class RoomService @Inject() (
   def updateExamStartingHours(body: JsValue): Unit =
     val roomIds   = (body \ "roomIds").as[List[Long]]
     val rooms     = DB.find(classOf[ExamRoom]).where().idIn(roomIds.map(Long.box).asJava).list
-    val formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ")
+    val formatter = DateTimeFormatter.ofPattern("H:mm")
 
     rooms.foreach { examRoom =>
       val previous = DB.find(classOf[ExamStartingHour]).where().eq("room.id", examRoom.id).list
@@ -252,21 +242,16 @@ class RoomService @Inject() (
       (body \ "hours").as[JsArray].value.foreach { hoursNode =>
         val esh = new ExamStartingHour()
         esh.room = examRoom
-        // Deliberately use the first/second of Jan to have no DST in effect
-        val startTime = DateTime.parse(hoursNode.as[String], formatter).withDayOfYear(1)
-        esh.startingHour = startTime.toDate
-        esh.timezoneOffset = DateTimeZone.forID(examRoom.localTimezone).getOffset(startTime)
+        esh.startingHour = LocalTime.parse(hoursNode.as[String], formatter)
         esh.save()
       }
       asyncUpdateRemote(examRoom)
     }
 
   private def parseException(node: JsValue): ExceptionWorkingHours =
-    val startDate = ISODateTimeFormat.dateTime().parseDateTime((node \ "startDate").as[String])
-    val endDate   = ISODateTimeFormat.dateTime().parseDateTime((node \ "endDate").as[String])
-    val hours     = new ExceptionWorkingHours()
-    hours.startDate = startDate.toDate
-    hours.endDate = endDate.toDate
+    val hours = new ExceptionWorkingHours()
+    hours.startDate = java.util.Date.from(TimeUtils.parseInstant((node \ "startDate").as[String]))
+    hours.endDate = java.util.Date.from(TimeUtils.parseInstant((node \ "endDate").as[String]))
     hours.outOfService = (node \ "outOfService").asOpt[Boolean].getOrElse(true)
     hours
 
@@ -278,12 +263,6 @@ class RoomService @Inject() (
     rooms.foreach { room =>
       exceptionsNode.value.foreach { node =>
         val exception = parseException(node)
-        exception.startDateTimezoneOffset =
-          DateTimeZone.forID(room.localTimezone).getOffset(exception.startDate.getTime)
-
-        exception.endDateTimezoneOffset =
-          DateTimeZone.forID(room.localTimezone).getOffset(exception.endDate.getTime)
-
         exception.room = room
         exception.save()
         room.calendarExceptionEvents.add(exception)

@@ -11,11 +11,12 @@ import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.ExamState
 import models.exam.{Course, Exam}
 import models.facility.ExamRoom
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{Json, Writes}
+import services.datetime.TimeUtils
 import services.excel.ExcelBuilder
 
+import java.time.format.DateTimeFormatter
+import java.time.{Duration, Instant}
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
@@ -30,8 +31,8 @@ class StatisticsService @Inject() (
 
   case class Participation(date: String)
   object Participation:
-    def apply(dateTime: DateTime): Participation =
-      Participation(ISODateTimeFormat.dateTime.print(dateTime))
+    def apply(instant: Instant): Participation =
+      Participation(DateTimeFormatter.ISO_INSTANT.format(instant))
     implicit val writes: Writes[Participation] = Json.writes[Participation]
 
   def listDepartments: List[String] =
@@ -141,10 +142,8 @@ class StatisticsService @Inject() (
       val hasParticipation = Option(exam.examParticipation).isDefined
       hasValidState &&
       hasParticipation &&
-      start.forall(s => DateTime.parse(s, ISODateTimeFormat.dateTimeParser()).isBefore(created)) &&
-      end.forall(e =>
-        DateTime.parse(e, ISODateTimeFormat.dateTimeParser()).plusDays(1).isAfter(created)
-      )
+      start.forall(s => TimeUtils.parseInstant(s).isBefore(created)) &&
+      end.forall(e => TimeUtils.parseInstant(e).plus(Duration.ofDays(1)).isAfter(created))
 
     exams.map(e =>
       ExamInfo(s"[${e.course.code}] ${e.name}", e.children.asScala.count(examFilter))
@@ -230,10 +229,11 @@ class StatisticsService @Inject() (
       query.in(s"$deptFieldPrefix.department", deptList*)
     }
     val withStart = start.fold(withDept) { s =>
-      val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
-      withDept.ge(dateField, startDate.toDate)
+      withDept.ge(dateField, TimeUtils.parseInstant(s))
     }
     end.fold(withStart) { e =>
-      val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser()).plusDays(1)
-      withStart.lt(dateField, endDate.toDate)
+      withStart.lt(
+        dateField,
+        TimeUtils.parseInstant(e).plus(Duration.ofDays(1))
+      )
     }

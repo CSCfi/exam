@@ -17,11 +17,11 @@ import models.iop.CollaborativeExam
 import models.questions.QuestionType
 import models.questions.{ClozeTestAnswer, Question}
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
 import security.BlockingIOExecutionContext
-import services.datetime.DateTimeHandler
 
+import java.time.Duration
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -29,8 +29,7 @@ import scala.util.Using
 
 class ExaminationRepository @Inject() (
     cel: CollaborativeExamLoaderService,
-    blockingIOExecutionContext: BlockingIOExecutionContext,
-    dateTimeHandler: DateTimeHandler
+    blockingIOExecutionContext: BlockingIOExecutionContext
 ) extends Logging
     with EbeanQueryExtensions:
 
@@ -103,14 +102,7 @@ class ExaminationRepository @Inject() (
           examParticipation.examinationEvent = config.examinationEvent
         }
 
-        val now = Option(enrolment.examinationEventConfiguration) match
-          case None =>
-            Option(reservation) match
-              case None    => dateTimeHandler.adjustDST(DateTime.now())
-              case Some(r) => dateTimeHandler.adjustDST(DateTime.now(), r.machine.room)
-          case Some(_) => DateTime.now()
-
-        examParticipation.started = now
+        examParticipation.started = Instant.now()
         db.save(examParticipation)
 
       clone
@@ -149,9 +141,7 @@ class ExaminationRepository @Inject() (
   private def createQuery(pp: PathProperties): Query[Exam] = db.find(classOf[Exam]).apply(pp)
 
   private def isInEffect(ee: ExamEnrolment): Boolean =
-    val now = Option(ee.examinationEventConfiguration)
-      .map(_ => DateTime.now)
-      .getOrElse(dateTimeHandler.adjustDST(DateTime.now()))
+    val now = Instant.now()
 
     Option(ee.reservation) match
       case Some(reservation) =>
@@ -159,7 +149,7 @@ class ExaminationRepository @Inject() (
       case None =>
         Option(ee.examinationEventConfiguration).exists { config =>
           val start = config.examinationEvent.start
-          val end   = start.plusMinutes(ee.exam.duration)
+          val end   = start.plus(Duration.ofMinutes(ee.exam.duration.toLong))
           start.isBefore(now) && end.isAfter(now)
         }
 

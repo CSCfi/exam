@@ -15,7 +15,6 @@ import models.questions.QuestionType
 import models.questions.{MultipleChoiceOption, Question}
 import models.sections.{ExamSection, ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Role, User}
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue, Json}
 import security.BlockingIOExecutionContext
@@ -23,6 +22,7 @@ import services.exam.{ExamUpdater, OptionUpdateOptions, SectionQuestionHandler}
 import validation.core.PlayJsonHelper
 import validation.section.SectionQuestionDTO
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
@@ -464,7 +464,7 @@ class ExamSectionService @Inject() (
 
       // Insert a new section question
       sectionQuestion.creator = user
-      sectionQuestion.created = DateTime.now()
+      sectionQuestion.created = Instant.now()
       sectionQuestion.examSection = section
 
       updateExamQuestion(sectionQuestion, question)

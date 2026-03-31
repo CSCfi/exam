@@ -198,8 +198,7 @@ export class CalendarService {
     private daysBetween = (start: DateTime, end: DateTime) => Interval.fromDateTimes(start, end).splitBy({ day: 1 });
     private normalize = (d: DateTime) => DateTime.now().set({ hour: d.hour, minute: d.minute, second: d.second });
     private adjustBack(date: DateTime): string {
-        const offset = date.isInDST ? 1 : 0;
-        return date.toUTC().plus({ hour: offset }).toISO() as string;
+        return date.toUTC().toISO() as string;
     }
     private weeksOverlap = (w1d1: string, w1d2: string, w2d1: string, w2d2: string) =>
         DateTime.fromISO(w1d1).weekNumber <= DateTime.fromISO(w2d1).weekNumber &&

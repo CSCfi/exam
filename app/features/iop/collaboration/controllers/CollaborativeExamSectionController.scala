@@ -14,7 +14,6 @@ import models.questions.Question
 import models.questions.QuestionType
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.{Role, User}
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc.*
@@ -25,6 +24,7 @@ import services.exam.{ExamUpdater, SectionQuestionHandler}
 import services.json.JsonDeserializer
 import system.AuditedAction
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -235,7 +235,7 @@ class CollaborativeExamSectionController @Inject() (
 
                   // Insert a new section question
                   esq.creator = user
-                  esq.created = DateTime.now()
+                  esq.created = Instant.now()
                   updateExamQuestion(esq, question)
                   esq.options.asScala.foreach(o =>
                     o.id = CollaborativeExamProcessingService.newId()

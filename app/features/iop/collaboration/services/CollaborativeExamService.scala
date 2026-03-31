@@ -8,9 +8,9 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.exam.ExamState
 import models.iop.CollaborativeExam
-import org.joda.time.DateTime
 import security.BlockingIOExecutionContext
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 
@@ -77,7 +77,7 @@ class CollaborativeExamService @Inject() (
       val ce = new CollaborativeExam()
       ce.externalRef = externalRef
       ce.revision = revision
-      ce.created = DateTime.now()
+      ce.created = Instant.now()
       ce.anonymous = anonymous
       ce.state = ExamState.DRAFT
       ce.save()
@@ -131,7 +131,7 @@ class CollaborativeExamService @Inject() (
           val ce = new CollaborativeExam()
           ce.externalRef = ref
           ce.revision = rev
-          ce.created = DateTime.now()
+          ce.created = Instant.now()
           ce.anonymous = anonymous
           ce.save()
           ref -> ce

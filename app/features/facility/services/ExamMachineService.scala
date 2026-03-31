@@ -10,9 +10,9 @@ import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.Reservation
 import models.facility.{ExamMachine, ExamRoom, Software}
-import org.joda.time.DateTime
 import play.api.libs.json.JsValue
 
+import java.time.Instant
 import javax.inject.Inject
 
 class ExamMachineService @Inject() () extends EbeanQueryExtensions:
@@ -32,7 +32,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
     DB.find(classOf[Reservation])
       .where()
       .eq("machine.id", id)
-      .gt("endAt", DateTime.now())
+      .gt("endAt", Instant.now())
       .list
 
   def updateExamMachine(

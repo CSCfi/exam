@@ -5,14 +5,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Address, Availability, MaintenancePeriod, WorkingHour } from 'src/app/facility/facility.model';
 import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-dialog.component';
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
-import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 
@@ -23,7 +21,6 @@ export class RoomService {
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
     private readonly dialogs = inject(ConfirmationDialogService);
-    private readonly DateTime = inject(DateTimeService);
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
     availabilityApi = (roomId: number, date: string) => `/app/availability/${roomId}/${date}`;
@@ -47,7 +44,7 @@ export class RoomService {
     getAvailability$ = (roomId: number, date: string) =>
         this.http.get<Availability[]>(this.availabilityApi(roomId, date));
 
-    updateExamStartingHours$ = (data: { hours: string[]; offset: number; roomIds: number[] }) =>
+    updateExamStartingHours$ = (data: { hours: string[]; roomIds: number[] }) =>
         this.http.put('/app/startinghours', data);
 
     updateExceptions$ = (roomIds: number[], exceptions: ExceptionWorkingHours[]) =>
@@ -106,9 +103,9 @@ export class RoomService {
             }),
         );
 
-    updateStartingHours$ = (hours: WorkingHour[], offset: number, roomIds: number[]) => {
-        const selected = hours.filter((hour) => hour.selected).map((hour) => this.formatTime(hour.startingHour));
-        const data = { hours: selected, offset, roomIds };
+    updateStartingHours$ = (hours: WorkingHour[], roomIds: number[]) => {
+        const selected = hours.filter((hour) => hour.selected).map((hour) => hour.startingHour);
+        const data = { hours: selected, roomIds };
 
         return this.updateExamStartingHours$(data).pipe(
             tap({
@@ -131,12 +128,4 @@ export class RoomService {
 
     private removeException$ = (roomId: number, exceptionId: number) =>
         this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as 'json' });
-
-    private formatTime = (time: string) => {
-        const hours = this.DateTime.isDST(new Date()) ? 1 : 0;
-        const [hourStr, minuteStr] = time.split(':');
-        return DateTime.now()
-            .set({ hour: parseInt(hourStr) + hours, minute: parseInt(minuteStr) })
-            .toFormat('dd.MM.yyyy HH:mmZZZ');
-    };
 }

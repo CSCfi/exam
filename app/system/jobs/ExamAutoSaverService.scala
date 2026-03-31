@@ -10,13 +10,12 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.ExamState
-import org.joda.time.DateTime
 import play.api.Logging
 import services.config.ConfigReader
-import services.datetime.DateTimeHandler
 import services.mail.EmailComposer
 
 import java.io.IOException
+import java.time.{Duration, Instant}
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
@@ -24,37 +23,29 @@ import scala.util.control.Exception.catching
 
 class ExamAutoSaverService @Inject() (
     private val composer: EmailComposer,
-    private val configReader: ConfigReader,
-    private val dateTimeHandler: DateTimeHandler
+    private val configReader: ConfigReader
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:
-
-  private def getNow(participation: ExamParticipation) =
-    if Option(participation.examinationEvent).nonEmpty then DateTime.now
-    else
-      val reservation = participation.reservation
-      dateTimeHandler.adjustDST(DateTime.now, reservation.machine.room)
 
   private def markEnded(participants: List[ExamParticipation]): Unit =
     participants.foreach(participation =>
       val exam        = participation.exam
       val reservation = participation.reservation
       val event       = participation.examinationEvent
-      val reservationStart = new DateTime(
-        if Option(reservation).isEmpty then event.start
-        else reservation.startAt
-      )
-      val participationTimeLimit = reservationStart.plusMinutes(exam.duration)
-      val now                    = getNow(participation)
-      if participationTimeLimit.isBefore(now) then
-        participation.ended = now
+      val reservationStart =
+        if Option(reservation).isEmpty then event.start else reservation.startAt
+      val participationTimeLimit = reservationStart.plus(Duration.ofMinutes(exam.duration.toLong))
+      if participationTimeLimit.isBefore(Instant.now()) then
+        participation.ended = Instant.now()
         participation.duration =
-          new DateTime(participation.ended.getMillis - participation.started.getMillis)
+          Instant.ofEpochMilli(
+            participation.ended.toEpochMilli - participation.started.toEpochMilli
+          )
 
         val settings     = configReader.getOrCreateSettings("review_deadline", None, Some("14"))
         val deadlineDays = settings.value.toInt
-        val deadline     = new DateTime(participation.ended).plusDays(deadlineDays)
+        val deadline     = participation.ended.plus(Duration.ofDays(deadlineDays))
         participation.deadline = deadline
         participation.save()
         logger.info(s"Setting exam ${exam.id} state to REVIEW")
@@ -111,12 +102,11 @@ class ExamAutoSaverService @Inject() (
             case Right(content) => Some((enrolment, content))
         )
         .foreach((enrolment, content) =>
-          val (exam, reservation)    = (enrolment.externalExam, enrolment.reservation)
-          val reservationStart       = new DateTime(reservation.startAt)
-          val participationTimeLimit = reservationStart.plusMinutes(content.duration)
-          val now = dateTimeHandler.adjustDST(DateTime.now, reservation.machine.room)
-          if participationTimeLimit.isBefore(now) then
-            exam.finished = now
+          val (exam, reservation) = (enrolment.externalExam, enrolment.reservation)
+          val participationTimeLimit =
+            reservation.startAt.plus(Duration.ofMinutes(content.duration.toLong))
+          if participationTimeLimit.isBefore(Instant.now()) then
+            exam.finished = Instant.now()
             content.state = ExamState.REVIEW
             catching(classOf[IOException]).either(exam.serialize(content)) match
               case Left(e)  => logger.error("failed to parse content out of an external exam", e)

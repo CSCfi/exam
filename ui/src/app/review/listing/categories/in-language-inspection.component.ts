@@ -11,7 +11,6 @@ import type { Exam } from 'src/app/exam/exam.model';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import type { Review } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
@@ -29,7 +28,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         SlicePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         PageFillPipe,
         DiffInDaysPipe,
         OrderByPipe,

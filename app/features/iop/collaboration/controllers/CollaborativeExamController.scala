@@ -11,7 +11,6 @@ import models.exam.*
 import models.exam.GradeType
 import models.sections.ExamSection
 import models.user.{Language, Role, User}
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.data.validation.{Constraints, Invalid}
 import play.api.libs.json.*
@@ -26,6 +25,7 @@ import services.mail.EmailComposer
 import system.AuditedAction
 import validation.exam.ExamValidator
 
+import java.time.{Duration, LocalDate, ZoneOffset}
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -81,9 +81,9 @@ class CollaborativeExamController @Inject() (
     exam.implementation = ExamImplementation.AQUARIUM
     exam.gradeScale = DB.find(classOf[GradeScale]).list.head
 
-    val start = DateTime.now().withTimeAtStartOfDay()
+    val start = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant
     exam.periodStart = start
-    exam.periodEnd = start.plusDays(1)
+    exam.periodEnd = start.plus(Duration.ofDays(1))
     exam.duration = configReader.getExamDurations.head
 
     exam.trialCount = 1

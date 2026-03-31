@@ -40,8 +40,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <strong>{{ 'i18n_time_of_exam_participation' | translate }}:</strong>
             </div>
             <div class="col-md-4">
-                {{ participation()?.started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
-                {{ participation()?.ended | applyDst | date: 'dd.MM.yyyy HH:mm' }}
+                {{ participation()?.started | date: 'dd.MM.yyyy HH:mm' }} -
+                {{ participation()?.ended | date: 'dd.MM.yyyy HH:mm' }}
             </div>
             <div class="col-md-2">
                 <strong>{{ 'i18n_exam_duration' | translate }}:</strong>
@@ -87,7 +87,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         @for (participation of previousParticipations(); track participation) {
             <div class="row">
-                <div class="col-md-2">{{ participation.started | applyDst | date: 'dd.MM.yyyy' }}</div>
+                <div class="col-md-2">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
                 <div class="col-md-4">
                     <strong>{{ 'i18n_exam_state' | translate }}:</strong>&nbsp;&nbsp;&nbsp;
                     {{ translateState(participation) | lowercase | translate }}

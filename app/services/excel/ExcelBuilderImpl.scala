@@ -16,13 +16,14 @@ import models.user.User
 import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.streaming.{SXSSFSheet, SXSSFWorkbook}
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import play.api.Logging
 import play.i18n.{Lang, MessagesApi}
 import services.config.ConfigReader
 
 import java.io.OutputStream
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.Semaphore
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
@@ -357,12 +358,12 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       "Course credits"   -> exam.course.credits.toString,
       "Course unit type" -> forceNotNull(exam.course.courseUnitType),
       "Course level"     -> forceNotNull(exam.course.level),
-      "Created"          -> ISODateTimeFormat.date().print(new DateTime(exam.created)),
-      "Begins"           -> ISODateTimeFormat.date().print(new DateTime(exam.periodStart)),
-      "Ends"             -> ISODateTimeFormat.date().print(new DateTime(exam.periodEnd)),
-      "Duration"         -> Option(exam.duration).map(_.toString).getOrElse("N/A"),
-      "Grade scale"      -> Option(exam.gradeScale).map(_.description).getOrElse("N/A"),
-      "State"            -> exam.state.toString,
+      "Created" -> DateTimeFormatter.ISO_LOCAL_DATE.format((exam.created).atZone(ZoneOffset.UTC)),
+      "Begins"  -> DateTimeFormatter.ISO_LOCAL_DATE.format(exam.periodStart.atZone(ZoneOffset.UTC)),
+      "Ends"    -> DateTimeFormatter.ISO_LOCAL_DATE.format(exam.periodEnd.atZone(ZoneOffset.UTC)),
+      "Duration"    -> Option(exam.duration).map(_.toString).getOrElse("N/A"),
+      "Grade scale" -> Option(exam.gradeScale).map(_.description).getOrElse("N/A"),
+      "State"       -> exam.state.toString,
       "Attachment" -> Option(exam.attachment).map(a => s"${a.filePath}${a.fileName}").getOrElse(""),
       "Instructions" -> forceNotNull(exam.instruction),
       "Shared"       -> exam.shared.toString
@@ -406,11 +407,11 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
         sheet,
         Array(
           parent.name,
-          ISODateTimeFormat.date().print(new DateTime(parent.created)),
+          DateTimeFormatter.ISO_LOCAL_DATE.format((parent.created).atZone(ZoneOffset.UTC)),
           parent.state.toString,
           parent.course.code,
-          s"${ISODateTimeFormat.date().print(new DateTime(parent.periodStart))} - " +
-            ISODateTimeFormat.date().print(new DateTime(parent.periodEnd)),
+          s"${DateTimeFormatter.ISO_LOCAL_DATE.format((parent.periodStart).atZone(ZoneOffset.UTC))} - " +
+            DateTimeFormatter.ISO_LOCAL_DATE.format((parent.periodEnd).atZone(ZoneOffset.UTC)),
           Option(parent.course.credits).map(_.toString).getOrElse(""),
           parent.examType.`type`,
           inReview.toString,
@@ -437,9 +438,15 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
           forceNotNull(e.user.identifier),
           e.user.eppn,
           Option(e.reservation)
-            .map(r => ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(r.startAt)))
+            .map(r =>
+              DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+                r.startAt.atZone(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS)
+              )
+            )
             .getOrElse(""),
-          ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.enrolledOn))
+          DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+            e.enrolledOn.atZone(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS)
+          )
         ),
         idx + 1
       )
@@ -471,8 +478,12 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
           s"${e.creator.firstName} ${e.creator.lastName}",
           e.name,
           e.course.code,
-          ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.created)),
-          ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.gradedTime)),
+          DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+            (e.created).atZone(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS)
+          ),
+          DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+            e.gradedTime.atZone(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS)
+          ),
           safeParse(() => s"${e.gradedByUser.firstName} ${e.gradedByUser.lastName}"),
           Option(e.course.credits).map(_.toString).getOrElse(""),
           safeParse(() => e.grade.name),
@@ -511,15 +522,17 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
         sheet,
         Array(
           e.id.toString,
-          ISODateTimeFormat.date().print(new DateTime(e.enrolledOn)),
+          DateTimeFormatter.ISO_LOCAL_DATE.format(e.enrolledOn.atZone(ZoneOffset.UTC)),
           e.user.id.toString,
           e.user.firstName,
           e.user.lastName,
           e.exam.id.toString,
           e.exam.name,
           e.reservation.id.toString,
-          ISODateTimeFormat.dateTime().print(new DateTime(e.reservation.startAt)),
-          ISODateTimeFormat.dateTime().print(new DateTime(e.reservation.endAt)),
+          DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+            e.reservation.startAt.atZone(ZoneOffset.UTC)
+          ),
+          DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(e.reservation.endAt.atZone(ZoneOffset.UTC)),
           e.reservation.machine.id.toString,
           e.reservation.machine.name,
           e.reservation.machine.ipAddress,
@@ -597,9 +610,9 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
         Option(p.exam.gradedByUser).map(_.lastName).getOrElse(""),
         Option(p.exam.gradedByUser).map(_.email).getOrElse(""),
         p.reservation.id.toString,
-        ISODateTimeFormat.dateTime().print(new DateTime(p.started)),
-        ISODateTimeFormat.dateTime().print(new DateTime(p.ended)),
-        ISODateTimeFormat.time().print(new DateTime(p.duration)),
+        DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(p.started.atZone(ZoneOffset.UTC)),
+        DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(p.ended.atZone(ZoneOffset.UTC)),
+        DateTimeFormatter.ISO_OFFSET_TIME.format(p.duration.atZone(ZoneOffset.UTC)),
         Option(p.reservation.machine).map(_.room.id.toString).getOrElse("external"),
         Option(p.reservation.machine).map(_.room.name)
           .getOrElse(p.reservation.externalReservation.roomName),
@@ -620,7 +633,9 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
           .getOrElse(p.exam.course.gradeScale.description),
         Option(p.exam.grade).map(_.name).getOrElse(""),
         Option(p.exam.gradedTime)
-          .map(t => ISODateTimeFormat.dateTime().print(new DateTime(t))).getOrElse(""),
+          .map(t =>
+            DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(t.atZone(ZoneOffset.UTC))
+          ).getOrElse(""),
         Option(p.exam.creditType).map(_.`type`).getOrElse("")
       )
       addSheetRow(sheet, data.toArray, idx + 1)

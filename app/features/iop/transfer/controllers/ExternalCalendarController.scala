@@ -12,8 +12,6 @@ import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.ExamState
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.Role
-import org.joda.time.*
-import org.joda.time.format.ISODateTimeFormat
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.libs.ws.{JsonBodyWritables, WSClient}
@@ -21,12 +19,17 @@ import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
 import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
-import services.datetime.{AppClock, CalendarHandler, DateTimeHandler}
+import services.datetime.Interval
+import services.datetime.IntervalExtensions.*
+import services.datetime.{AppClock, CalendarHandler, TimeUtils}
 import services.mail.EmailComposer
 import system.AuditedAction
 import validation.calendar.ExternalCalendarReservationValidator
 
 import java.net.{MalformedURLException, URI, URL}
+import java.time.*
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -39,7 +42,6 @@ class ExternalCalendarController @Inject() (
     calendarHandler: CalendarHandler,
     emailComposer: EmailComposer,
     configReader: ConfigReader,
-    dateTimeHandler: DateTimeHandler,
     externalReservationHandler: ExternalReservationHandlerService,
     clock: AppClock,
     val controllerComponents: ControllerComponents,
@@ -87,13 +89,14 @@ class ExternalCalendarController @Inject() (
       val body           = request.body
       val reservationRef = (body \ "id").as[String]
       val roomRef        = (body \ "roomId").as[String]
-      val start    = ISODateTimeFormat.dateTimeParser().parseDateTime((body \ "start").as[String])
-      val end      = ISODateTimeFormat.dateTimeParser().parseDateTime((body \ "end").as[String])
-      val userEppn = (body \ "user").as[String]
-      val orgRef   = (body \ "orgRef").as[String]
-      val orgName  = (body \ "orgName").as[String]
+      val start          = TimeUtils.parseInstant((body \ "start").as[String])
+      val end            = TimeUtils.parseInstant((body \ "end").as[String])
+      val userEppn       = (body \ "user").as[String]
+      val orgRef         = (body \ "orgRef").as[String]
+      val orgName        = (body \ "orgName").as[String]
 
-      if start.isBefore(clock.now()) || end.isBefore(start) then BadRequest("invalid dates")
+      if start.isBefore(clock.now()) || end.isBefore(start) then
+        BadRequest("invalid dates")
       else
         DB.find(classOf[ExamRoom]).where().eq("externalRef", roomRef).find match
           case None => NotFound("room not found")
@@ -126,7 +129,7 @@ class ExternalCalendarController @Inject() (
       .find match
       case None => NotFound("reservation not found")
       case Some(reservation) =>
-        val now = dateTimeHandler.adjustDST(clock.now(), reservation)
+        val now = clock.now()
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Forbidden("i18n_reservation_in_effect")
         else
@@ -149,7 +152,7 @@ class ExternalCalendarController @Inject() (
       case None => NotFound(f"No reservation with ref $ref.")
       case Some(enrolment) =>
         val reservation = enrolment.reservation
-        val now         = dateTimeHandler.adjustDST(clock.now(), reservation)
+        val now         = clock.now()
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Forbidden("i18n_reservation_in_effect")
         else
@@ -188,14 +191,9 @@ class ExternalCalendarController @Inject() (
                     val periods = DB
                       .find(classOf[MaintenancePeriod])
                       .where()
-                      .gt("endsAt", searchDate.toDate)
+                      .gt("endsAt", searchDate.atStartOfDay(ZoneOffset.UTC).toInstant)
                       .list
-                      .map(p =>
-                        new Interval(
-                          calendarHandler.normalizeMaintenanceTime(p.startsAt),
-                          calendarHandler.normalizeMaintenanceTime(p.endsAt)
-                        )
-                      )
+                      .map(p => p.startsAt to p.endsAt)
 
                     val endOfSearch = getEndSearchDate(e, searchDate)
 
@@ -240,7 +238,6 @@ class ExternalCalendarController @Inject() (
         val examId     = dto.examId
         val sectionIds = dto.sectionIds
 
-        val now = dateTimeHandler.adjustDST(clock.now())
         val enrolmentOpt =
           DB.find(classOf[ExamEnrolment])
             .fetch("reservation")
@@ -252,7 +249,7 @@ class ExternalCalendarController @Inject() (
             .eq("exam.state", ExamState.PUBLISHED)
             .disjunction()
             .isNull("reservation")
-            .gt("reservation.startAt", now.toDate)
+            .gt("reservation.startAt", clock.now())
             .endJunction()
             .find
 
@@ -275,8 +272,8 @@ class ExternalCalendarController @Inject() (
                     val homeOrgRef = configReader.getHomeOrganisationRef
                     val body = Json.obj(
                       "requestingOrg"    -> homeOrgRef,
-                      "start"            -> ISODateTimeFormat.dateTime().print(start),
-                      "end"              -> ISODateTimeFormat.dateTime().print(end),
+                      "start"            -> DateTimeFormatter.ISO_INSTANT.format(start),
+                      "end"              -> DateTimeFormatter.ISO_INSTANT.format(end),
                       "user"             -> user.eppn,
                       "optionalSections" -> Json.toJson(sectionIdsSeq)
                     )
@@ -332,7 +329,7 @@ class ExternalCalendarController @Inject() (
       reservationOpt match
         case None => Future.successful(NotFound(f"No reservation with ref $ref."))
         case Some(reservation) =>
-          val now = dateTimeHandler.adjustDST(clock.now(), reservation)
+          val now = clock.now()
           if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
             Future.successful(Forbidden("i18n_reservation_in_effect"))
           else
@@ -389,9 +386,8 @@ class ExternalCalendarController @Inject() (
                 case None => Future.successful(NotFound("Invalid search date"))
                 case _    =>
                   // Ready to shoot
-                  val start =
-                    ISODateTimeFormat.dateTime().print(new DateTime(exam.periodStart))
-                  val end      = ISODateTimeFormat.dateTime().print(new DateTime(exam.periodEnd))
+                  val start    = DateTimeFormatter.ISO_INSTANT.format(exam.periodStart)
+                  val end      = DateTimeFormatter.ISO_INSTANT.format(exam.periodEnd)
                   val duration = exam.duration
                   Try(parseUrl(orgRef, roomRef, d, start, end, duration)).fold(
                     {
@@ -449,39 +445,31 @@ class ExternalCalendarController @Inject() (
       room: ExamRoom
   ): Option[LocalDate] =
     val windowSize = calendarHandler.getReservationWindowSize
-    val zone = Option(room)
-      .map(r => DateTimeZone.forID(r.localTimezone))
-      .getOrElse(configReader.getDefaultTimeZone)
+    val zoneId = Option(room)
+      .map(r => TimeUtils.zoneIdOf(r.localTimezone))
+      .getOrElse(ZoneId.of(configReader.getDefaultTimeZone.getId))
 
-    val now                   = clock.now().withZone(zone).toLocalDate
+    val now                   = clock.now().atZone(zoneId).toLocalDate
     val reservationWindowDate = now.plusDays(windowSize)
-    val examEndDate = DateTime
-      .parse(endDate, ISODateTimeFormat.dateTimeParser())
-      .withZone(zone)
-      .toLocalDate
+    val examEndDate           = TimeUtils.parseInstant(endDate).atZone(zoneId).toLocalDate
     val searchEndDate =
       if reservationWindowDate.isBefore(examEndDate) then reservationWindowDate else examEndDate
 
-    val examStartDate = DateTime
-      .parse(startDate, ISODateTimeFormat.dateTimeParser())
-      .withZone(zone)
-      .toLocalDate
+    val examStartDate = TimeUtils.parseInstant(startDate).atZone(zoneId).toLocalDate
 
     val initialDate =
-      if day.isEmpty then now else LocalDate.parse(day, ISODateTimeFormat.dateParser())
-    val weekStart = initialDate.withDayOfWeek(1)
+      if day.isEmpty then now else LocalDate.parse(day)
+    val weekStart = initialDate.`with`(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     val afterNow  = if weekStart.isBefore(now) then now else weekStart
 
-    // if searching for month(s) after exam's end month -> no can do
-    if afterNow.isAfter(searchEndDate) then
-      None
+    if afterNow.isAfter(searchEndDate) then None
     else
       // Do not execute search before exam starts
       val searchDate = if afterNow.isBefore(examStartDate) then examStartDate else afterNow
       Some(searchDate)
 
   private def getEndSearchDate(endDate: String, searchDate: LocalDate): LocalDate =
-    val examEnd = LocalDate.parse(endDate, ISODateTimeFormat.dateTimeParser())
+    val examEnd = TimeUtils.parseInstant(endDate).atZone(ZoneOffset.UTC).toLocalDate
     calendarHandler.getEndSearchDate(searchDate, examEnd)
 
   private def isReservedDuring(machine: ExamMachine, interval: Interval): Boolean =

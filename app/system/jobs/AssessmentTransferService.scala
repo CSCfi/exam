@@ -12,7 +12,6 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.ExamEnrolment
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsonParserSettings
 import play.api.libs.json.jackson.PlayJsonMapperModule
@@ -22,6 +21,7 @@ import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import java.net.URI
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.duration.*
 
@@ -59,7 +59,7 @@ class AssessmentTransferService @Inject() (
           .map(resp =>
             resp.status match
               case Http.Status.CREATED =>
-                ee.sent = DateTime.now
+                ee.sent = Instant.now()
                 ee.update()
                 logger.info(s"Assessment transfer for reservation $ref processed successfully")
               case _ =>

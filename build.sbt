@@ -32,7 +32,6 @@ libraryDependencies ++= Seq(
   "org.cryptonode.jncryptor" % "jncryptor"          % "1.2.0",
   "org.typelevel"           %% "cats-core"          % "2.13.0",
   "org.typelevel"           %% "cats-effect"        % "3.7.0",
-  "joda-time"                % "joda-time"          % "2.14.1",
   "org.jsoup"                % "jsoup"              % "1.22.1",
   "org.postgresql"           % "postgresql"         % "42.7.10",
   "com.icegreen"             % "greenmail"          % "2.1.8"  % Test,
@@ -40,7 +39,7 @@ libraryDependencies ++= Seq(
   "org.eclipse.jetty"        % "jetty-server"       % "12.1.7" % Test,
   "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet" % "12.1.7" % Test,
   "org.yaml"                 % "snakeyaml"          % "2.6"    % Test,
-  "org.scalatest"           %% "scalatest"          % "3.2.19" % Test,
+  "org.scalatest"           %% "scalatest"          % "3.2.20" % Test,
   "org.scalatestplus.play"  %% "scalatestplus-play" % "7.0.2"  % Test
 )
 

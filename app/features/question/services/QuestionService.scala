@@ -21,6 +21,7 @@ import services.exam.{OptionUpdateOptions, SectionQuestionHandler}
 import services.xml.{MoodleXmlExporter, MoodleXmlImporter}
 import validation.core.SanitizingHelper
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Try}
@@ -416,7 +417,7 @@ class QuestionService @Inject() (
         // Not allowed to remove if used in active exams
         if question.examSectionQuestions.asScala.exists { esq =>
             val exam = esq.examSection.exam
-            exam.state == ExamState.PUBLISHED && exam.periodEnd.isAfterNow
+            exam.state == ExamState.PUBLISHED && exam.periodEnd.isAfter(Instant.now())
           }
         then Left(QuestionInUse)
         else

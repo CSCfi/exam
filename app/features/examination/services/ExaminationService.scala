@@ -15,7 +15,6 @@ import models.iop.CollaborativeExam
 import models.questions.{ClozeTestAnswer, EssayAnswer}
 import models.sections.ExamSectionQuestion
 import models.user.User
-import org.joda.time.DateTime
 import play.api.{Environment, Logging, Mode}
 import repository.ExaminationRepository
 import security.BlockingIOExecutionContext
@@ -25,6 +24,7 @@ import services.exam.AutoEvaluationHandler
 import services.mail.EmailComposer
 import validation.answer.{ClozeTestAnswerDTO, EssayAnswerDTO}
 
+import java.time.{Duration, Instant}
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
@@ -123,7 +123,7 @@ class ExaminationService @Inject() (
               Some("14")
             )
             val deadlineDays = Integer.parseInt(settings.value)
-            val deadline     = ep.ended.plusDays(deadlineDays)
+            val deadline     = ep.ended.plus(Duration.ofDays(deadlineDays))
             ep.deadline = deadline
             ep.save()
             exam.state = ExamState.REVIEW
@@ -313,7 +313,7 @@ class ExaminationService @Inject() (
 
   private def setDurations(ep: ExamParticipation): Unit =
     ep.ended = clock.now()
-    ep.duration = new DateTime(ep.ended.getMillis - ep.started.getMillis)
+    ep.duration = Instant.ofEpochMilli(ep.ended.toEpochMilli - ep.started.toEpochMilli)
 
   private def validateEnrolment(
       hash: String,

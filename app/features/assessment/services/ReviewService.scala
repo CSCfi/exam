@@ -16,12 +16,12 @@ import models.questions.QuestionType
 import models.questions.{ClozeTestAnswer, EssayAnswer}
 import models.sections.ExamSectionQuestion
 import models.user.{PermissionType, Role, User}
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.libs.json.*
 import services.mail.EmailComposer
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
@@ -173,11 +173,11 @@ class ReviewService @Inject() (
       val ep = e.examParticipation
       Json.obj(
         "id"            -> ep.id.longValue,
-        "started"       -> Option(ep.started).map(_.getMillis),
-        "ended"         -> Option(ep.ended).map(_.getMillis),
-        "duration"      -> Option(ep.duration).map(_.getMillis),
-        "deadline"      -> Option(ep.deadline).map(_.getMillis),
-        "sentForReview" -> Option(ep.sentForReview).map(_.getMillis),
+        "started"       -> Option(ep.started).map(_.toEpochMilli),
+        "ended"         -> Option(ep.ended).map(_.toEpochMilli),
+        "duration"      -> Option(ep.duration).map(_.toEpochMilli),
+        "deadline"      -> Option(ep.deadline).map(_.toEpochMilli),
+        "sentForReview" -> Option(ep.sentForReview).map(_.toEpochMilli),
         "user"          -> Option(ep.user).map(_.asJson),
         "exam"          -> e.asJson
       )
@@ -517,7 +517,7 @@ class ReviewService @Inject() (
     // set grading info only if the exam is really graded, not just modified
     if exam.hasState(ExamState.GRADED, ExamState.GRADED_LOGGED, ExamState.REJECTED) then
       if !stateOnly then
-        exam.gradedTime = DateTime.now()
+        exam.gradedTime = Instant.now()
         exam.gradedByUser = user
       if exam.hasState(ExamState.REJECTED) then
         // inform student

@@ -23,9 +23,6 @@ class ExceptionWorkingHours extends GeneratedIdentityModel:
   var endDate: Date = uninitialized
 
   var outOfService: Boolean = false
-  // TODO: Remove these and use room.localTimezone instead. Alos make startDate and endDate be DateTimee.
-  var startDateTimezoneOffset: Int = 0
-  var endDateTimezoneOffset: Int   = 0
 
   @ManyToOne
   @JsonBackReference

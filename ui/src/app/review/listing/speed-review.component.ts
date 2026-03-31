@@ -21,7 +21,6 @@ import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
@@ -48,7 +47,6 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
         SlicePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         PageFillPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,

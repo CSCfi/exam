@@ -4,14 +4,17 @@
 
 package validation.exam
 
-import org.joda.time.LocalDate
-import org.joda.time.format.DateTimeFormat
 import play.api.libs.json.JsValue
 import play.api.mvc.{Request, Result, Results}
 import validation.core.{PlayJsonValidator, ScalaAttrs}
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
 /** Validates and extracts examination date from request */
 object ExaminationDateValidator extends PlayJsonValidator:
+
+  private val dateFormat = DateTimeFormatter.ofPattern("dd/MM/yy")
 
   override def sanitize(
       request: Request[play.api.mvc.AnyContent],
@@ -20,7 +23,7 @@ object ExaminationDateValidator extends PlayJsonValidator:
     (json \ "date").asOpt[String] match
       case Some(dateStr) =>
         try
-          val date = LocalDate.parse(dateStr, DateTimeFormat.forPattern("dd/MM/yy"))
+          val date = LocalDate.parse(dateStr, dateFormat)
           Right(request.addAttr(ScalaAttrs.DATE, date))
         catch
           case _: IllegalArgumentException =>

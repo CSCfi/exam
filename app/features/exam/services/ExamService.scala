@@ -13,7 +13,6 @@ import models.exam.GradeType
 import models.facility.{ExamMachine, Software}
 import models.sections.ExamSection
 import models.user.*
-import org.joda.time.{DateTime, LocalDate}
 import play.api.Logging
 import play.api.libs.json.JsValue
 import security.BlockingIOExecutionContext
@@ -22,6 +21,7 @@ import services.exam.ExamUpdater
 import services.user.UserHandler
 import validation.exam.ExamValidator
 
+import java.time.*
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
@@ -362,9 +362,9 @@ class ExamService @Inject() (
                   copy.course = null
                   copy.examFeedbackConfig = null
                   copy.subjectToLanguageInspection = null
-                  val now = DateTime.now().withTimeAtStartOfDay()
+                  val now = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant
                   copy.periodStart = now
-                  copy.periodEnd = now.plusDays(1)
+                  copy.periodEnd = now.plus(Duration.ofDays(1))
                   // Force anonymous review if globally enabled for public examinations
                   if !copy.isPrivate then copy.anonymous = false
                   else if configReader.isAnonymousReviewEnabled then copy.anonymous = true
@@ -411,10 +411,10 @@ class ExamService @Inject() (
               exam.examLanguages.add(DB.find(classOf[Language], "fi")) // TODO: configurable?
               exam.examType = DB.find(classOf[ExamType], 2)            // Final
 
-              val start = DateTime.now().withTimeAtStartOfDay()
+              val start = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant
               if !exam.isPrintout then
                 exam.periodStart = start
-                exam.periodEnd = start.plusDays(1)
+                exam.periodEnd = start.plus(Duration.ofDays(1))
               exam.duration = configReader.getExamDurations.head
               if configReader.isCourseGradeScaleOverridable then
                 exam.gradeScale = DB.find(classOf[GradeScale]).list.head
@@ -440,8 +440,8 @@ class ExamService @Inject() (
             case Some(course) =>
               Option(course.startDate) match
                 case Some(startDate) =>
-                  val validity = configReader.getCourseValidityDate(new DateTime(startDate))
-                  if validity.isAfterNow then Left(ExamError.CourseNotActive)
+                  val validity = configReader.getCourseValidityDate(startDate.toInstant)
+                  if validity.isAfter(Instant.now()) then Left(ExamError.CourseNotActive)
                   else
                     Option(course.endDate) match
                       case Some(endDate) if endDate.before(new java.util.Date()) =>

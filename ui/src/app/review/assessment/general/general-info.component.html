@@ -24,8 +24,8 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-2">{{ 'i18n_exam_reservation' | translate }}:</div>
     @if (!participation().examinationEvent) {
         <div class="col-md-4">
-            {{ participation().started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
-            {{ participation().ended | applyDst | date: 'HH:mm' }}
+            {{ participation().started | date: 'dd.MM.yyyy HH:mm' }} -
+            {{ participation().ended | date: 'HH:mm' }}
         </div>
     }
     @if (participation().examinationEvent) {

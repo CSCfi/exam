@@ -5,11 +5,13 @@
 package services.datetime
 
 import models.calendar.ExceptionWorkingHours
-import models.enrolment.{ExternalReservation, Reservation}
 import models.facility.ExamRoom
-import org.joda.time.*
 import services.config.ConfigReader
+import services.datetime.Interval
+import services.datetime.IntervalExtensions.*
 
+import java.time.*
+import java.time.format.TextStyle
 import java.util.Locale
 import javax.inject.Inject
 import scala.annotation.tailrec
@@ -18,24 +20,20 @@ import scala.jdk.CollectionConverters.*
 import DateTimeHandler.{OpeningHours, RestrictionType}
 
 class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTimeHandler:
-  import org.joda.time.DateTimeConstants.MILLIS_PER_DAY
 
   override def findGaps(reserved: List[Interval], searchInterval: Interval): List[Interval] =
-    val (searchStart, searchEnd) = (searchInterval.getStart, searchInterval.getEnd)
+    val (searchStart, searchEnd) = (searchInterval.start, searchInterval.end)
 
     if hasNoOverlap(reserved, searchStart, searchEnd) then List(searchInterval)
     else
       val subReservedList  = removeNonOverlappingIntervals(reserved, searchInterval)
-      val subEarliestStart = subReservedList.head.getStart
-      val subLatestEnd     = subReservedList.last.getEnd
+      val subEarliestStart = subReservedList.head.start
+      val subLatestEnd     = subReservedList.last.end
 
-      val startGap = Option.when(searchStart.isBefore(subEarliestStart))(
-        new Interval(searchStart, subEarliestStart)
-      )
+      val startGap =
+        Option.when(searchStart.isBefore(subEarliestStart))(searchStart to subEarliestStart)
       val middleGaps = getExistingIntervalGaps(subReservedList)
-      val endGap = Option.when(searchEnd.isAfter(subLatestEnd))(
-        new Interval(subLatestEnd, searchEnd)
-      )
+      val endGap     = Option.when(searchEnd.isAfter(subLatestEnd))(subLatestEnd to searchEnd)
 
       startGap.toList ++ middleGaps ++ endGap.toList
 
@@ -43,8 +41,9 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
     reserved
       .sliding(2)
       .flatMap {
-        case List(current, next) => Option(current.gap(next))
-        case _                   => None
+        case List(current, next) =>
+          Option.when(current.end.isBefore(next.start))(current.end to next.start)
+        case _ => None
       }
       .toList
 
@@ -56,19 +55,22 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
 
   private def hasNoOverlap(
       reserved: List[Interval],
-      searchStart: DateTime,
-      searchEnd: DateTime
+      searchStart: Instant,
+      searchEnd: Instant
   ): Boolean =
-    val earliestStart = reserved.head.getStart
-    val latestStop    = reserved.last.getEnd
+    val earliestStart = reserved.head.start
+    val latestStop    = reserved.last.end
     !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop)
 
   override def getExceptionEvents(
       hours: List[ExceptionWorkingHours],
       date: LocalDate,
-      restrictionType: RestrictionType
+      restrictionType: RestrictionType,
+      timezone: String
   ): List[Interval] =
-    val wholeDay = date.toInterval
+    val tz       = TimeUtils.zoneIdOf(timezone)
+    val midnight = date.atStartOfDay(tz).toInstant
+    val wholeDay = midnight to date.plusDays(1).atStartOfDay(tz).toInstant
 
     hours.foldLeft(List.empty[Interval]) { (exceptions, ewh) =>
       val isApplicable =
@@ -77,22 +79,22 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
 
       if !isApplicable then exceptions
       else
-        val start     = new DateTime(ewh.startDate).plusMillis(ewh.startDateTimezoneOffset)
-        val end       = new DateTime(ewh.endDate).plusMillis(ewh.endDateTimezoneOffset)
-        val exception = new Interval(start, end)
+        val startZdt     = ewh.startDate.toInstant.atZone(tz)
+        val endZdt       = ewh.endDate.toInstant.atZone(tz)
+        val exceptionInt = startZdt.toInstant to endZdt.toInstant
 
-        // Exception covers this day fully - just reset to the whole day
-        if exception.contains(wholeDay) || exception.equals(wholeDay) then List(wholeDay)
-        else if exception.overlaps(wholeDay) then
+        if exceptionInt.contains(wholeDay) || exceptionInt == wholeDay then List(wholeDay)
+        else if exceptionInt.overlaps(wholeDay) then
+          val startLocal = startZdt.toLocalDate
+          val endLocal   = endZdt.toLocalDate
           val newException =
-            // Exception starts this day but ends on a later day
-            if start.toLocalDate.equals(date) && end.toLocalDate.isAfter(date) then
-              new Interval(exception.getStart, wholeDay.getEnd)
-            // Exception ends this day but starts on an earlier day
-            else if start.toLocalDate.isBefore(date) && end.toLocalDate.equals(date) then
-              new Interval(wholeDay.getStart, exception.getEnd)
-            // Exception starts and ends this day
-            else new Interval(exception.getStart.withDate(date), exception.getEnd.withDate(date))
+            if startLocal == date && endLocal.isAfter(date) then
+              exceptionInt.start to wholeDay.end
+            else if startLocal.isBefore(date) && endLocal == date then
+              wholeDay.start to exceptionInt.end
+            else
+              ZonedDateTime.of(date, startZdt.toLocalTime, tz).toInstant to
+                ZonedDateTime.of(date, endZdt.toLocalTime, tz).toInstant
 
           exceptions :+ newException
         else exceptions
@@ -103,14 +105,13 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
     else
       @tailrec
       def helper(slots: List[Interval]): List[Interval] =
-        val sorted = slots.sortBy(_.getStart.getMillis)
+        val sorted = slots.sortBy(_.start.toEpochMilli)
         val (merged, wasMerged) =
           sorted.tail.foldLeft((List(sorted.head), false)) { case ((acc, isMerged), current) =>
             acc.lastOption match
-              case Some(prev) if !current.getStart.isAfter(prev.getEnd) =>
-                val laterEnding =
-                  if prev.getEnd.isAfter(current.getEnd) then prev.getEnd else current.getEnd
-                val newInterval = new Interval(prev.getStart, laterEnding)
+              case Some(prev) if !current.start.isAfter(prev.end) =>
+                val laterEnding = if prev.end.isAfter(current.end) then prev.end else current.end
+                val newInterval = prev.start to laterEnding
                 (acc.init :+ newInterval, true)
               case _ =>
                 (acc :+ current, isMerged)
@@ -119,110 +120,44 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
 
       helper(intervals)
 
-  override def resolveStartWorkingHourMillis(startTime: DateTime, timeZoneOffset: Int): Int =
-    resolveMillisOfDay(startTime, timeZoneOffset)
-
-  override def resolveEndWorkingHourMillis(endTime: DateTime, timeZoneOffset: Int): Int =
-    val millis = resolveMillisOfDay(endTime, timeZoneOffset)
-    if millis == 0 then MILLIS_PER_DAY - 1 else millis
-
-  override def adjustDST(dateTime: DateTime): DateTime =
-    doAdjustDST(dateTime, None)
-
-  override def adjustDST(dateTime: DateTime, reservation: Reservation): DateTime =
-    Option(reservation.externalReservation) match
-      case Some(externalReservation) => adjustDST(dateTime, externalReservation)
-      case None => doAdjustDST(dateTime, Option(reservation.machine).map(_.room))
-
-  override def adjustDST(dateTime: DateTime, externalReservation: ExternalReservation): DateTime =
-    val dtz = DateTimeZone.forID(externalReservation.roomTz)
-    if !dtz.isStandardOffset(System.currentTimeMillis()) then dateTime.plusHours(1) else dateTime
-
-  override def adjustDST(dateTime: DateTime, room: ExamRoom): DateTime =
-    doAdjustDST(dateTime, Option(room))
-
-  private def doAdjustDST(dateTime: DateTime, roomOpt: Option[ExamRoom]): DateTime =
-    val dtz = roomOpt match
-      case Some(room) => DateTimeZone.forID(room.localTimezone)
-      case None       => configReader.getDefaultTimeZone
-
-    if !dtz.isStandardOffset(System.currentTimeMillis()) then dateTime.plusHours(1) else dateTime
-
-  override def normalize(dateTime: DateTime, reservation: Reservation): DateTime =
-    val dtz = Option(reservation.machine) match
-      case Some(machine) => DateTimeZone.forID(machine.room.localTimezone)
-      case None          => configReader.getDefaultTimeZone
-
-    if !dtz.isStandardOffset(dateTime.getMillis) then dateTime.minusHours(1) else dateTime
-
-  override def normalize(dateTime: DateTime, dtz: DateTimeZone): DateTime =
-    if !dtz.isStandardOffset(dateTime.getMillis) then dateTime.minusHours(1) else dateTime
-
   override def getDefaultWorkingHours(date: LocalDate, room: ExamRoom): List[OpeningHours] =
-    val day      = date.dayOfWeek().getAsText(Locale.ENGLISH)
-    val midnight = date.toDateTimeAtStartOfDay
+    val day = date.getDayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 
     room.defaultWorkingHours.asScala
       .filter(_.weekday.equalsIgnoreCase(day))
       .map { dwh =>
-        val start = midnight.withMillisOfDay(
-          resolveStartWorkingHourMillis(new DateTime(dwh.startTime), dwh.timezoneOffset)
+        val endTime =
+          if dwh.endTime == LocalTime.MIDNIGHT then LocalTime.of(23, 59, 59, 999_000_000)
+          else dwh.endTime
+        OpeningHours(
+          date.atTime(dwh.startTime).atZone(ZoneOffset.UTC).toInstant to
+            date.atTime(endTime).atZone(ZoneOffset.UTC).toInstant
         )
-        val end = midnight.withMillisOfDay(
-          resolveEndWorkingHourMillis(new DateTime(dwh.endTime), dwh.timezoneOffset)
-        )
-        OpeningHours(new Interval(start, end), dwh.timezoneOffset)
       }
       .toList
 
-  override def getTimezoneOffset(date: LocalDate, room: ExamRoom): Int =
-    val day = date.dayOfWeek().getAsText(Locale.ENGLISH)
-    room.defaultWorkingHours.asScala
-      .find(_.weekday.equalsIgnoreCase(day))
-      .map(_.timezoneOffset)
-      .getOrElse(0)
-
-  override def getTimezoneOffset(date: DateTime): Int =
-    configReader.getDefaultTimeZone.getOffset(date)
+  override def getTimezoneOffset(instant: Instant): Int =
+    ZoneId.of(configReader.getDefaultTimeZone.getId).getRules.getOffset(
+      instant
+    ).getTotalSeconds * 1000
 
   override def getWorkingHoursForDate(date: LocalDate, room: ExamRoom): List[OpeningHours] =
-    val workingHours = getDefaultWorkingHours(date, room)
+    val exceptionEvents = room.calendarExceptionEvents.asScala.toList
+    val workingHours    = getDefaultWorkingHours(date, room)
     val extensionEvents = mergeSlots(
-      getExceptionEvents(
-        room.calendarExceptionEvents.asScala.toList,
-        date,
-        RestrictionType.NON_RESTRICTIVE
-      )
+      getExceptionEvents(exceptionEvents, date, RestrictionType.NON_RESTRICTIVE, room.localTimezone)
     )
-
     val restrictionEvents = mergeSlots(
-      getExceptionEvents(
-        room.calendarExceptionEvents.asScala.toList,
-        date,
-        RestrictionType.RESTRICTIVE
-      )
+      getExceptionEvents(exceptionEvents, date, RestrictionType.RESTRICTIVE, room.localTimezone)
     )
 
     val updatedWorkingHours =
       if extensionEvents.nonEmpty then
-        val unifiedIntervals = mergeSlots(workingHours.map(_.hours) ++ extensionEvents)
-        val offset =
-          DateTimeZone.forID(room.localTimezone).getOffset(DateTime.now().withDayOfYear(1))
-        unifiedIntervals.map(interval => OpeningHours(interval, offset))
+        mergeSlots(workingHours.map(_.hours) ++ extensionEvents).map(OpeningHours.apply)
       else workingHours
 
-    val availableHours =
-      if restrictionEvents.nonEmpty then
-        updatedWorkingHours.flatMap { hours =>
-          findGaps(restrictionEvents, hours.hours).map(gap =>
-            OpeningHours(gap, hours.timezoneOffset)
-          )
-        }
-      else updatedWorkingHours
-
-    availableHours
-
-  private def resolveMillisOfDay(date: DateTime, offset: Long): Int =
-    val millis = date.getMillisOfDay + offset
-    if millis >= MILLIS_PER_DAY then Math.abs(millis - MILLIS_PER_DAY).toInt
-    else millis.toInt
+    if restrictionEvents.nonEmpty then
+      updatedWorkingHours.flatMap(oh =>
+        findGaps(restrictionEvents, oh.hours).map(OpeningHours.apply)
+      )
+    else updatedWorkingHours

@@ -16,10 +16,10 @@ import models.questions.QuestionType
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.{Language, PermissionType, User}
 import org.apache.commons.codec.digest.DigestUtils
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 
 import java.text.{DecimalFormat, DecimalFormatSymbols}
+import java.time.Instant
 import java.util.*
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
@@ -86,23 +86,16 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   @OneToOne(mappedBy = "exam") var examRecord: ExamRecord                     = uninitialized
   @OneToOne(mappedBy = "exam") var languageInspection: LanguageInspection     = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
+  @JsonInstant
   @Column(name = "exam_active_start_date")
-  var periodStart: DateTime = uninitialized
+  var periodStart: Instant = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
+  @JsonInstant
   @Column(name = "exam_active_end_date")
-  var periodEnd: DateTime = uninitialized
+  var periodEnd: Instant = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var gradedTime: DateTime = uninitialized
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var autoEvaluationNotified: DateTime = uninitialized
+  @JsonInstant var gradedTime: Instant             = uninitialized
+  @JsonInstant var autoEvaluationNotified: Instant = uninitialized
 
   var instruction: String                            = uninitialized
   var enrollInstruction: String                      = uninitialized

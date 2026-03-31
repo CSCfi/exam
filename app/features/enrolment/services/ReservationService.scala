@@ -14,15 +14,16 @@ import models.exam.Exam
 import models.exam.ExamState
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.{Role, User}
-import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
-import org.joda.time.{DateTime, DateTimeZone, Interval}
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsNull, Json}
 import security.BlockingIOExecutionContext
-import services.datetime.{CalendarHandler, DateTimeHandler}
+import services.datetime.TimeUtils
+import services.datetime.{CalendarHandler, DateTimeHandler, Interval}
 import services.mail.EmailComposer
 import services.user.UserHandler
 
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import javax.inject.Inject
 import scala.concurrent.Future
@@ -115,7 +116,7 @@ class ReservationService @Inject() (
           case None =>
             val reservation = enrolment.reservation
             // Let's not send emails about historical reservations
-            if reservation.endAt.isAfter(DateTime.now()) then
+            if reservation.endAt.isAfter(Instant.now()) then
               val student = enrolment.user
               emailComposer.composeReservationCancellationNotification(
                 student,
@@ -140,19 +141,17 @@ class ReservationService @Inject() (
       reservation: Reservation,
       exam: Exam
   ): Option[Interval] =
-    val room     = machine.room
-    val interval = reservation.toInterval
-    val dtz      = DateTimeZone.forID(room.localTimezone)
-    val searchDate =
-      dateTimeHandler.normalize(reservation.startAt.withZone(dtz), dtz).toLocalDate
+    val room       = machine.room
+    val interval   = reservation.toInterval
+    val searchDate = reservation.startAt.atZone(TimeUtils.zoneIdOf(room.localTimezone)).toLocalDate
 
     val slots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.duration)
     // Find the first slot that starts at or after the interval's start
     // and ends at or after the interval's end
     // This handles cases where rooms have different slot start times (e.g., 10:00 vs. 10:10)
     slots
-      .filter(!_.getStart.isBefore(interval.getStart))
-      .find(!_.getEnd.isBefore(interval.getEnd))
+      .filter(!_.start.isBefore(interval.start))
+      .find(!_.end.isBefore(interval.end))
 
   private def isBookable(machine: ExamMachine, reservation: Reservation): Future[Boolean] =
     getReservationExam(reservation).map {
@@ -194,8 +193,8 @@ class ReservationService @Inject() (
         getReservationExam(reservation).flatMap {
           case None => Future.successful(Left(ReservationError.ExamNotFound))
           case Some(exam) =>
-            val timezone  = DateTimeZone.forID(room.localTimezone)
-            val formatter = DateTimeFormat.forPattern("HH:mm").withZone(timezone)
+            val zoneId    = TimeUtils.zoneIdOf(room.localTimezone)
+            val formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(zoneId)
             Future
               .traverse(candidates) { machine =>
                 isBookable(machine, reservation).map(machine -> _)
@@ -208,8 +207,8 @@ class ReservationService @Inject() (
                   ) { slot =>
                     Json.obj(
                       "machine" -> machine.asJson,
-                      "startAt" -> formatter.print(slot.getStart),
-                      "endAt"   -> formatter.print(slot.getEnd)
+                      "startAt" -> formatter.format(slot.start),
+                      "endAt"   -> formatter.format(slot.end)
                     )
                   }
                 }
@@ -247,8 +246,8 @@ class ReservationService @Inject() (
                     findSuitableSlot(machine, reservation, exam) match
                       case Some(suitableSlot) =>
                         // Update reservation times to match the suitable slot
-                        reservation.startAt = suitableSlot.getStart
-                        reservation.endAt = suitableSlot.getEnd
+                        reservation.startAt = suitableSlot.start
+                        reservation.endAt = suitableSlot.end
                         reservation.machine = machine
                         reservation.update()
                         emailComposer.composeReservationChangeNotification(reservation, previous)
@@ -315,8 +314,10 @@ class ReservationService @Inject() (
       else baseQuery
 
     val withStartFilter = start.fold(withTeacherFilter) { s =>
-      val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
-      withTeacherFilter.ge("examinationEventConfiguration.examinationEvent.start", startDate.toDate)
+      withTeacherFilter.ge(
+        "examinationEventConfiguration.examinationEvent.start",
+        TimeUtils.parseInstant(s)
+      )
     }
 
     val withStateFilter = state.fold(withStartFilter) {
@@ -356,11 +357,9 @@ class ReservationService @Inject() (
       .list
       .filter { ee =>
         end.forall { e =>
-          val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
-          val eventEnd =
-            ee.examinationEventConfiguration.examinationEvent.start.plusMinutes(
-              ee.exam.duration
-            )
+          val endDate = TimeUtils.parseInstant(e)
+          val eventEnd = ee.examinationEventConfiguration.examinationEvent.start
+            .plus(java.time.Duration.ofMinutes(ee.exam.duration.toLong))
           eventEnd.isBefore(endDate)
         }
       }
@@ -407,15 +406,11 @@ class ReservationService @Inject() (
       else baseQuery
 
     val withStartFilter = start.fold(withTeacherFilter) { s =>
-      val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
-      val offset    = dateTimeHandler.getTimezoneOffset(startDate.withDayOfYear(1))
-      withTeacherFilter.ge("startAt", startDate.plusMillis(offset))
+      withTeacherFilter.ge("startAt", TimeUtils.parseInstant(s))
     }
 
     val withEndFilter = end.fold(withStartFilter) { e =>
-      val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
-      val offset  = dateTimeHandler.getTimezoneOffset(endDate.withDayOfYear(1))
-      withStartFilter.lt("endAt", endDate.plusMillis(offset))
+      withStartFilter.lt("endAt", TimeUtils.parseInstant(e))
     }
 
     val withStateFilter = state.fold(withEndFilter) {

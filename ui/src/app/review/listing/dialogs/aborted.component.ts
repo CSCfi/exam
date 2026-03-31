@@ -12,22 +12,13 @@ import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { Review } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-aborted-exams',
-    imports: [
-        TranslateModule,
-        DatePipe,
-        DiffInMinutesPipe,
-        ApplyDstPipe,
-        LowerCasePipe,
-        OrderByPipe,
-        TableSortComponent,
-    ],
+    imports: [TranslateModule, DatePipe, DiffInMinutesPipe, LowerCasePipe, OrderByPipe, TableSortComponent],
     templateUrl: './aborted.component.html',
     styleUrls: ['../review-list.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,

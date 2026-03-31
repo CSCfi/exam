@@ -204,10 +204,10 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td>{{ review.duration + ' min' }}</td>
                         <td>
-                            {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                            {{ review.examParticipation.started | date: 'dd.MM.yyyy' }}
                             {{ 'i18n_clock_short' | translate }}
-                            {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                            {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
+                            {{ review.examParticipation.started | date: 'HH:mm' }} -
+                            {{ review.examParticipation.ended | date: 'HH:mm' }}
                         </td>
                         <td>
                             {{ review.examParticipation.exam.totalScore }} /

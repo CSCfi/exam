@@ -94,8 +94,8 @@ export class WrongLocationComponent {
         const start = DateTime.fromISO(reservation.startAt, { zone: tz });
         const end = DateTime.fromISO(reservation.endAt, { zone: tz });
         this.occasion.set({
-            startAt: start.minus({ hour: start.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
-            endAt: end.minus({ hour: end.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
+            startAt: start.toLocaleString(DateTime.TIME_24_SIMPLE),
+            endAt: end.toLocaleString(DateTime.TIME_24_SIMPLE),
         });
     }
 }

@@ -9,7 +9,7 @@ import jakarta.persistence.*
 import models.base.GeneratedIdentityModel
 import models.enrolment.Reservation
 import models.exam.Exam
-import org.joda.time.Interval
+import services.datetime.Interval
 
 import scala.compiletime.uninitialized
 

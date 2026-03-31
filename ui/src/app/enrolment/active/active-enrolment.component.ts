@@ -13,7 +13,6 @@ import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { FileService } from 'src/app/shared/file/file.service';
 import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
@@ -37,7 +36,6 @@ import { OptionalSectionsComponent } from './helpers/optional-sections.component
         SlicePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
     ],
     styleUrls: ['../enrolment.shared.scss', './active-enrolment.component.scss'],
 })

@@ -5,12 +5,12 @@
 package models.assessment
 
 import com.fasterxml.jackson.annotation.JsonBackReference
-import jakarta.persistence.*
+import jakarta.persistence.{Entity, OneToOne}
 import models.base.GeneratedIdentityModel
 import models.exam.Exam
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 
+import java.time.Instant
 import scala.compiletime.uninitialized
 
 @Entity
@@ -20,9 +20,7 @@ class ExamFeedbackConfig extends GeneratedIdentityModel:
   @JsonBackReference
   var exam: Exam = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var releaseDate: DateTime = uninitialized
+  @JsonInstant var releaseDate: Instant = uninitialized
 
   var releaseType: ExamFeedbackReleaseType = uninitialized
 

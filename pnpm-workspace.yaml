@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+# --- Supply Chain Security ---
+# Only allow packages that have been "in the wild" for at least 1 day
+# to avoid zero-day malicious releases.
+minimumReleaseAge: 1440
+
+# Verify that store files haven't been tampered with before linking.
+verifyStoreIntegrity: true

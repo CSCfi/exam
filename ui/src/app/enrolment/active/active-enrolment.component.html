@@ -175,7 +175,7 @@ SPDX-License-Identifier: EUPL-1.2
             }
             <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'i18n_reservation' | translate }}:</div>
             <div class="col-md-9 col-lg-10 mt-md-2">
-                {{ reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                {{ reservation.startAt | date: 'dd.MM.yyyy' }}
                 {{ enrolment().occasion?.startAt }} &ndash; {{ enrolment().occasion?.endAt }} ({{
                     enrolment().occasion?.tz
                 }})

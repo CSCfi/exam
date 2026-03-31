@@ -7,7 +7,6 @@ package features.iop.collaboration.controllers
 import database.EbeanJsonExtensions
 import features.iop.collaboration.services.CollaborativeExternalCalendarService
 import models.user.Role
-import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables
 import play.api.mvc.*
@@ -20,6 +19,7 @@ import system.AuditedAction
 import validation.calendar.{ExternalReservationDTO, ReservationCreationFilter}
 import validation.core.ScalaAttrs
 
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -57,8 +57,8 @@ class CollaborativeExternalCalendarController @Inject() (
             val homeOrgRef = configReader.getHomeOrganisationRef
             val body = Json.obj(
               "requestingOrg" -> homeOrgRef,
-              "start"         -> ISODateTimeFormat.dateTime().print(start),
-              "end"           -> ISODateTimeFormat.dateTime().print(end),
+              "start"         -> DateTimeFormatter.ISO_INSTANT.format(start),
+              "end"           -> DateTimeFormatter.ISO_INSTANT.format(end),
               "user"          -> user.eppn,
               "optionalSections" -> JsArray(
                 sectionIds.getOrElse(List.empty).map(id => Json.toJson(id))

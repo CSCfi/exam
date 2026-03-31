@@ -10,7 +10,6 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
@@ -31,7 +30,6 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         LowerCasePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         OrderByPipe,
         NgbDropdownModule,
     ],
@@ -83,13 +81,7 @@ export class ReservationDetailsComponent {
     }
 
     reservationIsInPast(reservation: Reservation): boolean {
-        const date = new Date();
-        const startOfYear = new Date(0);
-        startOfYear.setFullYear(date.getFullYear());
-        const DSTCorrectedDate = new Date(
-            date.getTime() + (startOfYear.getTimezoneOffset() - date.getTimezoneOffset()) * 60000,
-        );
-        return new Date(reservation.endAt) < DSTCorrectedDate;
+        return new Date(reservation.endAt) < new Date();
     }
 
     changeReservationMachine(reservation: Reservation) {

@@ -27,7 +27,6 @@ import scala.util.Using
 class CalendarService @Inject() (
     private val calendarHandler: CalendarHandler,
     private val emailComposer: EmailComposer,
-    private val dateTimeHandler: DateTimeHandler,
     private val externalReservationHandler: ExternalReservationHandlerService,
     private val clock: AppClock,
     implicit private val ec: BlockingIOExecutionContext
@@ -53,7 +52,7 @@ class CalendarService @Inject() (
       case Some(enrolment) =>
         // Removal is not permitted if the reservation is in the past or ongoing
         val reservation = enrolment.reservation
-        val now         = dateTimeHandler.adjustDST(clock.now(), reservation)
+        val now         = clock.now()
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Left(CalendarError.ReservationInEffect)
         else
@@ -78,14 +77,14 @@ class CalendarService @Inject() (
           Right(())
 
   def getCurrentEnrolment(examId: Long, user: User): Option[ExamEnrolment] =
-    val now = dateTimeHandler.adjustDST(clock.now())
+    val now = clock.now()
     DB.find(classOf[ExamEnrolment])
       .fetch("optionalSections")
       .where()
       .eq("user.id", user.id)
       .eq("exam.id", examId)
       .eq("exam.state", ExamState.PUBLISHED)
-      .gt("reservation.startAt", now.toDate)
+      .gt("reservation.startAt", now)
       .find
 
   def createReservation(dto: ReservationDTO, user: User): Future[Either[CalendarError, Unit]] =
@@ -97,7 +96,7 @@ class CalendarService @Inject() (
     val sectionIds = dto.sectionIds.getOrElse(List.empty)
 
     val room = DB.find(classOf[models.facility.ExamRoom], roomId)
-    val now  = dateTimeHandler.adjustDST(clock.now(), room)
+    val now  = clock.now()
 
     // Start manual transaction
     Using(DB.beginTransaction()) { tx =>
@@ -115,7 +114,7 @@ class CalendarService @Inject() (
           .eq("exam.state", ExamState.PUBLISHED)
           .disjunction()
           .isNull("reservation")
-          .gt("reservation.startAt", now.toDate)
+          .gt("reservation.startAt", now)
           .endJunction()
           .find
 

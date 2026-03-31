@@ -11,8 +11,6 @@ import models.assessment.{Comment, ExamRecord, ExamScore}
 import models.exam.ExamState
 import models.exam.{Exam, Grade, GradeScale}
 import models.user.{Role, User}
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import play.api.Logging
@@ -20,6 +18,9 @@ import play.api.libs.json.{JsArray, JsValue}
 
 import java.io.*
 import java.nio.charset.StandardCharsets
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import scala.jdk.CollectionConverters.*
 import scala.util.{Try, Using}
@@ -182,7 +183,7 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
   private def updateExam(exam: Exam, grade: Grade, user: User, records: Array[String]): Unit =
     exam.grade = grade
     exam.gradedByUser = user
-    exam.gradedTime = DateTime.now()
+    exam.gradedTime = Instant.now()
     exam.state = ExamState.GRADED
     exam.answerLanguage = exam.examLanguages.asScala.head.code
     exam.creditType = exam.examType
@@ -227,7 +228,7 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
     )
 
   private def values(assessment: JsValue): Seq[String] =
-    val dtf = DateTimeFormat.forPattern("yyyy-MM-dd")
+    val dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     val student = (assessment \ "user").get
     val exam    = (assessment \ "exam").get
@@ -239,7 +240,9 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       (student \ "lastName").asOpt[String].getOrElse(""),
       (student \ "email").asOpt[String].getOrElse(""),
       (exam \ "name").asOpt[String].getOrElse(""),
-      (assessment \ "ended").asOpt[Long].map(dtf.print).getOrElse(""),
+      (assessment \ "ended").asOpt[Long].map(ms =>
+        dtf.format(Instant.ofEpochMilli(ms).atZone(ZoneOffset.UTC).toLocalDate)
+      ).getOrElse(""),
       (exam \ "creditType" \ "type").asOpt[String].getOrElse(""),
       (exam \ "customCredit").asOpt[String].getOrElse(""),
       (exam \ "answerLanguage").asOpt[String].getOrElse(""),

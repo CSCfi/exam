@@ -4,21 +4,16 @@
 
 package models.calendar
 
-import jakarta.persistence.{Entity, Temporal, TemporalType}
+import jakarta.persistence.Entity
 import models.base.GeneratedIdentityModel
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 
+import java.time.Instant
 import scala.compiletime.uninitialized
 
 @Entity
 class MaintenancePeriod extends GeneratedIdentityModel:
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var startsAt: DateTime = uninitialized
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var endsAt: DateTime = uninitialized
+  @JsonInstant var startsAt: Instant = uninitialized
+  @JsonInstant var endsAt: Instant   = uninitialized
 
   var description: String = uninitialized

@@ -11,10 +11,10 @@ import jakarta.persistence.*
 import models.base.GeneratedIdentityModel
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.{Exam, ExamState}
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 import services.json.JsonDeserializer
 
+import java.time.Instant
 import java.util.List
 import scala.compiletime.uninitialized
 
@@ -28,19 +28,16 @@ class CollaborativeExam extends GeneratedIdentityModel:
   @JsonManagedReference
   var examParticipations: List[ExamParticipation] = uninitialized
 
+  @JsonInstant
   @Column(name = "exam_active_start_date")
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var periodStart: DateTime = uninitialized
+  var periodStart: Instant = uninitialized
 
+  @JsonInstant
   @Column(name = "exam_active_end_date")
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var periodEnd: DateTime = uninitialized
+  var periodEnd: Instant = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var created: DateTime = uninitialized
+  @JsonInstant
+  var created: Instant = uninitialized
 
   var externalRef: String       = uninitialized // REFERENCE TO EXAM ELSEWHERE
   var revision: String          = uninitialized // REFERENCE TO EXAM REVISION ELSEWHERE

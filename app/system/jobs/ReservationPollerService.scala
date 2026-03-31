@@ -9,17 +9,15 @@ import cats.syntax.all.*
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
-import org.joda.time.DateTime
 import play.api.Logging
-import services.datetime.DateTimeHandler
 import services.enrolment.NoShowHandler
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.duration.*
 
 class ReservationPollerService @Inject() (
-    private val noShowHandler: NoShowHandler,
-    private val dateTimeHandler: DateTimeHandler
+    private val noShowHandler: NoShowHandler
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:
@@ -27,12 +25,11 @@ class ReservationPollerService @Inject() (
   private def isPast(ee: ExamEnrolment): Boolean =
     (Option(ee.examinationEventConfiguration), Option(ee.reservation)) match
       case (None, Some(reservation)) =>
-        val now = dateTimeHandler.adjustDST(DateTime.now)
-        reservation.endAt.isBefore(now)
+        reservation.endAt.isBefore(Instant.now())
       case (Some(config), _) =>
         val duration = ee.exam.duration
         val start    = config.examinationEvent.start
-        start.plusMinutes(duration).isBeforeNow
+        start.plus(java.time.Duration.ofMinutes(duration.toLong)).isBefore(Instant.now())
       case _ => false
 
   private def runCheck(): IO[Unit] =
@@ -61,7 +58,7 @@ class ReservationPollerService @Inject() (
         .isNull("user")
         .isNotNull("externalUserRef")
         .eq("sentAsNoShow", false)
-        .lt("endAt", dateTimeHandler.adjustDST(DateTime.now))
+        .lt("endAt", Instant.now())
         .list
 
       if enrolments.isEmpty && reservations.isEmpty then

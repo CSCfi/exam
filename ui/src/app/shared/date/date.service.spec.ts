@@ -188,32 +188,6 @@ describe('DateTimeService', () => {
         });
     });
 
-    describe('isDST', () => {
-        it('should detect DST for summer date', () => {
-            // July is typically DST in northern hemisphere
-            const summerDate = new Date('2024-07-15T12:00:00Z');
-            const result = service.isDST(summerDate);
-            expect(typeof result).toBe('boolean');
-        });
-
-        it('should detect non-DST for winter date', () => {
-            // January is typically not DST in northern hemisphere
-            const winterDate = new Date('2024-01-15T12:00:00Z');
-            const result = service.isDST(winterDate);
-            expect(typeof result).toBe('boolean');
-        });
-
-        it('should handle string input', () => {
-            const result = service.isDST('2024-07-15');
-            expect(typeof result).toBe('boolean');
-        });
-
-        it('should handle timestamp input', () => {
-            const result = service.isDST(Date.now());
-            expect(typeof result).toBe('boolean');
-        });
-    });
-
     describe('eachDayOfInterval', () => {
         it('should return array of days in range', () => {
             const start = new Date('2024-10-01');

@@ -9,17 +9,15 @@ import cats.syntax.all.*
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.Reservation
-import org.joda.time.DateTime
 import play.api.Logging
-import services.datetime.DateTimeHandler
 import services.mail.EmailComposer
 
+import java.time.{Duration, Instant}
 import javax.inject.Inject
 import scala.concurrent.duration.*
 
 class ReservationReminderService @Inject() (
-    private val emailComposer: EmailComposer,
-    private val dateTimeHandler: DateTimeHandler
+    private val emailComposer: EmailComposer
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:
@@ -32,8 +30,8 @@ class ReservationReminderService @Inject() (
   private def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Starting reservation reminder task ->")
-      val now      = dateTimeHandler.adjustDST(DateTime.now)
-      val tomorrow = now.plusDays(1)
+      val now      = Instant.now()
+      val tomorrow = now.plus(Duration.ofDays(1))
       DB.find(classOf[Reservation])
         .fetch("enrolment.optionalSections")
         .fetch("enrolment.optionalSections.examMaterials")

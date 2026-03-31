@@ -8,10 +8,10 @@ import database.EbeanQueryExtensions
 import models.assessment.AutoEvaluationReleaseType
 import models.exam.ExamState
 import models.exam.{Exam, GradeScale}
-import org.joda.time.DateTime
 import play.api.Logging
 import services.mail.EmailComposer
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
@@ -29,7 +29,7 @@ class AutoEvaluationHandlerImpl @Inject (
       process(exam)
       if config.releaseType == AutoEvaluationReleaseType.IMMEDIATE then
         // Notify student immediately
-        exam.autoEvaluationNotified = DateTime.now
+        exam.autoEvaluationNotified = Instant.now()
         exam.update()
         val student = exam.creator
         composer.scheduleEmail(5.seconds) { composer.composeInspectionReady(student, None, exam) }
@@ -43,7 +43,7 @@ class AutoEvaluationHandlerImpl @Inject (
       case Right((grade, msg)) =>
         // NOTE: do not set graded by person here, one who makes a record will get the honor
         exam.grade = grade
-        exam.gradedTime = DateTime.now
+        exam.gradedTime = Instant.now()
         exam.creditType = exam.examType
         exam.examLanguages.asScala.headOption match
           case Some(lang) =>

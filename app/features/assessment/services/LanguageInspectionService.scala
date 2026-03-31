@@ -10,12 +10,13 @@ import models.assessment.{Comment, LanguageInspection}
 import models.exam.Exam
 import models.exam.ExamState
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
 import services.mail.EmailComposer
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
 import java.util.Date
 import javax.inject.Inject
 import scala.concurrent.duration.*
@@ -141,20 +142,32 @@ class LanguageInspectionService @Inject() (
       // Case 1: Range filter (start and/or end)
       case (Some(_), _, _) | (_, Some(_), _) =>
         val withStart = start.fold(query) { s =>
-          val startDate = new DateTime(s).plusDays(1).withTimeAtStartOfDay()
-          query.ge("finishedAt", startDate.toDate)
+          query.ge(
+            "finishedAt",
+            Instant.ofEpochMilli(s).plus(java.time.Duration.ofDays(1)).truncatedTo(
+              java.time.temporal.ChronoUnit.DAYS
+            )
+          )
         }
         end.fold(withStart) { e =>
-          val endDate = new DateTime(e).plusDays(1).withTimeAtStartOfDay()
-          withStart.lt("finishedAt", endDate.toDate)
+          withStart.lt(
+            "finishedAt",
+            Instant.ofEpochMilli(e).plus(java.time.Duration.ofDays(1)).truncatedTo(
+              java.time.temporal.ChronoUnit.DAYS
+            )
+          )
         }
 
       // Case 2: Month filter
       case (None, None, Some(monthStr)) =>
-        val decoded      = URLDecoder.decode(monthStr, StandardCharsets.UTF_8)
-        val startOfMonth = DateTime.parse(decoded).withMillisOfDay(0)
-        val endOfMonth   = startOfMonth.plusMonths(1)
-        query.between("finishedAt", startOfMonth.toDate, endOfMonth.toDate)
+        val decoded = URLDecoder.decode(monthStr, StandardCharsets.UTF_8)
+        val startOfMonth = Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(decoded)).atZone(
+          ZoneOffset.UTC
+        ).toLocalDate.withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC).toInstant
+        val endOfMonth = startOfMonth.atZone(ZoneOffset.UTC).toLocalDate.plusMonths(1).atStartOfDay(
+          ZoneOffset.UTC
+        ).toInstant
+        query.between("finishedAt", startOfMonth, endOfMonth)
 
       // Case 3: No filter
       case _ => query

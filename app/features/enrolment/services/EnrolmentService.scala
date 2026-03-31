@@ -15,12 +15,12 @@ import play.api.Logging
 import repository.EnrolmentRepository
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.datetime.{AppClock, DateTimeHandler}
+import services.datetime.AppClock
 import services.enrolment.EnrolmentHandler
 import services.exam.ExternalCourseHandler
 import services.mail.EmailComposer
 
-import java.util.Date
+import java.time.{Duration, Instant}
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -33,7 +33,6 @@ class EnrolmentService @Inject() (
     private val externalReservationHandler: ExternalReservationHandlerService,
     private val enrolmentRepository: EnrolmentRepository,
     private val configReader: ConfigReader,
-    private val dateTimeHandler: DateTimeHandler,
     private val enrolmentHandler: EnrolmentHandler,
     private val clock: AppClock,
     implicit private val ec: BlockingIOExecutionContext
@@ -54,7 +53,7 @@ class EnrolmentService @Inject() (
       .eq("course.code", code)
       .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
       .eq("state", ExamState.PUBLISHED)
-      .ge("periodEnd", new Date())
+      .ge("periodEnd", Instant.now())
       .list
 
   def enrolmentsByReservation(reservationId: Long): List[ExamEnrolment] =
@@ -94,13 +93,12 @@ class EnrolmentService @Inject() (
       case None => Left(EnrolmentError.InvalidEnrolment("Exam not found"))
       case Some(exam) =>
         if enrolmentHandler.isAllowedToParticipate(exam, user) then
-          val now = dateTimeHandler.adjustDST(clock.now())
           val enrolments = DB
             .find(classOf[ExamEnrolment])
             .where()
             .eq("user", user)
             .eq("exam.id", examId)
-            .gt("exam.periodEnd", now.toDate)
+            .gt("exam.periodEnd", clock.now())
             .disjunction()
             .eq("exam.state", ExamState.PUBLISHED)
             .eq("exam.state", ExamState.STUDENT_STARTED)
@@ -112,7 +110,7 @@ class EnrolmentService @Inject() (
         else Left(EnrolmentError.NoTrialsLeft)
 
   private def isActive(enrolment: ExamEnrolment): Boolean =
-    val now  = dateTimeHandler.adjustDST(clock.now())
+    val now  = clock.now()
     val exam = enrolment.exam
     if Option(exam).isEmpty || exam.implementation == ExamImplementation.AQUARIUM then
       val reservation = enrolment.reservation
@@ -120,7 +118,7 @@ class EnrolmentService @Inject() (
     else
       val config = enrolment.examinationEventConfiguration
       Option(config).forall { c =>
-        c.examinationEvent.start.plusMinutes(exam.duration).isAfter(now)
+        c.examinationEvent.start.plus(Duration.ofMinutes(exam.duration.toLong)).isAfter(now)
       }
 
   def removeEnrolment(enrolmentId: Long, user: User): Either[EnrolmentError, Unit] =
@@ -262,7 +260,7 @@ class EnrolmentService @Inject() (
           // Reservation in effect
           else if enrolments
               .flatMap(e => Option(e.reservation))
-              .exists(r => r.toInterval.contains(dateTimeHandler.adjustDST(clock.now(), r)))
+              .exists(r => r.toInterval.contains(clock.now()))
           then
             tx.rollback()
             Future.successful(Left(EnrolmentError.ReservationInEffect))
@@ -271,7 +269,7 @@ class EnrolmentService @Inject() (
               Option(e.examinationEventConfiguration).exists { config =>
                 config.examinationEvent
                   .toInterval(e.exam)
-                  .contains(dateTimeHandler.adjustDST(clock.now()))
+                  .contains(clock.now())
               }
             }
           then
@@ -281,7 +279,7 @@ class EnrolmentService @Inject() (
             // Enrolments with future reservations
             val futureReservations = enrolments.filter { ee =>
               Option(ee.reservation).exists(
-                _.toInterval.isAfter(dateTimeHandler.adjustDST(clock.now()))
+                _.toInterval.isAfter(clock.now())
               )
             }
 
@@ -330,7 +328,7 @@ class EnrolmentService @Inject() (
                 val reservation = enrolment.reservation
                 if Option(reservation).exists { r =>
                     Option(r.externalRef).isDefined &&
-                    !r.startAt.isAfter(dateTimeHandler.adjustDST(clock.now())) &&
+                    !r.startAt.isAfter(clock.now()) &&
                     !enrolment.noShow &&
                     enrolment.exam.state == ExamState.PUBLISHED
                   }
@@ -496,7 +494,8 @@ class EnrolmentService @Inject() (
     Option(DB.find(classOf[ExaminationEventConfiguration], configId)) match
       case None => Left(EnrolmentError.ConfigNotFound)
       case Some(config) =>
-        if config.examinationEvent.start.isBeforeNow then Left(EnrolmentError.EventInPast)
+        if config.examinationEvent.start.isBefore(Instant.now()) then
+          Left(EnrolmentError.EventInPast)
         else
           val event = config.examinationEvent
           val exam  = config.exam

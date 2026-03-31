@@ -10,8 +10,8 @@ import io.ebean.DB
 import models.admin.GeneralSettings
 import models.exam.ExamExecutionType
 import models.user.Role
-import org.joda.time.{DateTime, DateTimeZone, Period}
 
+import java.time.{Instant, ZoneId}
 import java.util.UUID
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
@@ -41,10 +41,8 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
       }
     gs
 
-  override def getDefaultTimeZone: DateTimeZone = {
-    val id = config.getString("exam.application.timezone")
-    DateTimeZone.forID(id)
-  }
+  override def getDefaultTimeZone: ZoneId =
+    ZoneId.of(config.getString("exam.application.timezone"))
   override def getHostName: String = config.getString("exam.application.hostname")
   override def getMaxFileSize: Int = config.getInt("exam.attachment.maxsize")
   override def getExamDurations: List[Int] =
@@ -82,14 +80,14 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
       .map(e => e.getKey -> e.getValue.render)
       .toMap
 
-  override def getExamExpirationDate(timeOfSubmission: DateTime): DateTime =
+  override def getExamExpirationDate(timeOfSubmission: Instant): Instant =
     val expiresAfter = config.getString("exam.exam.expiration.period")
-    val period       = Period.parse(expiresAfter)
-    timeOfSubmission.plus(period)
-  override def getCourseValidityDate(startDate: DateTime): DateTime =
+    val period       = java.time.Period.parse(expiresAfter)
+    timeOfSubmission.atZone(getDefaultTimeZone).plus(period).toInstant
+  override def getCourseValidityDate(startDate: Instant): Instant =
     val window = config.getString("exam.integration.courseUnitInfo.window")
-    val period = Period.parse(window)
-    startDate.minus(period)
+    val period = java.time.Period.parse(window)
+    startDate.atZone(getDefaultTimeZone).minus(period).toInstant
   override def getExamExpirationPeriod: String = config.getString("exam.exam.expiration.period")
   override def isMaturitySupported: Boolean = DB
     .find(classOf[ExamExecutionType])

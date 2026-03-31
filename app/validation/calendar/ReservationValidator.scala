@@ -5,18 +5,18 @@
 package validation.calendar
 
 import cats.data.ValidatedNel
-import org.joda.time.DateTime
 import play.api.libs.json.*
 import validation.core.*
 import validation.core.SanitizingException
 
+import java.time.Instant
 import scala.jdk.CollectionConverters.*
 
 case class ReservationDTO(
     roomId: Long,
     examId: Long,
-    start: DateTime,
-    end: DateTime,
+    start: Instant,
+    end: Instant,
     aids: Option[List[Long]],
     sectionIds: Option[List[Long]]
 ):
@@ -31,8 +31,8 @@ case class ExternalReservationDTO(
     roomRef: String,
     orgRef: String,
     examId: Long,
-    start: DateTime,
-    end: DateTime,
+    start: Instant,
+    end: Instant,
     sectionIds: Option[List[Long]]
 ):
   def getSectionIdsAsJava: java.util.List[java.lang.Long] =
@@ -43,7 +43,7 @@ case class ExternalReservationDTO(
 object ReservationValidator:
   def forCreation(
       body: JsValue,
-      now: DateTime = DateTime.now()
+      now: Instant = Instant.now()
   ): Either[ValidationException, ReservationDTO] =
     PlayValidator(ReservationParser.parseFromJson)
       .withRule(requireRoomId)
@@ -55,7 +55,7 @@ object ReservationValidator:
 
   def forCreationExternal(
       body: JsValue,
-      now: DateTime = DateTime.now()
+      now: Instant = Instant.now()
   ): Either[ValidationException, ExternalReservationDTO] =
     PlayValidator(ExternalReservationParser.parseFromJson)
       .withRule(requireRoomRef)
@@ -70,16 +70,16 @@ object ReservationValidator:
   private def requireExamId(examId: Long): ValidatedNel[FieldError, Long] =
     PlayValidator.requirePositive("examId", examId)
 
-  private def requireStartDate(start: DateTime): ValidatedNel[FieldError, DateTime] =
+  private def requireStartDate(start: Instant): ValidatedNel[FieldError, Instant] =
     PlayValidator.requirePresent("start", start)
 
-  private def requireEndDate(end: DateTime): ValidatedNel[FieldError, DateTime] =
+  private def requireEndDate(end: Instant): ValidatedNel[FieldError, Instant] =
     PlayValidator.requirePresent("end", end)
 
   private def requireValidDateRange(
-      start: DateTime,
-      end: DateTime,
-      now: DateTime
+      start: Instant,
+      end: Instant,
+      now: Instant
   ): ValidatedNel[FieldError, Unit] =
     val isStartInPast    = start.isBefore(now)
     val isEndBeforeStart = end.isBefore(start)

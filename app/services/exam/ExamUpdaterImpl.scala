@@ -13,13 +13,13 @@ import models.exam.*
 import models.questions.QuestionType
 import models.questions.{ClozeTestAnswer, Question}
 import models.user.{Language, Role, User}
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, Forbidden}
 import services.config.ConfigReader
 import services.mail.EmailComposer
 
+import java.time.Instant
 import java.util.concurrent.ThreadLocalRandom
 import javax.inject.Inject
 import scala.concurrent.duration.*
@@ -369,13 +369,13 @@ class ExamUpdaterImpl @Inject() (
       }
 
   private def hasFutureReservations(exam: Exam): Boolean =
-    val now = DateTime.now()
+    val now = Instant.now()
     exam.examEnrolments.asScala
       .map(_.reservation)
       .exists(r => Option(r).exists(_.endAt.isAfter(now)))
 
   private def hasFutureEvents(exam: Exam): Boolean =
-    val now = DateTime.now()
+    val now = Instant.now()
     exam.examEnrolments.asScala
       .map(_.examinationEventConfiguration)
       .exists(eec => Option(eec).exists(_.examinationEvent.start.isAfter(now)))
@@ -397,7 +397,7 @@ class ExamUpdaterImpl @Inject() (
           None
 
   private def isNonRestrictingValidityChange(
-      newDate: DateTime,
+      newDate: Instant,
       exam: Exam,
       isStartDate: Boolean
   ): Boolean =

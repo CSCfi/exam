@@ -8,10 +8,10 @@ package integration
 import base.BaseIntegrationSpec
 import io.ebean.DB
 import models.exam.{Exam, ExamExecutionType, ExamState}
-import org.joda.time.{DateTime, LocalDateTime}
 import play.api.http.Status
 import play.api.libs.json.JsArray
 
+import java.time.{Duration, Instant, LocalDate}
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
@@ -27,15 +27,15 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
     publicType = findType(types, ExamExecutionType.Type.PUBLIC).orNull
     privateType = findType(types, ExamExecutionType.Type.PRIVATE).orNull
 
-    val startDate = LocalDateTime.now().plusDays(1)
-    val endDate   = LocalDateTime.now().plusDays(10)
+    val startDate = Instant.now().plus(Duration.ofDays(1))
+    val endDate   = Instant.now().plus(Duration.ofDays(10))
     exams = DB.find(classOf[Exam]).findList().asScala.toList
 
     // Set all exams to start in future
     exams.foreach { exam =>
       exam.state = ExamState.PUBLISHED
-      exam.periodStart = startDate.toDateTime
-      exam.periodEnd = endDate.toDateTime
+      exam.periodStart = startDate
+      exam.periodEnd = endDate
       exam.executionType = publicType
       exam.save()
     }
@@ -56,13 +56,13 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
 
         // Pick first exam and set it already started but not yet ended (included)
         val first = exams.head
-        first.periodStart = LocalDateTime.now().minusDays(1).toDateTime
+        first.periodStart = Instant.now().minus(Duration.ofDays(1))
         first.save()
 
         // Set second exam already ended (excluded)
         val second = exams(1)
-        second.periodStart = LocalDateTime.now().minusDays(2).toDateTime
-        second.periodEnd = LocalDateTime.now().minusDays(1).toDateTime
+        second.periodStart = Instant.now().minus(Duration.ofDays(2))
+        second.periodEnd = Instant.now().minus(Duration.ofDays(1))
         second.save()
 
         // Set third exam as private (excluded)
@@ -89,7 +89,7 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
         }
 
         // Test with date filter
-        val filter         = DateTime.now().minusDays(3).toString("yyyy-MM-dd")
+        val filter         = LocalDate.now().minusDays(3).toString
         val filteredResult = runIO(get(s"/integration/exams/active?date=$filter"))
         statusOf(filteredResult).must(be(Status.OK))
 
