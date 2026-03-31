@@ -391,7 +391,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
                 state: 'DRAFT',
                 defaultMaxScore: 0,
                 defaultNegativeScoreAllowed: false,
-                defaultOptionShufflingOn: false,
+                defaultOptionShufflingOn: true,
                 examSectionQuestions: [],
             } as QuestionDraft);
             this.currentOwners.set(initialOwners);

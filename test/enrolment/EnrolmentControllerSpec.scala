@@ -336,7 +336,7 @@ class EnrolmentControllerSpec
         val (exam, enrolment, _, _) = setupTestData()
 
         // Setup existing enrolment
-        val enrolledOn = Instant.now()
+        val enrolledOn = now()
         enrolment.enrolledOn = enrolledOn
         enrolment.save()
 
@@ -366,7 +366,7 @@ class EnrolmentControllerSpec
         reservation.endAt = Instant.now().plus(Duration.ofDays(2))
         reservation.save()
 
-        val enrolledOn = Instant.now()
+        val enrolledOn = now()
         enrolment.enrolledOn = enrolledOn
         enrolment.reservation = reservation
         enrolment.save()
@@ -397,7 +397,7 @@ class EnrolmentControllerSpec
         reservation.endAt = Instant.now().plus(Duration.ofDays(1))
         reservation.save()
 
-        val enrolledOn = Instant.now()
+        val enrolledOn = now()
         enrolment.enrolledOn = enrolledOn
         enrolment.reservation = reservation
         enrolment.save()

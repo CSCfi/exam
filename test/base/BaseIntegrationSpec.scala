@@ -22,6 +22,8 @@ import play.api.test.Helpers.*
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import scala.concurrent.duration.*
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -170,6 +172,12 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
     contentAsString(Future.successful(result))
   protected def headerOf(result: Result, name: String): Option[String] =
     result.header.headers.get(name)
+
+  /** Returns the current time truncated to microsecond precision, matching what the database
+    * stores. Use this instead of Instant.now() whenever the value will be round-tripped through the
+    * DB and compared in assertions.
+    */
+  protected def now(): Instant = Instant.now().truncatedTo(ChronoUnit.MICROS)
 
   // IO runners
   protected def runIO[A](block: IO[A]): A = block.unsafeRunSync()

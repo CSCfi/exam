@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -53,19 +53,21 @@ import type { User } from 'src/app/session/session.model';
                 }
             </span>
         </div>
-        @if (exam().examEnrolments.length > 0) {
+        @if (examEnrolments().length > 0) {
             <div class="row mt-3">
                 <div class="col-md-5 offset-md-3">{{ 'i18n_exam_participants' | translate }}:</div>
             </div>
             <!-- Students not having finished the exam, sorted alphabetically -->
-            @for (enrolment of exam().examEnrolments; track enrolment) {
+            @for (enrolment of examEnrolments(); track enrolment) {
                 <div class="row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
                     <div class="col-md-5 offset-md-3 d-flex align-items-center justify-content-between mt-2">
                         <small>
                             {{ renderParticipantLabel(enrolment) }}
-                            &lt;{{ enrolment.user?.email }}&gt;
+                            @if (enrolment.user?.email) {
+                                &lt;{{ enrolment.user?.email }}&gt;
+                            }
                             @if (enrolment.user?.userIdentifier) {
-                                ({{ enrolment.user.userIdentifier }})
+                                ({{ enrolment.user?.userIdentifier }})
                             }
                         </small>
                         <button
@@ -106,6 +108,7 @@ import type { User } from 'src/app/session/session.model';
 export class ExamParticipantSelectorComponent {
     readonly exam = input.required<Exam>();
 
+    readonly examEnrolments = linkedSignal(() => this.exam().examEnrolments);
     readonly newParticipantData = signal<{ id?: number }>({});
     readonly participants = computed(() => {
         const currentExam = this.exam();
@@ -140,10 +143,9 @@ export class ExamParticipantSelectorComponent {
     }
 
     addParticipant() {
-        const currentExam = this.exam();
-        this.Enrolment.enrollStudent$(currentExam, this.newParticipantData()).subscribe({
+        this.Enrolment.enrollStudent$(this.exam(), this.newParticipantData()).subscribe({
             next: (enrolment) => {
-                currentExam.examEnrolments.push(enrolment);
+                this.examEnrolments.update((list) => [...list, enrolment]);
                 this.newParticipantData.set({});
                 this.participantName = '';
             },
@@ -152,10 +154,9 @@ export class ExamParticipantSelectorComponent {
     }
 
     removeParticipant(id: number) {
-        const currentExam = this.exam();
         this.http.delete(`/app/enrolments/student/${id}`).subscribe({
             next: () => {
-                currentExam.examEnrolments = currentExam.examEnrolments.filter((ee) => ee.id !== id);
+                this.examEnrolments.update((list) => list.filter((ee) => ee.id !== id));
                 this.toast.info(this.translate.instant('i18n_participant_removed'));
             },
             error: (err) => this.toast.error(err),
