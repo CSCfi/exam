@@ -121,10 +121,10 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
     listUsersByRoleAndName(Role.Name.TEACHER.toString, criteria)
 
   def listUnenrolledStudents(eid: Long, criteria: String): Seq[User] =
-    val enrolments = DB.find(classOf[ExamEnrolment]).where().eq("exam.id", eid).list
-    val users      = listUsersByRoleAndName("STUDENT", criteria).asJava
-    users.removeAll(enrolments.map(_.user).asJava)
-    users.asScala.toSeq
+    val enrolments      = DB.find(classOf[ExamEnrolment]).where().eq("exam.id", eid).list
+    val users           = listUsersByRoleAndName("STUDENT", criteria)
+    val enrolledUserIds = enrolments.map(_.user.id).toSet
+    users.filterNot(u => enrolledUserIds.contains(u.id))
 
   def updateUserAgreementAccepted(userId: Long): Either[UserError, Unit] =
     DB.find(classOf[User])
