@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -79,6 +79,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
 export class ExaminationEventsComponent implements OnInit {
     readonly exam = input.required<Exam>();
     readonly configurations = signal<ExaminationEventConfiguration[]>([]);
+    readonly eventsChange = output<ExaminationEventConfiguration[]>();
 
     readonly maintenancePeriods = signal<MaintenancePeriod[]>([]);
 
@@ -112,9 +113,10 @@ export class ExaminationEventsComponent implements OnInit {
         modalRef.componentInstance.maintenancePeriods.set(this.maintenancePeriods());
         modalRef.componentInstance.examId.set(currentExam.id);
         modalRef.componentInstance.duration.set(currentExam.duration);
-        this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((data) =>
-            this.configurations.update((cs) => [...cs, data]),
-        );
+        this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((data) => {
+            this.configurations.update((cs) => [...cs, data]);
+            this.eventsChange.emit(this.configurations());
+        });
     }
 
     modifyExaminationEvent(configuration: ExaminationEventConfiguration) {
@@ -126,9 +128,10 @@ export class ExaminationEventsComponent implements OnInit {
         modalRef.componentInstance.maintenancePeriods.set(this.maintenancePeriods());
         modalRef.componentInstance.examId.set(currentExam.id);
         modalRef.componentInstance.duration.set(currentExam.duration);
-        this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((config) =>
-            this.configurations.update((cs) => cs.map((c) => (c === configuration ? config : c))),
-        );
+        this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((config) => {
+            this.configurations.update((cs) => cs.map((c) => (c === configuration ? config : c)));
+            this.eventsChange.emit(this.configurations());
+        });
     }
 
     removeExaminationEvent(configuration: ExaminationEventConfiguration) {
@@ -142,7 +145,10 @@ export class ExaminationEventsComponent implements OnInit {
         ).subscribe({
             next: () =>
                 this.ExamService.removeExaminationEvent$(currentExam.id, configuration).subscribe({
-                    next: () => this.configurations.update((cs) => cs.filter((c) => c !== configuration)),
+                    next: () => {
+                        this.configurations.update((cs) => cs.filter((c) => c !== configuration));
+                        this.eventsChange.emit(this.configurations());
+                    },
                     error: (err) => this.ToastrService.error(err),
                 }),
         });

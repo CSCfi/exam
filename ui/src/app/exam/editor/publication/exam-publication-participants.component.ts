@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-owner-picker.component';
 import { ExamParticipantSelectorComponent } from './exam-participant-picker.component';
@@ -61,12 +62,18 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
             </div>
             <!-- Exam participants -->
             @if (visibleParticipantSelector() === 'participant') {
-                <xm-exam-participant-selector [exam]="exam()"></xm-exam-participant-selector>
+                <xm-exam-participant-selector
+                    [exam]="exam()"
+                    (participantsChange)="participantsChanged($event)"
+                ></xm-exam-participant-selector>
             }
 
             <!-- Exam pre-participants -->
             @if (visibleParticipantSelector() === 'pre-participant') {
-                <xm-exam-pre-participant-selector [exam]="exam()"></xm-exam-pre-participant-selector>
+                <xm-exam-pre-participant-selector
+                    [exam]="exam()"
+                    (participantsChange)="participantsChanged($event)"
+                ></xm-exam-pre-participant-selector>
             }
         }
         @if (collaborative()) {
@@ -78,5 +85,10 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
 export class ExamPublicationParticipantsComponent {
     readonly collaborative = input(false);
     readonly exam = input.required<Exam>();
+    readonly participantsChange = output<ExamEnrolment[]>();
     readonly visibleParticipantSelector = signal('participant');
+
+    participantsChanged(event: ExamEnrolment[]) {
+        this.participantsChange.emit(event);
+    }
 }

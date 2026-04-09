@@ -3,7 +3,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -107,6 +116,7 @@ import type { User } from 'src/app/session/session.model';
 })
 export class ExamParticipantSelectorComponent {
     readonly exam = input.required<Exam>();
+    readonly participantsChange = output<ExamEnrolment[]>();
 
     readonly examEnrolments = linkedSignal(() => this.exam().examEnrolments);
     readonly newParticipantData = signal<{ id?: number }>({});
@@ -148,6 +158,7 @@ export class ExamParticipantSelectorComponent {
                 this.examEnrolments.update((list) => [...list, enrolment]);
                 this.newParticipantData.set({});
                 this.participantName = '';
+                this.participantsChange.emit(this.examEnrolments());
             },
             error: (err) => this.toast.error(err),
         });
@@ -158,6 +169,7 @@ export class ExamParticipantSelectorComponent {
             next: () => {
                 this.examEnrolments.update((list) => list.filter((ee) => ee.id !== id));
                 this.toast.info(this.translate.instant('i18n_participant_removed'));
+                this.participantsChange.emit(this.examEnrolments());
             },
             error: (err) => this.toast.error(err),
         });
