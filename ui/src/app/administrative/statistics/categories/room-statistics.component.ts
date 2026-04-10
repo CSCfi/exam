@@ -19,7 +19,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
             </div>
         </div>
         <div class="row">
-            <div class="col-12" style="overflow: auto">
+            <div class="col-12 table-responsive">
                 <table class="table table-sm table-bordered table-striped">
                     <thead>
                         <th>

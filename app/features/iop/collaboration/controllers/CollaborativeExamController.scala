@@ -30,6 +30,7 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import models.assessment.ExamInspection
 
 class CollaborativeExamController @Inject() (
     wsClient: play.api.libs.ws.WSClient,
@@ -64,6 +65,7 @@ class CollaborativeExamController @Inject() (
     exam.executionType = examExecutionType
     CollaborativeExamProcessingService.cleanUser(user)
     exam.setCreatorWithDate(user)
+    exam.examInspections = Set.empty[ExamInspection].asJava
 
     val examSection = new ExamSection()
     examSection.setCreatorWithDate(user)

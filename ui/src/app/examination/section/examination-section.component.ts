@@ -54,7 +54,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                     <div class="row">
                         <div class="col-md-12 mt-1">
                             <i class="text-muted bi-book" alt="exam materials"></i>
-                            <span style="padding-left: 15px">{{ material.name }}</span>
+                            <span class="ps-3">{{ material.name }}</span>
                             @if (material.author) {
                                 <span> ({{ material.author }}) </span>
                             }

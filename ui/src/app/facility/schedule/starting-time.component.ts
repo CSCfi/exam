@@ -43,11 +43,10 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
             <div class="col-12">
                 @for (hour of examStartingHours(); track hour) {
                     <span
-                        class="badge pointer"
+                        class="badge pointer m-1"
                         [class.bg-success]="hour.selected"
                         [class.bg-secondary]="!hour.selected"
                         (click)="toggleHourSelected(hour)"
-                        style="margin: 0.2em"
                         >{{ hour.startingHour }}</span
                     >
                 }
