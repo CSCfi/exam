@@ -7,6 +7,7 @@ package features.iop.collaboration.controllers
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
 import io.ebean.DB
+import models.assessment.ExamInspection
 import models.exam.*
 import models.exam.GradeType
 import models.sections.ExamSection
@@ -30,7 +31,6 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import models.assessment.ExamInspection
 
 class CollaborativeExamController @Inject() (
     wsClient: play.api.libs.ws.WSClient,
