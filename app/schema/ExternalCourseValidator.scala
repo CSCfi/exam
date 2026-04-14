@@ -72,6 +72,7 @@ object ExternalCourseValidator:
     private def readNameFieldSeq[A](fromName: String => A)(using r: Reads[A]): Reads[Seq[A]] =
       implicitly[Reads[String]].map(s => Seq(fromName(s)))
         .orElse(r.map(Seq(_)))
+        .orElse(implicitly[Reads[Seq[String]]].map(_.map(fromName)))
         .orElse(implicitly[Reads[Seq[A]]])
     private val asScales: Reads[Seq[GradeScale]] = implicitly[Reads[GradeScale]].map(Seq(_))
     private val readScale: Reads[Seq[GradeScale]] =

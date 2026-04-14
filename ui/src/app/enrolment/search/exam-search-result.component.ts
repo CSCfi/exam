@@ -35,7 +35,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                         </a>
                     }
                     @if (collaborative()) {
-                        <span class="exam-title-text">{{ exam().name }}</span>
+                        <span class="exam-title-link">{{ exam().name }}</span>
                     }
                 </h2>
             </div>
