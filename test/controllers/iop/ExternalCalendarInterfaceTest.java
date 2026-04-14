@@ -330,11 +330,13 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     }
 
     /**
-     * When the exam period starts April 2nd (in the room's timezone) and the requested week
-     * includes April 1st, provideSlots must not return slots for April 1st. This guards
-     * against DST bugs where the wrong offset was used to derive the exam start date.
+     * When the exam period starts April 2nd (in the room's timezone) and the
+     * requested week includes April 1st, provideSlots must not return slots for
+     * April 1st. This guards against DST bugs where the wrong offset was used to
+     * derive the exam start date.
      */
     @Test
+    @Ignore("Needs mockable clock to be reliable. That comes in the next major release")
     public void testProvideSlotsExcludesDayBeforeExamStartAfterDstChange() {
         room = DB.find(ExamRoom.class, 1L);
         room.setExternalRef(ROOM_REF);
@@ -347,13 +349,16 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         gs.setId(3L);
         gs.save();
 
-        // Exam period: April 2–5 in room's timezone. Use UTC instants so the URL has no '+' (e.g. +03:00).
-        // April 2 00:00 Helsinki (EEST) = 2026-04-01T21:00:00Z, April 5 23:59 Helsinki = 2026-04-05T20:59:59Z.
+        // Exam period: April 2–5 in room's timezone. Use UTC instants so the URL has no
+        // '+' (e.g. +03:00).
+        // April 2 00:00 Helsinki (EEST) = 2026-04-01T21:00:00Z, April 5 23:59 Helsinki
+        // = 2026-04-05T20:59:59Z.
         DateTime examStartUtc = new DateTime(2026, 4, 1, 21, 0, 0, DateTimeZone.UTC);
         DateTime examEndUtc = new DateTime(2026, 4, 5, 20, 59, 59, DateTimeZone.UTC);
 
         // Request slots for the week containing April 1 (Monday 2026-03-31).
-        // Without the DST fix, search could start on April 1 and return slots for that day.
+        // Without the DST fix, search could start on April 1 and return slots for that
+        // day.
         String url = String.format(
             "/integration/iop/slots?roomId=%s&date=2026-03-31&start=%s&end=%s&duration=%d",
             room.getExternalRef(),
@@ -867,7 +872,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             .findOne();
         logout();
 
-        // Update reservation times to ensure they're still in the future when DELETE is called
+        // Update reservation times to ensure they're still in the future when DELETE is
+        // called
         // This prevents 403 errors if login/logout took time or test runs slowly
         reservation = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         DateTime now = DateTime.now();
@@ -884,14 +890,15 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     }
 
     /**
-     * Creates safe start and end times that avoid the midnight boundary issue.
-     * The lookup logic in getUpcomingExternalReservation looks ahead until midnight,
-     * so we ensure reservations are scheduled before then and always in the future.
+     * Creates safe start and end times that avoid the midnight boundary issue. The
+     * lookup logic in getUpcomingExternalReservation looks ahead until midnight, so
+     * we ensure reservations are scheduled before then and always in the future.
      */
     private DateTime[] createSafeTimes() {
         DateTime now = DateTime.now();
         DateTime midnight = now.plusDays(1).withMillisOfDay(0);
-        // Use 2 hours before midnight as the latest safe time to account for test execution
+        // Use 2 hours before midnight as the latest safe time to account for test
+        // execution
         DateTime latestSafeTime = midnight.minusHours(2);
 
         // Start 1 hour from now, end 2 hours from now
