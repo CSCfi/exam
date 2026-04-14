@@ -54,6 +54,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import play.Application;
