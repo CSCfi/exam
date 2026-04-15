@@ -238,9 +238,7 @@ class QuestionService @Inject() (
   ): Question =
     val sanitizedQuestionText = questionText.orNull
     val defaultMaxScore =
-      (body \ "defaultMaxScore").asOpt[Double].map(_.asInstanceOf[java.lang.Double]).map(
-        round
-      ).orNull
+      (body \ "defaultMaxScore").asOpt[Double].map(round).getOrElse(0.0)
     val defaultWordCount =
       (body \ "defaultExpectedWordCount").asOpt[Int].map(_.asInstanceOf[java.lang.Integer]).orNull
     val defaultEvaluationType = (body \ "defaultEvaluationType")
@@ -341,7 +339,7 @@ class QuestionService @Inject() (
     val scoreFieldName =
       if (node \ "defaultScore").asOpt[Double].isDefined then "defaultScore" else "score"
     option.defaultScore =
-      (node \ scoreFieldName).asOpt[Double].map(_.asInstanceOf[java.lang.Double]).map(round).orNull
+      (node \ scoreFieldName).asOpt[Double].map(round).getOrElse(0.0)
 
     val correctOption = (node \ "correctOption").asOpt[Boolean].getOrElse(false)
     option.correctOption = correctOption
@@ -352,7 +350,7 @@ class QuestionService @Inject() (
         .orNull
 
     saveOption(option, question, user)
-    propagateOptionCreationToExamQuestions(question, null, option)
+    propagateOptionCreationToExamQuestions(question, None, option)
 
   private def parseHtml(fieldName: String, node: JsValue): Option[String] =
     SanitizingHelper.parseHtml(fieldName, node)

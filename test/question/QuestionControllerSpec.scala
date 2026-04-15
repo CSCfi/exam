@@ -88,48 +88,47 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
       "add option to weighted multiple choice question" in:
         val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
-        assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
+        assertExamSectionQuestion(q, 4.0, Seq(2.0, 2.0, -2.0), -2.0)
 
         // Add new option to question
         val updatedQuestion =
-          addNewOption(q, Some(0.75), Array(1.0, 1.0, -1.0, 0.75), -1.0, user, session)
+          addNewOption(q, Some(0.75), Seq(1.0, 1.0, -1.0, 0.75), -1.0, user, session)
 
-        assertExamSectionQuestion(updatedQuestion, 4, 4.0, Array(1.46, 1.46, -2.0, 1.08), -2.0)
+        assertExamSectionQuestion(updatedQuestion, 4, Seq(1.46, 1.46, -2.0, 1.08), -2.0)
 
       "add null score option to weighted multiple choice question" in:
         val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
-        assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
+        assertExamSectionQuestion(q, 4.0, Seq(2.0, 2.0, -2.0), -2.0)
 
         // Add new option to question
         val updatedQuestion =
-          addNewOption(q, None, Array(1.0, 1.0, -1.0, Double.NaN), -1.0, user, session)
+          addNewOption(q, None, Seq(1.0, 1.0, -1.0, Double.NaN), -1.0, user, session)
 
-        assertExamSectionQuestion(updatedQuestion, 4, 4.0, Array(2.0, 2.0, -2.0, Double.NaN), -2.0)
+        assertExamSectionQuestion(updatedQuestion, 4.0, Seq(2.0, 2.0, -2.0, 0.0), -2.0)
 
       "add negative option to weighted multiple choice question" in:
         val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
-        assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
+        assertExamSectionQuestion(q, 4.0, Seq(2.0, 2.0, -2.0), -2.0)
 
         // Add new option to question
         val updatedQuestion =
-          addNewOption(q, Some(-0.73), Array(1.0, 1.0, -1.0, -0.73), -1.73, user, session)
+          addNewOption(q, Some(-0.73), Seq(1.0, 1.0, -1.0, -0.73), -1.73, user, session)
 
-        assertExamSectionQuestion(updatedQuestion, 4, 4.0, Array(2.0, 2.0, -1.16, -0.84), -2.0)
+        assertExamSectionQuestion(updatedQuestion, 4.0, Seq(2.0, 2.0, -1.16, -0.84), -2.0)
 
       "delete option from weighted multiple choice question" in:
         val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
         // Add new option to question and then delete it
-        assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
+        assertExamSectionQuestion(q, 4.0, Seq(2.0, 2.0, -2.0), -2.0)
         val questionWithNewOption =
-          addNewOption(q, Some(0.75), Array(1.0, 1.0, -1.0, 0.75), -1.0, user, session)
+          addNewOption(q, Some(0.75), Seq(1.0, 1.0, -1.0, 0.75), -1.0, user, session)
         assertExamSectionQuestion(
           questionWithNewOption,
-          4,
           4.0,
-          Array(1.46, 1.46, -2.0, 1.08),
+          Seq(1.46, 1.46, -2.0, 1.08),
           -2.0
         )
 
@@ -138,20 +137,19 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         val finalQuestion = DB.find(classOf[Question], questionWithNewOption.id)
         finalQuestion must not be null
         finalQuestion.options.size must be(3)
-        assertExamSectionQuestion(finalQuestion, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
+        assertExamSectionQuestion(finalQuestion, 4.0, Seq(2.0, 2.0, -2.0), -2.0)
 
       "delete negative option from weighted multiple choice question" in:
         val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
         // Add new option to question and then delete it
-        assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
+        assertExamSectionQuestion(q, 4.0, Seq(2.0, 2.0, -2.0), -2.0)
         val questionWithNewOption =
-          addNewOption(q, Some(-0.5), Array(1.0, 1.0, -1.0, -0.5), -1.5, user, session)
+          addNewOption(q, Some(-0.5), Seq(1.0, 1.0, -1.0, -0.5), -1.5, user, session)
         assertExamSectionQuestion(
           questionWithNewOption,
-          4,
           4.0,
-          Array(2.0, 2.0, -1.33, -0.67),
+          Seq(2.0, 2.0, -1.33, -0.67),
           -2.0
         )
 
@@ -160,7 +158,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         val finalQuestion = DB.find(classOf[Question], questionWithNewOption.id)
         finalQuestion must not be null
         finalQuestion.options.size must be(3)
-        assertExamSectionQuestion(finalQuestion, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
+        assertExamSectionQuestion(finalQuestion, 4.0, Seq(2.0, 2.0, -2.0), -2.0)
 
     "exporting questions" should:
       "export questions to Moodle format" in:
@@ -338,7 +336,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
   private def addNewOption(
       question: Question,
       defaultScore: Option[Double],
-      expectedDefaultScores: Array[Double],
+      expectedDefaultScores: Seq[Double],
       minDefaultScore: Double,
       user: User,
       session: play.api.mvc.Session
@@ -388,7 +386,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
     val defaultScores = saved.options.asScala.toList.sortBy(_.id).map(_.defaultScore)
     // Handle NaN comparison specially
     expectedDefaultScores.zip(defaultScores).foreach { case (expected, actual) =>
-      if (expected.isNaN) Option(actual).forall(_.isNaN) must be(true)
+      if (expected.isNaN) Option(actual).forall(_ == 0.0) must be(true)
       else if (actual != null)
         actual.doubleValue must be(expected +- 0.01) // Allow small floating point differences
       else fail(s"Expected $expected but got null")
@@ -398,20 +396,19 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
 
   private def assertExamSectionQuestion(
       question: Question,
-      optionSize: Int,
       maxScore: Double,
-      expectedScores: Array[Double],
+      expectedScores: Seq[Double],
       minScore: Double
   ): Unit =
     val examSectionQuestions = question.examSectionQuestions
     examSectionQuestions.size must be(1)
 
     val esq = examSectionQuestions.iterator().next()
-    esq.options.size must be(optionSize)
+    esq.options.size must be(expectedScores.length)
     esq.getMinScore.doubleValue must be(minScore +- 0.01)
     esq.getMaxAssessedScore.doubleValue must be(maxScore +- 0.01)
 
-    val scores = esq.options.asScala.map(_.score).toArray
+    val scores = esq.options.asScala.map(_.score)
     expectedScores.zip(scores).foreach { case (expected, actual) =>
       if (expected.isNaN) Option(actual).forall(_.isNaN) must be(true)
       else if (actual != null)

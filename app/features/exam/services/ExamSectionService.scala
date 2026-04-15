@@ -482,7 +482,7 @@ class ExamSectionService @Inject() (
       dto: SectionQuestionDTO
   ): Unit =
     sectionQuestion.maxScore =
-      PlayJsonHelper.parse[Double]("maxScore", body).map(d => round(d)).orNull
+      PlayJsonHelper.parse[Double]("maxScore", body).map(round).map(Double.box).getOrElse(0.0)
 
     sectionQuestion.answerInstructions = dto.getAnswerInstructionsOrNull
     sectionQuestion.evaluationCriteria = dto.getEvaluationCriteriaOrNull
@@ -512,13 +512,13 @@ class ExamSectionService @Inject() (
       option.option = PlayJsonHelper.parse[String]("option", optNode).orNull
     }
     option.defaultScore =
-      PlayJsonHelper.parse[Double]("score", node).map(d => round(d)).orNull
+      PlayJsonHelper.parse[Double]("score", node).map(round).map(Double.box).getOrElse(0.0)
 
     val correctOption =
       PlayJsonHelper.parseOrElse("correctOption", baseOptionNode.getOrElse(Json.obj()), false)
     option.correctOption = correctOption
     saveOption(option, question, user)
-    propagateOptionCreationToExamQuestions(question, esq, option)
+    propagateOptionCreationToExamQuestions(question, Some(esq), option)
 
   private def processExamQuestionOptions(
       question: Question,
@@ -555,7 +555,7 @@ class ExamSectionService @Inject() (
       PlayJsonHelper.parse[Long]("id", option).foreach { id =>
         Option(DB.find(classOf[ExamSectionQuestionOption], id)).foreach { esqo =>
           esqo.score =
-            PlayJsonHelper.parse[Double]("score", option).map(d => round(d)).orNull
+            PlayJsonHelper.parse[Double]("score", option).map(round).map(Double.box).getOrElse(0.0)
 
           esqo.update()
         }

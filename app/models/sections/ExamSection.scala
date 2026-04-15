@@ -88,8 +88,8 @@ final class ExamSection extends OwnedModel with Ordered[ExamSection] with Sortab
     else
       section.examMaterials = examMaterials
 
-  def getTotalScore: Double = sectionQuestions.asScala.map(_.getAssessedScore).filter(_ != 0.0).sum
-  def getMaxScore: Double = sectionQuestions.asScala.map(_.getMaxAssessedScore).filter(_ != 0.0).sum
+  def getTotalScore: Double = sectionQuestions.asScala.toSeq.map(_.getAssessedScore).sum
+  def getMaxScore: Double   = sectionQuestions.asScala.toSeq.map(_.getMaxAssessedScore).sum
   def getRejectedCount: Int = sectionQuestions.asScala.count(_.isRejected)
   def getApprovedCount: Int = sectionQuestions.asScala.count(_.isApproved)
   def hasQuestion(question: Question): Boolean =
