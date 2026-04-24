@@ -138,12 +138,13 @@ class ExternalCourseHandlerImpl @Inject (
           logger.info(s"Non-OK response received for URL: %url. Status: $status")
           Seq.empty
       )
-      .recover { case e: JsResultException =>
-        logger.error("Unable to parse course data: JSON structure did not match expected format", e)
-        Seq.empty
-      case e: Exception =>
-        logger.error("Unable to download course data due to exception in network connection", e)
-        Seq.empty
+      .recover {
+        case e: JsResultException =>
+          logger.error("Unable to parse course data: JSON structure did not match expected format", e)
+          Seq.empty
+        case e: Exception =>
+          logger.error("Unable to download course data due to exception in network connection", e)
+          Seq.empty
       }
 
   private def parseCourses(root: JsValue): Seq[CourseUnitInfo] =
@@ -235,7 +236,7 @@ class ExternalCourseHandlerImpl @Inject (
       if date.isBeforeNow then Left("too late") else Right(Some(date))
 
   private def queryRequest(url: URL) =
-    val host = url.toString.split("\\?").head
+    val host        = url.toString.split("\\?").head
     val queryString = Option(url.getQuery).getOrElse("")
     val params = queryString
       .split("&")

@@ -8,5 +8,5 @@ import com.google.inject.AbstractModule
 import miscellaneous.cache.{FacilityCache, FacilityCacheImpl}
 
 class FacilityCacheModule extends AbstractModule:
-  override def configure(): Unit = 
+  override def configure(): Unit =
     bind(classOf[FacilityCache]).to(classOf[FacilityCacheImpl])

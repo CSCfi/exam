@@ -16,9 +16,9 @@ class EmailSenderImpl @Inject() (private val config: Config) extends EmailSender
 
   private def mockSending(email: HtmlEmail, content: String, attachments: Set[EmailAttachment]): Unit =
     logger.info("mock implementation, send email")
-    val to   = email.getToAddresses.asScala.mkString(", ")
-    val cc   = email.getCcAddresses.asScala.mkString(", ")
-    val bcc  = email.getReplyToAddresses.asScala.mkString(", ")
+    val to  = email.getToAddresses.asScala.mkString(", ")
+    val cc  = email.getCcAddresses.asScala.mkString(", ")
+    val bcc = email.getReplyToAddresses.asScala.mkString(", ")
     val att = attachments.map(_.getName).mkString(", ")
     logger.info(s"""
         |Following email was sent:

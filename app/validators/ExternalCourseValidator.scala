@@ -69,6 +69,12 @@ object ExternalCourseValidator:
         .orElse(r.map(Seq(_)))
         .orElse(implicitly[Reads[Seq[String]]].map(_.map(fromName)))
         .orElse(implicitly[Reads[Seq[A]]])
+        .orElse(
+          implicitly[Reads[Seq[JsObject]]].map(_.filter(_.values.nonEmpty)).flatMap {
+            case empty if empty.isEmpty => Reads.pure(Seq.empty[A])
+            case _                      => Reads.failed("Not an empty object sequence")
+          }
+        )
     private val asScales: Reads[Seq[GradeScale]] = implicitly[Reads[GradeScale]].map(Seq(_))
     private val readScale: Reads[Seq[GradeScale]] =
       implicitly[Reads[Seq[GradeScale]]].orElse(asScales)

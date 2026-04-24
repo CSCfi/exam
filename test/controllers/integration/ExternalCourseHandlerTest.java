@@ -104,7 +104,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo("9");
-        assertThat(course.getCreditsLanguage()).isEqualTo("fi");
+        assertThat(course.getCreditsLanguage()).isNull();
         List<Grade> grades = DB.find(Grade.class)
             .where()
             .eq("gradeScale.id", course.getGradeScale().getId())
@@ -185,10 +185,11 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testAlwaysSearchForRemoteCourse() {
-        // This is to make sure that we can import a course that shares the same prefix and has shorter code than a
+        // This is to make sure that we can import a course that shares the same prefix
+        // and has shorter code than a
         // course already found in db
         // remote code = 2121219_abcdefghijklmnop
-        // local code =  2121219_abcdefghijklmnopq
+        // local code = 2121219_abcdefghijklmnopq
         setUserOrg(null);
 
         Course course = new Course();
