@@ -110,7 +110,7 @@ class ExternalCourseHandlerSpec
             course.gradeScale.getType must be(GradeScale.Type.OTHER)
             course.gradeScale.displayName must be("0-5")
             course.gradeScale.externalRef must be("9")
-            course.creditsLanguage must be("fi")
+            course.creditsLanguage must be(null)
             course
           case None => fail("Course not found")
 
