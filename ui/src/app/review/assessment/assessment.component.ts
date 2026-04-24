@@ -128,10 +128,13 @@ export class AssessmentComponent {
 
     scoreSet = (revision: string) => {
         const participationValue = this.participation();
-        const examValue = this.exam();
-        if (!participationValue || !examValue) return;
+        if (!participationValue) return;
         participationValue._rev = revision;
-        this.questionSummary.set(this.QuestionScore.getQuestionAmounts(examValue));
+        const examValue = this.exam();
+        if (examValue) {
+            this.questionSummary.set(this.QuestionScore.getQuestionAmounts(examValue));
+        }
+        this.onExamUpdated();
         this.startReview();
     };
 
