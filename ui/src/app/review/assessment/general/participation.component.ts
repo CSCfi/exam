@@ -24,7 +24,7 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
             </span>
         </div>
         <div class="col-md-2 general-info-title" [hidden]="hideGrade()">
-            {{ 'i18n_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{ translateGrade() }}</span>
+            {{ 'i18n_grade' | translate }}:<span class="text-success ms-2">{{ translateGrade() }}</span>
         </div>
         @if (!hideAnswerLink()) {
             <div class="col-md-4 xm-link">

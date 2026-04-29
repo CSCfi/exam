@@ -65,40 +65,42 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
   override def setOrdinal(o: Integer): Unit = sequenceNumber = o
 
   override def getAssessedScore: Double =
+    // Helper to handle the recurring forcedScore logic safely
+    def withForcedScore(fallback: => Double): Double =
+      Option(forcedScore).filter(_ != 0).map(_.toDouble).getOrElse(fallback)
+
     question.`type` match
       case QuestionType.EssayQuestion =>
-        if evaluationType == QuestionEvaluationType.Points then
-          if essayAnswer == null || essayAnswer.evaluatedScore == 0 then 0
-          else essayAnswer.evaluatedScore
+        val score = if evaluationType == QuestionEvaluationType.Points then
+          Option(essayAnswer).map(_.evaluatedScore.toDouble).getOrElse(0.0)
         else 0.0
+        if score == 0 then 0.0 else score
       case QuestionType.MultipleChoiceQuestion =>
-        if forcedScore != 0 then forcedScore
-        else
-          options.asScala.find(_.answered) match
-            case Some(o) => if o.option.correctOption then maxScore else 0.0
-            case None    => 0.0
+        withForcedScore {
+          options.asScala
+            .find(_.answered)
+            .filter(_.option.correctOption)
+            .map(_ => maxScore.toDouble) // Force to primitive
+            .getOrElse(0.0)
+        }
       case QuestionType.WeightedMultipleChoiceQuestion =>
-        if forcedScore != 0 then forcedScore
-        else
-          val eval =
-            options.asScala.filter(o => o.answered && o.score != 0).map(_.score.toDouble).sum
+        withForcedScore {
+          val eval = options.asScala.filter(_.answered).map(_.score.toDouble).sum
           if negativeScoreAllowed then eval else math.max(0.0, eval)
+        }
       case QuestionType.ClozeTestQuestion =>
-        if forcedScore != 0 then forcedScore
-        else if clozeTestAnswer == null then 0.0
-        else
-          val s       = clozeTestAnswer.calculateScore(this)
-          val correct = s.correctAnswers
-          val wrong   = s.incorrectAnswers
-          if correct + wrong == 0 then 0.0
-          else
-            BigDecimal(correct.toDouble * maxScore / (correct + wrong).toDouble)
-              .setScale(2, BigDecimal.RoundingMode.HALF_UP)
-              .toDouble
+        withForcedScore {
+          Option(clozeTestAnswer).map(_.calculateScore(this)) match
+            case Some(s) if (s.correctAnswers + s.incorrectAnswers) > 0 =>
+              val total = (s.correctAnswers + s.incorrectAnswers).toDouble
+              BigDecimal(s.correctAnswers.toDouble * maxScore.toDouble / total)
+                .setScale(2, BigDecimal.RoundingMode.HALF_UP)
+                .toDouble
+            case _ => 0.0
+        }
       case QuestionType.ClaimChoiceQuestion =>
-        if forcedScore != 0 then forcedScore
-        else options.asScala.find(_.answered).map(_.score.toDouble).getOrElse(0.0)
-      case null => 0.0 // This should never happen, java enum interop stuff
+        withForcedScore { options.asScala.find(_.answered).map(_.score.toDouble).getOrElse(0.0) }
+      case null => 0.0
 
   override def getMaxAssessedScore: Double =
     question.`type` match

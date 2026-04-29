@@ -10,8 +10,9 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime, Duration } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { AutoEvaluationConfig, ExaminationDate } from 'src/app/exam/exam.model';
+import type { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -107,6 +108,14 @@ export class ExamPublicationComponent {
 
     endDateChanged(event: { date: Date | null }) {
         this.Tabs.setExam({ ...this.exam(), periodEnd: event.date ? event.date.toISOString() : null });
+    }
+
+    eventsChanged(event: ExaminationEventConfiguration[]) {
+        this.Tabs.setExam({ ...this.exam(), examinationEventConfigurations: event });
+    }
+
+    enrolmentsChanged(event: ExamEnrolment[]) {
+        this.Tabs.setExam({ ...this.exam(), examEnrolments: event });
     }
 
     autoEvaluationConfigChanged(event: { config: AutoEvaluationConfig }) {

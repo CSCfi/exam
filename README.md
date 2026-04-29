@@ -4,10 +4,9 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-[![Build](https://github.com/CSCfi/exam/actions/workflows/build.yml/badge.svg?branch=cke5)](https://github.com/CSCfi/exam/actions) 
+[![Build](https://github.com/CSCfi/exam/actions/workflows/build.yml/badge.svg?branch=cke5)](https://github.com/CSCfi/exam/actions)
 
-EXAM Quickstart for developers
-=====================================
+# EXAM Quickstart for developers
 
 1.  Prerequisites: install SBT, Java (25), Node (>= 22) and PostgreSQL (>= 9.4).
 
@@ -52,6 +51,10 @@ EXAM Quickstart for developers
         $ pnpm install
         $ pnpm start
 
+    We use `lefthook` for git hooks. They should install automatically via `postinstall`, but pnpm may skip this if dependencies haven't changed. If your hooks aren't firing, run:
+
+        $ pnpm run postinstall
+
 4.  In another tab or window start sbt console and run backend application in development mode
 
         $ sbt -Dconfig.file=conf/dev.conf -jvm-debug 9999 -mem 2048
@@ -64,5 +67,5 @@ EXAM Quickstart for developers
 6.  Instead of steps 3 to 5 you can also use Docker if you prefer. See [DOCKER.md](DOCKER.md).
 
 ## More information
-For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)
 
+For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)

@@ -6,8 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam } from 'src/app/exam/exam.model';
-import { ExamService } from 'src/app/exam/exam.service';
 
 type Organisation = {
     _id: string;
@@ -100,7 +100,7 @@ export class OrganisationSelectorComponent {
 
     private readonly allOrganisations = signal<Organisation[]>([]);
     private readonly http = inject(HttpClient);
-    private readonly Exam = inject(ExamService);
+    private readonly examTabService = inject(ExamTabService);
 
     constructor() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {
@@ -110,14 +110,15 @@ export class OrganisationSelectorComponent {
 
     addOrganisation(organisation: Organisation) {
         const currentExam = this.exam();
+        let newOrganisations: string;
         if (!currentExam.organisations) {
-            currentExam.organisations = organisation._id;
+            newOrganisations = organisation._id;
         } else if (!currentExam.organisations.includes(organisation._id)) {
-            currentExam.organisations = `${currentExam.organisations};${organisation._id}`;
+            newOrganisations = `${currentExam.organisations};${organisation._id}`;
         } else {
             return;
         }
-        this.Exam.updateExam$(currentExam, {}, true).subscribe(() => {
+        this.examTabService.saveExam$({ organisations: newOrganisations }, true).subscribe(() => {
             this.selectedOrganisations.update((selected) => [...selected, organisation]);
             this.organisations.update((orgs) =>
                 orgs.map((o) => (o._id === organisation._id ? { ...o, filtered: true } : o)),
@@ -129,14 +130,16 @@ export class OrganisationSelectorComponent {
         const currentExam = this.exam();
         if (!currentExam.organisations || !currentExam.organisations.includes(organisation._id)) {
             return;
-        } else if (currentExam.organisations.includes(';' + organisation._id)) {
-            currentExam.organisations = currentExam.organisations.replace(';' + organisation._id, '');
+        }
+        let newOrganisations: string;
+        if (currentExam.organisations.includes(';' + organisation._id)) {
+            newOrganisations = currentExam.organisations.replace(';' + organisation._id, '');
         } else if (currentExam.organisations.includes(organisation._id)) {
-            currentExam.organisations = currentExam.organisations.replace(organisation._id, '');
+            newOrganisations = currentExam.organisations.replace(organisation._id, '');
         } else {
             return;
         }
-        this.Exam.updateExam$(currentExam, {}, true).subscribe(() => {
+        this.examTabService.saveExam$({ organisations: newOrganisations }, true).subscribe(() => {
             this.selectedOrganisations.update((selected) => selected.filter((o) => o._id !== organisation._id));
             this.organisations.update((orgs) =>
                 orgs.map((o) => (o._id === organisation._id ? { ...o, filtered: false } : o)),

@@ -13,7 +13,7 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <!-- Finished exams list -->
     <div class="row">
-        <div class="col-12 exam-participations-content-max">
+        <div class="col-12">
             <div class="row align-items-center" role="note">
                 <div class="col-auto">
                     <img src="/assets/images/icon_info.png" class="pe-1" alt="" />
@@ -29,7 +29,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 
     <div class="row my-3">
-        <div class="col-12 exam-participations-content-max">
+        <div class="col-12">
             <div class="row align-items-center g-2">
                 <div class="col-12 col-md-5">
                     <div class="input-group">
@@ -88,7 +88,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     @if (searchDone()) {
         <div class="row my-2">
-            <div class="col-12 exam-participations-content-max" aria-live="polite">
+            <div class="col-12" aria-live="polite">
                 {{ 'i18n_student_exam_search_result' | translate }} {{ participations().length }}
                 {{ 'i18n_student_exam_search_result_continues' | translate }}
             </div>
@@ -103,7 +103,7 @@ SPDX-License-Identifier: EUPL-1.2
         track participation
     ) {
         <div class="row mb-3">
-            <div class="col-12 exam-participations-content-max">
+            <div class="col-12">
                 <xm-exam-participation
                     [participation]="participation"
                     [collaborative]="collaborative"
@@ -115,7 +115,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (participations()) {
         <div class="row mt-2">
             @if (participations().length > pageSize) {
-                <div class="col-12 exam-participations-content-max">
+                <div class="col-12">
                     <xm-paginator
                         [items]="participations()"
                         (pageSelected)="pageSelected($event)"

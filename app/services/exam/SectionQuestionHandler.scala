@@ -46,7 +46,7 @@ trait SectionQuestionHandler:
 
   def propagateOptionCreationToExamQuestions(
       question: Question,
-      modifiedExamQuestion: ExamSectionQuestion,
+      modifiedExamQuestion: Option[ExamSectionQuestion],
       option: MultipleChoiceOption
   ): Unit =
     // Need to add the new option to bound exam section questions as well
@@ -56,12 +56,11 @@ trait SectionQuestionHandler:
       question.examSectionQuestions.asScala.foreach { examQuestion =>
         val esqo = new ExamSectionQuestionOption()
         // Preserve scores for the exam question that is under modification right now
-        val preserveScore =
-          modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion)
+        val preserveScore = modifiedExamQuestion.exists(_.equals(examQuestion))
         val unroundedScore =
-          if preserveScore then option.defaultScore
-          else calculateOptionScore(question, option, examQuestion)
-        esqo.score = if unroundedScore == null then null else round(unroundedScore)
+          if preserveScore then Option(option.defaultScore).map(_.doubleValue())
+          else Some(calculateOptionScore(question, option, examQuestion))
+        esqo.score = unroundedScore.map(round).map(java.lang.Double.valueOf).orNull
         esqo.option = option
         examQuestion.addOption(esqo, preserveScore)
         examQuestion.update()
@@ -78,21 +77,20 @@ trait SectionQuestionHandler:
     * @return
     *   New calculated score rounded to two decimals.
     */
-  def calculateOptionScore(
+  private def calculateOptionScore(
       question: Question,
       option: MultipleChoiceOption,
       esq: ExamSectionQuestion
-  ): java.lang.Double =
+  ): Double =
     val defaultScore = option.defaultScore
     if defaultScore == null || defaultScore == 0 then defaultScore
     else
-      val result =
-        if defaultScore > 0 then
-          (esq.getMaxAssessedScore / 100) * ((defaultScore / question.getMaxDefaultScore) * 100)
-        else if defaultScore < 0 then
-          (esq.getMinScore / 100) * ((defaultScore / question.getMinDefaultScore) * 100)
-        else 0.0
-      result
+      defaultScore match
+        case ds if ds > 0 =>
+          (esq.getMaxAssessedScore / 100) * ((ds / question.getMaxDefaultScore) * 100)
+        case ds if ds < 0 =>
+          (esq.getMinScore / 100) * ((ds / question.getMinDefaultScore) * 100)
+        case _ => 0.0
 
   def updateSequences(sortables: List[Sortable], ordinal: Int): Unit =
     // Increase sequences for the entries above the inserted one
@@ -118,9 +116,7 @@ trait SectionQuestionHandler:
           option.update()
         }
 
-  def round(src: java.lang.Double): java.lang.Double =
-    if src == null then null
-    else Math.round(src * 100) * (1.0 / 100)
+  def round(src: Double): Double = Math.round(src * 100) * (1.0 / 100)
 
   def deleteOption(option: MultipleChoiceOption): Unit =
     val question = option.question

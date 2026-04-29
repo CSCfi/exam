@@ -7,6 +7,7 @@ package features.iop.collaboration.controllers
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
 import io.ebean.DB
+import models.assessment.ExamInspection
 import models.exam.*
 import models.exam.GradeType
 import models.sections.ExamSection
@@ -64,6 +65,7 @@ class CollaborativeExamController @Inject() (
     exam.executionType = examExecutionType
     CollaborativeExamProcessingService.cleanUser(user)
     exam.setCreatorWithDate(user)
+    exam.examInspections = Set.empty[ExamInspection].asJava
 
     val examSection = new ExamSection()
     examSection.setCreatorWithDate(user)
