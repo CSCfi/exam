@@ -89,8 +89,10 @@ SPDX-License-Identifier: EUPL-1.2
                                     {{ noShow.examinationEventConfiguration.examinationEvent.start | date: 'HH:mm' }}
                                     -
                                     {{
-                                        noShow.examinationEventConfiguration.examinationEvent.start +
+                                        calculateEndTime(
+                                            noShow.examinationEventConfiguration.examinationEvent.start,
                                             noShow.exam.duration
+                                        )
                                             | applyDst
                                             | date: 'HH:mm'
                                     }}

@@ -6,6 +6,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -43,5 +44,9 @@ export class NoShowsComponent {
             this.reverse.update((v) => !v);
         }
         this.noShowPredicate.set(predicate);
+    }
+
+    calculateEndTime(start: string, duration: number) {
+        return DateTime.fromISO(start).plus({ minutes: duration }).toISO() as string;
     }
 }
