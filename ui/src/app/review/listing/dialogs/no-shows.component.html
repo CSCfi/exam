@@ -58,7 +58,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 </thead>
                 <tbody>
-                    @for (noShow of noShowsWithName() | orderBy: noShowPredicate() : reverse(); track noShow) {
+                    @for (noShow of noShowsWithName() | orderBy: noShowPredicate() : reverse(); track noShow.id) {
                         <tr>
                             <td>
                                 {{ noShow.displayName }}

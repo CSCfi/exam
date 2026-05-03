@@ -336,7 +336,7 @@ class ReviewService @Inject() (
   def listNoShows(eid: Long, collaborative: Option[Boolean]): (List[ExamEnrolment], Set[Long]) =
     val el = DB
       .find(classOf[ExamEnrolment])
-      .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
+      .fetch("exam", "id, name, state, period, gradedTime, customCredit, trialCount, anonymous")
       .fetch("collaborativeExam")
       .fetch("exam.executionType")
       .fetch("reservation")
