@@ -26,7 +26,7 @@ import javax.inject.Inject
 import scala.collection.immutable.TreeSet
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class ExternalCourseHandlerImpl @Inject (
     private val wsClient: WSClient,
@@ -137,28 +137,27 @@ class ExternalCourseHandlerImpl @Inject (
         bytes.drop(3)
       else bytes
     val body = bodyBytes.utf8String.trim
-    if body.startsWith("<") then
-      logger.warn("Response is not JSON (e.g. HTML error page). Body starts with '<'.")
-      None
-    else
-      Try(Json.parse(bodyBytes.toArray)).toOption match
-        case None =>
-          logger.warn("Response was not valid JSON (e.g. HTML error page).")
-          None
-        case some => some
+
+    Try(Json.parse(bodyBytes.toArray)) match
+      case Success(jsValue) => Some(jsValue)
+      case Failure(exception) =>
+        logger.warn(
+          s"""Failed to parse JSON. Status: ${response.status}, Size: ${bytes.length} bytes
+             |Content-Type: ${response.contentType}
+             |Error: ${exception.getMessage}
+             |Body starts:
+             | 
+             |${body.take(200)}...""".stripMargin
+        )
+        None
 
   private def downloadCourses(url: URL) =
     queryRequest(url)
       .get()
       .map(response =>
-        val status = response.status
-        if status == Http.Status.OK then
-          parseResponseBody(response) match
-            case Some(root) => parseCourses(root).flatMap(parseCourse)
-            case None       => Seq.empty
-        else
-          logger.info(s"Non-OK response received for URL: %url. Status: $status")
-          Seq.empty
+        parseResponseBody(response) match
+          case Some(root) => parseCourses(root).flatMap(parseCourse)
+          case None       => Seq.empty
       )
       .recover {
         case e: JsResultException =>
@@ -196,8 +195,8 @@ class ExternalCourseHandlerImpl @Inject (
         model.courseImplementation = cui.implementation.orElse(cui.altImplementation).orNull
         model.level = cui.level.orNull
         model.courseUnitType = cui.`type`.orNull
-        // This is interesting trying to pass an optional to Java's nullable number
-        model.credits = if cui.credits.nonEmpty then cui.credits.get else null
+        // This is interesting having to pass an Option[Double] to Java's Double
+        model.credits = cui.credits.map(d => java.lang.Double.valueOf(d)).orNull
         val org = DB.find(classOf[Organisation]).where.ieq("name", cui.institutionName).find match
           case None =>
             val org2 = new Organisation

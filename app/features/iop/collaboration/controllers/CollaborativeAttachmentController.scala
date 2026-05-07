@@ -154,8 +154,9 @@ class CollaborativeAttachmentController @Inject() (
         wsClient.url(url.toString).stream().map { response =>
           if response.status != OK then Status(response.status)
           else
-            val escapedName        = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
-            val contentDisposition = s"""attachment; filename*=UTF-8''"$escapedName""""
+            val escapedName =
+              URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20")
+            val contentDisposition = s"attachment; filename*=UTF-8''$escapedName"
             Ok.chunked(response.bodyAsSource)
               .as(mimeType)
               .withHeaders("Content-Disposition" -> contentDisposition)
