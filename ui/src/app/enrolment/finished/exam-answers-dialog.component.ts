@@ -20,14 +20,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
     imports: [TranslateModule, MathJaxDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
 export class ExamAnswersDialogComponent implements OnInit {
-    private static readonly HTML_ESCAPE_MAP: Record<string, string> = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-    };
-
     @Input() exam!: Exam;
     @Input() participationTime = '';
     @Input() participationDuration: number | string = 0;
@@ -48,8 +40,6 @@ export class ExamAnswersDialogComponent implements OnInit {
     countWords = (answer: ExamSectionQuestion) => this.CommonExam.countWords(answer.essayAnswer?.answer);
     countCharacters = (answer: ExamSectionQuestion) => this.CommonExam.countCharacters(answer.essayAnswer?.answer);
     getAnsweredOptions = (answer: ExamSectionQuestion) => answer.options.filter((o) => o.answered);
-    escapeHtml = (value?: string) =>
-        (value ?? '').replace(/[&<>"']/g, (ch) => ExamAnswersDialogComponent.HTML_ESCAPE_MAP[ch] ?? ch);
     isMultiChoice = (answer: ExamSectionQuestion) =>
         ['WeightedMultipleChoiceQuestion', 'MultipleChoiceQuestion', 'ClaimChoiceQuestion'].indexOf(
             answer.question.type,
