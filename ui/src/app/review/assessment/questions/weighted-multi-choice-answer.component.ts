@@ -6,8 +6,6 @@ import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
@@ -63,7 +61,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             }
         </div>
     }`,
-    imports: [MathJaxDirective, NgClass, TranslateModule, OrderByPipe],
+    imports: [NgClass, TranslateModule, OrderByPipe],
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class WeightedMultiChoiceAnswerComponent {
