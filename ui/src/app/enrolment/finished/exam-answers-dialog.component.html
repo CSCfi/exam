@@ -114,7 +114,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <div class="xm-answers-field">
                                 <span class="xm-answers-meta-label">{{ 'i18n_exam_answer' | translate }}:</span>
                                 @for (option of getAnsweredOptions(esq); track option) {
-                                    <div [xmMath]="option.option.option"></div>
+                                    <div>{{ option.option.option }}</div>
                                 }
                             </div>
                             <div class="xm-answers-score-row">
