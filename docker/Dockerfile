@@ -34,7 +34,7 @@ RUN apt-get update && \
     echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list && \
     echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list && \
     apt-get update -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowUnauthenticatedRepositories=true && \
-    apt-get install -y sbt && \
+    apt-get install -y --allow-unauthenticated sbt && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
