@@ -14,7 +14,6 @@ import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.*
 import play.api.libs.ws.{WSClient, WSResponse}
-import play.mvc.Http
 import schema.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
