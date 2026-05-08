@@ -15,7 +15,7 @@ import org.apache.pekko.util.ByteString
 import org.joda.time.DateTime
 import org.springframework.beans.BeanUtils
 import play.api.Logging
-import play.api.libs.json.{JsResultException, JsValue, Json}
+import play.api.libs.json.*
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
 import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
@@ -138,17 +138,25 @@ class ExternalCourseHandlerImpl @Inject (
           logger.info(s"Non-OK response received for URL: %url. Status: $status")
           Seq.empty
       )
-      .recover { case e: JsResultException =>
-        logger.error("Unable to parse course data: JSON structure did not match expected format", e)
-        Seq.empty
-      case e: Exception =>
-        logger.error("Unable to download course data due to exception in network connection", e)
-        Seq.empty
+      .recover {
+        case e: JsResultException =>
+          logger.error("Unable to parse course data: JSON structure did not match expected format", e)
+          Seq.empty
+        case e: Exception =>
+          logger.error("Unable to download course data due to exception in network connection", e)
+          Seq.empty
       }
 
   private def parseCourses(root: JsValue): Seq[CourseUnitInfo] =
     (root \\ "CourseUnitInfo").flatMap { node =>
-      node.asOpt[CourseUnitInfo].toSeq ++ node.asOpt[Seq[CourseUnitInfo]].getOrElse(Seq.empty)
+      node.validate[CourseUnitInfo] match
+        case JsSuccess(cui, _) => Seq(cui)
+        case JsError(_) =>
+          node.validate[Seq[CourseUnitInfo]] match
+            case JsSuccess(cuis, _) => cuis
+            case JsError(errors) =>
+              logger.warn(s"Failed to parse CourseUnitInfo: ${JsError.toJson(errors)}")
+              Seq.empty
     }.toSeq
 
   private def parseCourse(cui: CourseUnitInfo): Option[Course] =
@@ -228,7 +236,7 @@ class ExternalCourseHandlerImpl @Inject (
       if date.isBeforeNow then Left("too late") else Right(Some(date))
 
   private def queryRequest(url: URL) =
-    val host = url.toString.split("\\?").head
+    val host        = url.toString.split("\\?").head
     val queryString = Option(url.getQuery).getOrElse("")
     val params = queryString
       .split("&")

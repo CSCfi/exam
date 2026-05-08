@@ -9,10 +9,10 @@ import play.api.cache.SyncCacheApi
 import javax.inject.Inject
 import scala.concurrent.duration.*
 
-class FacilityCacheImpl @Inject()(cache: SyncCacheApi) extends FacilityCache:
+class FacilityCacheImpl @Inject() (cache: SyncCacheApi) extends FacilityCache:
 
   private val FACILITY_KEY_PREFIX = "external_facility_password:"
-  private val DEFAULT_TTL = 30.minutes
+  private val DEFAULT_TTL         = 30.minutes
 
   override def storeFacilityPassword(facilityId: String, password: String): Unit =
     cache.set(FACILITY_KEY_PREFIX + facilityId, password, DEFAULT_TTL)

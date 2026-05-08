@@ -55,12 +55,19 @@ class CollaborativeAssessmentSenderActor @Inject (
                 .asScala
                 .map(success =>
                   if success then
-                    logger.info(s"Collaborative assessment for exam ${participation.getCollaborativeExam.getExternalRef} processed successfully")
+                    logger.info(
+                      s"Collaborative assessment for exam ${participation.getCollaborativeExam.getExternalRef} processed successfully"
+                    )
                   else
-                    logger.error(s"Failed to send collaborative assessment for exam ${participation.getCollaborativeExam.getExternalRef}")
+                    logger.error(
+                      s"Failed to send collaborative assessment for exam ${participation.getCollaborativeExam.getExternalRef}"
+                    )
                 )
                 .recover { case e: Exception =>
-                  logger.error(s"Error sending collaborative assessment for exam ${participation.getCollaborativeExam.getExternalRef}", e)
+                  logger.error(
+                    s"Error sending collaborative assessment for exam ${participation.getCollaborativeExam.getExternalRef}",
+                    e
+                  )
                 }
             )
             .runWith(Sink.ignore)

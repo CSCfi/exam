@@ -77,6 +77,6 @@ class AutoEvaluationNotifierActor @Inject (
         catching(classOf[RuntimeException]).either(
           composer.composeInspectionReady(student, null, exam)
         ) match
-          case Left(e) => logger.error(s"Sending mail to ${student.getEmail} failed", e)
+          case Left(e)  => logger.error(s"Sending mail to ${student.getEmail} failed", e)
           case Right(_) => logger.debug(s"Mail sent to ${student.getEmail}")
     )
