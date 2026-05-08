@@ -52,7 +52,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         }
                     </div>
                     <div class="make-inline w-75 my-1 ms-3">
-                        <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                        <span class="exam-question-option-text">{{ option.option.option }}</span>
                     </div>
                     <div class="make-inline float-end">
                         <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">
