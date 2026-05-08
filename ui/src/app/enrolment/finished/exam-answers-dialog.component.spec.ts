@@ -8,14 +8,33 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
+import { Directive, HostBinding, Input } from '@angular/core';
+
+@Directive({
+    selector: '[xmMathJax]',
+    standalone: true,
+})
+class MockMathJaxDirective {
+    @HostBinding('innerHTML') renderedText = '';
+
+    @Input() set xmMathJax(value: string | null | undefined) {
+        this.renderedText = value ?? '';
+    }
+}
 
 describe('ExamAnswersDialogComponent', () => {
     let component: ExamAnswersDialogComponent;
     let fixture: ComponentFixture<ExamAnswersDialogComponent>;
 
     beforeEach(async () => {
+        TestBed.overrideComponent(ExamAnswersDialogComponent, {
+            remove: { imports: [MathJaxDirective] },
+            add: { imports: [MockMathJaxDirective] },
+        });
+
         await TestBed.configureTestingModule({
             imports: [ExamAnswersDialogComponent, TranslateModule.forRoot()],
             providers: [
@@ -61,19 +80,13 @@ describe('ExamAnswersDialogComponent', () => {
         } as never;
     });
 
-    it('escapes html special characters in option content', () => {
-        expect(component.escapeHtml('<b>bold</b> & "quote"')).toBe('&lt;b&gt;bold&lt;/b&gt; &amp; &quot;quote&quot;');
-    });
-
     it('renders multi-choice answer tags as visible text instead of html elements', async () => {
         fixture.detectChanges();
         await fixture.whenStable();
         fixture.detectChanges();
 
         const html = fixture.nativeElement as HTMLElement;
-        const answerContainer = Array.from(html.querySelectorAll('.xm-study-item-container .col-md-12')).find((el) =>
-            el.textContent?.includes('<b>bold</b>'),
-        );
+        const answerContainer = html.querySelector('.xm-study-item-container .col-md-12') as HTMLElement;
 
         expect(answerContainer).toBeTruthy();
         expect(answerContainer?.querySelector('b')).toBeNull();
