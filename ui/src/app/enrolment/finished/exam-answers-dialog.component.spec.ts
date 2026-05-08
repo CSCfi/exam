@@ -93,5 +93,3 @@ describe('ExamAnswersDialogComponent', () => {
         expect(answerContainer?.textContent).toContain('<b>bold</b> & <i>italic</i>');
     });
 });
-
-

@@ -66,4 +66,3 @@ describe('ClaimChoiceAnswerComponent', () => {
         expect(optionTexts[1].textContent).toContain('<script>alert(1)</script>');
     });
 });
-
