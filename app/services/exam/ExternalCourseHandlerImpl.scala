@@ -9,7 +9,6 @@ import io.ebean.DB
 import models.exam.{Course, Grade, GradeScale}
 import models.facility.Organisation
 import models.user.User
-import org.apache.pekko.util.ByteString
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.*
@@ -39,7 +38,7 @@ class ExternalCourseHandlerImpl @Inject (
   private val USER_ID_PLACEHOLDER     = "${employee_number}"
   private val USER_LANG_PLACEHOLDER   = "${employee_lang}"
   private val DF                      = new SimpleDateFormat("yyyyMMdd")
-  private val BOM = ByteString.fromArray(Array[Byte](0xef.toByte, 0xbb.toByte, 0xbf.toByte))
+  private val BOM                     = "\uFEFF"
 
   private def getLocalCourses(code: String) = DB
     .find(classOf[Course])
@@ -129,19 +128,17 @@ class ExternalCourseHandlerImpl @Inject (
       case _ => external.save()
 
   private def parseResponseBody(response: WSResponse): Option[JsValue] =
-    val bytes = response.bodyAsBytes
-    val bodyBytes =
-      if bytes.length >= 3 && bytes.splitAt(3)._1 == BOM then
-        logger.warn("BOM character detected in the beginning of response body")
-        bytes.drop(3)
-      else bytes
-    val body = bodyBytes.utf8String.trim
+    val rawBody = response.body.trim
+    val body = if rawBody.startsWith(BOM) then
+      logger.warn("BOM character detected in the beginning of response body")
+      rawBody.substring(1)
+    else rawBody
 
-    Try(Json.parse(bodyBytes.toArray)) match
+    Try(Json.parse(body)) match
       case Success(jsValue) => Some(jsValue)
       case Failure(exception) =>
         logger.warn(
-          s"""Failed to parse JSON. Status: ${response.status}, Size: ${bytes.length} bytes
+          s"""Failed to parse JSON. Status: ${response.status}, Size: ${response.bodyAsBytes.length} bytes
              |Content-Type: ${response.contentType}
              |Error: ${exception.getMessage}
              |Body starts:

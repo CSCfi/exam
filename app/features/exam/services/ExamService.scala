@@ -447,6 +447,12 @@ class ExamService @Inject() (
                       case Some(endDate) if endDate.before(new java.util.Date()) =>
                         Left(ExamError.CourseNotActive)
                       case _ =>
+                        Option(course.creditsLanguage).foreach { langCode =>
+                          exam.examLanguages = new java.util.ArrayList()
+                          Option(DB.find(classOf[Language], langCode)).foreach(lang =>
+                            exam.examLanguages.add(lang)
+                          )
+                        }
                         exam.course = course
                         exam.save()
                         Right(())
@@ -455,6 +461,12 @@ class ExamService @Inject() (
                     case Some(endDate) if endDate.before(new java.util.Date()) =>
                       Left(ExamError.CourseNotActive)
                     case _ =>
+                      Option(course.creditsLanguage).foreach { langCode =>
+                        exam.examLanguages = new java.util.ArrayList()
+                        Option(DB.find(classOf[Language], langCode)).foreach(lang =>
+                          exam.examLanguages.add(lang)
+                        )
+                      }
                       exam.course = course
                       exam.save()
                       Right(())

@@ -28,7 +28,7 @@ import services.file.FileHandler
 import services.json.JsonDeserializer
 import services.mail.EmailComposer
 import system.AuditedAction
-import system.interceptors.AnonymousHandler
+import system.interceptors.{AnonymousHandler, AnonymousJsonFilter}
 
 import java.io.{PipedInputStream, PipedOutputStream}
 import java.net.{URI, URL}
@@ -51,6 +51,7 @@ class CollaborativeReviewController @Inject() (
     collaborativeExamAuthorizationService: CollaborativeExamAuthorizationService,
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
+    anonymous: AnonymousJsonFilter,
     messagesApi: MessagesApi,
     override val controllerComponents: ControllerComponents
 )(implicit ec: BlockingIOExecutionContext)
@@ -168,52 +169,58 @@ class CollaborativeReviewController @Inject() (
       }
 
   def listAssessments(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
-        case Left(errorResult) => Future.successful(errorResult)
-        case Right(ce) =>
-          getRequest(ce, null) match
-            case Left(errorFuture) => errorFuture
-            case Right(wsRequest) =>
-              wsRequest.get().map { response =>
-                handleMultipleAssessmentResponse(request, response, user.hasRole(Role.Name.ADMIN))
-              }
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
+      .andThen(anonymous(Set("user")))
+      .async { request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+          case Left(errorResult) => Future.successful(errorResult)
+          case Right(ce) =>
+            getRequest(ce, null) match
+              case Left(errorFuture) => errorFuture
+              case Right(wsRequest) =>
+                wsRequest.get().map { response =>
+                  handleMultipleAssessmentResponse(request, response, user.hasRole(Role.Name.ADMIN))
+                }
+        }
       }
-    }
 
   def getParticipationsForExamAndUser(eid: Long, aid: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      collaborativeExamAuthorizationService.findCollaborativeExam(eid).flatMap {
-        case Left(errorResult) => Future.successful(errorResult)
-        case Right(ce) =>
-          parseUrl(ce.externalRef, null) match
-            case None => Future.successful(InternalServerError("Invalid URL"))
-            case Some(url) =>
-              wsClient.url(url.toString).get().map { response =>
-                if response.status != OK then Status(response.status)
-                else
-                  val root        = response.json
-                  val assessments = root.as[Seq[JsValue]]
-                  assessments.find(node => (node \ "_id").asOpt[String].contains(aid)) match
-                    case None => NotFound("Assessment not found!")
-                    case Some(assessment) =>
-                      val eppn = (assessment \ "user" \ "eppn").asOpt[String]
-                      if eppn.isEmpty then NotFound("Eppn not found!")
-                      else
-                        // Filter for user eppn and leave out current assessment
-                        val filtered = assessments.filter { node =>
-                          val nodeEppn = (node \ "user" \ "eppn").asOpt[String]
-                          val nodeId   = (node \ "_id").asOpt[String]
-                          nodeEppn == eppn && !nodeId.contains(aid)
-                        }
-                        val anonIds =
-                          if user.hasRole(Role.Name.ADMIN) then Set.empty[Long] else Set(1L)
-                        withAnonymousResult(request, Ok(Json.toJson(filtered)), anonIds)
-              }
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
+      .andThen(anonymous(Set("user", "preEnrolledUserEmail", "grade")))
+      .async { request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        collaborativeExamAuthorizationService.findCollaborativeExam(eid).flatMap {
+          case Left(errorResult) => Future.successful(errorResult)
+          case Right(ce) =>
+            parseUrl(ce.externalRef, null) match
+              case None => Future.successful(InternalServerError("Invalid URL"))
+              case Some(url) =>
+                wsClient.url(url.toString).get().map { response =>
+                  if response.status != OK then Status(response.status)
+                  else
+                    val root        = response.json
+                    val assessments = root.as[Seq[JsValue]]
+                    assessments.find(node => (node \ "_id").asOpt[String].contains(aid)) match
+                      case None => NotFound("Assessment not found!")
+                      case Some(assessment) =>
+                        val eppn = (assessment \ "user" \ "eppn").asOpt[String]
+                        if eppn.isEmpty then NotFound("Eppn not found!")
+                        else
+                          // Filter for user eppn and leave out current assessment
+                          val filtered = assessments.filter { node =>
+                            val nodeEppn = (node \ "user" \ "eppn").asOpt[String]
+                            val nodeId   = (node \ "_id").asOpt[String]
+                            nodeEppn == eppn && !nodeId.contains(aid)
+                          }
+                          val anonIds =
+                            if user.hasRole(Role.Name.ADMIN) then Set.empty[Long] else Set(1L)
+                          withAnonymousResult(request, Ok(Json.toJson(filtered)), anonIds)
+                }
+        }
       }
-    }
 
   private def isFinished(exam: JsValue): Boolean =
     val state           = (exam \ "state").asOpt[String]
@@ -273,20 +280,23 @@ class CollaborativeReviewController @Inject() (
     }
 
   def getAssessment(id: Long, ref: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
-        case Left(errorResult) => Future.successful(errorResult)
-        case Right(ce) =>
-          parseUrl(ce.externalRef, ref) match
-            case None => Future.successful(InternalServerError("Invalid URL"))
-            case Some(url) =>
-              val admin = user.hasRole(Role.Name.ADMIN)
-              wsClient.url(url.toString).get().map { response =>
-                handleSingleAssessmentResponse(request, response, admin, user)
-              }
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
+      .andThen(anonymous(Set("user", "reservation")))
+      .async { request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+          case Left(errorResult) => Future.successful(errorResult)
+          case Right(ce) =>
+            parseUrl(ce.externalRef, ref) match
+              case None => Future.successful(InternalServerError("Invalid URL"))
+              case Some(url) =>
+                val admin = user.hasRole(Role.Name.ADMIN)
+                wsClient.url(url.toString).get().map { response =>
+                  handleSingleAssessmentResponse(request, response, admin, user)
+                }
+        }
       }
-    }
 
   private def upload(url: URL, payload: JsValue): Future[Result] =
     wsClient.url(url.toString).put(payload).map { response =>
