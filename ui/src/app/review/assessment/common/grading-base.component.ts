@@ -66,6 +66,13 @@ export abstract class GradingBaseComponent {
         this.getExam().answerLanguage = language ? language.code : undefined;
     };
 
+    setCustomCredit = () => {
+        const value = this.gradingForm.controls.customCredit.value;
+        if (value !== null) {
+            this.getExam().customCredit = value;
+        }
+    };
+
     protected initGrades = (isMaturity: boolean = false, isCollaborative: boolean = false) => {
         const scale = this.resolveGradeScale();
         this.grades.set(
