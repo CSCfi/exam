@@ -349,6 +349,7 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
                         },
                     },
                 },
+                toolbar: ['editLink', 'unlink'],
             },
             menuBar: {
                 isVisible: true,
