@@ -14,9 +14,10 @@ import models.questions.ClozeTestAnswer
 import models.questions.QuestionType
 import models.user.{Role, User}
 import org.apache.pekko.stream.scaladsl.StreamConverters
+import org.joda.time.DateTime
 import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.*
 import play.api.libs.ws.*
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
@@ -105,8 +106,7 @@ class CollaborativeReviewController @Inject() (
       }
 
       // Write anonymous result with admin flag
-      val anonIds = if admin then Set.empty[Long] else Set(1L) // TODO: get actual anonymous IDs
-      withAnonymousResult(request, Ok(root), anonIds)
+      writeAnonymousResult(request, Ok(root), true, admin)
 
   private def handleMultipleAssessmentResponse(
       request: Request[?],
@@ -120,8 +120,7 @@ class CollaborativeReviewController @Inject() (
       val valid = CollaborativeExamProcessingService.filterDeleted(root)
       CollaborativeExamProcessingService.calculateScores(valid)
 
-      val anonIds = if admin then Set.empty[Long] else Set(1L) // TODO: get actual anonymous IDs
-      withAnonymousResult(request, Ok(valid), anonIds)
+      writeAnonymousResult(request, Ok(valid), true, admin)
 
   // Helper to stream over Jackson JsonNode (for Java interop)
   private def streamJackson(
@@ -167,6 +166,53 @@ class CollaborativeReviewController @Inject() (
             newAnswer
           )
       }
+
+  private def updateExamNode(examNode: JsObject, body: JsValue, user: User): JsObject =
+    val gradeOpt          = (body \ "grade").asOpt[JsValue]
+    val gradingTypeOpt    = (body \ "gradingType").asOpt[String].filter(_.nonEmpty)
+    val creditTypeOpt     = (body \ "creditType").asOpt[JsValue]
+    val additionalInfoOpt = (body \ "additionalInfo").asOpt[String]
+    val answerLanguageOpt = (body \ "answerLanguage").asOpt[String]
+    val customCreditOpt   = (body \ "customCredit").asOpt[JsValue]
+    val stateOpt          = (body \ "state").asOpt[String]
+
+    val examWithGrade = gradeOpt match
+      case Some(grade) if grade != JsNull && grade.asOpt[JsObject].exists(_.fields.nonEmpty) =>
+        examNode + ("grade" -> grade) + ("gradingType" -> JsString(GradeType.GRADED.toString))
+      case _ if gradingTypeOpt.nonEmpty => examNode + ("grade" -> JsNull)
+      case _                            => examNode
+
+    val examWithGradeType =
+      gradingTypeOpt.fold(examWithGrade)(t => examWithGrade + ("gradingType" -> JsString(t)))
+    val examWithCredit =
+      creditTypeOpt.fold(examWithGradeType)(ct => examWithGradeType + ("creditType" -> ct))
+    val examWithAdditionalInfo = additionalInfoOpt.fold(examWithCredit)(ai =>
+      examWithCredit + ("additionalInfo" -> JsString(ai))
+    )
+    val examWithAnswerLanguage = answerLanguageOpt.fold(examWithAdditionalInfo)(al =>
+      examWithAdditionalInfo + ("answerLanguage" -> JsString(al))
+    )
+    val examWithCustomCredit = customCreditOpt.fold(examWithAnswerLanguage)(cc =>
+      examWithAnswerLanguage + ("customCredit" -> cc)
+    )
+    val examWithState =
+      stateOpt.fold(examWithCustomCredit)(st => examWithCustomCredit + ("state" -> JsString(st)))
+
+    // If state is GRADED or GRADED_LOGGED, also set gradedTime and gradedByUser
+    stateOpt match
+      case Some(state)
+          if state == ExamState.GRADED.toString || state == ExamState.GRADED_LOGGED.toString =>
+        val gradedTime = DateTime.now().toString()
+        val gradedByUserJson = Json.obj(
+          "id"        -> JsNumber(user.id.longValue()),
+          "email"     -> user.email,
+          "firstName" -> user.firstName,
+          "lastName"  -> user.lastName
+        )
+        examWithState + ("gradedTime" -> JsString(
+          gradedTime
+        )) + ("gradedByUser" -> gradedByUserJson)
+      case _ => examWithState
 
   def listAssessments(id: Long): Action[AnyContent] =
     authenticated
@@ -215,9 +261,12 @@ class CollaborativeReviewController @Inject() (
                             val nodeId   = (node \ "_id").asOpt[String]
                             nodeEppn == eppn && !nodeId.contains(aid)
                           }
-                          val anonIds =
-                            if user.hasRole(Role.Name.ADMIN) then Set.empty[Long] else Set(1L)
-                          withAnonymousResult(request, Ok(Json.toJson(filtered)), anonIds)
+                          writeAnonymousResult(
+                            request,
+                            Ok(Json.toJson(filtered)),
+                            true,
+                            user.hasRole(Role.Name.ADMIN)
+                          )
                 }
         }
       }
@@ -459,15 +508,15 @@ class CollaborativeReviewController @Inject() (
                     )
                   then Future.successful(Forbidden("Not allowed to update grading of this exam"))
                   else
-                    // Build updated exam node (simplified - actual implementation needs mutable JSON handling)
                     val revision = (request.body \ "rev").asOpt[String]
                     if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
                     else
-                      // TODO: Update examNode with grade, state, etc. from request.body
+                      val updatedExamNode =
+                        updateExamNode(examNode.as[JsObject], request.body, user)
                       val updated =
-                        root.as[
-                          play.api.libs.json.JsObject
-                        ] + ("rev" -> play.api.libs.json.JsString(revision.get))
+                        root.as[JsObject] + ("exam" -> updatedExamNode) + ("rev" -> JsString(
+                          revision.get
+                        ))
                       upload(url, updated)
               }
       }
@@ -477,6 +526,19 @@ class CollaborativeReviewController @Inject() (
     val examNode     = (body \ "exam").get
     val feedbackNode = (examNode \ "examFeedback").asOpt[JsValue].getOrElse(Json.obj())
     feedbackNode
+
+  private def updateFeedbackNode(
+      examNode: JsObject,
+      commentOpt: Option[String],
+      feedbackStatusOpt: Option[Boolean]
+  ): JsObject =
+    val feedbackNode = (examNode \ "examFeedback").asOpt[JsObject].getOrElse(Json.obj())
+    val withComment =
+      commentOpt.fold(feedbackNode)(comment => feedbackNode + ("comment" -> JsString(comment)))
+    val withStatus = feedbackStatusOpt.fold(withComment)(status =>
+      withComment + ("feedbackStatus" -> Json.toJson(status))
+    )
+    examNode + ("examFeedback" -> withStatus)
 
   def addComment(id: Long, ref: String): Action[JsValue] = audited
     .andThen(authenticated)
@@ -497,11 +559,15 @@ class CollaborativeReviewController @Inject() (
                     )
                   )
                 else
-                  val root         = response.json
-                  val feedbackNode = getFeedback(root, revision)
-                  val comment      = (request.body \ "comment").as[String]
-                  // TODO: Update feedback node with comment
-                  upload(url, root)
+                  val root    = response.json
+                  val comment = (request.body \ "comment").asOpt[String]
+                  if comment.isEmpty then Future.successful(BadRequest("Missing comment"))
+                  else
+                    val examNode    = (root \ "exam").as[JsObject]
+                    val updatedExam = updateFeedbackNode(examNode, comment, None)
+                    val updated =
+                      root.as[JsObject] + ("exam" -> updatedExam) + ("rev" -> JsString(revision))
+                    upload(url, updated)
               }
       }
     }
@@ -525,10 +591,14 @@ class CollaborativeReviewController @Inject() (
                     )
                   )
                 else
-                  val root         = response.json
-                  val feedbackNode = getFeedback(root, revision)
-                  // TODO: Update feedback node with feedbackStatus = true
-                  upload(url, root)
+                  val root     = response.json
+                  val examNode = (root \ "exam").as[JsObject]
+                  val updated = root.as[JsObject] + ("exam" -> updateFeedbackNode(
+                    examNode,
+                    None,
+                    Some(true)
+                  )) + ("rev" -> JsString(revision))
+                  upload(url, updated)
               }
       }
     }
@@ -558,12 +628,18 @@ class CollaborativeReviewController @Inject() (
                     else if !exam.hasState(ExamState.GRADED_LOGGED) then
                       Future.successful(Forbidden("Not allowed to update grading of this exam"))
                     else
-                      // TODO: Update examNode with assessmentInfo
-                      val updated =
-                        r.json.as[
-                          play.api.libs.json.JsObject
-                        ] + ("rev" -> play.api.libs.json.JsString(revision))
-                      upload(url, updated)
+                      val assessmentInfo = (request.body \ "assessmentInfo").asOpt[String]
+                      if assessmentInfo.isEmpty then
+                        Future.successful(BadRequest("Missing assessmentInfo"))
+                      else
+                        val examNode = (r.json \ "exam").as[JsObject]
+                        val updatedExam =
+                          examNode + ("assessmentInfo" -> JsString(assessmentInfo.get))
+                        val updated =
+                          r.json.as[JsObject] + ("exam" -> updatedExam) + ("rev" -> JsString(
+                            revision
+                          ))
+                        upload(url, updated)
               }
       }
     }
@@ -632,11 +708,24 @@ class CollaborativeReviewController @Inject() (
 
                           validateExamState(exam, gradingType == GradeType.GRADED, user) match
                             case Some(errorFuture) => errorFuture
-                            case None              =>
-                              // TODO: Update examNode with GRADED_LOGGED state, gradedByUser, etc.
+                            case None =>
+                              val examNode   = (r.json \ "exam").as[JsObject]
+                              val gradedTime = DateTime.now().toString()
+                              val gradedByUserJson = Json.obj(
+                                "id"        -> JsNumber(user.id.longValue()),
+                                "email"     -> user.email,
+                                "firstName" -> user.firstName,
+                                "lastName"  -> user.lastName
+                              )
+                              val updatedExam = examNode +
+                                ("state"        -> JsString(ExamState.GRADED_LOGGED.toString)) +
+                                ("gradingType"  -> JsString(gradingType.toString)) +
+                                ("gradedTime"   -> JsString(gradedTime)) +
+                                ("gradedByUser" -> gradedByUserJson)
                               val updated =
-                                r.json.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json
-                                  .JsString(revision.get))
+                                r.json.as[JsObject] + ("exam" -> updatedExam) + ("rev" -> JsString(
+                                  revision.get
+                                ))
                               upload(url, updated)
                     }
       }
