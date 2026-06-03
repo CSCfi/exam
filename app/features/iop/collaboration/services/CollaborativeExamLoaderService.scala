@@ -159,15 +159,16 @@ class CollaborativeExamLoaderService @Inject() (
       payload: JsValue
   ): Future[Option[String]] =
     parseUrl(ce.externalRef, ref) match
-      case None      => Future.successful(None)
+      case None => Future.successful(None)
       case Some(url) =>
-        // TBD: maybe this should be checked on XM
-        val updatedPayload = (payload \ "_rev").asOpt[JsValue] match
-          case Some(rev) => payload.as[JsObject] + ("rev" -> rev)
-          case None      => payload
-        val request = wsClient.url(url.toString)
+        val updatedPayload = payload.as[JsObject] match
+          case p if (p \ "_rev").asOpt[JsValue].isDefined =>
+            p - "_rev" + ("rev" -> (p \ "_rev").as[JsValue])
+          case p => p
+        val request =
+          wsClient.url(url.toString).withHttpHeaders("Content-Type" -> "application/json")
 
-        request.put(Json.stringify(updatedPayload)).map { response =>
+        request.put(updatedPayload).map { response =>
           if response.status != OK then
             val root = response.json
             logger.error((root \ "message").asOpt[String].getOrElse("Unknown error"))
