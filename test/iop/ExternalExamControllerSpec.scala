@@ -316,6 +316,11 @@ class ExternalExamControllerSpec
         // Auto-evaluation expected to occur so state should be GRADED
         attainment.state.must(be(ExamState.GRADED))
 
+        // Check that questions' parent-child relations are preserved (just check the first one)
+        attainment.examSections.asScala.head.sectionQuestions.asScala.head.question.parent.id.must(
+          be(exam.examSections.asScala.head.sectionQuestions.asScala.head.question.id)
+        )
+
         attachmentServlet.foreach(
           _.getWaiter.tryAcquire(3, 10000, TimeUnit.MILLISECONDS) must be(true)
         )
@@ -329,18 +334,14 @@ class ExternalExamControllerSpec
         var files: util.Collection[File] = new java.util.ArrayList()
 
         var done = false
-        while (System.currentTimeMillis() < start + 10000 && !done) {
-          if (!path.toFile.exists()) {
-            Thread.sleep(100)
-          } else {
+        while (System.currentTimeMillis() < start + 10000 && !done)
+          if (!path.toFile.exists()) then Thread.sleep(100)
+          else
             files = FileUtils.listFiles(path.toFile, null, true)
-            if (files.size() >= expectedFileCount) {
+            if (files.size() >= expectedFileCount) then
               done = true
-            } else {
+            else
               Thread.sleep(200)
-            }
-          }
-        }
 
         files.size must be >= expectedFileCount
         files.asScala.foreach(file => logger.info(file.toString))

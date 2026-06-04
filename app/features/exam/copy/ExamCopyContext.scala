@@ -40,7 +40,7 @@ final class ExamCopyContext private (
 
   def shouldSetParent: Boolean =
     // Teacher copies and non-collaborative student exams should have parent set
-    copyType == CopyType.TEACHER_COPY || copyType == CopyType.STUDENT_EXAM
+    Seq(CopyType.TEACHER_COPY, CopyType.STUDENT_EXAM, CopyType.WITH_ANSWERS).contains(copyType)
 
   def shouldShuffleOptions: Boolean = isStudentExam
 
