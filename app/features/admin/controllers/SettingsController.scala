@@ -66,18 +66,30 @@ class SettingsController @Inject() (
     audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited)(
       parse.json
     ) { request =>
-      (request.body \ "value").asOpt[String] match
+      val value = (request.body \ "value") match {
+        case JsDefined(v: JsNumber) => Some(v.value.toString)
+        case JsDefined(v: JsString) => Some(v.value)
+        case _ => None
+      }
+
+      value match
         case Some(deadline) => Ok(settingsService.setDeadline(deadline).asJson)
-        case None           => BadRequest("Missing value")
+        case None => BadRequest("Missing value")
     }
 
   def setReservationWindowSize(): Action[JsValue] =
     audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited)(
       parse.json
     ) { request =>
-      (request.body \ "value").asOpt[String] match
+      val value = (request.body \ "value") match {
+        case JsDefined(v: JsNumber) => Some(v.value.toString)
+        case JsDefined(v: JsString) => Some(v.value)
+        case _ => None
+      }
+
+      value match
         case Some(size) => Ok(settingsService.setReservationWindowSize(size).asJson)
-        case None       => BadRequest("Missing value")
+        case None => BadRequest("Missing value")
     }
 
   def getHostname: Action[AnyContent] = authenticated { _ =>
