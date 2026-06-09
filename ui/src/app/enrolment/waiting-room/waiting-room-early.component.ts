@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -23,13 +22,13 @@ import { WaitingEnrolment, WaitingReservation } from './waiting-room.component';
                 <i class="bi bi-exclamation-circle-fill me-2"></i>
                 <span [attr.aria-live]="'polite'">{{ 'i18n_you_are_early_for_examination' | translate }}</span>
                 @if (enrolment) {
-                    {{ enrolment.reservation.startAt | date: 'HH:mm' }}
+                    {{ enrolment.reservation.occasion.startAt }}
                 }
             </div>
         </ng-template>
     `,
     styleUrls: ['../enrolment.shared.scss'],
-    imports: [DatePipe, TranslateModule, PageHeaderComponent, PageContentComponent],
+    imports: [TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class WaitingRoomEarlyComponent implements OnInit {
     enrolment!: WaitingEnrolment;
