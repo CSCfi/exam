@@ -244,7 +244,7 @@ class CollaborativeExternalCalendarService @Inject() (
       Future.successful(Left("i18n_error_exam_not_found"))
     else
       // Validate date and build URL
-      calendarHandler.parseSearchDate(date, exam, null) match
+      calendarHandler.parseSearchDate(date, exam, None) match
         case None =>
           Future.successful(Left("Invalid date"))
         case Some(_) =>
