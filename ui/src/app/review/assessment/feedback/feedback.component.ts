@@ -57,7 +57,7 @@ export class FeedbackComponent {
     }
 
     get title() {
-        return 'i18n_give_feedback';
+        return this.exam().executionType.type === 'MATURITY' ? 'i18n_give_content_statement' : 'i18n_give_feedback';
     }
 
     get editorContent() {
