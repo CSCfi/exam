@@ -234,3 +234,27 @@ textarea.ng-invalid {
 .btn-link {
     vertical-align: baseline;
 }
+/* CKEditor-style blockquote, code and table */
+$xm-code-bg: #f2f3f5;
+$xm-code-border: 1px solid #e0e0e0;
+blockquote { border-left: 3px solid #d0d0d0; margin: 0.25rem 0; padding: 0.25rem 0 0.25rem 1rem; color: #555; }
+code { font-family: 'Courier New', Courier, monospace; font-size: 0.9em; background: $xm-code-bg; border: $xm-code-border; border-radius: 3px; padding: 0.1em 0.35em; color: #333; }
+pre { background: $xm-code-bg; border: $xm-code-border; border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto;
+    code { background: none; border: none; padding: 0; font-size: 0.875em; }
+}
+figure.table table {
+    width: 100%; border-collapse: collapse; border: 1px solid #d0d0d0; border-radius: 4px; overflow: hidden; font-size: 0.9em;
+    th, td { padding: 0.5rem 0.75rem; border-right: 1px solid #d0d0d0; &:last-child { border-right: none; } }
+    th { background: $xm-code-bg; font-weight: 600; border-bottom: 2px solid #c0c0c0; }
+    td { padding-top: 0.45rem; padding-bottom: 0.45rem; border-bottom: 1px solid #e5e5e5; border-right-color: #e5e5e5; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    tbody tr:hover { background: #f0f4ff; }
+}
+/* Ckeditor content markup */
+.marker-green { background: hsl(120, 93%, 68%); }
+.marker-yellow {background: hsl(60, 97%, 73%); }
+.marker-pink { background: hsl(201, 97%, 72%); }       
+.marker-blue { background: hsl(240, 100%, 67%); }
+.pen-red { color: hsl(0, 85%, 49%); }
+.pen-green { color: hsl(112, 100%, 27%); }   
