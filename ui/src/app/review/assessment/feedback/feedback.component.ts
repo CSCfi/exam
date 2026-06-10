@@ -34,7 +34,13 @@ export class FeedbackComponent {
 
     readonly saved = output<void>();
 
-    readonly hideEditor = linkedSignal(() => this.exam().executionType.type !== 'MATURITY');
+    readonly hideEditor = linkedSignal<string, boolean>({
+        source: () => this.exam().executionType.type,
+        computation: (type, previous) => {
+            if (!previous || previous.source !== type) return type !== 'MATURITY';
+            return previous.value;
+        },
+    });
     readonly shouldHide = computed(() => this.hidden());
     readonly attachment = linkedSignal<Attachment | undefined>(() => this.exam().examFeedback?.attachment);
 
