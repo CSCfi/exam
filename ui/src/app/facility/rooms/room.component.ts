@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,6 +42,7 @@ interface ExtendedRoom extends ExamRoom {
 })
 export class RoomComponent {
     readonly room = input.required<ExtendedRoom>();
+    readonly calendarExceptionEvents = linkedSignal(() => this.room().calendarExceptionEvents);
 
     private readonly timeDateService = inject(DateTimeService);
     private readonly roomService = inject(RoomService);
@@ -109,19 +110,15 @@ export class RoomComponent {
 
     onAddExceptions(exceptions: ExceptionWorkingHours[]) {
         this.roomService.addExceptions$([this.room().id], exceptions).subscribe((data) => {
-            const dataList: ExceptionWorkingHours[] = [];
-            data.forEach((d) => {
-                if (!dataList.map((e) => e.id).includes(d.id)) {
-                    dataList.push(d);
-                }
-            });
-            // Note: Direct mutation for backward compatibility with parent component
-            // In a fully signal-based architecture, the parent would handle this update
-            this.room().calendarExceptionEvents = [...dataList];
+            const seen = new Set<number>();
+            const dataList = data.filter((d) => !seen.has(d.id) && seen.add(d.id));
+            this.calendarExceptionEvents.set(dataList);
         });
     }
 
     onDeleteException(exception: ExceptionWorkingHours) {
-        this.roomService.deleteException$(this.room().id, exception.id).subscribe();
+        this.roomService.deleteException$(this.room().id, exception.id).subscribe(() => {
+            this.calendarExceptionEvents.update((events) => events.filter((e) => e.id !== exception.id));
+        });
     }
 }
