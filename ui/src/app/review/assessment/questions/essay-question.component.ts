@@ -10,6 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { debounceTime } from 'rxjs';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
@@ -95,6 +96,12 @@ export class EssayQuestionComponent {
                 evaluatedScore: this.scoreControl.valid ? (value ?? undefined) : undefined,
                 answer: currentSq.essayAnswer!.answer,
             };
+        });
+
+        this.scoreControl.valueChanges.pipe(debounceTime(500), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            if (this.scoreControl.valid) {
+                this.insertEssayScore();
+            }
         });
     }
 

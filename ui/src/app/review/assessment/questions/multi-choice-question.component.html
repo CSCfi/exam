@@ -99,7 +99,6 @@ SPDX-License-Identifier: EUPL-1.2
                             class="form-control"
                             [formControl]="scoreControl"
                             xmFixedPrecision
-                            (blur)="scoreControl.valid && insertForcedScore()"
                             onclick="this.focus()"
                             [min]="getMinimumOptionScore()"
                             [max]="sectionQuestion().maxScore || calculateWeightedMaxPoints()"
