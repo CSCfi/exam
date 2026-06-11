@@ -178,6 +178,7 @@ DELETE        /app/enrolments/:id                                              f
 DELETE        /app/enrolments/student/:id                                      features.enrolment.controllers.EnrolmentController.removeStudentEnrolment(id: Long)
 PUT           /app/enrolments/:eid                                             features.enrolment.controllers.EnrolmentController.updateEnrolment(eid: Long)
 GET           /app/enrolments/room/:hash                                       features.enrolment.controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String)
+GET           /app/enrolments/:eid/examination/:cid                            features.enrolment.controllers.EnrolmentController.checkExaminationEventConfig(eid: Long, cid: Long)
 POST          /app/enrolments/:eid/examination/:cid                            features.enrolment.controllers.EnrolmentController.addExaminationEventConfig(eid: Long, cid: Long)
 DELETE        /app/enrolments/:eid/examination                                 features.enrolment.controllers.EnrolmentController.removeExaminationEventConfig(eid: Long)
 DELETE        /app/enrolments/configs/:eecid                                   features.enrolment.controllers.EnrolmentController.removeExaminationEvent(eecid: Long)
