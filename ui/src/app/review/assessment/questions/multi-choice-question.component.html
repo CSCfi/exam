@@ -86,7 +86,7 @@ SPDX-License-Identifier: EUPL-1.2
                 @if (participation().exam.executionType.type !== 'MATURITY') {
                     <div class="make-inline pe-3 mt-2">
                         <span class="text text-danger d-block"
-                            >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
+                            >{{ 'i18n_set_forced_score' | translate | uppercase }}
                             <small
                                 >[{{ getMinimumOptionScore() }} &hellip;
                                 {{ sectionQuestion().maxScore || calculateWeightedMaxPoints() }}]</small
