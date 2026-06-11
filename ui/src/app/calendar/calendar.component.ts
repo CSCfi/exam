@@ -224,10 +224,10 @@ export class CalendarComponent {
     }
 
     onSectionSelection(event: { valid: boolean }) {
-        // TODO: how to invalidate calendar
+        const examInfo = this.examInfo();
+        this.examInfo.set({ ...examInfo, examSections: [...examInfo.examSections] });
         if (!event.valid) {
             this.selectedOrganisation.set(undefined);
-            // delete this.selectedRoom;
             this.reservation.set(undefined);
         }
     }
