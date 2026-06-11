@@ -13,5 +13,4 @@ export type Dictionary = {
     precisionTip: string;
     save: string;
     cancel: string;
-    usage: string;
 };
