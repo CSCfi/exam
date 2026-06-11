@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
@@ -43,8 +43,8 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDeleteDialogComponent {
-    readonly message = input<string | undefined>(undefined);
-    readonly exception = input<ExceptionWorkingHours | undefined>(undefined);
+    readonly message = signal<string | undefined>(undefined);
+    readonly exception = signal<ExceptionWorkingHours | undefined>(undefined);
 
     protected readonly activeModal = inject(NgbActiveModal);
 }

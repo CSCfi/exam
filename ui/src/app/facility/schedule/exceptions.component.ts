@@ -98,8 +98,8 @@ export class ExceptionListComponent {
 
     deleteException(exception: ExceptionWorkingHours) {
         const modal = this.modal.openRef(ExceptionDeleteDialogComponent, { size: 'lg' });
-        modal.componentInstance.message = this.formatDate(exception);
-        modal.componentInstance.exception = exception;
+        modal.componentInstance.message.set(this.formatDate(exception));
+        modal.componentInstance.exception.set(exception);
         this.modal.result$<void>(modal).subscribe(() => {
             this.removed.emit(exception);
         });
