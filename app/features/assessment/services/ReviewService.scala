@@ -470,7 +470,7 @@ class ReviewService @Inject() (
       |    examType(*),
       |    executionType(*),
       |    examSections(*,
-      |      sectionQuestions(id, sequenceNumber, maxScore, forcedScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType,
+      |      sectionQuestions(*,
       |        question(id, type, question, shared, attachment(fileName)),
       |        options(*, option(id, option, correctOption, claimChoiceType)),
       |        essayAnswer(id, answer, evaluatedScore, attachment(fileName)),
