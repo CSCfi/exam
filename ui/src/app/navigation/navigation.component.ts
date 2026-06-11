@@ -3,11 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, of } from 'rxjs';
+import { filter, forkJoin, of } from 'rxjs';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
 import { SessionService } from 'src/app/session/session.service';
 import type { Link } from './navigation.model';
@@ -31,6 +32,7 @@ export class NavigationComponent {
         // Track a bunch of signals to establish reactive dependencies
         this.user();
         this.ExaminationStatus.combinedStatusSignal();
+        this.routerUrl(); // re-evaluate after navigation completes so router.url is up to date
         const { iop, byod } = this.featureFlags();
         return this.Navigation.getLinks(iop, byod);
     });
@@ -39,6 +41,9 @@ export class NavigationComponent {
 
     private readonly toast = inject(ToastrService);
     private readonly router = inject(Router);
+    private readonly routerUrl = toSignal(
+        this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),
+    );
     private readonly Navigation = inject(NavigationService);
     private readonly Session = inject(SessionService);
     private readonly ExaminationStatus = inject(ExaminationStatusService);
