@@ -1150,5 +1150,7 @@
     "i18n_math_example": "Lauseke-esimerkki: EN",
     "i18n_math_heading_button": "Otsikko EN",
     "i18n_math_insert_heading_tooltip": "Lisää otsikko EN",
-    "i18n_math_heading": "Otsikko {{level}} EN"
+    "i18n_math_heading": "Otsikko {{level}} EN",
+    "i18n_cloze_test_instructions_title": "Usage",
+    "i18n_cloze_test_instructions": "Use vertical bar ( | ) to separate correct answer options from each other. Use asterisk ( * ) as a wildcard to match any series of characters. For example *ship|boat|ferry would match answers \"ship\", \"flagship\", \"boat\" and \"ferry\". If you really do want to match an asterisk or a vertical pipe then use a backslash like this: 10 \\* 10 = 100."
 }
