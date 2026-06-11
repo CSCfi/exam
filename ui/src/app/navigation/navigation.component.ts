@@ -32,9 +32,8 @@ export class NavigationComponent {
         // Track a bunch of signals to establish reactive dependencies
         this.user();
         this.ExaminationStatus.combinedStatusSignal();
-        this.routerUrl(); // re-evaluate after navigation completes so router.url is up to date
         const { iop, byod } = this.featureFlags();
-        return this.Navigation.getLinks(iop, byod);
+        return this.Navigation.getLinks(iop, byod, this.hideNav());
     });
 
     private readonly submenuCollapsedByRoute = signal<SubmenuCollapsedMap>({});
@@ -44,6 +43,12 @@ export class NavigationComponent {
     private readonly routerUrl = toSignal(
         this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),
     );
+    private readonly hideNav = computed(() => {
+        this.routerUrl();
+        let route = this.router.routerState.snapshot.root;
+        while (route.firstChild) route = route.firstChild;
+        return route.data['hideNav'] === true;
+    });
     private readonly Navigation = inject(NavigationService);
     private readonly Session = inject(SessionService);
     private readonly ExaminationStatus = inject(ExaminationStatusService);
