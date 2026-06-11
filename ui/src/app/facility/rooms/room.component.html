@@ -139,7 +139,7 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <div class="row" [hidden]="room().availabilityVisible">
                 <div class="col-md mt-2 me-2">
-                    @for (exception of getNextExceptionEvent(room().calendarExceptionEvents); track exception.id) {
+                    @for (exception of getNextExceptionEvent(calendarExceptionEvents()); track exception.id) {
                         <div class="row">
                             <div class="col-md-2 offset-md-7">
                                 @if (exception?.outOfService) {
@@ -157,11 +157,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </div>
                         </div>
                     }
-                    @if (getFutureExceptionEvent(room().calendarExceptionEvents).length > 2) {
+                    @if (getFutureExceptionEvent(calendarExceptionEvents()).length > 2) {
                         <div class="d-flex justify-content-end flex-nowrap">
                             <i class="bi-three-dots pointer me-2" (click)="room().availabilityVisible = true"></i>
                             <div class="text-danger">
-                                ({{ getFutureExceptionEvent(room().calendarExceptionEvents).length }})
+                                ({{ getFutureExceptionEvent(calendarExceptionEvents()).length }})
                             </div>
                         </div>
                     }
@@ -178,7 +178,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <div class="row">
                             <xm-exceptions
                                 class="col-12"
-                                [exceptions]="room().calendarExceptionEvents"
+                                [exceptions]="calendarExceptionEvents()"
                                 (created)="onAddExceptions($event)"
                                 (removed)="onDeleteException($event)"
                             ></xm-exceptions>
