@@ -9,6 +9,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { debounceTime } from 'rxjs';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
@@ -65,6 +66,12 @@ export class ClozeTestComponent {
         this.scoreControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
             if (this.scoreControl.valid) {
                 this.sectionQuestion().forcedScore = value;
+            }
+        });
+
+        this.scoreControl.valueChanges.pipe(debounceTime(500), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            if (this.scoreControl.valid) {
+                this.insertForcedScore();
             }
         });
     }

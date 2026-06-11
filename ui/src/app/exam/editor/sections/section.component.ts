@@ -296,6 +296,8 @@ export class SectionComponent implements OnInit {
                             lotteryOn: false,
                             lotteryItemCount: 1,
                         };
+                        this.sectionForm.lotteryOn().value.set(false);
+                        this.sectionForm.lotteryItemCount().value.set(1);
                     } else if (currentSection.lotteryOn) {
                         updated = {
                             ...updated,
