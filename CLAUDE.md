@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -5,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Overview
 
 EXAM is an electronic exam platform for higher education built as a full-stack monolith:
+
 - **Backend**: Scala 3 + Play Framework 3 + Ebean ORM, served on port 9000
 - **Frontend**: Angular 21 + TypeScript, served on port 4200 in dev, built to `./public` for production
 - **Database**: PostgreSQL 16 with HikariCP connection pooling
@@ -30,6 +37,7 @@ sbt "scalafixAll --check"                   # lint check (CI)
 ```
 
 Start backend in dev mode (port 9000, debugger on 9999):
+
 ```bash
 sbt -Dconfig.file=conf/dev.conf -jvm-debug 9999 -mem 2048
 # Then at the sbt prompt:
@@ -50,6 +58,7 @@ pnpm run format        # Prettier format
 ```
 
 Run a single frontend test file:
+
 ```bash
 pnpm test --run -- path/to/file.spec.ts
 ```
@@ -61,11 +70,11 @@ pnpm test --run -- path/to/file.spec.ts
 Organized into **features** (controllers + business logic) and **services** (shared utilities):
 
 - `app/backend/` — main package root
-  - `controllers/` — Play HTTP controllers, one subdirectory per feature (`exam/`, `assessment/`, `enrolment/`, `examination/`, `question/`, `user/`, `facility/`, `iop/`, etc.)
-  - `models/` — Ebean entity classes shared across features
-  - `services/` — shared utilities: email, CSV/Excel export, datetime, file handling, caching
-  - `security/` — authentication and authorization filters
-  - `system/` — Play module wiring and lifecycle hooks
+    - `controllers/` — Play HTTP controllers, one subdirectory per feature (`exam/`, `assessment/`, `enrolment/`, `examination/`, `question/`, `user/`, `facility/`, `iop/`, etc.)
+    - `models/` — Ebean entity classes shared across features
+    - `services/` — shared utilities: email, CSV/Excel export, datetime, file handling, caching
+    - `security/` — authentication and authorization filters
+    - `system/` — Play module wiring and lifecycle hooks
 
 Key config files: `conf/application.conf`, `conf/dev.conf`, `conf/routes`.  
 Database migrations live in `conf/evolutions/default/`.
@@ -73,6 +82,7 @@ Database migrations live in `conf/evolutions/default/`.
 ### Frontend structure (`ui/src/app/`)
 
 Feature modules under `ui/src/app/`:
+
 - `exam/` — exam creation, editing, publishing
 - `examination/` — student exam-taking experience (hash-based enrollment)
 - `enrolment/` — student enrollment and calendar scheduling
@@ -84,6 +94,7 @@ Feature modules under `ui/src/app/`:
 - `shared/` — reusable components, pipes, directives
 
 Global concerns:
+
 - `app.interceptor.ts` — CSRF token injection on all mutating requests
 - `app.module.ts` — root module, route guards, providers
 - Translations: `assets/i18n/{en,fi,sv}.json`
