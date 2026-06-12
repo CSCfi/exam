@@ -429,6 +429,39 @@ class EnrolmentService @Inject() (
   def getRoomInfoFromEnrolment(hash: String, user: User): Future[Option[ExamRoom]] =
     enrolmentRepository.getRoomInfoForEnrolment(hash, user)
 
+  def checkExaminationEventConfig(
+      enrolmentId: Long,
+      configId: Long,
+      user: User
+  ): Either[EnrolmentError, Unit] =
+    val enrolmentOpt = DB
+      .find(classOf[ExamEnrolment])
+      .where()
+      .idEq(enrolmentId)
+      .eq("user", user)
+      .eq("exam.state", ExamState.PUBLISHED)
+      .find
+
+    enrolmentOpt match
+      case None => Left(EnrolmentError.EnrolmentNotFound)
+      case Some(enrolment) =>
+        val configOpt = DB
+          .find(classOf[ExaminationEventConfiguration])
+          .fetch("examEnrolments")
+          .where()
+          .idEq(configId)
+          .gt("examinationEvent.start", clock.now())
+          .eq("exam", enrolment.exam)
+          .find
+
+        configOpt match
+          case None => Left(EnrolmentError.ConfigNotFound)
+          case Some(config) =>
+            val event = config.examinationEvent
+            if config.examEnrolments.size() + 1 > event.capacity then
+              Left(EnrolmentError.MaxEnrolmentsReached)
+            else Right(())
+
   def addExaminationEventConfig(
       enrolmentId: Long,
       configId: Long,

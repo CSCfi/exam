@@ -6,6 +6,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { finalize } from 'rxjs/operators';
 import type { CollaborativeExamInfo, EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -116,9 +117,9 @@ export class ExamSearchResultComponent {
             return;
         }
         this.enrolling.set(true);
-        this.Enrolment.checkAndEnroll$(this.exam() as Exam, this.collaborative()).subscribe(() =>
-            this.enrolling.set(false),
-        );
+        this.Enrolment.checkAndEnroll$(this.exam() as Exam, this.collaborative())
+            .pipe(finalize(() => this.enrolling.set(false)))
+            .subscribe();
     }
 
     makeReservation() {

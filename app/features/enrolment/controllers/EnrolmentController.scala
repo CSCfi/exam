@@ -150,6 +150,19 @@ class EnrolmentController @Inject() (
       }
     }
 
+  def checkExaminationEventConfig(enrolmentId: Long, configId: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      enrolmentService.checkExaminationEventConfig(enrolmentId, configId, user) match
+        case Right(_) => Ok
+        case Left(EnrolmentError.MaxEnrolmentsReached) =>
+          Forbidden(EnrolmentError.MaxEnrolmentsReached.message)
+        case Left(EnrolmentError.EnrolmentNotFound) =>
+          NotFound(EnrolmentError.EnrolmentNotFound.message)
+        case Left(EnrolmentError.ConfigNotFound) => NotFound(EnrolmentError.ConfigNotFound.message)
+        case Left(_)                             => Forbidden
+    }
+
   def addExaminationEventConfig(enrolmentId: Long, configId: Long): Action[AnyContent] =
     audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) {
       request =>
