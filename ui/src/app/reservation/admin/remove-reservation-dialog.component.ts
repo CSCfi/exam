@@ -30,8 +30,8 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
             </textarea>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-sm btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
-            <button class="btn btn-sm btn-outline-secondary me-3" (click)="cancel()">
+            <button class="btn btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
