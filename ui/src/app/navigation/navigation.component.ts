@@ -3,11 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, of } from 'rxjs';
+import { filter, forkJoin, of } from 'rxjs';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
 import { SessionService } from 'src/app/session/session.service';
 import type { Link } from './navigation.model';
@@ -32,13 +33,22 @@ export class NavigationComponent {
         this.user();
         this.ExaminationStatus.combinedStatusSignal();
         const { iop, byod } = this.featureFlags();
-        return this.Navigation.getLinks(iop, byod);
+        return this.Navigation.getLinks(iop, byod, this.hideNav());
     });
 
     private readonly submenuCollapsedByRoute = signal<SubmenuCollapsedMap>({});
 
     private readonly toast = inject(ToastrService);
     private readonly router = inject(Router);
+    private readonly routerUrl = toSignal(
+        this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),
+    );
+    private readonly hideNav = computed(() => {
+        this.routerUrl();
+        let route = this.router.routerState.snapshot.root;
+        while (route.firstChild) route = route.firstChild;
+        return route.data['hideNav'] === true;
+    });
     private readonly Navigation = inject(NavigationService);
     private readonly Session = inject(SessionService);
     private readonly ExaminationStatus = inject(ExaminationStatusService);

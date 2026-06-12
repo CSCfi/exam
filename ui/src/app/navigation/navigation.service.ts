@@ -4,15 +4,19 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { Link } from './navigation.model';
 
+function dashboardRoute(user: User): string {
+    if (user.isStudent) return 'dashboard';
+    if (user.isAdmin || user.isSupport) return 'staff/admin';
+    return 'staff/teacher';
+}
+
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
     private readonly http = inject(HttpClient);
-    private readonly router = inject(Router);
     private readonly Session = inject(SessionService);
 
     getAppVersion$ = () => this.http.get<{ appVersion: string }>('/app/settings/appVersion');
@@ -23,7 +27,7 @@ export class NavigationService {
     getByodSupport$ = () =>
         this.http.get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod');
 
-    getLinks(interoperable: boolean, hasByod: boolean): Link[] {
+    getLinks(interoperable: boolean, hasByod: boolean, hideNav = false): Link[] {
         const user: User = this.Session.getUser();
 
         if (!user) {
@@ -36,12 +40,7 @@ export class NavigationService {
         const support = user.isSupport;
         const languageInspector = user.isTeacher && user.isLanguageInspector;
 
-        // Do not show if waiting for exam to begin
-        const hidden = /waitingroom|wrongmachine|unknownlocation|wrongroom|early/.test(this.router.url);
-
-        // Change the menu item title/route if student
         const dashboardTitle = student ? 'i18n_user_enrolled_exams_title' : 'i18n_dashboard';
-        const dashboardRoute = student ? 'dashboard' : admin || support ? 'staff/admin' : 'staff/teacher';
 
         const emptySubmenu = { hidden: true, items: [] };
 
@@ -61,8 +60,8 @@ export class NavigationService {
         const teacherCollaborativeExamsSubmenu = teacher && interoperable ? collaborativeExamsSubmenu : emptySubmenu;
         return [
             {
-                route: dashboardRoute,
-                visible: !hidden,
+                route: dashboardRoute(user),
+                visible: !hideNav,
                 name: dashboardTitle,
                 iconPng: 'icon_enrols.svg',
                 submenu: teacherCollaborativeExamsSubmenu,
@@ -176,14 +175,14 @@ export class NavigationService {
             },
             {
                 route: 'exams',
-                visible: student && !hidden,
+                visible: student && !hideNav,
                 name: 'i18n_exams',
                 iconPng: 'icon_exams.png',
                 submenu: emptySubmenu,
             },
             {
                 route: 'participations',
-                visible: student && !hidden,
+                visible: student && !hideNav,
                 name: 'i18n_exam_responses',
                 iconPng: 'icon_finished.png',
                 submenu: {
