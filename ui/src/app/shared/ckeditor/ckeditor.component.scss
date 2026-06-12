@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 // Styles for math and cloze elements in CKEditor (None encapsulation: scope via :host)
-:host .ck-editor__editable {
+.ck-editor__editable {
+    min-height: 16em !important; // Approximately 5 rows
     math-field {
         pointer-events: all !important;
         cursor: pointer !important;
