@@ -39,6 +39,7 @@ class ExternalExamService @Inject() (
                   |course(*, gradeScale(*, grades(*))),
                   |executionType(*),
                   |autoEvaluationConfig(*, gradeEvaluations(*, grade(*, gradeScale(*)))),
+                  |examFeedbackConfig(*),
                   |examLanguages(*),
                   |attachment(*),
                   |examOwners(*),
