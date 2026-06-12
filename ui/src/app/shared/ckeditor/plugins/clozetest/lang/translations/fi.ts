@@ -19,11 +19,5 @@ const dictionary: Dictionary = {
     precisionTip: '(± oikean vastauksen arvosta)',
     save: 'Tallenna',
     cancel: 'Peruuta',
-    usage: `Käytä pystyviivaa ( | ) erottamaan oikeat vastausvaihtoehdot toisistaan.
-            Käytä tähteä ( * ) wildcardina, jos mikä tahansa merkki käy. Esimerkiksi
-            '*laiva|vene|lautta' tarkoittaa, että vaikkapa "laiva", "lippulaiva", 
-            "vene" ja "lautta" olisivat oikeita vastauksia. Jos haluat, että vastaus 
-            sisältää oikeasti pystyviivan tai tähden, pitää tällaista merkkiä edeltää 
-            kenoviiva: ( \\ )`,
 };
 export default dictionary;

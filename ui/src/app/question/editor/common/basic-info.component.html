@@ -60,6 +60,13 @@ SPDX-License-Identifier: EUPL-1.2
                 {{ 'i18n_question_text' | translate }}
             </div>
             <div class="col-md-9">
+                @if (questionType === 'ClozeTestQuestion') {
+                    <div class="alert alert-info mb-2 py-2">
+                        <strong>{{ 'i18n_cloze_test_instructions_title' | translate }}</strong
+                        ><br />
+                        {{ 'i18n_cloze_test_instructions' | translate }}
+                    </div>
+                }
                 <xm-ckeditor
                     id="editor"
                     name="editor"
