@@ -190,8 +190,9 @@ class ExternalAttachmentService @Inject() (
         wsClient.url(attachmentUrl.toString).stream().map { response =>
           if response.status != play.api.http.Status.OK then DownloadResponse.Error(response.status)
           else
-            val escapedName        = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
-            val contentDisposition = s"""attachment; filename*=UTF-8''"$escapedName""""
+            val escapedName =
+              URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20")
+            val contentDisposition = s"attachment; filename*=UTF-8''$escapedName"
             DownloadResponse.Success(
               response.bodyAsSource,
               mimeType,

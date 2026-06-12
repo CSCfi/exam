@@ -243,10 +243,15 @@ class ExamSectionService @Inject() (
               esq.sequenceNumber = num - 1
               esq.update()
           }
-          // Update the lottery item count if needed
-          if section.lotteryOn && section.lotteryItemCount > section.sectionQuestions.size()
-          then
-            section.lotteryItemCount = section.sectionQuestions.size()
+          // Turn lottery off if only one question remains; otherwise clamp lotteryItemCount
+          if section.lotteryOn then
+            if section.sectionQuestions.size() <= 1 then
+              section.lotteryOn = false
+              section.lotteryItemCount = 1
+              section.update()
+            else if section.lotteryItemCount > section.sectionQuestions.size() then
+              section.lotteryItemCount = section.sectionQuestions.size()
+              section.update()
           sectionQuestion.delete()
           Right(section)
 

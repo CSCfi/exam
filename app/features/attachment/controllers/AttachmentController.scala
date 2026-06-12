@@ -241,6 +241,9 @@ class AttachmentController @Inject() (
 
   private def serveAsStream(attachment: Attachment, source: Source[ByteString, Future[IOResult]]) =
     val mimeType = Option(attachment.mimeType).getOrElse("application/octet-stream")
+    val encodedFileName =
+      java.net.URLEncoder.encode(attachment.fileName, "UTF-8").replace("+", "%20")
+    val contentDisposition = s"attachment; filename*=UTF-8''$encodedFileName"
     Ok.chunked(source)
       .as(mimeType)
-      .withHeaders("Content-Disposition" -> s"attachment; filename=\"${attachment.fileName}\"")
+      .withHeaders("Content-Disposition" -> contentDisposition)

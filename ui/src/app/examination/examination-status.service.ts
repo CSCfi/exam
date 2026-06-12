@@ -19,7 +19,7 @@ export class ExaminationStatusService {
     private readonly wrongLocation = signal<number | undefined>(undefined);
     private readonly upcomingExam = signal<number | undefined>(undefined);
     private readonly examinationStarting = signal<number | undefined>(undefined);
-    private readonly aquariumLoggedIn = signal<boolean>(true);
+    private readonly aquariumLoggedIn = signal<number | undefined>(undefined);
 
     get examinationEndingSignal() {
         return this.examinationEnding.asReadonly();
@@ -41,5 +41,5 @@ export class ExaminationStatusService {
     notifyWrongLocation = () => this.wrongLocation.set(Date.now());
     notifyUpcomingExamination = () => this.upcomingExam.set(Date.now());
     notifyStartOfExamination = () => this.examinationStarting.set(Date.now());
-    notifyAquariumLogin = () => this.aquariumLoggedIn.set(true);
+    notifyAquariumLogin = () => this.aquariumLoggedIn.set(Date.now());
 }

@@ -160,12 +160,7 @@ class ExternalExamHandlerImpl @Inject() (
       Instant.ofEpochMilli(externalExam.finished.toEpochMilli - externalExam.started.toEpochMilli)
 
     if clone.state == ExamState.REVIEW then
-      import scala.jdk.OptionConverters.*
-      val settings = configReader.getOrCreateSettings(
-        "review_deadline",
-        java.util.Optional.empty[String].toScala,
-        java.util.Optional.of("14").toScala
-      )
+      val settings     = configReader.getOrCreateSettings("review_deadline", None, Some("14"))
       val deadlineDays = settings.value.toInt
       val deadline     = externalExam.finished.plus(Duration.ofDays(deadlineDays))
       ep.deadline = deadline

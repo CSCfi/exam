@@ -246,7 +246,9 @@ class ReviewService @Inject() (
       case None => Left(ReviewError.ExamNotFound)
 
   def reviewExam(id: Long, body: JsValue, user: User): Either[ReviewError, Unit] =
-    DB.find(classOf[Exam]).fetch("parent").fetch("parent.creator").where.idEq(id).find match
+    DB.find(classOf[Exam]).fetch("parent").fetch("parent.creator").fetch("parent.gradeScale").fetch(
+      "parent.gradeScale.grades"
+    ).where.idEq(id).find match
       case Some(exam) =>
         val newState = ExamState.valueOf((body \ "state").asOpt[String].orNull)
         if isDisallowedToModify(exam, user, newState) then Left(ReviewError.ModificationForbidden)
@@ -276,8 +278,11 @@ class ReviewService @Inject() (
               case Some(g) =>
                 val examGrade = DB.find(classOf[Grade], g)
                 val scale =
-                  if Option(exam.gradeScale).isEmpty then exam.course.gradeScale
-                  else exam.gradeScale
+                  if Option(exam.gradeScale).isDefined then exam.gradeScale
+                  else if Option(exam.parent).isDefined && Option(exam.parent.gradeScale).isDefined
+                  then
+                    exam.parent.gradeScale
+                  else exam.course.gradeScale
                 if scale.grades.contains(examGrade) then
                   exam.grade = examGrade
                   exam.gradingType = GradeType.GRADED
@@ -336,7 +341,7 @@ class ReviewService @Inject() (
   def listNoShows(eid: Long, collaborative: Option[Boolean]): (List[ExamEnrolment], Set[Long]) =
     val el = DB
       .find(classOf[ExamEnrolment])
-      .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
+      .fetch("exam", "id, name, state, duration, gradedTime, customCredit, trialCount, anonymous")
       .fetch("collaborativeExam")
       .fetch("exam.executionType")
       .fetch("reservation")
@@ -465,7 +470,7 @@ class ReviewService @Inject() (
       |    examType(*),
       |    executionType(*),
       |    examSections(*,
-      |      sectionQuestions(id, sequenceNumber, maxScore, forcedScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType,
+      |      sectionQuestions(*,
       |        question(id, type, question, shared, attachment(fileName)),
       |        options(*, option(id, option, correctOption, claimChoiceType)),
       |        essayAnswer(id, answer, evaluatedScore, attachment(fileName)),

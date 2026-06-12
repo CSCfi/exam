@@ -123,11 +123,21 @@ class CollaborativeAttachmentController @Inject() (
   private def removeAssessmentAttachment(assessment: JsValue): Future[Result] =
     val externalId = getExternalId(assessment)
     parseUrl("/api/attachments/%s", externalId) match
-      case None => Future.successful(InternalServerError)
+      case None =>
+        logger.error(s"Invalid external attachment URL for externalId '$externalId'")
+        Future.successful(InternalServerError)
       case Some(url) =>
         val request = wsClient.url(url.toString)
         request.delete().map { response =>
-          if response.status == OK then Ok else InternalServerError
+          response.status match
+            case OK        => Ok
+            case NOT_FOUND => Ok
+            case _ =>
+              logger.error(s"Delete attachment returned ${response.status} for $externalId")
+              InternalServerError
+        }.recover { case t =>
+          logger.error(s"Failed to remove external attachment $externalId", t)
+          InternalServerError
         }
 
   private def downloadExternalAttachment(attachment: Attachment): Future[Result] =
@@ -154,8 +164,9 @@ class CollaborativeAttachmentController @Inject() (
         wsClient.url(url.toString).stream().map { response =>
           if response.status != OK then Status(response.status)
           else
-            val escapedName        = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
-            val contentDisposition = s"""attachment; filename*=UTF-8''"$escapedName""""
+            val escapedName =
+              URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20")
+            val contentDisposition = s"attachment; filename*=UTF-8''$escapedName"
             Ok.chunked(response.bodyAsSource)
               .as(mimeType)
               .withHeaders("Content-Disposition" -> contentDisposition)
@@ -240,25 +251,59 @@ class CollaborativeAttachmentController @Inject() (
             case None => Future.successful(NotFound)
             case Some(assessment) =>
               removeAssessmentAttachment(assessment).flatMap { result =>
-                if result.header.status != OK then Future.successful(InternalServerError)
+                if result.header.status != OK then
+                  logger.error(
+                    s"Attachment delete returned non-OK status ${result.header.status} for assessment $assessmentRef"
+                  )
+                  Future.successful(InternalServerError)
                 else
-                  // Remove attachment field from feedback
-                  val feedbackPath = assessment \ "exam" \ "examFeedback"
-                  feedbackPath.asOpt[JsObject] match
-                    case Some(feedback) =>
-                      val updatedFeedback = feedback - "attachment"
-                      val updatedExam =
-                        (assessment \ "exam").as[JsObject] + ("examFeedback" -> updatedFeedback)
-                      val updatedAssessment = assessment.as[JsObject] + ("exam" -> updatedExam)
-
-                      examLoader.uploadAssessment(exam, assessmentRef, updatedAssessment).map {
-                        case Some(revision) => Ok(Json.obj("rev" -> revision))
-                        case None           => InternalServerError
-                      }
+                  examLoader.downloadAssessment(exam.externalRef, assessmentRef).flatMap {
                     case None =>
+                      logger.error(
+                        s"Failed to re-download assessment $assessmentRef after attachment deletion"
+                      )
                       Future.successful(InternalServerError)
+                    case Some(freshAssessment) =>
+                      // Remove attachment field from feedback using the latest assessment revision
+                      val feedbackPath = freshAssessment \ "exam" \ "examFeedback"
+                      feedbackPath.asOpt[JsObject] match
+                        case Some(feedback) =>
+                          val updatedFeedback = feedback - "attachment"
+                          val updatedExam =
+                            (freshAssessment \ "exam").as[
+                              JsObject
+                            ] + ("examFeedback" -> updatedFeedback)
+                          val updatedAssessment =
+                            freshAssessment.as[JsObject] + ("exam" -> updatedExam)
+
+                          examLoader.uploadAssessment(exam, assessmentRef, updatedAssessment).map {
+                            case Some(revision) => Ok(Json.obj("rev" -> revision))
+                            case None =>
+                              logger.error(
+                                s"uploadAssessment returned no revision for $assessmentRef after attachment removal"
+                              )
+                              InternalServerError
+                          }.recover { case t =>
+                            logger.error(
+                              s"Failed to upload assessment after attachment removal for $assessmentRef",
+                              t
+                            )
+                            InternalServerError
+                          }
+                        case None =>
+                          logger.error(
+                            s"Assessment payload missing examFeedback for $assessmentRef"
+                          )
+                          Future.successful(InternalServerError)
+                  }
+              }.recover { case t =>
+                logger.error(s"Failed during deleteExternalAssessment for $assessmentRef", t)
+                InternalServerError
               }
           }
+      }.recover { case t =>
+        logger.error(s"Unhandled failure in deleteExternalAssessment for $assessmentRef", t)
+        InternalServerError
       }
     }
 

@@ -541,9 +541,9 @@ class CalendarHandlerImpl @Inject() (
 
     (roomNode \ "mailAddress").asOpt[JsValue].foreach { addressNode =>
       val address = new MailAddress()
-      address.street = (addressNode \ "street").as[String]
-      address.city = (addressNode \ "city").as[String]
-      address.zip = (addressNode \ "zip").as[String]
+      address.street = (addressNode \ "street").asOpt[String].orNull
+      address.city = (addressNode \ "city").asOpt[String].orNull
+      address.zip = (addressNode \ "zip").asOpt[String].orNull
       room.mailAddress = address
     }
     machine.room = room

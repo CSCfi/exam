@@ -88,7 +88,7 @@ trait BaseCollaborativeAttachmentSpec[T]
 
   protected def assertDownloadResult(result: Result): Unit =
     headerOf(result, "Content-Disposition") must be(
-      Some("attachment; filename*=UTF-8''\"test_image.png\"")
+      Some("attachment; filename*=UTF-8''test_image.png")
     )
 
     val actorSystem                = ActorSystem.create("TestSystem")

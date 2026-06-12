@@ -114,6 +114,7 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
 
     // Group essay answers by question parent
     val answersGrouped = answers
+      .filter(eq => Option(eq.question.parent).isDefined) // sanity check
       .groupBy(_.question.parent)
       .view
       .mapValues(_.toList)
