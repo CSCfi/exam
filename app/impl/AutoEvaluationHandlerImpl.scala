@@ -64,7 +64,10 @@ class AutoEvaluationHandlerImpl @Inject (
     val (score, maxScore) = (exam.getTotalScore, exam.getMaxScore)
     val percentage        = if maxScore == 0 then 0 else score * 100 / maxScore
     val evaluations       = exam.getAutoEvaluationConfig.getGradeEvaluations.asScala.toList.sortBy(_.getPercentage)
-    evaluations.findLast(_.getPercentage <= percentage) match
+    val evaluation = evaluations
+      .findLast(_.getPercentage <= percentage)
+      .orElse(evaluations.headOption)
+    evaluation match
       case None => Left("Could not determine a grade")
       case Some(ge) =>
         resolveScale(exam) match
