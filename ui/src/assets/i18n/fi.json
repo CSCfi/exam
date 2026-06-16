@@ -902,6 +902,7 @@
     "i18n_no_examinations_to_grade": "Ei arvioimattomia suorituksia",
     "i18n_csv_uploaded_successfully": "CSV tiedoston tuonti onnistui",
     "i18n_skip_to_content": "Siirry sisältöön",
+    "i18n_skip_to_exam_actions": "Siirry tenttitoimintoihin",
     "i18n_event_capacity": "Maksimi osallistujamäärä",
     "i18n_error_max_capacity_exceeded": "Yhtäaikaisten tenttitilaisuuksien maksimi osallistujamäärä ylitetty",
     "i18n_error_max_enrolments_reached": "Tilaisuuteen ei voida ottaa enempää osallistujia",

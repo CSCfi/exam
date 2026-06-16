@@ -173,7 +173,7 @@ export class ExaminationToolbarComponent implements OnInit {
     }
 
     getSkipLinkPath(skipTarget: string) {
-        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+        return window.location.href.split('#')[0] + skipTarget;
     }
 
     exitPreview() {
