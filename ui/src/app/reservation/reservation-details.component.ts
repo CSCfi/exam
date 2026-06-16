@@ -107,21 +107,26 @@ export class ReservationDetailsComponent {
         });
     }
 
-    hasAvailableActions(r: ReservationDetail): boolean {
+    canRemoveReservation(r: ReservationDetail): boolean {
         const isExternalUnfinished = r.enrolment.exam.state === 'EXTERNAL_UNFINISHED';
         const isPublishedAquarium =
             r.enrolment.exam.state === 'PUBLISHED' && r.enrolment.exam.implementation === 'AQUARIUM';
+        return (isPublishedAquarium || isExternalUnfinished) && !r.enrolment.noShow && !this.reservationIsInPast(r);
+    }
 
-        const canRemoveReservation =
-            (isPublishedAquarium || isExternalUnfinished) && !r.enrolment.noShow && !this.reservationIsInPast(r);
+    canPermitRetrial(r: ReservationDetail): boolean {
+        return r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.executionType.type === 'PUBLIC';
+    }
 
-        const canPermitRetrial =
-            r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.executionType.type === 'PUBLIC';
+    canChangeMachine(r: ReservationDetail): boolean {
+        const isExternalUnfinished = r.enrolment.exam.state === 'EXTERNAL_UNFINISHED';
+        const isPublishedAquarium =
+            r.enrolment.exam.state === 'PUBLISHED' && r.enrolment.exam.implementation === 'AQUARIUM';
+        return !r.enrolment.noShow && ((isPublishedAquarium && !r.externalReservation) || isExternalUnfinished);
+    }
 
-        const canChangeReservationMachine =
-            (isPublishedAquarium && !r.externalReservation) || (isExternalUnfinished && !r.enrolment.noShow);
-
-        return canRemoveReservation || canPermitRetrial || canChangeReservationMachine;
+    hasAvailableActions(r: ReservationDetail): boolean {
+        return this.canRemoveReservation(r) || this.canPermitRetrial(r) || this.canChangeMachine(r);
     }
 
     setPredicate(predicate: string) {
