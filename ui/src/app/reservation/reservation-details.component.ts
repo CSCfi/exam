@@ -108,20 +108,18 @@ export class ReservationDetailsComponent {
     }
 
     hasAvailableActions(r: ReservationDetail): boolean {
+        const isExternalUnfinished = r.enrolment.exam.state === 'EXTERNAL_UNFINISHED';
+        const isPublishedAquarium =
+            r.enrolment.exam.state === 'PUBLISHED' && r.enrolment.exam.implementation === 'AQUARIUM';
+
         const canRemoveReservation =
-            r.enrolment.exam.state === 'PUBLISHED' &&
-            !r.enrolment.noShow &&
-            r.enrolment.exam.implementation === 'AQUARIUM' &&
-            !this.reservationIsInPast(r);
+            (isPublishedAquarium || isExternalUnfinished) && !r.enrolment.noShow && !this.reservationIsInPast(r);
 
         const canPermitRetrial =
             r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.executionType.type === 'PUBLIC';
 
         const canChangeReservationMachine =
-            r.enrolment.exam.state === 'PUBLISHED' &&
-            !r.enrolment.noShow &&
-            !r.externalReservation &&
-            r.enrolment.exam.implementation === 'AQUARIUM';
+            (isPublishedAquarium && !r.externalReservation) || (isExternalUnfinished && !r.enrolment.noShow);
 
         return canRemoveReservation || canPermitRetrial || canChangeReservationMachine;
     }
