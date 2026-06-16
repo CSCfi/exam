@@ -214,21 +214,12 @@ SPDX-License-Identifier: EUPL-1.2
                                     {{ 'i18n_choose' | translate }}
                                 </button>
                                 <div ngbDropdownMenu [ariaLabelledByElements]="[actionsTrigger]">
-                                    @if (
-                                        isAdminView() &&
-                                        r.enrolment.exam.state === 'PUBLISHED' &&
-                                        !r.enrolment.noShow &&
-                                        r.enrolment.exam.implementation === 'AQUARIUM' &&
-                                        !reservationIsInPast(r)
-                                    ) {
+                                    @if (isAdminView() && canRemoveReservation(r)) {
                                         <button ngbDropdownItem class="text-danger" (click)="removeReservation(r)">
                                             {{ 'i18n_remove_reservation' | translate }}
                                         </button>
                                     }
-                                    @if (
-                                        r.enrolment.exam.state === 'ABORTED' &&
-                                        r.enrolment.exam.executionType.type === 'PUBLIC'
-                                    ) {
+                                    @if (canPermitRetrial(r)) {
                                         <button
                                             ngbDropdownItem
                                             (click)="permitRetrial(r.enrolment)"
@@ -241,12 +232,7 @@ SPDX-License-Identifier: EUPL-1.2
                                             }}
                                         </button>
                                     }
-                                    @if (
-                                        r.enrolment.exam.state === 'PUBLISHED' &&
-                                        !r.enrolment.noShow &&
-                                        !r.externalReservation &&
-                                        r.enrolment.exam.implementation === 'AQUARIUM'
-                                    ) {
+                                    @if (canChangeMachine(r)) {
                                         <button ngbDropdownItem (click)="changeReservationMachine(r)">
                                             {{ 'i18n_change_reservation_machine' | translate }}
                                         </button>
