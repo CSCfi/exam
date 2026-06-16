@@ -49,15 +49,19 @@ export class RemoveReservationDialogComponent {
     ok() {
         const currentReservation = this.reservation();
         if (!currentReservation) return;
-        this.http
-            .delete(`/app/reservations/${currentReservation.id}`, {
-                headers: { 'Content-Type': 'application/json' },
-                params: { msg: this.message().text },
-            })
-            .subscribe({
-                next: () => this.activeModal.close(),
-                error: (err) => this.toast.error(err),
-            });
+        const msg = this.message().text;
+        const isInboundExternal = !!currentReservation.externalUserRef && !currentReservation.enrolment;
+        const request$ = isInboundExternal
+            ? this.http.delete(`/app/iop/reservations/external/${currentReservation.externalRef}/force`, {
+                  body: { msg },
+              })
+            : this.http.delete(`/app/reservations/${currentReservation.id}`, {
+                  params: { msg },
+              });
+        request$.subscribe({
+            next: () => this.activeModal.close(),
+            error: (err) => this.toast.error(err),
+        });
     }
 
     cancel() {
