@@ -176,6 +176,7 @@ class CalendarHandlerImpl @Inject() (
     val candidates = DB
       .find(classOf[ExamMachine])
       .fetch("room")
+      .fetch("room.mailAddress")
       .where()
       .eq("room.id", room.id)
       .ne("outOfService", true)
@@ -553,7 +554,6 @@ class CalendarHandlerImpl @Inject() (
   private def parseExternalMachineData(machineNode: JsValue): ExamMachine =
     val machine = new ExamMachine()
     machine.name = (machineNode \ "name").as[String]
-
     val roomNode = machineNode \ "room"
     val room     = new ExamRoom()
     room.name = (roomNode \ "name").as[String]
