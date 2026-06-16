@@ -902,6 +902,7 @@
     "i18n_no_examinations_to_grade": "No exams waiting for assessment",
     "i18n_csv_uploaded_successfully": "CSV file uploaded successfully",
     "i18n_skip_to_content": "Skip to content",
+    "i18n_skip_to_exam_actions": "Skip to examination actions",
     "i18n_event_capacity": "Max. number of participants",
     "i18n_error_max_capacity_exceeded": "Max. number of participants for concurrent exam events exceeded",
     "i18n_error_max_enrolments_reached": "Exam event is full",

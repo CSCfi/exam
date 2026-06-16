@@ -20,6 +20,7 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
 @Component({
     selector: 'xm-examination',
     templateUrl: './examination.component.html',
+    styleUrl: './examination.component.scss',
     imports: [
         ExaminationPageHeaderComponent,
         ExaminationSectionComponent,
@@ -41,7 +42,6 @@ export class ExaminationComponent implements OnDestroy {
     private readonly Examination = inject(ExaminationService);
     private readonly Session = inject(SessionService);
     private readonly Enrolment = inject(EnrolmentService);
-
     constructor() {
         const isPreviewValue = this.route.snapshot.data.isPreview;
         const isCollaborativeValue = this.route.snapshot.data.isCollaborative || false;
@@ -103,7 +103,7 @@ export class ExaminationComponent implements OnDestroy {
     }
 
     getSkipLinkPath(skipTarget: string) {
-        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+        return window.location.href.split('#')[0] + skipTarget;
     }
 
     private logout(msg: string, canFail: boolean) {
