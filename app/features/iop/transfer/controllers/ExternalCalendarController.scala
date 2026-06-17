@@ -87,11 +87,12 @@ class ExternalCalendarController @Inject() (
       val body           = request.body
       val reservationRef = (body \ "id").as[String]
       val roomRef        = (body \ "roomId").as[String]
-      val start    = ISODateTimeFormat.dateTimeParser().parseDateTime((body \ "start").as[String])
-      val end      = ISODateTimeFormat.dateTimeParser().parseDateTime((body \ "end").as[String])
-      val userEppn = (body \ "user").as[String]
-      val orgRef   = (body \ "orgRef").as[String]
-      val orgName  = (body \ "orgName").as[String]
+      val start     = ISODateTimeFormat.dateTimeParser().parseDateTime((body \ "start").as[String])
+      val end       = ISODateTimeFormat.dateTimeParser().parseDateTime((body \ "end").as[String])
+      val userEppn  = (body \ "user").as[String]
+      val userEmail = (body \ "email").asOpt[String]
+      val orgRef    = (body \ "orgRef").as[String]
+      val orgName   = (body \ "orgName").as[String]
 
       if start.isBefore(clock.now()) || end.isBefore(start) then BadRequest("invalid dates")
       else
@@ -108,6 +109,7 @@ class ExternalCalendarController @Inject() (
                 reservation.startAt = start
                 reservation.machine = machine
                 reservation.externalUserRef = userEppn
+                reservation.externalUserEmail = userEmail.orNull
                 reservation.externalOrgRef = orgRef
                 reservation.externalOrgName = orgName
                 reservation.save()
@@ -278,6 +280,7 @@ class ExternalCalendarController @Inject() (
                       "start"            -> ISODateTimeFormat.dateTime().print(start),
                       "end"              -> ISODateTimeFormat.dateTime().print(end),
                       "user"             -> user.eppn,
+                      "email"            -> user.email,
                       "optionalSections" -> Json.toJson(sectionIdsSeq)
                     )
 

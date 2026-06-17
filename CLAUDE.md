@@ -107,6 +107,17 @@ The Angular frontend calls Play REST endpoints defined in `conf/routes`. Control
 
 The `iop/` feature on both ends supports collaborative and external exams between institutions. External exam state is synchronized via REST calls to partner institutions. Models for this are prefixed `External*` (e.g. `ExternalExam`, `ExternalReservation`).
 
+#### XM proxy service
+
+Between any two EXAM installations sits **XM** (`~/cooper/xm`), a Node.js/Express proxy that routes IOP traffic. EXAM instances never call each other directly — all cross-installation requests go through XM.
+
+- **Stack**: TypeScript + Express, CouchDB (via nano) for storing reservation/enrolment documents
+- **Key routes**: `reservation.ts`, `facility.ts`, `enrolment.ts`, `exam.ts`, `assessment.ts`
+- **Reservation create flow**: XM receives `POST /api/organisations/:oid/facilities/:fid/reservations` from the originating EXAM, constructs an explicit payload from whitelisted fields (see `config/default.json` → `exam.api.reservation.create.params`), and POSTs it to the remote EXAM's `/integration/iop/reservations`. The response is stored as-is in CouchDB.
+- **Important**: The payload is NOT a transparent pass-through — only fields listed in `config/default.json` are forwarded. Adding a new field to the reservation body requires updating both the config and `src/routes/reservation.ts`.
+- **Tests**: `npm test` in `~/cooper/xm` (Jest, unit + integration suites under `src/test/ut/` and `src/test/it/`)
+- **Linting**: `npm run lint` / `npm run prettier`
+
 ### CKEditor custom plugins
 
 Two custom CKEditor plugins live in `ui/src/app/shared/ckeditor/plugins/`: `clozetest` (fill-in-the-blank questions) and `math` (formula editing).

@@ -134,7 +134,12 @@ class ReservationService @Inject() (
 
             if Option(reservation.externalReservation).isDefined then
               externalReservationHandler
-                .removeReservation(reservation, enrolment.user, message.getOrElse(""))
+                .removeReservation(
+                  reservation,
+                  enrolment.user,
+                  message.getOrElse(""),
+                  sendEmail = false
+                )
                 .map(_ => Right(()))
             else
               enrolment.reservation = null
