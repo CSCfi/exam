@@ -41,12 +41,13 @@ class Reservation extends GeneratedIdentityModel with Ordered[Reservation]:
   @JsonDateTime
   var endAt: DateTime = uninitialized
 
-  var reminderSent: Boolean   = false
-  var sentAsNoShow: Boolean   = false
-  var externalRef: String     = uninitialized
-  var externalUserRef: String = uninitialized
-  var externalOrgRef: String  = uninitialized
-  var externalOrgName: String = uninitialized
+  var reminderSent: Boolean     = false
+  var sentAsNoShow: Boolean     = false
+  var externalRef: String       = uninitialized
+  var externalUserRef: String   = uninitialized
+  var externalUserEmail: String = uninitialized
+  var externalOrgRef: String    = uninitialized
+  var externalOrgName: String   = uninitialized
 
   def toInterval: Interval = new Interval(startAt, endAt)
 

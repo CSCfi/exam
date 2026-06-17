@@ -63,7 +63,12 @@ class ExternalReservationHandlerService @Inject() (
             Some(INTERNAL_SERVER_ERROR)
           }
 
-  private def requestRemoval(ref: String, user: User, msg: String): Future[Result] =
+  private def requestRemoval(
+      ref: String,
+      user: User,
+      msg: String,
+      sendEmail: Boolean = true
+  ): Future[Result] =
     val enrolmentOpt =
       DB.find(classOf[ExamEnrolment])
         .fetch("reservation")
@@ -106,18 +111,18 @@ class ExternalReservationHandlerService @Inject() (
                     DB.save(enrolment)
                     reservation.delete()
 
-                    // send email asynchronously
-                    val isStudentUser = user == enrolment.user
-                    emailComposer.scheduleEmail(1.second) {
-                      emailComposer.composeReservationCancellationNotification(
-                        enrolment.user,
-                        reservation,
-                        Some(msg),
-                        isStudentUser,
-                        enrolment
-                      )
-                      logger.info("Reservation cancellation confirmation email sent")
-                    }
+                    if sendEmail then
+                      val isStudentUser = user == enrolment.user
+                      emailComposer.scheduleEmail(1.second) {
+                        emailComposer.composeReservationCancellationNotification(
+                          enrolment.user,
+                          reservation,
+                          Some(msg),
+                          isStudentUser,
+                          enrolment
+                        )
+                        logger.info("Reservation cancellation confirmation email sent")
+                      }
 
                     Ok
                 }
@@ -126,7 +131,8 @@ class ExternalReservationHandlerService @Inject() (
   def removeReservation(
       reservation: Reservation,
       user: User,
-      msg: String
+      msg: String,
+      sendEmail: Boolean = true
   ): Future[Result] =
     if Option(reservation.externalReservation).isEmpty then Future.successful(Ok)
-    else requestRemoval(reservation.externalRef, user, msg)
+    else requestRemoval(reservation.externalRef, user, msg, sendEmail)
