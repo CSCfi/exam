@@ -57,13 +57,13 @@ SPDX-License-Identifier: EUPL-1.2
                         </h2>
                     }
                     @if (exam?.anonymous || collabExam?.anonymous) {
-                        <small>({{ 'i18n_anonymous_review' | translate }})</small>
+                        <span>({{ 'i18n_anonymous_review' | translate }})</span>
                     }
                     @if (exam && exam.implementation === 'CLIENT_AUTH') {
-                        <small class="ps-2">({{ 'i18n_examination_type_seb' | translate }})</small>
+                        <span class="ps-2">({{ 'i18n_examination_type_seb' | translate }})</span>
                     }
                     @if (exam && exam.implementation === 'WHATEVER') {
-                        <small class="ps-2">({{ 'i18n_examination_type_home_exam' | translate }})</small>
+                        <span class="ps-2">({{ 'i18n_examination_type_home_exam' | translate }})</span>
                     }
                     <div class="row">
                         <div class="col">
@@ -112,7 +112,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         <div class="row">
             <div class="col-md-9 col-lg-10 offset-md-3 offset-lg-2">
-                <button class="btn btn-sm btn-link text-secondary ps-0" (click)="addEnrolmentInformation()">
+                <button class="btn btn-link text-secondary ps-0" (click)="addEnrolmentInformation()">
                     <i class="bi bi-envelope"></i>
                     {{ 'i18n_student_edit' | translate }}
                 </button>
