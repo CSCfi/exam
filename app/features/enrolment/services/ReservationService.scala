@@ -107,7 +107,14 @@ class ReservationService @Inject() (
       .where()
       .eq("reservation.id", reservationId)
       .find match
-      case None => Future.successful(Left(ReservationError.ReservationNotFound))
+      case None =>
+        Option(DB.find(classOf[Reservation], reservationId)) match
+          case None => Future.successful(Left(ReservationError.ReservationNotFound))
+          case Some(reservation) =>
+            if reservation.endAt.isAfter(DateTime.now()) then
+              emailComposer.composeExternalReservationCancellationNotification(reservation, message)
+            reservation.delete()
+            Future.successful(Right(()))
       case Some(enrolment) =>
         DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.exam).find match
           case Some(participation) =>
@@ -127,7 +134,12 @@ class ReservationService @Inject() (
 
             if Option(reservation.externalReservation).isDefined then
               externalReservationHandler
-                .removeReservation(reservation, enrolment.user, message.getOrElse(""))
+                .removeReservation(
+                  reservation,
+                  enrolment.user,
+                  message.getOrElse(""),
+                  sendEmail = false
+                )
                 .map(_ => Right(()))
             else
               enrolment.reservation = null

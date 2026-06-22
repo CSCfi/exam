@@ -182,6 +182,7 @@ class ExternalExamHandlerImpl @Inject() (
     clone.setModifierWithDate(user)
     clone.generateHash()
     clone.gradingType = GradeType.GRADED
+    clone.examFeedbackConfig = null
     clone.save()
 
     if Option(src.autoEvaluationConfig).isDefined then
@@ -189,6 +190,12 @@ class ExternalExamHandlerImpl @Inject() (
       configClone.exam = clone
       configClone.save()
       clone.autoEvaluationConfig = configClone
+
+    if Option(src.examFeedbackConfig).isDefined then
+      val configClone = src.examFeedbackConfig.copy()
+      configClone.exam = clone
+      configClone.save()
+      clone.examFeedbackConfig = configClone
 
     src.examInspections.asScala.foreach { ei =>
       val inspection = new ExamInspection()

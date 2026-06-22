@@ -21,7 +21,7 @@ export class CourseCodeService {
 
     formatCode = (code: string): string => {
         const prefix = this.storageService.get<string>('COURSE_CODE_PREFIX');
-        if (prefix) {
+        if (prefix !== null && prefix !== undefined) {
             const parts = code.split(prefix);
             return parts.length > 1 ? parts.slice(0, parts.length - 1).join(prefix) : parts[0];
         } else {

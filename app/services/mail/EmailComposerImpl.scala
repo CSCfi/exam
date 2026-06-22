@@ -661,8 +661,9 @@ class EmailComposerImpl @Inject() (
       reservation: Reservation,
       message: Option[String]
   ): Unit =
+    val email = Option(reservation.externalUserEmail).getOrElse(reservation.externalUserRef)
     doComposeReservationAdminCancellationNotification(
-      reservation.externalUserRef,
+      email,
       Lang.get("en").get,
       reservation,
       message,
