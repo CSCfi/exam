@@ -30,6 +30,10 @@ html {
 * {
     font-family: Arimo, Helvetica-Neue, Helvetica;
 }
+:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
 /* fullcalendar overrides, need to be defined here because of view encapsulation */
 /* timeGridDay: toolbar title duplicates the column date / shows odd ranges in fi */
 .fc .fc-timeGridDay-view .fc-toolbar-title {

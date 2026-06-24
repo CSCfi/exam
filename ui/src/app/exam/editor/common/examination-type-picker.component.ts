@@ -111,7 +111,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                 font-weight: bold;
                 text-decoration: none;
             }
-            button.btn-link:focus {
+            button.btn-link:focus-visible {
                 outline: none;
                 font-weight: bold;
                 color: black;
@@ -216,9 +216,6 @@ export class ExaminationTypeSelectorComponent {
             }
 
             currentLinks[this.focusedIndex()].nativeElement.focus();
-            event.preventDefault();
-        } else if (event.key === 'Enter') {
-            currentLinks[this.focusedIndex()].nativeElement.click();
             event.preventDefault();
         }
     }
