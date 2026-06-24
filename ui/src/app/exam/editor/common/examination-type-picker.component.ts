@@ -101,7 +101,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
         </div>
 
         <div class="modal-footer">
-            <button class="btn btn-sm btn-danger" (click)="cancel()">{{ 'i18n_button_cancel' | translate }}</button>
+            <button class="btn btn-danger" (click)="cancel()">{{ 'i18n_button_cancel' | translate }}</button>
         </div>
     `,
     styles: [
