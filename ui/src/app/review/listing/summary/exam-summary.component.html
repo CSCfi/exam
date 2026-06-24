@@ -277,7 +277,16 @@ SPDX-License-Identifier: EUPL-1.2
     @if (reviews().length > 0) {
         <div class="row">
             <div class="col-md-12 mt-3">
-                <button type="button" class="btn btn-link" (click)="printQuestionScoresReport()">
+                <button
+                    type="button"
+                    class="btn btn-link"
+                    [disabled]="downloadingReport()"
+                    (click)="printQuestionScoresReport()"
+                >
+                    @if (downloadingReport()) {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        <span class="me-1">{{ downloadedBytesFormatted() }}</span>
+                    }
                     {{ 'i18n_exam_print_question_scores_report' | translate }}
                 </button>
             </div>

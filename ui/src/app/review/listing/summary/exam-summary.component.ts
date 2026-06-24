@@ -49,6 +49,17 @@ export class ExamSummaryComponent {
     });
 
     readonly collaborative: boolean;
+    readonly downloadingReport = computed(() => {
+        const id = this.exam()?.id;
+        return id ? this.Files.downloading().has(`/app/statistics/questionreport/${id}`) : false;
+    });
+    readonly downloadedBytes = signal(0);
+    readonly downloadedBytesFormatted = computed(() => {
+        const b = this.downloadedBytes();
+        if (b < 1024) return `${b} B`;
+        if (b < 1048576) return `${(b / 1024).toFixed(1)} KB`;
+        return `${(b / 1048576).toFixed(1)} MB`;
+    });
 
     private gradeTimeChart!: Chart<'scatter'>;
     private examinationDateDistribution!: Chart<'line'>;
@@ -113,11 +124,12 @@ export class ExamSummaryComponent {
     printQuestionScoresReport = () => {
         const ids = this.reviews().map((r) => r.exam.id);
         if (ids.length > 0) {
+            this.downloadedBytes.set(0);
             const url = '/app/statistics/questionreport/' + this.exam()!.id;
             this.Files.download(
                 url,
                 this.translate.instant('i18n_grading_info') + '_' + DateTime.now().toFormat('dd-MM-yyyy') + '.xlsx',
-                { params: { ids: ids }, method: 'POST' },
+                { params: { ids: ids }, method: 'POST', onProgress: (loaded) => this.downloadedBytes.set(loaded) },
             );
         }
     };
