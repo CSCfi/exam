@@ -72,9 +72,7 @@ export class MathUI extends Plugin {
         if (!this.balloon.hasView(this.formView)) {
             this.balloon.add({
                 view: this.formView,
-                position: targetElement
-                    ? { target: targetElement }
-                    : this.getBalloonPositionData(),
+                position: targetElement ? { target: targetElement } : this.getBalloonPositionData(),
             });
         }
 
