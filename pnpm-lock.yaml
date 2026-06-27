@@ -75,7 +75,7 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(chart.js@4.5.1)
       ckeditor5:
-        specifier: ^48.2.0
+        specifier: ^48.0.0
         version: 48.2.0
       luxon:
         specifier: ^3.7.2
@@ -145,11 +145,11 @@ importers:
         specifier: ^1.13.6
         version: 1.13.6
       prettier:
-        specifier: ^3.8.4
-        version: 3.8.4
+        specifier: ^3.8.5
+        version: 3.8.5
       prettier-plugin-organize-imports:
         specifier: ^4.3.0
-        version: 4.3.0(prettier@3.8.4)(typescript@5.9.3)
+        version: 4.3.0(prettier@3.8.5)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -3507,8 +3507,8 @@ packages:
       vue-tsc:
         optional: true
 
-  prettier@3.8.4:
-    resolution: {integrity: sha512-N2MylSdi48+5N/6S5j+maeHbUSIzzZ5uOcX5Hm4QpV8Dkb1HFjfAKTKX6yNPJQD9AhcT3ifHNB66tWTTJDi11Q==}
+  prettier@3.8.5:
+    resolution: {integrity: sha512-zxcTTCedNGJM4R8sj/Cq/F0W/c4iE0afWBcBwMTRtw4WHYP9TWkYjdiH3npPRUYsXQCPR0hTU9yjovOu+E6EQA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -8060,12 +8060,12 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-organize-imports@4.3.0(prettier@3.8.4)(typescript@5.9.3):
+  prettier-plugin-organize-imports@4.3.0(prettier@3.8.5)(typescript@5.9.3):
     dependencies:
-      prettier: 3.8.4
+      prettier: 3.8.5
       typescript: 5.9.3
 
-  prettier@3.8.4: {}
+  prettier@3.8.5: {}
 
   proc-log@6.1.0: {}
 

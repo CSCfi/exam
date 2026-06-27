@@ -132,27 +132,22 @@ export class MathView extends View {
             return;
         }
 
-        // Create math-field element and initialize it properly with MathLive
         try {
-            // Ensure MathLive is loaded
             await import('mathlive');
+            await customElements.whenDefined('math-field');
 
-            // Clear previous content
             this.previewContainer.element!.innerHTML = '';
 
-            // Create and configure math-field element
             const mathField = document.createElement('math-field') as HTMLElement & { value: string };
             mathField.setAttribute('read-only', 'true');
             mathField.style.fontSize = '18px';
 
-            // Set the value - this is what makes MathLive render it
-            mathField.value = expression;
-
-            // Append to preview container
+            // Append FIRST so connectedCallback fires, then set value —
+            // MathLive ignores .value assignments made before DOM insertion.
             this.previewContainer.element!.appendChild(mathField);
+            mathField.value = expression;
         } catch (error) {
             console.error('Failed to render math preview:', error);
-            // Fallback to showing the raw LaTeX
             this.previewContainer.element!.textContent = expression;
         }
     }

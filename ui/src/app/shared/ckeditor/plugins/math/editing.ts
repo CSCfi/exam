@@ -29,11 +29,12 @@ export class MathEditing extends Plugin {
         conversion.for('upcast').elementToElement({
             view: 'math-field',
             model: (viewElement: ViewElement, { writer }) => {
-                // Get expression from text content first, then fallback to data-expression attribute
+                // Prefer data-math-expression attribute (authoritative, not modified by MathLive)
+                // Fall back to text content for legacy data that lacks the attribute
+                const dataExpression = viewElement.getAttribute('data-math-expression') || '';
                 const firstChild = viewElement.getChild(0);
                 const textContent = firstChild && 'data' in firstChild ? (firstChild as { data: string }).data : '';
-                const dataExpression = viewElement.getAttribute('data-expression') || '';
-                const expression = textContent.trim() || dataExpression;
+                const expression = dataExpression || textContent.trim();
 
                 return writer.createElement('mathField', {
                     mathExpression: expression,
@@ -59,28 +60,25 @@ export class MathEditing extends Plugin {
             },
         });
 
-        // Convert from model to view (editing view) - use createContainerElement with toWidget for proper selection support
+        // Convert from model to view (editing view)
         conversion.for('editingDowncast').elementToElement({
             model: 'mathField',
             view: (modelElement, { writer }) => {
                 const expression = (modelElement.getAttribute('mathExpression') || '') as string;
 
-                // Create container element that can be converted to widget
+                // No light-DOM text child: MathLive renders inside its shadow DOM.
+                // Light-DOM text bleeds through the shadow slot and hides the rendered formula.
+                // MathLive reads the initial expression from the `value` HTML attribute instead.
                 const mathElement = writer.createContainerElement('math-field', {
                     'read-only': 'true',
                     'math-virtual-keyboard-policy': 'off',
+                    value: expression,
                     style: 'display: inline-block; border: none; outline: none; background: transparent; cursor: pointer; padding: 2px; border-radius: 3px; transition: background-color 0.2s; pointer-events: all; user-select: none; -webkit-user-select: none;',
-                    class: 'math-element-selectable ck-widget__editable',
+                    class: 'math-element-selectable',
                     'data-math-expression': expression,
-                    'data-math-initialized': 'false',
-                    'data-math-timestamp': Date.now().toString(), // Add timestamp to force re-processing
                     contenteditable: 'false',
                 });
 
-                // Insert the expression as text content
-                writer.insert(writer.createPositionAt(mathElement, 0), writer.createText(expression));
-
-                // Convert to widget for proper CKEditor selection support
                 return toWidget(mathElement, writer, { label: `Math formula: ${expression}` });
             },
         });
@@ -110,32 +108,5 @@ export class MathEditing extends Plugin {
         // Math widgets can be selected by clicking on them, and standard Ctrl+C/Ctrl+V will work
     }
 
-    private async initializeMathField(element: HTMLElement, expression: string) {
-        try {
-            // Load MathLive dynamically
-            await import('mathlive');
 
-            if (typeof window !== 'undefined' && window.MathfieldElement) {
-                // The element is already a math-field, just configure it
-                const mathField = element as HTMLElement & {
-                    value: string;
-                    readOnly: boolean;
-                    setAttribute: (name: string, value: string) => void;
-                };
-
-                // Use the expression passed in (from text content)
-                mathField.value = expression;
-                mathField.readOnly = true;
-                mathField.setAttribute('math-virtual-keyboard-policy', 'off');
-            } else {
-                console.warn('MathfieldElement not available, showing LaTeX');
-                // Keep the LaTeX as text content if MathLive is not available
-                element.textContent = expression;
-            }
-        } catch (error) {
-            console.error('Failed to initialize math-field element:', error);
-            // Keep the LaTeX as text content on error
-            element.textContent = expression;
-        }
-    }
 }

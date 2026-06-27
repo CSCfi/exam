@@ -58,31 +58,28 @@ export class MathUI extends Plugin {
         });
     };
 
-    showUI() {
+    showUI(expressionOverride?: string, targetElement?: HTMLElement) {
         const commandValue = this.editor.commands.get('insertMath')!.value as CommandValue | null;
-        const isEditing = !!commandValue;
+        const expression = expressionOverride ?? commandValue?.expression ?? null;
+        const isEditing = expression !== null;
 
-        // Update form title based on editing state
         if (isEditing) {
             this.formView.setTitle(_t('editMathFormulaTitle', this.editor.locale));
         } else {
             this.formView.setTitle(_t('insertMathFormulaTitle', this.editor.locale));
         }
 
-        this.balloon.add({
-            view: this.formView,
-            position: this.getBalloonPositionData(),
-        });
-
-        // Check the value of the command.
-        if (commandValue) {
-            (this.formView.expressionTextarea.fieldView.element as HTMLTextAreaElement).value = commandValue.expression;
-        } else {
-            // Clear form for new math expression
-            (this.formView.expressionTextarea.fieldView.element as HTMLTextAreaElement).value = '';
+        if (!this.balloon.hasView(this.formView)) {
+            this.balloon.add({
+                view: this.formView,
+                position: targetElement
+                    ? { target: targetElement }
+                    : this.getBalloonPositionData(),
+            });
         }
 
-        // Trigger preview update
+        (this.formView.expressionTextarea.fieldView.element as HTMLTextAreaElement).value = expression ?? '';
+
         this.formView.updatePreview();
         this.formView.focus();
     }

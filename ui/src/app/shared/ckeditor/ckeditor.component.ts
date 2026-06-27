@@ -69,6 +69,7 @@ import {
     TodoList,
     Underline,
     Undo,
+    WidgetTypeAround,
     WordCount,
 } from 'ckeditor5';
 import i18nEn from 'ckeditor5/translations/en.js';
@@ -175,6 +176,19 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
         this.editorInstance = e;
         this.initializationService.initializeEditor(e, this.id());
 
+        const trailingBlockNames = new Set(['codeBlock', 'table', 'blockQuote', 'horizontalLine']);
+        e.model.document.registerPostFixer((writer) => {
+            const root = e.model.document.getRoot();
+            if (!root || !root.childCount) return false;
+            const last = root.getChild(root.childCount - 1);
+            if (last && last.is('element') && trailingBlockNames.has(last.name)) {
+                console.log('[CKEditor] post-fixer: inserting trailing paragraph after', last.name);
+                writer.append(writer.createElement('paragraph'), root);
+                return true;
+            }
+            return false;
+        });
+
         // Restore content if we're recovering from a language change
         if (this.pendingContent !== null) {
             e.setData(this.pendingContent);
@@ -276,6 +290,7 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
                 TodoList,
                 Underline,
                 Undo,
+                WidgetTypeAround,
                 WordCount,
                 Cloze,
                 Math,
