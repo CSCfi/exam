@@ -54,7 +54,7 @@ export class MathView extends View {
             tag: 'div',
             attributes: {
                 class: ['ck', 'ck-math-preview'],
-                style: 'min-height: 60px; border: 1px solid #d1d5db; background: #f9fafb; padding: 16px; margin: 16px 0; border-radius: 6px; display: flex; align-items: center; justify-content: center;',
+                style: 'min-height: 60px; border: 1px solid #d1d5db; background: #f9fafb; padding: 16px; margin: 16px 0; border-radius: 6px; display: flex; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;',
             },
         });
 
@@ -87,7 +87,7 @@ export class MathView extends View {
                     tag: 'div',
                     attributes: {
                         class: ['ck-math-input-row'],
-                        style: 'margin-bottom: 16px;',
+                        style: 'margin-bottom: 16px; width: 100%; box-sizing: border-box;',
                     },
                     children: [this.expressionTextarea],
                 },
@@ -112,6 +112,21 @@ export class MathView extends View {
         submitHandler({ view: this });
         this.childViews.forEach((view) => this.focusTracker.add(view.element as HTMLElement));
         this.keystrokes.listenTo(this.element!);
+
+        // CKEditor's own CSS overrides inherited/container styles, so inject scoped overrides directly.
+        const style = document.createElement('style');
+        style.textContent = `
+            .ck-math-form .ck-label { font-size: 15px !important; }
+            .ck-math-form .ck-labeled-field-view__status { font-size: 14px !important; }
+        `;
+        this.element!.appendChild(style);
+
+        // Width must be set directly on the textarea element — CKEditor's CSS wins over any selector.
+        const textareaEl = this.expressionTextarea.fieldView.element as HTMLTextAreaElement | null;
+        if (textareaEl) {
+            textareaEl.style.width = '100%';
+            textareaEl.style.boxSizing = 'border-box';
+        }
     }
 
     override destroy() {

@@ -24,10 +24,12 @@ class ReservationReminderService @Inject() (
     with Logging
     with EbeanQueryExtensions:
 
-  private def remind(r: Reservation): Unit =
-    emailComposer.composeReservationNotification(r.user, r, r.enrolment.exam, true)
-    r.reminderSent = true
-    r.update()
+  private def remind(r: Reservation): IO[Unit] =
+    IO.blocking {
+      emailComposer.composeReservationNotification(r.user, r, r.enrolment.exam, true)
+      r.reminderSent = true
+      r.update()
+    }.handleErrorWith(e => IO(logger.error(s"Failed to send reminder for reservation ${r.id}", e)))
 
   private def runCheck(): IO[Unit] =
     IO.blocking {
@@ -45,9 +47,7 @@ class ReservationReminderService @Inject() (
         .between("startAt", now, tomorrow)
         .ne("reminderSent", true)
         .list
-        .foreach(remind)
-      logger.info("<- done")
-    }
+    }.flatMap(_.traverse(remind)) *> IO(logger.info("<- done"))
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (90.seconds, 10.minutes)
