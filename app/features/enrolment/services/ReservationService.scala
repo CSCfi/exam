@@ -111,10 +111,21 @@ class ReservationService @Inject() (
         Option(DB.find(classOf[Reservation], reservationId)) match
           case None => Future.successful(Left(ReservationError.ReservationNotFound))
           case Some(reservation) =>
-            if reservation.endAt.isAfter(DateTime.now()) then
-              emailComposer.composeExternalReservationCancellationNotification(reservation, message)
-            reservation.delete()
-            Future.successful(Right(()))
+            if Option(reservation.externalOrgRef).isDefined then
+              externalReservationHandler
+                .revokeExternalStudentReservation(reservation, message)
+                .map {
+                  case None    => Right(())
+                  case Some(_) => Left(ReservationError.RemoteCallFailed)
+                }
+            else
+              if reservation.endAt.isAfter(DateTime.now()) then
+                emailComposer.composeExternalReservationCancellationNotification(
+                  reservation,
+                  message
+                )
+              reservation.delete()
+              Future.successful(Right(()))
       case Some(enrolment) =>
         DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.exam).find match
           case Some(participation) =>

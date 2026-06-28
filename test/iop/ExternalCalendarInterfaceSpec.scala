@@ -546,6 +546,38 @@ class ExternalCalendarInterfaceSpec
           Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne())
         removed must be(defined)
 
+    "removing external student reservation via general admin interface" should:
+      "notify home institution and delete local reservation" in:
+        val (_, _, room, _) = setupTestData()
+
+        val reservation = new Reservation()
+        reservation.externalRef = RESERVATION_REF
+        reservation.externalOrgRef = ORG_REF
+        reservation.externalUserRef = "eppn@test.org"
+        reservation.externalUserEmail = "external@test.org"
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
+        reservation.machine = room.examMachines.get(0)
+        reservation.save()
+
+        val (_, session) = runIO(loginAsAdmin())
+        val result = runIO(
+          makeRequest(
+            DELETE,
+            s"/app/reservations/${reservation.id}?msg=cancellation+notice",
+            session = session
+          )
+        )
+        statusOf(result) must be(Status.OK)
+
+        val removed = DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).find
+        removed must be(empty)
+
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val mails = greenMail.getReceivedMessages
+        mails must have size 1
+        mails(0).getAllRecipients()(0).toString must be("external@test.org")
+
     "providing enrolment" should:
       "return enrolment data successfully" in:
         ensureTestDataLoaded()

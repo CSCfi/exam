@@ -118,6 +118,21 @@ Between any two EXAM installations sits **XM** (`~/cooper/xm`), a Node.js/Expres
 - **Tests**: `npm test` in `~/cooper/xm` (Jest, unit + integration suites under `src/test/ut/` and `src/test/it/`)
 - **Linting**: `npm run lint` / `npm run prettier`
 
+### Scheduled jobs (`app/system/jobs/`)
+
+Ten background jobs implement `ScheduledJob` and are wired up as Play `Resource`s at startup. All use cats-effect — **do not reach for fs2** here; the current `IO.sleep *> job.foreverM` pattern is idiomatic and sufficient.
+
+**Standard loop pattern:**
+```scala
+val program = IO.sleep(delay) *> (runCheck().handleErrorWith(log) *> IO.sleep(interval)).foreverM
+Resource.make(program.start)(_.cancel).void
+```
+
+**Fault-tolerance rules for jobs that fan out over a collection:**
+
+- Email jobs (`ReservationReminderService`, `WeeklyReportService`): each send must be its own `IO.blocking` with a per-item `handleErrorWith`. A single `IO.blocking { list.foreach(send) }` will abort the entire batch on the first SMTP failure.
+- HTTP fan-out jobs (`AssessmentTransferService`, `CollaborativeAssessmentSenderService`, `ExternalExamExpirationService`): use `parTraverseN(10)` with per-item error handling. Transient proxy failures are logged and retried on the next scheduled tick — that's intentional.
+
 ### CKEditor custom plugins
 
 Two custom CKEditor plugins live in `ui/src/app/shared/ckeditor/plugins/`: `clozetest` (fill-in-the-blank questions) and `math` (formula editing).
