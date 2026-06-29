@@ -25,6 +25,7 @@ import services.mail.EmailComposer
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.util.Try
 
 class ReviewService @Inject() (
     private val emailComposer: EmailComposer,
@@ -332,7 +333,10 @@ class ReviewService @Inject() (
           inspections ++ exam.parent.examOwners.asScala.filterNot(_ == loggedInUser)
         emailComposer.scheduleEmail(1.seconds) {
           recipients.foreach(user =>
-            emailComposer.composeInspectionMessage(user, loggedInUser, exam, message)
+            Try(emailComposer.composeInspectionMessage(user, loggedInUser, exam, message)).fold(
+              e => logger.error(s"Failed to send email to ${user.email}", e),
+              _ => ()
+            )
           )
         }
         Right(())
