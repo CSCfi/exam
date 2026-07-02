@@ -103,6 +103,22 @@ Global concerns:
 
 The Angular frontend calls Play REST endpoints defined in `conf/routes`. Controllers validate and delegate to services; Ebean models map to PostgreSQL via JPA-style annotations. JSON serialization uses Gson on the backend with custom serializers for complex types.
 
+### Session response headers (exam/machine redirect signaling)
+
+`SystemFilter` (`app/system/SystemFilter.scala`) mirrors specific Play **session** keys onto HTTP **response headers** for every `/app` and `/integration` request:
+
+| Header | Session key | Meaning |
+|---|---|---|
+| `x-exam-start-exam` | `ongoingExamHash` | Student's exam is live now — go straight into it |
+| `x-exam-upcoming-exam` | `upcomingExamHash` | Student is on an exam machine ahead of time — redirect to waiting room (`none` = no exam today, `<hash>:::<enrolmentId>` = exam scheduled) |
+| `x-exam-wrong-machine` / `x-exam-unknown-machine` / `x-exam-wrong-room` | `wrongMachineData` / `unknownMachineData` / `wrongRoomData` | Reservation exists but the student is on the wrong machine/room |
+| `x-exam-wrong-agent-config` | `wrongAgent` | SEB (Safe Exam Browser) agent config check failed |
+| `x-exam-aquarium-login` | `aquariumLogin` | Early login to an Aquarium-room exam, redirect window not yet open |
+
+These session keys are computed by `EnrolmentRepository.getReservationHeaders` and merged into the session via `SessionService.updateSessionWithReservationHeaders`. `SystemFilter` only emits a header if the matching key is present in the session — it doesn't know about exams itself, it's purely a session→header mirror. **This means any `SessionController` action must explicitly call `getReservationHeaders` + `updateSessionWithReservationHeaders` to produce these headers; skipping it silently omits them.** Currently `login`, `setLoginRole`, and `checkSession` all do this — if you add a new session-mutating action, check whether it needs the same treatment.
+
+Frontend: `ui/src/app/interceptors/examination.interceptor.ts` inspects every HTTP response for these headers and redirects accordingly (e.g. to `/waitingroom/:enrolmentId/:hash`). Since login only knows a student's exam schedule once these headers are computed, and `session.service.ts`'s `restartSessionCheck()` otherwise only re-checks every `PING_INTERVAL` (30s) via `checkSession`, missing the header on `login` delays a correct redirect by up to one polling interval.
+
 ### IOP (Inter-Organizational Protocol)
 
 The `iop/` feature on both ends supports collaborative and external exams between institutions. External exam state is synchronized via REST calls to partner institutions. Models for this are prefixed `External*` (e.g. `ExternalExam`, `ExternalReservation`).
