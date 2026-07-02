@@ -24,6 +24,7 @@ import java.util.concurrent.ThreadLocalRandom
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.util.Try
 
 class ExamUpdaterImpl @Inject() (
     emailComposer: EmailComposer,
@@ -439,7 +440,9 @@ class ExamUpdaterImpl @Inject() (
 
     emailComposer.scheduleEmail(1.second) {
       receivers.foreach { u =>
-        emailComposer.composePrivateExamParticipantNotification(u, sender, exam)
-        logger.info(s"Exam participation notification email sent to ${u.email}")
+        Try(emailComposer.composePrivateExamParticipantNotification(u, sender, exam)).fold(
+          e => logger.error(s"Failed to send email to ${u.email}", e),
+          _ => logger.info(s"Exam participation notification email sent to ${u.email}")
+        )
       }
     }

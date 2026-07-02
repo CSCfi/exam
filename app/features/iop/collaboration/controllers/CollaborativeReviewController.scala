@@ -428,7 +428,12 @@ class CollaborativeReviewController @Inject() (
                         recipients
                           .filter(u => !u.email.equalsIgnoreCase(user.email))
                           .foreach(u =>
-                            emailComposer.composeInspectionMessage(u, user, ce, exam, message)
+                            Try(
+                              emailComposer.composeInspectionMessage(u, user, ce, exam, message)
+                            ).fold(
+                              e => logger.error(s"Failed to send email to ${u.email}", e),
+                              _ => ()
+                            )
                           )
                       }
 

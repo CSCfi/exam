@@ -234,8 +234,10 @@ class ExternalExamHandlerImpl @Inject() (
 
     emailComposer.scheduleEmail(1.second) {
       recipients.foreach { r =>
-        emailComposer.composePrivateExamEnded(r, exam)
-        logger.info(s"Email sent to ${r.email}")
+        Try(emailComposer.composePrivateExamEnded(r, exam)).fold(
+          e => logger.error(s"Failed to send email to ${r.email}", e),
+          _ => logger.info(s"Email sent to ${r.email}")
+        )
       }
     }
 
