@@ -132,15 +132,19 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   @Transient var external: Boolean        = false
   @Transient var externalRef: String      = uninitialized
 
-  def getTotalScore: Double = math.max(toFixed(examSections.asScala.map(_.getTotalScore).sum), 0.0)
-  def getMaxScore: Double   = toFixed(examSections.asScala.map(_.getMaxScore).sum)
+  // NB: examSections is a java.util.Set, so .asScala yields a Scala Set whose
+  // .map would deduplicate equal results (e.g. two sections both worth 3 pts).
+  // Convert to a Seq before mapping so duplicate scores/counts are not collapsed.
+  def getTotalScore: Double =
+    math.max(toFixed(examSections.asScala.toSeq.map(_.getTotalScore).sum), 0.0)
+  def getMaxScore: Double = toFixed(examSections.asScala.toSeq.map(_.getMaxScore).sum)
 
   def setTotalScore(): Unit = totalScore = getTotalScore
   def setMaxScore(): Unit   = maxScore = getMaxScore
   def setRejectedAnswerCount(): Unit =
-    rejectedAnswerCount = examSections.asScala.map(_.getRejectedCount).sum
+    rejectedAnswerCount = examSections.asScala.toSeq.map(_.getRejectedCount).sum
   def setApprovedAnswerCount(): Unit =
-    approvedAnswerCount = examSections.asScala.map(_.getApprovedCount).sum
+    approvedAnswerCount = examSections.asScala.toSeq.map(_.getApprovedCount).sum
 
   def generateHash(): Unit =
     hash = DigestUtils.md5Hex(name + state + new Random().nextDouble())
