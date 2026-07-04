@@ -52,7 +52,7 @@ SPDX-License-Identifier: EUPL-1.2
         <textarea
             id="description"
             class="form-control"
-            [class.is-invalid]="eventForm.description().invalid() && eventForm.description().touched()"
+            [class.is-invalid]="eventForm.description().invalid()"
             [formField]="eventForm.description"
         ></textarea>
         @if (eventForm.description().invalid() && eventForm.description().touched()) {
@@ -68,7 +68,7 @@ SPDX-License-Identifier: EUPL-1.2
             class="form-control"
             type="number"
             step="1"
-            [class.is-invalid]="eventForm.capacity().invalid() && eventForm.capacity().touched()"
+            [class.is-invalid]="eventForm.capacity().invalid()"
             [formField]="eventForm.capacity"
         />
         @if (eventForm.capacity().invalid() && eventForm.capacity().touched()) {
@@ -101,9 +101,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     type="{{ settingsPasswordInputType() }}"
                     class="form-control"
-                    [class.is-invalid]="
-                        eventForm.settingsPassword().invalid() && eventForm.settingsPassword().touched()
-                    "
+                    [class.is-invalid]="eventForm.settingsPassword().invalid()"
                     [formField]="eventForm.settingsPassword"
                 />
                 <div class="input-group-append">
@@ -127,7 +125,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     type="{{ quitPasswordInputType() }}"
                     class="form-control"
-                    [class.is-invalid]="eventForm.quitPassword().invalid() && eventForm.quitPassword().touched()"
+                    [class.is-invalid]="eventForm.quitPassword().invalid()"
                     [formField]="eventForm.quitPassword"
                 />
                 <div class="input-group-append">
