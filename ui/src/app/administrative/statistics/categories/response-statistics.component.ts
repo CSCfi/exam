@@ -2,8 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { filter, switchMap } from 'rxjs/operators';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
@@ -41,15 +43,13 @@ export class ResponseStatisticsComponent {
     private readonly Statistics = inject(StatisticsService);
 
     constructor() {
-        effect(() => {
-            const params = this.queryParams();
-            if (params?.start && params?.end) {
-                this.listResponses(params);
-            }
-        });
-    }
-
-    listResponses(params: QueryParams) {
-        this.Statistics.listResponses$(params).subscribe((resp) => this.data.set(resp));
+        toObservable(this.queryParams)
+            .pipe(
+                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                switchMap((params) => this.Statistics.listResponses$(params)),
+            )
+            .subscribe((resp) => {
+                this.data.set(resp);
+            });
     }
 }

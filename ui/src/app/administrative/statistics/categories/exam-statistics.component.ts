@@ -2,8 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { filter, switchMap } from 'rxjs/operators';
 import { ExamInfo, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
@@ -58,33 +60,28 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 export class ExamStatisticsComponent {
     readonly queryParams = input<QueryParams | null>(null);
     readonly exams = signal<ExamInfo[]>([]);
-    readonly totalExams = signal(0);
+    readonly totalExams = computed(() => this.exams().reduce((a, b) => a + b.participations, 0));
 
     private readonly Statistics = inject(StatisticsService);
 
     constructor() {
-        effect(() => {
-            const params = this.queryParams();
-            if (params?.start && params?.end) {
-                this.listExams(params);
-            }
-        });
-    }
-
-    listExams(params: QueryParams) {
-        this.Statistics.listExams$(params).subscribe((resp) => {
-            const rankedExams = resp
-                .map((e) => ({
-                    ...e,
-                    rank: resp.filter((e2) => e2.participations > e.participations).length + 1,
-                }))
-                .sort((a, b) => {
-                    if (a.rank < b.rank) return -1;
-                    else if (a.rank > b.rank) return 1;
-                    else return a.name.localeCompare(b.name);
-                });
-            this.exams.set(rankedExams);
-            this.totalExams.set(rankedExams.reduce((a, b) => a + b.participations, 0));
-        });
+        toObservable(this.queryParams)
+            .pipe(
+                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                switchMap((params) => this.Statistics.listExams$(params)),
+            )
+            .subscribe((resp) => {
+                const rankedExams = resp
+                    .map((e) => ({
+                        ...e,
+                        rank: resp.filter((e2) => e2.participations > e.participations).length + 1,
+                    }))
+                    .sort((a, b) => {
+                        if (a.rank < b.rank) return -1;
+                        else if (a.rank > b.rank) return 1;
+                        else return a.name.localeCompare(b.name);
+                    });
+                this.exams.set(rankedExams);
+            });
     }
 }

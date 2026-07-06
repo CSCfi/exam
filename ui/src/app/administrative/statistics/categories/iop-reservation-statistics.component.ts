@@ -3,8 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { filter, switchMap } from 'rxjs/operators';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 import { Reservation } from 'src/app/reservation/reservation.model';
@@ -74,29 +76,23 @@ import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 })
 export class IopReservationStatisticsComponent {
     readonly queryParams = input<QueryParams | null>(null);
-    readonly reservations = signal<Reservation[]>([]);
     readonly grouped = signal<Record<string, Reservation[]>>({});
 
     private readonly Statistics = inject(StatisticsService);
 
     constructor() {
-        effect(() => {
-            const params = this.queryParams();
-            if (params?.start && params?.end) {
-                this.listReservations(params);
-            }
-        });
-    }
-
-    listReservations(params: QueryParams) {
-        this.Statistics.listIopReservations$(params).subscribe((resp) => {
-            const groupedData = groupBy(
-                resp,
-                (r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '',
-            );
-            console.log(groupedData);
-            this.grouped.set(groupedData);
-        });
+        toObservable(this.queryParams)
+            .pipe(
+                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                switchMap((params) => this.Statistics.listIopReservations$(params)),
+            )
+            .subscribe((resp) => {
+                const groupedData = groupBy(
+                    resp,
+                    (r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '',
+                );
+                this.grouped.set(groupedData);
+            });
     }
 
     incomingFrom(org: string): number {

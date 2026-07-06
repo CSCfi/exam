@@ -3,8 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { filter, switchMap } from 'rxjs/operators';
 import { Participations, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
@@ -71,32 +73,27 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 export class RoomStatisticsComponent {
     readonly queryParams = input<QueryParams | null>(null);
     readonly participations = signal<Participations>({});
-    readonly rooms = signal<string[]>([]);
-    readonly months = signal<Date[]>([]);
+    readonly rooms = computed(() => Object.keys(this.participations()));
+    readonly months = computed(() => {
+        const p = this.participations();
+        const params = this.queryParams();
+        if (Object.values(p).flat().length === 0 || !params) {
+            return [];
+        }
+        return this.calculateMonths(params);
+    });
 
     private readonly Statistics = inject(StatisticsService);
 
     constructor() {
-        effect(() => {
-            const params = this.queryParams();
-            if (params?.start && params?.end) {
-                this.listParticipations(params);
-            }
-        });
-    }
-
-    listParticipations(params: QueryParams) {
-        this.Statistics.listParticipations$(params).subscribe((resp) => {
-            this.participations.set(resp);
-            const currentParticipations = this.participations();
-            if (Object.values(currentParticipations).flat().length > 0) {
-                this.rooms.set(Object.keys(currentParticipations));
-                this.groupByMonths(params);
-            } else {
-                this.rooms.set([]);
-                this.months.set([]);
-            }
-        });
+        toObservable(this.queryParams)
+            .pipe(
+                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                switchMap((params) => this.Statistics.listParticipations$(params)),
+            )
+            .subscribe((resp) => {
+                this.participations.set(resp);
+            });
     }
 
     totalParticipations(month?: Date, room?: string): number {
@@ -113,10 +110,10 @@ export class RoomStatisticsComponent {
         return month ? rp.filter(isWithinBounds).length : rp.length;
     }
 
-    private groupByMonths(params: QueryParams) {
+    private calculateMonths(params: QueryParams) {
         const currentParticipations = this.participations();
         if (Object.keys(currentParticipations).length === 0) {
-            return;
+            return [];
         }
         const months: Date[] = [];
         const limits = this.getMinAndMaxDates(params);
@@ -132,7 +129,7 @@ export class RoomStatisticsComponent {
         if (this.isBefore(new Date(limits.min), last)) {
             months.push(limits.max);
         }
-        this.months.set(months);
+        return months;
     }
 
     private isBefore(a: Date, b: Date): boolean {
