@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs/operators';
 import { Participations, QueryParams } from 'src/app/administrative/administrative.model';
@@ -90,6 +90,7 @@ export class RoomStatisticsComponent {
             .pipe(
                 filter((params): params is QueryParams => !!params?.start && !!params?.end),
                 switchMap((params) => this.Statistics.listParticipations$(params)),
+                takeUntilDestroyed(),
             )
             .subscribe((resp) => {
                 this.participations.set(resp);

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs/operators';
 import { ExamInfo, QueryParams } from 'src/app/administrative/administrative.model';
@@ -69,6 +69,7 @@ export class ExamStatisticsComponent {
             .pipe(
                 filter((params): params is QueryParams => !!params?.start && !!params?.end),
                 switchMap((params) => this.Statistics.listExams$(params)),
+                takeUntilDestroyed(),
             )
             .subscribe((resp) => {
                 const rankedExams = resp

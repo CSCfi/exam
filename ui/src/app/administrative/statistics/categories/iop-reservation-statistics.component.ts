@@ -4,7 +4,7 @@
 
 import { KeyValuePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs/operators';
 import { QueryParams } from 'src/app/administrative/administrative.model';
@@ -85,6 +85,7 @@ export class IopReservationStatisticsComponent {
             .pipe(
                 filter((params): params is QueryParams => !!params?.start && !!params?.end),
                 switchMap((params) => this.Statistics.listIopReservations$(params)),
+                takeUntilDestroyed(),
             )
             .subscribe((resp) => {
                 const groupedData = groupBy(
