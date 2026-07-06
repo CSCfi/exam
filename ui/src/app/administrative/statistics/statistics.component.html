@@ -89,9 +89,9 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
         <div class="col-md-2">
-          <button class="btn btn-primary w-100" [disabled]="!canSearch()" (click)="search()">
-            {{ 'i18n_search' | translate }}
-          </button>
+            <button class="btn btn-primary w-100" [disabled]="!canSearch()" (click)="search()">
+                {{ 'i18n_search' | translate }}
+            </button>
         </div>
         <div class="col">
             @for (department of departments(); track department) {
