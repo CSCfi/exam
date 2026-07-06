@@ -299,7 +299,7 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
       Collections.shuffle(shuffled)
       esq.options = shuffled
 
-  private def isCreatedBy(user: User): Boolean = creator != null && creator == user
+  def isCreatedBy(user: User): Boolean = creator != null && creator == user
 
   private def isInspectedBy(user: User, applyToChildOnly: Boolean): Boolean =
     val examToCheck = if parent == null || applyToChildOnly then this else parent

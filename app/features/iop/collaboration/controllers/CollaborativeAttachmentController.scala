@@ -9,8 +9,10 @@ import features.iop.collaboration.services.{
   CollaborativeExamLoaderService,
   CollaborativeExamService
 }
+import io.ebean.DB
 import models.assessment.Comment
 import models.attachment.{Attachment, AttachmentContainer}
+import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.iop.CollaborativeExam
 import models.questions.EssayAnswer
@@ -65,6 +67,18 @@ class CollaborativeAttachmentController @Inject() (
 
   private def getExternalExam(eid: Long): Future[Option[CollaborativeExam]] =
     collaborativeExamService.findById(eid)
+
+  // Students may only reach a collaborative exam's attachments if they are enrolled on it.
+  // Teachers/admins are trusted by role here, consistent with the local and transfer
+  // attachment paths. The enrolment is keyed on the local CollaborativeExam id.
+  private def studentEnrolledOrNotStudent(ceId: Long, user: User): Boolean =
+    !user.hasRole(Role.Name.STUDENT) ||
+      DB.find(classOf[ExamEnrolment])
+        .where()
+        .eq("user", user)
+        .eq("collaborativeExam.id", ceId)
+        .list
+        .nonEmpty
 
   private def getExternalId(assessment: JsValue): String =
     (assessment \ "exam" \ "examFeedback" \ "attachment" \ "externalId").asOpt[String].getOrElse("")
@@ -471,9 +485,12 @@ class CollaborativeAttachmentController @Inject() (
   def downloadQuestionAttachment(eid: Long, qid: Long): Action[AnyContent] =
     authenticated.andThen(
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
-    ).async { _ =>
+    ).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
       getExternalExam(eid).flatMap {
         case None => Future.successful(NotFound)
+        case Some(ce) if !studentEnrolledOrNotStudent(ce.id, user) =>
+          Future.successful(Forbidden)
         case Some(ce) =>
           examLoader.downloadExam(ce).flatMap {
             case None => Future.successful(NotFound)
@@ -545,9 +562,12 @@ class CollaborativeAttachmentController @Inject() (
   def downloadQuestionAnswerAttachment(qid: Long, eid: Long): Action[AnyContent] =
     authenticated.andThen(
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
-    ).async { _ =>
+    ).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
       getExternalExam(eid).flatMap {
         case None => Future.successful(NotFound)
+        case Some(ce) if !studentEnrolledOrNotStudent(ce.id, user) =>
+          Future.successful(Forbidden)
         case Some(ce) =>
           examLoader.downloadExam(ce).flatMap {
             case None => Future.successful(NotFound)
@@ -653,9 +673,12 @@ class CollaborativeAttachmentController @Inject() (
   def downloadStatementAttachment(id: Long): Action[AnyContent] =
     authenticated.andThen(
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
-    ).async { _ =>
+    ).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
       getExternalExam(id).flatMap {
         case None => Future.successful(NotFound)
+        case Some(ce) if !studentEnrolledOrNotStudent(ce.id, user) =>
+          Future.successful(Forbidden)
         case Some(ce) =>
           examLoader.downloadExam(ce).flatMap {
             case None => Future.successful(NotFound)
