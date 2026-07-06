@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
@@ -13,79 +13,83 @@ import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div class="row my-2">
-            <div class="col-12">
-                <button class="btn btn-sm btn-primary" (click)="listReservations()">
-                    {{ 'i18n_search' | translate }}
-                </button>
-            </div>
-        </div>
-        @if (grouped()) {
-            <div class="row">
-                <div class="col-12">
-                    <table class="table table-striped table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>{{ 'i18n_faculty_name' | translate }}</th>
-                                <th>{{ 'i18n_outbound_reservations' | translate }}</th>
-                                <th>
-                                    {{ 'i18n_outbound_reservations' | translate }} -
-                                    {{ 'i18n_unused_reservation' | translate }}
-                                </th>
-                                <th>{{ 'i18n_inbound_reservations' | translate }}</th>
-                                <th>
-                                    {{ 'i18n_inbound_reservations' | translate }} -
-                                    {{ 'i18n_unused_reservation' | translate }}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (rg of grouped() | keyvalue; track rg.key) {
+        @if (queryParams()) {
+            @if (grouped()) {
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table table-striped table-sm">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>{{ rg.key }}</td>
-                                    <td>{{ outgoingTo(rg.key) }}</td>
-                                    <td>{{ outgoingNoShowsTo(rg.key) }}</td>
-                                    <td>{{ incomingFrom(rg.key) }}</td>
-                                    <td>{{ incomingNoShowsFrom(rg.key) }}</td>
+                                    <th>{{ 'i18n_faculty_name' | translate }}</th>
+                                    <th>{{ 'i18n_outbound_reservations' | translate }}</th>
+                                    <th>
+                                        {{ 'i18n_outbound_reservations' | translate }} -
+                                        {{ 'i18n_unused_reservation' | translate }}
+                                    </th>
+                                    <th>{{ 'i18n_inbound_reservations' | translate }}</th>
+                                    <th>
+                                        {{ 'i18n_inbound_reservations' | translate }} -
+                                        {{ 'i18n_unused_reservation' | translate }}
+                                    </th>
                                 </tr>
-                            }
-                        </tbody>
-                        <tfoot class="table-light">
-                            <tr>
-                                <td>
-                                    <strong>{{ 'i18n_total' | translate }}</strong>
-                                </td>
-                                <td>
-                                    <strong>{{ totalOutgoing() }}</strong>
-                                </td>
-                                <td>
-                                    <strong>{{ totalOutgoingNoShows() }}</strong>
-                                </td>
-                                <td>
-                                    <strong>{{ totalIncoming() }}</strong>
-                                </td>
-                                <td>
-                                    <strong>{{ totalIncomingNoShows() }}</strong>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @for (rg of grouped() | keyvalue; track rg.key) {
+                                    <tr>
+                                        <td>{{ rg.key }}</td>
+                                        <td>{{ outgoingTo(rg.key) }}</td>
+                                        <td>{{ outgoingNoShowsTo(rg.key) }}</td>
+                                        <td>{{ incomingFrom(rg.key) }}</td>
+                                        <td>{{ incomingNoShowsFrom(rg.key) }}</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td>
+                                        <strong>{{ 'i18n_total' | translate }}</strong>
+                                    </td>
+                                    <td>
+                                        <strong>{{ totalOutgoing() }}</strong>
+                                    </td>
+                                    <td>
+                                        <strong>{{ totalOutgoingNoShows() }}</strong>
+                                    </td>
+                                    <td>
+                                        <strong>{{ totalIncoming() }}</strong>
+                                    </td>
+                                    <td>
+                                        <strong>{{ totalIncomingNoShows() }}</strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            }
         }
     `,
     selector: 'xm-iop-reservation-statistics',
     imports: [KeyValuePipe, TranslateModule],
 })
 export class IopReservationStatisticsComponent {
-    readonly queryParams = input<QueryParams>({});
+    readonly queryParams = input<QueryParams | null>(null);
     readonly reservations = signal<Reservation[]>([]);
     readonly grouped = signal<Record<string, Reservation[]>>({});
 
     private readonly Statistics = inject(StatisticsService);
 
-    listReservations() {
-        this.Statistics.listIopReservations$(this.queryParams()).subscribe((resp) => {
+    constructor() {
+        effect(() => {
+            const params = this.queryParams();
+            if (params?.start && params?.end) {
+                this.listReservations(params);
+            }
+        });
+    }
+
+    listReservations(params: QueryParams) {
+        this.Statistics.listIopReservations$(params).subscribe((resp) => {
             const groupedData = groupBy(
                 resp,
                 (r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '',

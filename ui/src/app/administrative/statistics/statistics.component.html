@@ -88,6 +88,11 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
         </div>
+        <div class="col-md-2">
+          <button class="btn btn-primary w-100" [disabled]="!canSearch()" (click)="search()">
+            {{ 'i18n_search' | translate }}
+          </button>
+        </div>
         <div class="col">
             @for (department of departments(); track department) {
                 @if (department.filtered) {
@@ -101,18 +106,18 @@ SPDX-License-Identifier: EUPL-1.2
 
     <!-- TAB CONTENT -->
     @if (view === 'ROOMS') {
-        <xm-room-statistics [queryParams]="queryParams()"></xm-room-statistics>
+        <xm-room-statistics [queryParams]="confirmedQueryParams()"></xm-room-statistics>
     }
     @if (view === 'RESERVATIONS') {
-        <xm-reservation-statistics [queryParams]="queryParams()"> </xm-reservation-statistics>
+        <xm-reservation-statistics [queryParams]="confirmedQueryParams()"> </xm-reservation-statistics>
     }
     @if (view === 'IOP_RESERVATIONS') {
-        <xm-iop-reservation-statistics [queryParams]="queryParams()"> </xm-iop-reservation-statistics>
+        <xm-iop-reservation-statistics [queryParams]="confirmedQueryParams()"> </xm-iop-reservation-statistics>
     }
     @if (view === 'RESPONSES') {
-        <xm-response-statistics [queryParams]="queryParams()"></xm-response-statistics>
+        <xm-response-statistics [queryParams]="confirmedQueryParams()"></xm-response-statistics>
     }
     @if (view === 'EXAMS') {
-        <xm-exam-statistics [queryParams]="queryParams()"></xm-exam-statistics>
+        <xm-exam-statistics [queryParams]="confirmedQueryParams()"></xm-exam-statistics>
     }
 </ng-template>

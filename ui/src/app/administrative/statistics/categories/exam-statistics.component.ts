@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamInfo, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
@@ -10,67 +10,69 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div class="row my-2">
-            <div class="col-12">
-                <button class="btn btn-sm btn-primary" (click)="listExams()">{{ 'i18n_search' | translate }}</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <strong>{{ 'i18n_most_popular_exams' | translate }}</strong>
-            </div>
-        </div>
-        @if (exams().length > 0) {
+        @if (queryParams()) {
             <div class="row">
                 <div class="col-12">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                            <tr>
-                                <th>{{ 'i18n_rank' | translate }}</th>
-                                <th>{{ 'i18n_exam' | translate }}</th>
-                                <th>{{ 'i18n_amount_exams' | translate }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (exam of exams(); track exam; let i = $index) {
-                                <tr>
-                                    <td>{{ exam.rank }}.</td>
-                                    <td>{{ exam.name }}</td>
-                                    <td>{{ exam.participations }}</td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="2">
-                                    <strong>{{ 'i18n_total' | translate }}</strong>
-                                </td>
-                                <td>
-                                    <strong>{{ totalExams() }}</strong>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                    <strong>{{ 'i18n_most_popular_exams' | translate }}</strong>
                 </div>
             </div>
+            @if (exams().length > 0) {
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'i18n_rank' | translate }}</th>
+                                    <th>{{ 'i18n_exam' | translate }}</th>
+                                    <th>{{ 'i18n_amount_exams' | translate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (exam of exams(); track exam; let i = $index) {
+                                    <tr>
+                                        <td>{{ exam.rank }}.</td>
+                                        <td>{{ exam.name }}</td>
+                                        <td>{{ exam.participations }}</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">
+                                        <strong>{{ 'i18n_total' | translate }}</strong>
+                                    </td>
+                                    <td>
+                                        <strong>{{ totalExams() }}</strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            }
         }
     `,
     selector: 'xm-exam-statistics',
     imports: [TranslateModule],
 })
 export class ExamStatisticsComponent {
-    readonly queryParams = input<QueryParams>({});
+    readonly queryParams = input<QueryParams | null>(null);
     readonly exams = signal<ExamInfo[]>([]);
     readonly totalExams = signal(0);
 
     private readonly Statistics = inject(StatisticsService);
 
     constructor() {
-        this.listExams();
+        effect(() => {
+            const params = this.queryParams();
+            if (params?.start && params?.end) {
+                this.listExams(params);
+            }
+        });
     }
 
-    listExams() {
-        this.Statistics.listExams$(this.queryParams()).subscribe((resp) => {
+    listExams(params: QueryParams) {
+        this.Statistics.listExams$(params).subscribe((resp) => {
             const rankedExams = resp
                 .map((e) => ({
                     ...e,
