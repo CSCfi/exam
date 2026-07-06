@@ -7,6 +7,7 @@ package session
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
+import models.facility.ExamRoom
 import models.user.*
 import play.api.http.Status
 
@@ -133,6 +134,18 @@ class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtension
         val (user, _) = runIO(login(eppn, additionalHeaders))
         // Verify user was created with a correct identifier (national identifier ignored)
         user.userIdentifier must be("org2.org:111")
+
+    "handling login for a student on an exam machine" must:
+      "include upcoming exam header directly in the login response" in:
+        ensureTestDataLoaded()
+        val room    = DB.find(classOf[ExamRoom], 1L)
+        val machine = room.examMachines.get(0)
+        machine.ipAddress = "127.0.0.1" // matches FakeRequest's default remote address
+        machine.update()
+
+        val result = runIO(loginRaw("student@funet.fi"))
+        statusOf(result) must be(Status.OK)
+        result.header.headers.get("x-exam-upcoming-exam") mustBe Some("none")
 
     "handling login for a user with permissions" must:
       "include permissions in session and response body" in:
