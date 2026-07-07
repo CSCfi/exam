@@ -9,6 +9,7 @@ import features.user.services.*
 import play.api.libs.json.Json
 import play.api.mvc.*
 import play.api.{Environment, Logger}
+import repository.EnrolmentRepository
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import system.AuditedAction
@@ -19,7 +20,7 @@ import scala.util.Try
 
 class SessionController @Inject() (
     private val sessionService: SessionService,
-    private val sessionResponseFinalizer: SessionResponseFinalizer,
+    private val enrolmentRepository: EnrolmentRepository,
     audited: AuditedAction,
     environment: Environment,
     configReader: ConfigReader,
@@ -52,14 +53,10 @@ class SessionController @Inject() (
     val loginType = configReader.getLoginType
     sessionService
       .login(loginType, request.headers.toMap, request.body.asJson, request.remoteAddress)
-      .flatMap {
-        case Left(error) => Future.successful(toResult(error))
+      .map {
+        case Left(error) => toResult(error)
         case Right(loginResponse) =>
-          sessionResponseFinalizer.attachSession(
-            request,
-            Ok(loginResponse.userData),
-            loginResponse.sessionData
-          )
+          Ok(loginResponse.userData).withSession(play.api.mvc.Session(loginResponse.sessionData))
       }
   }
 
@@ -97,8 +94,28 @@ class SessionController @Inject() (
                 .flatMap {
                   case Left(error) => Future.successful(toResult(error))
                   case Right(role) =>
+                    // Update session with reservation headers if student
                     val newSessionData: SessionData = request.session.data + ("role" -> roleName)
-                    sessionResponseFinalizer.attachSession(request, Ok(role.asJson), newSessionData)
+                    if sessionService.isStudent(newSessionData) then
+                      request.session.get("eppn") match
+                        case Some(eppn) =>
+                          enrolmentRepository.getReservationHeaders(request, userId, eppn).map {
+                            headers =>
+                              val updatedSessionData =
+                                sessionService.updateSessionWithReservationHeaders(
+                                  newSessionData,
+                                  headers
+                                )
+                              Ok(role.asJson).withSession(play.api.mvc.Session(updatedSessionData))
+                          }
+                        case None =>
+                          Future.successful(
+                            Ok(role.asJson).withSession(play.api.mvc.Session(newSessionData))
+                          )
+                    else
+                      Future.successful(
+                        Ok(role.asJson).withSession(play.api.mvc.Session(newSessionData))
+                      )
                 }
     }
 
@@ -117,6 +134,15 @@ class SessionController @Inject() (
             case CheckSessionStatus.NoSession => "no_session"
             case CheckSessionStatus.Alarm     => "alarm"
             case CheckSessionStatus.Valid     => ""
-          sessionResponseFinalizer.attachSession(request, Ok(responseText), request.session.data)
+          // Update session with reservation headers if student
+          (request.session.get("id"), request.session.get("eppn")) match
+            case (Some(id), Some(eppn)) if sessionService.isStudent(request.session.data) =>
+              val userId = id.toLong
+              enrolmentRepository.getReservationHeaders(request, userId, eppn).map { headers =>
+                val updatedSessionData =
+                  sessionService.updateSessionWithReservationHeaders(request.session.data, headers)
+                Ok(responseText).withSession(play.api.mvc.Session(updatedSessionData))
+              }
+            case _ => Future.successful(Ok(responseText).withSession(request.session))
       }
   }

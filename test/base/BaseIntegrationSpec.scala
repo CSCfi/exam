@@ -117,18 +117,13 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
             case None => IO.pure(result)
     yield finalResult
 
-  protected def loginRaw(
-      eppn: String,
-      additionalHeaders: Map[String, String] = Map.empty
-  ): IO[Result] =
-    makeRequest(POST, "/app/session", headers = hakaHeaders + ("eppn" -> eppn) ++ additionalHeaders)
-
   protected def login(
       eppn: String,
       additionalHeaders: Map[String, String] = Map.empty
   ): IO[(User, Session)] =
     for
-      result <- loginRaw(eppn, additionalHeaders)
+      headers <- IO.pure(hakaHeaders + ("eppn" -> eppn) ++ additionalHeaders)
+      result  <- makeRequest(POST, "/app/session", headers = headers)
       _ <- IO {
         statusOf(result) must be(Status.OK)
       }
