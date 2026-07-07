@@ -3,96 +3,98 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { filter, switchMap } from 'rxjs/operators';
 import { Participations, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div class="row my-2">
-            <div class="col-12">
-                <button class="btn btn-sm btn-primary" (click)="listParticipations()">
-                    {{ 'i18n_search' | translate }}
-                </button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 table-responsive">
-                <table class="table table-sm table-bordered table-striped">
-                    <thead>
-                        <th>
-                            <strong>{{ 'i18n_year' | translate }}</strong>
-                        </th>
-                        <th>
-                            <strong>{{ 'i18n_month' | translate }}</strong>
-                        </th>
-                        @for (room of rooms(); track room) {
-                            <th>{{ room.split('___')[1] }}</th>
-                        }
-                        <th>
-                            <strong>{{ 'i18n_total' | translate }}</strong>
-                        </th>
-                    </thead>
-                    <tbody>
-                        @for (month of months(); track month.toISOString()) {
+        @if (queryParams()) {
+            <div class="row">
+                <div class="col-12 table-responsive">
+                    <table class="table table-sm table-bordered table-striped">
+                        <thead>
+                            <th>
+                                <strong>{{ 'i18n_year' | translate }}</strong>
+                            </th>
+                            <th>
+                                <strong>{{ 'i18n_month' | translate }}</strong>
+                            </th>
+                            @for (room of rooms(); track room) {
+                                <th>{{ room.split('___')[1] }}</th>
+                            }
+                            <th>
+                                <strong>{{ 'i18n_total' | translate }}</strong>
+                            </th>
+                        </thead>
+                        <tbody>
+                            @for (month of months(); track month.toISOString()) {
+                                <tr>
+                                    <td>
+                                        <strong>{{ month | date: 'yyyy' }}</strong>
+                                    </td>
+                                    <td>
+                                        <strong>{{ month | date: 'M' }}</strong>
+                                    </td>
+                                    @for (room of rooms(); track room) {
+                                        <td>{{ totalParticipations(month, room) }}</td>
+                                    }
+                                    <td>
+                                        <strong>{{ totalParticipations(month) }}</strong>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
                             <tr>
-                                <td>
-                                    <strong>{{ month | date: 'yyyy' }}</strong>
-                                </td>
-                                <td>
-                                    <strong>{{ month | date: 'M' }}</strong>
+                                <td colspan="2">
+                                    <strong>{{ 'i18n_total' | translate }}</strong>
                                 </td>
                                 @for (room of rooms(); track room) {
-                                    <td>{{ totalParticipations(month, room) }}</td>
+                                    <td>{{ totalParticipations(undefined, room) }}</td>
                                 }
                                 <td>
-                                    <strong>{{ totalParticipations(month) }}</strong>
+                                    <b>{{ totalParticipations() }}</b>
                                 </td>
                             </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="2">
-                                <strong>{{ 'i18n_total' | translate }}</strong>
-                            </td>
-                            @for (room of rooms(); track room) {
-                                <td>{{ totalParticipations(undefined, room) }}</td>
-                            }
-                            <td>
-                                <b>{{ totalParticipations() }}</b>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-        </div>
+        }
     `,
     selector: 'xm-room-statistics',
     imports: [DatePipe, TranslateModule],
 })
 export class RoomStatisticsComponent {
-    readonly queryParams = input<QueryParams>({});
+    readonly queryParams = input<QueryParams | null>(null);
     readonly participations = signal<Participations>({});
-    readonly rooms = signal<string[]>([]);
-    readonly months = signal<Date[]>([]);
+    readonly rooms = computed(() => Object.keys(this.participations()));
+    readonly months = computed(() => {
+        const p = this.participations();
+        const params = this.queryParams();
+        if (Object.values(p).flat().length === 0 || !params) {
+            return [];
+        }
+        return this.calculateMonths(params);
+    });
 
     private readonly Statistics = inject(StatisticsService);
 
-    listParticipations() {
-        this.Statistics.listParticipations$(this.queryParams()).subscribe((resp) => {
-            this.participations.set(resp);
-            const currentParticipations = this.participations();
-            if (Object.values(currentParticipations).flat().length > 0) {
-                this.rooms.set(Object.keys(currentParticipations));
-                this.groupByMonths();
-            } else {
-                this.rooms.set([]);
-                this.months.set([]);
-            }
-        });
+    constructor() {
+        toObservable(this.queryParams)
+            .pipe(
+                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                switchMap((params) => this.Statistics.listParticipations$(params)),
+                takeUntilDestroyed(),
+            )
+            .subscribe((resp) => {
+                this.participations.set(resp);
+            });
     }
 
     totalParticipations(month?: Date, room?: string): number {
@@ -109,13 +111,13 @@ export class RoomStatisticsComponent {
         return month ? rp.filter(isWithinBounds).length : rp.length;
     }
 
-    private groupByMonths() {
+    private calculateMonths(params: QueryParams) {
         const currentParticipations = this.participations();
         if (Object.keys(currentParticipations).length === 0) {
-            return;
+            return [];
         }
         const months: Date[] = [];
-        const limits = this.getMinAndMaxDates();
+        const limits = this.getMinAndMaxDates(params);
         months.push(limits.min);
         let current = new Date(limits.min);
         let next = new Date(new Date(current).setMonth(current.getMonth() + 1));
@@ -128,7 +130,7 @@ export class RoomStatisticsComponent {
         if (this.isBefore(new Date(limits.min), last)) {
             months.push(limits.max);
         }
-        this.months.set(months);
+        return months;
     }
 
     private isBefore(a: Date, b: Date): boolean {
@@ -137,20 +139,19 @@ export class RoomStatisticsComponent {
         );
     }
 
-    private getMinAndMaxDates(): { min: Date; max: Date } {
+    private getMinAndMaxDates(params: QueryParams): { min: Date; max: Date } {
         const currentParticipations = this.participations();
-        const currentQueryParams = this.queryParams();
         const dates: Date[] = Object.values(currentParticipations)
             .flatMap((ps) => ps.map((d) => new Date(d.date)))
             .sort((a, b) => a.getTime() - b.getTime());
         let minDate = dates[0];
         // Set min date to which one is earlier: participation or search date
-        if (currentQueryParams.start && new Date(currentQueryParams.start) < minDate) {
-            minDate = new Date(currentQueryParams.start);
+        if (params.start && new Date(params.start) < minDate) {
+            minDate = new Date(params.start);
         }
         // Set max date to either now or requested end date (if any)
-        if (currentQueryParams.end) {
-            dates.push(new Date(currentQueryParams.end));
+        if (params.end) {
+            dates.push(new Date(params.end));
         } else {
             dates.push(new Date());
         }
