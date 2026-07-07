@@ -74,15 +74,7 @@
                 }
               ],
               "outputHashing": "all",
-              "sourceMap": true,
-              "optimization": {
-                "scripts": true,
-                "styles": {
-                  "minify": true,
-                  "inlineCritical": false
-                },
-                "fonts": true
-              }
+              "sourceMap": true
             },
             "development": {
               "optimization": false,
