@@ -15,3 +15,8 @@ logs
 dist
 .env
 docker/ssl
+.idea
+exam.iml
+sbt.json
+
+ui/src/assets/components/vendor/mathjax
