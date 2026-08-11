@@ -51,7 +51,7 @@ JOIN   exam_room rm ON m.room_id = rm.id
 WHERE  reservation.machine_id = m.id
   AND  reservation.external_ref IS NULL
   AND  (reservation.start_at AT TIME ZONE rm.local_timezone) - (reservation.start_at AT TIME ZONE 'UTC')
-         =
+         <>
        (DATE_TRUNC('year', reservation.start_at) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', reservation.start_at) AT TIME ZONE 'UTC');
 
 UPDATE exam_participation ep
@@ -64,7 +64,7 @@ JOIN   exam_room    rm ON m.room_id    = rm.id
 WHERE  ep.reservation_id = r.id
   AND  r.external_ref IS NULL
   AND  (ep.started AT TIME ZONE rm.local_timezone) - (ep.started AT TIME ZONE 'UTC')
-         =
+         <>
        (DATE_TRUNC('year', ep.started) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', ep.started) AT TIME ZONE 'UTC');
 
 UPDATE external_exam ee
@@ -77,5 +77,5 @@ JOIN   exam_room    rm ON m.room_id          = rm.id
 WHERE  enr.external_exam_id = ee.id
   AND  r.external_ref IS NULL
   AND  (ee.started AT TIME ZONE rm.local_timezone) - (ee.started AT TIME ZONE 'UTC')
-         =
+         <>
        (DATE_TRUNC('year', ee.started) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', ee.started) AT TIME ZONE 'UTC');
