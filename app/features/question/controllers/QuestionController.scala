@@ -8,6 +8,7 @@ import database.EbeanJsonExtensions
 import features.question.services.{QuestionError, QuestionService}
 import models.user.Role
 import org.apache.pekko.stream.scaladsl.StreamConverters
+import play.api.Logging
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.JsValue
 import play.api.mvc.*
@@ -21,6 +22,7 @@ import java.io.{PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.util.Using
+import scala.util.control.NonFatal
 
 class QuestionController @Inject() (
     private val questionService: QuestionService,
@@ -30,7 +32,8 @@ class QuestionController @Inject() (
     val controllerComponents: ControllerComponents,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
-    with EbeanJsonExtensions:
+    with EbeanJsonExtensions
+    with Logging:
 
   private val questionTextSanitizer = validators.validated(QuestionTextValidator)
 
@@ -137,7 +140,9 @@ class QuestionController @Inject() (
         val pos = new PipedOutputStream()
         val pis = new PipedInputStream(pos)
         Future {
+          // The response is already committed at this point, so a failure here can only be logged
           try questionService.streamExportQuestions(request.body)(pos)
+          catch case NonFatal(e) => logger.error("Failed to export questions as Moodle XML", e)
           finally pos.close()
         }(using ec)
         Future.successful(
