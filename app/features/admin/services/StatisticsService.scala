@@ -73,20 +73,31 @@ class StatisticsService @Inject() (
       .isNotNull("reservation.machine")
       .ne("noShow", true)
       .distinct
+
+    // The participation date lives on either the local or the external exam, so the department and
+    // date filters cannot be pushed into the query - apply them in memory instead.
+    def participationDate(enrolment: ExamEnrolment) =
+      Option(enrolment.externalExam).map(_.started).getOrElse(enrolment.exam.created)
+
+    def matchesFilters(enrolment: ExamEnrolment) =
+      val date = participationDate(enrolment)
+      val deptMatches = dept.forall { d =>
+        // External exams carry no local course, hence no department to match against
+        Option(enrolment.externalExam).isEmpty &&
+        Option(enrolment.exam.course).exists(c => d.split(",").contains(c.department))
+      }
+      deptMatches &&
+      start.forall(s => TimeUtils.parseInstant(s).isBefore(date)) &&
+      end.forall(e => TimeUtils.parseInstant(e).plus(Duration.ofDays(1)).isAfter(date))
+
     val roomMap = enrolments
+      .filter(matchesFilters)
       .groupBy { enrolment =>
         val room = enrolment.reservation.machine.room
         s"${room.id}___${room.name}"
       }
       .view
-      .mapValues { enrolmentList =>
-        enrolmentList.map { enrolment =>
-          val examStart = Option(enrolment.externalExam)
-            .map(_.started)
-            .getOrElse(enrolment.exam.created)
-          Participation(examStart)
-        }.toSet
-      }
+      .mapValues(_.map(enrolment => Participation(participationDate(enrolment))))
       .toMap
 
     // Fill in rooms with no participations
@@ -101,10 +112,28 @@ class StatisticsService @Inject() (
       start: Option[String],
       end: Option[String]
   ): (Int, Int) =
-    val query = DB.find(classOf[ExamEnrolment]).where()
-    val enrolments =
-      withFilters(query, "exam.course", "reservation.startAt", dept, start, end).distinct
-    enrolments.partition(_.noShow) match
+    // Both figures cover every enrolment that was actually due to be sat: room reservations and
+    // BYOD examination events alike. The no-show sweep flags both kinds, so they belong on the same
+    // denominator - without them, an unbounded search would count every enrolment ever made against
+    // a no-show total that only ever includes due ones. The two carry their scheduled time on
+    // different paths, hence the separate queries.
+    val reserved = withFilters(
+      DB.find(classOf[ExamEnrolment]).where().isNotNull("reservation"),
+      "exam.course",
+      "reservation.startAt",
+      dept,
+      start,
+      end
+    ).distinct
+    val byod = withFilters(
+      DB.find(classOf[ExamEnrolment]).where().isNotNull("examinationEventConfiguration"),
+      "exam.course",
+      "examinationEventConfiguration.examinationEvent.start",
+      dept,
+      start,
+      end
+    ).distinct
+    (reserved ++ byod).toList.distinctBy(_.id).partition(_.noShow) match
       case (a, b) => (a.size, b.size)
 
   def listIopReservations(
@@ -122,39 +151,67 @@ class StatisticsService @Inject() (
       )
       .toList
 
+  /** States a student's exam copy can be in once it has actually been started. Shared by the
+    * response and exam figures so that both count the same population.
+    *
+    * INITIALIZED is deliberately excluded - the copy exists but the student never began the exam,
+    * so it is neither an attempt nor a response awaiting assessment. Reaching any of these states
+    * means createFinalExam has run and written the participation record, so no separate
+    * examParticipation check is needed.
+    */
+  private val AttemptStates = List(
+    ExamState.STUDENT_STARTED,
+    ExamState.REVIEW,
+    ExamState.REVIEW_STARTED,
+    ExamState.GRADED,
+    ExamState.GRADED_LOGGED,
+    ExamState.ARCHIVED,
+    ExamState.ABORTED,
+    ExamState.DELETED,
+    ExamState.REJECTED
+  )
+
   def listPublishedExams(
       dept: Option[String],
       start: Option[String],
       end: Option[String]
   ): List[ExamInfo] =
+    val pp = PathProperties.parse("(id, course(code), parent(id, name, course(code)))")
     val query = DB
       .find(classOf[Exam])
-      .fetch("course", "code")
+      .apply(pp)
       .where()
-      .isNull("parent")
-      .isNotNull("course")
-      .in("state", ExamState.PUBLISHED, ExamState.DELETED, ExamState.ARCHIVED)
-    val exams = withFilters(query, "course", "created", dept, start, end).distinct
+      .isNotNull("parent")
+      .in("state", AttemptStates.asJava)
+    // Both filters target the student's copy rather than the template it was made from - an exam
+    // published last year can still be taken this year, and the template's own state is irrelevant.
+    val attempts = withFilters(query, "course", "created", dept, start, end).distinct
 
-    def examFilter(exam: Exam) =
-      val created          = exam.created
-      val hasValidState    = exam.state.ordinal() > ExamState.PUBLISHED.ordinal()
-      val hasParticipation = Option(exam.examParticipation).isDefined
-      hasValidState &&
-      hasParticipation &&
-      start.forall(s => TimeUtils.parseInstant(s).isBefore(created)) &&
-      end.forall(e => TimeUtils.parseInstant(e).plus(Duration.ofDays(1)).isAfter(created))
+    // Missing course data must not drop an attempt from the count, so fall back to the student's
+    // copy and finally to an empty code rather than filtering these rows out.
+    def courseCode(exam: Exam) = Option(exam.course).flatMap(c => Option(c.code))
 
-    exams.map(e =>
-      ExamInfo(s"[${e.course.code}] ${e.name}", e.children.asScala.count(examFilter))
-    ).toList
+    attempts
+      .groupBy(_.parent.id)
+      .values
+      .map { children =>
+        val parent = children.head.parent
+        val code   = courseCode(parent).orElse(courseCode(children.head)).getOrElse("")
+        ExamInfo(s"[$code] ${parent.name}", children.size)
+      }
+      .toList
 
   def listResponses(
       dept: Option[String],
       start: Option[String],
       end: Option[String]
   ): (Int, Int, Int) =
-    val query   = DB.find(classOf[Exam]).where().isNotNull("parent").isNotNull("course")
+    val query = DB
+      .find(classOf[Exam])
+      .where()
+      .isNotNull("parent")
+      .isNotNull("course")
+      .in("state", AttemptStates.asJava)
     val exams   = withFilters(query, "course", "created", dept, start, end).distinct
     val aborted = exams.count(_.state == ExamState.ABORTED)
     val assessed = exams.count(_.hasState(
@@ -165,7 +222,6 @@ class StatisticsService @Inject() (
       ExamState.DELETED
     ))
     val unassessed = exams.count(_.hasState(
-      ExamState.INITIALIZED,
       ExamState.STUDENT_STARTED,
       ExamState.REVIEW,
       ExamState.REVIEW_STARTED

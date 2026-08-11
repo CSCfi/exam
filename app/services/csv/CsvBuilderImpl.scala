@@ -248,7 +248,7 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       (exam \ "answerLanguage").asOpt[String].getOrElse(""),
       (exam \ "grade" \ "name").asOpt[String].getOrElse(""),
       (exam \ "gradeScale" \ "description").asOpt[String].getOrElse(""),
-      (exam \ "totalScore").asOpt[String].getOrElse(""),
+      (exam \ "totalScore").asOpt[Double].map(_.toString).getOrElse(""),
       (teacher \ "eppn").asOpt[String].getOrElse(""),
       (teacher \ "firstName").asOpt[String].getOrElse(""),
       (teacher \ "lastName").asOpt[String].getOrElse(""),

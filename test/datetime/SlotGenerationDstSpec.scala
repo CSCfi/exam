@@ -8,10 +8,10 @@ import models.calendar.DefaultWorkingHours
 import models.facility.{ExamRoom, ExamStartingHour}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import services.datetime.{CalendarHandlerImpl, DateTimeHandlerImpl, FixedAppClock, Interval}
+import services.datetime.*
 
+import java.time.*
 import java.time.format.TextStyle
-import java.time.{Duration, Instant, LocalDate, LocalTime, ZoneId}
 import java.util.Locale
 import scala.jdk.CollectionConverters.*
 

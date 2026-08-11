@@ -5,14 +5,12 @@
 package features.iop.collaboration.services
 
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
-import models.exam.Exam
 import models.user.User
 import play.api.Logging
 import play.api.libs.json.JsArray
 import play.api.libs.ws.WSClient
 import services.config.ConfigReader
 import services.exam.ExamUpdater
-import services.json.JsonDeserializer
 
 import java.net.{URI, URL}
 import javax.inject.Inject
@@ -42,8 +40,7 @@ class CollaborativeStudentActionService @Inject() (
             )
           else
             val root = response.json.as[JsArray]
-            calculateScores(root)
-            Right(root)
+            Right(CollaborativeExamProcessingService.calculateScores(root))
         }
 
   private def parseAssessmentUrl(): Option[URL] =
@@ -53,19 +50,3 @@ class CollaborativeStudentActionService @Inject() (
         logger.error(s"Malformed URL: $url")
         None
       case some => some
-
-  private def calculateScores(root: JsArray): Unit =
-    root.value
-      .collect { case obj: play.api.libs.json.JsObject => obj }
-      .foreach { ep =>
-        // Convert to Jackson for deserializer
-        val examJson    = (ep \ "exam").get
-        val jacksonNode = toJacksonJson(examJson)
-        val exam        = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
-        exam.setMaxScore()
-        exam.setApprovedAnswerCount()
-        exam.setRejectedAnswerCount()
-        exam.setTotalScore()
-        // This would need to update the JsObject, but since we're mutating in place,
-        // we skip the serialize step
-      }

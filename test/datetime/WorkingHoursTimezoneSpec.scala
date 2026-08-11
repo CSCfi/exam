@@ -10,8 +10,8 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import services.datetime.DateTimeHandlerImpl
 
+import java.time.*
 import java.time.format.TextStyle
-import java.time.{Instant, LocalDate, LocalTime, ZoneId}
 import java.util.Locale
 
 /** Working hours are stored as a plain local wall-clock TIME and belong to the room's own timezone:
