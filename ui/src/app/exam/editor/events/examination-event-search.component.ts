@@ -130,14 +130,15 @@ export class ExaminationEventSearchComponent {
 
     query() {
         const params: { start?: string; end?: string } = {};
-        const tzOffset = new Date().getTimezoneOffset() * 60000;
         const currentStartDate = this.startDate();
         const currentEndDate = this.endDate();
+        // The bounds are already the instants of local midnight either side of the range, and the
+        // backend compares them against examinationEvent.start directly, so they travel as they are.
         if (currentStartDate) {
-            params.start = new Date(currentStartDate.getTime() + tzOffset).toISOString();
+            params.start = currentStartDate.toISOString();
         }
         if (currentEndDate) {
-            params.end = new Date(currentEndDate.getTime() + tzOffset).toISOString();
+            params.end = currentEndDate.toISOString();
         }
         this.http
             .get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params })
