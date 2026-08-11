@@ -119,20 +119,25 @@ describe('DateTimeService', () => {
     describe('getWeekdayNames', () => {
         it('should return short weekday names', () => {
             const names = service.getWeekdayNames(false);
-            expect(names.length).toBe(8); // 7 days + 0 (Sunday at end)
+            expect(names.length).toBe(7); // Monday-Sunday, Sunday last
             expect(names[0]).toBeTruthy();
         });
 
         it('should return long weekday names', () => {
             const names = service.getWeekdayNames(true);
-            expect(names.length).toBe(8);
+            expect(names.length).toBe(7);
             expect(names[0].length).toBeGreaterThan(3); // Long names are longer than short
+        });
+
+        it('should not contain duplicates', () => {
+            const names = service.getWeekdayNames(true);
+            expect(new Set(names).size).toBe(names.length);
         });
 
         it('should respect current language', () => {
             translateService.use('fi');
             const names = service.getWeekdayNames(false);
-            expect(names.length).toBe(8);
+            expect(names.length).toBe(7);
         });
     });
 
@@ -171,7 +176,12 @@ describe('DateTimeService', () => {
     describe('getMonthNames', () => {
         it('should return all month names', () => {
             const months = service.getMonthNames();
-            expect(months.length).toBe(13); // 12 months + 0
+            expect(months.length).toBe(12); // January-December
+        });
+
+        it('should not contain duplicates', () => {
+            const months = service.getMonthNames();
+            expect(new Set(months).size).toBe(months.length);
         });
 
         it('should return month names in current language', () => {
@@ -184,7 +194,7 @@ describe('DateTimeService', () => {
         it('should respect language changes', () => {
             translateService.use('fi');
             const months = service.getMonthNames();
-            expect(months.length).toBe(13);
+            expect(months.length).toBe(12);
         });
     });
 
