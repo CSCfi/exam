@@ -45,8 +45,7 @@ class CollaborativeStudentActionController @Inject() (
             if response.status != play.api.http.Status.OK then Results.Status(response.status)
             else
               val root = response.json.as[JsArray]
-              CollaborativeExamProcessingService.calculateScores(root)
-              Results.Ok(root)
+              Results.Ok(CollaborativeExamProcessingService.calculateScores(root))
           }
     }
 
