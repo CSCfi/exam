@@ -200,7 +200,7 @@ export class LibraryComponent {
             this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
         } else {
             this.Files.download('/app/questions/export', 'moodle-export.xml', {
-                params: { ids: selectionsValue.map((s) => s.toString()) },
+                params: { ids: selectionsValue },
                 method: 'POST',
             });
         }

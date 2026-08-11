@@ -476,12 +476,19 @@ class QuestionService @Inject() (
     xmlExporter.writeToStream(questionsForExport(body))(os)
 
   private def questionsForExport(body: JsValue): Seq[Question] =
-    val ids = (body \ "params" \ "ids")
-      .asOpt[JsArray]
-      .getOrElse(Json.arr())
-      .value
-      .map(_.as[Long])
-      .toSet
+    // Ids arrive as numbers, but tolerate strings so a stringified id does not fail the whole export
+    def toId(value: JsValue): Option[Long] = value match
+      case JsNumber(n) => Try(n.toLongExact).toOption
+      case JsString(s) => s.toLongOption
+      case _           => None
+
+    val values = (body \ "params" \ "ids").asOpt[JsArray].getOrElse(Json.arr()).value
+    val parsed = values.flatMap(toId)
+    if parsed.size < values.size then
+      logger.warn(
+        s"Ignoring ${values.size - parsed.size} unparseable question id(s) in export request"
+      )
+    val ids = parsed.toSet
     DB
       .find(classOf[Question])
       .where()
