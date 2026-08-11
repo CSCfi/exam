@@ -144,7 +144,7 @@ export class SlotPickerComponent {
             return;
         }
         const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
-        this.currentWeek.set(start as DateTime);
+        this.currentWeek.set(start as DateTime<true>);
         const accessibilities = this.accessibilities()
             .filter((i) => i.filtered)
             .map((i) => i.id);

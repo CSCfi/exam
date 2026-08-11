@@ -25,6 +25,7 @@ import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.util.Try
 
 class ReviewService @Inject() (
     private val emailComposer: EmailComposer,
@@ -332,7 +333,10 @@ class ReviewService @Inject() (
           inspections ++ exam.parent.examOwners.asScala.filterNot(_ == loggedInUser)
         emailComposer.scheduleEmail(1.seconds) {
           recipients.foreach(user =>
-            emailComposer.composeInspectionMessage(user, loggedInUser, exam, message)
+            Try(emailComposer.composeInspectionMessage(user, loggedInUser, exam, message)).fold(
+              e => logger.error(s"Failed to send email to ${user.email}", e),
+              _ => ()
+            )
           )
         }
         Right(())
@@ -442,11 +446,13 @@ class ReviewService @Inject() (
     Option(DB.find(classOf[Exam], examId)) match
       case Some(exam) =>
         if exam.hasState(ExamState.ABORTED, ExamState.ARCHIVED) then Left(ReviewError.Forbidden)
+        else if !exam.isCreatedBy(user) then Left(ReviewError.Forbidden)
         else
-          Option(DB.find(classOf[Comment], commentId)) match
+          Option(exam.examFeedback).filter(_.id.longValue == commentId) match
             case Some(comment) =>
               comment.setModifierWithDate(user)
               comment.feedbackStatus = status
+              comment.update()
               Right(())
             case None => Left(ReviewError.BadRequest)
       case None => Left(ReviewError.ExamNotFound)

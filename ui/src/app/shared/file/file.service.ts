@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { HttpResponse } from '@angular/common/http';
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import type { HttpEvent, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpEventType } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, finalize, Observable, of, tap, throwError } from 'rxjs';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 
@@ -18,6 +18,8 @@ export type DownloadOptions = {
     method?: 'GET' | 'POST';
     /** If false, expects Base64-encoded text response (legacy). Default true = binary stream. */
     asBlob?: boolean;
+    /** Called repeatedly with cumulative bytes received. Only meaningful for blob downloads. */
+    onProgress?: (loaded: number) => void;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -28,21 +30,40 @@ export class FileService {
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
 
+    private readonly _inProgress = signal<ReadonlySet<string>>(new Set());
+    /** Reactive set of URLs whose downloads are currently in flight. */
+    get downloading() {
+        return this._inProgress.asReadonly();
+    }
+
     download(url: string, filename: string, options: DownloadOptions = {}) {
-        const { params, method: optMethod = 'GET', asBlob = true } = options;
+        if (this._inProgress().has(url)) return;
+        this._inProgress.update((s) => new Set([...s, url]));
+        const release = () =>
+            this._inProgress.update((s) => {
+                const n = new Set(s);
+                n.delete(url);
+                return n;
+            });
+
+        const { params, method: optMethod = 'GET', asBlob = true, onProgress } = options;
         const method = optMethod;
         if (asBlob) {
             this.http
                 .request(method, url, {
                     responseType: 'blob',
-                    observe: 'response',
+                    observe: 'events',
+                    reportProgress: !!onProgress,
                     params: method === 'GET' ? params : undefined,
                     body: method === 'POST' && params ? { params } : undefined,
                 })
+                .pipe(finalize(release))
                 .subscribe({
-                    next: (resp: HttpResponse<Blob>) => {
-                        if (resp.body) {
-                            this.saveBlob(resp.body, filename);
+                    next: (event: HttpEvent<Blob>) => {
+                        if (event.type === HttpEventType.DownloadProgress) {
+                            onProgress?.(event.loaded);
+                        } else if (event.type === HttpEventType.Response && event.body) {
+                            this.saveBlob(event.body, filename);
                         }
                     },
                     error: (resp) => {
@@ -59,6 +80,7 @@ export class FileService {
                 params: method === 'GET' ? params : undefined,
                 body: method === 'POST' && params ? { params } : undefined,
             })
+            .pipe(finalize(release))
             .subscribe({
                 next: (resp: HttpResponse<string>) => {
                     if (resp.body) {

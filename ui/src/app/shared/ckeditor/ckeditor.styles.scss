@@ -53,3 +53,8 @@
 .ck.ck-balloon {
     z-index: 1060 !important;
 }
+
+/* Ensure minimum height for the editor */
+.ck-editor__editable_inline {
+    min-height: 16em !important;
+}

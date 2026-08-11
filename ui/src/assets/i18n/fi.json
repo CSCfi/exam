@@ -902,6 +902,7 @@
     "i18n_no_examinations_to_grade": "Ei arvioimattomia suorituksia",
     "i18n_csv_uploaded_successfully": "CSV tiedoston tuonti onnistui",
     "i18n_skip_to_content": "Siirry sisältöön",
+    "i18n_skip_to_exam_actions": "Siirry tenttitoimintoihin",
     "i18n_event_capacity": "Maksimi osallistujamäärä",
     "i18n_error_max_capacity_exceeded": "Yhtäaikaisten tenttitilaisuuksien maksimi osallistujamäärä ylitetty",
     "i18n_error_max_enrolments_reached": "Tilaisuuteen ei voida ottaa enempää osallistujia",
@@ -1150,5 +1151,7 @@
     "i18n_math_example": "Lauseke-esimerkki:",
     "i18n_math_heading_button": "Otsikko",
     "i18n_math_insert_heading_tooltip": "Lisää otsikko",
-    "i18n_math_heading": "Otsikko {{level}}"
+    "i18n_math_heading": "Otsikko {{level}}",
+    "i18n_cloze_test_instructions_title": "Käyttö",
+    "i18n_cloze_test_instructions": "Käytä pystyviivaa ( | ) erottamaan oikeat vastausvaihtoehdot toisistaan. Käytä tähteä ( * ) wildcardina, jos mikä tahansa merkki käy. Esimerkiksi *laiva|vene|lautta tarkoittaa,  että vaikkapa \"laiva\", \"lippulaiva\", \"vene\" ja \"lautta\" olisivat oikeita vastauksia. Jos haluat, että vastaus sisältää oikeasti pystyviivan tai tähden, pitää tällaista merkkiä edeltää kenoviiva: 10 \\* 10 = 100"
 }

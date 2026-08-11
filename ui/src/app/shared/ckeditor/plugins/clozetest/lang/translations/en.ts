@@ -19,10 +19,5 @@ const dictionary: Dictionary = {
     precisionTip: '(± of correct numeric answer value)',
     save: 'Save',
     cancel: 'Cancel',
-    usage: `Use vertical bar ( | ) to separate correct answer options from each other. 
-            Use asterisk ( * ) as a wildcard to match any series of characters. For example
-            '*ship|boat|ferry' would match answers "ship", "flagship", "boat" and "ferry". 
-            If you really do want to match an asterisk or a vertical pipe then use a backslash 
-            like this: ( \\ )`,
 };
 export default dictionary;

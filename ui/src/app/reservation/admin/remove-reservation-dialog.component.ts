@@ -30,8 +30,8 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
             </textarea>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-sm btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
-            <button class="btn btn-sm btn-outline-secondary me-3" (click)="cancel()">
+            <button class="btn btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
@@ -49,15 +49,19 @@ export class RemoveReservationDialogComponent {
     ok() {
         const currentReservation = this.reservation();
         if (!currentReservation) return;
-        this.http
-            .delete(`/app/reservations/${currentReservation.id}`, {
-                headers: { 'Content-Type': 'application/json' },
-                params: { msg: this.message().text },
-            })
-            .subscribe({
-                next: () => this.activeModal.close(),
-                error: (err) => this.toast.error(err),
-            });
+        const msg = this.message().text;
+        const isInboundExternal = !!currentReservation.externalUserRef && !currentReservation.enrolment;
+        const request$ = isInboundExternal
+            ? this.http.delete(`/app/iop/reservations/external/${currentReservation.externalRef}/force`, {
+                  body: { msg },
+              })
+            : this.http.delete(`/app/reservations/${currentReservation.id}`, {
+                  params: { msg },
+              });
+        request$.subscribe({
+            next: () => this.activeModal.close(),
+            error: (err) => this.toast.error(err),
+        });
     }
 
     cancel() {

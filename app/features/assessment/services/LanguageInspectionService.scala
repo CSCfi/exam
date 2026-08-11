@@ -21,6 +21,7 @@ import java.util.Date
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.util.Try
 
 class LanguageInspectionService @Inject() (
     private val emailComposer: EmailComposer
@@ -98,8 +99,10 @@ class LanguageInspectionService @Inject() (
           val recipients = inspection.exam.parent.examOwners.asScala
           emailComposer.scheduleEmail(1.seconds) {
             recipients.foreach(r =>
-              emailComposer.composeLanguageInspectionFinishedMessage(r, user, inspection)
-              logger.info(s"Language inspection finalization email sent to ${r.email}")
+              Try(emailComposer.composeLanguageInspectionFinishedMessage(r, user, inspection)).fold(
+                e => logger.error(s"Failed to send email to ${r.email}", e),
+                _ => logger.info(s"Language inspection finalization email sent to ${r.email}")
+              )
             )
           }
           Right(())

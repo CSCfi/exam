@@ -38,7 +38,6 @@ interface RoomWithAddressVisibility extends ExamRoom {
 export class OpenHoursComponent {
     readonly room = input.required<ExamRoom>();
 
-    readonly weekdayNames = signal<string[]>([]);
     readonly extendedRoom = linkedSignal<RoomWithAddressVisibility | undefined>(() =>
         this.room() ? this.buildExtendedRoom(this.room()) : undefined,
     );
@@ -49,13 +48,6 @@ export class OpenHoursComponent {
     private readonly roomService = inject(RoomService);
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
-
-    constructor() {
-        this.weekdayNames.set(this.dateTime.getWeekdayNames());
-        this.translate.onLangChange.subscribe(() => {
-            this.weekdayNames.set(this.dateTime.getWeekdayNames());
-        });
-    }
 
     orderByWeekday(dwhs: DefaultWorkingHoursWithEditing[]) {
         const ordinal = (dwh: DefaultWorkingHours) => this.WEEKDAYS.indexOf(dwh.weekday);

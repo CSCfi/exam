@@ -67,7 +67,7 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
   override def getAssessedScore: Double =
     // Helper to handle the recurring forcedScore logic safely
     def withForcedScore(fallback: => Double): Double =
-      Option(forcedScore).filter(_ != 0).map(_.toDouble).getOrElse(fallback)
+      Option(forcedScore).map(_.toDouble).getOrElse(fallback)
 
     question.`type` match
       case QuestionType.EssayQuestion =>

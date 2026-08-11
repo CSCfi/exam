@@ -11,19 +11,6 @@ SPDX-License-Identifier: EUPL-1.2
         <span class="user-span">{{ displayUser() }}</span>
     </div>
 
-    <!-- RETURN / ABORT: early in DOM so keyboard/SR users reach it without tabbing all sections -->
-    @if (!isPreview()) {
-        <div class="d-flex flex-column gap-2 my-4 visually-last">
-            <button class="btn btn-success" (click)="turnExam()">
-                {{ 'i18n_save_and_return_exam' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary" (click)="abortExam()">
-                {{ 'i18n_abort_exam' | translate }}
-                <i class="bi bi-x ps-2"></i>
-            </button>
-        </div>
-    }
-
     <!-- EXAM NAME -->
     @if (exam().course) {
         <div class="right-title mb-3">{{ exam().name }}</div>
@@ -80,7 +67,8 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 
     <!-- SECTIONS -->
-    <div class="d-flex flex-column gap-2">
+    <a class="skip" [href]="getSkipLinkPath('#exam-actions')">{{ 'i18n_skip_to_exam_actions' | translate }}</a>
+    <div class="toolbar-sections d-flex flex-column gap-2">
         @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section.id; let i = $index) {
             <div
                 class="phase-box d-flex align-items-center gap-2"
@@ -120,14 +108,6 @@ SPDX-License-Identifier: EUPL-1.2
                     >
                         {{ 'i18n_move_to' | translate }}
                     </button>
-                    <a
-                        class="skip"
-                        id="skip-button"
-                        [href]="getSkipLinkPath('#examination-section')"
-                        [hidden]="activeSection()?.sequenceNumber !== i"
-                    >
-                        {{ 'i18n_skip_to_content' | translate }}
-                    </a>
                 </div>
             </div>
         }
@@ -143,6 +123,19 @@ SPDX-License-Identifier: EUPL-1.2
                 (keydown.enter)="exitPreview()"
             >
                 {{ 'i18n_exit_preview' | translate }}
+                <i class="bi bi-x ps-2"></i>
+            </button>
+        </div>
+    }
+
+    <!-- RETURN / ABORT -->
+    @if (!isPreview()) {
+        <div id="exam-actions" tabindex="-1" class="toolbar-actions d-flex flex-column gap-2 mt-4">
+            <button class="btn btn-success" (click)="turnExam()">
+                {{ 'i18n_save_and_return_exam' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary" (click)="abortExam()">
+                {{ 'i18n_abort_exam' | translate }}
                 <i class="bi bi-x ps-2"></i>
             </button>
         </div>

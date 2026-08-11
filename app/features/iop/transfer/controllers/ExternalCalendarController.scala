@@ -92,6 +92,7 @@ class ExternalCalendarController @Inject() (
       val start          = TimeUtils.parseInstant((body \ "start").as[String])
       val end            = TimeUtils.parseInstant((body \ "end").as[String])
       val userEppn       = (body \ "user").as[String]
+      val userEmail      = (body \ "email").asOpt[String]
       val orgRef         = (body \ "orgRef").as[String]
       val orgName        = (body \ "orgName").as[String]
 
@@ -111,6 +112,7 @@ class ExternalCalendarController @Inject() (
                 reservation.startAt = start
                 reservation.machine = machine
                 reservation.externalUserRef = userEppn
+                reservation.externalUserEmail = userEmail.orNull
                 reservation.externalOrgRef = orgRef
                 reservation.externalOrgName = orgName
                 reservation.save()
@@ -275,6 +277,7 @@ class ExternalCalendarController @Inject() (
                       "start"            -> DateTimeFormatter.ISO_INSTANT.format(start),
                       "end"              -> DateTimeFormatter.ISO_INSTANT.format(end),
                       "user"             -> user.eppn,
+                      "email"            -> user.email,
                       "optionalSections" -> Json.toJson(sectionIdsSeq)
                     )
 

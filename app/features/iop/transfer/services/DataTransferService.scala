@@ -183,9 +183,6 @@ class DataTransferService @Inject() (
     )
     ScalaSource.single(filePart)
 
-  private def isNewTag(tag: Tag, existing: Seq[Tag]): Boolean =
-    !existing.exists(_.name == tag.name)
-
   private def importQuestions(body: JsValue): Either[DataTransferError, JsValue] =
     val eppn = (body \ "owner").as[String]
     DB.find(classOf[User]).where().eq("eppn", eppn).find match
@@ -204,19 +201,19 @@ class DataTransferService @Inject() (
           copy.setModifierWithDate(user)
           copy.save()
 
-          val userTags     = DB.find(classOf[Tag]).where().eq("creator", user).list
-          val questionTags = question.tags.asScala.toList
+          val userTags = DB.find(classOf[Tag]).where().eq("creator", user).list
+          val resolvedTags = question.tags.asScala.map { qt =>
+            userTags.find(_.name == qt.name).getOrElse {
+              val t = new Tag
+              t.name = qt.name
+              t.setCreatorWithDate(user)
+              t.setModifierWithDate(user)
+              DB.save(t)
+              t
+            }
+          }
+          copy.tags.addAll(resolvedTags.asJava)
 
-          val newTags = questionTags.filter(t => isNewTag(t, userTags))
-          newTags.foreach(_.id = null)
-
-          val existingTags = userTags.filter(t => !isNewTag(t, questionTags))
-
-          DB.saveAll(newTags.asJava)
-          copy.tags.addAll(newTags.asJava)
-          copy.tags.addAll(existingTags.asJava)
-          copy.tags.forEach(t => t.setCreatorWithDate(user))
-          copy.tags.forEach(t => t.setModifierWithDate(user))
           copy.questionOwners.clear()
           copy.questionOwners.add(user)
           copy.update()

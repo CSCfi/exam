@@ -34,7 +34,7 @@ object HtmlSafelist:
     .addAttributes("abbr", "title", "id")
     .addAttributes("code", "class")
     .addAttributes("pre", "class")
-    .addTags("math-field", "mark", "s", "figure")
+    .addTags("math-field", "mark", "s", "figure", "hr")
     .addAttributes("math-field", "data-expression", "read-only", "math-virtual-keyboard-policy")
     .addAttributes("mark", "class")
     .addAttributes("figure", "class")

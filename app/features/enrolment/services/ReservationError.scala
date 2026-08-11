@@ -34,3 +34,6 @@ object ReservationError:
     val message = "Could not find suitable slot"
 
   case class InvalidReservation(message: String) extends ReservationError
+
+  case object RemoteCallFailed extends ReservationError:
+    val message = "Failed to notify external institution"

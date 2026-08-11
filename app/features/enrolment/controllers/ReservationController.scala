@@ -58,6 +58,8 @@ class ReservationController @Inject() (
           NotFound(s"${ReservationError.ReservationNotFound.message} $id")
         case Left(ReservationError.ParticipationExists) =>
           Forbidden(ReservationError.ParticipationExists.message)
+        case Left(ReservationError.RemoteCallFailed) =>
+          InternalServerError(ReservationError.RemoteCallFailed.message)
         case Left(_) => Forbidden
       }
     }

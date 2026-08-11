@@ -21,14 +21,14 @@ import type { Examination, ExaminationSection, NavigationPage } from 'src/app/ex
                             src="/assets/images/icon_left_white.png"
                         />
                         {{ prev()?.index ? ('i18n_move_to_section' | translate) : ('i18n_open_it' | translate) }}
-                        {{ prev()?.index ? prev().index + '.' : '' }} {{ prev().text || '' | translate }}
+                        {{ prev()?.index ? prev().index + ':' : '' }} {{ prev().text || '' | translate }}
                     </button>
                 }
                 <!-- NEXT SECTION BUTTON -->
                 @if (next().valid) {
                     <button class="btn btn-outline-secondary float-end me-2" (click)="nextPage()">
                         {{ next()?.index ? ('i18n_move_to_section' | translate) : ('i18n_open_it' | translate) }}
-                        {{ next()?.index ? next().index + '.' : '' }} {{ next().text || '' | translate }}
+                        {{ next()?.index ? next().index + ':' : '' }} {{ next().text || '' | translate }}
                         <img
                             class="arrow_icon"
                             style="filter: invert()"

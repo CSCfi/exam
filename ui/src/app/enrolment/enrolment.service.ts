@@ -255,6 +255,12 @@ export class EnrolmentService {
     loadParticipations$ = (filter: string) =>
         this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: filter } });
 
+    checkExaminationEventConfig$ = (enrolmentId: number, configId: number): Observable<string | null> =>
+        this.http.get(`/app/enrolments/${enrolmentId}/examination/${configId}`, { responseType: 'text' }).pipe(
+            map(() => null),
+            catchError((err) => of(err as string)),
+        );
+
     selectExaminationEvent$ = (
         exam: Exam,
         enrolment: ExamEnrolment,
@@ -262,6 +268,7 @@ export class EnrolmentService {
     ): Observable<ExaminationEventConfiguration> => {
         const modalRef = this.modal.openRef(SelectExaminationEventDialogComponent);
         modalRef.componentInstance.exam.set(exam);
+        modalRef.componentInstance.enrolmentId.set(enrolment.id);
         modalRef.componentInstance.existingEventId.set(enrolment.examinationEventConfiguration?.id);
         return this.modal.result$<ExaminationEventConfiguration>(modalRef).pipe(
             switchMap((data) =>

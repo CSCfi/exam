@@ -12,8 +12,17 @@
     padding: 1rem;
 }
 
-.visually-last {
-    order: 1;
+.toolbar-sections {
+    overflow-y: auto;
+    max-height: calc(100dvh - 24rem);
+    min-height: 8rem;
+}
+
+.toolbar-actions {
+    position: sticky;
+    bottom: 1rem;
+    background-color: #fff;
+    padding-top: 0.5rem;
 }
 
 .right-column-box {

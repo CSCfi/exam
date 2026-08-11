@@ -200,6 +200,47 @@ class DataTransferControllerSpec
 
         importedQuestion.tags.size must be(2)
 
+      "import two questions sharing a new tag creates only one tag" in:
+        ensureTestDataLoaded()
+        val user = DB.find(classOf[User]).where().eq("email", "teacher@funet.fi").find match
+          case Some(u) => u
+          case None    => fail("Teacher user not found")
+
+        val sharedTag = Json.obj(
+          "id"            -> 99,
+          "name"          -> "kissa",
+          "objectVersion" -> 1,
+          "creator"       -> Json.obj("id" -> 2)
+        )
+        val mkQuestion = (n: Int) =>
+          Json.obj(
+            "id"              -> n,
+            "type"            -> "EssayQuestion",
+            "question"        -> s"Question $n **duptagimport",
+            "shared"          -> false,
+            "creator"         -> Json.obj("id" -> 2),
+            "options"         -> Json.arr(),
+            "defaultMaxScore" -> 4.0,
+            "tags"            -> Json.arr(sharedTag),
+            "objectVersion"   -> 1
+          )
+        val payload = Json.obj(
+          "type"      -> "QUESTION",
+          "orgRef"    -> ORG_REF,
+          "owner"     -> "teacher@funet.fi",
+          "path"      -> "/integration/iop/import",
+          "ids"       -> Json.arr(1, 2),
+          "questions" -> Json.arr(mkQuestion(1), mkQuestion(2))
+        )
+
+        val result = runIO(makeRequest(POST, "/integration/iop/import", body = Some(payload)))
+        statusOf(result) must be(Status.CREATED)
+
+        val imported = DB.find(classOf[Question]).where().like("question", "% **duptagimport").list
+        imported.size must be(2)
+        imported.foreach(q => q.tags.size must be(1))
+        DB.find(classOf[Tag]).where().eq("creator", user).eq("name", "kissa").list.size must be(1)
+
       "import question with attachment (does not work like this anymore)" ignore:
         val mapper = new ObjectMapper()
         val from   = new File("test/resources/questionImportWithAttachment.json")

@@ -242,10 +242,15 @@ class AttachmentService @Inject() (
         Future.successful(Right(q.essayAnswer.attachment))
       case _ => Future.successful(Left("NotFound"))
 
-  def downloadExamAttachment(examId: Long): Future[Either[String, Attachment]] =
-    Option(DB.find(classOf[Exam], examId)) match
-      case Some(exam) if Option(exam.attachment).isDefined =>
-        Future.successful(Right(exam.attachment))
+  def downloadExamAttachment(examId: Long, user: User): Future[Either[String, Attachment]] =
+    val exam =
+      if user.hasRole(Role.Name.STUDENT) then
+        DB.find(classOf[Exam]).where().idEq(examId).eq("creator", user).find
+      else Option(DB.find(classOf[Exam], examId))
+
+    exam match
+      case Some(e) if Option(e.attachment).isDefined =>
+        Future.successful(Right(e.attachment))
       case _ => Future.successful(Left("NotFound"))
 
   def downloadFeedbackAttachment(examId: Long, user: User): Future[Either[String, Attachment]] =

@@ -48,13 +48,26 @@ export class LibraryResultsComponent {
     readonly disableLinks = input(false);
     readonly selected = output<number[]>();
     readonly copied = output<LibraryQuestion>();
+    readonly updated = output<LibraryQuestion[]>();
 
     readonly allSelected = signal(false);
-    // FIXME: ugly cast, should resolve this better
-    readonly fixedQuestions = linkedSignal<SelectableQuestion[]>(() => this.questions() as SelectableQuestion[]);
-    readonly currentPage = linkedSignal<number>(() => {
-        void this.questions();
-        return 0;
+    readonly fixedQuestions = linkedSignal<LibraryQuestion[], SelectableQuestion[]>({
+        source: this.questions,
+        // Retain checkbox state of the questions that survive a list update
+        computation: (questions, previous) => {
+            const selectedIds = new Set((previous?.value ?? []).filter((q) => q.selected).map((q) => q.id));
+            return questions.map((q) => ({ ...q, selected: selectedIds.has(q.id) }));
+        },
+    });
+    readonly currentPage = linkedSignal<LibraryQuestion[], number>({
+        source: this.questions,
+        // Hold the page when questions are merely removed or updated, reset it for a new result set
+        computation: (questions, previous) => {
+            if (!previous) return 0;
+            const ids = new Set(questions.map((q) => q.id));
+            const lastPage = Math.max(0, Math.ceil(questions.length / this.pageSize) - 1);
+            return previous.source.every((q) => ids.has(q.id)) ? Math.min(previous.value, lastPage) : 0;
+        },
     });
     readonly questionsPredicate = signal('');
     readonly reverse = signal(false);
@@ -80,9 +93,10 @@ export class LibraryResultsComponent {
             this.reverse.set(storedData.filters.reverse);
         }
 
-        toObservable(this.questions)
+        // Keep the parent's selections in sync with what is actually checked after a list update
+        toObservable(this.fixedQuestions)
             .pipe(skip(1), takeUntilDestroyed())
-            .subscribe(() => this.selected.emit([]));
+            .subscribe(() => this.questionSelected());
     }
 
     onSelectAll = (event: Event) => {
@@ -101,9 +115,9 @@ export class LibraryResultsComponent {
     };
 
     questionSelected = () => {
-        const selections = this.fixedQuestions()
-            .filter((q) => q.selected && q.id !== undefined)
-            .map((q) => q.id!);
+        const questions = this.fixedQuestions();
+        const selections = questions.filter((q) => q.selected && q.id !== undefined).map((q) => q.id!);
+        this.allSelected.set(questions.length > 0 && selections.length === questions.length);
         this.selected.emit(selections);
     };
 
@@ -112,20 +126,14 @@ export class LibraryResultsComponent {
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_remove_question_from_library_only'),
         ).subscribe({
-            next: () => {
-                const questionsValue = this.questions();
+            next: () =>
                 this.http.delete(`/app/questions/${question.id}`).subscribe({
                     next: () => {
-                        const index = questionsValue.indexOf(question);
-                        if (index > -1) {
-                            questionsValue.splice(index, 1);
-                            // Update fixedQuestions to reflect the change
-                            this.fixedQuestions.set(questionsValue as SelectableQuestion[]);
-                        }
+                        this.updated.emit(this.questions().filter((q) => q.id !== question.id));
+                        this.toast.info(this.translate.instant('i18n_question_removed'));
                     },
-                    error: () => this.toast.info(this.translate.instant('i18n_question_removed')),
-                });
-            },
+                    error: (err) => this.toast.error(err),
+                }),
         });
 
     copyQuestion = (question: SelectableQuestion) =>
@@ -133,19 +141,17 @@ export class LibraryResultsComponent {
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_copy_question'),
         ).subscribe({
-            next: () => {
-                const questionsValue = this.questions();
-                this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe({
+            next: () =>
+                this.http.post<LibraryQuestion>(`/app/question/${question.id}`, {}).subscribe({
                     next: (copy) => {
-                        const index = questionsValue.indexOf(question);
-                        questionsValue.splice(index > -1 ? index : 0, 0, copy);
-                        // Update fixedQuestions to reflect the change
-                        this.fixedQuestions.set(questionsValue as SelectableQuestion[]);
+                        const questions = [...this.questions()];
+                        const index = questions.findIndex((q) => q.id === question.id);
+                        questions.splice(index > -1 ? index : 0, 0, copy);
+                        this.updated.emit(questions);
                         this.copied.emit(copy);
                     },
                     error: (err) => this.toast.error(err),
-                });
-            },
+                }),
         });
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);

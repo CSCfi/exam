@@ -4,38 +4,18 @@
 
 # --- !Ups
 
-ALTER TABLE default_working_hours
-    ALTER COLUMN start_time TYPE TIME
-    USING ((start_time AT TIME ZONE 'UTC') + (timezone_offset * INTERVAL '1 millisecond'));
+ALTER TABLE exam_starting_hour
+    ALTER COLUMN starting_hour TYPE TIME
+    USING ((starting_hour AT TIME ZONE 'UTC') + (timezone_offset * INTERVAL '1 millisecond'));
 
-ALTER TABLE default_working_hours
-    ALTER COLUMN end_time TYPE TIME
-    USING ((end_time AT TIME ZONE 'UTC') + (timezone_offset * INTERVAL '1 millisecond'));
-
-ALTER TABLE default_working_hours DROP COLUMN timezone_offset;
-
-ALTER TABLE exception_working_hours DROP COLUMN start_date_timezone_offset;
-
-ALTER TABLE exception_working_hours DROP COLUMN end_date_timezone_offset;
+ALTER TABLE exam_starting_hour DROP COLUMN timezone_offset;
 
 # --- !Downs
 
-ALTER TABLE default_working_hours ADD COLUMN timezone_offset INTEGER NOT NULL DEFAULT 7200000;
+ALTER TABLE exam_starting_hour ADD COLUMN timezone_offset INTEGER NOT NULL DEFAULT 7200000;
 
-ALTER TABLE default_working_hours
-    ALTER COLUMN start_time TYPE TIMETZ
-    USING (start_time AT TIME ZONE 'UTC');
+ALTER TABLE exam_starting_hour
+    ALTER COLUMN starting_hour TYPE TIMETZ
+    USING (starting_hour AT TIME ZONE 'UTC');
 
-ALTER TABLE default_working_hours
-    ALTER COLUMN end_time TYPE TIMETZ
-    USING (end_time AT TIME ZONE 'UTC');
-
-ALTER TABLE default_working_hours ALTER COLUMN timezone_offset DROP DEFAULT;
-
-ALTER TABLE exception_working_hours ADD COLUMN start_date_timezone_offset INTEGER NOT NULL DEFAULT 7200000;
-
-ALTER TABLE exception_working_hours ALTER COLUMN start_date_timezone_offset DROP DEFAULT;
-
-ALTER TABLE exception_working_hours ADD COLUMN end_date_timezone_offset INTEGER NOT NULL DEFAULT 7200000;
-
-ALTER TABLE exception_working_hours ALTER COLUMN end_date_timezone_offset DROP DEFAULT;
+ALTER TABLE exam_starting_hour ALTER COLUMN timezone_offset DROP DEFAULT;

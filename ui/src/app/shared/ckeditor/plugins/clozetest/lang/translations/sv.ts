@@ -19,10 +19,5 @@ const dictionary: Dictionary = {
     precisionTip: '(± av värdet på det korrekta svaret)',
     save: 'Spara',
     cancel: 'Avbryt',
-    usage: `Använd vertikalt steck ( | ) för att skilja korrekta svar från varandra. Använd asterisk 
-            ( * ) om vilken som helst serie av tecken duger. Till exempel '*skepp|båt|färja' betyder 
-            att  "skepp", "flaggskepp", "båt" och "färja" skulle duga som korrekta svar. Om du vill 
-            att svaret de facto innehåller antingen en asterisk eller ett vertikalt streck så bör ett 
-            sådant tecken föregås av enkel apostrof: ( \\ )`,
 };
 export default dictionary;

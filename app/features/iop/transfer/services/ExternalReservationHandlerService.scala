@@ -44,6 +44,11 @@ class ExternalReservationHandlerService @Inject() (
     reservationRef.foreach(ref => sb.append(s"/$ref"))
     URI.create(sb.toString)
 
+  private def parseRevocationUrl(orgRef: String, facilityRef: String, reservationRef: String): URI =
+    URI.create(
+      s"${configReader.getIopHost}/api/organisations/$orgRef/facilities/$facilityRef/reservations/$reservationRef/force"
+    )
+
   def removeExternalReservation(reservation: Reservation): Future[Option[Int]] =
     val external = reservation.externalReservation
     Try(parseUrl(external.orgRef, external.roomRef, Some(reservation.externalRef))) match
@@ -62,7 +67,12 @@ class ExternalReservationHandlerService @Inject() (
             Some(INTERNAL_SERVER_ERROR)
           }
 
-  private def requestRemoval(ref: String, user: User, msg: String): Future[Result] =
+  private def requestRemoval(
+      ref: String,
+      user: User,
+      msg: String,
+      sendEmail: Boolean = true
+  ): Future[Result] =
     val enrolmentOpt =
       DB.find(classOf[ExamEnrolment])
         .fetch("reservation")
@@ -105,27 +115,52 @@ class ExternalReservationHandlerService @Inject() (
                     DB.save(enrolment)
                     reservation.delete()
 
-                    // send email asynchronously
-                    val isStudentUser = user == enrolment.user
-                    emailComposer.scheduleEmail(1.second) {
-                      emailComposer.composeReservationCancellationNotification(
-                        enrolment.user,
-                        reservation,
-                        Some(msg),
-                        isStudentUser,
-                        enrolment
-                      )
-                      logger.info("Reservation cancellation confirmation email sent")
-                    }
+                    if sendEmail then
+                      val isStudentUser = user == enrolment.user
+                      emailComposer.scheduleEmail(1.second) {
+                        emailComposer.composeReservationCancellationNotification(
+                          enrolment.user,
+                          reservation,
+                          Some(msg),
+                          isStudentUser,
+                          enrolment
+                        )
+                        logger.info("Reservation cancellation confirmation email sent")
+                      }
 
                     Ok
                 }
+
+  // revoke an external student's reservation at this institution, notifying their home institution
+  def revokeExternalStudentReservation(
+      reservation: Reservation,
+      message: Option[String]
+  ): Future[Option[Int]] =
+    val roomRef    = reservation.machine.room.externalRef
+    val homeOrgRef = configReader.getHomeOrganisationRef
+    Try(parseRevocationUrl(homeOrgRef, roomRef, reservation.externalRef)) match
+      case Failure(e) =>
+        logger.error("Failed to parse URL for reservation revocation", e)
+        Future.successful(Some(INTERNAL_SERVER_ERROR))
+      case Success(url) =>
+        wsClient
+          .url(url.toString)
+          .delete()
+          .map { response =>
+            if response.status != OK then Some(INTERNAL_SERVER_ERROR)
+            else
+              emailComposer.composeExternalReservationCancellationNotification(reservation, message)
+              reservation.delete()
+              None
+          }
+          .recover { case _ => Some(INTERNAL_SERVER_ERROR) }
 
   // remove reservation on the external side, initiated by the reservation holder
   def removeReservation(
       reservation: Reservation,
       user: User,
-      msg: String
+      msg: String,
+      sendEmail: Boolean = true
   ): Future[Result] =
     if Option(reservation.externalReservation).isEmpty then Future.successful(Ok)
-    else requestRemoval(reservation.externalRef, user, msg)
+    else requestRemoval(reservation.externalRef, user, msg, sendEmail)

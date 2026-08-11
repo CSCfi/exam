@@ -182,6 +182,7 @@ class ExternalExamHandlerImpl @Inject() (
     clone.setModifierWithDate(user)
     clone.generateHash()
     clone.gradingType = GradeType.GRADED
+    clone.examFeedbackConfig = null
     clone.save()
 
     if Option(src.autoEvaluationConfig).isDefined then
@@ -189,6 +190,12 @@ class ExternalExamHandlerImpl @Inject() (
       configClone.exam = clone
       configClone.save()
       clone.autoEvaluationConfig = configClone
+
+    if Option(src.examFeedbackConfig).isDefined then
+      val configClone = src.examFeedbackConfig.copy()
+      configClone.exam = clone
+      configClone.save()
+      clone.examFeedbackConfig = configClone
 
     src.examInspections.asScala.foreach { ei =>
       val inspection = new ExamInspection()
@@ -227,8 +234,10 @@ class ExternalExamHandlerImpl @Inject() (
 
     emailComposer.scheduleEmail(1.second) {
       recipients.foreach { r =>
-        emailComposer.composePrivateExamEnded(r, exam)
-        logger.info(s"Email sent to ${r.email}")
+        Try(emailComposer.composePrivateExamEnded(r, exam)).fold(
+          e => logger.error(s"Failed to send email to ${r.email}", e),
+          _ => logger.info(s"Email sent to ${r.email}")
+        )
       }
     }
 

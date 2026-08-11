@@ -82,33 +82,36 @@ class ExternalCalendarInterfaceSpec
 
   class ReservationServlet extends HttpServlet:
     override def doPost(request: HttpServletRequest, response: HttpServletResponse): Unit =
-      val soon = fixedNow.plus(Duration.ofHours(1))
-      val addressNode = Json.obj(
-        "city"   -> "Paris",
-        "street" -> "123 Rue Monet",
-        "zip"    -> "1684"
-      )
-      val room = Json.obj(
-        "name"              -> "Room 1",
-        "roomCode"          -> "R1",
-        "localTimezone"     -> "Europe/Helsinki",
-        "roomInstructionEN" -> "information in English here",
-        "buildingName"      -> "B1",
-        "mailAddress"       -> addressNode
-      )
-      val machine = Json.obj(
-        "name" -> "Machine 1",
-        "room" -> room
-      )
-      val reservation = Json.obj(
-        "start"           -> DateTimeFormatter.ISO_INSTANT.format(soon),
-        "end"             -> DateTimeFormatter.ISO_INSTANT.format(soon.plus(Duration.ofHours(1))),
-        "id"              -> RESERVATION_REF,
-        "externalUserRef" -> "user1@uni.org",
-        "machine"         -> machine
-      )
-
-      RemoteServerHelper.writeJsonResponse(response, reservation, HttpServletResponse.SC_CREATED)
+      val body = Json.parse(IOUtils.toByteArray(request.getInputStream))
+      if (body \ "email").asOpt[String].forall(_.isEmpty) then
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+      else
+        val soon = fixedNow.plus(Duration.ofHours(1))
+        val addressNode = Json.obj(
+          "city"   -> "Paris",
+          "street" -> "123 Rue Monet",
+          "zip"    -> "1684"
+        )
+        val room = Json.obj(
+          "name"              -> "Room 1",
+          "roomCode"          -> "R1",
+          "localTimezone"     -> "Europe/Helsinki",
+          "roomInstructionEN" -> "information in English here",
+          "buildingName"      -> "B1",
+          "mailAddress"       -> addressNode
+        )
+        val machine = Json.obj(
+          "name" -> "Machine 1",
+          "room" -> room
+        )
+        val reservation = Json.obj(
+          "start"           -> DateTimeFormatter.ISO_INSTANT.format(soon),
+          "end"             -> DateTimeFormatter.ISO_INSTANT.format(soon.plus(Duration.ofHours(1))),
+          "id"              -> RESERVATION_REF,
+          "externalUserRef" -> "user1@uni.org",
+          "machine"         -> machine
+        )
+        RemoteServerHelper.writeJsonResponse(response, reservation, HttpServletResponse.SC_CREATED)
 
   class ReservationRemovalServlet extends HttpServlet:
     override def doDelete(request: HttpServletRequest, response: HttpServletResponse): Unit =
@@ -367,6 +370,7 @@ class ExternalCalendarInterfaceSpec
           "start"   -> DateTimeFormatter.ISO_INSTANT.format(start),
           "end"     -> DateTimeFormatter.ISO_INSTANT.format(end),
           "user"    -> "studentone@uni.org",
+          "email"   -> "studentone@example.org",
           "orgRef"  -> "1234",
           "orgName" -> "1234"
         )
@@ -385,6 +389,7 @@ class ExternalCalendarInterfaceSpec
         reservation.machine.room.externalRef must be(ROOM_REF)
         reservation.startAt.toEpochMilli must be(start.toEpochMilli)
         reservation.endAt.toEpochMilli must be(end.toEpochMilli)
+        reservation.externalUserEmail must be("studentone@example.org")
 
     "acknowledging reservation removal" should:
       "remove reservation successfully" in:
@@ -458,12 +463,13 @@ class ExternalCalendarInterfaceSpec
         ee.reservation must not be null
 
     "requesting reservation revocation as admin" should:
-      "revoke external reservation successfully" in:
+      "revoke external reservation successfully and email externalUserEmail" in:
         val (_, _, room, _) = setupTestData()
 
         val reservation = new Reservation()
         reservation.externalRef = RESERVATION_REF
-        reservation.externalUserRef = "testuser@test.org"
+        reservation.externalUserRef = "eppn@test.org"
+        reservation.externalUserEmail = "actual@test.org"
         reservation.startAt = fixedNow.plus(Duration.ofHours(2))
         reservation.endAt = fixedNow.plus(Duration.ofHours(3))
         reservation.machine = room.examMachines.get(0)
@@ -483,6 +489,39 @@ class ExternalCalendarInterfaceSpec
 
         val removed = DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).find
         removed must be(empty)
+
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val mails = greenMail.getReceivedMessages
+        mails must have size 1
+        mails(0).getAllRecipients()(0).toString must be("actual@test.org")
+
+      "fall back to externalUserRef as email recipient when externalUserEmail is not set" in:
+        val (_, _, room, _) = setupTestData()
+
+        val reservation = new Reservation()
+        reservation.externalRef = RESERVATION_REF
+        reservation.externalUserRef = "legacyuser@test.org"
+        reservation.startAt = fixedNow.plus(Duration.ofHours(2))
+        reservation.endAt = fixedNow.plus(Duration.ofHours(3))
+        reservation.machine = room.examMachines.get(0)
+        reservation.save()
+
+        val (_, session) = runIO(loginAsAdmin())
+        val requestData  = Json.obj("msg" -> "msg")
+        val result = runIO(
+          makeRequest(
+            DELETE,
+            s"/app/iop/reservations/external/$RESERVATION_REF/force",
+            Some(requestData),
+            session = session
+          )
+        )
+        statusOf(result) must be(Status.OK)
+
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val mails = greenMail.getReceivedMessages
+        mails must have size 1
+        mails(0).getAllRecipients()(0).toString must be("legacyuser@test.org")
 
       "fail to delete reservation in progress" in:
         val (_, _, room, _) = setupTestData()
@@ -509,6 +548,38 @@ class ExternalCalendarInterfaceSpec
         val removed =
           Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne())
         removed must be(defined)
+
+    "removing external student reservation via general admin interface" should:
+      "notify home institution and delete local reservation" in:
+        val (_, _, room, _) = setupTestData()
+
+        val reservation = new Reservation()
+        reservation.externalRef = RESERVATION_REF
+        reservation.externalOrgRef = ORG_REF
+        reservation.externalUserRef = "eppn@test.org"
+        reservation.externalUserEmail = "external@test.org"
+        reservation.startAt = fixedNow.plus(Duration.ofHours(2))
+        reservation.endAt = fixedNow.plus(Duration.ofHours(3))
+        reservation.machine = room.examMachines.get(0)
+        reservation.save()
+
+        val (_, session) = runIO(loginAsAdmin())
+        val result = runIO(
+          makeRequest(
+            DELETE,
+            s"/app/reservations/${reservation.id}?msg=cancellation+notice",
+            session = session
+          )
+        )
+        statusOf(result) must be(Status.OK)
+
+        val removed = DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).find
+        removed must be(empty)
+
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val mails = greenMail.getReceivedMessages
+        mails must have size 1
+        mails(0).getAllRecipients()(0).toString must be("external@test.org")
 
     "providing enrolment" should:
       "return enrolment data successfully" in:
