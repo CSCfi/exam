@@ -122,6 +122,9 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
 
   override def getDefaultWorkingHours(date: LocalDate, room: ExamRoom): List[OpeningHours] =
     val day = date.getDayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+    // Working hours are stored as local wall-clock times and belong to the room's own zone,
+    // exactly like the exception events above and the starting hours in CalendarHandlerImpl.
+    val tz = TimeUtils.zoneIdOf(room.localTimezone)
 
     room.defaultWorkingHours.asScala
       .filter(_.weekday.equalsIgnoreCase(day))
@@ -130,8 +133,8 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
           if dwh.endTime == LocalTime.MIDNIGHT then LocalTime.of(23, 59, 59, 999_000_000)
           else dwh.endTime
         OpeningHours(
-          date.atTime(dwh.startTime).atZone(ZoneOffset.UTC).toInstant to
-            date.atTime(endTime).atZone(ZoneOffset.UTC).toInstant
+          date.atTime(dwh.startTime).atZone(tz).toInstant to
+            date.atTime(endTime).atZone(tz).toInstant
         )
       }
       .toList
