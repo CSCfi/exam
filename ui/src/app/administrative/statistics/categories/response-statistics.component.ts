@@ -27,7 +27,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
             <div class="col-3">
                 <strong>{{ 'i18n_unassessed_exams' | translate }}:</strong>
             </div>
-            <div class="col-9">{{ data().unAssessed }}</div>
+            <div class="col-9">{{ data().unassessed }}</div>
         </div>
         <div class="row">
             <div class="col-md-3">
@@ -41,7 +41,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 })
 export class ResponseStatisticsComponent {
     readonly queryParams = input<QueryParams>({});
-    readonly data = signal({ assessed: 0, unAssessed: 0, aborted: 0 });
+    readonly data = signal({ assessed: 0, unassessed: 0, aborted: 0 });
 
     private readonly Statistics = inject(StatisticsService);
 

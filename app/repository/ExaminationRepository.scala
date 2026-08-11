@@ -113,6 +113,19 @@ class ExaminationRepository @Inject() (
         examParticipation.started = now
         db.save(examParticipation)
 
+      // The no-show sweep flags enrolments whose exam is still INITIALIZED, which a student can
+      // legitimately progress out of afterwards - BYOD exams especially, where initialising and
+      // starting are separate steps. Sitting the exam disproves the no-show, so clear it. External
+      // reservations are left alone: their no-show has already been reported to XM and cannot be
+      // retracted from here.
+      if enrolment.noShow && Option(enrolment.reservation).flatMap(r =>
+          Option(r.externalRef)
+        ).isEmpty
+      then
+        enrolment.noShow = false
+        db.update(enrolment)
+        logger.info(s"Cleared stale no-show from enrolment ${enrolment.id} - exam was started")
+
       clone
     }
 
