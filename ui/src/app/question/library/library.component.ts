@@ -130,6 +130,7 @@ type FileResult = { errorCount: number; successCount: number };
                         [questions]="questions()"
                         (copied)="questionCopied($event)"
                         (selected)="questionSelected($event)"
+                        (updated)="resultsUpdated($event)"
                     >
                     </xm-library-results>
                 </div>
@@ -211,10 +212,9 @@ export class LibraryComponent {
         this.modal
             .result$<{ questions: number[]; users: User[] }>(modalRef)
             .pipe(
-                tap((result: { questions: number[]; users: User[] }) => {
-                    const questions = this.questions().filter((q) => q.id && result.questions.includes(q.id));
-                    questions.forEach((q) => q.questionOwners.push(...result.users));
-                }),
+                tap((result: { questions: number[]; users: User[] }) =>
+                    this.updateQuestions(result.questions, (q) => this.withOwners(q, result.users)),
+                ),
             )
             .subscribe();
     }
@@ -225,10 +225,9 @@ export class LibraryComponent {
         this.modal
             .result$<{ questions: number[]; tags: Tag[] }>(modalRef)
             .pipe(
-                tap((result: { questions: number[]; tags: Tag[] }) => {
-                    const questions = this.questions().filter((q) => q.id && result.questions.includes(q.id));
-                    questions.forEach((q) => result.tags.forEach((t) => this.addTagIfNotExists(q, t)));
-                }),
+                tap((result: { questions: number[]; tags: Tag[] }) =>
+                    this.updateQuestions(result.questions, (q) => this.withTags(q, result.tags)),
+                ),
             )
             .subscribe();
     }
@@ -238,10 +237,21 @@ export class LibraryComponent {
         modalRef.componentInstance.selections.set(this.selections());
     }
 
-    private addTagIfNotExists(q: LibraryQuestion, t: Tag) {
-        if (!q.tags.map((qt) => qt.id).includes(t.id)) {
-            q.tags.push(t);
-        }
+    // Replace the affected questions instead of mutating them, otherwise the results table won't refresh
+    private updateQuestions(ids: number[], update: (q: LibraryQuestion) => LibraryQuestion) {
+        this.questions.update((questions) => questions.map((q) => (q.id && ids.includes(q.id) ? update(q) : q)));
+    }
+
+    private withOwners(q: LibraryQuestion, users: User[]): LibraryQuestion {
+        const existing = q.questionOwners.map((o) => o.id);
+        const added = users.filter((u) => !existing.includes(u.id));
+        return added.length === 0 ? q : { ...q, questionOwners: [...q.questionOwners, ...added] };
+    }
+
+    private withTags(q: LibraryQuestion, tags: Tag[]): LibraryQuestion {
+        const existing = q.tags.map((t) => t.id);
+        const added = tags.filter((t) => !existing.includes(t.id));
+        return added.length === 0 ? q : { ...q, tags: [...q.tags, ...added] };
     }
 
     private reload = () =>
