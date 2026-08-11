@@ -19,9 +19,7 @@ export type ExceptionWorkingHours = {
     id: number;
     ownerRoom?: string;
     startDate: string;
-    startDateTimezoneOffset: number;
     endDate: string;
-    endDateTimezoneOffset: number;
     outOfService: boolean;
 };
 
