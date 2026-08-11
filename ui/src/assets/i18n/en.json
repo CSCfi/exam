@@ -513,7 +513,7 @@
     "i18n_month": "Month",
     "i18n_rank": "Rank",
     "i18n_most_popular_exams": "The most taken exams",
-    "i18n_total_reservations": "Total number of exams taken",
+    "i18n_total_reservations": "Total number attended",
     "i18n_total_no_shows": "Total number of no-shows",
     "i18n_exam_responses": "Study attainments",
     "i18n_assessed_exams": "Assessed exams",
