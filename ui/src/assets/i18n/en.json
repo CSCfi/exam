@@ -106,6 +106,8 @@
     "i18n_grade_scale": "Grading scale",
     "i18n_graded": "Graded",
     "i18n_hide": "Hide",
+    "i18n_show_all": "Show all",
+    "i18n_hide_all": "Hide all",
     "i18n_in_progress": "In progress",
     "i18n_info_deadline": "How many days the examiner has left to assess and lock the exam",
     "i18n_inspection_status": "Assessment status",

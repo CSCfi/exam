@@ -106,6 +106,8 @@
     "i18n_grade_scale": "Arvosana-asteikko",
     "i18n_graded": "Arvioitu",
     "i18n_hide": "Piilota",
+    "i18n_show_all": "Näytä kaikki",
+    "i18n_hide_all": "Piilota kaikki",
     "i18n_in_progress": "Kesken",
     "i18n_info_deadline": "Kuinka monta päivää tentaattoreilla on aikaa arvioida ja lukita tenttisuoritus",
     "i18n_inspection_status": "Arvioinnin tilanne",

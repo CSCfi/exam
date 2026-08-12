@@ -51,4 +51,19 @@
 
 [ngbDropdownMenu] {
     z-index: 1050; // Ensure it's above sticky table headers (z-index: 1)
+    min-width: 200px;
+
+    .btn-link {
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.8rem;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .sticky-top {
+      z-index: 2;
+    }
 }

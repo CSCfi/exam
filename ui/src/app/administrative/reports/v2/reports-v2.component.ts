@@ -227,8 +227,7 @@ export class ReportsV2Component {
                                         exam.examType?.type?.toLowerCase().includes(examTypeFilter) ||
                                         exam.examType?.name?.toLowerCase().includes(examTypeFilter);
 
-                                    const matchEppn =
-                                        !currentEppn || r.user?.eppn?.toLowerCase().includes(currentEppn);
+                                    const matchEppn = !currentEppn || r.user?.eppn?.toLowerCase().includes(currentEppn);
                                     const matchStudentNumber =
                                         !currentStudentNumber ||
                                         r.user?.userIdentifier?.toLowerCase().includes(currentStudentNumber);
@@ -249,7 +248,7 @@ export class ReportsV2Component {
                                     const enrolment = r.enrolment;
 
                                     return {
-                                        firstName: r.user?.firstName ?? (r.externalUserRef ?? ''),
+                                        firstName: r.user?.firstName ?? r.externalUserRef ?? '',
                                         lastName: r.user?.lastName ?? '',
                                         studentEmail: r.user?.email ?? '',
                                         eppn: r.user?.eppn ?? '',
@@ -268,19 +267,17 @@ export class ReportsV2Component {
                                             ? DateTime.fromISO(r.endAt).toFormat('yyyy-MM-dd HH:mm')
                                             : '',
                                         participationStart: participation?.started
-                                            ? DateTime.fromISO(participation.started).toFormat(
-                                                  'yyyy-MM-dd HH:mm',
-                                              )
+                                            ? DateTime.fromISO(participation.started).toFormat('yyyy-MM-dd HH:mm')
                                             : '',
                                         participationEnd: participation?.ended
-                                            ? DateTime.fromISO(participation.ended).toFormat(
-                                                  'yyyy-MM-dd HH:mm',
-                                              )
+                                            ? DateTime.fromISO(participation.ended).toFormat('yyyy-MM-dd HH:mm')
                                             : '',
                                         participationDuration: participation?.duration ?? '',
                                         assessmentStatus: this.Reservation.printExamState(r),
                                         gradeScale: exam.gradeScale?.name ?? '',
-                                        grade: exam.grade?.name ? this.CommonExam.getExamGradeDisplayName(exam.grade.name) : '',
+                                        grade: exam.grade?.name
+                                            ? this.CommonExam.getExamGradeDisplayName(exam.grade.name)
+                                            : '',
                                         assessmentDateEstimated: '', // Not easily available in this object
                                         assessmentDateLocked: exam.gradedTime
                                             ? DateTime.fromJSDate(new Date(exam.gradedTime)).toFormat(
@@ -367,6 +364,14 @@ export class ReportsV2Component {
         }
     }
 
+    showAllColumns() {
+        this.visibleColumns.set(this.columnOptions().map((c) => c.id || ''));
+    }
+
+    hideAllColumns() {
+        this.visibleColumns.set([]);
+    }
+
     sort(columnId: string) {
         const col = columnId as keyof ReportRow;
         if (this.sortColumn() === col) {
@@ -387,8 +392,7 @@ export class ReportsV2Component {
 
     protected searchStudents$ = (text$: Observable<string>) => this.Reservation.searchStudents$(text$);
 
-    protected searchExams$ = (text$: Observable<string>) =>
-        this.Reservation.searchExams$(text$, false);
+    protected searchExams$ = (text$: Observable<string>) => this.Reservation.searchExams$(text$, false);
 
     protected searchTeachers$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
 }
