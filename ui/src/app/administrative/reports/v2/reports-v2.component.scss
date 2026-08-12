@@ -10,14 +10,24 @@
 .table {
     margin-top: 1rem;
     white-space: nowrap;
+    font-size: 0.875rem;
 
     th {
         background-color: #f8f9fa;
         border-bottom: 2px solid #dee2e6;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
 
         &.sortable {
             cursor: pointer;
             user-select: none;
+
+            &.sorted {
+                background-color: #e2e6ea;
+                color: #000;
+            }
 
             &:hover {
                 background-color: #e9ecef;
@@ -29,4 +39,12 @@
             }
         }
     }
+
+    td {
+        vertical-align: middle;
+    }
+}
+
+.overflow-auto {
+    max-height: 70vh;
 }
