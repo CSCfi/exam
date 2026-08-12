@@ -137,6 +137,7 @@ export class ReservationService {
                         org: '',
                         stateOrd: 0,
                         enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
+                        status: '',
                     })) as AnyReservation[],
             ),
             map((all) => {
@@ -149,7 +150,8 @@ export class ReservationService {
                             ...(r.enrolment as ExamEnrolment),
                             teacherAggregate: exam.examOwners.map((o) => o.lastName + o.firstName).join(),
                         };
-                        r.stateOrd = STATE_ORDER.indexOf(this.printExamState(r));
+                        r.status = this.printExamState(r);
+                        r.stateOrd = STATE_ORDER.indexOf(r.status);
                         return r;
                     });
             }),

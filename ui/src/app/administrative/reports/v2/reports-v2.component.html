@@ -1,0 +1,575 @@
+<!--
+SPDX-FileCopyrightText: 2026 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
+<xm-page-header text="i18n_reports_v2" />
+<xm-page-content [content]="content" />
+
+<ng-template #content>
+    <div class="row">
+        <div class="col-md-2 pt-1">
+            <label for="start-date-picker" class="form-label">{{ 'i18n_begin' | translate }}</label>
+            <xm-date-picker id="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
+        </div>
+        <div class="col-md-2 pt-1">
+            <label for="end-date-picker" class="form-label">{{ 'i18n_end' | translate }}</label>
+            <xm-date-picker id="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
+        </div>
+        <div class="col-md-4">
+            <label for="student-search" class="form-label">{{ 'i18n_student' | translate }}</label>
+            <div class="input-group">
+                <input
+                    #studentInput
+                    id="student-search"
+                    type="text"
+                    class="form-control"
+                    [ngbTypeahead]="searchStudents$"
+                    [resultFormatter]="nameFormatter"
+                    [inputFormatter]="nameFormatter"
+                    (selectItem)="studentSelected($event)"
+                    [disabled]="student()"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                />
+                <button class="btn btn-outline-secondary" type="reset" (click)="clearStudent()">
+                    {{ 'i18n_remove' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="exam-search" class="form-label">{{ 'i18n_exam' | translate }}</label>
+            <div class="input-group">
+                <input
+                    #examInput
+                    id="exam-search"
+                    type="text"
+                    class="form-control"
+                    [ngbTypeahead]="searchExams$"
+                    [resultFormatter]="nameFormatter"
+                    [inputFormatter]="nameFormatter"
+                    (selectItem)="examSelected($event)"
+                    [disabled]="exam()"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                />
+                <button class="btn btn-outline-secondary" type="reset" (click)="clearExam()">
+                    {{ 'i18n_remove' | translate }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-3">
+            <label for="student-number" class="form-label">{{ 'i18n_student_number' | translate }}</label>
+            <input
+                id="student-number"
+                type="text"
+                class="form-control"
+                [value]="studentNumber()"
+                (input)="studentNumber.set($any($event.target).value)"
+            />
+        </div>
+        <div class="col-md-3">
+            <label for="eppn" class="form-label">{{ 'i18n_eppn' | translate }}</label>
+            <input
+                id="eppn"
+                type="text"
+                class="form-control"
+                [value]="eppn()"
+                (input)="eppn.set($any($event.target).value)"
+            />
+        </div>
+        <div class="col-md-3">
+            <label for="email" class="form-label">{{ 'i18n_email' | translate }}</label>
+            <input
+                id="email"
+                type="text"
+                class="form-control"
+                [value]="email()"
+                (input)="email.set($any($event.target).value)"
+            />
+        </div>
+        <div class="col-md-3">
+            <label for="implementation" class="form-label">{{ 'i18n_exam_implementation' | translate }}</label>
+            <input
+                id="implementation"
+                type="text"
+                class="form-control"
+                [value]="implementation()"
+                (input)="implementation.set($any($event.target).value)"
+            />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-3">
+            <label for="stage-search" class="form-label">{{ 'i18n_exam_stage' | translate }}</label>
+            <xm-dropdown-select
+                id="stage-search"
+                [options]="statusOptions()"
+                [fullWidth]="true"
+                [noSearch]="true"
+                (optionSelected)="stageChanged($event)"
+                placeholder="{{ 'i18n_select' | translate }}"
+            >
+            </xm-dropdown-select>
+        </div>
+        <div class="col-md-3">
+            <label for="teacher-search" class="form-label">{{ 'i18n_exam_owner' | translate }}</label>
+            <div class="input-group">
+                <input
+                    #teacherInput
+                    id="teacher-search"
+                    type="text"
+                    class="form-control"
+                    [ngbTypeahead]="searchTeachers$"
+                    [resultFormatter]="nameFormatter"
+                    [inputFormatter]="nameFormatter"
+                    (selectItem)="teacherSelected($event)"
+                    [disabled]="teacher()"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                />
+                <button class="btn btn-outline-secondary" type="reset" (click)="clearTeacher()">
+                    {{ 'i18n_remove' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="exam-type" class="form-label">{{ 'i18n_exam_type' | translate }}</label>
+            <input
+                id="exam-type"
+                type="text"
+                class="form-control"
+                [value]="examType()"
+                (input)="examType.set($any($event.target).value)"
+            />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <label class="form-label">{{ 'i18n_visible_columns' | translate }}</label>
+            <div ngbDropdown #columnDropdown="ngbDropdown" autoClose="outside">
+                <button
+                    ngbDropdownToggle
+                    class="btn btn-outline-secondary w-100"
+                    type="button"
+                >
+                    {{ 'i18n_choose' | translate }}
+                </button>
+                <div ngbDropdownMenu class="xm-scrollable-menu" style="max-height: 300px; overflow-y: auto;">
+                    @for (opt of columnOptions(); track opt.id) {
+                        <button
+                            type="button"
+                            ngbDropdownItem
+                            (click)="toggleColumn(opt.id)"
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <span>{{ opt.label || '' | translate }}</span>
+                            @if (visibleColumns().includes(opt.id || '')) {
+                                <i class="bi-check text-primary"></i>
+                            }
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 ms-auto">
+            <button class="btn btn-secondary w-100" [disabled]="!isAnyFilterActive()">
+                {{ 'i18n_generate_report' | translate }}
+            </button>
+        </div>
+    </div>
+
+    @if (sortedReportData().length > 0) {
+        <div class="mt-4 overflow-auto">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        @if (visibleColumns().includes('firstName')) {
+                            <th class="sortable" (click)="sort('firstName')">
+                                {{ 'i18n_firstname' | translate }}
+                                @if (sortColumn() === 'firstName') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('lastName')) {
+                            <th class="sortable" (click)="sort('lastName')">
+                                {{ 'i18n_lastname' | translate }}
+                                @if (sortColumn() === 'lastName') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('studentEmail')) {
+                            <th class="sortable" (click)="sort('studentEmail')">
+                                {{ 'i18n_email' | translate }}
+                                @if (sortColumn() === 'studentEmail') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('eppn')) {
+                            <th class="sortable" (click)="sort('eppn')">
+                                {{ 'i18n_eppn' | translate }}
+                                @if (sortColumn() === 'eppn') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('studentNumber')) {
+                            <th class="sortable" (click)="sort('studentNumber')">
+                                {{ 'i18n_student_number' | translate }}
+                                @if (sortColumn() === 'studentNumber') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('courseCode')) {
+                            <th class="sortable" (click)="sort('courseCode')">
+                                {{ 'i18n_course_code' | translate }}
+                                @if (sortColumn() === 'courseCode') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('courseName')) {
+                            <th class="sortable" (click)="sort('courseName')">
+                                {{ 'i18n_course_name' | translate }}
+                                @if (sortColumn() === 'courseName') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('examName')) {
+                            <th class="sortable" (click)="sort('examName')">
+                                {{ 'i18n_exam_name' | translate }}
+                                @if (sortColumn() === 'examName') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('teachers')) {
+                            <th class="sortable" (click)="sort('teachers')">
+                                {{ 'i18n_exam_owners' | translate }}
+                                @if (sortColumn() === 'teachers') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('reservationStart')) {
+                            <th class="sortable" (click)="sort('reservationStart')">
+                                {{ 'i18n_reservation_start' | translate }}
+                                @if (sortColumn() === 'reservationStart') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('reservationEnd')) {
+                            <th class="sortable" (click)="sort('reservationEnd')">
+                                {{ 'i18n_reservation_end' | translate }}
+                                @if (sortColumn() === 'reservationEnd') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('participationStart')) {
+                            <th class="sortable" (click)="sort('participationStart')">
+                                {{ 'i18n_participation_start' | translate }}
+                                @if (sortColumn() === 'participationStart') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('participationEnd')) {
+                            <th class="sortable" (click)="sort('participationEnd')">
+                                {{ 'i18n_participation_end' | translate }}
+                                @if (sortColumn() === 'participationEnd') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('participationDuration')) {
+                            <th class="sortable" (click)="sort('participationDuration')">
+                                {{ 'i18n_participation_duration' | translate }}
+                                @if (sortColumn() === 'participationDuration') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('assessmentStatus')) {
+                            <th class="sortable" (click)="sort('assessmentStatus')">
+                                {{ 'i18n_exam_state' | translate }}
+                                @if (sortColumn() === 'assessmentStatus') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('gradeScale')) {
+                            <th class="sortable" (click)="sort('gradeScale')">
+                                {{ 'i18n_grade_scale' | translate }}
+                                @if (sortColumn() === 'gradeScale') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('grade')) {
+                            <th class="sortable" (click)="sort('grade')">
+                                {{ 'i18n_grade' | translate }}
+                                @if (sortColumn() === 'grade') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('assessmentDateEstimated')) {
+                            <th class="sortable" (click)="sort('assessmentDateEstimated')">
+                                {{ 'i18n_assessment_date_estimated' | translate }}
+                                @if (sortColumn() === 'assessmentDateEstimated') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('assessmentDateLocked')) {
+                            <th class="sortable" (click)="sort('assessmentDateLocked')">
+                                {{ 'i18n_assessment_date_locked' | translate }}
+                                @if (sortColumn() === 'assessmentDateLocked') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('additionalInfo')) {
+                            <th class="sortable" (click)="sort('additionalInfo')">
+                                {{ 'i18n_additional_info' | translate }}
+                                @if (sortColumn() === 'additionalInfo') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('examType')) {
+                            <th class="sortable" (click)="sort('examType')">
+                                {{ 'i18n_exam_type' | translate }}
+                                @if (sortColumn() === 'examType') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('examMethod')) {
+                            <th class="sortable" (click)="sort('examMethod')">
+                                {{ 'i18n_exam_method' | translate }}
+                                @if (sortColumn() === 'examMethod') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('noShow')) {
+                            <th class="sortable" (click)="sort('noShow')">
+                                {{ 'i18n_no_show' | translate }}
+                                @if (sortColumn() === 'noShow') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('aborted')) {
+                            <th class="sortable" (click)="sort('aborted')">
+                                {{ 'i18n_aborted' | translate }}
+                                @if (sortColumn() === 'aborted') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (row of sortedReportData(); track $index) {
+                        <tr>
+                            @if (visibleColumns().includes('firstName')) {
+                                <td>{{ row.firstName }}</td>
+                            }
+                            @if (visibleColumns().includes('lastName')) {
+                                <td>{{ row.lastName }}</td>
+                            }
+                            @if (visibleColumns().includes('studentEmail')) {
+                                <td>{{ row.studentEmail }}</td>
+                            }
+                            @if (visibleColumns().includes('eppn')) {
+                                <td>{{ row.eppn }}</td>
+                            }
+                            @if (visibleColumns().includes('studentNumber')) {
+                                <td>{{ row.studentNumber }}</td>
+                            }
+                            @if (visibleColumns().includes('courseCode')) {
+                                <td>{{ row.courseCode }}</td>
+                            }
+                            @if (visibleColumns().includes('courseName')) {
+                                <td>
+                                    <span [title]="row.courseName.length > 50 ? row.courseName : ''">
+                                        {{
+                                            row.courseName.length > 50
+                                                ? (row.courseName | slice: 0:50) + '...'
+                                                : row.courseName
+                                        }}
+                                    </span>
+                                </td>
+                            }
+                            @if (visibleColumns().includes('examName')) {
+                                <td>{{ row.examName }}</td>
+                            }
+                            @if (visibleColumns().includes('teachers')) {
+                                <td>{{ row.teachers }}</td>
+                            }
+                            @if (visibleColumns().includes('reservationStart')) {
+                                <td>{{ row.reservationStart }}</td>
+                            }
+                            @if (visibleColumns().includes('reservationEnd')) {
+                                <td>{{ row.reservationEnd }}</td>
+                            }
+                            @if (visibleColumns().includes('participationStart')) {
+                                <td>{{ row.participationStart }}</td>
+                            }
+                            @if (visibleColumns().includes('participationEnd')) {
+                                <td>{{ row.participationEnd }}</td>
+                            }
+                            @if (visibleColumns().includes('participationDuration')) {
+                                <td>{{ row.participationDuration }}</td>
+                            }
+                            @if (visibleColumns().includes('assessmentStatus')) {
+                                <td>
+                                    {{ 'i18n_exam_status_' + row.assessmentStatus.toLowerCase() | translate }}
+                                </td>
+                            }
+                            @if (visibleColumns().includes('gradeScale')) {
+                                <td>{{ row.gradeScale }}</td>
+                            }
+                            @if (visibleColumns().includes('grade')) {
+                                <td>{{ row.grade }}</td>
+                            }
+                            @if (visibleColumns().includes('assessmentDateEstimated')) {
+                                <td>{{ row.assessmentDateEstimated }}</td>
+                            }
+                            @if (visibleColumns().includes('assessmentDateLocked')) {
+                                <td>{{ row.assessmentDateLocked }}</td>
+                            }
+                            @if (visibleColumns().includes('additionalInfo')) {
+                                <td>{{ row.additionalInfo }}</td>
+                            }
+                            @if (visibleColumns().includes('examType')) {
+                                <td>{{ row.examType }}</td>
+                            }
+                            @if (visibleColumns().includes('examMethod')) {
+                                <td>{{ row.examMethod }}</td>
+                            }
+                            @if (visibleColumns().includes('noShow')) {
+                                <td>{{ row.noShow }}</td>
+                            }
+                            @if (visibleColumns().includes('aborted')) {
+                                <td>{{ row.aborted }}</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    } @else {
+        <div class="mt-4">
+            <p>{{ 'i18n_reports_no_data' | translate }}</p>
+        </div>
+    }
+</ng-template>

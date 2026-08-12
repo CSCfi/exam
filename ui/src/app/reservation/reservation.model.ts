@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { CollaborativeExam, Implementation } from 'src/app/exam/exam.model';
 import { Address, WorkingHour } from 'src/app/facility/facility.model';
 import type { User } from 'src/app/session/session.model';
@@ -105,6 +105,8 @@ export interface Reservation {
     startAt: string;
     endAt: string;
     user: User;
+    participation?: ExamParticipation;
+    status?: string;
 }
 
 // All of this is needed to put all our reservations in one basket :D
@@ -115,6 +117,7 @@ type ReservationDisplay = Omit<Reservation, 'machine' | 'enrolment'> & {
     userAggregate: string;
     stateOrd: number;
     enrolment: ExamEnrolmentDisplay;
+    status: string;
 };
 export type LocalTransferExamEnrolment = Omit<ExamEnrolmentDisplay, 'exam'> & {
     exam: { id: number; external: true; examOwners: User[]; state: string; parent: null };

@@ -25,6 +25,10 @@ class Reservation extends GeneratedIdentityModel with Ordered[Reservation]:
   @JsonBackReference
   var machine: ExamMachine = uninitialized
 
+  @OneToOne(mappedBy = "reservation")
+  @JsonBackReference
+  var participation: ExamParticipation = uninitialized
+
   @ManyToOne
   @JoinColumn(name = "user_id")
   @JsonBackReference

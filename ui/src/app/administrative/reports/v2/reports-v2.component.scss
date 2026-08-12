@@ -1,0 +1,32 @@
+// SPDX-FileCopyrightText: 2026 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+.form-label {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.table {
+    margin-top: 1rem;
+    white-space: nowrap;
+
+    th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+
+        &.sortable {
+            cursor: pointer;
+            user-select: none;
+
+            &:hover {
+                background-color: #e9ecef;
+            }
+
+            i {
+                margin-left: 0.5rem;
+                font-size: 0.8rem;
+            }
+        }
+    }
+}
