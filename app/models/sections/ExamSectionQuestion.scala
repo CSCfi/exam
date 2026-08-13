@@ -70,7 +70,8 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
       Option(forcedScore).map(_.toDouble).getOrElse(fallback)
 
     question.`type` match
-      case QuestionType.EssayQuestion =>
+      // LTI answers are graded through the essay answer, so they score identically.
+      case QuestionType.EssayQuestion | QuestionType.LtiQuestion =>
         val score = if evaluationType == QuestionEvaluationType.Points then
           Option(essayAnswer).map(_.evaluatedScore.toDouble).getOrElse(0.0)
         else 0.0
@@ -104,7 +105,7 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
 
   override def getMaxAssessedScore: Double =
     question.`type` match
-      case QuestionType.EssayQuestion =>
+      case QuestionType.EssayQuestion | QuestionType.LtiQuestion =>
         if evaluationType == QuestionEvaluationType.Points then
           if maxScore == 0 then 0 else maxScore
         else 0.0

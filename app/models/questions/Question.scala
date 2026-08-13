@@ -59,10 +59,13 @@ class Question extends OwnedModel with AttachmentContainer:
   var defaultExpectedWordCount: Integer             = uninitialized
   var defaultNegativeScoreAllowed: Boolean          = false
   var defaultOptionShufflingOn: Boolean             = false
+  var ltiId: String                                 = uninitialized
 
   def getMaxDefaultScore: Double =
     `type` match
-      case QuestionType.EssayQuestion =>
+      // LtiQuestion scores like an essay: validation requires a max score when the evaluation
+      // type is Points, so it has to be reported here too or LTI answers cap at zero.
+      case QuestionType.EssayQuestion | QuestionType.LtiQuestion =>
         if defaultEvaluationType == QuestionEvaluationType.Points
         then if defaultMaxScore == 0 then 0 else defaultMaxScore
         else 0.0

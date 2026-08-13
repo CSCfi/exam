@@ -42,7 +42,7 @@ class QuestionService @Inject() (
 
     def typeError: Option[String] =
       question.`type` match
-        case QuestionType.EssayQuestion =>
+        case QuestionType.EssayQuestion | QuestionType.LtiQuestion =>
           if !fieldExists("defaultEvaluationType") then Some("no evaluation type defined")
           else
             val evalType =
@@ -251,6 +251,7 @@ class QuestionService @Inject() (
       (body \ "defaultNegativeScoreAllowed").asOpt[Boolean].getOrElse(false)
     val defaultOptionShufflingOn =
       (body \ "defaultOptionShufflingOn").asOpt[Boolean].getOrElse(true)
+    val ltiId = (body \ "ltiId").asOpt[String].orNull
     val questionType = (body \ "type")
       .asOpt[String]
       .flatMap(s => Try(QuestionType.valueOf(s)).toOption)
@@ -266,6 +267,7 @@ class QuestionService @Inject() (
     question.defaultEvaluationCriteria = defaultCriteria
     question.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed
     question.defaultOptionShufflingOn = defaultOptionShufflingOn
+    question.ltiId = ltiId
     if !Option(question.state).contains(QuestionState.DELETED.toString) then
       question.state = QuestionState.SAVED.toString
     if question.id == 0 then question.setCreatorWithDate(user)

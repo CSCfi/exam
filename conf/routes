@@ -4,16 +4,10 @@
 
 GET           /                                                               features.assets.controllers.FrontendController.index()
 
-# LTI -- disabled pending the Java -> Scala port of the LTI backend.
-# The handlers below lived in the pre-Scala controllers.* packages, which no longer exist.
-# See lti-port-reference/ for the original Java and the target package mapping.
-# Re-enable once the Scala handlers land, as:
-#   features.examination.controllers.ExaminationController.startLogin
-#   features.examination.controllers.ExaminationController.handleOidcLogin
-#   features.<pkg>.controllers.JwksController.jwks
-# GET     /integration/lti/start-login            features.examination.controllers.ExaminationController.startLogin(request: Request)
-# GET     /integration/lti/oidc/login             features.examination.controllers.ExaminationController.handleOidcLogin(request: Request)
-# GET     /integration/lti/oidc/jwks              features.<pkg>.controllers.JwksController.jwks()
+# LTI
+GET           /integration/lti/start-login                                    features.lti.controllers.LtiController.startLogin
+GET           /integration/lti/oidc/login                                     features.lti.controllers.LtiController.handleOidcLogin
+GET           /integration/lti/oidc/jwks                                      features.lti.controllers.JwksController.jwks
 
 
 ############### Session interface ############

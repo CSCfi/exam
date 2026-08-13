@@ -17,4 +17,6 @@ public enum QuestionType {
     ClozeTestQuestion,
     @EnumValue("5")
     ClaimChoiceQuestion,
+    @EnumValue("6")
+    LtiQuestion,
 }

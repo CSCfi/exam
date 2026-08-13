@@ -111,6 +111,7 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
               messages.get(lang, "reports.question.type.weightedmultiplechoide")
             case QuestionType.ClaimChoiceQuestion =>
               messages.get(lang, "reports.question.type.claim")
+            case QuestionType.LtiQuestion => messages.get(lang, "reports.question.type.lti")
 
           appendCell(
             headerRow,
