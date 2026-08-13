@@ -16,23 +16,30 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <div class="row">
         <div class="col-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs" [keyboard]="false">
+            <ul
+                ngbNav
+                #nav="ngbNav"
+                [activeId]="view()"
+                (activeIdChange)="setView($event)"
+                class="nav-tabs"
+                [keyboard]="false"
+            >
                 <li [ngbNavItem]="'PUBLISHED'">
                     <a ngbNavLink>
                         {{ 'i18n_published_joint_exams' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ filterByView('PUBLISHED').length }}</span>
+                        <span class="ms-2 badge bg-secondary">{{ publishedCount() }}</span>
                     </a>
                 </li>
                 <li [ngbNavItem]="'EXPIRED'">
                     <a ngbNavLink>
                         {{ 'i18n_expired_joint_exams' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ filterByView('EXPIRED').length }}</span>
+                        <span class="ms-2 badge bg-secondary">{{ expiredCount() }}</span>
                     </a>
                 </li>
                 <li [ngbNavItem]="'DRAFTS'">
                     <a ngbNavLink>
                         {{ 'i18n_joint_exam_drafts' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ filterByView('DRAFTS').length }}</span>
+                        <span class="ms-2 badge bg-secondary">{{ draftsCount() }}</span>
                     </a>
                 </li>
             </ul>
@@ -54,7 +61,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
-        <div class="col" [hidden]="!loader.loading">
+        <div class="col" [hidden]="!loading()">
             <button class="btn btn-success" type="button" disabled>
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 {{ 'i18n_searching' | translate }}...
@@ -62,8 +69,8 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 
-    <div class="row mt-2" style="overflow-x: scroll">
-        <div class="col-12">
+    <div class="row mt-2">
+        <div class="col-12 table-responsive">
             <table class="table table-striped table-sm xm-data-table">
                 <thead>
                     <tr>
@@ -71,8 +78,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="name"
                                 text="i18n_exam_name"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('name')"
                             ></xm-table-sort>
                         </th>
@@ -80,8 +87,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="stateTranslation"
                                 text="i18n_exam_state_translation"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('stateTranslation')"
                             ></xm-table-sort>
                         </th>
@@ -89,8 +96,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="ownerAggregate"
                                 text="i18n_teachers"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('ownerAggregate')"
                             ></xm-table-sort>
                         </th>
@@ -98,8 +105,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="periodStart"
                                 text="i18n_start_time"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('periodStart')"
                             ></xm-table-sort>
                         </th>
@@ -107,15 +114,15 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="periodEnd"
                                 text="i18n_end_time"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('periodEnd')"
                             ></xm-table-sort>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @for (exam of filterByView(view) | orderBy: examsPredicate : reverse; track exam) {
+                    @for (exam of filteredExams() | orderBy: examsPredicate() : reverse(); track exam) {
                         <tr>
                             <td>
                                 <a
@@ -133,10 +140,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 </a>
                             </td>
                             <td
-                                [ngClass]="{
-                                    'text-success': exam.state === 'PUBLISHED',
-                                    'text-danger': exam.state === 'PRE_PUBLISHED',
-                                }"
+                                [class.text-success]="exam.state === 'PUBLISHED'"
+                                [class.text-danger]="exam.state === 'PRE_PUBLISHED'"
                             >
                                 {{ getStateTranslation(exam) }}
                             </td>

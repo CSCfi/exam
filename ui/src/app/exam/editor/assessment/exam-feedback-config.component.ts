@@ -2,18 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import {
-    NgbCollapse,
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { skip } from 'rxjs';
 import type { Exam, ExamFeedbackConfig } from 'src/app/exam/exam.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 
@@ -28,106 +21,119 @@ type ExamFeedbackConfigTemplate = {
     selector: 'xm-exam-feedback-config',
     templateUrl: './exam-feedback-config.component.html',
     styleUrls: ['./exam-feedback-config.component.scss'],
-    imports: [
-        NgbPopover,
-        NgbCollapse,
-        NgClass,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        DatePickerComponent,
-        TranslateModule,
-    ],
+    imports: [NgbPopover, NgbCollapse, NgbDropdownModule, DatePickerComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamFeedbackConfigComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() modifiable: 'everything' | 'nothing' | 'date' = 'nothing';
-    @Output() enabled = new EventEmitter<void>();
-    @Output() disabled = new EventEmitter<void>();
-    @Output() updated = new EventEmitter<{ config: ExamFeedbackConfig }>();
+    readonly exam = input.required<Exam>();
+    readonly modifiable = input<'everything' | 'nothing' | 'date'>('nothing');
+    readonly enabled = output<void>();
+    readonly disabled = output<void>();
+    readonly updated = output<{ config: ExamFeedbackConfig }>();
 
-    examFeedbackConfig: ExamFeedbackConfigTemplate;
-    config?: ExamFeedbackConfig;
-    examFeedbackConfigDisplay: { visible: boolean };
+    readonly config = signal<ExamFeedbackConfig | undefined>(undefined);
+    readonly examFeedbackConfigDisplayVisible = signal(false);
+    readonly examFeedbackConfig: ExamFeedbackConfigTemplate = {
+        enabled: false,
+        releaseTypes: [
+            {
+                name: 'ONCE_LOCKED',
+                translation: 'i18n_release_type_once_locked',
+                filtered: true,
+            },
+            // CSCEXAM-1127
+            //{ name: 'GIVEN_DATE', translation: 'i18n_feedback_config_release_type_date' },
+        ],
+    };
 
     constructor() {
-        this.examFeedbackConfig = {
-            enabled: false,
-            releaseTypes: [
-                {
-                    name: 'ONCE_LOCKED',
-                    translation: 'i18n_release_type_once_locked',
-                    filtered: true,
-                },
-                // CSCEXAM-1127
-                //{ name: 'GIVEN_DATE', translation: 'i18n_feedback_config_release_type_date' },
-            ],
-        };
-        this.examFeedbackConfigDisplay = { visible: false };
+        toObservable(this.exam)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((exam) => {
+                this.examFeedbackConfig.enabled = !!exam.examFeedbackConfig;
+            });
     }
 
     ngOnInit() {
         this.prepareExamFeedbackConfig();
     }
 
-    disable = () => {
-        if (this.modifiable === 'everything') {
+    toggleDisplay() {
+        this.examFeedbackConfigDisplayVisible.update((v) => !v);
+    }
+
+    disable() {
+        if (this.modifiable() === 'everything') {
             this.examFeedbackConfig.enabled = false;
             this.disabled.emit();
         }
-    };
+    }
 
-    enable = () => {
-        if (this.modifiable === 'everything') {
+    enable() {
+        if (this.modifiable() === 'everything') {
             this.examFeedbackConfig.enabled = true;
-            this.enabled.emit();
-            if (this.config) {
-                this.updated.emit({ config: this.config });
+            const currentConfig = this.config();
+            if (currentConfig) {
+                this.updated.emit({ config: currentConfig });
             }
+            this.enabled.emit();
         }
-    };
+    }
 
-    applyFilter = (type?: ReleaseType) => {
-        if (!this.config) return;
+    applyFilter(type?: ReleaseType) {
+        const currentConfig = this.config();
+        if (!currentConfig) return;
         this.examFeedbackConfig.releaseTypes.forEach((rt) => (rt.filtered = false));
         if (type) {
             type.filtered = !type.filtered;
         }
         const rt = this.selectedReleaseType();
-        this.config.releaseType = rt ? rt.name : undefined;
-        this.updated.emit({ config: this.config });
-    };
+        currentConfig.releaseType = rt ? rt.name : undefined;
+        this.config.set({ ...currentConfig });
+        this.updated.emit({ config: currentConfig });
+    }
 
-    selectedReleaseType = () =>
-        this.availableReleaseTypes().find((rt) => rt.filtered) || this.examFeedbackConfig.releaseTypes[0];
+    selectedReleaseType() {
+        return this.availableReleaseTypes().find((rt) => rt.filtered) || this.examFeedbackConfig.releaseTypes[0];
+    }
 
-    releaseDateChanged = (event: { date: Date | null }) => {
-        if (!this.config) return;
-        this.config.releaseDate = event.date;
-        this.updated.emit({ config: this.config });
-    };
-    availableReleaseTypes = () => {
-        if (this.modifiable === 'date') return [this.examFeedbackConfig.releaseTypes[1]];
+    releaseDateChanged(event: { date: Date | null }) {
+        const currentConfig = this.config();
+        if (!currentConfig) return;
+        currentConfig.releaseDate = event.date;
+        this.config.set({ ...currentConfig });
+        this.updated.emit({ config: currentConfig });
+    }
+
+    availableReleaseTypes() {
+        if (this.modifiable() === 'date') return [this.examFeedbackConfig.releaseTypes[1]];
         else return this.examFeedbackConfig.releaseTypes;
-    };
+    }
 
-    private prepareExamFeedbackConfig = () => {
-        this.examFeedbackConfig.enabled = !!this.exam.examFeedbackConfig;
-        if (!this.exam.examFeedbackConfig) {
+    private prepareExamFeedbackConfig() {
+        const currentExam = this.exam();
+        this.examFeedbackConfig.enabled = !!currentExam.examFeedbackConfig;
+        if (!currentExam.examFeedbackConfig) {
             const releaseType = this.selectedReleaseType();
-            this.config = {
+            this.config.set({
                 releaseType: releaseType ? releaseType.name : this.examFeedbackConfig.releaseTypes[0].name,
                 releaseDate: null,
-            };
+            });
+        } else {
+            this.config.set(currentExam.examFeedbackConfig);
+            const currentConfig = this.config();
+            if (currentConfig) {
+                const rt = this.getReleaseTypeByName(currentConfig.releaseType);
+                // Only update filter state, don't emit events
+                this.examFeedbackConfig.releaseTypes.forEach((r) => (r.filtered = false));
+                if (rt) {
+                    rt.filtered = true;
+                }
+            }
         }
-        if (this.exam.examFeedbackConfig) {
-            this.config = this.exam.examFeedbackConfig;
-            const rt = this.getReleaseTypeByName(this.config.releaseType);
-            this.applyFilter(rt);
-        }
-    };
+    }
 
-    private getReleaseTypeByName = (name?: string) =>
-        this.examFeedbackConfig.releaseTypes.find((rt) => rt.name === name);
+    private getReleaseTypeByName(name?: string) {
+        return this.examFeedbackConfig.releaseTypes.find((rt) => rt.name === name);
+    }
 }

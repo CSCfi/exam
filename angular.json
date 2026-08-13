@@ -24,13 +24,34 @@
               "base": "dist/exam"
             },
             "index": "ui/src/index.html",
-            "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
+            "polyfills": ["@angular/localize/init"],
             "tsConfig": "ui/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": ["ui/src/favicon.ico", "ui/src/assets"],
-            "styles": ["ui/src/styles.scss"],
+            "assets": [
+              "ui/src/favicon.ico", 
+              "ui/src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/mathlive/fonts/",
+                "output": "/fonts/"
+              },
+              {
+                "glob": "mathlive-fonts.css",
+                "input": "node_modules/mathlive/",
+                "output": "/"
+              }
+            ],
+            "styles": [
+              "ui/src/styles.scss",
+              "node_modules/mathlive/mathlive-fonts.css"
+            ],
             "scripts": [],
-            "browser": "ui/src/main.ts"
+            "browser": "ui/src/main.ts",
+            "allowedCommonJsDependencies": [
+              "fuzzysort",
+              "es-toolkit/compat/isEqual",
+              "extend"
+            ]
           },
           "configurations": {
             "production": {
@@ -42,8 +63,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "5kb"
+                  "maximumWarning": "5kb",
+                  "maximumError": "10kb"
                 }
               ],
               "fileReplacements": [
@@ -53,12 +74,24 @@
                 }
               ],
               "outputHashing": "all",
-              "sourceMap": true
+              "sourceMap": true,
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              }
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "namedChunks": true
             }
           },
@@ -67,8 +100,12 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "buildTarget": "exam:build",
+            "buildTarget": "exam:build:development",
             "proxyConfig": "ui/src/proxy.conf.js",
+            "hmr": true,
+            "liveReload": true,
+            "watch": true,
+            "poll": 1000,
             "headers": {
               "Content-Security-Policy": "default-src 'self'; connect-src 'self'; form-action http://localhost:8888; img-src 'self' data: blob:; font-src 'self' about: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src 'self' http://localhost:4200 http://localhost:3000 http://localhost:9000 http://localhost:8888; frame-ancestors 'self' http://localhost:4200 http://localhost:3000 http://localhost:9000; base-uri 'self';"
             }

@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { switchMap } from 'rxjs/operators';
@@ -13,13 +13,16 @@ import type { User } from 'src/app/session/session.model';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-dialog.component';
 
+type InspectionComment = { comment: string; creator: User; created: Date };
+
 @Component({
     selector: 'xm-r-inspection-comments',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div class="row mb-3 mt-2 align-items-center">
             <div class="col-md-2 ">{{ 'i18n_inspector_comments' | translate }}:</div>
             <div class="col-md-10">
-                @if (addingVisible) {
-                    <button class="btn btn-success me-2" (click)="addInspectionComment()">
+                @if (addingVisible()) {
+                    <button class="btn btn-sm btn-outline-secondary me-2" (click)="addInspectionComment()">
                         {{ 'i18n_inspection_comment_title' | translate }}
                     </button>
                 }
@@ -33,13 +36,16 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
             </div>
         </div>
 
-        @for (comment of exam.inspectionComments; track comment) {
-            <div class="col-md-12 ps-0 mb-3">
+        @for (comment of allComments(); track comment) {
+            <div class="row mb-1">
                 <div class="col-md-4">
-                    {{ comment.creator.firstName }} {{ comment.creator.lastName }}
-                    <small>({{ comment.creator.email }})</small>
+                    <small>
+                        {{ comment.creator.firstName }} {{ comment.creator.lastName }}
+                        &middot;
+                        {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
+                    </small>
                     <br />
-                    {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
+                    <small class="text-muted">{{ comment.creator.email }}</small>
                 </div>
                 <div class="col-md-8">
                     {{ comment.comment }}
@@ -49,22 +55,28 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
     imports: [NgbPopover, DatePipe, TranslateModule],
 })
 export class InspectionCommentsComponent {
-    @Input() exam!: Exam;
-    @Input() addingVisible = false;
+    readonly exam = input.required<Exam>();
+    readonly addingVisible = input(false);
+    readonly commentAdded = output<InspectionComment>();
 
-    private modal = inject(ModalService);
-    private http = inject(HttpClient);
+    readonly allComments = computed(() => [...this.localComments(), ...(this.exam().inspectionComments ?? [])]);
+    private readonly localComments = signal<InspectionComment[]>([]);
+
+    private readonly modal = inject(ModalService);
+    private readonly http = inject(HttpClient);
 
     addInspectionComment = () =>
         this.modal
             .open$<{ comment: string }>(InspectionCommentDialogComponent)
             .pipe(
                 switchMap((event) =>
-                    this.http.post<{ comment: string; creator: User; created: Date }>(
-                        `/app/review/${this.exam.id}/inspection`,
-                        { comment: event.comment },
-                    ),
+                    this.http.post<InspectionComment>(`/app/review/${this.exam().id}/inspection`, {
+                        comment: event.comment,
+                    }),
                 ),
             )
-            .subscribe((comment) => this.exam.inspectionComments.unshift(comment));
+            .subscribe((comment) => {
+                this.commentAdded.emit(comment);
+                this.localComments.set([]);
+            });
 }

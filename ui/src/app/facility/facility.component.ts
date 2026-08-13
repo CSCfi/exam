@@ -3,16 +3,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-    NgbNav,
-    NgbNavContent,
-    NgbNavItem,
-    NgbNavItemRole,
-    NgbNavLink,
-    NgbNavOutlet,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from 'src/app/session/session.model';
@@ -32,42 +25,35 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
     templateUrl: './facility.component.html',
     selector: 'xm-facility',
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
-        NgbNavContent,
+        NgbNavModule,
         RoomListComponent,
         SoftwareComponent,
         AccessibilityComponent,
-        NgbNavOutlet,
         TranslateModule,
         DatePipe,
         OrderByPipe,
         PageHeaderComponent,
         PageContentComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FacilityComponent implements OnInit {
-    user: User;
-    maintenancePeriods: MaintenancePeriod[] = [];
+export class FacilityComponent {
+    readonly maintenancePeriods = signal<MaintenancePeriod[]>([]);
+    readonly user: User;
 
-    private router = inject(Router);
-    private modal = inject(ModalService);
-    private translate = inject(TranslateService);
-    private session = inject(SessionService);
-    private toast = inject(ToastrService);
-    private room = inject(RoomService);
+    private readonly router = inject(Router);
+    private readonly modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly session = inject(SessionService);
+    private readonly toast = inject(ToastrService);
+    private readonly room = inject(RoomService);
 
     constructor() {
         this.user = this.session.getUser();
+        this.room.listMaintenancePeriods$().subscribe((periods) => this.maintenancePeriods.set(periods));
     }
 
-    ngOnInit() {
-        this.room.listMaintenancePeriods$().subscribe((periods) => (this.maintenancePeriods = periods));
-    }
-
-    createExamRoom = () => {
+    createExamRoom() {
         this.room.getDraft$().subscribe({
             next: (room) => {
                 this.toast.info(this.translate.instant('i18n_room_draft_created'));
@@ -75,50 +61,58 @@ export class FacilityComponent implements OnInit {
             },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 
-    createPeriod = () =>
+    createPeriod() {
         this.modal.open$<MaintenancePeriod>(MaintenancePeriodDialogComponent, { size: 'lg' }).subscribe((res) => {
             this.room.createMaintenancePeriod$(res).subscribe({
                 next: (mp) => {
                     this.toast.info(this.translate.instant('i18n_maintenance_period_created'));
-                    this.maintenancePeriods.push(mp);
+                    this.maintenancePeriods.update((periods) => [...periods, mp]);
                 },
                 error: (err) => this.toast.error(err),
             });
         });
+    }
 
-    updatePeriod = (period: MaintenancePeriod) => {
+    updatePeriod(period: MaintenancePeriod) {
         const modalRef = this.modal.openRef(MaintenancePeriodDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.period = period;
+        modalRef.componentInstance.period.set(period);
         this.modal.result$<MaintenancePeriod>(modalRef).subscribe((res) => {
             this.room.updateMaintenancePeriod$(res).subscribe({
                 next: () => {
                     this.toast.info(this.translate.instant('i18n_maintenance_period_updated'));
-                    const index = this.maintenancePeriods.indexOf(period);
-                    this.maintenancePeriods.splice(index, 1, res);
+                    this.maintenancePeriods.update((periods) => {
+                        const index = periods.indexOf(period);
+                        if (index === -1) return periods;
+                        const updated = [...periods];
+                        updated[index] = res;
+                        return updated;
+                    });
                 },
                 error: (err) => this.toast.error(err),
             });
         });
-    };
+    }
 
-    removePeriod = (period: MaintenancePeriod) => {
+    removePeriod(period: MaintenancePeriod) {
         this.room.removeMaintenancePeriod$(period).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_maintenance_period_removed'));
-                this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
+                this.maintenancePeriods.update((periods) => periods.filter((p) => p !== period));
             },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 
     editMultipleRooms = () => this.router.navigate(['/staff/rooms/exceptions/bulk']);
 
-    goBack = (event: Event) => {
+    goBack(event: Event) {
         event.preventDefault();
         window.history.back();
-    };
+    }
 
-    getHeadingTranslation = (translation: string) => this.translate.instant(translation);
+    getHeadingTranslation(translation: string) {
+        return this.translate.instant(translation);
+    }
 }

@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamInspection } from 'src/app/exam/exam.model';
@@ -13,69 +11,61 @@ import type { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-r-inspection',
-    template: `@if (inspection.user?.id !== user.id) {
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `@if (inspection().user?.id !== user().id) {
             <span>
-                @if (inspection.ready) {
+                @if (inspection().ready) {
                     <span class="text-success">
-                        {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                        {{ inspection().user.firstName }} {{ inspection().user.lastName }}
                         {{ 'i18n_ready' | translate }}</span
                     >
                 }
-                @if (!inspection.ready) {
+                @if (!inspection().ready) {
                     <span class="text-danger">
-                        {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                        {{ inspection().user.firstName }} {{ inspection().user.lastName }}
                         {{ 'i18n_in_progress' | translate }}</span
                     >
                 }
             </span>
         }
-        @if (inspection.user?.id === user.id) {
+        @if (inspection().user?.id === user().id) {
             <div class="input-group-sm make-inline">
-                <div class="make-inline">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
+                <div class="make-inline">{{ inspection().user.firstName }} {{ inspection().user.lastName }}</div>
                 <div class="make-inline ps-2">
-                    <select
-                        [(ngModel)]="inspection.ready"
-                        class="form-select"
-                        [disabled]="disabled"
-                        (change)="setInspectionStatus()"
-                    >
+                    <select class="form-select" [disabled]="disabled()" (change)="onReadyChangeEvent($event)">
                         @for (rs of reviewStatuses; track rs) {
-                            <option [ngValue]="rs.key">{{ rs.value }}</option>
+                            <option [value]="rs.key" [selected]="rs.key === inspection().ready">{{ rs.value }}</option>
                         }
                     </select>
                 </div>
             </div>
         }`,
-    imports: [FormsModule, TranslateModule],
+    imports: [TranslateModule],
 })
-export class InspectionComponent implements OnInit {
-    @Input() inspection!: ExamInspection;
-    @Input() user!: User;
-    @Input() disabled = false;
-    @Output() inspected = new EventEmitter<void>();
+export class InspectionComponent {
+    readonly inspection = input.required<ExamInspection>();
+    readonly user = input.required<User>();
+    readonly disabled = input(false);
+    readonly inspected = output<void>();
 
-    reviewStatuses: { key: boolean; value: string }[] = [];
+    readonly reviewStatuses: { key: boolean; value: string }[];
 
-    private translate = inject(TranslateService);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
+    private readonly translate = inject(TranslateService);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
 
-    ngOnInit() {
+    constructor() {
         this.reviewStatuses = [
-            {
-                key: true,
-                value: this.translate.instant('i18n_ready'),
-            },
-            {
-                key: false,
-                value: this.translate.instant('i18n_in_progress'),
-            },
+            { key: true, value: this.translate.instant('i18n_ready') },
+            { key: false, value: this.translate.instant('i18n_in_progress') },
         ];
     }
 
     setInspectionStatus = () => {
-        if (this.inspection.user.id === this.user.id) {
-            this.http.put(`/app/exams/inspection/${this.inspection.id}`, { ready: this.inspection.ready }).subscribe({
+        const inspectionValue = this.inspection();
+        const userValue = this.user();
+        if (inspectionValue.user.id === userValue.id) {
+            this.http.put(`/app/exams/inspection/${inspectionValue.id}`, { ready: inspectionValue.ready }).subscribe({
                 next: () => {
                     this.toast.info(this.translate.instant('i18n_exam_updated'));
                     this.inspected.emit();
@@ -83,5 +73,13 @@ export class InspectionComponent implements OnInit {
                 error: (err) => this.toast.error(err),
             });
         }
+    };
+
+    onReadyChangeEvent = (event: Event) => this.onReadyChange((event.target as HTMLSelectElement).value === 'true');
+
+    onReadyChange = (ready: boolean) => {
+        const inspectionValue = this.inspection();
+        inspectionValue.ready = ready;
+        this.setInspectionStatus();
     };
 }

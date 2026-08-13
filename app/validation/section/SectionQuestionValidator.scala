@@ -4,9 +4,9 @@
 
 package validation.section
 
-import com.fasterxml.jackson.databind.JsonNode
-import play.mvc.Http
-import validation.core.{Attrs, SanitizingHelper, ValidatorAction}
+import play.api.libs.json.*
+import play.api.mvc.{AnyContent, Request, Result}
+import validation.core.*
 
 case class SectionQuestionDTO(
     answerInstructions: Option[String],
@@ -18,21 +18,24 @@ case class SectionQuestionDTO(
   def getEvaluationCriteriaOrNull: String = evaluationCriteria.orNull
   def getQuestionTextOrNull: String       = questionText.orNull
 
-class SectionQuestionValidator extends ValidatorAction:
+object SectionQuestionValidator extends PlayJsonValidator:
 
   private object QuestionParser:
-    def parseFromJson(body: JsonNode): SectionQuestionDTO =
-      val answerInstructions = Option(SanitizingHelper.parseHtml("answerInstructions", body))
-      val evaluationCriteria = Option(SanitizingHelper.parseHtml("evaluationCriteria", body))
+    def parseFromJson(body: JsValue): SectionQuestionDTO =
+      val answerInstructions = PlayJsonHelper.parseHtml("answerInstructions", body)
+      val evaluationCriteria = PlayJsonHelper.parseHtml("evaluationCriteria", body)
 
       // Question text may be nested under a "question" field
       val questionText =
-        if body.has("question") then Option(SanitizingHelper.parseHtml("question", body.get("question")))
-        else None
+        (body \ "question").asOpt[JsValue].flatMap { questionNode =>
+          PlayJsonHelper.parseHtml("question", questionNode)
+        }
 
       SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
 
-  override def sanitize(req: Http.Request, body: JsonNode): Http.Request =
-    val dto = QuestionParser.parseFromJson(body)
-    req.addAttr(Attrs.SECTION_QUESTION, dto)
-
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
+    val dto = QuestionParser.parseFromJson(json)
+    Right(request.addAttr(ScalaAttrs.SECTION_QUESTION, dto))

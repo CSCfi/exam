@@ -2,119 +2,139 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal,
+} from '@angular/core';
+import { email, form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
-import { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-exam-pre-participant-selector',
-    template: `<div class="row">
-            <div class="col-md-9 offset-md-3">
-                <form #myForm="ngForm" name="myForm">
+    template: `
+        <div class="row">
+            <div class="col-md-5 offset-md-3">
+                <div class="input-group">
                     <input
                         type="email"
-                        name="email"
                         placeholder="{{ 'i18n_write_pre_participant_email' | translate }}"
-                        class="form-control w-50 make-inline"
-                        [(ngModel)]="newPreParticipant.email"
-                        email
+                        class="form-control"
+                        [formField]="participantForm.email"
                     />
                     <button
-                        [disabled]="!myForm.valid || !newPreParticipant.email"
+                        [disabled]="participantForm.email().invalid()"
                         (click)="addPreParticipant()"
-                        class="btn btn-success"
+                        class="input-group-text btn btn-success"
                     >
                         {{ 'i18n_add' | translate }}
                     </button>
-                </form>
+                </div>
             </div>
         </div>
 
         <div class="row mt-1">
-            <span class="col-md-9 mt-2 offset-md-3 w-auto text-break">
+            <span class="col-md-9 offset-md-3 text-break mt-2">
                 {{ 'i18n_maturity_exam_participants_info' | translate }}
-                @if (exam.state === 'PUBLISHED') {
+                @if (exam().state === 'PUBLISHED') {
                     {{ 'i18n_exam_published' | translate }}
                 } @else {
                     {{ 'i18n_exam_not_published' | translate }}
                 }
             </span>
-            @if (exam.examEnrolments.length > 0) {
-                <span class="row offset-md-3 mt-3 w-auto">
-                    {{ 'i18n_exam_participants' | translate }}:
-                    <!-- Students not having finished the exam, sorted alphabetically -->
-                    @for (enrolment of exam.examEnrolments; track enrolment) {
-                        <div class="ms-1 mt-1 row" [ngClass]="{ 'hover-grey': exam.state !== 'PUBLISHED' }">
-                            <div class="ms-1 col-8">
-                                {{ renderParticipantLabel(enrolment) }}
-                                @if (enrolment.user?.userIdentifier) {
-                                    ({{ enrolment.user.userIdentifier }})
-                                }
-                            </div>
-                            <!-- Remove button -->
-                            <button
-                                class="btn btn-danger btn-sm ms-1 w-auto"
-                                (click)="removeParticipant(enrolment.id)"
-                                [hidden]="exam.state === 'PUBLISHED'"
-                            >
-                                {{ 'i18n_remove' | translate }}
-                            </button>
-                        </div>
-                    }
-                </span>
+        </div>
+        @if (examEnrolments().length > 0) {
+            <div class="row mt-3">
+                <div class="col-md-5 offset-md-3">{{ 'i18n_exam_participants' | translate }}:</div>
+            </div>
+            <!-- Students not having finished the exam, sorted alphabetically -->
+            @for (enrolment of examEnrolments(); track enrolment) {
+                <div class="row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
+                    <div class="col-md-5 offset-md-3 d-flex align-items-center justify-content-between mt-2">
+                        <small>
+                            {{ renderParticipantLabel(enrolment) }}
+                            @if (enrolment.user?.email) {
+                                &lt;{{ enrolment.user?.email }}&gt;
+                            }
+                            @if (enrolment.user?.userIdentifier) {
+                                ({{ enrolment.user.userIdentifier }})
+                            }
+                        </small>
+                        <button
+                            class="btn btn-outline-danger btn-sm ms-3 flex-shrink-0"
+                            (click)="removeParticipant(enrolment.id)"
+                            [hidden]="exam().state === 'PUBLISHED'"
+                            [ariaLabel]="renderParticipantLabel(enrolment)"
+                        >
+                            {{ 'i18n_remove' | translate }}
+                        </button>
+                    </div>
+                </div>
             }
-            @if (participants.length > 0) {
-                <span class="row col-md-9 offset-md-3 mt-3 ">
-                    {{ 'i18n_finished_exam_participants' | translate }}:
-                    <!-- Students that have finished the exam -->
-                    @for (participant of participants; track participant) {
-                        <div class="ms-1 row">
-                            <div class="ms-1 ">
-                                {{ participant.firstName }} {{ participant.lastName }}
-                                @if (participant.userIdentifier) {
-                                    ({{ participant.userIdentifier }})
-                                }
-                            </div>
-                        </div>
-                    }
-                </span>
+        }
+        @if (participants().length > 0) {
+            <div class="row mt-3">
+                <div class="col-md-5 offset-md-3">{{ 'i18n_finished_exam_participants' | translate }}:</div>
+            </div>
+            <!-- Students that have finished the exam -->
+            @for (participant of participants(); track participant) {
+                <div class="row">
+                    <div class="col-md-5 offset-md-3 mt-2">
+                        <small>
+                            {{ participant.firstName }} {{ participant.lastName }}
+                            @if (participant.userIdentifier) {
+                                ({{ participant.userIdentifier }})
+                            }
+                        </small>
+                    </div>
+                </div>
             }
-        </div>`,
-    imports: [FormsModule, NgClass, TranslateModule],
+        }
+    `,
+    imports: [FormField, TranslateModule],
+    styleUrls: ['../../exam.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamPreParticipantSelectorComponent implements OnInit {
-    @Input() exam!: Exam;
+export class ExamPreParticipantSelectorComponent {
+    readonly exam = input.required<Exam>();
+    readonly participantsChange = output<ExamEnrolment[]>();
 
-    participants: User[] = [];
-    newPreParticipant: { email?: string } = { email: '' };
-
-    private translate = inject(TranslateService);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
-
-    ngOnInit() {
-        this.participants = this.exam.children
+    readonly examEnrolments = linkedSignal(() => this.exam().examEnrolments);
+    readonly participantForm = form(signal({ email: '' }), (path) => {
+        email(path.email);
+    });
+    readonly participants = computed(() => {
+        const currentExam = this.exam();
+        return currentExam.children
             .map((c) => c.examParticipation)
             .filter((p): p is ExamParticipation => p !== undefined)
             .map((p) => p.user);
-    }
+    });
+
+    private readonly translate = inject(TranslateService);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     addPreParticipant = () => {
-        const exists =
-            this.exam.examEnrolments.map((e) => e.preEnrolledUserEmail).indexOf(this.newPreParticipant.email) > -1;
+        const emailValue = this.participantForm.email().value();
+        const exists = this.examEnrolments().some((e) => e.preEnrolledUserEmail === emailValue);
         if (!exists) {
-            this.Enrolment.enrollStudent$(this.exam, this.newPreParticipant).subscribe({
+            this.Enrolment.enrollStudent$(this.exam(), { email: emailValue }).subscribe({
                 next: (enrolment) => {
-                    this.exam.examEnrolments.push(enrolment);
-                    delete this.newPreParticipant.email;
+                    this.examEnrolments.update((list) => [...list, enrolment]);
+                    this.participantForm.email().value.set('');
+                    this.participantsChange.emit(this.examEnrolments());
                 },
                 error: (err) => this.toast.error(err),
             });
@@ -124,8 +144,9 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
     removeParticipant = (id: number) => {
         this.http.delete(`/app/enrolments/student/${id}`).subscribe({
             next: () => {
-                this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
+                this.examEnrolments.update((list) => list.filter((ee) => ee.id !== id));
                 this.toast.info(this.translate.instant('i18n_participant_removed'));
+                this.participantsChange.emit(this.examEnrolments());
             },
             error: (err) => this.toast.error(err),
         });

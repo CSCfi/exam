@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { FormField, form } from '@angular/forms/signals';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -18,45 +18,47 @@ import { CoursePickerService } from './course-picker.service';
     selector: 'xm-course-picker',
     templateUrl: './course-picker.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    imports: [FormsModule, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
+    imports: [FormField, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CoursePickerComponent implements OnInit {
-    @Input() course?: Course;
-    @Output() updated = new EventEmitter<Course>();
+export class CoursePickerComponent {
+    readonly course = input<Course | undefined>();
+    readonly updated = output<Course>();
 
-    nameFilter = '';
-    codeFilter = '';
-    loader = {
-        name: { isOn: false },
-        code: { isOn: false },
-    };
+    readonly courseFilterModel = linkedSignal(() => {
+        const currentCourse = this.course();
+        if (currentCourse) {
+            return { name: currentCourse.name, code: this.CourseCode.formatCode(currentCourse.code) };
+        }
+        return { name: '', code: '' };
+    });
+    readonly loaderName = signal(false);
+    readonly loaderCode = signal(false);
+    readonly courseFilterForm = form(this.courseFilterModel);
 
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Course = inject(CoursePickerService);
-    private CourseCode = inject(CourseCodeService);
-
-    ngOnInit() {
-        this.nameFilter = this.course ? this.course.name : '';
-        this.codeFilter = this.course ? this.CourseCode.formatCode(this.course.code) : '';
-    }
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Course = inject(CoursePickerService);
+    private readonly CourseCode = inject(CourseCodeService);
 
     getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
     getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
+
     codeFormat = (c: Course | string) => (this.isCourse(c) ? c.code : c);
     nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
 
-    onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
-        this.codeFilter = this.CourseCode.formatCode(event.item.code);
-        this.nameFilter = event.item.name;
+    onCourseSelect(event: NgbTypeaheadSelectItemEvent) {
+        this.courseFilterForm.code().value.set(this.CourseCode.formatCode(event.item.code));
+        this.courseFilterForm.name().value.set(event.item.name);
         this.updated.emit(event.item);
-    };
+    }
 
-    private showError = (term: string) =>
+    private showError(term: string) {
         this.toast.error(`${this.translate.instant('i18n_course_not_found')} ( ${term}  )`);
+    }
 
-    private getCourses$ = (category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> =>
-        text$.pipe(
+    private getCourses$(category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> {
+        return text$.pipe(
             tap((term) => {
                 this.setInputValue(category, term);
                 this.toggleLoadingIcon(category, term.length >= 2);
@@ -67,20 +69,35 @@ export class CoursePickerComponent implements OnInit {
             tap((courses) => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
-                    this.showError(this.codeFilter);
+                    const searchTerm =
+                        category === 'code'
+                            ? this.courseFilterForm.code().value()
+                            : this.courseFilterForm.name().value();
+                    this.showError(searchTerm);
                 }
             }),
         );
+    }
 
-    private isCourse = (input: string | Course): input is Course => (input as Course).code !== undefined;
-    private toggleLoadingIcon = (filter: 'name' | 'code', isOn: boolean) => (this.loader[filter].isOn = isOn);
-    private setInputValue = (filter: string, value: string) => {
-        if (filter === 'code') {
-            this.codeFilter = value;
-            this.nameFilter = '';
-        } else if (filter === 'name') {
-            this.nameFilter = value;
-            this.codeFilter = '';
+    private isCourse(input: string | Course): input is Course {
+        return (input as Course).code !== undefined;
+    }
+
+    private toggleLoadingIcon(filter: 'name' | 'code', isOn: boolean) {
+        if (filter === 'name') {
+            this.loaderName.set(isOn);
+        } else {
+            this.loaderCode.set(isOn);
         }
-    };
+    }
+
+    private setInputValue(filter: string, value: string) {
+        if (filter === 'code') {
+            this.courseFilterForm.code().value.set(value);
+            this.courseFilterForm.name().value.set('');
+        } else if (filter === 'name') {
+            this.courseFilterForm.name().value.set(value);
+            this.courseFilterForm.code().value.set('');
+        }
+    }
 }

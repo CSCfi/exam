@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe } from '@angular/common';
-import type { OnChanges, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,7 +22,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     styleUrls: ['../maturity.shared.scss'],
     imports: [
         RouterLink,
-        FormsModule,
         NgbPopover,
         NgbCollapse,
         DatePickerComponent,
@@ -37,56 +34,78 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         PageFillPipe,
         OrderByPipe,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReviewedInspectionsComponent implements OnChanges {
-    @Input() inspections: LanguageInspectionData[] = [];
-    @Output() startDateChanged = new EventEmitter<{ date: Date | null }>();
-    @Output() endDateChanged = new EventEmitter<{ date: Date | null }>();
+export class ReviewedInspectionsComponent {
+    readonly inspections = input<LanguageInspectionData[]>([]);
+    readonly startDateChanged = output<{ date: Date | null }>();
+    readonly endDateChanged = output<{ date: Date | null }>();
 
-    filteredInspections: LanguageInspectionData[] = [];
-    sorting = {
+    readonly sorting = signal<{ predicate: string; reverse: boolean }>({
         predicate: 'exam.created',
         reverse: true,
-    };
-    pageSize = 10;
-    currentPage = 0;
-    filterText = '';
-    hideItems = false;
+    });
+    readonly currentPage = signal(0);
+    readonly hideItems = signal(false);
+    readonly pageSize = 10;
+    readonly filteredInspections = computed(() => {
+        const inspections = this.inspections();
+        const filterText = this._filterText().toLowerCase();
+        if (!filterText) {
+            return inspections;
+        }
+        return inspections.filter((i) => this.examToString(i).toLowerCase().match(filterText));
+    });
 
-    private LanguageInspections = inject(LanguageInspectionService);
+    private readonly _filterText = signal('');
+    private readonly LanguageInspections = inject(LanguageInspectionService);
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.inspections) {
-            this.filterTextChanged();
+    get filterText(): string {
+        return this._filterText();
+    }
+
+    set filterText(value: string) {
+        this._filterText.set(value);
+    }
+
+    setPredicate(predicate: string) {
+        const currentSorting = this.sorting();
+        if (currentSorting.predicate === predicate) {
+            this.sorting.update((s) => ({ ...s, reverse: !s.reverse }));
+        } else {
+            this.sorting.update((s) => ({ ...s, predicate }));
         }
     }
 
-    setPredicate = (predicate: string) => {
-        if (this.sorting.predicate === predicate) {
-            this.sorting.reverse = !this.sorting.reverse;
-        }
-        this.sorting.predicate = predicate;
+    pageSelected(event: { page: number }) {
+        this.currentPage.set(event.page);
+    }
+
+    onFilterInput = (event: Event) => {
+        this.filterText = (event.target as HTMLInputElement).value;
     };
 
-    pageSelected = (event: { page: number }) => (this.currentPage = event.page);
+    onStartDateChanged(event: { date: Date | null }) {
+        this.startDateChanged.emit({ date: event.date });
+    }
 
-    filterTextChanged = () =>
-        (this.filteredInspections = this.inspections.filter((i) =>
-            this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
-        ));
+    onEndDateChanged(event: { date: Date | null }) {
+        this.endDateChanged.emit({ date: event.date });
+    }
 
-    onStartDateChanged = (event: { date: Date | null }) => this.startDateChanged.emit({ date: event.date });
-
-    onEndDateChanged = (event: { date: Date | null }) => this.endDateChanged.emit({ date: event.date });
-
-    showStatement = (statement: { comment?: string }) =>
+    showStatement(statement: { comment?: string }) {
         this.LanguageInspections.showStatement({ comment: statement.comment || '' });
+    }
 
-    private examToString = (li: LanguageInspectionData) => {
+    toggleHideItems() {
+        this.hideItems.update((v) => !v);
+    }
+
+    private examToString(li: LanguageInspectionData) {
         const code = li.exam.course ? li.exam.course.code : '';
         const name = li.exam.name;
         const student = li.studentNameAggregate;
         const teacher = li.ownerAggregate;
         return code + name + student + teacher;
-    };
+    }
 }

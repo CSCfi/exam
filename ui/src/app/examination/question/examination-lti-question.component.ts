@@ -2,21 +2,21 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 
 @Component({
     selector: 'xm-examination-lti-question',
     template: `
-        @if (ltiUrl) {
+        @if (ltiUrl()) {
             <iframe
                 width="100%"
                 height="500px"
                 class="lti-frame"
-                [src]="ltiUrl"
+                [src]="ltiUrl()"
                 title="LTI tool"
                 referrerpolicy="no-referrer-when-downgrade"
                 allow="clipboard-write *; camera *; microphone *"
@@ -25,28 +25,22 @@ import type { ExaminationQuestion } from 'src/app/examination/examination.model'
             <div>NO LTI Tool loaded</div>
         }
     `,
-    standalone: true,
     imports: [FormsModule, TranslateModule],
     styleUrls: ['./question.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationLtiComponent implements OnInit {
-    @Input() sq!: ExaminationQuestion;
-    @Input() isPreview = false;
-    ltiUrl: SafeResourceUrl | null = null;
-    resourceUrl: string | undefined;
-    questionTitle!: string;
+export class ExaminationLtiComponent {
+    readonly sq = input.required<ExaminationQuestion>();
+    readonly isPreview = input(false);
 
-    private sanitizer = inject(DomSanitizer);
-
-    constructor() {}
-
-    ngOnInit() {
-        console.log('init ' + this.questionTitle);
-        console.log('ltiId ' + this.sq.question.ltiId);
-        const id = this.sq?.question?.ltiId ?? '';
-        this.ltiUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+    // POC: hardcoded to match lti.platform.issuer and the frame-src allow-list in
+    // application.conf. The route itself is commented out pending the LTI backend port.
+    readonly ltiUrl = computed(() => {
+        const id = this.sq()?.question?.ltiId ?? '';
+        return this.sanitizer.bypassSecurityTrustResourceUrl(
             `https://dev.exam.csc.fi/integration/lti/start-login?resourceId=${encodeURIComponent(id)}`,
         );
-        this.resourceUrl = 'https://dev.exam.csc.fi/integration/lti/resource';
-    }
+    });
+
+    private readonly sanitizer = inject(DomSanitizer);
 }

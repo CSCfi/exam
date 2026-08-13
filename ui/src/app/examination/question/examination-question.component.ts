@@ -2,15 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
-import type { AfterViewInit } from '@angular/core';
-import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
+import { SlicePipe, UpperCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { DynamicClozeTestComponent } from './dynamic-cloze-test.component';
 import { ExaminationClozeTestComponent } from './examination-cloze-test.component';
 import { ExaminationEssayQuestionComponent } from './examination-essay-question.component';
@@ -18,14 +17,11 @@ import { ExaminationLtiComponent } from './examination-lti-question.component';
 import { ExaminationMultiChoiceComponent } from './examination-multi-choice-question.component';
 import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-multi-choice-question.component';
 
-type ClozeTestAnswer = { [key: string]: string };
-
 @Component({
     selector: 'xm-examination-question',
     templateUrl: './examination-question.component.html',
     imports: [
-        NgClass,
-        MathJaxDirective,
+        MathDirective,
         DynamicClozeTestComponent,
         ExaminationEssayQuestionComponent,
         ExaminationClozeTestComponent,
@@ -37,80 +33,79 @@ type ClozeTestAnswer = { [key: string]: string };
         ExaminationLtiComponent,
     ],
     styleUrls: ['../examination.shared.scss', './question.shared.scss', './examination-question.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
-    @Input() exam?: Examination;
-    @Input() question!: ExaminationQuestion;
-    @Input() isPreview = false;
-    @Input() isCollaborative = false;
+export class ExaminationQuestionComponent {
+    readonly exam = input<Examination | undefined>(undefined);
+    readonly question = input.required<ExaminationQuestion>();
+    readonly isPreview = input(false);
+    readonly isCollaborative = input(false);
 
-    clozeAnswer: { [key: string]: string } = {};
-    expanded = true;
-    sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
-    questionTitle!: string;
-
-    private cdr = inject(ChangeDetectorRef);
-    private Examination = inject(ExaminationService);
-    private Attachment = inject(AttachmentService);
-    private translate = inject(TranslateService);
-
-    ngOnInit() {
-        this.sq = this.question as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }; // FIXME
-        this.sq.expanded = true;
-        if (this.sq.question.type === 'ClozeTestQuestion' && this.sq.clozeTestAnswer?.answer) {
-            const { answer } = this.sq.clozeTestAnswer;
-            this.clozeAnswer = JSON.parse(answer);
+    readonly clozeAnswer = linkedSignal<{ [key: string]: string }>(() => {
+        const sq = this.sq();
+        if (sq.question.type === 'ClozeTestQuestion' && sq.clozeTestAnswer?.answer) {
+            return JSON.parse(sq.clozeTestAnswer.answer);
         }
-        this.questionTitle = this.removeParagraphTags(this.sq.question.question);
-    }
+        return {};
+    });
+    readonly expanded = signal(true);
 
-    removeParagraphTags(input: string): string {
-        const openTag = '<p>';
-        const closeTag = '</p>';
-        let result = input;
+    readonly sq = computed(() => {
+        // Return the original object directly – no spread – so child-component mutations
+        // (e.g. answerChanged, Object.assign for null essayAnswer) are visible to the
+        // save-all methods that iterate exam.examSections[].sectionQuestions.
+        return this.question() as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
+    });
 
-        while (result.includes(openTag)) {
-            result = result.replace(openTag, '');
-        }
+    readonly questionTitle = computed(() => {
+        // Extract plain text from HTML for aria-label (screen readers need plain text, not HTML)
+        const html = this.sq().question.question;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        return doc.documentElement.innerText;
+    });
 
-        while (result.includes(closeTag)) {
-            result = result.replace(closeTag, '');
-        }
-
-        return result;
-    }
+    private readonly Examination = inject(ExaminationService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly translate = inject(TranslateService);
 
     parseAriaLabel(expanded: string): string {
-        return `${this.translate.instant(expanded)} ${this.translate.instant('i18n_question')} ${this.questionTitle}`;
+        return `${this.translate.instant(expanded)} ${this.translate.instant('i18n_question')} ${this.questionTitle()}`;
     }
 
-    ngAfterViewInit() {
-        this.cdr.detectChanges();
+    toggleExpanded() {
+        this.expanded.update((v) => !v);
     }
 
-    answered = (answer: ClozeTestAnswer) => {
+    answered(answer: { id: string; value: string }) {
         const { id, value } = answer;
-        if (this.sq.clozeTestAnswer) {
-            this.clozeAnswer = {
-                ...this.clozeAnswer,
+        const currentSq = this.sq();
+        if (currentSq.clozeTestAnswer) {
+            this.clozeAnswer.update((current) => ({
+                ...current,
                 [id]: value,
-            };
-            this.sq.clozeTestAnswer.answer = JSON.stringify(this.clozeAnswer);
+            }));
+            currentSq.clozeTestAnswer.answer = JSON.stringify(this.clozeAnswer());
+            this.Examination.setAnswerStatus(currentSq);
         }
-    };
+    }
 
-    downloadQuestionAttachment = () => {
-        if (this.exam) {
-            if (this.exam.external) {
-                this.Attachment.downloadExternalQuestionAttachment(this.exam, this.sq);
-            } else if (this.isCollaborative) {
-                this.Attachment.downloadCollaborativeQuestionAttachment(this.exam.id, this.sq);
+    downloadQuestionAttachment() {
+        const currentExam = this.exam();
+        const currentSq = this.sq();
+        if (currentExam) {
+            if (currentExam.external) {
+                this.Attachment.downloadExternalQuestionAttachment(currentExam, currentSq);
+            } else if (this.isCollaborative()) {
+                this.Attachment.downloadCollaborativeQuestionAttachment(currentExam.id, currentSq);
             } else {
-                this.Attachment.downloadQuestionAttachment(this.sq.question);
+                this.Attachment.downloadQuestionAttachment(currentSq.question);
             }
             console.error('Cannot retrieve attachment without exam.');
         }
-    };
+    }
 
-    isAnswered = () => this.Examination.isAnswered(this.sq);
+    isAnswered() {
+        return this.Examination.isAnswered(this.sq());
+    }
 }

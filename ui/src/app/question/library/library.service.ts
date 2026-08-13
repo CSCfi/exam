@@ -15,10 +15,10 @@ import { UserService } from 'src/app/shared/user/user.service';
 
 @Injectable({ providedIn: 'root' })
 export class LibraryService {
-    private http = inject(HttpClient);
-    private Storage = inject(StorageService);
-    private QuestionScore = inject(QuestionScoringService);
-    private User = inject(UserService);
+    private readonly http = inject(HttpClient);
+    private readonly Storage = inject(StorageService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly User = inject(UserService);
 
     listExams$ = (
         courseIds: number[],
@@ -206,9 +206,9 @@ export class LibraryService {
         } else if (q.defaultEvaluationType === 'Selection') {
             return 'i18n_evaluation_select';
         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
-            return this.QuestionScore.calculateDefaultMaxPoints(q);
+            return this.QuestionScore.calculateDefaultMaxPoints(q.options);
         } else if (q.type === 'ClaimChoiceQuestion') {
-            return this.QuestionScore.getCorrectClaimChoiceOptionDefaultScore(q);
+            return this.QuestionScore.getCorrectClaimChoiceOptionDefaultScore(q.options);
         }
         return '';
     };

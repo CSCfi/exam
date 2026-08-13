@@ -12,9 +12,9 @@ import { ExamService } from 'src/app/exam/exam.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSummaryService {
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private Exam = inject(ExamService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly Exam = inject(ExamService);
 
     getNoShows$ = (collaborative: boolean, exam: Exam) => {
         if (collaborative) {
@@ -74,7 +74,7 @@ export class ExamSummaryService {
                     totals: sectionTotalScores[name],
                 },
             }),
-            {},
+            {} as Record<string, { max: number; totals: number[] }>,
         );
     };
 }

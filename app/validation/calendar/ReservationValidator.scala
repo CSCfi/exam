@@ -5,14 +5,12 @@
 package validation.calendar
 
 import cats.data.ValidatedNel
-import com.fasterxml.jackson.databind.JsonNode
 import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
-import validation.SanitizingException
+import play.api.libs.json.*
 import validation.core.*
+import validation.core.SanitizingException
 
 import scala.jdk.CollectionConverters.*
-import scala.util.Try
 
 case class ReservationDTO(
     roomId: Long,
@@ -43,106 +41,109 @@ case class ExternalReservationDTO(
       case None       => java.util.List.of()
 
 object ReservationValidator:
-  def forCreation(body: JsonNode): Either[ValidationException, ReservationDTO] =
-    Validator(ReservationParser.parseFromJson)
+  def forCreation(
+      body: JsValue,
+      now: DateTime = DateTime.now()
+  ): Either[ValidationException, ReservationDTO] =
+    PlayValidator(ReservationParser.parseFromJson)
       .withRule(requireRoomId)
       .withRule(r => requireExamId(r.examId))
       .withRule(r => requireStartDate(r.start))
       .withRule(r => requireEndDate(r.end))
-      .withRule(r => requireValidDateRange(r.start, r.end))
+      .withRule(r => requireValidDateRange(r.start, r.end, now))
       .validate(body)
 
-  def forCreationExternal(body: JsonNode): Either[ValidationException, ExternalReservationDTO] =
-    Validator(ExternalReservationParser.parseFromJson)
+  def forCreationExternal(
+      body: JsValue,
+      now: DateTime = DateTime.now()
+  ): Either[ValidationException, ExternalReservationDTO] =
+    PlayValidator(ExternalReservationParser.parseFromJson)
       .withRule(requireRoomRef)
       .withRule(requireOrgRef)
       .withRule(r => requireExamId(r.examId))
       .withRule(r => requireStartDate(r.start))
       .withRule(r => requireEndDate(r.end))
-      .withRule(r => requireValidDateRange(r.start, r.end))
+      .withRule(r => requireValidDateRange(r.start, r.end, now))
       .validate(body)
 
   // Common validators - work on shared fields
   private def requireExamId(examId: Long): ValidatedNel[FieldError, Long] =
-    Validator.requirePositive("examId", examId)
+    PlayValidator.requirePositive("examId", examId)
 
   private def requireStartDate(start: DateTime): ValidatedNel[FieldError, DateTime] =
-    Validator.requirePresent("start", start)
+    PlayValidator.requirePresent("start", start)
 
   private def requireEndDate(end: DateTime): ValidatedNel[FieldError, DateTime] =
-    Validator.requirePresent("end", end)
+    PlayValidator.requirePresent("end", end)
 
-  private def requireValidDateRange(start: DateTime, end: DateTime): ValidatedNel[FieldError, Unit] =
-    val isStartInPast    = start.isBeforeNow
+  private def requireValidDateRange(
+      start: DateTime,
+      end: DateTime,
+      now: DateTime
+  ): ValidatedNel[FieldError, Unit] =
+    val isStartInPast    = start.isBefore(now)
     val isEndBeforeStart = end.isBefore(start)
 
-    if isStartInPast then Validator.invalid("start", "Start date must be in the future")
-    else if isEndBeforeStart then Validator.invalid("end", "End date must be after start date")
-    else Validator.valid(())
+    if isStartInPast then PlayValidator.invalid("start", "Start date must be in the future")
+    else if isEndBeforeStart then PlayValidator.invalid("end", "End date must be after start date")
+    else PlayValidator.valid(())
 
   // ReservationDTO-specific validators
   private def requireRoomId(reservation: ReservationDTO): ValidatedNel[FieldError, Long] =
-    Validator.requirePositive("roomId", reservation.roomId)
+    PlayValidator.requirePositive("roomId", reservation.roomId)
 
   // ExternalReservationDTO-specific validators
-  private def requireRoomRef(reservation: ExternalReservationDTO): ValidatedNel[FieldError, String] =
-    Validator.requireField("roomId", reservation.roomRef)
+  private def requireRoomRef(reservation: ExternalReservationDTO)
+      : ValidatedNel[FieldError, String] =
+    PlayValidator.requireField("roomId", reservation.roomRef)
 
   private def requireOrgRef(reservation: ExternalReservationDTO): ValidatedNel[FieldError, String] =
-    Validator.requireField("orgId", reservation.orgRef)
+    PlayValidator.requireField("orgId", reservation.orgRef)
 
 private object ReservationParser:
 
-  def parseFromJson(body: JsonNode): ReservationDTO =
-    val roomId = SanitizingHelper
+  def parseFromJson(body: JsValue): ReservationDTO =
+    val roomId = PlayJsonHelper
       .parse[Long]("roomId", body)
       .getOrElse(throw SanitizingException("Missing or invalid field: roomId"))
-    val examId = SanitizingHelper
+    val examId = PlayJsonHelper
       .parse[Long]("examId", body)
       .getOrElse(throw SanitizingException("Missing or invalid field: examId"))
-    val start = Try {
-      val startNode = Option(body.get("start"))
-        .getOrElse(throw SanitizingException("Missing field: start"))
-      DateTime.parse(startNode.asText(), ISODateTimeFormat.dateTimeParser())
-    }.getOrElse(throw SanitizingException("Invalid date format: start"))
-    val end = Try {
-      val endNode = Option(body.get("end"))
-        .getOrElse(throw SanitizingException("Missing field: end"))
-      DateTime.parse(endNode.asText(), ISODateTimeFormat.dateTimeParser())
-    }.getOrElse(throw SanitizingException("Invalid date format: end"))
+    val start = PlayJsonHelper
+      .parseDateTime("start", body)
+      .getOrElse(throw SanitizingException("Missing or invalid field: start"))
+    val end = PlayJsonHelper
+      .parseDateTime("end", body)
+      .getOrElse(throw SanitizingException("Missing or invalid field: end"))
 
-    val aids       = SanitizingHelper.parseArray[java.lang.Long]("aids", body).map(_.map(_.toLong))
-    val sectionIds = SanitizingHelper.parseArray[java.lang.Long]("sectionIds", body).map(_.map(_.toLong))
+    val aids       = PlayJsonHelper.parseLongArray("aids", body)
+    val sectionIds = PlayJsonHelper.parseLongArray("sectionIds", body)
 
     ReservationDTO(roomId, examId, start, end, aids, sectionIds)
 
 private object ExternalReservationParser:
 
-  def parseFromJson(body: JsonNode): ExternalReservationDTO =
-    val roomRef = SanitizingHelper
+  def parseFromJson(body: JsValue): ExternalReservationDTO =
+    val roomRef = PlayJsonHelper
       .parse[String]("roomId", body)
       .getOrElse(throw SanitizingException("Missing or invalid field: roomId"))
 
-    val orgRef = SanitizingHelper
+    val orgRef = PlayJsonHelper
       .parse[String]("orgId", body)
       .getOrElse(throw SanitizingException("Missing or invalid field: orgId"))
 
-    val examId = SanitizingHelper
+    val examId = PlayJsonHelper
       .parse[Long]("examId", body)
       .getOrElse(throw SanitizingException("Missing or invalid field: examId"))
 
-    val start = Try {
-      val startNode = Option(body.get("start"))
-        .getOrElse(throw SanitizingException("Missing field: start"))
-      DateTime.parse(startNode.asText(), ISODateTimeFormat.dateTimeParser())
-    }.getOrElse(throw SanitizingException("Invalid date format: start"))
+    val start = PlayJsonHelper
+      .parseDateTime("start", body)
+      .getOrElse(throw SanitizingException("Missing or invalid field: start"))
 
-    val end = Try {
-      val endNode = Option(body.get("end"))
-        .getOrElse(throw SanitizingException("Missing field: end"))
-      DateTime.parse(endNode.asText(), ISODateTimeFormat.dateTimeParser())
-    }.getOrElse(throw SanitizingException("Invalid date format: end"))
+    val end = PlayJsonHelper
+      .parseDateTime("end", body)
+      .getOrElse(throw SanitizingException("Missing or invalid field: end"))
 
-    val sectionIds = SanitizingHelper.parseArray[java.lang.Long]("sectionIds", body).map(_.map(_.toLong))
+    val sectionIds = PlayJsonHelper.parseLongArray("sectionIds", body)
 
     ExternalReservationDTO(roomRef, orgRef, examId, start, end, sectionIds)

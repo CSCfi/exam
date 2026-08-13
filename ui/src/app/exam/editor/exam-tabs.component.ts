@@ -3,31 +3,23 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import type { OnDestroy, OnInit } from '@angular/core';
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavChangeEvent, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
-import type { UpdateProps } from './exam-tabs.service';
 import { ExamTabService } from './exam-tabs.service';
 
 @Component({
     selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
+        NgbNavModule,
         RouterOutlet,
         LowerCasePipe,
         TranslateModule,
@@ -36,89 +28,64 @@ import { ExamTabService } from './exam-tabs.service';
         HistoryBackComponent,
     ],
     styleUrl: './exam-tabs.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamTabsComponent implements OnInit, OnDestroy {
-    exam!: Exam;
-    collaborative = false;
-    user: User;
-    examInfo: { title: string | null };
-    activeTab = 1;
-    private ngUnsubscribe = new Subject();
+export class ExamTabsComponent {
+    readonly exam = computed(() => this.Tabs.examSignal());
+    readonly collaborative = signal(false);
+    readonly examInfo = computed(() => ({
+        title: this.computeTitle(this.exam()?.course?.code ?? null, this.exam()?.name ?? null),
+    }));
+    readonly activeTab = linkedSignal(() => this.Tabs.tabChangeSignal()?.tab ?? 1);
+    readonly user: User;
 
-    private cdr = inject(ChangeDetectorRef);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private Session = inject(SessionService);
-    private Tabs = inject(ExamTabService);
-    private CourseCode = inject(CourseCodeService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly Session = inject(SessionService);
+    private readonly Tabs = inject(ExamTabService);
+    private readonly CourseCode = inject(CourseCodeService);
 
     constructor() {
         this.user = this.Session.getUser();
-        this.examInfo = { title: null };
-        this.Tabs.tabChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((tab: number) => {
-            this.activeTab = tab;
-            this.cdr.detectChanges();
-        });
-        this.Tabs.examUpdate$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((props: UpdateProps) => {
-            this.examUpdated(props);
-        });
-    }
-
-    ngOnInit() {
-        this.collaborative = this.route.snapshot.queryParamMap.get('collaborative') === 'true';
+        this.collaborative.set(this.route.snapshot.queryParamMap.get('collaborative') === 'true');
         this.route.data.subscribe((data) => {
-            this.exam = data.exam;
-            this.updateTitle(!this.exam.course ? null : this.exam.course.code, this.exam.name);
+            this.Tabs.setExam(data.exam);
             this.initGradeScale();
-            this.Tabs.setExam(this.exam);
-            this.Tabs.setCollaborative(this.collaborative);
+            this.Tabs.setCollaborative(this.collaborative());
         });
     }
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
-        this.ngUnsubscribe.complete();
+    isOwner() {
+        const currentExam = this.exam();
+        return (
+            currentExam?.examOwners &&
+            currentExam.examOwners.some(
+                (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
+            )
+        );
     }
 
-    updateTitle = (code: string | null, name: string | null) => {
-        if (code && name) {
-            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${name}`;
-        } else if (code) {
-            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
-        } else if (name) {
-            this.examInfo.title = name;
-        } else {
-            this.examInfo.title = this.translate.instant('i18n_no_name');
-        }
-    };
-
-    isOwner = () =>
-        this.exam.examOwners &&
-        this.exam.examOwners.some(
-            (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
-        );
-
-    navChanged = (event: NgbNavChangeEvent) =>
+    navChanged(event: NgbNavChangeEvent) {
         this.router.navigate([event.nextId], {
             relativeTo: this.route,
-            queryParams: { collaborative: this.collaborative },
+            queryParams: { collaborative: this.collaborative() },
         });
+    }
 
-    examUpdated = (props: UpdateProps) => {
-        this.updateTitle(props.code, props.name);
-        if (props.scaleChange) {
-            delete this.exam.autoEvaluationConfig;
-        }
-        if (props.initScale) {
-            this.exam.gradeScale = this.exam?.course?.gradeScale;
-        }
-    };
+    private computeTitle(code: string | null, name: string | null): string {
+        if (code && name) return `${this.CourseCode.formatCode(code)} ${name}`;
+        if (code) return `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
+        if (name) return name;
+        return this.translate.instant('i18n_no_name');
+    }
 
-    private initGradeScale = () => {
+    private initGradeScale() {
         // Set exam grade scale from course default if not specifically set for exam
-        if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
-            this.exam.gradeScale = this.exam.course.gradeScale;
+        const currentExam = this.exam();
+        if (!currentExam) return;
+        if (!currentExam.gradeScale && currentExam.course && currentExam.course.gradeScale) {
+            this.Tabs.setExam({ ...currentExam, gradeScale: currentExam.course.gradeScale });
         }
-    };
+    }
 }

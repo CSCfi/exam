@@ -9,21 +9,25 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row my-2">
             <div class="col-6">
                 <strong class="review-list-subtitle">{{ 'i18n_teachers' | translate }}:&nbsp;</strong>
-                @for (owner of exam.examOwners; track owner; let isLast = $last) {
-                    <span class="review-list-subtitle">
-                        @if (!collaborative) {
-                            {{ owner.firstName }} {{ owner.lastName }}
-                        } @else {
-                            {{ owner.email }}
-                        }
-                    </span>
+                @if (exam()) {
+                    @for (owner of exam()!.examOwners; track owner; let isLast = $last) {
+                        <span class="review-list-subtitle">
+                            @if (!collaborative()) {
+                                {{ owner.firstName }} {{ owner.lastName }}
+                            } @else {
+                                {{ owner.email }}
+                            }
+                        </span>
+                    }
                 }
             </div>
             <div class="col-6">
                 <strong class="review-list-subtitle">{{ 'i18n_exam_validity' | translate }}:</strong>
-                <span class="review-list-subtitle">
-                    {{ exam.periodStart | date: 'dd.MM.yyyy' }} - {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
-                </span>
+                @if (exam()) {
+                    <span class="review-list-subtitle">
+                        {{ exam()!.periodStart | date: 'dd.MM.yyyy' }} - {{ exam()!.periodEnd | date: 'dd.MM.yyyy' }}
+                    </span>
+                }
             </div>
         </div>
         <div class="row my-2">
@@ -44,7 +48,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-6">
                 <!-- no-shows -->
                 <a class="review-list-link" (click)="openNoShows()"
-                    >{{ 'i18n_no_shows' | translate }} ({{ noShows.length }})</a
+                    >{{ 'i18n_no_shows' | translate }} ({{ noShows().length }})</a
                 >
                 <sup
                     class="ps-3"
@@ -56,66 +60,69 @@ SPDX-License-Identifier: EUPL-1.2
                 </sup>
             </div>
         </div>
-        @if (reviews) {
+        @if (reviews() && exam()) {
             <div class="row my-3">
                 <div class="col-12">
                     <!-- Ready for review-->
                     <xm-rl-in-progress
-                        [exam]="exam"
-                        [reviews]="inProgressReviews"
-                        [collaborative]="collaborative"
+                        [exam]="exam()!"
+                        [reviews]="inProgressReviews()"
+                        [collaborative]="collaborative()"
                     ></xm-rl-in-progress>
                 </div>
             </div>
-            @if (languageInspectedReviews.length > 0) {
+            @if (languageInspectedReviews().length > 0 && exam()) {
                 <div class="row my-3">
                     <div class="col-12">
                         <!-- Under language inspection -->
                         <xm-rl-in-language-inspection
-                            [reviews]="languageInspectedReviews"
+                            [exam]="exam()!"
+                            [reviews]="languageInspectedReviews()"
                         ></xm-rl-in-language-inspection>
                     </div>
                 </div>
             }
-            <div class="row my-3">
-                <div class="col-12">
-                    <!-- Graded -->
-                    <xm-rl-graded
-                        [exam]="exam"
-                        [reviews]="gradedReviews"
-                        [collaborative]="collaborative"
-                        (registered)="onRegistration($event)"
-                    >
-                    </xm-rl-graded>
-                </div>
-            </div>
-            <div class="row my-3">
-                <div class="col-12">
-                    <!-- Graded and Logged -->
-                    <xm-rl-graded-logged
-                        [exam]="exam"
-                        [reviews]="gradedLoggedReviews"
-                        [collaborative]="collaborative"
-                        (archived)="onArchive($event)"
-                    ></xm-rl-graded-logged>
-                </div>
-            </div>
-            @if (rejectedReviews.length > 0) {
+            @if (exam()) {
                 <div class="row my-3">
                     <div class="col-12">
-                        <!-- Rejected -->
-                        <xm-rl-rejected [reviews]="rejectedReviews"></xm-rl-rejected>
+                        <!-- Graded -->
+                        <xm-rl-graded
+                            [exam]="exam()!"
+                            [reviews]="gradedReviews()"
+                            [collaborative]="collaborative()"
+                            (registered)="onRegistration($event)"
+                        >
+                        </xm-rl-graded>
+                    </div>
+                </div>
+                <div class="row my-3">
+                    <div class="col-12">
+                        <!-- Graded and Logged -->
+                        <xm-rl-graded-logged
+                            [exam]="exam()!"
+                            [reviews]="gradedLoggedReviews()"
+                            [collaborative]="collaborative()"
+                            (archived)="onArchive($event)"
+                        ></xm-rl-graded-logged>
                     </div>
                 </div>
             }
-            @if (archivedReviews.length > 0) {
+            @if (rejectedReviews().length > 0 && exam()) {
+                <div class="row my-3">
+                    <div class="col-12">
+                        <!-- Rejected -->
+                        <xm-rl-rejected [exam]="exam()!" [reviews]="rejectedReviews()"></xm-rl-rejected>
+                    </div>
+                </div>
+            }
+            @if (archivedReviews().length > 0 && exam()) {
                 <div class="row my-3">
                     <div class="col-12">
                         <!-- Archived -->
                         <xm-rl-archived
-                            [exam]="exam"
-                            [collaborative]="collaborative"
-                            [reviews]="archivedReviews"
+                            [exam]="exam()!"
+                            [collaborative]="collaborative()"
+                            [reviews]="archivedReviews()"
                         ></xm-rl-archived>
                     </div>
                 </div>

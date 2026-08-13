@@ -11,10 +11,8 @@ import { SessionService } from 'src/app/session/session.service';
 
 @Injectable({ providedIn: 'root' })
 export class CollaborativeExamService {
-    exams: CollaborativeExam[] = [];
-
-    private http = inject(HttpClient);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly Session = inject(SessionService);
 
     listExams$ = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/app/iop/enrolments' : '/app/iop/exams';
@@ -23,18 +21,22 @@ export class CollaborativeExamService {
 
     createExam$ = (): Observable<CollaborativeExam> => this.http.post<CollaborativeExam>('/app/iop/exams', {});
 
-    searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
+    searchExams$ = (searchTerm: string): Observable<Exam[]> => {
         const paramStr = searchTerm ? `?filter=${encodeURIComponent(searchTerm)}` : '';
         const path = `/app/iop/exams${paramStr}`;
-        return this.http.get<CollaborativeExam[]>(path);
+        return this.http.get<Exam[]>(path);
     };
 
-    getExamStateTranslation = (exam: CollaborativeExam): string | null => {
-        switch (exam.state) {
+    getExamStateTranslation = (exam: Exam | CollaborativeExam): string | null => {
+        const state = exam.state as string;
+        switch (state) {
+            case 'DRAFT':
             case CollaborativeExamState.DRAFT:
                 return 'i18n_draft';
+            case 'PRE_PUBLISHED':
             case CollaborativeExamState.PRE_PUBLISHED:
                 return 'i18n_pre_published';
+            case 'PUBLISHED':
             case CollaborativeExamState.PUBLISHED:
                 return 'i18n_published';
             default:

@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
@@ -11,44 +10,43 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-claim-choice-answer',
-    template: `@if (reviewExpanded) {
-        <div>
-            @for (option of sectionQuestion.options | orderBy: 'option.id'; track option) {
-                <div class="ps-2 mb-2">
-                    <div [ngClass]="getSelectedOptionClass(option)">
-                        <div class="make-inline float-start">
-                            @switch (determineClaimOptionType(option)) {
-                                @case ('CorrectOption') {
-                                    <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
-                                }
-                                @case ('IncorrectOption') {
-                                    <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
-                                }
-                                @case ('SkipOption') {
-                                    <img src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
-                                }
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `@if (reviewExpanded()) {
+        @for (option of sectionQuestion().options | orderBy: 'option.id'; track option) {
+            <div class="ps-2 mb-2">
+                <div [class]="getSelectedOptionClass(option)">
+                    <div class="make-inline float-start">
+                        @switch (determineClaimOptionType(option)) {
+                            @case ('CorrectOption') {
+                                <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
                             }
-                        </div>
-                        <div class="make-inline w-75 my-1 ms-3">
-                            <span class="exam-question-option-text" [innerHtml]="option.option.option"></span>
-                        </div>
-                        <div class="make-inline float-end answer-score-text">
-                            <span> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
-                        </div>
+                            @case ('IncorrectOption') {
+                                <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
+                            }
+                            @case ('SkipOption') {
+                                <img src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
+                            }
+                        }
+                    </div>
+                    <div class="make-inline w-75 my-1 ms-3">
+                        <span class="exam-question-option-text">{{ option.option.option }}</span>
+                    </div>
+                    <div class="make-inline float-end answer-score-text">
+                        <span> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
                     </div>
                 </div>
-            }
-        </div>
+            </div>
+        }
     }`,
-    imports: [NgClass, TranslateModule, OrderByPipe],
+    imports: [TranslateModule, OrderByPipe],
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class ClaimChoiceAnswerComponent {
-    @Input() sectionQuestion!: ExamSectionQuestion;
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
 
-    reviewExpanded = true;
+    readonly reviewExpanded = signal(true);
 
-    private Question = inject(QuestionService);
+    private readonly Question = inject(QuestionService);
 
     determineClaimOptionType = (option: ExamSectionQuestionOption) =>
         this.Question.determineClaimOptionTypeForExamQuestionOption(option);

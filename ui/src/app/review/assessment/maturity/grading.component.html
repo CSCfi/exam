@@ -9,13 +9,16 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mb-3 mt-2">
         <div class="col-md-2">{{ 'i18n_language_inspections' | translate }}:</div>
         <div class="col-md-10">
-            <span [ngClass]="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
-                @if (exam.languageInspection.approved) {
+            <span
+                [class.text-success]="exam().languageInspection.approved"
+                [class.text-danger]="!exam().languageInspection.approved"
+            >
+                @if (exam().languageInspection.approved) {
                     <span>
                         {{ 'i18n_approved' | translate | uppercase }}
                     </span>
                 }
-                @if (!exam.languageInspection.approved) {
+                @if (!exam().languageInspection.approved) {
                     <span>
                         {{ 'i18n_rejected' | translate | uppercase }}
                     </span>
@@ -26,37 +29,44 @@ SPDX-License-Identifier: EUPL-1.2
 }
 
 <!-- inspector comments -->
-<xm-r-inspection-comments [exam]="exam" [addingVisible]="!isMaturityRejection()"> </xm-r-inspection-comments>
+<xm-r-inspection-comments
+    [exam]="exam()"
+    [addingVisible]="!isMaturityRejection()"
+    (commentAdded)="onCommentAdded($event)"
+>
+</xm-r-inspection-comments>
 
 <!-- language inspection - inspector -->
 @if (hasGoneThroughLanguageInspection()) {
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_language_inspector' | translate }}:</div>
-        @if (exam.languageInspection) {
+        @if (exam().languageInspection) {
             <div class="col-md-10">
-                {{ exam.languageInspection.modifier.firstName }} {{ exam.languageInspection.modifier.lastName }}
+                {{ exam().languageInspection.modifier.firstName }} {{ exam().languageInspection.modifier.lastName }}
             </div>
         }
     </div>
-}
-
-<!-- language inspection - statement -->
-@if (hasGoneThroughLanguageInspection()) {
-    <div class="row mt-2">
+    <!-- language inspection - statement -->
+    <div class="row">
         <div class="col-md-2">{{ 'i18n_inspector_statement' | translate }}:</div>
         <div class="col-md-10">
-            <div [xmMathJax]="exam.languageInspection.statement.comment"></div>
+            <div [xmMath]="exam().languageInspection.statement.comment"></div>
         </div>
     </div>
 }
 <!-- language inspection - statement attachment -->
-@if (hasGoneThroughLanguageInspection() && exam.languageInspection?.statement?.attachment) {
+@if (hasGoneThroughLanguageInspection() && exam().languageInspection?.statement?.attachment) {
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_statement_attachment' | translate }}:</div>
         <div class="col-md-10">
-            <a class="pointer" (click)="downloadStatementAttachment()">
-                {{ exam.languageInspection?.statement?.attachment?.fileName }}
-            </a>
+            <button
+                type="button"
+                class="btn btn-link"
+                (click)="downloadStatementAttachment()"
+                [ariaLabel]="'i18n_download_attachment' | translate"
+            >
+                {{ exam().languageInspection?.statement?.attachment?.fileName }}
+            </button>
         </div>
     </div>
 }
@@ -65,9 +75,9 @@ SPDX-License-Identifier: EUPL-1.2
 @if (isReadOnly() || isUnderLanguageInspection()) {
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_inspector_name' | translate }}:</div>
-        @if (exam.languageInspection) {
+        @if (exam().languageInspection) {
             <div class="col-md-10">
-                {{ exam.languageInspection.creator.firstName }} {{ exam.languageInspection.creator.lastName }}
+                {{ exam().languageInspection.creator.firstName }} {{ exam().languageInspection.creator.lastName }}
             </div>
         }
     </div>
@@ -75,61 +85,63 @@ SPDX-License-Identifier: EUPL-1.2
 
 <!-- exam feedback -->
 @if (isReadOnly() || isUnderLanguageInspection()) {
-    <div class="row mt-2">
+    <div class="row">
         <div class="col-md-2">{{ 'i18n_teachers_comment' | translate }}:</div>
         <div class="col-md-10">
-            <div [xmMathJax]="exam.examFeedback.comment"></div>
+            <div [xmMath]="exam().examFeedback.comment"></div>
         </div>
     </div>
 }
 
-<form #examForm="ngForm" name="examForm" role="form" novalidate>
-    <!-- extra info for registry -->
-    <div class="row mt-2 align-items-center">
-        <div class="col-md-4">
-            {{ 'i18n_additional_info_for_registry' | translate }}:
-            <sup
-                ngbPopover="{{ 'i18n_additional_info_for_registry_description' | translate }}"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-                ><img src="/assets/images/icon_tooltip.svg" alt=""
-            /></sup>
-        </div>
-        <div class="col-md-8 pe-2">
-            <textarea
-                id="infoForRegistry"
-                name="infoForRegistry"
-                class="form-control"
-                [(ngModel)]="exam.additionalInfo"
-                rows="3"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-            >
-            </textarea>
-        </div>
+<!-- extra info for registry -->
+<div class="row mt-2 align-items-center">
+    <div class="col-md-4">
+        {{ 'i18n_additional_info_for_registry' | translate }}:
+        <sup
+            ngbPopover="{{ 'i18n_additional_info_for_registry_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
+        /></sup>
     </div>
-    <div
-        class="row mt-2 align-items-center"
-        [hidden]="!isReadOnly() || (!isOwnerOrAdmin() && !user.isLanguageInspector)"
-    >
-        <div class="col-md-4">
-            {{ 'i18n_additional_info_for_student' | translate }}:
-            <sup
-                ngbPopover="{{ 'i18n_additional_info_for_student_description' | translate }}"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-                ><img src="/assets/images/icon_tooltip.svg" alt=""
-            /></sup>
-        </div>
-        <div class="col-md-6">
-            <textarea class="form-control" name="assessmentInfo" [(ngModel)]="exam.assessmentInfo" rows="3"> </textarea>
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-success" [disabled]="!exam.assessmentInfo" (click)="saveAssessmentInfo()">
-                {{ 'i18n_save' | translate }}
-            </button>
-        </div>
+    <div class="col-md-8 pe-2">
+        <textarea
+            id="infoForRegistry"
+            class="form-control"
+            [value]="exam().additionalInfo"
+            (input)="onAdditionalInfoInput($event)"
+            rows="3"
+            [disabled]="isReadOnly() || !isOwnerOrAdmin()"
+        >
+        </textarea>
     </div>
+</div>
+<div class="row mt-2 align-items-center" [hidden]="!isReadOnly() || (!isOwnerOrAdmin() && !user().isLanguageInspector)">
+    <div class="col-md-4">
+        {{ 'i18n_additional_info_for_student' | translate }}:
+        <sup
+            ngbPopover="{{ 'i18n_additional_info_for_student_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
+        /></sup>
+    </div>
+    <div class="col-md-6">
+        <textarea
+            class="form-control"
+            [value]="exam().assessmentInfo"
+            (input)="onAssessmentInfoInput($event)"
+            rows="3"
+        ></textarea>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-success" [disabled]="!exam().assessmentInfo" (click)="saveAssessmentInfo()">
+            {{ 'i18n_save' | translate }}
+        </button>
+    </div>
+</div>
 
+<div [formGroup]="gradingForm">
     <div class="row pe-3 mt-4">
         <!-- This stuff could form a component of its own -->
         <div class="col-md-3 grading-title">
@@ -142,65 +154,37 @@ SPDX-License-Identifier: EUPL-1.2
 
     <div class="row">
         <div class="col-md-3">
-            <select
-                id="examGrade"
-                name="examGrade"
-                class="form-select"
-                [(ngModel)]="selections.grade"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
-                (change)="setGrade()"
-                required
-            >
-                @for (grade of grades; track grade) {
+            <select id="examGrade" formControlName="grade" class="form-select" (change)="onGradeChange()">
+                @for (grade of grades(); track grade) {
                     <option [ngValue]="grade">{{ grade.name }}</option>
                 }
-                <option value="" [selected]="!exam.grade">{{ 'i18n_choose' | translate }}</option>
+                <option [ngValue]="null">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
         <div class="col-md-3">
-            <select
-                id="creditType"
-                name="creditType"
-                class="form-select"
-                [(ngModel)]="selections.type"
-                (change)="setCreditType()"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
-                required
-            >
-                @for (type of creditTypes; track type) {
+            <select id="creditType" formControlName="type" class="form-select" (change)="setCreditType()">
+                @for (type of creditTypes(); track type) {
                     <option [ngValue]="type">{{ type.name }}</option>
                 }
-                <option value="">{{ 'i18n_choose' | translate }}</option>
+                <option [ngValue]="null">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
         <div class="col-md-3">
-            <select
-                id="answerLanguage"
-                name="answerLanguage"
-                class="form-select"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
-                [(ngModel)]="selections.language"
-                (change)="setLanguage()"
-                required
-            >
-                @for (lang of languages; track lang) {
+            <select id="answerLanguage" formControlName="language" class="form-select" (change)="setLanguage()">
+                @for (lang of languages(); track lang) {
                     <option [ngValue]="lang">{{ lang.name }}</option>
                 }
-                <option value="">{{ 'i18n_choose' | translate }}</option>
+                <option [ngValue]="null">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
         <div class="col-md-3">
             <input
                 id="customCredit"
-                name="customCredit"
+                formControlName="customCredit"
                 type="number"
                 lang="en"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
-                required
-                [min]="0"
                 class="form-control"
                 maxlength="3"
-                [(ngModel)]="exam.customCredit"
             />
         </div>
     </div>
@@ -209,7 +193,10 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Bottom toolbar for maturity -->
     <div class="row mt-4">
         <div class="col-md-12">
-            <xm-r-maturity-toolbar [exam]="exam" [valid]="!examForm.invalid"></xm-r-maturity-toolbar>
+            <xm-r-maturity-toolbar
+                [exam]="exam()"
+                [valid]="gradingForm.valid || gradingForm.disabled"
+            ></xm-r-maturity-toolbar>
         </div>
     </div>
-</form>
+</div>

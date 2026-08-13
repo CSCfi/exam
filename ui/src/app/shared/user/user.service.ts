@@ -10,7 +10,7 @@ import { deduplicate } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     listUsersByRole$ = (role: string) => this.http.get<User[]>(`/app/users/byrole/${role}`);
     listUsersByRoles$ = (roles: string[]) => {

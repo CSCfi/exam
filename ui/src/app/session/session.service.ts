@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { HttpClient } from '@angular/common/http';
-import type { OnDestroy } from '@angular/core';
-import { DOCUMENT, Injectable, inject } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import type { Signal } from '@angular/core';
+import { DOCUMENT, DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable, Unsubscribable } from 'rxjs';
-import { Subject, defer, interval, of, throwError } from 'rxjs';
-import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import type { Observable } from 'rxjs';
+import { EMPTY, Subscription, defer, interval, of, throwError } from 'rxjs';
+import { catchError, delay, map, switchMap, tap } from 'rxjs/operators';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { StorageService } from 'src/app/shared/storage/storage.service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
@@ -24,31 +24,29 @@ interface Env {
 }
 
 @Injectable({ providedIn: 'root' })
-export class SessionService implements OnDestroy {
-    public userChange$: Observable<User | undefined>;
-    public devLogoutChange$: Observable<void>;
+export class SessionService {
+    readonly userChange: Signal<User | undefined>;
+    readonly devLogoutChange: Signal<number | undefined>;
 
-    private http = inject(HttpClient);
-    private i18n = inject(TranslateService);
-    private router = inject(Router);
-    private Storage = inject(StorageService);
-    private document = inject<Document>(DOCUMENT);
-    private modal = inject(ModalService);
-    private toast = inject(ToastrService);
+    private readonly PING_INTERVAL: number = 30 * 1000;
+    private sessionCheckSubscription: Subscription = Subscription.EMPTY;
+    private toastTapSubscription: Subscription = Subscription.EMPTY;
+    private readonly _userChange = signal<User | undefined>(undefined);
+    private readonly _devLogoutChange = signal<number | undefined>(undefined);
 
-    private PING_INTERVAL: number = 30 * 1000;
-    private sessionCheckSubscription?: Unsubscribable;
-    private userChangeSubscription = new Subject<User | undefined>();
-    private devLogoutSubscription = new Subject<void>();
-    private customSessionExpireWarning = SessionExpireWarningComponent;
+    private readonly http = inject(HttpClient);
+    private readonly i18n = inject(TranslateService);
+    private readonly router = inject(Router);
+    private readonly Storage = inject(StorageService);
+    private readonly document = inject<Document>(DOCUMENT);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
-        this.userChange$ = this.userChangeSubscription.asObservable();
-        this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
-    }
-
-    ngOnDestroy() {
-        this.disableSessionCheck();
+        this.userChange = this._userChange.asReadonly();
+        this.devLogoutChange = this._devLogoutChange.asReadonly();
+        this._userChange.set(this.getOptionalUser());
+        inject(DestroyRef).onDestroy(() => this.disableSessionCheck());
     }
 
     getUser = (): User => {
@@ -77,7 +75,7 @@ export class SessionService implements OnDestroy {
         this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe({
             next: (resp) => {
                 this.Storage.remove('EXAM_USER');
-                // delete this.user;
+                this._userChange.set(undefined);
                 this.onLogoutSuccess(resp);
             },
             error: (err) => this.toast.error(err),
@@ -98,6 +96,7 @@ export class SessionService implements OnDestroy {
                 next: () => {
                     user.lang = lang;
                     this.Storage.set('EXAM_USER', user);
+                    this._userChange.set(user);
                     this.translate$(lang).subscribe();
                 },
                 error: () => this.toast.error('failed to switch language'),
@@ -112,22 +111,23 @@ export class SessionService implements OnDestroy {
     }
 
     disableSessionCheck(): void {
-        if (this.sessionCheckSubscription) {
-            this.sessionCheckSubscription.unsubscribe();
-        }
+        this.sessionCheckSubscription.unsubscribe();
+        this.toastTapSubscription.unsubscribe();
+        this.toastTapSubscription = Subscription.EMPTY;
     }
 
     checkSession = () => {
         this.http.get('/app/session', { responseType: 'text' }).subscribe({
             next: (resp) => {
                 if (resp === 'alarm') {
-                    this.toast
+                    this.toastTapSubscription.unsubscribe();
+                    this.toastTapSubscription = this.toast
                         .warning(
                             this.i18n.instant('i18n_continue_session'),
                             this.i18n.instant('i18n_session_will_expire_soon'),
                             {
                                 timeOut: 30000,
-                                toastComponent: this.customSessionExpireWarning,
+                                toastComponent: SessionExpireWarningComponent,
                                 progressBar: true,
                             },
                         )
@@ -152,6 +152,17 @@ export class SessionService implements OnDestroy {
         });
     };
 
+    loadCourseCodePrefix$ = (): Observable<void> =>
+        this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
+            tap((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix)),
+            map(() => undefined),
+            catchError(() => {
+                // If course code prefix fails (e.g., 403 due to session timing), continue without it
+                // The prefix is not critical for the application flow
+                return of(undefined);
+            }),
+        );
+
     login$ = (username: string, password: string): Observable<User> =>
         this.http
             .post<User>('/app/session', {
@@ -161,16 +172,21 @@ export class SessionService implements OnDestroy {
             .pipe(
                 switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
-                mergeMap((u) =>
-                    this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
-                        tap((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix)),
-                        map(() => u),
+                switchMap((u) =>
+                    of(u).pipe(
+                        delay(100),
+                        switchMap(() =>
+                            this.loadCourseCodePrefix$().pipe(
+                                map(() => u),
+                                catchError(() => of(u)),
+                            ),
+                        ),
                     ),
                 ),
                 tap((u) => {
                     this.Storage.set('EXAM_USER', u);
                     this.restartSessionCheck();
-                    this.userChangeSubscription.next(u);
+                    this._userChange.set(u);
                     if (u) {
                         this.toast.success(this.i18n.instant('i18n_welcome'), `${u.firstName} ${u.lastName}`, {
                             timeOut: 2000,
@@ -178,15 +194,24 @@ export class SessionService implements OnDestroy {
                     }
                     this.redirect(u);
                 }),
-                catchError((resp) => {
+                catchError((resp: HttpErrorResponse | undefined) => {
+                    // If resp is undefined (e.g., user dismissed modal), complete without error
+                    if (!resp) {
+                        this.logout();
+                        return EMPTY;
+                    }
                     // case where we need to delay logout so error message can be shown for user to see.
-                    if (resp.headers.get('x-exam-delay-execution') === 'true') {
-                        this.toast.error(this.i18n.instant(resp.error), '', { timeOut: 5000 });
-                        setTimeout(() => this.logout(), 5000);
+                    else if (resp.headers.get('x-exam-delay-execution')) {
+                        const orgs = resp.headers.get('x-exam-delay-execution');
+                        this.toast.error(`${this.i18n.instant(resp.error)}: ${orgs}.`, 'Notice', {
+                            timeOut: 10000,
+                            positionClass: 'toast-center-center',
+                        });
+                        setTimeout(() => this.logout(), 10000);
                     } else {
                         this.logout();
                     }
-                    return throwError(() => new Error(resp));
+                    return throwError(() => resp);
                 }),
             );
 
@@ -206,8 +231,8 @@ export class SessionService implements OnDestroy {
     };
 
     private openExternalLoginConfirmationModal$(user: User): Observable<User> {
-        const modalRef = this.modal.openRef(ExternalLoginConfirmationDialogComponent, { size: 'm' });
-        modalRef.componentInstance.user = user;
+        const modalRef = this.modal.openRef(ExternalLoginConfirmationDialogComponent, { size: 'lg' });
+        modalRef.componentInstance.user.set(user);
         return this.modal.result$(modalRef).pipe(map(() => user));
     }
 
@@ -220,7 +245,7 @@ export class SessionService implements OnDestroy {
 
     private openRoleSelectModal$(user: User): Observable<User> {
         const modalRef = this.modal.openRef(SelectRoleDialogComponent, { size: 'm' });
-        modalRef.componentInstance.user = user;
+        modalRef.componentInstance.user.set(user);
         return this.modal.result$<Role>(modalRef).pipe(
             switchMap((role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
             map((role) => {
@@ -275,8 +300,6 @@ export class SessionService implements OnDestroy {
     }
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
-        this.userChangeSubscription.next(undefined);
-
         this.toast.success(this.i18n.instant('i18n_logout_success'));
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
@@ -288,8 +311,8 @@ export class SessionService implements OnDestroy {
             // redirect to SP-logout directly
             location.href = localLogout;
         } else {
-            // DEV logout
-            this.devLogoutSubscription.next();
+            // DEV logout - notify subscribers
+            this._devLogoutChange.set(Date.now());
         }
     }
 

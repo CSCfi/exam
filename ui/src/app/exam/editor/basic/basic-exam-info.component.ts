@@ -2,24 +2,21 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnDestroy, OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 import { switchMap } from 'rxjs/operators';
 import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-picker.component';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { Exam, ExamType, GradeScale } from 'src/app/exam/exam.model';
+import type { Course, ExamLanguage, ExamType, GradeScale } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { Software } from 'src/app/facility/facility.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
-import { Attachment } from 'src/app/shared/attachment/attachment.model';
+import type { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -33,101 +30,121 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     templateUrl: './basic-exam-info.component.html',
     styleUrls: ['../../exam.shared.scss'],
     imports: [
-        ExamCourseComponent,
         NgbPopover,
-        FormsModule,
+        FormField,
+        ExamCourseComponent,
         LanguageSelectorComponent,
         ExamOwnerSelectorComponent,
-        NgClass,
         ExamInspectorSelectorComponent,
         SoftwareSelectorComponent,
         CKEditorComponent,
         TranslateModule,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BasicExamInfoComponent implements OnInit, OnDestroy {
-    exam!: Exam;
-    collaborative = false;
-    byodExaminationSupported = false;
-    anonymousReviewEnabled = false;
-    gradeScaleSetting = { overridable: false };
-    examTypes: (ExamType & { name: string })[] = [];
-    gradeScales: GradeScale[] = [];
-    pwdInputType = 'password';
-    user: User;
+export class BasicExamInfoComponent {
+    readonly exam = computed(() => this.ExamTabs.examSignal()!);
+    readonly collaborative = signal(false);
+    readonly examNameForm = form(signal({ name: '' }), (path) => {
+        required(path.name);
+    });
+    readonly byodExaminationSupported = signal(false);
+    readonly anonymousReviewEnabled = signal(false);
+    readonly gradeScaleSetting = signal({ overridable: false });
+    readonly examTypes = signal<(ExamType & { name: string })[]>([]);
+    readonly gradeScales = signal<GradeScale[]>([]);
+    readonly pwdInputType = signal('password');
+    readonly user: User;
 
-    unsubscribe = new Subject<unknown>();
-
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Exam = inject(ExamService);
-    private ExamTabs = inject(ExamTabService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
-    private Session = inject(SessionService);
-    private Tabs = inject(ExamTabService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly Exam = inject(ExamService);
+    private readonly ExamTabs = inject(ExamTabService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.user = this.Session.getUser();
-    }
-
-    ngOnInit() {
-        this.exam = this.Tabs.getExam();
-        this.collaborative = this.Tabs.isCollaborative();
+        this.collaborative.set(this.ExamTabs.isCollaborative());
+        this.examNameForm.name().value.set(this.ExamTabs.getExam().name || '');
         this.http
             .get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod')
-            .subscribe(
-                (setting) =>
-                    (this.byodExaminationSupported =
-                        setting.homeExaminationSupported || setting.sebExaminationSupported),
+            .subscribe((setting) =>
+                this.byodExaminationSupported.set(setting.homeExaminationSupported || setting.sebExaminationSupported),
             );
         this.http
             .get<{ overridable: boolean }>('/app/settings/gradescale')
-            .subscribe((setting) => (this.gradeScaleSetting = setting));
+            .subscribe((setting) => this.gradeScaleSetting.set(setting));
         this.http
             .get<{ anonymousReviewEnabled: boolean }>('/app/settings/anonymousReviewEnabled')
-            .subscribe((setting) => (this.anonymousReviewEnabled = setting.anonymousReviewEnabled));
-        this.Tabs.notifyTabChange(1);
+            .subscribe((setting) => this.anonymousReviewEnabled.set(setting.anonymousReviewEnabled));
+        this.ExamTabs.notifyTabChange(1);
     }
 
-    ngOnDestroy() {
-        this.unsubscribe.next(undefined);
-        this.unsubscribe.complete();
+    onExamNameInput = () => {
+        this.ExamTabs.setExam({ ...this.exam(), name: this.examNameForm.name().value() || '' });
+    };
+
+    onExamAnonymousChange = (event: Event) => {
+        this.updateExamAnonymous((event.target as HTMLInputElement).checked);
+        this.toggleAnonymous();
+    };
+
+    onInternalRefInput = (event: Event) => this.updateInternalRef((event.target as HTMLInputElement).value);
+
+    updateExam = () => {
+        if (this.examNameForm.name().invalid()) return;
+        this.ExamTabs.setExam({ ...this.exam(), name: this.examNameForm.name().value() || '' });
+        this.ExamTabs.saveExam$().subscribe();
+    };
+
+    onCourseChange(course: Course) {
+        const currentExam = this.exam();
+        const gradeScale =
+            !this.gradeScaleSetting().overridable && !this.collaborative()
+                ? (course.gradeScale ?? currentExam.gradeScale)
+                : currentExam.gradeScale;
+        this.ExamTabs.setExam({ ...currentExam, course, gradeScale });
     }
 
-    updateExam = (resetAutoEvaluationConfig: boolean) => {
-        this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe({
-            next: () => {
-                this.toast.info(this.translate.instant('i18n_exam_saved'));
-                const code = this.exam.course ? this.exam.course.code : null;
-                this.ExamTabs.notifyExamUpdate({
-                    name: this.exam.name,
-                    code: code,
-                    scaleChange: resetAutoEvaluationConfig,
-                    initScale: false,
-                });
-            },
-            error: (err) => this.toast.error(err),
-        });
-    };
+    updateExamAnonymous(value: boolean) {
+        const currentExam = this.exam();
+        this.ExamTabs.setExam({ ...currentExam, anonymous: value });
+        this.updateExam();
+    }
 
-    onCourseChange = () => {
-        const code = this.exam.course ? this.exam.course.code : null;
-        this.ExamTabs.notifyExamUpdate({
-            name: this.exam.name,
-            code: code,
-            scaleChange: !this.gradeScaleSetting.overridable,
-            initScale: !this.gradeScaleSetting.overridable && !this.collaborative,
-        });
-    };
+    updateInternalRef(value: string) {
+        const currentExam = this.exam();
+        this.ExamTabs.setExam({ ...currentExam, internalRef: value });
+        this.updateExam();
+    }
 
-    getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
+    setSubjectToLanguageInspection(value: boolean) {
+        const currentExam = this.exam();
+        this.ExamTabs.setExam({ ...currentExam, subjectToLanguageInspection: value });
+        this.updateExam();
+    }
 
-    getExaminationTypeName = () => {
-        switch (this.exam.implementation) {
+    enrollInstructionsChanged(event: string) {
+        const currentExam = this.exam();
+        this.ExamTabs.setExam({ ...currentExam, enrollInstruction: event });
+    }
+
+    instructionChanged(event: string) {
+        const currentExam = this.exam();
+        this.ExamTabs.setExam({ ...currentExam, instruction: event });
+    }
+
+    getExecutionTypeTranslation() {
+        const currentExam = this.exam();
+        return currentExam ? this.Exam.getExecutionTypeTranslation(currentExam.executionType) : '';
+    }
+
+    getExaminationTypeName() {
+        const currentExam = this.exam();
+        switch (currentExam.implementation) {
             case 'AQUARIUM':
                 return 'i18n_examination_type_aquarium';
             case 'CLIENT_AUTH':
@@ -135,50 +152,80 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
             case 'WHATEVER':
                 return 'i18n_examination_type_home_exam';
         }
-    };
+    }
 
-    toggleAnonymous = () => this.updateExam(false);
+    toggleAnonymous() {
+        this.updateExam();
+    }
 
-    toggleAnonymousDisabled = () =>
-        !this.Session.getUser().isAdmin ||
-        !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative) ||
-        this.collaborative;
+    toggleAnonymousDisabled() {
+        const currentExam = this.exam();
+        return (
+            !this.Session.getUser().isAdmin ||
+            !this.Exam.isAllowedToUnpublishOrRemove(currentExam, this.collaborative()) ||
+            this.collaborative()
+        );
+    }
 
-    showAnonymousReview = () =>
-        this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
+    showAnonymousReview() {
+        const currentExam = this.exam();
+        return this.collaborative() || (currentExam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled());
+    }
 
-    selectAttachmentFile = () => {
+    selectAttachmentFile() {
         this.Attachment.selectFile$(true, {})
             .pipe(
                 switchMap((data) => {
-                    const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
+                    const currentExam = this.exam();
+                    const url = this.collaborative() ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
                     return this.Files.upload$<Attachment>(url, data.$value.attachmentFile, {
-                        examId: this.exam.id.toString(),
+                        examId: currentExam.id.toString(),
                     });
                 }),
             )
             .subscribe((resp) => {
-                this.exam.attachment = resp;
+                this.ExamTabs.setExam({ ...this.exam(), attachment: resp });
             });
-    };
+    }
 
-    togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
+    togglePasswordInputType() {
+        this.pwdInputType.update((v) => (v === 'text' ? 'password' : 'text'));
+    }
 
-    downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.collaborative);
+    downloadExamAttachment() {
+        this.Attachment.downloadExamAttachment(this.exam(), this.collaborative());
+    }
 
-    removeExamAttachment = () => this.Attachment.removeExamAttachment(this.exam, this.collaborative);
+    removeExamAttachment() {
+        this.Attachment.removeExamAttachment$(this.exam(), this.collaborative()).subscribe(() => {
+            this.ExamTabs.setExam({ ...this.exam(), attachment: undefined });
+        });
+    }
 
-    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative, this.Session.getUser().isAdmin);
+    removeExam() {
+        this.Exam.removeExam(this.exam(), this.collaborative(), this.Session.getUser().isAdmin);
+    }
 
-    nextTab = () => {
-        this.Tabs.notifyTabChange(2);
+    nextTab() {
+        this.ExamTabs.notifyTabChange(2);
         this.router.navigate(['..', '2'], { relativeTo: this.route });
-    };
+    }
 
-    showDelete = () => {
-        if (this.collaborative) {
+    showDelete() {
+        const currentExam = this.exam();
+        if (this.collaborative()) {
             return this.Session.getUser().isAdmin;
         }
-        return this.exam.executionType.type === 'PUBLIC';
-    };
+        return currentExam.executionType.type === 'PUBLIC';
+    }
+
+    updateExamSoftwares(softwares: Software[]) {
+        const currentExam = this.exam();
+        this.ExamTabs.setExam({ ...currentExam, softwares });
+    }
+
+    updateExamLanguages(examLanguages: ExamLanguage[]) {
+        const currentExam = this.exam();
+        this.ExamTabs.setExam({ ...currentExam, examLanguages });
+    }
 }

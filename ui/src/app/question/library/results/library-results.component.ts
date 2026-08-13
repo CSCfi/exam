@@ -4,20 +4,20 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { skip } from 'rxjs';
 import { LibraryService } from 'src/app/question/library/library.service';
-import { LibraryQuestion, Question } from 'src/app/question/question.model';
+import { LibraryQuestion } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber, isString } from 'src/app/shared/miscellaneous/helpers';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
@@ -30,10 +30,9 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     selector: 'xm-library-results',
     templateUrl: './library-results.component.html',
     imports: [
-        FormsModule,
         NgbPopover,
         TableSortComponent,
-        MathJaxDirective,
+        MathDirective,
         RouterLink,
         PaginatorComponent,
         SlicePipe,
@@ -44,56 +43,81 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     ],
     styleUrls: ['../library.component.scss'],
 })
-export class LibraryResultsComponent implements OnInit, OnChanges {
-    @Input() questions: Question[] = [];
-    @Input() disableLinks = false;
-    @Output() selected = new EventEmitter<number[]>();
-    @Output() copied = new EventEmitter<LibraryQuestion>();
+export class LibraryResultsComponent {
+    readonly questions = input<LibraryQuestion[]>([]);
+    readonly disableLinks = input(false);
+    readonly selected = output<number[]>();
+    readonly copied = output<LibraryQuestion>();
+    readonly updated = output<LibraryQuestion[]>();
 
-    user: User;
-    allSelected = false;
-    pageSize = 25;
-    currentPage = 0;
-    questionsPredicate = '';
-    reverse = false;
-    fixedQuestions: SelectableQuestion[] = [];
+    readonly allSelected = signal(false);
+    readonly fixedQuestions = linkedSignal<LibraryQuestion[], SelectableQuestion[]>({
+        source: this.questions,
+        // Retain checkbox state of the questions that survive a list update
+        computation: (questions, previous) => {
+            const selectedIds = new Set((previous?.value ?? []).filter((q) => q.selected).map((q) => q.id));
+            return questions.map((q) => ({ ...q, selected: selectedIds.has(q.id) }));
+        },
+    });
+    readonly currentPage = linkedSignal<LibraryQuestion[], number>({
+        source: this.questions,
+        // Hold the page when questions are merely removed or updated, reset it for a new result set
+        computation: (questions, previous) => {
+            if (!previous) return 0;
+            const ids = new Set(questions.map((q) => q.id));
+            const lastPage = Math.max(0, Math.ceil(questions.length / this.pageSize) - 1);
+            return previous.source.every((q) => ids.has(q.id)) ? Math.min(previous.value, lastPage) : 0;
+        },
+    });
+    readonly questionsPredicate = signal('');
+    readonly reverse = signal(false);
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Library = inject(LibraryService);
-    private Attachment = inject(AttachmentService);
-    private Session = inject(SessionService);
+    readonly user: User;
+    readonly pageSize = 25;
+
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Library = inject(LibraryService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.user = this.Session.getUser();
-    }
 
-    ngOnInit() {
-        this.fixedQuestions = this.questions as SelectableQuestion[]; // FIXME: ugly cast, should resolve this better
+        // Load stored filters
         const storedData = this.Library.loadFilters('sorting');
         if (storedData.filters) {
-            this.questionsPredicate = storedData.filters.predicate;
-            this.reverse = storedData.filters.reverse;
+            this.questionsPredicate.set(storedData.filters.predicate);
+            this.reverse.set(storedData.filters.reverse);
         }
+
+        // Keep the parent's selections in sync with what is actually checked after a list update
+        toObservable(this.fixedQuestions)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe(() => this.questionSelected());
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.questions) {
-            this.currentPage = 0;
-            this.resetSelections();
-            this.fixedQuestions = this.questions as SelectableQuestion[];
-        }
-    }
+    onSelectAll = (event: Event) => {
+        this.allSelected.set((event.target as HTMLInputElement).checked);
+        this.selectAll();
+    };
+
+    onQuestionToggle = (question: SelectableQuestion, event: Event) => {
+        question.selected = (event.target as HTMLInputElement).checked;
+        this.questionSelected();
+    };
 
     selectAll = () => {
-        this.fixedQuestions.forEach((q) => (q.selected = this.allSelected));
+        this.fixedQuestions().forEach((q) => (q.selected = this.allSelected()));
         this.questionSelected();
     };
 
     questionSelected = () => {
-        const selections = this.fixedQuestions.filter((q) => q.selected).map((q) => q.id);
+        const questions = this.fixedQuestions();
+        const selections = questions.filter((q) => q.selected && q.id !== undefined).map((q) => q.id!);
+        this.allSelected.set(questions.length > 0 && selections.length === questions.length);
         this.selected.emit(selections);
     };
 
@@ -104,8 +128,11 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         ).subscribe({
             next: () =>
                 this.http.delete(`/app/questions/${question.id}`).subscribe({
-                    next: () => this.questions.splice(this.questions.indexOf(question), 1),
-                    error: () => this.toast.info(this.translate.instant('i18n_question_removed')),
+                    next: () => {
+                        this.updated.emit(this.questions().filter((q) => q.id !== question.id));
+                        this.toast.info(this.translate.instant('i18n_question_removed'));
+                    },
+                    error: (err) => this.toast.error(err),
                 }),
         });
 
@@ -115,9 +142,12 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
             this.translate.instant('i18n_copy_question'),
         ).subscribe({
             next: () =>
-                this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe({
+                this.http.post<LibraryQuestion>(`/app/question/${question.id}`, {}).subscribe({
                     next: (copy) => {
-                        this.questions.splice(this.questions.indexOf(question), 0, copy);
+                        const questions = [...this.questions()];
+                        const index = questions.findIndex((q) => q.id === question.id);
+                        questions.splice(index > -1 ? index : 0, 0, copy);
+                        this.updated.emit(questions);
                         this.copied.emit(copy);
                     },
                     error: (err) => this.toast.error(err),
@@ -143,18 +173,26 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return user;
     };
 
+    getOtherOwners = (question: LibraryQuestion): User[] => {
+        return question.questionOwners.filter((o) => o.id !== this.user.id);
+    };
+
+    getOwnersToDisplay = (question: LibraryQuestion): User[] => {
+        return this.user.isAdmin ? question.questionOwners : this.getOtherOwners(question);
+    };
+
     printTags = (question: LibraryQuestion) => {
         const ownTags = question.tags.filter((t) => t.creator?.id === this.user.id);
         return ownTags.map((t) => t.name).join(', ');
     };
 
-    pageSelected = (event: { page: number }) => (this.currentPage = event.page);
+    pageSelected = (event: { page: number }) => this.currentPage.set(event.page);
 
     setPredicate = (predicate: string) => {
-        if (this.questionsPredicate === predicate) {
-            this.reverse = !this.reverse;
+        if (this.questionsPredicate() === predicate) {
+            this.reverse.set(!this.reverse());
         }
-        this.questionsPredicate = predicate;
+        this.questionsPredicate.set(predicate);
         this.saveFilters();
     };
 
@@ -204,14 +242,9 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     private saveFilters = () => {
         const filters = {
-            predicate: this.questionsPredicate,
-            reverse: this.reverse,
+            predicate: this.questionsPredicate(),
+            reverse: this.reverse(),
         };
         this.Library.storeFilters(filters, 'sorting');
-    };
-
-    private resetSelections = () => {
-        this.fixedQuestions.forEach((q) => (q.selected = false));
-        this.questionSelected();
     };
 }

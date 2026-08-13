@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -12,16 +12,38 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { ClozeTestAnswer, EssayAnswer } from 'src/app/question/question.model';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
+export interface SaveAnswerOptions {
+    autosave: boolean;
+    canFail: boolean;
+    external: boolean;
+}
+
+export interface SaveSectionOptions {
+    autosave: boolean;
+    allowEmpty: boolean;
+    canFail: boolean;
+    external: boolean;
+}
+
+export interface SaveOptionOptions {
+    preview: boolean;
+    external: boolean;
+}
+
+export interface LogoutOptions {
+    quitLinkEnabled: boolean;
+    canFail: boolean;
+    external: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExaminationService {
-    isExternal = false; // TODO: sketchy use to have state in a service
+    readonly answerStatusVersion = signal(0);
 
-    private router = inject(Router);
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-
-    getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
+    private readonly router = inject(Router);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     getLtiInitiateUrl$() {
         return 'https://dev.exam.csc.fi/integration/lti/start-login';
@@ -39,7 +61,6 @@ export class ExaminationService {
                 this.http.get<Examination>(isCollaboration ? getUrl(hash).replace('/app/', '/app/iop/') : getUrl(hash)),
             ),
             switchMap((e) => {
-                this.isExternal = e.external;
                 if (e.cloned) {
                     this.router.navigate(['/exam', e.hash]);
                     // we came here with a reference to the parent exam so we can't directly use it, reload the student exam (copy)
@@ -56,8 +77,7 @@ export class ExaminationService {
     saveTextualAnswer$ = (
         esq: ExaminationQuestion,
         hash: string,
-        autosave: boolean,
-        canFail: boolean,
+        { autosave, canFail, external }: SaveAnswerOptions,
     ): Observable<ExaminationQuestion> => {
         const type = esq.question.type;
         const answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
@@ -69,6 +89,7 @@ export class ExaminationService {
             type === 'EssayQuestion'
                 ? '/app/student/exam/' + hash + '/question/' + esq.id
                 : '/app/student/exam/' + hash + '/clozetest/' + esq.id,
+            external,
         );
         const msg = {
             answer: answerObj.answer,
@@ -85,6 +106,7 @@ export class ExaminationService {
                     }
                 }
                 answerObj.objectVersion = a.objectVersion;
+                this.setAnswerStatus(esq);
                 return esq;
             }),
             catchError((err) => {
@@ -99,18 +121,37 @@ export class ExaminationService {
     saveAllTextualAnswersOfSection$ = (
         section: ExaminationSection,
         hash: string,
-        autosave: boolean,
-        allowEmpty: boolean,
-        canFail: boolean,
+        { autosave, allowEmpty, canFail, external }: SaveSectionOptions,
     ) => {
         const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
-        const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, autosave, canFail));
+        const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, { autosave, canFail, external }));
         return concat(...tasks);
     };
 
-    saveAllTextualAnswersOfExam$ = (exam: Examination) =>
+    saveAllClozeTestAnswersOfSection$ = (section: ExaminationSection, hash: string, options: SaveSectionOptions) => {
+        const questions = section.sectionQuestions.filter(
+            (esq) => esq.question.type === 'ClozeTestQuestion' && this.isTextualAnswer(esq, options.allowEmpty),
+        );
+        const tasks = questions.map((q) =>
+            this.saveTextualAnswer$(q, hash, {
+                autosave: options.autosave,
+                canFail: options.canFail,
+                external: options.external,
+            }),
+        );
+        return concat(...tasks);
+    };
+
+    saveAllTextualAnswersOfExam$ = (exam: Examination, external: boolean) =>
         concat(
-            ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, true)),
+            ...exam.examSections.map((es) =>
+                this.saveAllTextualAnswersOfSection$(es, exam.hash, {
+                    autosave: false,
+                    allowEmpty: true,
+                    canFail: true,
+                    external,
+                }),
+            ),
         );
 
     isAnswered = (sq: ExaminationQuestion) => {
@@ -149,9 +190,10 @@ export class ExaminationService {
             sectionQuestion.answered = false;
             sectionQuestion.questionStatus = this.translate.instant('i18n_question_unanswered');
         }
+        this.answerStatusVersion.update((v) => v + 1);
     };
 
-    saveOption = (hash: string, sq: ExaminationQuestion, preview: boolean) => {
+    saveOption = (hash: string, sq: ExaminationQuestion, { preview, external }: SaveOptionOptions) => {
         let ids: number[];
         if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
             ids = sq.options.filter((o) => o.answered).map((o) => o.id as number);
@@ -159,7 +201,7 @@ export class ExaminationService {
             ids = [sq.selectedOption];
         }
         if (!preview) {
-            const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
+            const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option', external);
             this.http.post(url, { oids: ids }).subscribe({
                 next: () => {
                     this.toast.info(this.translate.instant('i18n_answer_saved'));
@@ -186,19 +228,19 @@ export class ExaminationService {
         return Number.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
     };
 
-    abort$ = (hash: string): Observable<void> => {
-        const url = this.getResource('/app/student/exam/abort/' + hash);
+    abort$ = (hash: string, external: boolean): Observable<void> => {
+        const url = this.getResource('/app/student/exam/abort/' + hash, external);
         return this.http.put<void>(url, {});
     };
 
-    logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
+    logout = (msg: string, hash: string, { quitLinkEnabled, canFail, external }: LogoutOptions) => {
         const ok = () => {
             this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             this.router.navigate(['/examination/logout'], {
                 queryParams: { reason: 'finished', quitLinkEnabled: quitLinkEnabled },
             });
         };
-        const url = this.getResource('/app/student/exam/' + hash);
+        const url = this.getResource('/app/student/exam/' + hash, external);
         this.http.put<void>(url, {}).subscribe({
             next: ok,
             error: (resp) => {
@@ -207,6 +249,8 @@ export class ExaminationService {
             },
         });
     };
+
+    private getResource = (url: string, external: boolean) => (external ? url.replace('/app/', '/app/iop/') : url);
 
     private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {
         switch (esq.question.type) {

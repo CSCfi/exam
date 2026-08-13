@@ -25,4 +25,12 @@ class AppFilters @Inject() (
 ) extends HttpFilters:
 
   override def filters: Seq[EssentialFilter] =
-    Seq(securityHeadersFilter, csrfFilter, gzipFilter, corsFilter, cspFilter, auditFilter, systemFilter)
+    Seq(
+      securityHeadersFilter,
+      csrfFilter,
+      gzipFilter,
+      corsFilter,
+      cspFilter,
+      auditFilter,
+      systemFilter
+    )

@@ -8,6 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { tap } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Address, Availability, MaintenancePeriod, WorkingHour } from 'src/app/facility/facility.model';
 import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-dialog.component';
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
@@ -17,12 +18,12 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-    private http = inject(HttpClient);
-    private modal = inject(ModalService);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private dialogs = inject(ConfirmationDialogService);
-    private DateTime = inject(DateTimeService);
+    private readonly http = inject(HttpClient);
+    private readonly modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly dialogs = inject(ConfirmationDialogService);
+    private readonly DateTime = inject(DateTimeService);
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
     availabilityApi = (roomId: number, date: string) => `/app/availability/${roomId}/${date}`;
@@ -93,8 +94,8 @@ export class RoomService {
         exceptions?: ExceptionWorkingHours[],
     ) => {
         const modalRef = this.modal.openRef(ExceptionDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.outOfService = outOfService;
-        modalRef.componentInstance.exceptions = exceptions;
+        modalRef.componentInstance.outOfService.set(outOfService ?? true);
+        modalRef.componentInstance.exceptions.set(exceptions ?? []);
         this.modal.result$<ExceptionWorkingHours[]>(modalRef).subscribe(callBack);
     };
     deleteException$ = (roomId: number, exceptionId: number) =>
@@ -105,22 +106,18 @@ export class RoomService {
             }),
         );
 
-    updateStartingHours = (hours: WorkingHour[], offset: number, roomIds: number[]) =>
-        new Promise<void>((resolve, reject) => {
-            const selected = hours.filter((hour) => hour.selected).map((hour) => this.formatTime(hour.startingHour));
-            const data = { hours: selected, offset, roomIds };
+    updateStartingHours$ = (hours: WorkingHour[], offset: number, roomIds: number[]) => {
+        const selected = hours.filter((hour) => hour.selected).map((hour) => this.formatTime(hour.startingHour));
+        const data = { hours: selected, offset, roomIds };
 
-            this.updateExamStartingHours$(data).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('i18n_exam_starting_hours_updated'));
-                    resolve();
-                },
-                error: (error) => {
-                    this.toast.error(error.data);
-                    reject();
-                },
-            });
-        });
+        return this.updateExamStartingHours$(data).pipe(
+            tap({
+                next: () => this.toast.info(this.translate.instant('i18n_exam_starting_hours_updated')),
+                error: (error) => this.toast.error(error.data),
+            }),
+            map(() => void 0),
+        );
+    };
 
     updateWorkingHours$ = (hours: DefaultWorkingHours, ids: number[]) =>
         this.http.post<{ id: number }>('/app/workinghours', { workingHours: hours, roomIds: ids });

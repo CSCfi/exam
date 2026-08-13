@@ -8,8 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { SessionService } from 'src/app/session/session.service';
-import { Attachment } from 'src/app/shared/attachment/attachment.model';
+import type { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import {
@@ -23,12 +22,11 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class QuestionService {
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Session = inject(SessionService);
-    private Files = inject(FileService);
-    private Attachment = inject(AttachmentService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Files = inject(FileService);
+    private readonly Attachment = inject(AttachmentService);
 
     getQuestionType = (type: string) => {
         let questionType;
@@ -57,21 +55,6 @@ export class QuestionService {
         return questionType;
     };
 
-    getQuestionDraft(): QuestionDraft {
-        return {
-            id: undefined,
-            question: '',
-            type: '',
-            examSectionQuestions: [],
-            options: [],
-            questionOwners: [this.Session.getUser()],
-            state: 'NEW',
-            tags: [],
-            defaultNegativeScoreAllowed: false,
-            defaultOptionShufflingOn: true,
-        };
-    }
-
     getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
     createQuestion$ = (question: QuestionDraft): Observable<Question> =>
@@ -79,11 +62,17 @@ export class QuestionService {
             tap(() => this.toast.info(this.translate.instant('i18n_question_added'))),
             switchMap((response) => {
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
+                    const formFileName = question.attachment.fileName;
                     return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
                         questionId: response.id.toString(),
                     }).pipe(
-                        tap((resp) => (question.attachment = resp)),
-                        map(() => response),
+                        tap((resp) => {
+                            question.attachment = {
+                                ...resp,
+                                fileName: resp.fileName ?? formFileName,
+                            };
+                        }),
+                        map(() => ({ ...response, attachment: question.attachment })),
                     );
                 }
                 return of(response);
@@ -95,11 +84,17 @@ export class QuestionService {
             tap(() => this.toast.info(this.translate.instant('i18n_question_saved'))),
             switchMap((response) => {
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
+                    const formFileName = question.attachment.fileName;
                     return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
                         questionId: question.id.toString(),
                     }).pipe(
-                        tap((resp) => (question.attachment = resp)),
-                        map(() => response),
+                        tap((resp) => {
+                            question.attachment = {
+                                ...resp,
+                                fileName: resp.fileName ?? formFileName,
+                            };
+                        }),
+                        map(() => ({ ...response, attachment: question.attachment })),
                     );
                 } else if (question.attachment && question.attachment.removed) {
                     return this.Attachment.eraseQuestionAttachment$(question).pipe(map(() => response));
@@ -149,7 +144,7 @@ export class QuestionService {
                         }).pipe(
                             tap((resp) => {
                                 question.attachment = resp;
-                                response.question.attachment = question.attachment;
+                                response.question.attachment = resp;
                             }),
                             map(() => response),
                         );
@@ -294,6 +289,14 @@ export class QuestionService {
         };
         return this.http.post<void>(this.questionOwnerApi(uid), data);
     };
+
+    getQuestionDistribution$ = (qid: number) =>
+        this.http.get<{ distributed: boolean }>(`/app/exams/question/${qid}/distribution`);
+
+    updateQuestion = (resource: string, question: Question) =>
+        this.http.put<ExamSectionQuestion>(resource, {
+            question: question,
+        });
 
     areNewFeaturesEnabled$ = () => {
         return this.http.get<{ multichoiceFeaturesOn: boolean }>('/app/settings/newMultichoiceSupport');

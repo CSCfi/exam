@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -12,7 +11,7 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
 
 @Component({
     selector: 'xm-remove-reservation-dialog',
-    imports: [FormsModule, TranslateModule],
+    imports: [TranslateModule],
     template: `
         <div class="modal-header">
             <h4 class="xm-modal-title">
@@ -21,34 +20,57 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
         </div>
         <div class="modal-body">
             <strong>{{ 'i18n_message' | translate }}</strong>
-            <textarea class="form-control" [(ngModel)]="message.text" rows="3" autofocus> </textarea>
+            <textarea
+                class="form-control"
+                [value]="message().text"
+                (input)="onMessageTextInput($event)"
+                rows="3"
+                autofocus
+            >
+            </textarea>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-sm btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
-            <button class="btn btn-sm btn-outline-secondary me-3" (click)="cancel()">
+            <button class="btn btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RemoveReservationDialogComponent {
-    @Input() reservation!: Reservation;
-    message = { text: '' };
+    readonly reservation = model<Reservation | undefined>(undefined);
+    readonly message = signal<{ text: string }>({ text: '' });
 
-    activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
 
-    ok = () =>
-        this.http
-            .delete(`/app/reservations/${this.reservation.id}`, {
-                headers: { 'Content-Type': 'application/json' },
-                params: { msg: this.message.text },
-            })
-            .subscribe({
-                next: this.activeModal.close,
-                error: (err) => this.toast.error(err),
-            });
+    ok() {
+        const currentReservation = this.reservation();
+        if (!currentReservation) return;
+        const msg = this.message().text;
+        const isInboundExternal = !!currentReservation.externalUserRef && !currentReservation.enrolment;
+        const request$ = isInboundExternal
+            ? this.http.delete(`/app/iop/reservations/external/${currentReservation.externalRef}/force`, {
+                  body: { msg },
+              })
+            : this.http.delete(`/app/reservations/${currentReservation.id}`, {
+                  params: { msg },
+              });
+        request$.subscribe({
+            next: () => this.activeModal.close(),
+            error: (err) => this.toast.error(err),
+        });
+    }
 
-    cancel = () => this.activeModal.dismiss();
+    cancel() {
+        this.activeModal.dismiss();
+    }
+
+    onMessageTextInput = (event: Event) => this.setMessageText((event.target as HTMLTextAreaElement).value);
+
+    setMessageText(text: string) {
+        this.message.update((m) => ({ ...m, text }));
+    }
 }

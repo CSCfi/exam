@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
@@ -12,7 +12,7 @@ import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 import { ClozeTestAnswer, ExamSectionQuestion } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
@@ -22,20 +22,23 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
 @Component({
     selector: 'xm-printout',
     templateUrl: './printout.component.html',
-    imports: [CourseCodeComponent, TeacherListComponent, MathJaxDirective, DatePipe, TranslateModule, OrderByPipe],
+    imports: [CourseCodeComponent, TeacherListComponent, MathDirective, DatePipe, TranslateModule, OrderByPipe],
     styleUrl: './printout.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrintoutComponent implements OnInit {
-    exam!: Printout;
-    tab?: number;
+export class PrintoutComponent {
+    readonly exam = signal<Printout | undefined>(undefined);
 
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private Files = inject(FileService);
+    private readonly tab: number | undefined;
 
-    ngOnInit() {
-        this.tab = this.route.snapshot.queryParams.get('tab');
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Files = inject(FileService);
+
+    constructor() {
+        const tabParam = this.route.snapshot.queryParams.get('tab');
+        this.tab = tabParam ? Number(tabParam) : undefined;
         this.http
             .get<Exam>(`/app/exams/${this.route.snapshot.params.id}/preview`)
             .pipe(
@@ -60,10 +63,10 @@ export class PrintoutComponent implements OnInit {
                     };
                 }),
             )
-            .subscribe((exam) => (this.exam = exam));
+            .subscribe((exam) => this.exam.set(exam));
     }
 
-    getLanguageName = (lang: ExamLanguage) => {
+    getLanguageName(lang: ExamLanguage) {
         // TODO: fixed languages?
         let name;
         switch (lang.code) {
@@ -81,9 +84,9 @@ export class PrintoutComponent implements OnInit {
                 break;
         }
         return name;
-    };
+    }
 
-    getQuestionTypeName = (esq: ExamSectionQuestion) => {
+    getQuestionTypeName(esq: ExamSectionQuestion) {
         let name;
         switch (esq.question.type) {
             case 'WeightedMultipleChoiceQuestion':
@@ -108,18 +111,29 @@ export class PrintoutComponent implements OnInit {
                 break;
         }
         return name;
-    };
+    }
 
-    exitPreview = () => {
-        if (this.tab) {
-            this.router.navigate(['/staff/exams', this.exam.id, this.tab]);
+    exitPreview() {
+        const currentExam = this.exam();
+        const currentTab = this.tab;
+        if (currentTab && currentExam) {
+            this.router.navigate(['/staff/exams', currentExam.id, currentTab]);
         } else {
             this.router.navigate(['/staff/printouts']);
         }
-    };
+    }
 
-    print = () => window.print();
+    print() {
+        window.print();
+    }
 
-    printAttachment = () =>
-        this.Files.download('/app/attachment/exam/' + this.exam.id, (this.exam.attachment as Attachment).fileName);
+    printAttachment() {
+        const currentExam = this.exam();
+        if (currentExam?.attachment) {
+            this.Files.download(
+                '/app/attachment/exam/' + currentExam.id,
+                (currentExam.attachment as Attachment).fileName,
+            );
+        }
+    }
 }

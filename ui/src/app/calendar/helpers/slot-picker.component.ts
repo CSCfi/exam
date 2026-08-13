@@ -2,24 +2,21 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
-import type { SimpleChanges } from '@angular/core';
 import {
+    ChangeDetectionStrategy,
     Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    ViewChild,
     ViewEncapsulation,
+    computed,
     inject,
+    input,
+    linkedSignal,
+    output,
     signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/core';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -30,7 +27,6 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
 import { PasswordPromptComponent } from 'src/app/calendar/helpers/password-prompt.component';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
-import { updateList } from 'src/app/shared/miscellaneous/helpers';
 import { AccessibilityPickerComponent } from './accessibility-picker.component';
 import { SelectedRoomComponent } from './selected-room.component';
 
@@ -40,14 +36,11 @@ type AvailableSlot = Slot & { availableMachines: number };
 @Component({
     selector: 'xm-calendar-slot-picker',
     templateUrl: './slot-picker.component.html',
-    styleUrls: ['../calendar.component.scss'],
+    styleUrls: ['../calendar.component.scss', './slot-picker.component.scss'],
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        NgClass,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
         SelectedRoomComponent,
         AccessibilityPickerComponent,
         BookingCalendarComponent,
@@ -55,84 +48,106 @@ type AvailableSlot = Slot & { availableMachines: number };
         TranslateModule,
     ],
 })
-export class SlotPickerComponent implements OnInit, OnChanges {
-    @ViewChild('passwordPrompt') passwordPrompt!: PasswordPromptComponent;
-    @Input() sequenceNumber = 0;
-    @Input() isInteroperable = false;
-    @Input() isCollaborative = false;
-    @Input() isExternal = false;
-    @Input() organisation?: Organisation;
-    @Input() disabled = false;
-    @Input() minDate = new Date();
-    @Input() maxDate = new Date();
-    @Output() cancelled = new EventEmitter<void>();
-    @Output() selected = new EventEmitter<{
+export class SlotPickerComponent {
+    readonly sequenceNumber = input(0);
+    readonly isInteroperable = input(false);
+    readonly isCollaborative = input(false);
+    readonly isExternal = input(false);
+    readonly organisation = input<Organisation | undefined>(undefined);
+    readonly disabled = input(false);
+    readonly minDate = input<Date>(new Date());
+    readonly maxDate = input<Date>(new Date());
+    readonly cancelled = output<void>();
+    readonly selected = output<{
         start: string;
         end: string;
         room: ExamRoom;
         accessibilities: Accessibility[];
     }>();
 
-    rooms = signal<FilterableRoom[]>([]);
-    maintenancePeriods = signal<(MaintenancePeriod & { org: string })[]>([]);
-    selectedRoom?: ExamRoom;
-    accessibilities: FilterableAccessibility[] = [];
-    currentWeek = signal(DateTime.now());
-    examId = signal(0);
-    passwordVerified = signal(false);
+    readonly accessibilities = signal<FilterableAccessibility[]>([]);
+    readonly currentWeek = signal(DateTime.now());
+    readonly passwordVerified = linkedSignal<boolean>(() => {
+        void this.organisation();
+        return false;
+    });
+    readonly selectedRoom = linkedSignal<ExamRoom | undefined>(() => {
+        void this.organisation();
+        return undefined;
+    });
 
-    private translate = inject(TranslateService);
-    private route = inject(ActivatedRoute);
-    private toast = inject(ToastrService);
-    private Calendar = inject(CalendarService);
+    // Computed state derived from organisation
+    readonly rooms = computed<FilterableRoom[]>(() => {
+        const org = this.organisation();
+        const filteredId = this.filteredRoomId();
+        const baseRooms = org
+            ? org.facilities.map((f): FilterableRoom => ({ ...f, filtered: false }))
+            : this.localRooms();
+        return baseRooms.map((r): FilterableRoom => ({ ...r, filtered: r.id === filteredId }));
+    });
 
-    ngOnInit() {
+    readonly maintenancePeriods = computed<(MaintenancePeriod & { org: string })[]>(() => {
+        const org = this.organisation();
+        const local = this.localMaintenancePeriods();
+        const remote = org?.maintenancePeriods?.map((p) => ({ ...p, org: org.code })) || [];
+        return [...local, ...remote];
+    });
+
+    private readonly examId = signal(0);
+
+    // API-loaded state
+    private readonly localRooms = signal<FilterableRoom[]>([]);
+    private readonly localMaintenancePeriods = signal<(MaintenancePeriod & { org: '' })[]>([]);
+    private readonly filteredRoomId = linkedSignal<number | undefined>(() => {
+        void this.organisation();
+        return undefined;
+    });
+
+    private readonly translate = inject(TranslateService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly toast = inject(ToastrService);
+    private readonly Calendar = inject(CalendarService);
+
+    constructor() {
         this.examId.set(Number(this.route.snapshot.paramMap.get('id')));
-        this.Calendar.listAccessibilityCriteria$().subscribe(
-            (resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false }))),
+        this.Calendar.listAccessibilityCriteria$().subscribe((resp) =>
+            this.accessibilities.set(resp.map((a) => ({ ...a, filtered: false }))),
         );
         this.Calendar.listRooms$().subscribe((resp) => {
-            const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
-            this.rooms.set(rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)));
+            const rooms = resp
+                .map((r: ExamRoom): FilterableRoom => ({ ...r, filtered: false }))
+                .filter((r) => r.name)
+                .sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
+            this.localRooms.set(rooms);
         });
         this.Calendar.listMaintenancePeriods$().subscribe((periods) => {
-            const localMaintenances = periods.map((p) => ({ ...p, org: '' }));
-            this.maintenancePeriods.set(localMaintenances);
+            this.localMaintenancePeriods.set(periods.map((p) => ({ ...p, org: '' })));
         });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.organisation && this.organisation) {
-            this.rooms.set(this.organisation.facilities.map((f) => ({ ...f, filtered: false })));
-            delete this.selectedRoom;
-            this.passwordVerified.set(false);
-            const remoteMaintenances = (this.organisation.maintenancePeriods || []).map((p) => ({
-                ...p,
-                org: this.organisation!.code,
-            }));
-            this.maintenancePeriods.set(
-                this.maintenancePeriods()
-                    .filter((p) => !p.org)
-                    .concat(remoteMaintenances),
-            );
+    eventSelected($event: EventApi) {
+        const room = this.selectedRoom();
+        if (!room) {
+            return;
         }
-    }
-
-    eventSelected = ($event: EventApi) =>
         this.selected.emit({
             start: $event.startStr,
             end: $event.endStr,
-            room: this.selectedRoom as ExamRoom,
-            accessibilities: this.accessibilities.filter((i) => i.filtered),
+            room: room,
+            accessibilities: this.accessibilities().filter((i) => i.filtered),
         });
+    }
 
     refresh($event: { date: string; timeZone: string; success: (events: EventInput[]) => void }) {
-        if (!this.selectedRoom) {
+        const room = this.selectedRoom();
+        if (!room) {
             return;
         }
         const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
         this.currentWeek.set(start as DateTime<true>);
-        const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
+        const accessibilities = this.accessibilities()
+            .filter((i) => i.filtered)
+            .map((i) => i.id);
 
         const getColor = (slot: AvailableSlot) => {
             if (slot.availableMachines < 0) {
@@ -147,11 +162,15 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         };
 
         const successFn = (resp: AvailableSlot[]) => {
+            const currentRoom = this.selectedRoom();
+            if (!currentRoom) {
+                return;
+            }
             const events: EventInput[] = resp.map((slot: AvailableSlot, i) => ({
                 id: i.toString(),
                 title: this.getTitle(slot),
-                start: this.adjust(slot.start, this.selectedRoom?.localTimezone as string),
-                end: this.adjust(slot.end, this.selectedRoom?.localTimezone as string),
+                start: this.adjust(slot.start, currentRoom.localTimezone),
+                end: this.adjust(slot.end, currentRoom.localTimezone),
                 backgroundColor: getColor(slot),
                 textColor: 'black',
                 availableMachines: slot.availableMachines,
@@ -165,40 +184,40 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         });
     }
 
-    makeExternalReservation = () => {
-        delete this.selectedRoom;
+    makeExternalReservation() {
+        this.selectedRoom.set(undefined);
         this.cancelled.emit();
-    };
+    }
 
-    accesibilitiesChanged = (items: FilterableAccessibility[]) => (this.accessibilities = [...items]);
+    accesibilitiesChanged(items: FilterableAccessibility[]) {
+        this.accessibilities.set([...items]);
+    }
 
     onPasswordValidated(password: string): void {
-        if (this.selectedRoom && password) {
-            this.Calendar.validatePassword$(
-                this.selectedRoom.id,
-                password,
-                this.isExternal,
-                this.selectedRoom._id,
-            ).subscribe({
+        const room = this.selectedRoom();
+        if (room && password) {
+            this.Calendar.validatePassword$(room.id, password, this.isExternal(), room._id).subscribe({
                 next: () => this.passwordVerified.set(true),
                 error: () => this.toast.error(this.translate.instant('i18n_invalid_password')),
             });
         }
     }
 
-    selectRoom = (room: FilterableRoom) => {
+    selectRoom(room: FilterableRoom) {
         if (!room.outOfService) {
             // Always set the room immediately to show room information
             this.setSelectedRoom(room);
         }
-    };
+    }
 
     getDescription(room: ExamRoom): string {
         const status = room.statusComment ? ': ' + room.statusComment : '';
         return this.translate.instant('i18n_room_out_of_service') + status;
     }
 
-    outOfServiceGate = (room: ExamRoom, text: string) => (room.outOfService ? text : undefined);
+    outOfServiceGate(room: ExamRoom, text: string): string | undefined {
+        return room.outOfService ? text : undefined;
+    }
 
     private getTitle(slot: AvailableSlot): string {
         if (slot.availableMachines > 0) {
@@ -211,35 +230,36 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     }
 
     private setSelectedRoom(room: FilterableRoom) {
-        this.selectedRoom = room;
+        this.selectedRoom.set(room);
         // Only set password verified to true if room doesn't require password
-        if (!this.isExternal && room.internalPasswordRequired) {
+        if (!this.isExternal() && room.internalPasswordRequired) {
             this.passwordVerified.set(false);
-        } else if (this.isExternal && room.externalPasswordRequired) {
+        } else if (this.isExternal() && room.externalPasswordRequired) {
             this.passwordVerified.set(false);
         } else {
             this.passwordVerified.set(true);
         }
-        this.rooms.update((rs) => {
-            const unfiltered = rs.map((r) => ({ ...r, filtered: false }));
-            return updateList(unfiltered, 'id', { ...room, filtered: true });
-        });
+        this.filteredRoomId.set(room.id);
     }
 
     private query(date: string, accessibilityIds: number[]): Observable<AvailableSlot[]> {
-        const room = this.selectedRoom as ExamRoom;
+        const room = this.selectedRoom();
+        if (!room) {
+            throw new Error('No room selected');
+        }
+        const org = this.organisation();
         const params = new HttpParams({
             fromObject:
-                this.isExternal && this.organisation
-                    ? { org: this.organisation._id, date: date }
+                this.isExternal() && org
+                    ? { org: org._id, date: date }
                     : { day: date, aids: accessibilityIds.map((i) => i.toString()) },
         });
-        return this.Calendar.listSlots$(this.isExternal, this.isCollaborative, room, this.examId(), params);
+        return this.Calendar.listSlots$(this.isExternal(), this.isCollaborative(), room, this.examId(), params);
     }
 
-    private adjust = (date: string, tz: string): Date => {
+    private adjust(date: string, tz: string): Date {
         const adjusted = DateTime.fromISO(date, { zone: tz });
         const offset = adjusted.isInDST ? -1 : 0;
         return adjusted.plus({ hours: offset }).toJSDate();
-    };
+    }
 }

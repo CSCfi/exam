@@ -2,9 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnChanges, OnInit } from '@angular/core';
-import { Component, EventEmitter, Injectable, Input, Output, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    Injectable,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal,
+} from '@angular/core';
+import { FormField, form } from '@angular/forms/signals';
 import {
     NgbDate,
     NgbDateParserFormatter,
@@ -36,8 +45,8 @@ export class DatePickerFormatter extends NgbDateParserFormatter {
 
 @Injectable({ providedIn: 'root' })
 export class DatePickerI18n extends NgbDatepickerI18n {
-    private translate = inject(TranslateService);
-    private DateTime = inject(DateTimeService);
+    private readonly translate = inject(TranslateService);
+    private readonly DateTime = inject(DateTimeService);
 
     getWeekdayShortName = (weekday: WeekdayNumbers): string =>
         this.DateTime.getLocalizedDateForDay(weekday, this.getLocale()).weekdayShort as string;
@@ -60,82 +69,60 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         { provide: NgbDateParserFormatter, useClass: DatePickerFormatter },
         { provide: NgbDatepickerI18n, useClass: DatePickerI18n },
     ],
-    imports: [FormsModule, NgbInputDatepicker, TranslateModule],
+    imports: [FormField, NgbInputDatepicker, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DatePickerComponent implements OnInit, OnChanges {
-    @Input() initialDate: Date | string | number | null = null;
-    @Input() initiallyEmpty = false;
-    @Input() extra = false;
-    @Input() extraText = '';
-    @Input() modelOptions: Record<string, string> = {};
-    @Input() disabled = false;
-    @Input() optional = true;
-    @Input() readonly = false;
-    @Input() minDate?: string;
-    @Input() maxDate?: string;
+export class DatePickerComponent {
+    readonly initialDate = input<Date | string | number | null>(null);
+    readonly initiallyEmpty = input(false);
+    readonly extra = input(false);
+    readonly extraText = input('');
+    readonly modelOptions = input<Record<string, string>>({});
+    readonly disabled = input(false);
+    readonly optional = input(true);
+    readonly isReadonly = input(false);
+    readonly minDate = input<string | undefined>(undefined);
+    readonly maxDate = input<string | undefined>(undefined);
 
-    @Output() updated = new EventEmitter<{ date: Date | null }>();
-    @Output() extraActionHappened = new EventEmitter<{ date: Date | null }>();
+    readonly updated = output<{ date: Date | null }>();
+    readonly extraActionHappened = output<{ date: Date | null }>();
 
-    date: NgbDate | null = null;
-    showWeeks = true;
-    format = 'dd.MM.yyyy';
-    today!: NgbDate;
-    startDate!: NgbDate;
-    nowDateStruct!: NgbDateStruct;
-    minDateStruct!: NgbDateStruct;
-    maxDateStruct!: NgbDateStruct;
-
-    ngOnInit() {
+    readonly dateForm = form(
+        linkedSignal<{ date: NgbDate | null }>(() => {
+            const initialDateValue = this.initialDate();
+            const d = initialDateValue !== null ? new Date(initialDateValue) : new Date();
+            const date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+            return this.initiallyEmpty() ? { date: null } : { date };
+        }),
+    );
+    readonly today = signal<NgbDate>(
+        new NgbDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
+    );
+    readonly startDate = linkedSignal<NgbDate>(() => {
+        const initialDateValue = this.initialDate();
+        const d = initialDateValue !== null ? new Date(initialDateValue) : new Date();
+        return new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+    });
+    readonly minDateStruct = computed<NgbDateStruct>(() => {
+        const minDateValue = this.minDate();
+        if (minDateValue) {
+            const minDate = new Date(Date.parse(minDateValue));
+            return { day: minDate.getDate(), month: minDate.getMonth() + 1, year: minDate.getFullYear() };
+        }
         const now = new Date();
-        const d = this.initialDate !== null ? new Date(this.initialDate) : now;
-        this.today = new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
-        const date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
-
-        if (this.minDate) {
-            const minDate = new Date(Date.parse(this.minDate));
-            this.minDateStruct = {
-                day: minDate.getDate(),
-                month: minDate.getMonth() + 1,
-                year: minDate.getFullYear(),
-            } as NgbDateStruct;
-        } else {
-            this.minDateStruct = {
-                day: now.getDate(),
-                month: now.getMonth() + 1,
-                year: now.getFullYear() - 10,
-            } as NgbDateStruct;
+        return { day: now.getDate(), month: now.getMonth() + 1, year: now.getFullYear() - 10 };
+    });
+    readonly maxDateStruct = computed<NgbDateStruct>(() => {
+        const maxDateValue = this.maxDate();
+        if (maxDateValue) {
+            const maxDate = new Date(Date.parse(maxDateValue));
+            return { day: maxDate.getDate(), month: maxDate.getMonth() + 1, year: maxDate.getFullYear() };
         }
-
-        if (this.maxDate) {
-            const maxDate = new Date(Date.parse(this.maxDate));
-            this.maxDateStruct = {
-                day: maxDate.getDate(),
-                month: maxDate.getMonth() + 1,
-                year: maxDate.getFullYear(),
-            } as NgbDateStruct;
-        } else {
-            this.maxDateStruct = {
-                day: now.getDate(),
-                month: now.getMonth() + 1,
-                year: now.getFullYear() + 10,
-            } as NgbDateStruct;
-        }
-
-        if (!this.initiallyEmpty) {
-            this.date = date;
-        }
-        this.startDate = date;
-    }
-    ngOnChanges() {
         const now = new Date();
-        const d = this.initialDate !== null ? new Date(this.initialDate) : now;
-        const date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
-        if (!this.initiallyEmpty) {
-            this.date = date;
-        }
-        this.startDate = date;
-    }
+        return { day: now.getDate(), month: now.getMonth() + 1, year: now.getFullYear() + 10 };
+    });
+    readonly showWeeks = true;
+    readonly format = 'dd.MM.yyyy';
 
     transform(value: NgbDate | null): Date | null {
         if (!value) return null;
@@ -144,15 +131,22 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
     dateChange() {
         const now = new Date();
-        this.startDate = this.date || new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
-        this.updated.emit({ date: this.transform(this.date) });
+        const currentDate = this.dateForm.date().value();
+        this.startDate.set(currentDate || new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate()));
+        this.updated.emit({ date: this.transform(currentDate) });
+    }
+
+    setDate(value: NgbDate | null) {
+        this.dateForm.date().value.set(value);
+        this.dateChange();
     }
 
     dateCleared() {
+        this.dateForm.date().value.set(null);
         this.updated.emit({ date: null });
     }
 
     extraClicked() {
-        this.extraActionHappened.emit({ date: this.transform(this.date) });
+        this.extraActionHappened.emit({ date: this.transform(this.dateForm.date().value()) });
     }
 }

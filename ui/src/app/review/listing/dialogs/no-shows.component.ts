@@ -3,9 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -16,29 +17,36 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     imports: [TranslateModule, ApplyDstPipe, OrderByPipe, DatePipe, TableSortComponent],
     templateUrl: './no-shows.component.html',
     styleUrls: ['../review-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NoShowsComponent implements OnInit {
-    @Input() noShows: (ExamEnrolment & { displayName: string })[] = [];
-
-    noShowPredicate = 'reservation.startAt';
-    reverse = false;
-
-    private modal = inject(NgbActiveModal);
-
+export class NoShowsComponent {
+    readonly noShows = signal<ExamEnrolment[]>([]);
     //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
-    ngOnInit() {
-        this.noShows.forEach((r) => {
-            const id = (r.exam ? r.exam.id : r.collaborativeExam.id).toString();
-            r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : id;
-        });
+    readonly noShowsWithName = computed(() =>
+        this.noShows().map((r) => ({
+            ...r,
+            displayName: r.user
+                ? `${r.user.lastName} ${r.user.firstName}`
+                : (r.exam ? r.exam.id : r.collaborativeExam.id).toString(),
+        })),
+    );
+    readonly noShowPredicate = signal('reservation.startAt');
+    readonly reverse = signal(false);
+
+    private readonly modal = inject(NgbActiveModal);
+
+    cancel() {
+        this.modal.dismiss();
     }
 
-    cancel = () => this.modal.dismiss();
-
-    setPredicate = (predicate: string) => {
-        if (this.noShowPredicate === predicate) {
-            this.reverse = !this.reverse;
+    setPredicate(predicate: string) {
+        if (this.noShowPredicate() === predicate) {
+            this.reverse.update((v) => !v);
         }
-        this.noShowPredicate = predicate;
-    };
+        this.noShowPredicate.set(predicate);
+    }
+
+    calculateEndTime(start: string, duration: number) {
+        return DateTime.fromISO(start).plus({ minutes: duration }).toISO() as string;
+    }
 }

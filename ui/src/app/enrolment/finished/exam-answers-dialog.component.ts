@@ -3,45 +3,72 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Exam } from 'src/app/exam/exam.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AnsweredQuestion } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
     selector: 'xm-exam-answers-dialog',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-answers-dialog.component.html',
-    imports: [TranslateModule, MathJaxDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
+    styleUrl: './exam-answers-dialog.component.scss',
+    imports: [TranslateModule, MathDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
-export class ExamAnswersDialogComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() participationTime = '';
-    @Input() participationDuration: number | string = 0;
+export class ExamAnswersDialogComponent {
+    // Regular properties for programmatic access (set by modal service)
+    readonly exam = signal<Exam | null>(null);
+    readonly participationTime = signal('');
+    readonly participationDuration = signal<number | string>(0);
 
-    activeModal = inject(NgbActiveModal);
-    private CommonExam = inject(CommonExamService);
-    private Attachment = inject(AttachmentService);
+    // Computed exam with sorted sections and questions
+    readonly sortedExam = computed(() => {
+        const examValue = this.exam();
+        if (!examValue) return null;
+        return {
+            ...examValue,
+            examSections: [...examValue.examSections]
+                .sort((a, b) => a.sequenceNumber - b.sequenceNumber)
+                .map((es) => ({
+                    ...es,
+                    sectionQuestions: [...es.sectionQuestions].sort((a, b) => a.sequenceNumber - b.sequenceNumber),
+                })),
+        };
+    });
 
-    ngOnInit() {
-        this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
-        this.exam.examSections.forEach((es) => es.sectionQuestions.sort((a, b) => a.sequenceNumber - b.sequenceNumber));
+    readonly activeModal = inject(NgbActiveModal);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Attachment = inject(AttachmentService);
+
+    downloadAttachment(answer: ExamSectionQuestion) {
+        this.Attachment.downloadQuestionAnswerAttachment(answer as AnsweredQuestion);
     }
 
-    downloadAttachment = (answer: ExamSectionQuestion) =>
-        this.Attachment.downloadQuestionAnswerAttachment(answer as AnsweredQuestion);
-    getGradeName = (grade: string): string => this.CommonExam.getExamGradeDisplayName(grade);
+    getGradeName(grade: string): string {
+        return this.CommonExam.getExamGradeDisplayName(grade);
+    }
 
-    countWords = (answer: ExamSectionQuestion) => this.CommonExam.countWords(answer.essayAnswer?.answer);
-    countCharacters = (answer: ExamSectionQuestion) => this.CommonExam.countCharacters(answer.essayAnswer?.answer);
-    getAnsweredOptions = (answer: ExamSectionQuestion) => answer.options.filter((o) => o.answered);
-    isMultiChoice = (answer: ExamSectionQuestion) =>
-        ['WeightedMultipleChoiceQuestion', 'MultipleChoiceQuestion', 'ClaimChoiceQuestion'].indexOf(
+    countWords(answer: ExamSectionQuestion) {
+        return this.CommonExam.countWords(answer.essayAnswer?.answer ?? undefined);
+    }
+
+    countCharacters(answer: ExamSectionQuestion) {
+        return this.CommonExam.countCharacters(answer.essayAnswer?.answer ?? undefined);
+    }
+
+    getAnsweredOptions(answer: ExamSectionQuestion) {
+        return answer.options.filter((o) => o.answered);
+    }
+
+    isMultiChoice(answer: ExamSectionQuestion) {
+        return ['WeightedMultipleChoiceQuestion', 'MultipleChoiceQuestion', 'ClaimChoiceQuestion'].includes(
             answer.question.type,
-        ) > -1;
+        );
+    }
 }

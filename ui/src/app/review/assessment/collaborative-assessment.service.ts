@@ -30,12 +30,12 @@ interface Payload {
 
 @Injectable({ providedIn: 'root' })
 export class CollaborativeAssesmentService {
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private router = inject(Router);
-    private toast = inject(ToastrService);
-    private dialogs = inject(ConfirmationDialogService);
-    private Assessment = inject(AssessmentService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly router = inject(Router);
+    private readonly toast = inject(ToastrService);
+    private readonly dialogs = inject(ConfirmationDialogService);
+    private readonly Assessment = inject(AssessmentService);
 
     saveAssessmentInfo$ = (
         examId: number,

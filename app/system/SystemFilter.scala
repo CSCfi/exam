@@ -52,7 +52,9 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
           case path if path == "/app/session" && request.method == "GET" =>
             s.get("upcomingExamHash") match {
               case Some(_) => // Don't let the session expire when awaiting the exam to start
-                response.withSession(s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
+                response.withSession(
+                  s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now))
+                )
               case _ => response.withSession(s)
             }
           case path if path.contains("logout") => response.withSession(s)
@@ -65,4 +67,11 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
       // Disable caching for the index page so that CSRF cookie can be injected without worries
       case p if p.startsWith("/app") | p.startsWith("/integration") =>
         next.apply(rh).map(processResult(_)(using rh))
-      case _ => next.apply(rh).map(_.withHeaders(("Cache-Control", "no-cache")))
+      case _ =>
+        next.apply(rh).map(
+          _.withHeaders(
+            ("Cache-Control", "no-cache, no-store, must-revalidate"),
+            ("Pragma", "no-cache"),
+            ("Expires", "0")
+          )
+        )

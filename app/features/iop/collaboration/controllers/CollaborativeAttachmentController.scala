@@ -1,0 +1,691 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package features.iop.collaboration.controllers
+
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.iop.collaboration.services.{
+  CollaborativeExamLoaderService,
+  CollaborativeExamService
+}
+import io.ebean.DB
+import models.assessment.Comment
+import models.attachment.{Attachment, AttachmentContainer}
+import models.enrolment.ExamEnrolment
+import models.exam.Exam
+import models.iop.CollaborativeExam
+import models.questions.EssayAnswer
+import models.sections.ExamSectionQuestion
+import models.user.PermissionType
+import models.user.{Role, User}
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{FileIO, Source}
+import org.apache.pekko.util.ByteString
+import play.api.Logging
+import play.api.libs.Files.TemporaryFile
+import play.api.libs.json.*
+import play.api.libs.ws.WSClient
+import play.api.mvc.*
+import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext, PermissionFilter}
+import services.config.ConfigReader
+import services.file.ChunkMaker
+import system.AuditedAction
+
+import java.net.{URI, URL, URLEncoder}
+import java.nio.charset.StandardCharsets
+import java.util.Base64
+import javax.inject.Inject
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
+import scala.util.Try
+
+class CollaborativeAttachmentController @Inject() (
+    wsClient: WSClient,
+    examLoader: CollaborativeExamLoaderService,
+    configReader: ConfigReader,
+    collaborativeExamService: CollaborativeExamService,
+    authenticated: AuthenticatedAction,
+    audited: AuditedAction,
+    val controllerComponents: ControllerComponents
+)(implicit ec: BlockingIOExecutionContext, mat: Materializer)
+    extends BaseController
+    with EbeanQueryExtensions
+    with EbeanJsonExtensions
+    with Logging:
+
+  private val SafeNumber = Math.pow(2, 53).toLong - 1
+
+  private def parseUrl(format: String, args: String*): Option[URL] =
+    val url = s"${configReader.getIopHost}${format.format(args*)}"
+    Try(URI.create(url).toURL).toOption match
+      case None =>
+        logger.error(s"Malformed URL: $url")
+        None
+      case some => some
+
+  private def getExternalExam(eid: Long): Future[Option[CollaborativeExam]] =
+    collaborativeExamService.findById(eid)
+
+  // Students may only reach a collaborative exam's attachments if they are enrolled on it.
+  // Teachers/admins are trusted by role here, consistent with the local and transfer
+  // attachment paths. The enrolment is keyed on the local CollaborativeExam id.
+  private def studentEnrolledOrNotStudent(ceId: Long, user: User): Boolean =
+    !user.hasRole(Role.Name.STUDENT) ||
+      DB.find(classOf[ExamEnrolment])
+        .where()
+        .eq("user", user)
+        .eq("collaborativeExam.id", ceId)
+        .list
+        .nonEmpty
+
+  private def getExternalId(assessment: JsValue): String =
+    (assessment \ "exam" \ "examFeedback" \ "attachment" \ "externalId").asOpt[String].getOrElse("")
+
+  private def createMultipartSource(
+      filePart: MultipartFormData.FilePart[play.api.libs.Files.TemporaryFile]
+  ): Source[MultipartFormData.Part[Source[ByteString, ?]], ?] =
+    val source = FileIO.fromPath(filePart.ref.path)
+    val part = MultipartFormData.FilePart(
+      filePart.key,
+      filePart.filename,
+      filePart.contentType,
+      source
+    )
+    Source.single(part)
+
+  private def uploadAssessmentAttachment(
+      filePart: MultipartFormData.FilePart[play.api.libs.Files.TemporaryFile],
+      assessment: JsValue
+  ): Future[Option[JsValue]] =
+    val externalId = getExternalId(assessment)
+    parseUrl("/api/attachments/%s", externalId) match
+      case None => Future.successful(None)
+      case Some(url) =>
+        val request = wsClient.url(url.toString)
+        val source  = createMultipartSource(filePart)
+
+        val responseFuture =
+          if externalId.isBlank then request.post(source) else request.put(source)
+
+        responseFuture.flatMap { response =>
+          if response.status != CREATED && response.status != OK then Future.successful(None)
+          else
+            val root        = response.json
+            val newId       = (root \ "id").as[String]
+            val mimeType    = (root \ "mimeType").as[String]
+            val displayName = (root \ "displayName").as[String]
+
+            val feedbackPath = assessment \ "exam" \ "examFeedback"
+            feedbackPath.asOpt[JsObject] match
+              case Some(feedback) =>
+                val attachment = Json.obj(
+                  "externalId" -> newId,
+                  "mimeType"   -> mimeType,
+                  "fileName"   -> displayName
+                )
+                val updatedFeedback = feedback + ("attachment" -> attachment)
+                val updatedExam =
+                  (assessment \ "exam").as[JsObject] + ("examFeedback" -> updatedFeedback)
+                val updatedAssessment = assessment.as[JsObject] + ("exam" -> updatedExam)
+                Future.successful(Some(updatedAssessment))
+              case None =>
+                Future.successful(None)
+        }
+
+  private def removeAssessmentAttachment(assessment: JsValue): Future[Result] =
+    val externalId = getExternalId(assessment)
+    parseUrl("/api/attachments/%s", externalId) match
+      case None =>
+        logger.error(s"Invalid external attachment URL for externalId '$externalId'")
+        Future.successful(InternalServerError)
+      case Some(url) =>
+        val request = wsClient.url(url.toString)
+        request.delete().map { response =>
+          response.status match
+            case OK        => Ok
+            case NOT_FOUND => Ok
+            case _ =>
+              logger.error(s"Delete attachment returned ${response.status} for $externalId")
+              InternalServerError
+        }.recover { case t =>
+          logger.error(s"Failed to remove external attachment $externalId", t)
+          InternalServerError
+        }
+
+  private def downloadExternalAttachment(attachment: Attachment): Future[Result] =
+    Option(attachment) match
+      case None => Future.successful(NotFound)
+      case Some(att) =>
+        Option(att.externalId).filter(_.nonEmpty) match
+          case None =>
+            logger.warn(s"External id can not be found for attachment [id=${att.id}]")
+            Future.successful(NotFound)
+          case Some(externalId) =>
+            streamBinaryAttachment(externalId, att.mimeType, att.fileName)
+
+  // Streams raw binary to the browser. Used by all direct-download endpoints (exam, question, statement).
+  // The UI requests these with responseType: 'blob' and does not expect base64.
+  private def streamBinaryAttachment(
+      id: String,
+      mimeType: String,
+      fileName: String
+  ): Future[Result] =
+    parseUrl("/api/attachments/%s/download", id) match
+      case None => Future.successful(InternalServerError)
+      case Some(url) =>
+        wsClient.url(url.toString).stream().map { response =>
+          if response.status != OK then Status(response.status)
+          else
+            val escapedName =
+              URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20")
+            val contentDisposition = s"attachment; filename*=UTF-8''$escapedName"
+            Ok.chunked(response.bodyAsSource)
+              .as(mimeType)
+              .withHeaders("Content-Disposition" -> contentDisposition)
+        }
+
+  // Streams base64-encoded chunks. Used only by the /collab/attachment/:id endpoint,
+  // which the UI fetches with responseType: 'text' and decodes via atob().
+  private def downloadAttachment(id: String, mimeType: String, fileName: String): Future[Result] =
+    parseUrl("/api/attachments/%s/download", id) match
+      case None => Future.successful(InternalServerError)
+      case Some(url) =>
+        wsClient.url(url.toString).stream().map { response =>
+          if response.status != OK then Status(response.status)
+          else
+            val escapedName        = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
+            val contentDisposition = s"""attachment; filename*=UTF-8''"$escapedName""""
+            val chunkSize          = 3 * 1024
+            val base64Stream = response.bodyAsSource
+              .via(new ChunkMaker(chunkSize))
+              .map { byteString =>
+                val encoded = Base64.getEncoder.encode(byteString.toArray)
+                ByteString.fromArray(encoded)
+              }
+            Ok.chunked(base64Stream)
+              .as(mimeType)
+              .withHeaders("Content-Disposition" -> contentDisposition)
+        }
+
+  def downloadExamAttachment(id: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { _ =>
+      getExternalExam(id).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              val attachment = exam.attachment
+              downloadExternalAttachment(attachment)
+          }
+      }
+    }
+
+  private def updateExternalAssessment(
+      examId: Long,
+      assessmentRef: String
+  ): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = Action
+    .andThen(audited)
+    .async(parse.multipartFormData) { request =>
+      getExternalExam(examId).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(exam) =>
+          examLoader.downloadAssessment(exam.externalRef, assessmentRef).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(assessment) =>
+              request.body.file("file") match
+                case None => Future.successful(BadRequest("Missing file"))
+                case Some(filePart) =>
+                  uploadAssessmentAttachment(filePart, assessment).flatMap {
+                    case None => Future.successful(InternalServerError)
+                    case Some(updatedAssessment) =>
+                      val attachmentJson =
+                        updatedAssessment \ "exam" \ "examFeedback" \ "attachment"
+
+                      examLoader.uploadAssessment(exam, assessmentRef, updatedAssessment).map {
+                        case Some(revision) =>
+                          val result = attachmentJson.as[JsObject] + ("rev" -> JsString(revision))
+                          Ok(result)
+                        case None =>
+                          InternalServerError
+                      }
+                  }
+          }
+      }
+    }
+
+  private def deleteExternalAssessment(examId: Long, assessmentRef: String): Action[AnyContent] =
+    Action.async { _ =>
+      getExternalExam(examId).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(exam) =>
+          examLoader.downloadAssessment(exam.externalRef, assessmentRef).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(assessment) =>
+              removeAssessmentAttachment(assessment).flatMap { result =>
+                if result.header.status != OK then
+                  logger.error(
+                    s"Attachment delete returned non-OK status ${result.header.status} for assessment $assessmentRef"
+                  )
+                  Future.successful(InternalServerError)
+                else
+                  examLoader.downloadAssessment(exam.externalRef, assessmentRef).flatMap {
+                    case None =>
+                      logger.error(
+                        s"Failed to re-download assessment $assessmentRef after attachment deletion"
+                      )
+                      Future.successful(InternalServerError)
+                    case Some(freshAssessment) =>
+                      // Remove attachment field from feedback using the latest assessment revision
+                      val feedbackPath = freshAssessment \ "exam" \ "examFeedback"
+                      feedbackPath.asOpt[JsObject] match
+                        case Some(feedback) =>
+                          val updatedFeedback = feedback - "attachment"
+                          val updatedExam =
+                            (freshAssessment \ "exam").as[
+                              JsObject
+                            ] + ("examFeedback" -> updatedFeedback)
+                          val updatedAssessment =
+                            freshAssessment.as[JsObject] + ("exam" -> updatedExam)
+
+                          examLoader.uploadAssessment(exam, assessmentRef, updatedAssessment).map {
+                            case Some(revision) => Ok(Json.obj("rev" -> revision))
+                            case None =>
+                              logger.error(
+                                s"uploadAssessment returned no revision for $assessmentRef after attachment removal"
+                              )
+                              InternalServerError
+                          }.recover { case t =>
+                            logger.error(
+                              s"Failed to upload assessment after attachment removal for $assessmentRef",
+                              t
+                            )
+                            InternalServerError
+                          }
+                        case None =>
+                          logger.error(
+                            s"Assessment payload missing examFeedback for $assessmentRef"
+                          )
+                          Future.successful(InternalServerError)
+                  }
+              }.recover { case t =>
+                logger.error(s"Failed during deleteExternalAssessment for $assessmentRef", t)
+                InternalServerError
+              }
+          }
+      }.recover { case t =>
+        logger.error(s"Unhandled failure in deleteExternalAssessment for $assessmentRef", t)
+        InternalServerError
+      }
+    }
+
+  // Assessment attachment methods - these call updateExternalAssessment/deleteExternalAssessment
+  def addAssessmentAttachment(
+      id: Long,
+      ref: String
+  ): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
+    updateExternalAssessment(id, ref)
+
+  def deleteAssessmentAttachment(id: Long, ref: String): Action[AnyContent] =
+    deleteExternalAssessment(id, ref)
+
+  // Helper methods for question and answer attachments
+  private def findSectionQuestion(qid: Long, exam: Exam): Option[ExamSectionQuestion] =
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .find(_.id == qid)
+
+  private def findEssayAnswerWithAttachment(esq: ExamSectionQuestion): Option[EssayAnswer] =
+    Option(esq.essayAnswer) match
+      case Some(ea)
+          if Option(ea.attachment).flatMap(a => Option(a.externalId)).exists(_.nonEmpty) =>
+        Some(ea)
+      case _ => None
+
+  private def uploadAttachment(
+      filePart: MultipartFormData.FilePart[play.api.libs.Files.TemporaryFile],
+      ce: CollaborativeExam,
+      exam: Exam,
+      container: AttachmentContainer,
+      user: User
+  ): Future[Result] =
+    val externalId = Option(container.attachment).map(_.externalId).orNull
+    parseUrl("/api/attachments/%s", Option(externalId).getOrElse("")) match
+      case None => Future.successful(InternalServerError)
+      case Some(url) =>
+        val request = wsClient.url(url.toString)
+        val source  = createMultipartSource(filePart)
+
+        val responseFuture =
+          if externalId == null || externalId.isBlank then request.post(source)
+          else request.put(source)
+
+        responseFuture.flatMap { response =>
+          if response.status != CREATED && response.status != OK then
+            logger.error("Could not create external attachment to XM server!")
+            Future.successful(Status(response.status))
+          else
+            val json        = response.json
+            val id          = (json \ "id").as[String]
+            val mimeType    = (json \ "mimeType").as[String]
+            val displayName = (json \ "displayName").as[String]
+
+            val attachment = new Attachment()
+            attachment.externalId = id
+            attachment.mimeType = mimeType
+            attachment.fileName = displayName
+            container.attachment = attachment
+
+            // Update exam using examLoader
+            examLoader.uploadExam(ce, exam, user).map { result =>
+              if result.header.status == OK then Created(attachment.asJson).as("application/json")
+              else InternalServerError
+            }
+        }
+
+  private def deleteExternalAttachment(
+      container: AttachmentContainer,
+      ce: CollaborativeExam,
+      exam: Exam,
+      user: User
+  ): Future[Result] =
+    Option(container.attachment) match
+      case None => Future.successful(NotFound)
+      case Some(attachment) =>
+        val externalId = attachment.externalId
+        if externalId == null || externalId.isBlank then
+          logger.warn(
+            s"External id can not be found for attachment [id=${attachment.externalId}]"
+          )
+          Future.successful(NotFound)
+        else
+          parseUrl("/api/attachments/%s", externalId) match
+            case None => Future.successful(InternalServerError)
+            case Some(url) =>
+              wsClient.url(url.toString).delete().flatMap { response =>
+                if response.status != OK && response.status != NOT_FOUND then
+                  Future.successful(Status(response.status))
+                else
+                  container.attachment = null
+                  examLoader.uploadExam(ce, exam, user).map { result =>
+                    if result.header.status == OK then Ok
+                    else InternalServerError
+                  }
+              }
+
+  def downloadExternalAttachment(id: String): Action[AnyContent] =
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { _ =>
+      parseUrl("/api/attachments/%s", id) match
+        case None => Future.successful(InternalServerError)
+        case Some(url) =>
+          wsClient.url(url.toString).get().flatMap { response =>
+            if response.status != OK then Future.successful(Status(response.status))
+            else
+              val node     = response.json
+              val mimeType = (node \ "mimeType").as[String]
+              val fileName = (node \ "displayName").as[String]
+              downloadAttachment(id, mimeType, fileName)
+          }
+    }
+
+  def addAttachmentToQuestion(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
+    audited
+      .andThen(authenticated)
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+      .async(parse.multipartFormData) { request =>
+        val formData      = request.body.asFormUrlEncoded
+        val examIdOpt     = formData.get("examId").flatMap(_.headOption)
+        val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
+
+        (examIdOpt, questionIdOpt) match
+          case (Some(examIdStr), Some(questionIdStr)) =>
+            val examId     = examIdStr.toLong
+            val questionId = questionIdStr.toLong
+
+            getExternalExam(examId).flatMap {
+              case None => Future.successful(NotFound)
+              case Some(ce) =>
+                examLoader.downloadExam(ce).flatMap {
+                  case None => Future.successful(NotFound)
+                  case Some(exam) =>
+                    findSectionQuestion(questionId, exam) match
+                      case None => Future.successful(NotFound)
+                      case Some(sq) =>
+                        request.body.file("file") match
+                          case None => Future.successful(BadRequest("Missing file"))
+                          case Some(filePart) =>
+                            val user = request.attrs(Auth.ATTR_USER)
+                            uploadAttachment(filePart, ce, exam, sq.question, user)
+                }
+            }
+          case _ => Future.successful(BadRequest("Missing examId or questionId"))
+      }
+
+  def deleteQuestionAttachment(eid: Long, qid: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
+      getExternalExam(eid).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              findSectionQuestion(qid, exam) match
+                case None => Future.successful(NotFound)
+                case Some(sq) =>
+                  val user = request.attrs(Auth.ATTR_USER)
+                  deleteExternalAttachment(sq.question, ce, exam, user)
+          }
+      }
+    }
+
+  def downloadQuestionAttachment(eid: Long, qid: Long): Action[AnyContent] =
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      getExternalExam(eid).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) if !studentEnrolledOrNotStudent(ce.id, user) =>
+          Future.successful(Forbidden)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              findSectionQuestion(qid, exam) match
+                case None => Future.successful(NotFound)
+                case Some(sq) =>
+                  val attachment = sq.question.attachment
+                  downloadExternalAttachment(attachment)
+          }
+      }
+    }
+
+  def addAttachmentToQuestionAnswer()
+      : Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(
+      parse.multipartFormData
+    ) {
+      request =>
+        val formData      = request.body.asFormUrlEncoded
+        val examIdOpt     = formData.get("examId").flatMap(_.headOption)
+        val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
+
+        (examIdOpt, questionIdOpt) match
+          case (Some(examIdStr), Some(questionIdStr)) =>
+            val examId     = examIdStr.toLong
+            val questionId = questionIdStr.toLong
+
+            getExternalExam(examId).flatMap {
+              case None => Future.successful(NotFound)
+              case Some(ce) =>
+                examLoader.downloadExam(ce).flatMap {
+                  case None => Future.successful(NotFound)
+                  case Some(exam) =>
+                    findSectionQuestion(questionId, exam) match
+                      case None => Future.successful(NotFound)
+                      case Some(sq) =>
+                        if sq.essayAnswer == null then sq.essayAnswer = new EssayAnswer()
+                        request.body.file("file") match
+                          case None => Future.successful(BadRequest("Missing file"))
+                          case Some(filePart) =>
+                            val user = request.attrs(Auth.ATTR_USER)
+                            uploadAttachment(filePart, ce, exam, sq.essayAnswer, user)
+                }
+            }
+          case _ => Future.successful(BadRequest("Missing examId or questionId"))
+    }
+
+  def deleteQuestionAnswerAttachment(qid: Long, eid: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))).async { request =>
+      getExternalExam(eid).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              findSectionQuestion(qid, exam) match
+                case None => Future.successful(NotFound)
+                case Some(sq) =>
+                  findEssayAnswerWithAttachment(sq) match
+                    case None => Future.successful(NotFound)
+                    case Some(ea) =>
+                      val user = request.attrs(Auth.ATTR_USER)
+                      deleteExternalAttachment(ea, ce, exam, user)
+          }
+      }
+    }
+
+  def downloadQuestionAnswerAttachment(qid: Long, eid: Long): Action[AnyContent] =
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      getExternalExam(eid).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) if !studentEnrolledOrNotStudent(ce.id, user) =>
+          Future.successful(Forbidden)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              findSectionQuestion(qid, exam) match
+                case None => Future.successful(NotFound)
+                case Some(sq) =>
+                  findEssayAnswerWithAttachment(sq) match
+                    case None => Future.successful(NotFound)
+                    case Some(ea) =>
+                      val attachment = ea.attachment
+                      downloadExternalAttachment(attachment)
+          }
+      }
+    }
+
+  def addAttachmentToExam(): Action[MultipartFormData[TemporaryFile]] =
+    audited
+      .andThen(authenticated)
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+      .async(parse.multipartFormData) { request =>
+        request.body.asFormUrlEncoded.get("examId").flatMap(_.headOption) match
+          case None => Future.successful(BadRequest("Missing examId"))
+          case Some(examIdStr) =>
+            getExternalExam(examIdStr.toLong).flatMap {
+              case None => Future.successful(NotFound)
+              case Some(ce) =>
+                examLoader.downloadExam(ce).flatMap {
+                  case None => Future.successful(NotFound)
+                  case Some(exam) =>
+                    request.body.file("file") match
+                      case None => Future.successful(BadRequest("Missing file"))
+                      case Some(filePart) =>
+                        val user = request.attrs(Auth.ATTR_USER)
+                        uploadAttachment(filePart, ce, exam, exam, user)
+                }
+            }
+      }
+
+  def deleteExamAttachment(id: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
+      getExternalExam(id).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              val user = request.attrs(Auth.ATTR_USER)
+              deleteExternalAttachment(exam, ce, exam, user)
+          }
+      }
+    }
+
+  def addStatementAttachment(id: Long): Action[MultipartFormData[TemporaryFile]] =
+    audited
+      .andThen(authenticated)
+      .andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE))
+      .async(parse.multipartFormData) { request =>
+        getExternalExam(id).flatMap {
+          case None => Future.successful(NotFound)
+          case Some(ce) =>
+            examLoader.downloadExam(ce).flatMap {
+              case None => Future.successful(NotFound)
+              case Some(exam) =>
+                Option(exam.languageInspection) match
+                  case None => Future.successful(NotFound)
+                  case Some(li) =>
+                    val user = request.attrs(Auth.ATTR_USER)
+                    if li.statement == null then
+                      val comment = new Comment()
+                      comment.setCreatorWithDate(user)
+                      li.statement = comment
+                    request.body.file("file") match
+                      case None => Future.successful(BadRequest("Missing file"))
+                      case Some(filePart) =>
+                        uploadAttachment(filePart, ce, exam, li.statement, user)
+            }
+        }
+      }
+
+  def deleteStatementAttachment(id: Long): Action[AnyContent] =
+    authenticated.andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE)).async { request =>
+      getExternalExam(id).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              val statementOpt = Option(exam.languageInspection)
+                .flatMap(li => Option(li.statement))
+                .filter(s =>
+                  Option(s.attachment).flatMap(a => Option(a.externalId)).exists(_.nonEmpty)
+                )
+              statementOpt match
+                case None => Future.successful(NotFound)
+                case Some(_) =>
+                  val user = request.attrs(Auth.ATTR_USER)
+                  deleteExternalAttachment(exam.languageInspection.statement, ce, exam, user)
+          }
+      }
+    }
+
+  def downloadStatementAttachment(id: Long): Action[AnyContent] =
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      getExternalExam(id).flatMap {
+        case None => Future.successful(NotFound)
+        case Some(ce) if !studentEnrolledOrNotStudent(ce.id, user) =>
+          Future.successful(Forbidden)
+        case Some(ce) =>
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound)
+            case Some(exam) =>
+              Option(exam.languageInspection).flatMap(li => Option(li.statement)) match
+                case None            => Future.successful(NotFound)
+                case Some(statement) => downloadExternalAttachment(statement.attachment)
+          }
+      }
+    }

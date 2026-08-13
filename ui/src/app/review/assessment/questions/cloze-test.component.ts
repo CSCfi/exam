@@ -2,79 +2,99 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgStyle, UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { UpperCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { debounceTime } from 'rxjs';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-r-cloze-test',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './cloze-test.component.html',
-    imports: [NgStyle, MathJaxDirective, FormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
+    imports: [MathDirective, ReactiveFormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
     styleUrls: ['../assessment.shared.scss'],
 })
-export class ClozeTestComponent implements OnInit {
-    @Input() participation!: ExamParticipation;
-    @Input() sectionQuestion!: ExamSectionQuestion;
-    @Input() isScorable = false;
-    @Input() collaborative = false;
-    @Output() scored = new EventEmitter<string>();
-    @ViewChild('forcedPoints', { static: false }) form?: NgForm;
+export class ClozeTestComponent {
+    readonly participation = input.required<ExamParticipation>();
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly isScorable = input(false);
+    readonly collaborative = input(false);
+    readonly scored = output<string>();
 
-    id = 0;
-    ref = '';
-    reviewExpanded = true;
-    _score: number | null = null;
+    readonly reviewExpanded = signal(true);
+    readonly scoreControl = new FormControl<number | null>(null);
 
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Assessment = inject(AssessmentService);
-    private Attachment = inject(AttachmentService);
+    private readonly id: number;
+    private readonly ref: string;
 
-    get scoreValue(): number | null {
-        return this._score;
-    }
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly destroyRef = inject(DestroyRef);
 
-    set scoreValue(value: number | null) {
-        this._score = value;
-        if (this.form?.valid) {
-            this.sectionQuestion.forcedScore = value;
-        }
-    }
-
-    ngOnInit() {
+    constructor() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        if (this.sectionQuestion.forcedScore) {
-            this.scoreValue = this.sectionQuestion.forcedScore;
-        }
+
+        toObservable(this.isScorable)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((scorable) => {
+                if (scorable) {
+                    this.scoreControl.enable({ emitEvent: false });
+                } else {
+                    this.scoreControl.disable({ emitEvent: false });
+                }
+            });
+
+        toObservable(this.sectionQuestion)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((sq) => this.scoreControl.setValue(sq.forcedScore ?? null, { emitEvent: false }));
+
+        this.scoreControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+            if (this.scoreControl.valid) {
+                this.sectionQuestion().forcedScore = value;
+            }
+        });
+
+        this.scoreControl.valueChanges.pipe(debounceTime(500), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            if (this.scoreControl.valid) {
+                this.insertForcedScore();
+            }
+        });
     }
 
-    hasForcedScore = () => isNumber(this.sectionQuestion.forcedScore);
+    hasForcedScore = () => isNumber(this.sectionQuestion().forcedScore);
+
+    toggleReviewExpanded = () => this.reviewExpanded.update((v) => !v);
 
     downloadQuestionAttachment = () => {
-        if (this.collaborative && this.sectionQuestion.question.attachment?.externalId) {
+        const sq = this.sectionQuestion();
+        if (this.collaborative() && sq.question.attachment?.externalId) {
             return this.Attachment.downloadCollaborativeAttachment(
-                this.sectionQuestion.question.attachment.externalId,
-                this.sectionQuestion.question.attachment.fileName,
+                sq.question.attachment.externalId,
+                sq.question.attachment.fileName,
             );
         }
-        return this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
+        return this.Attachment.downloadQuestionAttachment(sq.question);
     };
 
     displayAchievedScore = () => {
-        const max = this.sectionQuestion.maxScore;
-        const score = this.sectionQuestion.clozeTestAnswer?.score;
+        const sq = this.sectionQuestion();
+        const max = sq.maxScore;
+        const score = sq.clozeTestAnswer?.score;
         if (score) {
             const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
             return Number.isInteger(value) ? value : value.toFixed(2);
@@ -82,18 +102,24 @@ export class ClozeTestComponent implements OnInit {
         return 0;
     };
 
-    insertForcedScore = () =>
-        this.collaborative
-            ? this.Assessment.saveCollaborativeForcedScore$(
-                  this.sectionQuestion,
-                  this.id,
-                  this.ref,
-                  this.participation._rev as string,
-              ).subscribe((resp) => {
-                  this.toast.info(this.translate.instant('i18n_graded'));
-                  this.scored.emit(resp.rev);
-              })
-            : this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(() =>
-                  this.toast.info(this.translate.instant('i18n_graded')),
-              );
+    insertForcedScore = () => {
+        const sq = this.sectionQuestion();
+        const participationValue = this.participation();
+        if (this.collaborative()) {
+            this.Assessment.saveCollaborativeForcedScore$(
+                sq,
+                this.id,
+                this.ref,
+                participationValue._rev as string,
+            ).subscribe((resp) => {
+                this.toast.info(this.translate.instant('i18n_graded'));
+                this.scored.emit(resp.rev);
+            });
+        } else {
+            this.Assessment.saveForcedScore(sq).subscribe(() => {
+                this.toast.info(this.translate.instant('i18n_graded'));
+                this.scored.emit('');
+            });
+        }
+    };
 }

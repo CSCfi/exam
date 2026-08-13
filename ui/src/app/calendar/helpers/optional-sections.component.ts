@@ -2,18 +2,19 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { UpperCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamInfo } from 'src/app/calendar/calendar.model';
+import type { ExamInfo, SelectableSection } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-optional-sections',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div
             class="row m-2 xm details-view"
-            [ngClass]="sectionSelectionOk() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+            [class.xm-study-item-container]="sectionSelectionOk()"
+            [class.xm-study-item-container--inactive]="!sectionSelectionOk()"
         >
             <span class="col-md-12">
                 <h2 class="calendar-phase-title">2. {{ 'i18n_exam_materials' | translate }}</h2>
@@ -23,82 +24,89 @@ import type { ExamInfo } from 'src/app/calendar/calendar.model';
                     </span>
                 }
             </span>
-            @for (section of examInfo.examSections; track section.id) {
-                <div>
+            @for (section of examInfo().examSections; track section.id) {
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>{{ 'i18n_exam_section' | translate }}:</strong> {{ section.name }}
+                            </div>
+                            <div class="col-md-6">
+                                @if (section.optional) {
+                                    <div class="text text-success">
+                                        {{ 'i18n_optional_section' | translate | uppercase }}
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ section.description }}
+                            </div>
+                            <div class="col-md-6">
+                                @if (section.optional) {
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            value=""
+                                            [checked]="section.selected"
+                                            id="check1"
+                                            (change)="onSectionSelectedChange(section, $event)"
+                                        />
+                                        <label class="form-check-label" for="check1">
+                                            {{ 'i18n_select_optional_section' | translate }}
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (section.examMaterials.length > 0) {
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <strong>{{ 'i18n_exam_section' | translate }}:</strong> {{ section.name }}
-                                </div>
-                                <div class="col-md-6">
-                                    @if (section.optional) {
-                                        <div class="text text-success">
-                                            {{ 'i18n_optional_section' | translate | uppercase }}
-                                        </div>
-                                    }
-                                </div>
-                            </div>
+                            <strong>{{ 'i18n_exam_materials' | translate }}</strong>
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    {{ section.description }}
-                                </div>
-                                <div class="col-md-6">
-                                    @if (section.optional) {
-                                        <div class="form-check">
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                value=""
-                                                [(ngModel)]="section.selected"
-                                                id="check1"
-                                                (ngModelChange)="checkSectionSelections()"
-                                            />
-                                            <label class="form-check-label" for="check1">
-                                                {{ 'i18n_select_optional_section' | translate }}
-                                            </label>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
+                }
+                @for (material of section.examMaterials; track material.id) {
+                    <div class="row">
+                        <span class="col-md-12">
+                            {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
+                            @if (material.author) {
+                                <span> {{ 'i18n_author' | translate | uppercase }}: {{ material.author }} </span>
+                            }
+                            @if (material.isbn) {
+                                <span> ISBN: {{ material.isbn }} </span>
+                            }
+                        </span>
                     </div>
-                    @if (section.examMaterials.length > 0) {
-                        <div class="row">
-                            <div class="col-md-12">
-                                <strong>{{ 'i18n_exam_materials' | translate }}</strong>
-                            </div>
-                        </div>
-                    }
-                    @for (material of section.examMaterials; track material.id) {
-                        <div class="row">
-                            <span class="col-md-12">
-                                {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
-                                @if (material.author) {
-                                    <span> {{ 'i18n_author' | translate | uppercase }}: {{ material.author }} </span>
-                                }
-                                @if (material.isbn) {
-                                    <span> ISBN: {{ material.isbn }} </span>
-                                }
-                            </span>
-                        </div>
-                    }
-                </div>
+                }
             }
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    imports: [NgClass, FormsModule, UpperCasePipe, TranslateModule],
+    imports: [UpperCasePipe, TranslateModule],
 })
 export class OptionalSectionsComponent {
-    @Input() examInfo!: ExamInfo;
-    @Output() selected = new EventEmitter<{ valid: boolean }>();
+    readonly examInfo = input.required<ExamInfo>();
+    readonly selected = output<{ valid: boolean }>();
 
-    checkSectionSelections = () => this.selected.emit({ valid: this.sectionSelectionOk() });
+    onSectionSelectedChange = (section: SelectableSection, event: Event) => {
+        section.selected = (event.target as HTMLInputElement).checked;
+        this.checkSectionSelections();
+    };
 
-    sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
+    checkSectionSelections() {
+        this.selected.emit({ valid: this.sectionSelectionOk() });
+    }
+
+    sectionSelectionOk(): boolean {
+        return this.examInfo().examSections.some((es) => !es.optional || es.selected);
+    }
 }

@@ -2,15 +2,16 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamSectionQuestion } from 'src/app/question/question.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-multi-choice-answer',
-    template: `@for (option of sectionQuestion.options | orderBy: 'id'; track option) {
-        <div class="ps-2 mb-2" [hidden]="!reviewExpanded">
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `@for (option of sectionQuestion().options | orderBy: 'id'; track option) {
+        <div class="ps-2 mb-2" [hidden]="!reviewExpanded()">
             @if (option.answered) {
                 @if (option.option.correctOption) {
                     <div class="exam-answered-correct">
@@ -18,7 +19,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                             @if (option.answered) {
                                 <img
                                     src="/assets/images/icon_correct_answer_radio.svg"
-                                    [attr.aria-label]="'i18n_correct_answer' | translate"
+                                    [ariaLabel]="'i18n_correct_answer' | translate"
                                     alt=""
                                 />
                             }
@@ -34,7 +35,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                             @if (option.answered) {
                                 <img
                                     src="/assets/images/icon_wrong_answer_radio.svg"
-                                    [attr.aria-label]="'i18n_incorrect_answer' | translate"
+                                    [ariaLabel]="'i18n_incorrect_answer' | translate"
                                     alt=""
                                 />
                             }
@@ -50,14 +51,14 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         @if (option.option.correctOption) {
                             <img
                                 src="/assets/images/icon_correct_answer_radio.svg"
-                                [attr.aria-label]="'i18n_correct_answer' | translate"
+                                [ariaLabel]="'i18n_correct_answer' | translate"
                                 alt=""
                             />
                         }
                         @if (!option.option.correctOption) {
                             <img
                                 src="/assets/images/icon_wrong_answer.png"
-                                [attr.aria-label]="'i18n_incorrect_answer' | translate"
+                                [ariaLabel]="'i18n_incorrect_answer' | translate"
                                 alt=""
                             />
                         }
@@ -73,6 +74,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class MultiChoiceAnswerComponent {
-    @Input() sectionQuestion!: ExamSectionQuestion;
-    reviewExpanded = true;
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+
+    readonly reviewExpanded = signal(true);
 }

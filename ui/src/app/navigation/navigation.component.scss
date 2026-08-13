@@ -5,6 +5,18 @@
  */
 
 @use '../shared/definitions.scss' as shared;
+
+$nav-bg: #212121;
+$nav-text: #e7e7e7;
+$border-dark: 3px solid $nav-bg;
+$border-green: 3px solid shared.$exam-dark-green;
+
+@mixin mobile {
+    @media (max-width: shared.$mobile-width) {
+        @content;
+    }
+}
+
 #nav {
     top: 0;
     left: 0;
@@ -12,41 +24,43 @@
     z-index: 2;
     padding: 0;
     position: fixed;
+    width: 17.125em;
+
+    @include mobile {
+        position: relative;
+        width: 100%;
+        z-index: 1;
+    }
 
     .hidden-mobile {
         display: block;
-        @media (max-width: shared.$mobile-width) {
-            display: none;
-        }
+        @include mobile { display: none; }
     }
 
     .visible-mobile {
         display: none;
-        @media (max-width: shared.$mobile-width) {
+        @include mobile { display: block; }
+    }
+
+    .nav-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background-color: $nav-bg;
+        @include mobile {
             display: block;
+            height: auto;
         }
     }
 
-    @media (max-width: shared.$mobile-width) {
-        position: relative;
-        z-index: 1;
-    }
+    i { vertical-align: middle; }
 
-    i {
-        vertical-align: middle;
-    }
-
-    .logo {
-        img {
-            margin-left: 3.57em;
-            margin-right: 3.57em;
-            margin-top: 1.07em;
-
-            @media (max-width: shared.$mobile-width) {
-                margin-top: 0em;
-                margin-left: 20px;
-                padding-top: 15px;
-            }
+    .logo img {
+        margin: 1.07em 3.57em 0 2.5em;
+        @include mobile {
+            margin-top: 0;
+            margin-left: 20px;
+            padding-top: 15px;
         }
     }
 
@@ -54,64 +68,57 @@
         display: flex;
         text-decoration: none;
         padding-left: 1.5em;
-        border-left: 3px solid #212121;
-        border-radius: 0px;
+        border-left: $border-dark;
+        border-radius: 0;
         font-size: 16px;
-        color: #e7e7e7;
+        color: $nav-text;
         letter-spacing: 0.27px;
         height: auto;
         text-align: left;
-        align-items: center;
-        @media (max-width: shared.$mobile-width) {
-            border: 3px solid #212121;
+        align-items: flex-start;
+
+        @include mobile {
+            border: $border-dark;
             border-radius: 50px;
+            align-items: center;
+            padding-left: 20px;
         }
 
         &.selected {
             font-weight: bold;
-            border-left: 3px solid shared.$exam-dark-green;
-            @media (max-width: shared.$mobile-width) {
-                border-left: 3px solid #212121;
+            border-left: $border-green;
+            @include mobile {
+                border-left: $border-dark;
                 border-radius: 50px !important;
             }
         }
-    }
 
-    button:hover {
-        border-left: 3px solid shared.$exam-dark-green;
-        @media (max-width: shared.$mobile-width) {
-            border: 3px solid white;
-            border-radius: 50px;
+        &:hover {
+            border-left: $border-green;
+            @include mobile {
+                border: 3px solid white;
+                border-radius: 50px;
+            }
         }
     }
 
     li {
         list-style: none;
         margin-bottom: 2.5em;
-        @media (max-width: shared.$mobile-width) {
-            margin-bottom: 1em;
-        }
+        @include mobile { margin-bottom: 0; }
     }
 
     ul {
         padding: 0;
-        @media (max-width: shared.$mobile-width) {
-            margin: 0 1.5em;
-        }
+        @include mobile { margin: 0; }
     }
 
     .nav-header {
-        background-color: #212121;
-        position: fixed;
-        top: 0;
-        left: 0;
-        display: block;
-        height: 162px;
-        width: 17.125em;
+        background-color: $nav-bg;
+        padding-bottom: 5em;
 
-        @media (max-width: shared.$mobile-width) {
-            position: relative;
-            width: 100%;
+        @include mobile {
+            padding-bottom: 0;
             height: 80px;
         }
 
@@ -120,27 +127,22 @@
             background: none;
             border: none;
 
-            img {
-                padding-top: 30px;
-            }
+            img { padding-top: 30px; }
         }
     }
 
     .nav-body {
-        position: fixed;
-        background-color: #212121;
-        top: 162px;
-        bottom: 105px;
-        width: 17.125em;
-
-        @media (max-width: shared.$mobile-width) {
-            display: none;
-        }
+        flex: 1;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        background-color: $nav-bg;
+        padding-top: 4px;
+        @include mobile { display: none; }
     }
 
     .nav-body-mobile {
-        @media (max-width: shared.$mobile-width) {
-            background-color: #212121;
+        @include mobile {
+            background-color: $nav-bg;
             position: relative;
             width: 100%;
         }
@@ -148,41 +150,35 @@
 
     .nav-footer {
         background-color: shared.$exam-medium-green;
-        position: fixed;
-        bottom: 0;
-        width: 17.125em;
-        &.button {
-            height: 25px;
-        }
-
-        @media (max-width: shared.$mobile-width) {
-            display: none;
-        }
+        &.button { height: 25px; }
+        @include mobile { display: none; }
     }
 
     .nav-user {
-        @media (max-width: shared.$mobile-width) {
-            display: none;
-        }
+        @include mobile { display: none; }
     }
 
     .menu-item {
         margin: 0;
         font-size: 16px;
-        color: #e7e7e7;
+        color: $nav-text;
         letter-spacing: 0.27px;
         line-height: 18px;
         text-align: left;
         padding-left: 1em;
-        @media (max-width: shared.$mobile-width) {
-            padding-top: 1em;
-            padding-bottom: 1em;
+        @include mobile {
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
         }
     }
 
     .app-version {
-        margin-left: 3.5em;
-        padding: 0.5em 1em 1em;
+        margin-left: 2.5em;
+        padding: 0.5em 1em 1em 0;
+        @include mobile {
+            margin-left: 20px;
+            padding-left: 0;
+        }
         font-size: 14px;
         color: white;
         letter-spacing: 0.27px;
@@ -190,15 +186,11 @@
         text-align: left;
     }
 
-    .user {
-        bottom: 60px;
-        color: white;
-    }
+    .user { color: white; }
 
     .user-name {
-        background-color: #212121;
+        background-color: $nav-bg;
         padding: 1.5em 1em 1em;
-        left: 0;
         font-size: 1em;
         color: white;
         font-weight: 300;
@@ -221,12 +213,15 @@
         padding: 0.5em;
         margin-left: 1.5em;
         border: 0;
-        @media (max-width: shared.$mobile-width) {
+
+        @include mobile {
             border: 3px solid #00000000;
+            margin-top: 1.5em;
         }
+
         :active :hover {
             font-weight: bold;
-            @media (max-width: shared.$mobile-width) {
+            @include mobile {
                 border-radius: 50px;
                 border: 3px solid white;
             }
@@ -234,16 +229,13 @@
     }
 
     @media print {
-        .nav-container {
-            display: none !important;
-        }
+        .nav-container { display: none !important; }
     }
 
     .user-logo {
         display: inline-block;
         vertical-align: top;
-        margin-right: 10px;
-        margin-left: 10px;
+        margin: 0 10px;
     }
 
     .user-data {
@@ -253,27 +245,36 @@
 
     ul.submenu {
         margin-top: 20px;
-        border-top: 15px;
-        padding: 0px;
-        border: 0px;
-        font-size: 16px;
-        color: #e7e7e7;
-        letter-spacing: 0.27px;
-        line-height: 16px;
+        margin-left: 1.75em;
+        padding: 0 0.65em 0 0.75em;
+        border: 0;
+        border-left: 2px solid rgba(255, 255, 255, 0.15);
+        font-size: 14px;
+        color: rgba(231, 231, 231, 0.82);
+        letter-spacing: 0.22px;
+        line-height: 1.25;
         text-align: left;
 
         button {
-            height: 20px;
-            border-radius: 0px;
-            color: #e7e7e7;
-            @media (max-width: shared.$mobile-width) {
-                margin: 0;
+            height: auto;
+            border-radius: 0;
+            font-size: inherit;
+            font-weight: 400;
+            color: inherit;
+            padding-left: 1em;
+            @include mobile { margin: 0; }
+
+            &.selected {
+                font-weight: 700;
+                color: $nav-text;
+            }
+
+            &:hover {
+                color: $nav-text;
             }
         }
 
-        li {
-            margin-bottom: 15px;
-        }
+        li { margin-bottom: 15px; }
 
         div {
             padding-left: 28px;
@@ -281,43 +282,54 @@
         }
 
         img {
-            margin-left: 0.5em;
-            margin-right: 1em;
+            margin-left: 0.25em;
+            margin-right: 0.55em;
+            max-height: 17px;
+            width: auto;
+            vertical-align: middle;
+            opacity: 0.92;
         }
 
-        @media (max-width: shared.$mobile-width) {
-            margin-top: 10px;
+        button.selected img {
+            opacity: 1;
         }
+
+        @include mobile { margin-top: 10px; }
     }
 }
-button.skip-main {
+
+%skip-base {
     left: -999px;
     display: flex;
     position: absolute;
     top: auto;
     z-index: -999;
-
-    background-color: #e6e6e6;
-    border: #4c4c4c;
-    border-radius: 4px;
-    color: black;
 }
-button.skip-main:focus,
-button.skip-main:active {
-    white-space: nowrap;
-    margin: 20px;
-    padding: 0 5px !important;
+
+%skip-active {
     left: auto;
     top: auto;
     z-index: 999;
 }
-a.skip-main {
-    left: -999px;
-    display: flex;
-    position: absolute;
-    top: auto;
-    z-index: -999;
 
+button.skip-main {
+    @extend %skip-base;
+    background-color: #e6e6e6;
+    border: #4c4c4c;
+    border-radius: 4px;
+    color: black;
+
+    &:focus,
+    &:active {
+        @extend %skip-active;
+        white-space: nowrap;
+        margin: 20px;
+        padding: 0 5px !important;
+    }
+}
+
+a.skip-main {
+    @extend %skip-base;
     margin: 20px;
     padding: 0 5px !important;
     white-space: nowrap;
@@ -325,10 +337,9 @@ a.skip-main {
     border: #e7e7e7;
     border-radius: 4px;
     color: white;
-}
-a.skip-main:focus,
-a.skip-main:active {
-    left: auto;
-    top: auto;
-    z-index: 999;
+
+    &:focus,
+    &:active {
+        @extend %skip-active;
+    }
 }

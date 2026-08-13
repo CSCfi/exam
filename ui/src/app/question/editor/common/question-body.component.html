@@ -1,0 +1,112 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
+<div [formGroup]="questionBodyForm">
+    <!-- Question Usage - Show which exams use this question -->
+    <div [hidden]="newQuestion() && !questionType()">
+        <xm-question-usage [examNames]="examNames()" />
+    </div>
+
+    <!-- Basic Information - Always show question type input -->
+    <xm-question-basic-info
+        [question]="question()"
+        [questionTypes]="questionTypes()"
+        [questionId]="'id' in question() ? question().id : undefined"
+        (formReady)="onFormReady($event)"
+    ></xm-question-basic-info>
+
+    <!-- Hide rest of form if new question and no type selected -->
+    <div [hidden]="newQuestion() && !questionType()">
+        <div class="row mt-2">
+            <div class="col-md-12">
+                @if (questionType() === 'EssayQuestion') {
+                    <!-- Evaluation -->
+                    <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
+                } @else if (
+                    questionType() === 'MultipleChoiceQuestion' ||
+                    questionType() === 'WeightedMultipleChoiceQuestion' ||
+                    questionType() === 'ClaimChoiceQuestion'
+                ) {
+                    <!-- Multiple choices -->
+                    <div class="xm-paragraph-title">{{ 'i18n_question_options' | translate }}</div>
+                }
+            </div>
+        </div>
+        @switch (questionType()) {
+            @case ('EssayQuestion') {
+                <xm-essay [question]="question()" [lotteryOn]="lotteryOn()"></xm-essay>
+            }
+            @case ('ClaimChoiceQuestion') {
+                <xm-claim-choice
+                    [question]="question()"
+                    [lotteryOn]="lotteryOn()"
+                    [showWarning]="examNames().length > 1"
+                ></xm-claim-choice>
+            }
+            @case ('MultipleChoiceQuestion') {
+                <xm-multiple-choice
+                    [question]="question()"
+                    [lotteryOn]="lotteryOn()"
+                    [showWarning]="examNames().length > 1"
+                    [allowOptionRemoval]="true"
+                    [multichoiceFeaturesOn]="multichoiceFeaturesOn()"
+                ></xm-multiple-choice>
+            }
+            @case ('WeightedMultipleChoiceQuestion') {
+                <xm-weighted-multiple-choice
+                    [question]="question()"
+                    [lotteryOn]="lotteryOn()"
+                    [showWarning]="examNames().length > 1"
+                    [allowOptionRemoval]="true"
+                    [multichoiceFeaturesOn]="multichoiceFeaturesOn()"
+                ></xm-weighted-multiple-choice>
+            }
+            @case ('LtiQuestion') {
+                <xm-lti [question]="question()" [lotteryOn]="lotteryOn()"></xm-lti>
+            }
+        }
+
+        <!-- Max score (not shown for WeightedMultipleChoiceQuestion and ClaimChoiceQuestion - calculated from options) -->
+        @if (questionType() !== 'WeightedMultipleChoiceQuestion' && questionType() !== 'ClaimChoiceQuestion') {
+            <div class="row mt-3">
+                <div class="col-md-3">{{ 'i18n_max_score' | translate }}</div>
+                <div class="col-md-2">
+                    <input
+                        id="defaultMaxScore"
+                        name="defaultMaxScore"
+                        type="number"
+                        class="form-control"
+                        formControlName="defaultMaxScore"
+                        [min]="0"
+                        [max]="1000"
+                    />
+                </div>
+            </div>
+        }
+
+        <!-- Additional Info -->
+        <xm-question-additional-info
+            [question]="question()"
+            [questionType]="questionType()"
+            [showWarning]="examNames().length > 1"
+        >
+            <!-- Tags content projection -->
+            <div tags-content>
+                <xm-question-tags
+                    [question]="question()"
+                    [collaborative]="collaborative()"
+                    (tagsChange)="tagsChange.emit($event)"
+                ></xm-question-tags>
+            </div>
+            <div owners-content>
+                <xm-question-owners
+                    [currentOwners]="currentOwners()"
+                    (currentOwnersChange)="currentOwnersChange.emit($event)"
+                ></xm-question-owners>
+            </div>
+        </xm-question-additional-info>
+    </div>
+</div>

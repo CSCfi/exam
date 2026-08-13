@@ -12,22 +12,22 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="xm-paragraph-title">{{ 'i18n_publish_timetable' | translate }}</div>
             </div>
         </div>
-        <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
+        <div class="row mt-2" [hidden]="exam().executionType.type !== 'PRINTOUT'">
             <!-- examination dates -->
             <div class="col-md-3 ps-0">{{ 'i18n_examination_dates' | translate }}</div>
             <div class="col-md-4">
                 <xm-date-picker
                     [extra]="true"
-                    [readonly]="true"
+                    [isReadonly]="true"
                     extraText="i18n_add"
                     (extraActionHappened)="addExaminationDate($event)"
                 >
                 </xm-date-picker>
             </div>
         </div>
-        <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
+        <div class="row mt-2" [hidden]="exam().executionType.type !== 'PRINTOUT'">
             <div class="col-md-9 offset-md-3">
-                @for (ed of exam.examinationDates | orderBy: 'date'; track ed) {
+                @for (ed of exam().examinationDates | orderBy: 'date'; track ed) {
                     <div class="ms-1 row hover-grey">
                         <div class="row col-8">
                             {{ ed.date | date: 'dd.MM.yyyy' }}
@@ -36,7 +36,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <button
                             class="btn btn-danger btn-sm ms-1 w-auto m-1"
                             (click)="removeExaminationDate(ed)"
-                            [attr.aria-label]="ed.date | date: 'dd.MM.yyyy'"
+                            [ariaLabel]="ed.date | date: 'dd.MM.yyyy'"
                         >
                             {{ 'i18n_remove' | translate }}
                         </button>
@@ -44,57 +44,53 @@ SPDX-License-Identifier: EUPL-1.2
                 }
             </div>
         </div>
-        <div class="row mt-3" [hidden]="exam.executionType.type === 'PRINTOUT'">
+        <div class="row mt-3" [hidden]="exam().executionType.type === 'PRINTOUT'">
             <div class="col-md-12">
-                <form role="form">
-                    <!-- Start & End time datepickers -->
-                    <div class="row">
-                        <div class="col-md-3 offset-md-3">
-                            <div class="exam-input-label-uppercase">{{ 'i18n_begin' | translate | uppercase }}</div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="exam-input-label-uppercase">{{ 'i18n_end' | translate | uppercase }}</div>
-                        </div>
+                <!-- Start & End time datepickers -->
+                <div class="row">
+                    <div class="col-md-3 offset-md-3">
+                        <div class="exam-input-label-uppercase">{{ 'i18n_begin' | translate | uppercase }}</div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div>
-                                {{ 'i18n_exam_validity' | translate }}
-                                <sup
-                                    ngbPopover="{{ 'i18n_exam_validity_description' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <xm-date-picker
-                                [initialDate]="exam.periodStart"
-                                [readonly]="true"
-                                (updated)="startDateChanged($event)"
-                            >
-                            </xm-date-picker>
-                        </div>
-                        <div class="col-md-3">
-                            <xm-date-picker
-                                [initialDate]="exam.periodEnd"
-                                [readonly]="true"
-                                (updated)="endDateChanged($event)"
-                            >
-                            </xm-date-picker>
-                        </div>
-                        <div class="col-md-3" [hidden]="!exam.hasEnrolmentsInEffect">
-                            <img class="arrow_icon" alt="" src="/assets/images/icon_info.png" />
-                            {{ 'i18n_restricting_validity_change_disallowed' | translate }}
-                        </div>
+                    <div class="col-md-3">
+                        <div class="exam-input-label-uppercase">{{ 'i18n_end' | translate | uppercase }}</div>
                     </div>
-                </form>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        {{ 'i18n_exam_validity' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_exam_validity_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
+                    </div>
+                    <div class="col-md-3">
+                        <xm-date-picker
+                            [initialDate]="exam().periodStart"
+                            [isReadonly]="true"
+                            (updated)="startDateChanged($event)"
+                        >
+                        </xm-date-picker>
+                    </div>
+                    <div class="col-md-3">
+                        <xm-date-picker
+                            [initialDate]="exam().periodEnd"
+                            [isReadonly]="true"
+                            (updated)="endDateChanged($event)"
+                        >
+                        </xm-date-picker>
+                    </div>
+                    <div class="col-md-3" [hidden]="!exam().hasEnrolmentsInEffect">
+                        <img class="arrow_icon" alt="" src="/assets/images/icon_info.png" />
+                        {{ 'i18n_restricting_validity_change_disallowed' | translate }}
+                    </div>
+                </div>
             </div>
         </div>
 
-        <xm-examination-events [exam]="exam" />
+        <xm-examination-events [exam]="exam()" (eventsChange)="eventsChanged($event)" />
 
         <!-- Exam length -->
         <div class="row mt-2">
@@ -113,15 +109,15 @@ SPDX-License-Identifier: EUPL-1.2
                     <span class="me-2">
                         <button
                             class="btn selection-button-narrow"
-                            [ngClass]="checkDuration(duration)"
+                            [class.btn-primary]="exam().duration === duration"
                             (click)="setExamDuration(0, duration)"
-                            [disabled]="!isAdmin() && exam.hasEnrolmentsInEffect"
+                            [disabled]="!isAdmin && exam().hasEnrolmentsInEffect"
                         >
                             {{ duration }}
                         </button>
                     </span>
                 }
-                @if (exam.implementation === 'WHATEVER' || exam.implementation === 'CLIENT_AUTH') {
+                @if (exam().implementation === 'WHATEVER' || exam().implementation === 'CLIENT_AUTH') {
                     <button class="btn btn-success ms-3" (click)="openCustomTimeEditor()">
                         {{ 'i18n_custom' | translate }} {{ ('i18n_exam_time' | translate).toLowerCase() }}
                     </button>
@@ -131,17 +127,17 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row mt-1">
             <div class="col offset-md-3">
                 {{ 'i18n_saved' | translate }} {{ ('i18n_exam_duration' | translate).toLowerCase() }}:
-                {{ format(exam.duration) }}
+                {{ format(exam().duration) }}
             </div>
         </div>
-        <div class="row mt-2" [hidden]="exam.executionType.type === 'PRINTOUT'">
+        <div class="row mt-2" [hidden]="exam().executionType.type === 'PRINTOUT'">
             <div class="col-md-12 mt-3">
                 <div class="xm-paragraph-title">{{ 'i18n_other_publication_settings' | translate }}</div>
             </div>
         </div>
         <div
             class="row mt-3 align-items-center"
-            [hidden]="exam.executionType.type === 'MATURITY' || exam.executionType.type === 'PRINTOUT'"
+            [hidden]="exam().executionType.type === 'MATURITY' || exam().executionType.type === 'PRINTOUT'"
         >
             <div class="col-md-3">
                 {{ 'i18n_publish_max_count' | translate }}
@@ -155,46 +151,51 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <div class="col-md-9">
                 @for (x of range(1, 5); track x) {
-                    <span [hidden]="exam.executionType.type !== 'PUBLIC'">
+                    <span [hidden]="exam().executionType.type !== 'PUBLIC'">
                         <button
                             class="btn selection-button-narrow"
-                            [ngClass]="checkTrialCount(x)"
+                            [class.btn-primary]="exam().trialCount === x"
                             (click)="setTrialCount(x)"
                         >
                             {{ x }}</button
                         >&nbsp;
                     </span>
                 }
-                @if (exam.executionType.type === 'PUBLIC') {
+                @if (exam().executionType.type === 'PUBLIC') {
                     <button
                         class="btn selection-button-narrow"
-                        [ngClass]="checkTrialCount(null)"
+                        [class.btn-primary]="exam().trialCount === null"
                         (click)="setTrialCount(null)"
                     >
                         &infin;
                     </button>
                 }
-                @if (exam.executionType.type === 'PRIVATE') {
-                    <button class="btn selection-button-narrow" [ngClass]="checkTrialCount(null)" [disabled]="true">
+                @if (exam().executionType.type === 'PRIVATE') {
+                    <button
+                        class="btn selection-button-narrow"
+                        [class.btn-primary]="exam().trialCount === null"
+                        [disabled]="true"
+                    >
                         1
                     </button>
                 }
-                @if (exam.executionType.type === 'PRIVATE') {
+                @if (exam().executionType.type === 'PRIVATE') {
                     <span class="text-muted"> ({{ 'i18n_private_exam_trial_count_description' | translate }})</span>
                 }
             </div>
         </div>
 
         <!-- Participant selections -->
-        @if (exam.executionType.type !== 'PUBLIC' || collaborative()) {
+        @if (exam().executionType.type !== 'PUBLIC' || collaborative()) {
             <xm-exam-publication-participants
                 [collaborative]="collaborative()"
-                [exam]="exam"
+                [exam]="exam()"
+                (participantsChange)="enrolmentsChanged($event)"
             ></xm-exam-publication-participants>
         }
 
         <!-- Link to enrolment -->
-        @if (exam.executionType.type === 'PUBLIC' && !collaborative()) {
+        @if (exam().executionType.type === 'PUBLIC' && !collaborative()) {
             <div class="row mt-3">
                 <div class="col-md-12">
                     <div class="xm-paragraph-title">
@@ -210,11 +211,11 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
         }
-        @if (exam.executionType.type === 'PUBLIC' && !collaborative()) {
+        @if (exam().executionType.type === 'PUBLIC' && !collaborative()) {
             <div class="row">
                 <div class="col-md-12 mt-2">
-                    <a href="{{ hostName() }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}">
-                        {{ hostName() }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}
+                    <a href="{{ hostName }}/enrolments/{{ exam().id }}?code={{ exam().course?.code }}">
+                        {{ hostName }}/enrolments/{{ exam().id }}?code={{ exam().course?.code }}
                     </a>
                 </div>
             </div>
@@ -225,13 +226,15 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-12 mb-3">
                 <div class="d-flex flex-row-reverse">
                     <div
-                        [hidden]="exam.state !== 'PUBLISHED' || exam.executionType.type !== 'PUBLIC' || collaborative()"
+                        [hidden]="
+                            exam().state !== 'PUBLISHED' || exam().executionType.type !== 'PUBLIC' || collaborative()
+                        "
                     >
                         <button class="btn btn-outline-danger" (click)="unpublishExam()">
                             {{ 'i18n_unpublish_exam' | translate }}
                         </button>
                     </div>
-                    <div [hidden]="exam.state === 'PUBLISHED'">
+                    <div [hidden]="exam().state === 'PUBLISHED'">
                         <button class="btn btn-success me-3" (click)="saveAndPublishExam()">
                             @if (!isDraftCollaborativeExam()) {
                                 <span>{{ 'i18n_save_and_publish' | translate }}</span>

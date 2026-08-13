@@ -1,0 +1,196 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package features.iop.collaboration.services
+
+import database.EbeanQueryExtensions
+import io.ebean.DB
+import models.enrolment.{ExamEnrolment, Reservation}
+import models.exam.Exam
+import models.exam.ExamState
+import models.facility.ExamRoom
+import models.sections.ExamSection
+import models.user.User
+import org.joda.time.DateTime
+import play.api.Logging
+import play.api.libs.json.{JsObject, JsValue, Json}
+import security.BlockingIOExecutionContext
+import services.datetime.*
+import services.enrolment.EnrolmentHandler
+import services.mail.EmailComposer
+
+import javax.inject.Inject
+import scala.concurrent.Future
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+import scala.util.Using
+
+/** Service for collaborative calendar operations
+  *
+  * Handles reservations, slots, and enrolment checks for collaborative exams.
+  */
+class CollaborativeCalendarService @Inject() (
+    collaborativeExamService: CollaborativeExamService,
+    examLoader: CollaborativeExamLoaderService,
+    calendarHandler: CalendarHandler,
+    dateTimeHandler: DateTimeHandler,
+    enrolmentHandler: EnrolmentHandler,
+    emailComposer: EmailComposer,
+    clock: AppClock,
+    private val ec: BlockingIOExecutionContext
+) extends EbeanQueryExtensions
+    with Logging:
+  implicit private val executionContext: BlockingIOExecutionContext = ec
+
+  def getExamInfo(id: Long): Future[Option[JsValue]] =
+    collaborativeExamService.findById(id).flatMap {
+      case None => Future.successful(None)
+      case Some(ce) =>
+        examLoader.downloadExamJson(ce).map(_.map { json =>
+          json.as[JsObject] ++ Json.obj("id" -> ce.id.longValue, "externalRef" -> ce.externalRef)
+        })
+    }
+
+  private def checkEnrolmentValidity(
+      enrolment: ExamEnrolment,
+      exam: Exam,
+      user: User
+  ): Option[String] =
+    val oldReservation = Option(enrolment.reservation)
+
+    if exam.state == ExamState.STUDENT_STARTED ||
+      (oldReservation.isDefined && oldReservation.get.toInterval.isBefore(clock.now()))
+    then Some("i18n_reservation_in_effect")
+    else if oldReservation.isEmpty && !enrolmentHandler.isAllowedToParticipate(exam, user) then
+      Some("i18n_no_trials_left")
+    else None
+
+  def findEnrolment(examId: Long, userId: Long, now: DateTime): Future[Option[ExamEnrolment]] =
+    Future(
+      DB.find(classOf[ExamEnrolment])
+        .fetch("reservation")
+        .where()
+        .eq("user.id", userId)
+        .eq("collaborativeExam.id", examId)
+        .disjunction()
+        .isNull("reservation")
+        .gt("reservation.startAt", now.toDate)
+        .endJunction()
+        .find
+    )(using ec)
+
+  def createReservation(
+      examId: Long,
+      roomId: Long,
+      userId: Long,
+      start: DateTime,
+      end: DateTime,
+      aids: Seq[Long],
+      sectionIds: Seq[Long]
+  ): Future[Either[String, (ExamEnrolment, Reservation)]] =
+    val room = DB.find(classOf[ExamRoom], roomId)
+    val now  = dateTimeHandler.adjustDST(clock.now(), room)
+
+    (for
+        ceOpt <- collaborativeExamService.findById(examId)
+        ce <- ceOpt match
+          case None     => Future.failed(new IllegalArgumentException("Exam not found"))
+          case Some(ce) => Future.successful(ce)
+        enrolmentOpt <- findEnrolment(examId, userId, now)
+        enrolment <- enrolmentOpt match
+          case None    => Future.failed(new IllegalArgumentException("Enrolment not found"))
+          case Some(e) => Future.successful(e)
+        examOpt <- examLoader.downloadExam(ce)
+        exam <- examOpt match
+          case None    => Future.failed(new IllegalArgumentException("Exam not found"))
+          case Some(e) => Future.successful(e)
+      yield checkEnrolmentValidity(enrolment, exam, enrolment.user) match
+        case Some(error) => Left(error)
+        case None =>
+          calendarHandler.getRandomMachine(room, exam, start, end, aids) match
+            case None          => Left("i18n_no_machines_available")
+            case Some(machine) =>
+              // Start transaction
+              Using(DB.beginTransaction()) { tx =>
+                // Take pessimistic lock for user
+                DB.find(classOf[User]).forUpdate().where().eq("id", userId).findOne()
+
+                val oldReservation = enrolment.reservation
+                val reservation =
+                  calendarHandler.createReservation(start, end, machine, enrolment.user)
+
+                // Remove old reservation if any
+                if Option(oldReservation).isDefined then
+                  enrolment.reservation = null
+                  enrolment.update()
+                  oldReservation.delete()
+
+                // Set new reservation
+                reservation.save()
+                enrolment.reservation = reservation
+                enrolment.reservationCanceled = false
+
+                // Set optional sections
+                val sections =
+                  if sectionIds.isEmpty then Set.empty[ExamSection]
+                  else
+                    DB.find(classOf[ExamSection])
+                      .where()
+                      .idIn(sectionIds.asJava)
+                      .distinct
+
+                enrolment.optionalSections = sections.asJava
+                enrolment.save()
+
+                tx.commit()
+
+                // Send email notification
+                emailComposer.scheduleEmail(1.second) {
+                  emailComposer.composeReservationNotification(
+                    enrolment.user,
+                    reservation,
+                    exam,
+                    false
+                  )
+                  logger.info(
+                    f"Reservation confirmation email sent to ${enrolment.user.email}"
+                  )
+                }
+
+                Right((enrolment, reservation))
+              }.get // Extract from Try
+    ).recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }
+
+  def getSlots(
+      examId: Long,
+      roomId: Long,
+      day: String,
+      aids: Option[Seq[Long]],
+      userId: Long
+  ): Future[Either[String, play.api.libs.json.JsValue]] =
+    val now = dateTimeHandler.adjustDST(clock.now())
+    (for
+      ceOpt <- collaborativeExamService.findById(examId)
+      ce <- ceOpt match
+        case None     => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
+        case Some(ce) => Future.successful(ce)
+      enrolmentOpt <- findEnrolment(examId, userId, now)
+      _ <- enrolmentOpt match
+        case None => Future.failed(new IllegalArgumentException("i18n_error_enrolment_not_found"))
+        case Some(_) => Future.successful(())
+      examOpt <- examLoader.downloadExam(ce)
+      exam <- examOpt match
+        case None    => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
+        case Some(e) => Future.successful(e)
+    yield
+      if !exam.hasState(ExamState.PUBLISHED) then
+        Left("i18n_error_exam_not_found")
+      else
+        val user             = DB.find(classOf[User], userId)
+        val accessibilityIds = aids.getOrElse(Seq.empty)
+        calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds) match
+          case Right(json) => Right(json)
+          case Left(CalendarHandlerError.RoomNotFound(_)) =>
+            Left("i18n_error_enrolment_not_found")
+    ).recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }

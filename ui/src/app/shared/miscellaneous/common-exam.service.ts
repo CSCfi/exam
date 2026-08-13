@@ -10,8 +10,8 @@ import { isNumber } from './helpers';
 
 @Injectable({ providedIn: 'root' })
 export class CommonExamService {
-    private document = inject<Document>(DOCUMENT);
-    private translate = inject(TranslateService);
+    private readonly document = inject<Document>(DOCUMENT);
+    private readonly translate = inject(TranslateService);
 
     getExamTypeDisplayName = (type: string): string => {
         let name = '';

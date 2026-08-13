@@ -2,36 +2,57 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
-import { Subject } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Exam } from 'src/app/exam/exam.model';
-
-export type UpdateProps = {
-    code: string | null;
-    name: string | null;
-    scaleChange: boolean;
-    initScale: boolean;
-};
+import { ExamService } from 'src/app/exam/exam.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamTabService {
-    public tabChange$: Observable<number>;
-    public examUpdate$: Observable<UpdateProps>;
-    private tabChangeSubscription = new Subject<number>();
-    private examUpdateSubscription = new Subject<UpdateProps>();
-    private exam!: Exam;
-    private collaborative = false;
+    private readonly tabChange = signal<{ tab: number; timestamp: number } | undefined>(undefined);
+    private readonly exam = signal<Exam | undefined>(undefined);
+    private readonly collaborative = signal(false);
 
-    constructor() {
-        this.tabChange$ = this.tabChangeSubscription.asObservable();
-        this.examUpdate$ = this.examUpdateSubscription.asObservable();
+    private readonly Exam = inject(ExamService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+
+    get tabChangeSignal() {
+        return this.tabChange.asReadonly();
+    }
+    get examSignal() {
+        return this.exam.asReadonly();
+    }
+    get collaborativeSignal() {
+        return this.collaborative.asReadonly();
     }
 
-    notifyTabChange = (tab: number) => this.tabChangeSubscription.next(tab);
-    notifyExamUpdate = (props: UpdateProps) => this.examUpdateSubscription.next(props);
-    setExam = (exam: Exam) => (this.exam = exam);
-    getExam = () => this.exam;
-    setCollaborative = (collaborative: boolean) => (this.collaborative = collaborative);
-    isCollaborative = () => this.collaborative;
+    notifyTabChange = (tab: number) => this.tabChange.set({ tab, timestamp: Date.now() });
+    setExam = (exam: Exam) => this.exam.set(exam);
+    getExam = (): Exam => {
+        const exam = this.exam();
+        if (!exam) {
+            throw new Error('Exam is required but not available');
+        }
+        return exam;
+    };
+    setCollaborative = (collaborative: boolean) => this.collaborative.set(collaborative);
+    isCollaborative = () => this.collaborative();
+
+    saveExam$ = (overrides: Record<string, unknown> = {}, silent = false): Observable<Exam> =>
+        this.Exam.updateExam$(this.getExam(), overrides, this.collaborative()).pipe(
+            tap((savedExam) => {
+                this.exam.set(savedExam);
+                if (!silent) {
+                    this.toast.info(this.translate.instant('i18n_exam_saved'));
+                }
+            }),
+            catchError((err) => {
+                this.toast.error(err);
+                return throwError(() => new Error(err));
+            }),
+        );
 }

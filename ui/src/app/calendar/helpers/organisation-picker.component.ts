@@ -2,25 +2,26 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Organisation } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
 
 @Component({
     selector: 'xm-calendar-organisation-picker',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div
             class="row m-2 details-view"
-            [ngClass]="selectedOrganisation() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+            [class.xm-study-item-container]="selectedOrganisation()"
+            [class.xm-study-item-container--inactive]="!selectedOrganisation()"
         >
             <div class="col-md-12">
                 <div class="row">
                     <span class="col-md-11 col-9">
                         <h2 class="calendar-phase-title">
-                            {{ sequenceNumber }}. {{ 'i18n_choose_institution' | translate }}
+                            {{ sequenceNumber() }}. {{ 'i18n_choose_institution' | translate }}
                         </h2>
                     </span>
                     <span class="col-md-1 col-3">
@@ -37,7 +38,7 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
                             <div class="col student-exam-row-title">
                                 <span ngbDropdown>
                                     <button
-                                        [disabled]="disabled"
+                                        [disabled]="disabled()"
                                         ngbDropdownToggle
                                         class="btn btn-outline-secondary"
                                         type="button"
@@ -73,7 +74,7 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
                 </div>
                 <!-- Selected organisation  -->
                 @if (selectedOrganisation()) {
-                    <div class="row">
+                    <div class="row mt-2">
                         <div class="col-md-12">
                             <div class="calendar-room-title">
                                 <span
@@ -87,33 +88,35 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    imports: [NgClass, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
+    imports: [NgbDropdownModule, TranslateModule],
 })
-export class OrganisationPickerComponent implements OnInit {
-    @Input() sequenceNumber = 0;
-    @Input() disabled = false;
-    @Output() selected = new EventEmitter<Organisation>();
-    @Output() cancelled = new EventEmitter<void>();
+export class OrganisationPickerComponent {
+    readonly sequenceNumber = input(0);
+    readonly disabled = input(false);
+    readonly selected = output<Organisation>();
+    readonly cancelled = output<void>();
 
-    organisations = signal<Organisation[]>([]);
-    selectedOrganisation = signal<Organisation | undefined>(undefined);
+    readonly organisations = signal<Organisation[]>([]);
+    readonly selectedOrganisation = signal<Organisation | undefined>(undefined);
 
-    private Calendar = inject(CalendarService);
+    private readonly Calendar = inject(CalendarService);
 
-    ngOnInit() {
+    constructor() {
         this.Calendar.listOrganisations$().subscribe((resp) =>
             this.organisations.set(resp.filter((org) => !org.homeOrg && org.facilities.length > 0)),
         );
     }
 
-    setOrganisation = (organisation: Organisation) => {
+    setOrganisation(organisation: Organisation) {
         const i = this.organisations().findIndex((o) => o._id === organisation._id);
         const orgs = this.organisations().map((o) => ({ ...o, filtered: false }));
         orgs.splice(i, 1, { ...orgs[i], filtered: true });
         this.organisations.set(orgs);
         this.selectedOrganisation.set({ ...organisation, filtered: true });
         this.selected.emit(organisation);
-    };
+    }
 
-    makeInternalReservation = () => this.cancelled.emit();
+    makeInternalReservation() {
+        this.cancelled.emit();
+    }
 }

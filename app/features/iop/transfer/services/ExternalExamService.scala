@@ -1,0 +1,150 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package features.iop.transfer.services
+
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.examination.services.ExaminationService
+import features.iop.collaboration.services.CollaborativeExamLoaderService
+import io.ebean.DB
+import io.ebean.text.PathProperties
+import models.enrolment.ExamEnrolment
+import models.iop.ExternalExam
+import play.api.Logging
+import play.api.libs.json.{JsValue, Json}
+import play.db.ebean.Transactional
+import play.libs.Json as JavaJson
+import security.BlockingIOExecutionContext
+import services.enrolment.NoShowHandler
+import services.exam.ExternalExamHandler
+import services.json.JsonDeserializer
+
+import javax.inject.Inject
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
+
+class ExternalExamService @Inject() (
+    externalExamHandler: ExternalExamHandler,
+    noShowHandler: NoShowHandler,
+    externalAttachmentLoader: ExternalAttachmentLoaderService,
+    collaborativeExamLoader: CollaborativeExamLoaderService
+)(implicit ec: BlockingIOExecutionContext)
+    extends EbeanQueryExtensions
+    with EbeanJsonExtensions
+    with Logging:
+
+  private def getPath: PathProperties =
+    val path = """(*,
+                  |course(*, gradeScale(*, grades(*))),
+                  |executionType(*),
+                  |autoEvaluationConfig(*, gradeEvaluations(*, grade(*, gradeScale(*)))),
+                  |examFeedbackConfig(*),
+                  |examLanguages(*),
+                  |attachment(*),
+                  |examOwners(*),
+                  |examInspections(*, user(*)),
+                  |examType(*),
+                  |creditType(*),
+                  |gradeScale(*, grades(*)),
+                  |examSections(*,
+                  |  sectionQuestions(*,
+                  |    question(*, attachment(*), options(*)),
+                  |    options(*, option(*)),
+                  |    essayAnswer(*, attachment(*)),
+                  |    clozeTestAnswer(*)
+                  |  )
+                  |)
+                  |)""".stripMargin
+    PathProperties.parse(path)
+
+  @Transactional
+  def addExamForAssessment(ref: String, body: JsValue): Future[Either[ExternalExamError, Unit]] =
+    getPrototype(ref) match
+      case None            => Future.successful(Left(ExternalExamError.EnrolmentNotFound))
+      case Some(enrolment) =>
+        // Convert Play JSON to Jackson JsonNode for JsonDeserializer
+        val jsonBody = JavaJson.parse(Json.stringify(body))
+        Option(JsonDeserializer.deserialize(classOf[ExternalExam], jsonBody)) match
+          case None => Future.successful(Left(ExternalExamError.InvalidExternalExamData))
+          case Some(ee) =>
+            val parent =
+              DB.find(classOf[models.exam.Exam]).where().eq("hash", ee.externalRef).find
+            if parent.isEmpty && Option(enrolment.collaborativeExam).isEmpty then
+              Future.successful(Left(ExternalExamError.ParentExamNotFound))
+            else
+              val clone = externalExamHandler.createCopyForAssessment(enrolment, ee)
+              enrolment.exam = clone
+              enrolment.update()
+
+              Option(enrolment.collaborativeExam) match
+                case Some(_) =>
+                  collaborativeExamLoader
+                    .createAssessment(clone.examParticipation)
+                    .map(success =>
+                      if success then Right(())
+                      else Left(ExternalExamError.FailedToCreateAssessment)
+                    )
+                case None =>
+                  // Fetch external attachments for the local exam
+                  externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone)
+                  Future.successful(Right(()))
+
+  def provideEnrolment(ref: String): Future[Either[ExternalExamError, (JsValue, PathProperties)]] =
+    getPrototype(ref) match
+      case None => Future.successful(Left(ExternalExamError.EnrolmentNotFound))
+      case Some(enrolment) =>
+        Option(enrolment.collaborativeExam) match
+          case Some(collaborativeExam) =>
+            collaborativeExamLoader.downloadExam(collaborativeExam).map {
+              case Some(exam) =>
+                val pp = getPath
+                Right((exam.asJson(pp), pp))
+              case None => Left(ExternalExamError.CouldNotDownloadCollaborativeExam)
+            }
+          case None =>
+            val exam = enrolment.exam
+
+            val examAttachmentFuture = Option(exam.attachment)
+              .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
+              .toSeq
+
+            val questionAttachmentFutures = exam.examSections.asScala
+              .flatMap(_.sectionQuestions.asScala)
+              .map(_.question)
+              .flatMap(q => Option(q.attachment))
+              .toSet
+              .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
+              .toSeq
+
+            val allFutures = examAttachmentFuture ++ questionAttachmentFutures
+            val pp         = getPath
+
+            Future
+              .sequence(allFutures)
+              .map(_ => Right((exam.asJson(pp), pp)))
+              .recover { case t: Throwable =>
+                logger.error(s"Could not provide enrolment [id=${enrolment.id}]", t)
+                Left(ExternalExamError.FailedToProvideEnrolment)
+              }
+
+  def addNoShow(ref: String): Either[ExternalExamError, Unit] =
+    getPrototype(ref) match
+      case Some(enrolment) =>
+        noShowHandler.handleNoShowAndNotify(enrolment)
+        Right(())
+      case None => Left(ExternalExamError.EnrolmentNotFound)
+
+  private def createQuery =
+    DB.find(classOf[ExamEnrolment]).apply(ExaminationService.getPath(true))
+
+  private def getPrototype(ref: String): Option[ExamEnrolment] =
+    createQuery
+      .where()
+      .eq("reservation.externalRef", ref)
+      .or()
+      .isNull("exam.parent")
+      .isNotNull("collaborativeExam")
+      .endOr()
+      .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
+      .find

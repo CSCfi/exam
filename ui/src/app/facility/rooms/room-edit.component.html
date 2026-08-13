@@ -5,7 +5,7 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <xm-page-header text="i18n_examination_location" />
-@if (room) {
+@if (room()) {
     <xm-page-content [content]="content" />
 }
 <ng-template #content>
@@ -13,11 +13,12 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-12">
             <div class="row">
                 <span class="col font-6">
-                    <span class="me-2" [hidden]="!showName" onclick="document.getElementById('name_field').select()">
-                        {{ room.name || 'i18n_no_name' | translate }}
+                    <span class="me-2" [hidden]="!showName()" onclick="document.getElementById('name_field').select()">
+                        {{ room()?.name || 'i18n_no_name' | translate }}
                         <button
+                            type="button"
                             class="btn btn-link btn-lg text-body width-auto"
-                            (click)="showName = !showName"
+                            (click)="toggleShowName()"
                             triggers="mouseenter:mouseleave"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                             ngbPopover="{{ 'i18n_edit' | translate }}"
@@ -25,6 +26,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <i class="bi-pencil ms-2"></i>
                         </button>
                         <button
+                            type="button"
                             class="btn btn-link btn-lg width-auto"
                             (click)="disableRoom()"
                             triggers="mouseenter:mouseleave"
@@ -34,19 +36,20 @@ SPDX-License-Identifier: EUPL-1.2
                             <i class="text-danger bi-trash"></i>
                         </button>
                     </span>
-                    <span [hidden]="showName">
+                    <span [hidden]="showName()">
                         <div class="input-group">
                             <input
                                 id="name_field"
                                 type="text"
                                 name="name"
                                 class="form-control input-lg"
-                                [(ngModel)]="room.name"
+                                [value]="room()?.name ?? ''"
+                                (input)="onRoomTextInput('name', $event)"
                                 required
-                                (blur)="showName = !showName"
+                                (blur)="toggleShowName()"
                             />
                             <div class="input-group-append">
-                                <button class="btn btn-primary" (click)="showName = !showName">
+                                <button type="button" class="btn btn-primary" (click)="toggleShowName()">
                                     <i class="bi-check"></i>
                                 </button>
                             </div>
@@ -54,26 +57,13 @@ SPDX-License-Identifier: EUPL-1.2
                     </span>
                 </span>
             </div>
-            <form
-                role="form"
-                #roomForm="ngForm"
-                name="roomForm"
-                novalidate
-                id="roomForm"
-                (ngSubmit)="validateAndUpdateRoom()"
-            >
+            <form role="form" novalidate id="roomForm" (submit)="$event.preventDefault(); validateAndUpdateRoom()">
                 <!-- Room Code & Building name -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="facility-info-text">{{ 'i18n_room_code' | translate }}</div>
                         <div class="input-group">
-                            <input
-                                type="text"
-                                name="roomCode"
-                                class="form-control"
-                                [(ngModel)]="room.roomCode"
-                                required
-                            />
+                            <input type="text" class="form-control" [formField]="roomDetailsForm.roomCode" />
                             <span class="input-group-append">
                                 <span class="input-group-text">
                                     <i
@@ -89,12 +79,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="col-md-6">
                         <div class="facility-info-text">{{ 'i18n_room_building_name' | translate }}</div>
                         <div class="input-group">
-                            <input
-                                type="text"
-                                name="buildingName"
-                                class="form-control"
-                                [(ngModel)]="room.buildingName"
-                            />
+                            <input type="text" class="form-control" [formField]="roomDetailsForm.buildingName" />
                             <span class="input-group-append">
                                 <span class="input-group-text">
                                     <i
@@ -113,7 +98,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="col-md-6">
                         <div class="facility-info-text">{{ 'i18n_room_campus' | translate }}</div>
                         <div class="input-group">
-                            <input type="text" name="campus" class="form-control" [(ngModel)]="room.campus" />
+                            <input type="text" class="form-control" [formField]="roomDetailsForm.campus" />
                             <span class="input-group-append">
                                 <span class="input-group-text">
                                     <i
@@ -133,10 +118,9 @@ SPDX-License-Identifier: EUPL-1.2
                         <div class="facility-info-text">{{ 'i18n_internal_password' | translate }}</div>
                         <div class="input-group">
                             <input
-                                type="{{ internalPasswordInputType }}"
-                                name="internalPassword"
+                                [type]="internalPasswordInputType()"
                                 class="form-control"
-                                [(ngModel)]="room.internalPassword"
+                                [formField]="roomDetailsForm.internalPassword"
                             />
                             <div class="input-group-append">
                                 <button
@@ -144,7 +128,10 @@ SPDX-License-Identifier: EUPL-1.2
                                     type="button"
                                     (click)="toggleInternalPasswordInputType()"
                                 >
-                                    <i [ngClass]="internalPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                                    <i
+                                        [class.bi-eye]="internalPasswordInputType() === 'text'"
+                                        [class.bi-eye-slash]="internalPasswordInputType() !== 'text'"
+                                    ></i>
                                 </button>
                             </div>
                         </div>
@@ -153,10 +140,9 @@ SPDX-License-Identifier: EUPL-1.2
                         <div class="facility-info-text">{{ 'i18n_external_password' | translate }}</div>
                         <div class="input-group">
                             <input
-                                type="{{ externalPasswordInputType }}"
-                                name="externalPassword"
+                                [type]="externalPasswordInputType()"
                                 class="form-control"
-                                [(ngModel)]="room.externalPassword"
+                                [formField]="roomDetailsForm.externalPassword"
                             />
                             <div class="input-group-append">
                                 <button
@@ -164,7 +150,10 @@ SPDX-License-Identifier: EUPL-1.2
                                     type="button"
                                     (click)="toggleExternalPasswordInputType()"
                                 >
-                                    <i [ngClass]="externalPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                                    <i
+                                        [class.bi-eye]="externalPasswordInputType() === 'text'"
+                                        [class.bi-eye-slash]="externalPasswordInputType() !== 'text'"
+                                    ></i>
                                 </button>
                             </div>
                         </div>
@@ -173,7 +162,7 @@ SPDX-License-Identifier: EUPL-1.2
 
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <button type="submit" [disabled]="!roomForm.valid" class="btn btn-success">
+                        <button type="submit" [disabled]="roomDetailsForm.roomCode().invalid()" class="btn btn-success">
                             {{ 'i18n_save' | translate }}
                         </button>
                     </div>
@@ -182,15 +171,15 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <!-- IOP -->
-    <div class="row mt-2" [hidden]="!isInteroperable">
+    <div class="row mt-2" [hidden]="!isInteroperable()">
         <div class="col">
             <div class="form-check">
                 <label>
                     <input
                         type="checkbox"
                         class="form-check-input"
-                        [(ngModel)]="room.availableForExternals"
-                        (change)="updateInteroperability()"
+                        [checked]="room()?.availableForExternals ?? false"
+                        (change)="onAvailableForExternalsChange($event)"
                     />
                     <strong>{{ 'i18n_interoperable' | translate }}</strong>
                 </label>
@@ -200,7 +189,7 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- AVAILABILITY TODO: MOVE TO A TAB -->
     <div class="row mt-2">
         <div class="col-md-12">
-            <xm-availability [room]="room"></xm-availability>
+            <xm-availability [room]="room()!"></xm-availability>
         </div>
     </div>
 
@@ -211,42 +200,63 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <!-- Accessibility information -->
     <div class="row">
-        <xm-accessibility-picker [room]="room"></xm-accessibility-picker>
+        <xm-accessibility-picker [room]="room()!"></xm-accessibility-picker>
     </div>
     <!-- Guidance & Contact person information -->
     <div class="row mt-2">
-        <div class="col-md-6">
-            <div class="facility-info-text">{{ 'i18n_room_guidance' | translate }}</div>
-            <div class="input-group">
-                <textarea class="form-control" [(ngModel)]="room.roomInstruction" placeholder="fin"> </textarea>
-                <textarea class="form-control" [(ngModel)]="room.roomInstructionEN" placeholder="eng"> </textarea>
-                <textarea class="form-control" [(ngModel)]="room.roomInstructionSV" placeholder="swe"> </textarea>
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_instructions_for_use_of_room' | translate }}"
-                        ></i>
-                    </span>
-                </span>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="facility-info-text">{{ 'i18n_room_contact_person' | translate }}</div>
-            <div class="input-group">
-                <input type="text" class="form-control" [(ngModel)]="room.contactPerson" />
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_person_to_contact_if_need_info' | translate }}"
-                        ></i>
-                    </span>
-                </span>
+        <div class="col-md-12">
+            <strong>{{ 'i18n_room_guidance' | translate }}</strong>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="facility-info-text">FI</div>
+                    <textarea
+                        class="form-control"
+                        [value]="room()?.roomInstruction ?? ''"
+                        (input)="onRoomTextInput('roomInstruction', $event)"
+                    >
+                    </textarea>
+                </div>
+                <div class="col-md-3">
+                    <div class="facility-info-text">SV</div>
+                    <textarea
+                        class="form-control"
+                        [value]="room()?.roomInstructionSV ?? ''"
+                        (input)="onRoomTextInput('roomInstructionSV', $event)"
+                    >
+                    </textarea>
+                </div>
+                <div class="col-md-3">
+                    <div class="facility-info-text">EN</div>
+                    <div class="input-group">
+                        <textarea
+                            class="form-control"
+                            [value]="room()?.roomInstructionEN ?? ''"
+                            (input)="onRoomTextInput('roomInstructionEN', $event)"
+                        >
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="facility-info-text">{{ 'i18n_room_contact_person' | translate }}</div>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            class="form-control"
+                            [value]="room()?.contactPerson ?? ''"
+                            (input)="onRoomTextInput('contactPerson', $event)"
+                        />
+                        <span class="input-group-append">
+                            <span class="input-group-text">
+                                <i
+                                    class="bi-question-circle"
+                                    triggers="mouseenter:mouseleave"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_person_to_contact_if_need_info' | translate }}"
+                                ></i>
+                            </span>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -255,7 +265,12 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-6">
             <div class="facility-info-text">{{ 'i18n_room_videorecordings_url' | translate }}</div>
             <div class="input-group">
-                <input type="text" class="form-control" [(ngModel)]="room.videoRecordingsURL" />
+                <input
+                    type="text"
+                    class="form-control"
+                    [value]="room()?.videoRecordingsURL ?? ''"
+                    (input)="onRoomTextInput('videoRecordingsURL', $event)"
+                />
                 <span class="input-group-append">
                     <span class="input-group-text">
                         <i
@@ -271,7 +286,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row mt-2">
         <div class="col-md-12">
-            <button class="btn btn-success" (click)="updateRoom()">{{ 'i18n_save' | translate }}</button>
+            <button type="button" class="btn btn-success" (click)="updateRoom()">{{ 'i18n_save' | translate }}</button>
         </div>
     </div>
     <!-- Postal address-->
@@ -279,14 +294,19 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-12">
             <!-- Address -->
             <h3>{{ 'i18n_exam_room_address' | translate }}</h3>
-            <xm-room-address [address]="room.mailAddress"></xm-room-address>
+            <xm-room-address [address]="room()!.mailAddress"></xm-room-address>
         </div>
     </div>
     <!-- Service status -->
     <div class="row mt-2">
         <div class="col-md-12">
             <label>
-                <input class="me-2" type="checkbox" [(ngModel)]="room.outOfService" (change)="updateRoom()" />
+                <input
+                    class="me-2"
+                    type="checkbox"
+                    [checked]="room()?.outOfService ?? false"
+                    (change)="onOutOfServiceChange($event)"
+                />
                 <strong>{{ 'i18n_out_of_service' | translate }}</strong>
             </label>
         </div>
@@ -298,9 +318,10 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-6">
             <div class="input-group">
                 <textarea
-                    [disabled]="!room.outOfService"
+                    [disabled]="!room()?.outOfService"
                     class="form-control"
-                    [(ngModel)]="room.statusComment"
+                    [value]="room()?.statusComment ?? ''"
+                    (input)="onRoomTextInput('statusComment', $event)"
                     (blur)="updateRoom()"
                 >
                 </textarea>
@@ -320,7 +341,12 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Button row -->
     <div class="row mt-2">
         <div class="col-md-12">
-            <button [disabled]="!roomForm.valid" (click)="saveRoom()" class="btn btn-success">
+            <button
+                type="button"
+                [disabled]="roomDetailsForm.roomCode().invalid()"
+                (click)="saveRoom()"
+                class="btn btn-success"
+            >
                 {{ 'i18n_save' | translate }}
             </button>
         </div>

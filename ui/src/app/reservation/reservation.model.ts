@@ -73,8 +73,6 @@ export interface ExamMachine {
         name: string;
     }[];
     otherIdentifier: string;
-    accessibilityInfo: string;
-    accessible: boolean;
     surveillanceCamera: string;
     videoRecordings: string;
     ipAddress: string;

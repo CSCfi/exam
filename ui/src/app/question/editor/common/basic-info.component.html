@@ -1,0 +1,92 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
+<div [formGroup]="baseInformationForm">
+    @if (questionId()) {
+        <div class="row mt-3">
+            <div class="col-md-3">
+                {{ 'i18n_question_id' | translate }}
+            </div>
+            <div class="col-md-9 pe-0">#{{ questionId() }}</div>
+        </div>
+    }
+
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_new_question_type' | translate }}
+        </div>
+        <div class="col-md-9">
+            <select
+                [hidden]="hasQuestionType"
+                id="newQuestion"
+                name="newQuestion"
+                class="form-select"
+                formControlName="questionType"
+                required
+            >
+                <option value="" disabled>{{ 'i18n_select_question_type' | translate }}</option>
+                @for (type of questionTypes(); track type.name) {
+                    <option value="{{ type.type }}">{{ type.name | translate }}</option>
+                }
+            </select>
+            @if (hasQuestionType) {
+                @switch (questionType) {
+                    @case ('EssayQuestion') {
+                        {{ 'i18n_toolbar_essay_question' | translate }}
+                    }
+                    @case ('ClozeTestQuestion') {
+                        {{ 'i18n_toolbar_cloze_test_question' | translate }}
+                    }
+                    @case ('MultipleChoiceQuestion') {
+                        {{ 'i18n_toolbar_multiplechoice_question' | translate }}
+                    }
+                    @case ('WeightedMultipleChoiceQuestion') {
+                        {{ 'i18n_toolbar_weighted_multiplechoice_question' | translate }}
+                    }
+                    @case ('ClaimChoiceQuestion') {
+                        {{ 'i18n_toolbar_claim_choice_question' | translate }}
+                    }
+                    @case ('LtiQuestion') {
+                        {{ 'i18n_toolbar_lti' | translate }}
+                    }
+                }
+            }
+        </div>
+    </div>
+
+    @if (hasQuestionType) {
+        <div class="row mt-3">
+            <div class="col-md-3">
+                {{ 'i18n_question_text' | translate }}
+            </div>
+            <div class="col-md-9">
+                @if (questionType === 'ClozeTestQuestion') {
+                    <div class="alert alert-info mb-2 py-2">
+                        <strong>{{ 'i18n_cloze_test_instructions_title' | translate }}</strong
+                        ><br />
+                        {{ 'i18n_cloze_test_instructions' | translate }}
+                    </div>
+                }
+                <xm-ckeditor
+                    id="editor"
+                    name="editor"
+                    [enableClozeTest]="questionType === 'ClozeTestQuestion'"
+                    [data]="questionText"
+                    (dataChange)="onTextChange($event)"
+                    required
+                >
+                </xm-ckeditor>
+                @if (isQuestionTextInvalid) {
+                    <div class="row mt-2">
+                        <div class="col-md-12 text-danger">
+                            <small>{{ 'i18n_write_question_above' | translate | uppercase }}</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

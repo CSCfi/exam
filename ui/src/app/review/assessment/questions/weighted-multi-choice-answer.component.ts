@@ -2,18 +2,16 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-weighted-multi-choice-answer',
-    template: `@for (option of sectionQuestion.options | orderBy: 'id'; track option) {
-        <div class="ps-2 mb-2" [hidden]="!reviewExpanded">
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `@for (option of sectionQuestion().options | orderBy: 'id'; track option) {
+        <div class="ps-2 mb-2" [hidden]="!reviewExpanded()">
             @if (option.answered) {
                 @if (option.score >= 0) {
                     <div class="exam-answered-correct">
@@ -44,18 +42,16 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 <div class="exam-not-answered">
                     <div class="make-inline float-start">
                         @if (option.score >= 0) {
-                            <div>
-                                <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
-                            </div>
+                            <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
                         } @else {
                             <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
                         }
                     </div>
                     <div class="make-inline w-75 my-1 ms-3">
-                        <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                        <span class="exam-question-option-text">{{ option.option.option }}</span>
                     </div>
                     <div class="make-inline float-end">
-                        <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">
+                        <span [class.text-success]="option.score >= 0" [class.text-danger]="option.score < 0">
                             {{ option.score }} {{ 'i18n_unit_points' | translate }}</span
                         >
                     </div>
@@ -63,10 +59,10 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             }
         </div>
     }`,
-    imports: [MathJaxDirective, NgClass, TranslateModule, OrderByPipe],
+    imports: [TranslateModule, OrderByPipe],
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class WeightedMultiChoiceAnswerComponent {
-    @Input() sectionQuestion!: ExamSectionQuestion;
-    reviewExpanded = true;
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly reviewExpanded = signal(true);
 }

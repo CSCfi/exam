@@ -2,20 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbNav,
-    NgbNavItem,
-    NgbNavItemRole,
-    NgbNavLink,
-} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { NgbDropdownModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -44,83 +32,94 @@ enum Tab {
 @Component({
     templateUrl: './statistics.component.html',
     selector: 'xm-statistics',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
+        NgbNavModule,
+        NgbDropdownModule,
+        TranslateModule,
         DatePickerComponent,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        FormsModule,
-        NgbDropdownItem,
-        NgClass,
         IopReservationStatisticsComponent,
         RoomStatisticsComponent,
         ReservationStatisticsComponent,
         ResponseStatisticsComponent,
         ExamStatisticsComponent,
-        TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
     ],
 })
-export class StatisticsComponent implements OnInit {
-    view: Tab = Tab.RESPONSES;
-    departments: Departments[] = [];
-    filteredDepartments: Departments[] = [];
-    limitations = { department: '' };
-    queryParams: QueryParams = {};
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+export class StatisticsComponent {
+    readonly departments = signal<Departments[]>([]);
+    readonly startDate = signal<Date | null>(null);
+    readonly endDate = signal<Date | null>(null);
 
-    private Statistics = inject(StatisticsService);
+    readonly filteredDepartments = computed(() => {
+        const filter = this._departmentFilter().toLowerCase();
+        if (filter === '') {
+            return this.departments();
+        }
+        return this.departments().filter((d) => d.name.toLowerCase().includes(filter));
+    });
 
-    ngOnInit() {
+    readonly queryParams = computed<QueryParams>(() => {
+        const params: { start?: string; end?: string; dept?: string } = {};
+        const currentStartDate = this.startDate();
+        const currentEndDate = this.endDate();
+        if (currentStartDate) {
+            params.start = currentStartDate.toISOString();
+        }
+        if (currentEndDate) {
+            params.end = currentEndDate.toISOString();
+        }
+        const filteredDepts = this.departments().filter((d) => d.filtered);
+        if (filteredDepts.length > 0) {
+            params.dept = filteredDepts.map((d) => d.name).join();
+        }
+        return params;
+    });
+
+    private readonly _view = signal<Tab>(Tab.RESPONSES);
+    private readonly _departmentFilter = signal('');
+    private readonly Statistics = inject(StatisticsService);
+
+    constructor() {
         this.Statistics.listDepartments$().subscribe((resp) => {
-            this.departments = resp.departments.map((d) => ({ name: d, filtered: false }));
-            this.filteredDepartments = this.departments;
+            const depts = resp.departments.map((d) => ({ name: d, filtered: false }));
+            this.departments.set(depts);
         });
     }
 
-    setDepartmentFilter = (dept: { name: string; filtered: boolean }) => {
-        dept.filtered = !dept.filtered;
-        this.setQueryParams();
-    };
+    get view(): Tab {
+        return this._view();
+    }
 
-    startDateChanged = (event: { date: Date | null }) => {
-        this.startDate = event.date;
-        this.setQueryParams();
-    };
+    get departmentFilter(): string {
+        return this._departmentFilter();
+    }
 
-    endDateChanged = (event: { date: Date | null }) => {
-        this.endDate = event.date;
-        this.setQueryParams();
-    };
+    set view(value: Tab) {
+        this._view.set(value);
+    }
 
-    handleDepartmentInputChange = () => {
-        if (this.limitations.department === '') {
-            this.filteredDepartments = this.departments;
-        } else {
-            this.filteredDepartments = this.departments.filter((d) =>
-                d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
-            );
-        }
-    };
+    set departmentFilter(value: string) {
+        this._departmentFilter.set(value);
+    }
 
-    private setQueryParams = () => {
-        const params: { start?: string; end?: string; dept?: string } = {};
-        if (this.startDate) {
-            params.start = this.startDate.toISOString();
-        }
-        if (this.endDate) {
-            params.end = this.endDate.toISOString();
-        }
-        const departments = this.departments.filter((d) => d.filtered);
-        if (departments.length > 0) {
-            params.dept = departments.map((d) => d.name).join();
-        }
-        this.queryParams = params;
+    setDepartmentFilter(dept: Departments) {
+        const updatedDepts = this.departments().map((d) =>
+            d.name === dept.name ? { ...d, filtered: !d.filtered } : d,
+        );
+        this.departments.set(updatedDepts);
+    }
+
+    startDateChanged(event: { date: Date | null }) {
+        this.startDate.set(event.date);
+    }
+
+    endDateChanged(event: { date: Date | null }) {
+        this.endDate.set(event.date);
+    }
+
+    onDepartmentFilterInput = (event: Event) => {
+        this.departmentFilter = (event.target as HTMLInputElement).value;
     };
 }

@@ -8,7 +8,10 @@
 @use 'bootstrap/scss/bootstrap';
 @use 'ngx-toastr/toastr';
 @use 'bootstrap-icons/font/bootstrap-icons.css';
+@use 'ckeditor5/dist/ckeditor5.css';
+
 @use './app/shared/definitions.scss' as shared;
+
 /* fonts */
 @font-face {
     font-family: Arimo;
@@ -18,10 +21,24 @@
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff2') format('woff2'),
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff') format('woff');
 }
+html {
+    font-size: 13px;
+    @media (max-width: shared.$mobile-width) {
+        font-size: 15px;
+    }
+}
 * {
     font-family: Arimo, Helvetica-Neue, Helvetica;
 }
+:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
 /* fullcalendar overrides, need to be defined here because of view encapsulation */
+/* timeGridDay: toolbar title duplicates the column date / shows odd ranges in fi */
+.fc .fc-timeGridDay-view .fc-toolbar-title {
+    display: none;
+}
 .fc .fc-col-header-cell-cushion {
     color: black;
     text-decoration: none;
@@ -29,14 +46,18 @@
 .fc-timegrid-event-harness-inset .fc-timegrid-event {
     cursor: pointer;
 }
+.fc .fc-timegrid-slot {
+    height: 1.8em;
+}
 /* cloze test styles, need to be defined here because of view encapsulation */
 @mixin xm-cloze-test($bc, $bgc) {
     margin-right: 3px;
     padding-right: 3px;
+    padding-left: 3px;
     border-radius: 3px;
     min-width: 30px;
     display: inline-block;
-    box-shadow: 4px 4px 9px 0px rgba(0, 0, 0, 0.75);
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.25);
     border: 1px solid $bc;
     background: $bgc;
 }
@@ -89,9 +110,12 @@ textarea.ng-invalid {
     max-height: 400px;
     overflow-y: scroll;
 }
-/* to highlight ck-editor (cloze test) content marked with this class */
-.marker {
-    background-color: yellow;
+/* cloze test gap — rendered outside editor */
+.cloze-test-wrapper {
+    background-color: rgba(255, 213, 0, 0.3);
+    border-bottom: 2px solid rgba(255, 180, 0, 0.7);
+    border-radius: 2px;
+    padding: 0 3px 1px;
 }
 /* modal title */
 .xm-modal-title {
@@ -109,8 +133,8 @@ textarea.ng-invalid {
     border-radius: 4px;
     border: 2px solid #ededed;
     border-left: #238635 4px solid;
-    padding: 30px;
-    @media (max-width: 920px) {
+    padding: 16px 20px;
+    @media (max-width: shared.$mobile-width) {
         padding: 5px;
         margin-bottom: 5px;
     }
@@ -122,10 +146,6 @@ textarea.ng-invalid {
 .xm-study-item-container--inactive {
     @extend .xm-study-item-container;
     border-left: #b1b1b1 4px solid;
-}
-.xm-study-item-container--unseen {
-    @extend .xm-study-item-container;
-    border-color: #238635;
 }
 
 /* Standard bordered box */
@@ -197,15 +217,9 @@ textarea.ng-invalid {
     left: auto;
     z-index: 999;
 }
-.important-clear-focus:focus,
-.btn:focus {
+.important-clear-focus:focus-visible,
+.btn:focus-visible {
     box-shadow:
-        0px 0px 0px 1.5px rgb(255, 255, 255),
-        0px 0px 0px 4px rgb(68, 120, 247) !important;
-    -webkit-box-shadow:
-        0px 0px 0px 1.5px rgb(255, 255, 255),
-        0px 0px 0px 4px rgb(68, 120, 247) !important;
-    -moz-box-shadow:
         0px 0px 0px 1.5px rgb(255, 255, 255),
         0px 0px 0px 4px rgb(68, 120, 247) !important;
 }
@@ -214,3 +228,34 @@ textarea.ng-invalid {
     border-radius: 5px;
     padding: 6px;
 }
+/* Link-like buttons alignment */
+.btn-link {
+    vertical-align: baseline;
+    &:focus-visible {
+        color: shared.$exam-blue !important;
+    }
+}
+/* CKEditor-style blockquote, code and table */
+$xm-code-bg: #f2f3f5;
+$xm-code-border: 1px solid #e0e0e0;
+blockquote { border-left: 3px solid #d0d0d0; margin: 0.25rem 0; padding: 0.25rem 0 0.25rem 1rem; color: #555; }
+code { font-family: 'Courier New', Courier, monospace; font-size: 0.9em; background: $xm-code-bg; border: $xm-code-border; border-radius: 3px; padding: 0.1em 0.35em; color: #333; }
+pre { background: $xm-code-bg; border: $xm-code-border; border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto;
+    code { background: none; border: none; padding: 0; font-size: 0.875em; }
+}
+figure.table table {
+    width: 100%; border-collapse: collapse; border: 1px solid #d0d0d0; border-radius: 4px; overflow: hidden; font-size: 0.9em;
+    th, td { padding: 0.5rem 0.75rem; border-right: 1px solid #d0d0d0; &:last-child { border-right: none; } }
+    th { background: $xm-code-bg; font-weight: 600; border-bottom: 2px solid #c0c0c0; }
+    td { padding-top: 0.45rem; padding-bottom: 0.45rem; border-bottom: 1px solid #e5e5e5; border-right-color: #e5e5e5; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    tbody tr:hover { background: #f0f4ff; }
+}
+/* Ckeditor content markup */
+.marker-green { background: hsl(120, 93%, 68%); }
+.marker-yellow {background: hsl(60, 97%, 73%); }
+.marker-pink { background: hsl(201, 97%, 72%); }
+.marker-blue { background: hsl(240, 100%, 67%); }
+.pen-red { color: hsl(0, 85%, 49%); }
+.pen-green { color: hsl(112, 100%, 27%); }

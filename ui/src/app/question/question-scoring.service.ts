@@ -2,16 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Exam, ExamSection } from 'src/app/exam/exam.model';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-import { ExamSectionQuestion, Question, QuestionAmounts } from './question.model';
+import { ExamSectionQuestion, MultipleChoiceOption, QuestionAmounts } from './question.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionScoringService {
-    private httpClient = inject(HttpClient);
-
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
         const essays = exam.examSections
             .flatMap((es) => es.sectionQuestions)
@@ -35,14 +32,14 @@ export class QuestionScoringService {
         };
     };
 
-    calculateDefaultMaxPoints = (question: Question) =>
-        question.options.filter((o) => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
+    calculateDefaultMaxPoints = (options: MultipleChoiceOption[]) =>
+        options.filter((o) => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
-    calculateDefaultMinPoints = (question: Question): number => {
-        if (!question.defaultNegativeScoreAllowed) {
+    calculateDefaultMinPoints = (options: MultipleChoiceOption[], allowNegative: boolean): number => {
+        if (!allowNegative) {
             return 0;
         }
-        const points = question.options.filter((o) => o.defaultScore < 0).reduce((a, b) => a + b.defaultScore, 0);
+        const points = options.filter((o) => o.defaultScore < 0).reduce((a, b) => a + b.defaultScore, 0);
         return parseFloat(points.toFixed(2));
     };
 
@@ -58,11 +55,8 @@ export class QuestionScoringService {
         return Math.max(0, Math.min(...[0, ...scores]));
     };
 
-    getCorrectClaimChoiceOptionDefaultScore = (question: Question): number => {
-        if (!question.options) {
-            return 0;
-        }
-        const correctOption = question.options.filter((o) => o.correctOption && o.claimChoiceType === 'CorrectOption');
+    getCorrectClaimChoiceOptionDefaultScore = (options: MultipleChoiceOption[]): number => {
+        const correctOption = options.filter((o) => o.correctOption && o.claimChoiceType === 'CorrectOption');
         return correctOption.length === 1 ? correctOption[0].defaultScore : 0;
     };
 

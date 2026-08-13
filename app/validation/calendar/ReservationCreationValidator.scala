@@ -4,12 +4,17 @@
 
 package validation.calendar
 
-import com.fasterxml.jackson.databind.JsonNode
-import play.mvc.Http
-import validation.core.{Attrs, ValidatorAction}
+import play.api.libs.json.JsValue
+import play.api.mvc.*
+import validation.core.{PlayJsonValidator, ScalaAttrs}
 
-class ReservationCreationValidator extends ValidatorAction:
-  override def sanitize(req: Http.Request, body: JsonNode): Http.Request =
-    ReservationValidator.forCreation(body) match
-      case Right(reservation) => req.addAttr(Attrs.STUDENT_RESERVATION, reservation)
-      case Left(ex)           => throw ex
+object ReservationCreationValidator extends PlayJsonValidator:
+
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
+    ReservationValidator.forCreation(json) match
+      case Right(reservation) =>
+        Right(request.addAttr(ScalaAttrs.ATTR_STUDENT_RESERVATION, reservation))
+      case Left(ex) => Left(Results.BadRequest(ex.getMessage))

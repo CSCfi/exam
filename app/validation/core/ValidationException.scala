@@ -4,12 +4,11 @@
 
 package validation.core
 
-import validation.SanitizingException
+import validation.core.SanitizingException
 
-/**
- * Exception thrown when validation fails.
- * Carries structured field-level errors that can be returned to the client.
- */
+/** Exception thrown when validation fails. Carries structured field-level errors that can be
+  * returned to the client.
+  */
 class ValidationException(val validationResult: ValidationResult)
     extends SanitizingException(ValidationException.buildMessage(validationResult)):
 
@@ -20,4 +19,3 @@ object ValidationException:
   private def buildMessage(result: ValidationResult): String =
     if result.errors.isEmpty then "Validation failed"
     else s"Validation failed: ${result.errors}"
-

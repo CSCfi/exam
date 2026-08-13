@@ -2,151 +2,225 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, NgStyle } from '@angular/common';
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output, ViewChild, inject } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
-import {
-    NgbCollapse,
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { skip, startWith } from 'rxjs';
 import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
-import { UniqueValuesValidatorDirective } from 'src/app/shared/validation/unique-values.directive';
+import { UniquenessValidator } from 'src/app/shared/validation/uniqueness.validator';
 
-type ReleaseType = { name: string; translation: string; filtered?: boolean };
-
-type AutoEvaluationConfigurationTemplate = {
-    enabled: boolean;
-    releaseTypes: ReleaseType[];
-};
+type ReleaseType = { name: string; translation: string };
 
 @Component({
     selector: 'xm-auto-evaluation',
     templateUrl: './auto-evaluation.component.html',
     styleUrls: ['./auto-evaluation.component.scss'],
-    imports: [
-        NgbPopover,
-        NgbCollapse,
-        NgStyle,
-        FormsModule,
-        UniqueValuesValidatorDirective,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgClass,
-        NgbDropdownItem,
-        DatePickerComponent,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [NgbPopover, NgbCollapse, ReactiveFormsModule, NgbDropdownModule, DatePickerComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AutoEvaluationComponent implements OnInit, OnChanges {
-    @Input() exam!: Exam;
-    @Output() enabled = new EventEmitter<void>();
-    @Output() disabled = new EventEmitter<void>();
-    @Output() updated = new EventEmitter<{ config: AutoEvaluationConfig }>();
-    @ViewChild('gradesForm', { static: false }) gradesForm?: NgForm;
+export class AutoEvaluationComponent implements OnInit {
+    readonly exam = input.required<Exam>();
+    readonly enabled = output<void>();
+    readonly disabled = output<void>();
+    readonly updated = output<{ config: AutoEvaluationConfig }>();
 
-    autoevaluation: AutoEvaluationConfigurationTemplate;
-    config?: AutoEvaluationConfig;
-    autoevaluationDisplay: { visible: boolean };
+    readonly panelOpen = signal(false);
+    readonly releaseTypes: ReleaseType[] = [
+        { name: 'IMMEDIATE', translation: 'i18n_release_type_immediate' },
+        { name: 'GIVEN_DATE', translation: 'i18n_release_type_given_date' },
+        { name: 'GIVEN_AMOUNT_DAYS', translation: 'i18n_release_type_given_days' },
+        { name: 'AFTER_EXAM_PERIOD', translation: 'i18n_release_type_period' },
+        { name: 'NEVER', translation: 'i18n_release_type_never' },
+    ];
+    readonly form = new FormGroup({
+        gradeEvaluations: new FormArray<FormGroup>([]),
+        amountDays: new FormControl(0),
+        releaseDate: new FormControl<Date | null>(null),
+        releaseType: new FormControl<string>('IMMEDIATE'), // Form is source of truth
+    });
 
-    private Exam = inject(ExamService);
-    private CommonExam = inject(CommonExamService);
+    // Computed signal derived from form
+    readonly selectedReleaseType = computed(() => {
+        const releaseTypeName = this.releaseTypeValue();
+        return this.releaseTypes.find((rt) => rt.name === releaseTypeName) ?? this.releaseTypes[0];
+    });
+    readonly releaseTypeValue = toSignal(
+        this.form.get('releaseType')!.valueChanges.pipe(startWith(this.form.get('releaseType')!.value ?? 'IMMEDIATE')),
+        { initialValue: 'IMMEDIATE' },
+    );
+
+    private readonly Exam = inject(ExamService);
+    private readonly CommonExam = inject(CommonExamService);
 
     constructor() {
-        this.autoevaluation = {
-            enabled: false,
-            releaseTypes: [
-                {
-                    name: 'IMMEDIATE',
-                    translation: 'i18n_release_type_immediate',
-                    filtered: true,
-                },
-                { name: 'GIVEN_DATE', translation: 'i18n_release_type_given_date' },
-                { name: 'GIVEN_AMOUNT_DAYS', translation: 'i18n_release_type_given_days' },
-                { name: 'AFTER_EXAM_PERIOD', translation: 'i18n_release_type_period' },
-                { name: 'NEVER', translation: 'i18n_release_type_never' },
-            ],
-        };
-        this.autoevaluationDisplay = { visible: false };
+        toObservable(this.exam)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((exam) => {
+                if (exam.autoEvaluationConfig != null) {
+                    this.form.enable({ emitEvent: false });
+                } else {
+                    this.form.disable({ emitEvent: false });
+                }
+            });
+    }
+
+    get gradeArray(): FormArray<FormGroup> {
+        return this.form.get('gradeEvaluations') as FormArray<FormGroup>;
     }
 
     ngOnInit() {
-        this.prepareAutoEvaluationConfig();
-    }
-
-    ngOnChanges(props: SimpleChanges) {
-        if (props.exam && this.autoevaluation) {
-            this.prepareAutoEvaluationConfig();
+        const exam = this.exam();
+        const config = exam.autoEvaluationConfig ?? this.createDefaultConfig(exam);
+        this.buildGradeArray(config);
+        this.form.get('releaseType')?.patchValue(config.releaseType || 'IMMEDIATE', { emitEvent: true });
+        this.form.patchValue(
+            { amountDays: config.amountDays ?? 0, releaseDate: config.releaseDate ?? null },
+            { emitEvent: false },
+        );
+        this.updateValidators();
+        if (exam.autoEvaluationConfig != null) {
+            this.form.enable({ emitEvent: false });
+        } else {
+            this.form.disable({ emitEvent: false });
         }
     }
 
-    disable = () => this.disabled.emit();
-    enable = () => this.enabled.emit();
+    togglePanel() {
+        this.panelOpen.update((v) => !v);
+    }
 
-    applyFilter = (type?: ReleaseType) => {
-        if (!this.config) return;
-        this.autoevaluation.releaseTypes.forEach((rt) => (rt.filtered = false));
-        if (type) {
-            type.filtered = !type.filtered;
+    toggleEnabled() {
+        const currentExam = this.exam();
+        const isEnabled = !currentExam.autoEvaluationConfig;
+
+        if (isEnabled) {
+            // Create default config and emit it
+            const defaultConfig = this.createDefaultConfig(currentExam);
+            this.updated.emit({ config: defaultConfig });
+            this.enabled.emit();
+        } else {
+            // Disable - parent will handle removing the config
+            this.disabled.emit();
         }
-        const rt = this.selectedReleaseType();
-        this.config.releaseType = rt ? rt.name : undefined;
-        this.updated.emit({ config: this.config });
-    };
+    }
 
-    selectedReleaseType = () => this.autoevaluation.releaseTypes.find((rt) => rt.filtered);
+    selectReleaseType(rt: ReleaseType) {
+        // Update form - use emitEvent: true for releaseType so subscription handles signal update
+        this.form.get('releaseType')?.patchValue(rt.name, { emitEvent: true });
+        this.updateValidators();
+    }
 
-    calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
+    save() {
+        const exam = this.exam();
+        const raw = this.form.getRawValue();
 
-    getGradeDisplayName = (grade: Grade) => this.CommonExam.getExamGradeDisplayName(grade.name);
+        const config: AutoEvaluationConfig = {
+            releaseType: raw.releaseType || 'IMMEDIATE',
+            amountDays: Number(raw.amountDays ?? 0),
+            releaseDate: raw.releaseDate ?? null,
 
-    calculatePointLimit = (evaluation: GradeEvaluation) => {
-        const max = this.calculateExamMaxScore();
-        if (evaluation.percentage === 0 || isNaN(evaluation.percentage)) {
-            return 0;
+            gradeEvaluations: (raw.gradeEvaluations as Array<{ gradeId: number; percentage: number }>).map((row) => {
+                const grade = exam.gradeScale!.grades.find((g) => g.id === row.gradeId)!;
+                return {
+                    grade,
+                    percentage: Number(row.percentage),
+                };
+            }),
+        };
+
+        this.updated.emit({ config: config });
+    }
+
+    maxScore() {
+        return this.Exam.getMaxScore(this.exam());
+    }
+
+    displayGrade(grade: Grade) {
+        return this.CommonExam.getExamGradeDisplayName(grade.name);
+    }
+
+    scoreLimit(ev: GradeEvaluation | number) {
+        const pct = typeof ev === 'number' ? ev : ev.percentage;
+        const max = this.maxScore();
+        return ((max * pct) / 100).toFixed(2);
+    }
+
+    getGradeFromForm(index: number): Grade | undefined {
+        const formGroup = this.gradeArray.at(index);
+        if (!formGroup) return undefined;
+        const gradeId = formGroup.get('gradeId')?.value;
+        if (!gradeId) return undefined;
+        return this.exam().gradeScale?.grades.find((g) => g.id === gradeId);
+    }
+
+    getPercentageFromForm(index: number): number {
+        const formGroup = this.gradeArray.at(index);
+        return formGroup?.get('percentage')?.value ?? 0;
+    }
+
+    releaseDateChanged(event: { date: Date | null }) {
+        this.form.patchValue({ releaseDate: event.date }, { emitEvent: false });
+    }
+
+    getReleaseDate(): Date | null {
+        return this.form.get('releaseDate')?.value ?? null;
+    }
+
+    private createDefaultConfig(exam: Exam): AutoEvaluationConfig {
+        return {
+            releaseType: this.releaseTypes[0].name,
+            gradeEvaluations: exam.gradeScale!.grades.map((g) => ({
+                grade: { ...g },
+                percentage: 0,
+            })),
+            amountDays: 0,
+            releaseDate: new Date(),
+        };
+    }
+
+    private buildGradeArray(cfg: AutoEvaluationConfig) {
+        const arr = this.gradeArray;
+        arr.clear({ emitEvent: false });
+
+        cfg.gradeEvaluations
+            .sort((a, b) => a.grade.name.localeCompare(b.grade.name))
+            .forEach((ge) => {
+                arr.push(
+                    new FormGroup({
+                        gradeId: new FormControl(ge.grade.id),
+                        percentage: new FormControl(ge.percentage, [
+                            Validators.required,
+                            Validators.min(0),
+                            Validators.max(100),
+                        ]),
+                    }),
+                    { emitEvent: false },
+                );
+            });
+
+        arr.setValidators(
+            UniquenessValidator((row) => {
+                const p = Number((row as { percentage?: number }).percentage);
+                return isNaN(p) ? null : p;
+            }),
+        );
+    }
+
+    private updateValidators() {
+        const releaseTypeName = this.form.get('releaseType')?.value || 'IMMEDIATE';
+        const amount = this.form.get('amountDays')!;
+
+        if (releaseTypeName === 'GIVEN_AMOUNT_DAYS') {
+            amount.setValidators([Validators.required, Validators.min(1), Validators.max(60)]);
+        } else {
+            amount.clearValidators();
         }
-        const ratio = max * evaluation.percentage;
-        return (ratio / 100).toFixed(2);
-    };
 
-    releaseDateChanged = (event: { date: Date | null }) => {
-        if (!this.config) return;
-        this.config.releaseDate = event.date;
-        this.updated.emit({ config: this.config });
-    };
-
-    propertyChanged = () => {
-        if (this.config && this.gradesForm?.valid) this.updated.emit({ config: this.config });
-    };
-
-    private prepareAutoEvaluationConfig = () => {
-        this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;
-        if (!this.exam.autoEvaluationConfig && this.exam.gradeScale) {
-            const releaseType = this.selectedReleaseType();
-            this.config = {
-                releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
-                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: { ...g }, percentage: 0 })),
-                amountDays: 0,
-                releaseDate: new Date(),
-            };
-        }
-        if (this.exam.autoEvaluationConfig) {
-            this.config = this.exam.autoEvaluationConfig;
-            const rt = this.getReleaseTypeByName(this.config.releaseType);
-            this.applyFilter(rt);
-        }
-    };
-
-    private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
+        amount.updateValueAndValidity({ emitEvent: false });
+    }
 }

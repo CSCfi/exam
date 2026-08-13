@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import type { CollaborativeExam, Exam, ExamImpl } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -19,7 +19,6 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
-import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ReservationDetailsComponent } from './reservation-details.component';
 import type { AnyReservation, ExamMachine, ExamRoom } from './reservation.model';
 import { ReservationService, Selection } from './reservation.service';
@@ -27,7 +26,6 @@ import { ReservationService, Selection } from './reservation.service';
 @Component({
     selector: 'xm-reservations',
     imports: [
-        FormsModule,
         TranslateModule,
         NgbTypeaheadModule,
         DatePickerComponent,
@@ -38,163 +36,187 @@ import { ReservationService, Selection } from './reservation.service';
     ],
     templateUrl: './reservations.component.html',
     styleUrl: './reservations.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReservationsComponent implements OnInit {
-    @ViewChild('studentInput') studentInput!: ElementRef;
-    @ViewChild('examInput') examInput!: ElementRef;
-    @ViewChild('ownerInput') ownerInput!: ElementRef;
-    examId = '';
-    externalRef = '';
-    student?: User;
-    owner?: User;
-    startDate: Date | null = new Date();
-    endDate: Date | null = new Date();
-    user: User;
-    examStates = [
-        'REVIEW',
-        'REVIEW_STARTED',
-        'GRADED',
-        'GRADED_LOGGED',
-        'REJECTED',
-        'ARCHIVED',
-        'STUDENT_STARTED',
-        'PUBLISHED',
-        'ABORTED',
-        'NO_SHOW',
-    ];
-    selection: Selection = {};
-    stateOptions: Option<string, string>[] = [];
-    roomOptions: Option<ExamRoom, number>[] = [];
-    machineOptions: Option<ExamMachine, number>[] = [];
-    rooms: ExamRoom[] = [];
-    machines: ExamMachine[] = [];
-    reservations: AnyReservation[] = [];
-    isInteroperable = false;
-    externalReservationsOnly = false;
-    byodExamsOnly = false;
+export class ReservationsComponent {
+    readonly studentInput = viewChild.required<ElementRef>('studentInput');
+    readonly examInput = viewChild.required<ElementRef>('examInput');
+    readonly ownerInput = viewChild.required<ElementRef>('ownerInput');
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private toast = inject(ToastrService);
-    private orderPipe = inject(OrderByPipe);
-    private Session = inject(SessionService);
-    private Reservation = inject(ReservationService);
+    readonly examId = signal('');
+    readonly externalRef = signal('');
+    readonly student = signal<User | undefined>(undefined);
+    readonly owner = signal<User | undefined>(undefined);
+    readonly startDate = signal<Date | null>(new Date());
+    readonly endDate = signal<Date | null>(new Date());
+    readonly selection = signal<Selection>({});
+    readonly stateOptions = signal<Option<string, string>[]>([]);
+    readonly roomOptions = signal<Option<ExamRoom, number>[]>([]);
+    readonly machineOptions = signal<Option<ExamMachine, number>[]>([]);
+    readonly rooms = signal<ExamRoom[]>([]);
+    readonly machines = signal<ExamMachine[]>([]);
+    readonly reservations = signal<AnyReservation[]>([]);
+    readonly isInteroperable = signal(false);
+    readonly externalReservationsOnly = signal(false);
+    readonly byodExamsOnly = signal(false);
+    readonly isAdminView: boolean;
+    readonly isSupportView: boolean;
+
+    private readonly isInteroperable$ = toObservable(this.isInteroperable);
+
+    private readonly route = inject(ActivatedRoute);
+    private readonly toast = inject(ToastrService);
+    private readonly Session = inject(SessionService);
+    private readonly Reservation = inject(ReservationService);
 
     constructor() {
-        this.user = this.Session.getUser();
+        const user = this.Session.getUser();
+        this.isAdminView = user.isAdmin ?? false;
+        this.isSupportView = user.isSupport ?? false;
 
-        if (this.user.isAdmin || this.user.isSupport) {
-            this.examStates.push('EXTERNAL_UNFINISHED');
-            this.examStates.push('EXTERNAL_FINISHED');
+        const baseStates = [
+            'REVIEW',
+            'REVIEW_STARTED',
+            'GRADED',
+            'GRADED_LOGGED',
+            'REJECTED',
+            'ARCHIVED',
+            'STUDENT_STARTED',
+            'PUBLISHED',
+            'ABORTED',
+            'NO_SHOW',
+        ];
+
+        const examStates =
+            this.isAdminView || this.isSupportView
+                ? [...baseStates, 'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED']
+                : baseStates;
+
+        const examIdParam = this.route.snapshot.params.eid;
+        if (examIdParam) {
+            this.examId.set(examIdParam);
         }
-    }
-
-    ngOnInit() {
-        this.examId = this.route.snapshot.params.eid;
         this.initOptions();
         this.query();
-        this.stateOptions = this.examStates.map((s) => {
-            return { id: s, value: s, label: `i18n_exam_status_${s.toLowerCase()}` };
-        });
+        this.stateOptions.set(
+            examStates.map((s) => ({
+                id: s,
+                value: s,
+                label: `i18n_exam_status_${s.toLowerCase()}`,
+            })),
+        );
     }
 
+    onExternalReservationsChange = (event: Event) => {
+        this.externalReservationsOnly.set((event.target as HTMLInputElement).checked);
+        this.query();
+    };
+
+    onByodExamsChange = (event: Event) => {
+        this.byodExamsOnly.set((event.target as HTMLInputElement).checked);
+        this.query();
+    };
+
     query() {
-        if (this.isSomethingSelected(this.selection)) {
-            const params = this.createParams(this.selection);
+        const currentSelection = this.selection();
+        if (this.isSomethingSelected(currentSelection)) {
+            const params = this.createParams(currentSelection);
             this.Reservation.listReservations$(params).subscribe({
                 next: (reservations) => {
-                    this.reservations = reservations
-                        .filter((r) => r.externalReservation || !this.externalReservationsOnly)
+                    const filtered = reservations
+                        .filter((r) => r.externalReservation || !this.externalReservationsOnly())
                         .filter(
                             (r) =>
                                 (!r.externalUserRef && (r.enrolment.exam as ExamImpl).implementation !== 'AQUARIUM') ||
-                                !this.byodExamsOnly,
+                                !this.byodExamsOnly(),
                         );
+                    this.reservations.set(filtered);
                 },
                 error: (err) => this.toast.error(err),
             });
         }
     }
 
-    isAdminView = () => this.user.isAdmin;
-
-    isSupportView = () => this.user.isSupport;
-
     studentSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
-        this.student = event.item;
+        this.student.set(event.item);
         this.query();
     }
 
     clearStudent() {
-        delete this.student;
-        this.studentInput.nativeElement.value = '';
+        this.student.set(undefined);
+        this.studentInput().nativeElement.value = '';
         this.query();
     }
 
     ownerSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
-        this.owner = event.item;
+        this.owner.set(event.item);
         this.query();
     }
 
     clearOwner() {
-        delete this.owner;
-        this.ownerInput.nativeElement.value = '';
+        this.owner.set(undefined);
+        this.ownerInput().nativeElement.value = '';
         this.query();
     }
 
     examSelected(event: NgbTypeaheadSelectItemEvent<Exam | CollaborativeExam>) {
         if (event.item.externalRef) {
-            this.externalRef = event.item.externalRef;
-            this.examId = '';
+            this.externalRef.set(event.item.externalRef);
+            this.examId.set('');
         } else {
-            this.examId = event.item.id.toString();
-            this.externalRef = '';
+            this.examId.set(event.item.id.toString());
+            this.externalRef.set('');
         }
         this.query();
     }
 
     clearExam() {
-        this.examId = '';
-        this.externalRef = '';
-        this.examInput.nativeElement.value = '';
+        this.examId.set('');
+        this.externalRef.set('');
+        this.examInput().nativeElement.value = '';
         this.query();
     }
 
     startDateChanged(event: { date: Date | null }) {
-        this.startDate = event.date;
+        this.startDate.set(event.date);
         this.query();
     }
 
     endDateChanged(event: { date: Date | null }) {
-        this.endDate = event.date;
+        this.endDate.set(event.date);
         this.query();
     }
 
     roomChanged(event: Option<ExamRoom, number> | undefined) {
+        const currentSelection = this.selection();
+        const currentRooms = this.rooms();
+        const currentMachines = this.machines();
         if (event?.value === undefined) {
-            delete this.selection.roomId;
-            this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
+            this.selection.set(this.omitProperty(currentSelection, 'roomId'));
+            this.machineOptions.set(this.Reservation.machinesForRooms(currentRooms, currentMachines));
         } else {
-            this.selection.roomId = event.value.id.toString();
-            this.machineOptions = this.machinesForRoom(event.value, this.machines);
+            this.selection.set({ ...currentSelection, roomId: event.value.id.toString() });
+            this.machineOptions.set(this.Reservation.machinesForRoom(event.value, currentMachines));
         }
         this.query();
     }
 
     stateChanged(event: Option<string, string> | undefined) {
+        const currentSelection = this.selection();
         if (event?.value) {
-            this.selection.state = event.value;
+            this.selection.set({ ...currentSelection, state: event.value });
         } else {
-            delete this.selection.state;
+            this.selection.set(this.omitProperty(currentSelection, 'state'));
         }
         this.query();
     }
 
     machineChanged(event: Option<ExamMachine, number> | undefined) {
+        const currentSelection = this.selection();
         if (event?.value) {
-            this.selection.machineId = event.value.id.toString();
+            this.selection.set({ ...currentSelection, machineId: event.value.id.toString() });
         } else {
-            delete this.selection.machineId;
+            this.selection.set(this.omitProperty(currentSelection, 'machineId'));
         }
         this.query();
     }
@@ -204,72 +226,69 @@ export class ReservationsComponent implements OnInit {
     protected searchOwners$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
 
     protected searchExams$ = (text$: Observable<string>) =>
-        this.Reservation.searchExams$(text$, this.isInteroperable && (this.isAdminView() || this.isSupportView()));
+        combineLatest([text$, this.isInteroperable$]).pipe(
+            switchMap(([text, isInteroperable]) =>
+                this.Reservation.searchExams$(of(text), isInteroperable && (this.isAdminView || this.isSupportView)),
+            ),
+        );
 
     protected nameFormatter = (item: { name: string }) => item.name;
 
-    private createParams = (input: Selection) => {
+    private createParams(input: Selection) {
+        const currentStudent = this.student();
+        const currentOwner = this.owner();
+        const currentExamId = this.examId();
+        const currentExternalRef = this.externalRef();
+        const currentStartDate = this.startDate();
+        const currentEndDate = this.endDate();
         const extras = {
-            ...(this.student?.id && { studentId: this.student.id.toString() }),
-            ...(this.owner?.id && { ownerId: this.owner.id.toString() }),
-            ...(this.examId && { examId: this.examId }),
-            ...(this.externalRef && { externalRef: this.externalRef }),
+            ...(currentStudent?.id && { studentId: currentStudent.id.toString() }),
+            ...(currentOwner?.id && { ownerId: currentOwner.id.toString() }),
+            ...(currentExamId && { examId: currentExamId }),
+            ...(currentExternalRef && { externalRef: currentExternalRef }),
         };
         const params: Selection = { ...input, ...extras };
-        if (this.startDate) {
-            params.start = DateTime.fromJSDate(this.startDate).startOf('day').toISO() || '';
+        if (currentStartDate) {
+            params.start = DateTime.fromJSDate(currentStartDate).startOf('day').toISO() || '';
         }
-        if (this.endDate) {
-            params.end = DateTime.fromJSDate(this.endDate).endOf('day').toISO() || '';
+        if (currentEndDate) {
+            params.end = DateTime.fromJSDate(currentEndDate).endOf('day').toISO() || '';
         }
         return params;
-    };
+    }
 
     private initOptions() {
-        this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
-            this.isInteroperable = resp.isExamVisitSupported;
+        this.Reservation.getInteropSetting$().subscribe((resp) => {
+            this.isInteroperable.set(resp.isExamVisitSupported);
         });
 
-        if (this.isAdminView() || this.isSupportView()) {
-            this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
-                next: (resp) => {
-                    this.rooms = this.orderPipe.transform(resp, 'name');
-                    this.roomOptions = this.rooms.map((r) => ({ id: r.id, value: r, label: r.name }));
-                    this.http.get<ExamMachine[]>('/app/machines').subscribe((resp) => {
-                        this.machines = this.orderPipe.transform(resp, 'name');
-                        this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
-                    });
+        if (this.isAdminView || this.isSupportView) {
+            forkJoin({ rooms: this.Reservation.getExamRooms$(), machines: this.Reservation.getMachines$() }).subscribe({
+                next: ({ rooms, machines }) => {
+                    this.rooms.set(rooms);
+                    this.machines.set(machines);
+                    this.roomOptions.set(rooms.map((r) => ({ id: r.id, value: r, label: r.name })));
+                    this.machineOptions.set(this.Reservation.machinesForRooms(rooms, machines));
                 },
                 error: (err) => this.toast.error(err),
             });
         }
     }
 
-    private machinesForRoom(room: ExamRoom, machines: ExamMachine[]): Option<ExamMachine, number>[] {
-        if (room.examMachines.length < 1) {
-            return [];
-        }
-        const header: Option<ExamMachine, number> = {
-            id: undefined,
-            label: room.name,
-            isHeader: true,
-        };
-        const machineData: Option<ExamMachine, number>[] = machines
-            .filter((m) => room.examMachines.some((rem) => m.id === rem.id))
-            .map((m) => {
-                return { id: m.id, value: m, label: m.name == null ? '' : m.name };
-            });
-        machineData.unshift(header);
-        return machineData;
+    private isSomethingSelected(params: Selection) {
+        const currentStudent = this.student();
+        const currentOwner = this.owner();
+        const currentExamId = this.examId();
+        const currentExternalRef = this.externalRef();
+        const currentStartDate = this.startDate();
+        const currentEndDate = this.endDate();
+        if (currentStudent || currentOwner) return true;
+        if (currentExamId || currentExternalRef) return true;
+        if (Object.keys(params).length > 0) return true;
+        return !!currentStartDate || !!currentEndDate;
     }
 
-    private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option<ExamMachine, number>[] =>
-        rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
-
-    private isSomethingSelected(params: Selection) {
-        if (this.student || this.owner) return true;
-        if (this.examId || this.externalRef) return true;
-        if (Object.keys(params).length > 0) return true;
-        return this.startDate || this.endDate;
+    private omitProperty<T extends Record<string, unknown>>(obj: T, key: keyof T): Omit<T, typeof key> {
+        return Object.fromEntries(Object.entries(obj).filter(([k]) => k !== key)) as Omit<T, typeof key>;
     }
 }

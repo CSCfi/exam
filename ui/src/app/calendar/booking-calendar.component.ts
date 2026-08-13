@@ -3,17 +3,18 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import {
-    AfterViewInit,
+    afterNextRender,
     ChangeDetectionStrategy,
     Component,
-    OnInit,
-    ViewChild,
+    DestroyRef,
     inject,
+    Injector,
     input,
     output,
     signal,
+    viewChild,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
 import enLocale from '@fullcalendar/core/locales/en-gb';
@@ -23,9 +24,13 @@ import luxon2Plugin from '@fullcalendar/luxon3';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
+import { combineLatest, skip } from 'rxjs';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CalendarService } from './calendar.service';
+
+/** Align with `definitions.scss` `$mobile-width` — below this, use day grid instead of week. */
+const CALENDAR_MOBILE_MAX_WIDTH_PX = 1024;
 
 @Component({
     selector: 'xm-booking-calendar',
@@ -43,51 +48,77 @@ import { CalendarService } from './calendar.service';
     `,
     imports: [FullCalendarModule],
 })
-export class BookingCalendarComponent implements OnInit, AfterViewInit {
-    @ViewChild('fc') calendar!: FullCalendarComponent;
+export class BookingCalendarComponent {
+    readonly calendar = viewChild<FullCalendarComponent>('fc');
 
-    eventSelected = output<EventApi>();
-    moreEventsNeeded = output<{
+    readonly eventSelected = output<EventApi>();
+    readonly moreEventsNeeded = output<{
         date: string;
         timeZone: string;
         success: (events: EventInput[]) => void;
     }>();
 
-    room = input.required<ExamRoom>();
-    visible = input(false);
-    passwordVerified = input(false);
-    minDate = input<Date>();
-    maxDate = input<Date>();
-    accessibilities = input<Accessibility[]>([]);
+    readonly room = input.required<ExamRoom>();
+    readonly visible = input(false);
+    readonly passwordVerified = input(false);
+    readonly minDate = input<Date>();
+    readonly maxDate = input<Date>();
+    readonly accessibilities = input<Accessibility[]>([]);
 
-    calendarOptions = signal<CalendarOptions>({});
-    searchStart = DateTime.now().startOf('week').toISO();
-    searchEnd = DateTime.now().endOf('week').toISO();
-    isAdmin = signal(false);
+    readonly calendarOptions = signal<CalendarOptions>({});
+    readonly searchStart = signal(DateTime.now().startOf('week').toISO());
+    readonly searchEnd = signal(DateTime.now().endOf('week').toISO());
+    readonly isAdmin = signal(false);
 
-    private translate = inject(TranslateService);
-    private Calendar = inject(CalendarService);
-    private Session = inject(SessionService);
+    private readonly translate = inject(TranslateService);
+    private readonly Calendar = inject(CalendarService);
+    private readonly Session = inject(SessionService);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly injector = inject(Injector);
 
     constructor() {
         this.isAdmin.set(this.Session.getUser().isAdmin);
 
+        const narrowQuery =
+            typeof globalThis.matchMedia === 'function'
+                ? globalThis.matchMedia(`(max-width: ${CALENDAR_MOBILE_MAX_WIDTH_PX}px)`)
+                : null;
+        const initialNarrow = narrowQuery?.matches === true;
+
         this.calendarOptions.set({
             plugins: [luxon2Plugin, timeGridPlugin],
-            initialView: 'timeGridWeek',
+            initialView: initialNarrow ? 'timeGridDay' : 'timeGridWeek',
             firstDay: 1,
-            locale: this.resolveCalendarLocale(this.translate.currentLang),
+            locale: this.resolveCalendarLocale(this.translate.getCurrentLang() ?? 'en'),
             locales: [fiLocale, svLocale, enLocale],
-            ...this.getFormatOverrides(this.translate.currentLang),
+            ...this.getFormatOverrides(this.translate.getCurrentLang() ?? 'en'),
+            /** Day view: column header already shows the date; hide toolbar title (FC may put it in left chunk if center is empty). */
+            views: {
+                timeGridDay: {
+                    headerToolbar: {
+                        left: 'prev,next',
+                        center: '',
+                        right: 'today',
+                    },
+                    titleFormat: () => '',
+                },
+            },
             allDaySlot: false,
             height: 'auto',
             nowIndicator: true,
             slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-            eventMinHeight: 45,
-            events: this.refetch,
+            // note: do not set eventMinHeight here, it will cause a mess in calendar grid
+            events: this.refetch.bind(this),
             eventClick: this.eventClicked.bind(this),
         });
+
+        if (narrowQuery) {
+            const onViewportChange = () => this.applyResponsiveCalendarView(narrowQuery.matches);
+            narrowQuery.addEventListener('change', onViewportChange);
+            this.destroyRef.onDestroy(() => narrowQuery.removeEventListener('change', onViewportChange));
+        }
+
         this.translate.onLangChange.subscribe((event) => {
             this.calendarOptions.set({
                 ...this.calendarOptions(),
@@ -95,59 +126,68 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
                 ...this.getFormatOverrides(event.lang),
             });
         });
-        // Change detection ->
-        toObservable(this.room).subscribe((room) => {
-            const earliestOpening = this.Calendar.getEarliestOpening(room, this.searchStart, this.searchEnd);
-            const minTime =
-                earliestOpening.getHours() > 1
-                    ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
-                    : earliestOpening;
-            const latestClosing = this.Calendar.getLatestClosing(room, this.searchStart, this.searchEnd);
-            const maxTime =
-                latestClosing.getHours() < 23
-                    ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
-                    : latestClosing;
-            this.calendarOptions.update((cos) => ({
-                ...cos,
-                hiddenDays: this.Calendar.getClosedWeekdays(room, this.searchStart, this.searchEnd),
-                slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
-                slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
-                timeZone: room.localTimezone,
-            }));
-            this.calendar?.getApi().refetchEvents();
-        });
-        toObservable(this.accessibilities).subscribe(() => this.calendar?.getApi().refetchEvents());
+
+        toObservable(this.room)
+            .pipe(takeUntilDestroyed())
+            .subscribe((roomVal) => {
+                const searchStart = this.searchStart();
+                const searchEnd = this.searchEnd();
+                const earliestOpening = this.Calendar.getEarliestOpening(roomVal, searchStart, searchEnd);
+                const latestClosing = this.Calendar.getLatestClosing(roomVal, searchStart, searchEnd);
+                const minTime =
+                    earliestOpening.getHours() > 1
+                        ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
+                        : earliestOpening;
+                const maxTime =
+                    latestClosing.getHours() < 23
+                        ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
+                        : latestClosing;
+                this.calendarOptions.update((cos) => ({
+                    ...cos,
+                    hiddenDays: this.Calendar.getClosedWeekdays(roomVal, searchStart, searchEnd),
+                    slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
+                    slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
+                    timeZone: roomVal.localTimezone,
+                }));
+                this.calendar()?.getApi().refetchEvents();
+                this.applyResponsiveCalendarView(narrowQuery?.matches === true);
+            });
+
+        toObservable(this.visible)
+            .pipe(takeUntilDestroyed())
+            .subscribe((isVisible) => {
+                if (isVisible) {
+                    afterNextRender(() => this.applyResponsiveCalendarView(narrowQuery?.matches === true), {
+                        injector: this.injector,
+                    });
+                }
+            });
+
+        toObservable(this.accessibilities)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe(() => this.calendar()?.getApi().refetchEvents());
+
+        combineLatest([toObservable(this.minDate), toObservable(this.maxDate)])
+            .pipe(takeUntilDestroyed())
+            .subscribe(([min, max]) => {
+                if (min && max) {
+                    this.calendarOptions.update((options) => ({
+                        ...options,
+                        validRange: {
+                            start: DateTime.fromJSDate(min).startOf('week').toFormat('yyyy-MM-dd'),
+                            end: DateTime.fromJSDate(max).endOf('week').plus({ hours: 1 }).toFormat('yyyy-MM-dd'),
+                        },
+                    }));
+                }
+            });
     }
 
-    ngOnInit() {
-        if (this.minDate() && this.maxDate()) {
-            this.calendarOptions.update((options) => ({
-                ...options,
-                validRange: {
-                    end: DateTime.fromJSDate(this.maxDate() as Date)
-                        .endOf('week')
-                        .plus({ hours: 1 })
-                        .toFormat('yyyy-MM-dd'),
-                    start: DateTime.fromJSDate(this.minDate() as Date)
-                        .startOf('week')
-                        .toFormat('yyyy-MM-dd'),
-                },
-            }));
-        }
-    }
-
-    ngAfterViewInit() {
-        if (!this.minDate()) {
-            this.calendar.getApi().render(); // TODO: see if needed
-        }
-    }
-
-    refetch = (input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) => {
-        this.searchStart = input.startStr;
-        this.searchEnd = DateTime.fromISO(input.startStr).endOf('week').toISO() as string;
-        const hidden = this.Calendar.getClosedWeekdays(this.room(), this.searchStart, this.searchEnd);
-        const earliestOpening = this.Calendar.getEarliestOpening(this.room(), this.searchStart, this.searchEnd);
-        const latestClosing = this.Calendar.getLatestClosing(this.room(), this.searchStart, this.searchEnd);
+    refetch(input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) {
+        this.searchStart.set(input.startStr);
+        this.searchEnd.set(DateTime.fromISO(input.startStr).endOf('week').toISO() as string);
+        const hidden = this.Calendar.getClosedWeekdays(this.room(), this.searchStart(), this.searchEnd());
+        const earliestOpening = this.Calendar.getEarliestOpening(this.room(), this.searchStart(), this.searchEnd());
+        const latestClosing = this.Calendar.getLatestClosing(this.room(), this.searchStart(), this.searchEnd());
         this.calendarOptions.update((cos) => ({
             ...cos,
             hiddenDays: hidden,
@@ -156,11 +196,22 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
         }));
 
         this.moreEventsNeeded.emit({ date: input.startStr, timeZone: input.timeZone, success: success });
-    };
+    }
 
     eventClicked(arg: EventClickArg): void {
         if (arg.event.extendedProps?.availableMachines > 0) {
             this.eventSelected.emit(arg.event);
+        }
+    }
+
+    private applyResponsiveCalendarView(isNarrow: boolean): void {
+        const api = this.calendar()?.getApi();
+        if (!api) {
+            return;
+        }
+        const next = isNarrow ? 'timeGridDay' : 'timeGridWeek';
+        if (api.view.type !== next) {
+            api.changeView(next);
         }
     }
 
@@ -219,5 +270,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
         };
     }
     // Fix for FullCalendar locale
-    private resolveCalendarLocale = (lang: string) => (lang === 'en' ? 'en-gb' : lang);
+    private resolveCalendarLocale(lang: string): string {
+        return lang === 'en' ? 'en-gb' : lang;
+    }
 }

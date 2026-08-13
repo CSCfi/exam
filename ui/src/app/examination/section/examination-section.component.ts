@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -15,13 +15,13 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             <div class="col-md-12">
                 <h2
                     aria-live="polite"
-                    attr.aria-label="{{ 'i18n_exam_section' | translate }} {{ index ? index + '. ' : '' }}{{
-                        section.name
-                    }}"
+                    [ariaLabel]="
+                        ('i18n_exam_section' | translate) + ' ' + (index() ? index() + '. ' : '') + section().name
+                    "
                     id="examination-section"
                 >
-                    <span class="exam-title">{{ index ? index + '. ' : '' }}{{ section.name }}</span>
-                    @if (isPreview && section.lotteryOn) {
+                    <span class="exam-title">{{ index() ? index() + '. ' : '' }}{{ section().name }}</span>
+                    @if (isPreview() && section().lotteryOn) {
                         <span class="text-black">
                             <small class="ms-3">({{ 'i18n_lottery_questions' | translate }})</small>
                         </span>
@@ -41,22 +41,20 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                     }
                 </div>
                 <!-- DESCRIPTION FOR SECTION -->
-                @if (section.description && section.description.length > 0) {
-                    <div>
-                        <img src="/assets/images/icon_info.svg" alt="" />
-                        <span class="ps-2">{{ section.description }}</span>
-                    </div>
+                @if (section().description && section().description.length > 0) {
+                    <img src="/assets/images/icon_info.svg" alt="" />
+                    <span class="ps-2">{{ section().description }}</span>
                 }
             </div>
         </div>
         <!-- Question Content -->
         <div class="row ms-1">
             <div class="col-md-12">
-                @for (material of section.examMaterials; track material) {
+                @for (material of section().examMaterials; track material) {
                     <div class="row">
                         <div class="col-md-12 mt-1">
                             <i class="text-muted bi-book" alt="exam materials"></i>
-                            <span style="padding-left: 15px">{{ material.name }}</span>
+                            <span class="ps-3">{{ material.name }}</span>
                             @if (material.author) {
                                 <span> ({{ material.author }}) </span>
                             }
@@ -68,64 +66,34 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         </div>
                     </div>
                 }
-                @for (sq of section.sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
+                @for (sq of section().sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
                     <xm-examination-question
                         [question]="sq"
-                        [exam]="exam"
-                        [isPreview]="isPreview"
-                        [isCollaborative]="isCollaborative"
+                        [exam]="exam()"
+                        [isPreview]="isPreview()"
+                        [isCollaborative]="isCollaborative()"
                     ></xm-examination-question>
                 }
             </div>
         </div>`,
     imports: [ExaminationQuestionComponent, TranslateModule, OrderByPipe],
     styleUrls: ['../examination.shared.scss', './examination-section.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationSectionComponent implements OnInit, OnDestroy {
-    @Input() exam!: Examination;
-    @Input() section!: ExaminationSection;
-    @Input() index?: number;
-    @Input() isPreview = false;
-    @Input() isCollaborative = false;
+export class ExaminationSectionComponent {
+    readonly exam = input.required<Examination>();
+    readonly section = input.required<ExaminationSection>();
+    readonly index = input<number | undefined>(undefined);
+    readonly isPreview = input(false);
+    readonly isCollaborative = input(false);
 
-    autosaver?: number;
+    private readonly Examination = inject(ExaminationService);
 
-    private Examination = inject(ExaminationService);
-
-    ngOnInit() {
-        this.resetAutosaver();
+    getSectionMaxScore() {
+        return this.Examination.getSectionMaxScore(this.section());
     }
 
-    ngOnDestroy() {
-        this.cancelAutosaver();
+    getAmountOfSelectionEvaluatedQuestions() {
+        return this.section().sectionQuestions.filter((esq) => esq.evaluationType === 'Selection').length;
     }
-
-    getSectionMaxScore = () => this.Examination.getSectionMaxScore(this.section);
-
-    getAmountOfSelectionEvaluatedQuestions = () =>
-        this.section.sectionQuestions.filter((esq) => esq.evaluationType === 'Selection').length;
-
-    private resetAutosaver = () => {
-        this.cancelAutosaver();
-        if (this.section && !this.isPreview) {
-            this.autosaver = window.setInterval(
-                () =>
-                    this.Examination.saveAllTextualAnswersOfSection$(
-                        this.section,
-                        this.exam.hash,
-                        true,
-                        false,
-                        false,
-                    ).subscribe(),
-                1000 * 60,
-            );
-        }
-    };
-
-    private cancelAutosaver = () => {
-        if (this.autosaver) {
-            window.clearInterval(this.autosaver);
-            delete this.autosaver;
-        }
-    };
 }

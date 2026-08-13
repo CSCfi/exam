@@ -3,30 +3,33 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { debounceTime } from 'rxjs';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-r-essay-question',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './essay-question.component.html',
     styleUrls: ['../assessment.shared.scss', './essay-question.component.scss'],
     imports: [
-        MathJaxDirective,
+        MathDirective,
         NgbCollapse,
-        FormsModule,
+        ReactiveFormsModule,
         FixedPrecisionValidatorDirective,
         UpperCasePipe,
         TranslateModule,
@@ -41,104 +44,130 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
         `,
     ],
 })
-export class EssayQuestionComponent implements OnInit {
-    @Input() participation!: ExamParticipation;
-    @Input() exam!: Exam;
-    @Input() sectionQuestion!: ExamSectionQuestion;
-    @Input() isScorable = false;
-    @Input() collaborative = false;
-    @Output() scored = new EventEmitter<string>();
-    @ViewChild('essayPoints', { static: false }) form?: NgForm;
+export class EssayQuestionComponent {
+    readonly participation = input.required<ExamParticipation>();
+    readonly exam = input.required<Exam>();
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly isScorable = input(false);
+    readonly collaborative = input(false);
+    readonly scored = output<string>();
 
-    id = 0;
-    ref = '';
-    reviewExpanded = true;
-    _score: number | undefined = undefined;
+    readonly reviewExpanded = signal(true);
+    readonly scoreControl = new FormControl<number | null>(null);
 
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Assessment = inject(AssessmentService);
-    private CommonExam = inject(CommonExamService);
-    private Attachment = inject(AttachmentService);
+    private readonly id: number;
+    private readonly ref: string;
 
-    get scoreValue(): number | undefined {
-        return this._score;
-    }
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly destroyRef = inject(DestroyRef);
 
-    set scoreValue(value: number | undefined) {
-        this._score = value;
-        if (!this.form || this.form.valid) {
-            this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: value };
-        } else {
-            this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: undefined };
-        }
-    }
-
-    ngOnInit() {
+    constructor() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        if (!this.sectionQuestion.essayAnswer) {
-            this.sectionQuestion.essayAnswer = { id: 0 };
-        }
-        console.log('init');
-        this.scoreValue = this.sectionQuestion.essayAnswer.evaluatedScore;
+
+        toObservable(this.isScorable)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((scorable) => {
+                if (scorable) {
+                    this.scoreControl.enable({ emitEvent: false });
+                } else {
+                    this.scoreControl.disable({ emitEvent: false });
+                }
+            });
+
+        toObservable(this.sectionQuestion)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((sq) => {
+                if (!sq.essayAnswer) {
+                    sq.essayAnswer = { answer: '' };
+                }
+                this.scoreControl.setValue(sq.essayAnswer.evaluatedScore ?? null, { emitEvent: false });
+            });
+
+        this.scoreControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+            const currentSq = this.sectionQuestion();
+            currentSq.essayAnswer = {
+                ...currentSq.essayAnswer,
+                evaluatedScore: this.scoreControl.valid ? (value ?? undefined) : undefined,
+                answer: currentSq.essayAnswer!.answer,
+            };
+        });
+
+        this.scoreControl.valueChanges.pipe(debounceTime(500), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            if (this.scoreControl.valid) {
+                this.insertEssayScore();
+            }
+        });
     }
 
+    toggleReviewExpanded = () => this.reviewExpanded.update((v) => !v);
+
     downloadQuestionAttachment = () => {
-        if (this.collaborative && this.sectionQuestion.question.attachment?.externalId) {
+        const sq = this.sectionQuestion();
+        if (this.collaborative() && sq.question.attachment?.externalId) {
             return this.Attachment.downloadCollaborativeAttachment(
-                this.sectionQuestion.question.attachment.externalId,
-                this.sectionQuestion.question.attachment.fileName,
+                sq.question.attachment.externalId,
+                sq.question.attachment.fileName,
             );
         }
-        return this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
+        return this.Attachment.downloadQuestionAttachment(sq.question);
     };
 
     downloadQuestionAnswerAttachment = () => {
-        if (this.collaborative && this.sectionQuestion?.essayAnswer?.attachment?.externalId) {
+        const sq = this.sectionQuestion();
+        if (this.collaborative() && sq?.essayAnswer?.attachment?.externalId) {
             return this.Attachment.downloadCollaborativeAttachment(
-                this.sectionQuestion.essayAnswer.attachment.externalId,
-                this.sectionQuestion.essayAnswer.attachment.fileName,
+                sq.essayAnswer.attachment.externalId,
+                sq.essayAnswer.attachment.fileName,
             );
         }
-        return this.Attachment.downloadQuestionAnswerAttachment(this.sectionQuestion as ReviewQuestion);
+        return this.Attachment.downloadQuestionAnswerAttachment(sq as ReviewQuestion);
     };
 
     insertEssayScore = () => {
-        if (this.collaborative) {
+        const sq = this.sectionQuestion();
+        const participationValue = this.participation();
+        if (this.collaborative()) {
             this.Assessment.saveCollaborativeEssayScore$(
-                this.sectionQuestion,
+                sq,
                 this.id,
                 this.ref,
-                this.participation._rev as string,
+                participationValue._rev as string,
             ).subscribe((resp) => {
                 this.toast.info(this.translate.instant('i18n_graded'));
                 this.scored.emit(resp.rev);
             });
         } else {
-            this.Assessment.saveEssayScore$(this.sectionQuestion).subscribe(() => {
+            this.Assessment.saveEssayScore$(sq).subscribe(() => {
                 this.toast.info(this.translate.instant('i18n_graded'));
-                this.scored.emit();
+                this.scored.emit('');
             });
         }
     };
 
     getWordCount = () => {
-        if (!this.sectionQuestion.essayAnswer?.answer) {
+        const sq = this.sectionQuestion();
+        if (!sq.essayAnswer?.answer) {
             return 0;
         }
-        return this.CommonExam.countWords(this.sectionQuestion.essayAnswer.answer);
+        return this.CommonExam.countWords(sq.essayAnswer.answer ?? undefined);
     };
 
     getCharacterCount = () => {
-        if (!this.sectionQuestion.essayAnswer?.answer) {
+        const sq = this.sectionQuestion();
+        if (!sq.essayAnswer?.answer) {
             return 0;
         }
-        return this.CommonExam.countCharacters(this.sectionQuestion.essayAnswer.answer);
+        return this.CommonExam.countCharacters(sq.essayAnswer.answer ?? undefined);
     };
-    displayMaxScore = () =>
-        !this.sectionQuestion.maxScore || Number.isInteger(this.sectionQuestion.maxScore)
-            ? this.sectionQuestion.maxScore
-            : this.sectionQuestion.maxScore.toFixed(2);
+
+    displayMaxScore = () => {
+        const sq = this.sectionQuestion();
+        return !sq.maxScore || Number.isInteger(sq.maxScore) ? sq.maxScore : sq.maxScore.toFixed(2);
+    };
 }

@@ -21,7 +21,7 @@ SPDX-License-Identifier: EUPL-1.2
             <a (click)="createPeriod()" class="ms-2"><i class="pointer bi-plus-square"></i></a>
         </div>
     </div>
-    @for (period of maintenancePeriods | orderBy: 'startsAt'; track period) {
+    @for (period of maintenancePeriods() | orderBy: 'startsAt'; track period.id) {
         <div class="row">
             <div class="col-md-12">
                 {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}

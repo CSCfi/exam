@@ -4,18 +4,17 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-[![Build](https://github.com/CSCfi/exam/actions/workflows/scala.yml/badge.svg?branch=dev)](https://github.com/CSCfi/exam/actions) 
+[![Build](https://github.com/CSCfi/exam/actions/workflows/build.yml/badge.svg?branch=cke5)](https://github.com/CSCfi/exam/actions)
 
-EXAM Quickstart for developers
-=====================================
+# EXAM Quickstart for developers
 
-1.  Prerequisites: install SBT, Java (25), Node (>= 18) and PostgreSQL (>= 9.4).
+1.  Prerequisites: install SBT, Java (25), Node (>= 22) and PostgreSQL (>= 9.4).
 
 2.  Create PostgreSQL database
 
     **Option A: Using Docker (recommended for development):**
 
-        $ docker compose up -d postgres 
+        $ docker compose up -d postgres
 
     Or with the provided Makefile:
 
@@ -28,17 +27,33 @@ EXAM Quickstart for developers
         $ createuser -SPRD exam
         $ createdb exam --owner=exam
 
-    For tests
+    For tests:
 
         $ createdb exam_test --owner=exam
 
-    Requires that you have pg_hba.conf set up to accept local connections etc.  
+    Requires that you have pg_hba.conf set up to accept local connections etc.
     Note that you can configure database related parameters (and others) in the dev config file (/conf/dev.conf)
 
-3.  Get frontend dependencies and start frontend application in development mode
+3.  Setup frontend tooling and start frontend application in development mode
 
-        $ npm ci
-        $ npm start
+    Install pnpm:
+
+        $ npm install -g pnpm
+
+    Optionally install scalafmt for fast Scala formatting in the pre-commit hook. Requires a separate
+    [Coursier installation](https://get-coursier.io/docs/cli-installation) — ensure its bin directory is on your PATH.
+    Without it, the pre-commit hook will fail on Scala files; you can also run formatting manually via `sbt scalafmtAll`.
+
+        $ cs install scalafmt
+
+    Then install dependencies and start the frontend:
+
+        $ pnpm install
+        $ pnpm start
+
+    We use `lefthook` for git hooks. They should install automatically via `postinstall`, but pnpm may skip this if dependencies haven't changed. If your hooks aren't firing, run:
+
+        $ pnpm run postinstall
 
 4.  In another tab or window start sbt console and run backend application in development mode
 
@@ -47,11 +62,10 @@ EXAM Quickstart for developers
 
     This opens up a debug port at 9999 and allocates 2 Gb of heap memory for the JVM.
 
-5.  Open http://localhost:4200 in your browser. 
-    Accept the database migrations in case you see a prompt.
+5.  Open http://localhost:4200 in your browser. App should be accessible from browser shortly (backend compilation might take some seconds)
 
-6. Instead of steps 3 to 5 you can also use docker (composition) if you prefer. See [DOCKER.md](DOCKER.md).    
+6.  Instead of steps 3 to 5 you can also use Docker if you prefer. See [DOCKER.md](DOCKER.md).
 
 ## More information
-For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)
 
+For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)

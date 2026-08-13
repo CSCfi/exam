@@ -23,7 +23,7 @@ class SystemErrorHandler extends HttpErrorHandler with Logging:
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] =
     logger.error(s"onServerError: ${request.method} ${request.uri}", exception)
     val cause        = exception.getCause
-    val errorMessage = if cause == null then exception.getMessage else cause.getMessage
+    val errorMessage = Option(cause).map(_.getMessage).getOrElse(exception.getMessage)
     val result = Failure(cause) match
       case Failure(e: IllegalArgumentException) => Results.BadRequest(errorMessage)
       case Failure(e: OptimisticLockException)  => Results.BadRequest("i18n_error_data_has_changed")

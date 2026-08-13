@@ -3,8 +3,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,26 +27,28 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-statement',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './feedback.template.html',
-    imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
+    imports: [CdkDrag, NgbPopover, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
 export class StatementComponent {
-    @Input() exam!: Exam;
+    readonly exam = input.required<Exam>();
 
-    hideEditor = false;
+    readonly saved = output<void>();
 
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
-    private Maturity = inject(MaturityService);
-    private Assessment = inject(AssessmentService);
+    readonly hideEditor = signal(true);
+    readonly shouldHide = computed(() => !!this.exam().languageInspection?.finishedAt);
+    readonly attachment = linkedSignal<Attachment | undefined>(
+        () => this.exam().languageInspection?.statement?.attachment,
+    );
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
+    private readonly Maturity = inject(MaturityService);
+    private readonly Assessment = inject(AssessmentService);
 
     get fixPosition() {
         return this.Assessment.fixPosition;
-    }
-
-    get shouldHide() {
-        return !!this.exam.languageInspection?.finishedAt;
     }
 
     get title() {
@@ -46,41 +56,47 @@ export class StatementComponent {
     }
 
     get editorContent() {
-        return this.exam.languageInspection.statement.comment || '';
-    }
-
-    get attachment() {
-        return this.exam.languageInspection?.statement?.attachment;
+        return this.exam().languageInspection.statement.comment || '';
     }
 
     set editorContent(value: string) {
-        this.exam.languageInspection.statement.comment = value;
+        this.exam().languageInspection.statement.comment = value;
     }
 
-    toggleVisibility = () => (this.hideEditor = !this.hideEditor);
+    commentChanged = (event: string) => {
+        this.exam().languageInspection.statement.comment = event;
+    };
 
-    save = () => this.Maturity.saveInspectionStatement$(this.exam).subscribe();
+    hasGoneThroughLanguageInspection = () => this.exam().languageInspection?.finishedAt;
 
-    downloadAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
+    toggleVisibility = () => this.hideEditor.update((value) => !value);
 
-    removeAttachment = () => this.Attachment.removeStatementAttachment(this.exam);
+    save = () => this.Maturity.saveInspectionStatement$(this.exam()).subscribe({ next: () => this.saved.emit() });
+
+    downloadAttachment = () => this.Attachment.downloadStatementAttachment(this.exam());
+
+    removeAttachment = () =>
+        this.Attachment.removeStatementAttachment(this.exam()).subscribe({
+            next: () => this.attachment.set(undefined),
+        });
 
     selectFile = () =>
         this.Attachment.selectFile$(false, {})
             .pipe(
-                switchMap((res: FileResult) =>
-                    this.Maturity.saveInspectionStatement$(this.exam).pipe(
+                switchMap((res: FileResult) => {
+                    const examValue = this.exam();
+                    return this.Maturity.saveInspectionStatement$(examValue).pipe(
                         switchMap(() =>
                             this.Files.upload$<Attachment>(
-                                `/app/attachment/exam/${this.exam.id}/statement`,
+                                `/app/attachment/exam/${examValue.id}/statement`,
                                 res.$value.attachmentFile,
-                                { examId: this.exam.id.toString() },
+                                { examId: examValue.id.toString() },
                             ),
                         ),
-                    ),
-                ),
+                    );
+                }),
             )
             .subscribe((resp) => {
-                this.exam.languageInspection.statement.attachment = resp;
+                this.attachment.set(resp);
             });
 }

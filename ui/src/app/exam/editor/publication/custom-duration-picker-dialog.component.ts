@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 
 @Component({
-    imports: [FormsModule, TranslateModule],
+    imports: [TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
             <div class="xm-modal-title">
@@ -30,8 +30,8 @@ import { Duration } from 'luxon';
                         id="hourValue"
                         class="form-control xm-numeric-input"
                         type="number"
-                        [ngModel]="hours()"
-                        (ngModelChange)="hours.set($event)"
+                        [value]="hours()"
+                        (input)="onHoursInput($event)"
                         [max]="maxHour()"
                         [min]="0"
                     />
@@ -42,8 +42,8 @@ import { Duration } from 'luxon';
                         id="minuteValue"
                         class="form-control xm-numeric-input"
                         type="number"
-                        [ngModel]="minutes()"
-                        (ngModelChange)="minutes.set($event)"
+                        [value]="minutes()"
+                        (input)="onMinutesInput($event)"
                         [max]="59"
                         [min]="0"
                     />
@@ -53,7 +53,7 @@ import { Duration } from 'luxon';
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button
                 class="btn btn-success"
-                (click)="activeModal.close({ hours: this.hours(), minutes: this.minutes() })"
+                (click)="activeModal.close({ hours: hours(), minutes: minutes() })"
                 [disabled]="!allowSaving()"
                 autofocus
             >
@@ -65,17 +65,21 @@ import { Duration } from 'luxon';
         </div>
     `,
 })
-export class CustomDurationPickerDialogComponent implements OnInit {
-    hours = signal(0);
-    minutes = signal(0);
-    minDuration = signal(1);
-    maxDuration = signal(300);
-    maxHour = computed(() => this.maxDuration() / 60);
+export class CustomDurationPickerDialogComponent {
+    readonly hours = signal(0);
+    readonly minutes = signal(0);
+    readonly minDuration = signal(1);
+    readonly maxDuration = signal(300);
+    readonly maxHour = computed(() => this.maxDuration() / 60);
+    readonly allowSaving = computed(() => {
+        const duration = this.hours() * 60 + this.minutes();
+        return duration <= this.maxDuration() && duration >= this.minDuration();
+    });
 
-    activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
 
-    ngOnInit() {
+    constructor() {
         this.http
             .get<{ maxDuration: number }>('/app/settings/maxDuration')
             .subscribe((data) => this.maxDuration.set(data.maxDuration));
@@ -84,9 +88,10 @@ export class CustomDurationPickerDialogComponent implements OnInit {
             .subscribe((data) => this.minDuration.set(data.minDuration));
     }
 
-    format = (minutes: number): string => Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
-    allowSaving = () => {
-        const duration = this.hours() * 60 + this.minutes();
-        return duration <= this.maxDuration() && duration >= this.minDuration();
-    };
+    onHoursInput = (event: Event) => this.hours.set(+(event.target as HTMLInputElement).value);
+    onMinutesInput = (event: Event) => this.minutes.set(+(event.target as HTMLInputElement).value);
+
+    format(minutes: number): string {
+        return Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
+    }
 }

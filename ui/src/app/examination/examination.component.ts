@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -21,6 +20,7 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
 @Component({
     selector: 'xm-examination',
     templateUrl: './examination.component.html',
+    styleUrl: './examination.component.scss',
     imports: [
         ExaminationPageHeaderComponent,
         ExaminationSectionComponent,
@@ -29,50 +29,44 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
         ExaminationToolbarComponent,
         TranslateModule,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationComponent implements OnInit, OnDestroy {
-    isCollaborative = false;
-    exam!: Examination;
-    activeSection?: ExaminationSection;
-    isPreview = false;
-    ltiUrl: SafeResourceUrl | null = null;
+export class ExaminationComponent implements OnDestroy {
+    readonly isCollaborative = signal(false);
+    readonly exam = signal<Examination | undefined>(undefined);
+    readonly activeSection = signal<ExaminationSection | undefined>(undefined);
+    readonly isPreview = signal(false);
 
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private sanitizer = inject(DomSanitizer);
-    private Examination = inject(ExaminationService);
-    private Session = inject(SessionService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Examination = inject(ExaminationService);
+    private readonly Session = inject(SessionService);
+    private readonly Enrolment = inject(EnrolmentService);
+    constructor() {
+        const isPreviewValue = this.route.snapshot.data.isPreview;
+        const isCollaborativeValue = this.route.snapshot.data.isCollaborative || false;
+        this.isPreview.set(isPreviewValue);
+        this.isCollaborative.set(isCollaborativeValue);
 
-    ngOnInit() {
-        this.isPreview = this.route.snapshot.data.isPreview;
-        this.isCollaborative = this.route.snapshot.data.isCollaborative || false;
-        if (!this.isPreview) {
+        if (!isPreviewValue) {
             window.addEventListener('beforeunload', this.onUnload);
         }
+
         this.Examination.startExam$(
             this.route.snapshot.params.hash,
-            this.isPreview,
-            this.isCollaborative,
+            isPreviewValue,
+            isCollaborativeValue,
             this.route.snapshot.params.id,
         ).subscribe({
             next: (exam) => {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
-                this.exam = exam;
+                this.exam.set(exam);
                 this.setActiveSection({ type: 'guide' });
-
-                // Load LTI tool in iframe when relevant
-                if (this.isPreview) {
-                    console.log('preview');
-                    this.ltiUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-                        'https://dev.exam.csc.fi/integration/lti/start-login',
-                    );
+                const currentIsPreview = this.isPreview();
+                if (!currentIsPreview && exam.executionType.type === 'MATURITY') {
+                    this.Enrolment.showMaturityInstructions({ exam }, exam.external);
                 }
-
-                if (!this.isPreview && this.exam.executionType.type === 'MATURITY') {
-                    this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
-                }
-                if (!this.isPreview) {
+                if (!currentIsPreview) {
                     this.Session.disableSessionCheck(); // we don't need this here and it might cause unwanted forwarding to another states
                 }
             },
@@ -87,11 +81,17 @@ export class ExaminationComponent implements OnInit, OnDestroy {
         window.removeEventListener('beforeunload', this.onUnload);
     }
 
-    selectNewPage = (event: { page: Partial<NavigationPage> }) => this.setActiveSection(event.page);
+    selectNewPage(event: { page: Partial<NavigationPage> }) {
+        this.setActiveSection(event.page);
+    }
 
-    timedOut = () =>
+    timedOut() {
         // Save all textual answers regardless of empty or not
-        this.Examination.saveAllTextualAnswersOfExam$(this.exam)
+        const currentExam = this.exam();
+        if (!currentExam) {
+            return;
+        }
+        this.Examination.saveAllTextualAnswersOfExam$(currentExam, currentExam.external)
             .pipe(
                 catchError((err) => {
                     if (err) console.log(err);
@@ -100,40 +100,52 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                 finalize(() => this.logout('i18n_exam_time_is_up', true)),
             )
             .subscribe();
+    }
 
-    getSkipLinkPath = (skipTarget: string) => {
-        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
-    };
+    getSkipLinkPath(skipTarget: string) {
+        return window.location.href.split('#')[0] + skipTarget;
+    }
 
-    private logout = (msg: string, canFail: boolean) =>
-        this.Examination.logout(msg, this.exam.hash, this.exam.implementation === 'CLIENT_AUTH', canFail);
-
-    private setActiveSection = (page: Partial<NavigationPage>) => {
-        if (this.activeSection) {
-            this.Examination.saveAllTextualAnswersOfSection$(
-                this.activeSection,
-                this.exam.hash,
-                true,
-                false,
-                false,
-            ).subscribe();
+    private logout(msg: string, canFail: boolean) {
+        const currentExam = this.exam();
+        if (!currentExam) {
+            return;
         }
-        delete this.activeSection;
-        if (page.type === 'section') {
-            this.activeSection = this.findSection(page.id as number);
+        this.Examination.logout(msg, currentExam.hash, {
+            quitLinkEnabled: currentExam.implementation === 'CLIENT_AUTH',
+            canFail,
+            external: currentExam.external,
+        });
+    }
+
+    private setActiveSection(page: Partial<NavigationPage>) {
+        const currentActiveSection = this.activeSection();
+        const currentExam = this.exam();
+        if (currentActiveSection && currentExam && !this.isPreview()) {
+            this.Examination.saveAllTextualAnswersOfSection$(currentActiveSection, currentExam.hash, {
+                autosave: true,
+                allowEmpty: false,
+                canFail: false,
+                external: currentExam.external,
+            }).subscribe();
+        }
+        this.activeSection.set(undefined);
+        if (page.type === 'section' && currentExam) {
+            const section = this.findSection(currentExam, page.id as number);
+            this.activeSection.set(section);
         }
         window.scrollTo(0, 0);
-    };
+    }
 
-    private findSection = (sectionId: number) => {
-        const i = this.exam.examSections.map((es) => es.id).indexOf(sectionId);
+    private findSection(exam: Examination, sectionId: number) {
+        const i = exam.examSections.map((es) => es.id).indexOf(sectionId);
         if (i >= 0) {
-            return this.exam.examSections[i];
+            return exam.examSections[i];
         }
         throw Error('invalid index');
-    };
+    }
 
-    private onUnload = (event: BeforeUnloadEvent) => {
+    private onUnload(event: BeforeUnloadEvent) {
         event.preventDefault();
-    };
+    }
 }

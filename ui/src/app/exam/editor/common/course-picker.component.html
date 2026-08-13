@@ -7,14 +7,14 @@ SPDX-License-Identifier: EUPL-1.2
 <form novalidate autocomplete="off">
     <div class="row align-items-center">
         <div class="col-md-6">
-            <label for="courseCode" class="exam-input-label-uppercase form-label" style="display: block">{{
+            <label for="courseCode" class="exam-input-label-uppercase form-label">{{
                 'i18n_course_code' | translate
             }}</label>
             <div class="input-group">
                 <input
                     id="courseCode"
                     class="form-control"
-                    [(ngModel)]="codeFilter"
+                    [formField]="courseFilterForm.code"
                     name="code"
                     [ngbTypeahead]="getCoursesByCode$"
                     (selectItem)="onCourseSelect($event)"
@@ -27,7 +27,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <p>{{ r.name }}</p>
                 </ng-template>
                 <span class="input-group-text">
-                    @if (!loader.code.isOn) {
+                    @if (!loaderCode()) {
                         <i
                             class="bi-question-circle"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -35,21 +35,21 @@ SPDX-License-Identifier: EUPL-1.2
                             triggers="mouseenter:mouseleave"
                         ></i>
                     }
-                    <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loader.code.isOn">
+                    <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loaderCode()">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </span>
             </div>
         </div>
         <div class="col-md-6">
-            <label for="courseName" class="exam-input-label-uppercase form-label" style="display: block">{{
+            <label for="courseName" class="exam-input-label-uppercase form-label">{{
                 'i18n_course_name' | translate
             }}</label>
             <div class="input-group">
                 <input
                     id="courseName"
                     class="form-control"
-                    [(ngModel)]="nameFilter"
+                    [formField]="courseFilterForm.name"
                     name="name"
                     [ngbTypeahead]="getCoursesByName$"
                     (selectItem)="onCourseSelect($event)"
@@ -62,7 +62,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <p>{{ r.code }}</p>
                 </ng-template>
                 <span class="input-group-text">
-                    @if (!loader.name.isOn) {
+                    @if (!loaderName()) {
                         <i
                             class="bi-question-circle"
                             ngbPopover="{{ 'i18n_course_name' | translate }}"
@@ -70,7 +70,7 @@ SPDX-License-Identifier: EUPL-1.2
                             triggers="mouseenter:mouseleave"
                         ></i>
                     }
-                    <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loader.name.isOn">
+                    <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loaderName()">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </span>

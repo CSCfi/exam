@@ -12,9 +12,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <th>
                         <input
                             type="checkbox"
-                            name="select_all"
-                            [(ngModel)]="allSelected"
-                            (change)="selectAll()"
+                            [checked]="allSelected()"
+                            (change)="onSelectAll($event)"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -24,8 +23,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="id"
                             text="i18n_question"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('id')"
                         />
                     </th>
@@ -33,8 +32,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="creator"
                             text="i18n_creator"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('creator')"
                         />
                     </th>
@@ -42,8 +41,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="modified"
                             text="i18n_modified"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('modified')"
                         />
                     </th>
@@ -51,8 +50,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="displayedMaxScore"
                             text="i18n_max_score"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('displayedMaxScore')"
                         />
                     </th>
@@ -60,8 +59,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="typeOrd"
                             text="i18n_question_type"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('typeOrd')"
                         />
                     </th>
@@ -69,8 +68,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="attachment.fileName"
                             text="i18n_attachment"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('attachment.fileName')"
                         />
                     </th>
@@ -79,8 +78,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="ownerAggregate"
                             text="i18n_owner"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('ownerAggregate')"
                         />
                     </th>
@@ -91,56 +90,54 @@ SPDX-License-Identifier: EUPL-1.2
             </thead>
             <tbody>
                 @for (
-                    question of fixedQuestions
-                        | orderBy: questionsPredicate : reverse
-                        | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+                    question of fixedQuestions()
+                        | orderBy: questionsPredicate() : reverse()
+                        | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
                     track question
                 ) {
                     <tr>
                         <td class="question-table-checkbox">
                             <input
                                 type="checkbox"
-                                [(ngModel)]="question.selected"
-                                (change)="questionSelected()"
+                                [checked]="question.selected"
+                                (change)="onQuestionToggle(question, $event)"
                                 class="questionToUpdate"
                                 value="{{ question.id }}"
                             />
                         </td>
                         <td>
                             @if (question.question) {
-                                <span [xmMathJax]="question.question | slice: 0 : 360"> </span>
+                                <span [xmMath]="question.question | slice: 0 : 360"> </span>
                             }
                             @if (!question.question) {
                                 <span class="text-danger">
                                     {{ 'i18n_no_name' | translate }}
                                 </span>
                             }
-                            <div>
-                                <span>
-                                    @if (!disableLinks) {
-                                        <button
-                                            class="pointer btn btn-link btn-sm"
-                                            [routerLink]="[question.id, 'edit']"
-                                            [queryParams]="{ nextState: 'questions' }"
-                                        >
-                                            {{ question.id }}
-                                        </button>
-                                    }
-                                    @if (disableLinks) {
-                                        <span>#{{ question.id }}</span>
-                                    }
-                                    @if (question.questionOwners.length > 1) {
-                                        <i
-                                            class="bi-people ps-2 text-primary"
-                                            ngbPopover="{{ 'i18n_question_owners' | translate }}: {{
-                                                printOwners(question)
-                                            }}"
-                                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                            triggers="mouseenter:mouseleave"
-                                        ></i>
-                                    }
-                                </span>
-                            </div>
+                            <span class="d-block">
+                                @if (!disableLinks()) {
+                                    <a
+                                        class="pointer btn btn-link btn-sm"
+                                        [routerLink]="[question.id, 'edit']"
+                                        [queryParams]="{ nextState: 'questions' }"
+                                    >
+                                        {{ question.id }}
+                                    </a>
+                                }
+                                @if (disableLinks()) {
+                                    <span>#{{ question.id }}</span>
+                                }
+                                @if (question.questionOwners.length > 1) {
+                                    <i
+                                        class="bi-people ps-2 text-primary"
+                                        ngbPopover="{{ 'i18n_question_owners' | translate }}: {{
+                                            printOwners(question)
+                                        }}"
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                    ></i>
+                                }
+                            </span>
                         </td>
                         <td>
                             <span>
@@ -181,30 +178,29 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td>
                             @if (question.attachment) {
-                                <button class="btn btn-link btn-sm" (click)="downloadQuestionAttachment(question)">
-                                    <i class="bi-paperclip"></i>{{ question.attachment.fileName }}
+                                <button
+                                    class="btn btn-link btn-sm"
+                                    (click)="downloadQuestionAttachment(question)"
+                                    [ariaLabel]="'i18n_download_attachment' | translate"
+                                >
+                                    <i class="bi-paperclip" aria-hidden="true"></i>{{ question.attachment.fileName }}
                                 </button>
                             }
                         </td>
                         <td>{{ printTags(question) }}</td>
                         <td>
-                            @if (user.isAdmin) {
-                                <span>
-                                    @for (owner of question.questionOwners; track owner; let isLast = $last) {
-                                        <a [href]="renderMailTo(owner)">{{ printOwner(owner, true) }}</a
-                                        >{{ isLast ? '' : ', ' }}
+                            <span>
+                                @for (
+                                    owner of getOwnersToDisplay(question);
+                                    track owner.id ?? owner;
+                                    let isLast = $last
+                                ) {
+                                    <a [href]="renderMailTo(owner)">{{ printOwner(owner, true) }}</a>
+                                    @if (!isLast) {
+                                        <span>, </span>
                                     }
-                                </span>
-                            } @else {
-                                <span>
-                                    @for (owner of question.questionOwners; track owner; let isLast = $last) {
-                                        <a [href]="renderMailTo(owner)">{{
-                                            owner.id === user.id ? '' : printOwner(owner, true)
-                                        }}</a
-                                        >{{ isLast ? '' : ', ' }}
-                                    }
-                                </span>
-                            }
+                                }
+                            </span>
                         </td>
                         <td class="td-center-align">
                             @if (question.allowedToRemove) {
@@ -234,17 +230,17 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 }
                 <!--Fill if page not full-->
-                @for (r of [] | pageFill: questions.length : currentPage : pageSize; track r) {
+                @for (r of [] | pageFill: fixedQuestions().length : currentPage() : pageSize; track r) {
                     <tr>
-                        <td colspan="11">&nbsp;</td>
+                        <td colspan="12">&nbsp;</td>
                         @if (user.isAdmin) {
                             <td></td>
                         }
                     </tr>
                 }
-                @if (questions.length === 0) {
+                @if (fixedQuestions().length === 0) {
                     <tr>
-                        <td colspan="11">{{ 'i18n_exam_library_no_results' | translate }}</td>
+                        <td colspan="12">{{ 'i18n_exam_library_no_results' | translate }}</td>
                         @if (user.isAdmin) {
                             <td></td>
                         }
@@ -253,13 +249,13 @@ SPDX-License-Identifier: EUPL-1.2
             </tbody>
         </table>
     </div>
-    @if (questions.length > pageSize) {
+    @if (fixedQuestions().length > pageSize) {
         <div class="col-md-12">
             <xm-paginator
-                [items]="questions"
+                [items]="fixedQuestions()"
                 (pageSelected)="pageSelected($event)"
                 [pageSize]="pageSize"
-                [currentPage]="currentPage"
+                [currentPage]="currentPage()"
             >
             </xm-paginator>
         </div>

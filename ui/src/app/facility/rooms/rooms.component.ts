@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
@@ -21,29 +20,27 @@ interface ExtendedRoom extends ExamRoom {
 
 @Component({
     template: `
-        @for (room of rooms; track room.id) {
+        @for (room of rooms(); track room.id) {
             <xm-room [room]="room" />
         }
     `,
     selector: 'xm-rooms',
     imports: [TranslateModule, RoomComponent],
     styleUrl: './rooms.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RoomListComponent implements OnInit {
-    user: User;
-    rooms: ExtendedRoom[] = [];
+export class RoomListComponent {
+    readonly rooms = signal<ExtendedRoom[]>([]);
+    readonly user: User;
 
-    private session = inject(SessionService);
-    private roomService = inject(RoomService);
+    private readonly session = inject(SessionService);
+    private readonly roomService = inject(RoomService);
 
     constructor() {
         this.user = this.session.getUser();
-    }
-
-    ngOnInit() {
         this.roomService.getRooms$().subscribe((rooms) => {
             const roomsWithVisibility = rooms as ExtendedRoom[];
-            this.rooms = roomsWithVisibility.map((r) => {
+            const processedRooms = roomsWithVisibility.map((r) => {
                 const extendedDWH = r.defaultWorkingHours as DefaultWorkingHoursWithEditing[];
                 return {
                     ...r,
@@ -69,16 +66,17 @@ export class RoomListComponent implements OnInit {
                     }),
                 };
             });
-            this.rooms.forEach((room) => {
+            processedRooms.forEach((room) => {
                 room.examMachines = room.examMachines.filter((machine) => {
                     return !machine.archived;
                 });
             });
-            const roomsWithNoName = this.rooms.filter((r) => !r.name);
-            this.rooms = this.rooms
+            const roomsWithNoName = processedRooms.filter((r) => !r.name);
+            const sortedRooms = processedRooms
                 .filter((r) => r.name)
                 .sort((a, b) => (a.name > b.name ? 1 : -1))
                 .concat(roomsWithNoName);
+            this.rooms.set(sortedRooms);
         });
     }
 }

@@ -1,0 +1,683 @@
+diff --git a/app/controllers/JwksController.java b/app/controllers/JwksController.java
+new file mode 100644
+index 000000000..c71f8116c
+--- /dev/null
++++ b/app/controllers/JwksController.java
+@@ -0,0 +1,58 @@
++// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
++//
++// SPDX-License-Identifier: EUPL-1.2
++package controllers;
++
++import com.fasterxml.jackson.databind.ObjectMapper;
++import com.nimbusds.jose.jwk.JWKSet;
++import com.nimbusds.jose.jwk.RSAKey;
++import com.typesafe.config.Config;
++import java.nio.file.Files;
++import java.nio.file.Paths;
++import java.security.KeyFactory;
++import java.security.interfaces.RSAPublicKey;
++import java.security.spec.X509EncodedKeySpec;
++import java.util.Base64;
++import javax.inject.Inject;
++import play.mvc.Controller;
++import play.mvc.Result;
++
++public class JwksController extends Controller {
++
++    private final Config config;
++
++    @Inject
++    public JwksController(Config config) {
++        this.config = config;
++    }
++
++    public Result jwks() throws Exception {
++        String publicKeyPem = config.getString("lti.platform.public-key");
++        String keyId = config.getString("lti.platform.key-id");
++
++        RSAPublicKey publicKey = loadRSAPublicKeyFromFile(publicKeyPem);
++        RSAKey jwk = new RSAKey.Builder(publicKey).keyID(keyId).algorithm(com.nimbusds.jose.JWSAlgorithm.RS256).build();
++
++        JWKSet set = new JWKSet(jwk);
++        ObjectMapper mapper = new ObjectMapper();
++        String json = mapper.writeValueAsString(set.toJSONObject());
++        return ok(json).as("application/json");
++    }
++
++    private RSAPublicKey loadPublicKey(String pem) throws Exception {
++        String key = pem
++            .replace("-----BEGIN PUBLIC KEY-----", "")
++            .replace("-----END PUBLIC KEY-----", "")
++            .replaceAll("\\s", "");
++        byte[] decoded = Base64.getDecoder().decode(key);
++        X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
++        KeyFactory kf = KeyFactory.getInstance("RSA");
++        return (RSAPublicKey) kf.generatePublic(spec);
++    }
++
++    public RSAPublicKey loadRSAPublicKeyFromFile(String filePath) throws Exception {
++        // Read the PEM file content
++        String pem = new String(Files.readAllBytes(Paths.get(filePath)));
++        return loadPublicKey(pem);
++    }
++}
+diff --git a/app/controllers/examination/ExaminationController.java b/app/controllers/examination/ExaminationController.java
+index 78f43c92d..599b0535f 100644
+--- a/app/controllers/examination/ExaminationController.java
++++ b/app/controllers/examination/ExaminationController.java
+@@ -8,6 +8,13 @@ import be.objectify.deadbolt.java.actions.Group;
+ import be.objectify.deadbolt.java.actions.Restrict;
+ import com.fasterxml.jackson.databind.JsonNode;
+ import com.fasterxml.jackson.databind.node.ArrayNode;
++import com.nimbusds.jose.JOSEObjectType;
++import com.nimbusds.jose.JWSAlgorithm;
++import com.nimbusds.jose.JWSHeader;
++import com.nimbusds.jose.crypto.RSASSASigner;
++import com.nimbusds.jwt.JWTClaimsSet;
++import com.nimbusds.jwt.SignedJWT;
++import com.typesafe.config.Config;
+ import controllers.admin.SettingsController;
+ import controllers.base.BaseController;
+ import controllers.iop.transfer.api.ExternalAttachmentLoader;
+@@ -16,10 +23,16 @@ import impl.mail.EmailComposer;
+ import io.ebean.DB;
+ import io.ebean.text.PathProperties;
+ import java.io.IOException;
+-import java.util.HashSet;
+-import java.util.List;
+-import java.util.Optional;
+-import java.util.Set;
++import java.io.UnsupportedEncodingException;
++import java.net.URLEncoder;
++import java.nio.charset.StandardCharsets;
++import java.nio.file.Files;
++import java.nio.file.Paths;
++import java.security.KeyFactory;
++import java.security.SecureRandom;
++import java.security.interfaces.RSAPrivateKey;
++import java.security.spec.PKCS8EncodedKeySpec;
++import java.util.*;
+ import java.util.concurrent.CompletableFuture;
+ import java.util.concurrent.CompletionStage;
+ import java.util.concurrent.ExecutionException;
+@@ -74,6 +87,7 @@ public class ExaminationController extends BaseController {
+     private final ExternalAttachmentLoader externalAttachmentLoader;
+     private final ByodConfigHandler byodConfigHandler;
+     protected final DateTimeHandler dateTimeHandler;
++    private final Config config;
+ 
+     private final Logger logger = LoggerFactory.getLogger(ExaminationController.class);
+ 
+@@ -87,7 +101,8 @@ public class ExaminationController extends BaseController {
+         ClassLoaderExecutionContext httpExecutionContext,
+         ExternalAttachmentLoader externalAttachmentLoader,
+         ByodConfigHandler byodConfigHandler,
+-        DateTimeHandler dateTimeHandler
++        DateTimeHandler dateTimeHandler,
++        Config config
+     ) {
+         this.emailComposer = emailComposer;
+         this.examinationRepository = examinationRepository;
+@@ -98,6 +113,7 @@ public class ExaminationController extends BaseController {
+         this.externalAttachmentLoader = externalAttachmentLoader;
+         this.byodConfigHandler = byodConfigHandler;
+         this.dateTimeHandler = dateTimeHandler;
++        this.config = config;
+     }
+ 
+     private Result postProcessClone(ExamEnrolment enrolment, Optional<Exam> oe) {
+@@ -274,6 +290,324 @@ public class ExaminationController extends BaseController {
+             );
+     }
+ 
++    @Authenticated
++    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
++    public Result startLogin(Http.Request request) {
++        String toolInitiateLogin = config.getString("lti.tool.initiate-login-url");
++        String platformIssuer = config.getString("lti.platform.issuer");
++        String targetLinkUri = config.getString("lti.platform.target-link-uri");
++        String clientId = config.getString("lti.platform.client-id");
++
++        String resourceId = request.getQueryString("resourceId");
++
++        if (resourceId == null || resourceId.isBlank()) {
++            return badRequest("Missing resourceId");
++        }
++
++        if (toolInitiateLogin.isEmpty() || platformIssuer.isEmpty() || targetLinkUri.isEmpty() || clientId.isEmpty()) {
++            return badRequest("Missing required LTI settings (tool initiate url, issuer, target link uri, client id).");
++        }
++
++        String state = UUID.randomUUID().toString();
++        String nonce = generateNonce();
++
++        StringBuilder redirect = new StringBuilder(toolInitiateLogin);
++        if (!toolInitiateLogin.contains("?")) redirect.append("?");
++        else redirect.append("&");
++        redirect
++            .append("iss=")
++            .append(urlEncode(platformIssuer))
++            .append("&login_hint=")
++            .append(urlEncode("hint"))
++            .append("&target_link_uri=")
++            .append(urlEncode(targetLinkUri))
++            .append("&client_id=")
++            .append(urlEncode(clientId))
++            .append("&nonce=")
++            .append(urlEncode(nonce))
++            .append("&state=")
++            .append(urlEncode(state));
++
++        // Persist state/nonce in session for verification
++        return redirect(redirect.toString())
++            .addingToSession(request, "lti_nonce", nonce)
++            .addingToSession(request, "lti_state", state)
++            .addingToSession(request, "lti_resource_id", resourceId);
++    }
++
++    @Authenticated
++    public Result handleOidcLogin(Http.Request request) throws Exception {
++        // Read query params
++        String loginHint = request.getQueryString("login_hint");
++        String redirectUri = request.getQueryString("redirect_uri");
++        String state = request.getQueryString("state");
++        String nonce = request.getQueryString("nonce");
++        String clientId = request.getQueryString("client_id");
++
++        // Required config
++        String expectedClientId = config.getString("lti.platform.client-id");
++        String deploymentId = config.getString("lti.platform.deployment-id");
++        String issuer = config.getString("lti.platform.issuer");
++        String keyId = config.getString("lti.platform.key-id");
++        String privateKeyPath = config.getString("lti.platform.private-key");
++
++        var ses = request.session();
++        String resourceId = ses.getOptional("lti_resource_id").orElse(null);
++
++        // Basic validation
++        if (clientId == null || !expectedClientId.equals(clientId)) {
++            return badRequest("Invalid client_id");
++        }
++        if (redirectUri == null || state == null || nonce == null) {
++            return badRequest("Missing required parameters");
++        }
++
++        if (resourceId == null || resourceId.isBlank()) {
++            return badRequest("Missing resourceId in session");
++        }
++
++        // TODO tarkista, että redirect uri on validi esim. sen pitää olla http://localhost:8888/moodle500/enrol/lti/launch.php
++        //targetLinkUri
++
++        // Build ID Token (5 minute expiry)
++        Date now = new Date();
++        Date exp = new Date(now.getTime() + 5 * 60 * 1000);
++
++        Map<String, Object> contextClaim = new HashMap<>();
++        contextClaim.put("id", "platorm-internal-id-12345678");
++        contextClaim.put("label", "Oma tehtavava label");
++        contextClaim.put("title", "Oma tehtava title");
++        contextClaim.put("type", List.of("http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering"));
++
++        Map<String, Object> resourceLink = new HashMap<>();
++
++        //        String resourceId = "2788c809-8f36-4ea0-87ce-3a9191174971";
++        logger.debug("ResourceId: " + resourceId);
++        resourceLink.put("id", resourceId);
++
++        resourceLink.put("title", "Tehtava moodle toolissa");
++
++        Map<String, Object> custom = new HashMap<>();
++        custom.put("id", resourceId);
++
++        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
++        JWTClaimsSet claims = new JWTClaimsSet.Builder()
++            .issuer(issuer)
++            .subject(user.getEppn()) // your LMS-specific stable user id
++            .audience(clientId)
++            .expirationTime(exp)
++            .issueTime(now)
++            .jwtID(UUID.randomUUID().toString())
++            .claim("nonce", nonce)
++            // Standard OIDC user identity claims
++            .claim("given_name", user.getFirstName())
++            .claim("family_name", user.getLastName())
++            .claim("name", user.getFirstName() + " " + user.getLastName())
++            .claim("email", user.getEmail())
++            // LTI 1.3 claims
++            .claim("https://purl.imsglobal.org/spec/lti/claim/message_type", "LtiResourceLinkRequest")
++            .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
++            .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", deploymentId)
++            .claim("https://purl.imsglobal.org/spec/lti/claim/target_link_uri", redirectUri)
++            .claim(
++                "https://purl.imsglobal.org/spec/lti/claim/roles",
++                List.of("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner")
++            ) // FIXME
++            .claim("https://purl.imsglobal.org/spec/lti/claim/context", contextClaim)
++            .claim("https://purl.imsglobal.org/spec/lti/claim/resource_link", resourceLink)
++            .claim("https://purl.imsglobal.org/spec/lti/claim/custom", custom)
++            .build();
++
++        // Sign JWT (RS256)
++        RSAPrivateKey privateKey = loadPrivateKeyFromFile(privateKeyPath);
++        SignedJWT signedJWT = new SignedJWT(
++            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(keyId).type(JOSEObjectType.JWT).build(),
++            claims
++        );
++        signedJWT.sign(new RSASSASigner(privateKey));
++
++        String idToken = signedJWT.serialize();
++
++        // In Spring you did response.sendRedirect(...) — in Play just:
++        String encodedToken = URLEncoder.encode(idToken, StandardCharsets.UTF_8);
++        String encodedState = URLEncoder.encode(state, StandardCharsets.UTF_8);
++        String frameLaunchUrl = "/integration/lti/launch-frame?id_token=" + encodedToken + "&state=" + encodedState;
++
++        // --- Return a tiny auto-post page that submits inside THIS iframe
++        String html = buildAutoPostHtml(redirectUri, idToken, state);
++
++        return ok(html).as("text/html").withHeader("Cache-Control", "no-store").withHeader("Pragma", "no-cache");
++        // Consider also:
++        // .withHeader("Content-Security-Policy", "frame-ancestors https://your-spa-origin.example");
++    }
++
++    //    public Result handleOidcLogin(Http.Request request) throws Exception {
++    //        // Read query params
++    //        this.loginHint  = request.getQueryString("login_hint");
++    //        this.redirectUri = request.getQueryString("redirect_uri");
++    //        this.state      = request.getQueryString("state");
++    //        this.nonce      = request.getQueryString("nonce");
++    //        this.clientId   = request.getQueryString("client_id");
++    //
++    //        logger.debug("loginHint : {}", loginHint);
++    //        logger.debug("redirectUri : {}", redirectUri);
++    //        logger.debug("state     : {}", state);
++    //        logger.debug("nonce     : {}", nonce);
++    //        logger.debug("clientId   : {}", clientId);
++    //
++    //        // Required config
++    //        String expectedClientId = config.getString("lti.platform.client-id");
++    //
++    //        // Basic validation
++    //        if (clientId == null || !expectedClientId.equals(clientId)) {
++    //            return badRequest("Invalid client_id");
++    //        }
++    //        if (redirectUri == null || state == null || nonce == null) {
++    //            return badRequest("Missing required parameters");
++    //        }
++    //        logger.debug("handleOidcLogin: ok");
++    //        return ok();
++    //    }
++
++    //    public Result loadLtiResourceLink(Http.Request request) throws Exception {
++    //
++    //        String deploymentId = config.getString("lti.platform.deployment-id");
++    //        String issuer           = config.getString("lti.platform.issuer");
++    //        String keyId            = config.getString("lti.platform.key-id");
++    //        String privateKeyPath   = config.getString("lti.platform.private-key");
++    //        String resourceId       = request.getQueryString("resourceId");
++    //
++    //
++    //        // Build ID Token (5 minute expiry)
++    //        Date now = new Date();
++    //        Date exp = new Date(now.getTime() + 5 * 60 * 1000);
++    //
++    //        Map<String, Object> contextClaim = new HashMap<>();
++    //        contextClaim.put("id", "platorm-internal-id-12345678");
++    //        contextClaim.put("label", "Oma tehtavava label");
++    //        contextClaim.put("title", "Oma tehtava title");
++    //        contextClaim.put("type", List.of("http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering"));
++    //
++    //        Map<String, Object> resourceLink = new HashMap<>();
++    //
++    //        resourceLink.put("id", resourceId);
++    //        resourceLink.put("title", "Tehtava moodle toolissa");
++    //
++    //        Map<String, Object> custom = new HashMap<>();
++    //        custom.put("id", resourceId);
++    //
++    //        JWTClaimsSet claims = new JWTClaimsSet.Builder()
++    //                .issuer(issuer)
++    //                .subject("user12345555") // your LMS-specific stable user id
++    //                .audience(clientId)
++    //                .expirationTime(exp)
++    //                .issueTime(now)
++    //                .jwtID(UUID.randomUUID().toString())
++    //                .claim("nonce", nonce)
++    //
++    //                // LTI 1.3 claims
++    //                .claim("https://purl.imsglobal.org/spec/lti/claim/message_type", "LtiResourceLinkRequest")
++    //                .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
++    //                .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", deploymentId)
++    //                .claim("https://purl.imsglobal.org/spec/lti/claim/target_link_uri", redirectUri)
++    //                .claim("https://purl.imsglobal.org/spec/lti/claim/roles",
++    //                        List.of("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner")) // FIXME
++    //                .claim("https://purl.imsglobal.org/spec/lti/claim/context", contextClaim)
++    //                .claim("https://purl.imsglobal.org/spec/lti/claim/resource_link", resourceLink)
++    //                .claim("https://purl.imsglobal.org/spec/lti/claim/custom", custom)
++    //                .build();
++    //
++    //        // Sign JWT (RS256)
++    //        RSAPrivateKey privateKey = loadPrivateKeyFromFile(privateKeyPath);
++    //        SignedJWT signedJWT = new SignedJWT(
++    //                new JWSHeader.Builder(JWSAlgorithm.RS256)
++    //                        .keyID(keyId)
++    //                        .type(JOSEObjectType.JWT)
++    //                        .build(),
++    //                claims
++    //        );
++    //        signedJWT.sign(new RSASSASigner(privateKey));
++    //
++    //        String idToken = signedJWT.serialize();
++    //
++    //        // --- Return a tiny auto-post page that submits inside THIS iframe
++    //        String html = buildAutoPostHtml(redirectUri, idToken, state);
++    //
++    //        return ok(html)
++    //                .as("text/html")
++    //                .withHeader("Cache-Control", "no-store")
++    //                .withHeader("Pragma", "no-cache");
++    //    }
++    //<iframe id="lti-frame2" name="lti-frame2" width="100%%" height="800" frameborder="0" allowfullscreen=""></iframe>
++    //
++    //            <form id="lti-form2" method="POST" target="lti-frame2" action="http://localhost:9000/integration/lti/resource">
++    //                <input type="hidden" name="resourceId" value="2788c809-8f36-4ea0-87ce-3a9191174971">
++    //            </form><!--container--><!--container--></div>
++    private String buildAutoPostHtml(String postUrl, String idToken, String state) {
++        return String.format(
++            """
++            <!DOCTYPE html>
++            <html>
++            <head>
++              <meta charset="utf-8"/>
++              <title>LTI Launch</title>
++            </head>
++            <body>
++              <form id="ltiLaunch" action="%s" method="POST" target="_self">
++                <input type="hidden" name="id_token" value="%s"/>
++                <input type="hidden" name="state" value="%s"/>
++              </form>
++              <noscript>
++                <p>JavaScript is required to continue. Click the button below to launch.</p>
++                <button form="ltiLaunch" type="submit">Continue</button>
++              </noscript>
++              <script>document.getElementById('ltiLaunch').submit();</script>
++            </body>
++            </html>
++            """,
++            escapeHtml(postUrl),
++            escapeHtml(idToken),
++            escapeHtml(state)
++        );
++    }
++
++    private String escapeHtml(String input) {
++        return input.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
++    }
++
++    private RSAPrivateKey loadPrivateKey(String pem) throws Exception {
++        String privateKeyPEM = pem
++            .replace("-----BEGIN PRIVATE KEY-----", "")
++            .replace("-----END PRIVATE KEY-----", "")
++            .replaceAll(System.lineSeparator(), "");
++
++        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
++        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
++        KeyFactory kf = KeyFactory.getInstance("RSA");
++        return (RSAPrivateKey) kf.generatePrivate(keySpec);
++    }
++
++    public RSAPrivateKey loadPrivateKeyFromFile(String filePath) throws Exception {
++        // Read the PEM file content
++        String pem = new String(Files.readAllBytes(Paths.get(filePath)));
++        return loadPrivateKey(pem);
++    }
++
++    private static String urlEncode(String s) {
++        try {
++            return URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
++        } catch (UnsupportedEncodingException e) {
++            return s;
++        }
++    }
++
++    private static String generateNonce() {
++        SecureRandom secureRandom = new SecureRandom();
++        byte[] nonceBytes = new byte[16];
++        secureRandom.nextBytes(nonceBytes);
++        return Base64.getUrlEncoder().withoutPadding().encodeToString(nonceBytes);
++    }
++
+     @Authenticated
+     @Restrict({ @Group("STUDENT") })
+     @Transactional
+@@ -499,7 +833,7 @@ public class ExaminationController extends BaseController {
+             "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
+             "examMaterials(name, author, isbn), " +
+             "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, derivedMinScore, " + // (((
+-            "question(id, type, question, attachment(id, fileName))" +
++            "question(id, type, ltiId, question, attachment(id, fileName))" +
+             "options(id, answered, option(id, option))" +
+             "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
+             "clozeTestAnswer(id, question, answer, objectVersion)" +
+diff --git a/app/controllers/iop/transfer/impl/ExternalExaminationController.java b/app/controllers/iop/transfer/impl/ExternalExaminationController.java
+index 0fb14722c..d80ae6b1a 100644
+--- a/app/controllers/iop/transfer/impl/ExternalExaminationController.java
++++ b/app/controllers/iop/transfer/impl/ExternalExaminationController.java
+@@ -8,6 +8,7 @@ import be.objectify.deadbolt.java.actions.Group;
+ import be.objectify.deadbolt.java.actions.Restrict;
+ import com.fasterxml.jackson.databind.JsonNode;
+ import com.fasterxml.jackson.databind.node.ArrayNode;
++import com.typesafe.config.Config;
+ import controllers.examination.ExaminationController;
+ import controllers.iop.transfer.api.ExternalAttachmentLoader;
+ import impl.AutoEvaluationHandler;
+@@ -67,7 +68,8 @@ public class ExternalExaminationController extends ExaminationController {
+         ClassLoaderExecutionContext httpExecutionContext,
+         ExternalAttachmentLoader externalAttachmentLoader,
+         ByodConfigHandler byodConfigHandler,
+-        DateTimeHandler dateTimeHandler
++        DateTimeHandler dateTimeHandler,
++        Config config
+     ) {
+         super(
+             emailComposer,
+@@ -78,7 +80,8 @@ public class ExternalExaminationController extends ExaminationController {
+             httpExecutionContext,
+             externalAttachmentLoader,
+             byodConfigHandler,
+-            dateTimeHandler
++            dateTimeHandler,
++            config
+         );
+     }
+ 
+diff --git a/app/controllers/question/QuestionController.java b/app/controllers/question/QuestionController.java
+index dc14c0e6b..37ae8cf02 100644
+--- a/app/controllers/question/QuestionController.java
++++ b/app/controllers/question/QuestionController.java
+@@ -202,6 +202,7 @@ public class QuestionController extends BaseController implements SectionQuestio
+             Boolean.class
+         ).orElse(true);
+         Question.Type type = SanitizingHelper.parseEnum("type", node, Question.Type.class).orElse(null);
++        String ltiId = SanitizingHelper.parse("ltiId", node, String.class).orElse(null);
+ 
+         Question question = existing == null ? new Question() : existing;
+         question.setType(type);
+@@ -213,6 +214,7 @@ public class QuestionController extends BaseController implements SectionQuestio
+         question.setDefaultEvaluationCriteria(defaultCriteria);
+         question.setDefaultNegativeScoreAllowed(defaultNegativeScoreAllowed);
+         question.setDefaultOptionShufflingOn(defaultOptionShufflingOn);
++        question.setLtiId(ltiId);
+         if (question.getState() == null || !question.getState().equals(QuestionState.DELETED.toString())) {
+             question.setState(QuestionState.SAVED.toString());
+         }
+diff --git a/app/impl/EmailComposerImpl.java b/app/impl/EmailComposerImpl.java
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/app/impl/ExternalCourseHandlerImpl.java b/app/impl/ExternalCourseHandlerImpl.java
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/app/miscellaneous/excel/ExcelBuilderImpl.java b/app/miscellaneous/excel/ExcelBuilderImpl.java
+index ea09d954f..2e26802c3 100644
+--- a/app/miscellaneous/excel/ExcelBuilderImpl.java
++++ b/app/miscellaneous/excel/ExcelBuilderImpl.java
+@@ -192,6 +192,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
+                         "reports.question.type.weightedmultiplechoide"
+                     );
+                     case ClaimChoiceQuestion -> messages.get(lang, "reports.question.type.claim");
++                    case LtiQuestion -> messages.get(lang, "reports.question.type.lti");
+                 };
+ 
+                 appendCell(
+diff --git a/app/models/questions/Question.java b/app/models/questions/Question.java
+index c6851eed4..d31329581 100644
+--- a/app/models/questions/Question.java
++++ b/app/models/questions/Question.java
+@@ -44,6 +44,14 @@ import validation.SanitizingHelper;
+ @Entity
+ public class Question extends OwnedModel implements AttachmentContainer {
+ 
++    public String getLtiId() {
++        return ltiId;
++    }
++
++    public void setLtiId(String ltiId) {
++        this.ltiId = ltiId;
++    }
++
+     public enum Type {
+         @EnumValue("1")
+         MultipleChoiceQuestion,
+@@ -55,6 +63,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
+         ClozeTestQuestion,
+         @EnumValue("5")
+         ClaimChoiceQuestion,
++        @EnumValue("6")
++        LtiQuestion,
+     }
+ 
+     public enum EvaluationType {
+@@ -97,6 +107,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
+     @Column
+     private boolean defaultOptionShufflingOn;
+ 
++    @Column
++    private String ltiId;
++
+     @ManyToOne
+     private Question parent;
+ 
+@@ -363,7 +376,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
+         String reason = null;
+         if (nodeExists(node, "question")) {
+             switch (type) {
+-                case EssayQuestion -> {
++                case EssayQuestion, LtiQuestion -> {
+                     if (!nodeExists(node, "defaultEvaluationType")) {
+                         reason = "no evaluation type defined";
+                     }
+diff --git a/app/models/sections/ExamSectionQuestion.java b/app/models/sections/ExamSectionQuestion.java
+index c9aead16d..17d0942f0 100644
+--- a/app/models/sections/ExamSectionQuestion.java
++++ b/app/models/sections/ExamSectionQuestion.java
+@@ -407,7 +407,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
+     @Override
+     public Double getAssessedScore() {
+         switch (question.getType()) {
+-            case EssayQuestion -> {
++            case EssayQuestion, LtiQuestion -> {
+                 if (evaluationType == Question.EvaluationType.Points) {
+                     return essayAnswer == null || essayAnswer.getEvaluatedScore() == null
+                         ? 0
+@@ -475,7 +475,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
+     @Override
+     public Double getMaxAssessedScore() {
+         switch (question.getType()) {
+-            case EssayQuestion -> {
++            case EssayQuestion, LtiQuestion -> {
+                 if (evaluationType == Question.EvaluationType.Points) {
+                     return maxScore == null ? 0 : maxScore;
+                 }
+diff --git a/build.sbt b/build.sbt
+index 2a440bf6f..3951ed375 100644
+--- a/build.sbt
++++ b/build.sbt
+@@ -30,6 +30,7 @@ libraryDependencies += "org.typelevel"           %% "cats-core"          % "2.13
+ libraryDependencies += "joda-time"                % "joda-time"          % "2.14.0"
+ libraryDependencies += "org.jsoup"                % "jsoup"              % "1.21.2"
+ libraryDependencies += "org.postgresql"           % "postgresql"         % "42.7.8"
++libraryDependencies += "com.nimbusds"             % "nimbus-jose-jwt"    % "10.5"
+ libraryDependencies += "com.icegreen"             % "greenmail"          % "2.1.7"  % "test"
+ libraryDependencies += "com.icegreen"             % "greenmail-junit4"   % "2.1.7"  % "test"
+ libraryDependencies += "com.jayway.jsonpath"      % "json-path"          % "2.9.0"  % "test"
+diff --git a/conf/application.conf b/conf/application.conf
+index 0d5cbc8de..2f74ae328 100644
+--- a/conf/application.conf
++++ b/conf/application.conf
+@@ -272,13 +272,16 @@ ebean.default = ["models.*"]
+ # Security filters
+ play.filters.csp.directives.default-src = "'self'"
+ play.filters.csp.directives.connect-src = "'self'"
+-play.filters.csp.directives.form-action = "'none'"
++play.filters.csp.directives.form-action = "http://moodle.local:8888"
+ play.filters.csp.directives.img-src = "'self' data: blob:"
+ play.filters.csp.directives.font-src = "'self' about: data:"
+ play.filters.csp.directives.script-src = "'self' 'unsafe-inline' 'unsafe-eval'"
+ play.filters.csp.directives.style-src = "'self' 'unsafe-inline'"
+-play.filters.csp.directives.frame-ancestors = "'none'"
++play.filters.csp.directives.frame-ancestors = "'self' http://localhost:3000 https://dev.exam.csc.fi"
+ play.filters.csp.directives.base-uri = "'self'"
++play.filters.csp.directives.frame-src = "'self' https://dev.exam.csc.fi http://moodle.local:8888"
++
++#http://moodle.local:8888
+ 
+ play.filters.csrf.header.name = "X-XSRF-TOKEN"
+ play.filters.csrf.cookie.name = "XSRF-TOKEN"
+@@ -297,3 +300,15 @@ pekko.http.parsing.max-header-count = 128
+ # }
+ # EXAM version
+ exam.release.version = "6.4.0"
++
++# LTI settings mapped from Spring application.properties
++lti.platform.issuer = "https://dev.exam.csc.fi"
++lti.platform.target-link-uri = "http://moodle.local:8888/moodle500/enrol/lti/launch.php"
++lti.tool.initiate-login-url = "http://moodle.local:8888/moodle500/enrol/lti/login.php?id=8371c7d0105021e6ad5ea782288f3e3b188cd0c81543d39507f6b4430cb4"
++lti.tool.jwks-url = "http://moodle.local:8888/moodle500/enrol/lti/jwks.php"
++lti.platform.client-id = "cscexamclient3"
++lti.platform.deployment-id = "my-deployment-id-1234"
++lti.platform.key-id = "my-platform-key"
++lti.platform.public-key = "/Users/teemu.rasanen/public_key.pem"
++lti.platform.private-key = "/Users/teemu.rasanen/private_key.pem"
++
+diff --git a/conf/evolutions/default/143.sql b/conf/evolutions/default/143.sql
+new file mode 100644
+index 000000000..a0bf66e38
+--- /dev/null
++++ b/conf/evolutions/default/143.sql
+@@ -0,0 +1,6 @@
++-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
++--
++-- SPDX-License-Identifier: EUPL-1.2
++
++alter table public.question
++    add lti_id text;
+\ No newline at end of file
+diff --git a/conf/routes b/conf/routes
+index 0cd2dccf3..95294aca1 100644
+--- a/conf/routes
++++ b/conf/routes
+@@ -4,6 +4,12 @@
+ 
+ GET           /                                                               controllers.assets.FrontendController.index()
+ 
++# LTI
++GET     /integration/lti/start-login            controllers.examination.ExaminationController.startLogin(request: Request)
++GET     /integration/lti/oidc/login             controllers.examination.ExaminationController.handleOidcLogin(request: Request)
++GET     /integration/lti/oidc/jwks              controllers.JwksController.jwks()
++
++
+ ############### Session interface ############
+ GET           /app/session                                                    controllers.user.SessionController.checkSession(request: Request)
+ PUT           /app/session                                                    controllers.user.SessionController.extendSession(request: Request)

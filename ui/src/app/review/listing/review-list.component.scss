@@ -37,3 +37,22 @@
     width: 2%;
     text-align: center;
 }
+
+// Fix dropdown clipping in table headers with overflow
+// Make the table cell a positioning context but allow overflow
+th.dropdown {
+    position: relative;
+    overflow: visible !important;
+}
+
+// Ensure dropdown menu can escape overflow containers
+// Note: overflow-x-scroll creates a clipping context, but we can
+// allow the dropdown menu to escape by ensuring proper z-index and positioning
+.overflow-x-scroll {
+    position: relative;
+}
+
+// Ensure dropdown menu appears above other content and can escape
+.dropdown-menu-show {
+    z-index: 1050;
+}

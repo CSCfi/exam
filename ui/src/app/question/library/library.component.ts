@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { tap } from 'rxjs';
-import { Question, Tag } from 'src/app/question/question.model';
+import { LibraryQuestion, Tag } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -79,7 +79,7 @@ type FileResult = { errorCount: number; successCount: number };
                                 <li
                                     ngbDropdownItem
                                     role="presentation"
-                                    [disabled]="selections.length === 0"
+                                    [disabled]="selections().length === 0"
                                     (click)="openOwnerSelection()"
                                     tabindex="0"
                                 >
@@ -88,7 +88,7 @@ type FileResult = { errorCount: number; successCount: number };
                                 <li
                                     ngbDropdownItem
                                     role="presentation"
-                                    [disabled]="selections.length === 0"
+                                    [disabled]="selections().length === 0"
                                     (click)="openTagSelection()"
                                     tabindex="0"
                                 >
@@ -97,7 +97,7 @@ type FileResult = { errorCount: number; successCount: number };
                                 <li
                                     ngbDropdownItem
                                     role="presentation"
-                                    [disabled]="selections.length === 0"
+                                    [disabled]="selections().length === 0"
                                     (click)="openFileTransfer()"
                                     tabindex="0"
                                 >
@@ -106,7 +106,7 @@ type FileResult = { errorCount: number; successCount: number };
                                 <li
                                     ngbDropdownItem
                                     role="presentation"
-                                    [disabled]="selections.length === 0"
+                                    [disabled]="selections().length === 0"
                                     (click)="export()"
                                     tabindex="0"
                                 >
@@ -114,12 +114,12 @@ type FileResult = { errorCount: number; successCount: number };
                                 </li>
                             </ul>
                         </span>
-                        @if (selections.length === 0) {
+                        @if (selections().length === 0) {
                             <small class="ms-2 text-muted">{{ 'i18n_choose_atleast_one' | translate }}</small>
                         }
-                        @if (selections.length > 0) {
+                        @if (selections().length > 0) {
                             <small class="ms-2">
-                                {{ selections.length }} {{ 'i18n_questions_selected' | translate }}
+                                {{ selections().length }} {{ 'i18n_questions_selected' | translate }}
                             </small>
                         }
                     </div>
@@ -127,9 +127,10 @@ type FileResult = { errorCount: number; successCount: number };
 
                 <div class="mt-3">
                     <xm-library-results
-                        [questions]="questions"
+                        [questions]="questions()"
                         (copied)="questionCopied($event)"
                         (selected)="questionSelected($event)"
+                        (updated)="resultsUpdated($event)"
                     >
                     </xm-library-results>
                 </div>
@@ -149,27 +150,30 @@ type FileResult = { errorCount: number; successCount: number };
     styleUrl: './library.component.scss',
 })
 export class LibraryComponent {
-    questions: Question[] = [];
-    selections: number[] = [];
+    readonly questions = signal<LibraryQuestion[]>([]);
+    readonly selections = signal<number[]>([]);
 
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private modal = inject(ModalService);
-    private toast = inject(ToastrService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
 
-    resultsUpdated(results: Question[]) {
-        this.questions = results;
+    resultsUpdated(results: LibraryQuestion[]) {
+        this.questions.set(results);
     }
 
     questionSelected(selections: number[]) {
-        this.selections = selections;
+        this.selections.set(selections);
     }
 
-    questionCopied(copy: Question) {
+    questionCopied(copy: LibraryQuestion) {
         this.toast.info(this.translate.instant('i18n_question_copied'));
-        this.router.navigate(['/staff/questions', copy.id, 'edit']);
+        // Library questions always have an id (loaded from server)
+        if (copy.id) {
+            this.router.navigate(['/staff/questions', copy.id, 'edit']);
+        }
     }
 
     import() {
@@ -191,55 +195,63 @@ export class LibraryComponent {
     }
 
     export() {
-        if (this.selections.length === 0) {
+        const selectionsValue = this.selections();
+        if (selectionsValue.length === 0) {
             this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
         } else {
-            this.Files.download(
-                '/app/questions/export',
-                'moodle-export.xml',
-                { ids: this.selections.map((s) => s.toString()) },
-                true,
-            );
+            this.Files.download('/app/questions/export', 'moodle-export.xml', {
+                params: { ids: selectionsValue },
+                method: 'POST',
+            });
         }
     }
 
     openOwnerSelection() {
         const modalRef = this.modal.openRef(LibraryOwnersDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.selections = this.selections;
+        modalRef.componentInstance.selections.set(this.selections());
         this.modal
             .result$<{ questions: number[]; users: User[] }>(modalRef)
             .pipe(
-                tap((result: { questions: number[]; users: User[] }) => {
-                    const questions = this.questions.filter((q) => result.questions.includes(q.id));
-                    questions.forEach((q) => q.questionOwners.push(...result.users));
-                }),
+                tap((result: { questions: number[]; users: User[] }) =>
+                    this.updateQuestions(result.questions, (q) => this.withOwners(q, result.users)),
+                ),
             )
             .subscribe();
     }
 
     openTagSelection() {
         const modalRef = this.modal.openRef(LibraryTagsDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.selections = this.selections;
+        modalRef.componentInstance.selections.set(this.selections());
         this.modal
             .result$<{ questions: number[]; tags: Tag[] }>(modalRef)
             .pipe(
-                tap((result: { questions: number[]; tags: Tag[] }) => {
-                    const questions = this.questions.filter((q) => result.questions.includes(q.id));
-                    questions.forEach((q) => result.tags.forEach((t) => this.addTagIfNotExists(q, t)));
-                }),
+                tap((result: { questions: number[]; tags: Tag[] }) =>
+                    this.updateQuestions(result.questions, (q) => this.withTags(q, result.tags)),
+                ),
             )
             .subscribe();
     }
 
     openFileTransfer() {
         const modalRef = this.modal.openRef(LibraryTransferDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.selections = this.selections;
+        modalRef.componentInstance.selections.set(this.selections());
     }
 
-    private addTagIfNotExists(q: Question, t: Tag) {
-        if (!q.tags.map((qt) => qt.id).includes(t.id)) {
-            q.tags.push(t);
-        }
+    // Replace the affected questions instead of mutating them, otherwise the results table won't refresh
+    private updateQuestions(ids: number[], update: (q: LibraryQuestion) => LibraryQuestion) {
+        this.questions.update((questions) => questions.map((q) => (q.id && ids.includes(q.id) ? update(q) : q)));
+    }
+
+    private withOwners(q: LibraryQuestion, users: User[]): LibraryQuestion {
+        const existing = q.questionOwners.map((o) => o.id);
+        const added = users.filter((u) => !existing.includes(u.id));
+        return added.length === 0 ? q : { ...q, questionOwners: [...q.questionOwners, ...added] };
+    }
+
+    private withTags(q: LibraryQuestion, tags: Tag[]): LibraryQuestion {
+        const existing = q.tags.map((t) => t.id);
+        const added = tags.filter((t) => !existing.includes(t.id));
+        return added.length === 0 ? q : { ...q, tags: [...q.tags, ...added] };
     }
 
     private reload = () =>

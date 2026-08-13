@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnChanges, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,117 +38,172 @@ import { ReviewListService } from './review-list.service';
         TranslateModule,
     ],
     styleUrl: './review-list.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReviewListComponent implements OnInit, OnChanges {
-    exam!: Exam;
-    collaborative = false;
-    reviews: ExamParticipation[] = [];
+export class ReviewListComponent {
+    readonly exam = signal<Exam | undefined>(undefined);
+    readonly collaborative = signal(false);
+    readonly reviews = signal<ExamParticipation[]>([]);
+    readonly noShows = signal<ExamEnrolment[]>([]);
 
-    noShows: ExamEnrolment[] = [];
-    abortedExams: Review[] = [];
-    inProgressReviews: Review[] = [];
-    gradedReviews: Review[] = [];
-    gradedLoggedReviews: Review[] = [];
-    archivedReviews: Review[] = [];
-    languageInspectedReviews: Review[] = [];
-    rejectedReviews: Review[] = [];
+    // Computed signals that automatically update when reviews or collaborative change
+    readonly abortedExams = computed(() =>
+        this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews(), this.collaborative()),
+    );
+    readonly inProgressReviews = computed(() =>
+        this.ReviewList.filterByStateAndEnhance(['REVIEW', 'REVIEW_STARTED'], this.reviews(), this.collaborative()),
+    );
+    readonly languageInspectedReviews = computed(() =>
+        this.ReviewList.filterByStateAndEnhance(
+            ['GRADED'],
+            this.reviews().filter(
+                (r) => r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt,
+            ),
+            this.collaborative(),
+        ),
+    );
+    readonly rejectedReviews = computed(() =>
+        this.ReviewList.filterByStateAndEnhance(['REJECTED'], this.reviews(), this.collaborative()),
+    );
 
-    private modal = inject(ModalService);
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private ReviewList = inject(ReviewListService);
-    private Tabs = inject(ExamTabService);
+    // Mutable arrays synced from reviews() but writable for user actions (onArchive, onRegistration).
+    // The { source, computation } form provides previous?.value so manually-moved items are preserved on re-sync.
+    readonly gradedLoggedReviews = linkedSignal({
+        source: () => ({ reviews: this.reviews(), collaborative: this.collaborative() }),
+        computation: ({ reviews, collaborative }, previous): Review[] =>
+            this.mergeAutoAndPreserved(
+                this.ReviewList.filterByStateAndEnhance(['GRADED_LOGGED'], reviews, collaborative),
+                previous?.value ?? [],
+            ),
+    });
+    readonly archivedReviews = linkedSignal({
+        source: () => ({ reviews: this.reviews(), collaborative: this.collaborative() }),
+        computation: ({ reviews, collaborative }, previous): Review[] =>
+            this.mergeAutoAndPreserved(
+                this.ReviewList.filterByStateAndEnhance(['ARCHIVED'], reviews, collaborative),
+                previous?.value ?? [],
+            ),
+    });
+    readonly gradedReviews = linkedSignal({
+        source: () => ({ reviews: this.reviews(), collaborative: this.collaborative() }),
+        computation: ({ reviews, collaborative }) =>
+            this.filterOutManuallyMoved(
+                this.ReviewList.filterByStateAndEnhance(
+                    ['GRADED'],
+                    reviews.filter((r) => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
+                    collaborative,
+                ),
+            ),
+    });
 
-    ngOnInit() {
+    // Track manually moved review IDs
+    private manuallyMovedIds = new Set<number | string>();
+
+    private readonly modal = inject(ModalService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly ReviewList = inject(ReviewListService);
+    private readonly Tabs = inject(ExamTabService);
+
+    constructor() {
         this.route.data.subscribe((data) => {
-            this.reviews = data.reviews;
-            this.exam = this.Tabs.getExam();
-            this.collaborative = this.Tabs.isCollaborative();
-            this.refreshLists();
+            this.reviews.set(data.reviews);
+            const examValue = this.Tabs.getExam();
+            if (!examValue) {
+                throw new Error('Exam is required but not available');
+            }
+            const collaborativeValue = this.Tabs.isCollaborative();
+            this.exam.set(examValue);
+            this.collaborative.set(collaborativeValue);
+
             this.http
-                .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`, { params: { collaborative: this.collaborative } })
-                .subscribe((resp) => (this.noShows = resp));
+                .get<ExamEnrolment[]>(`/app/noshows/${examValue.id}`, { params: { collaborative: collaborativeValue } })
+                .subscribe((resp) => this.noShows.set(resp));
             this.Tabs.notifyTabChange(5);
         });
     }
 
-    ngOnChanges() {
-        this.refreshLists();
+    onArchive(reviews: Review[]) {
+        const ids = reviews.map(this.getReviewId).filter((id): id is number | string => id !== undefined);
+        const currentGradedLogged = this.gradedLoggedReviews();
+        const archived = currentGradedLogged.filter((glr) => {
+            const glrId = this.getReviewId(glr);
+            return glrId !== undefined && ids.includes(glrId);
+        });
+
+        archived.forEach((r) => (r.selected = false));
+        ids.forEach((id) => this.manuallyMovedIds.add(id));
+        this.archivedReviews.update((current) => [...current, ...archived]);
+        this.gradedLoggedReviews.update((current) =>
+            current.filter((glr) => {
+                const glrId = this.getReviewId(glr);
+                return glrId === undefined || !ids.includes(glrId);
+            }),
+        );
     }
 
-    refreshLists = () => {
-        this.abortedExams = this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews, this.collaborative);
-        this.inProgressReviews = this.ReviewList.filterByStateAndEnhance(
-            ['REVIEW', 'REVIEW_STARTED'],
-            this.reviews,
-            this.collaborative,
-        );
-        this.gradedReviews = this.ReviewList.filterByStateAndEnhance(
-            ['GRADED'],
-            this.reviews.filter((r) => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
-            this.collaborative,
-        );
-        this.gradedLoggedReviews = this.ReviewList.filterByStateAndEnhance(
-            ['GRADED_LOGGED'],
-            this.reviews,
-            this.collaborative,
-        );
-        this.archivedReviews = this.ReviewList.filterByStateAndEnhance(['ARCHIVED'], this.reviews, this.collaborative);
-        this.languageInspectedReviews = this.ReviewList.filterByStateAndEnhance(
-            ['GRADED'],
-            this.reviews.filter(
-                (r) => r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt,
-            ),
-            this.collaborative,
-        );
-        this.rejectedReviews = this.ReviewList.filterByStateAndEnhance(['REJECTED'], this.reviews, this.collaborative);
-    };
-
-    onArchive = (reviews: Review[]) => {
-        const ids = reviews.map((r) => r.examParticipation.id);
-        const archived = this.gradedLoggedReviews.filter((glr) => ids.indexOf(glr.examParticipation.id) > -1);
-        this.archivedReviews = this.archivedReviews.concat(archived);
-        this.gradedLoggedReviews = this.gradedLoggedReviews.filter(
-            (glr) => ids.indexOf(glr.examParticipation.id) === -1,
-        );
-    };
-
-    onRegistration = (reviews: Review[]) => {
+    onRegistration(reviews: Review[]) {
+        const ids = reviews.map((r) => r.examParticipation.id).filter((id) => id !== undefined);
         reviews.forEach((r) => {
-            const index = this.gradedReviews.map((gr) => gr.examParticipation.id).indexOf(r.examParticipation.id);
-            this.gradedReviews.splice(index, 1);
             r.selected = false;
             r.displayedGradingTime = r.examParticipation.exam.languageInspection
                 ? r.examParticipation.exam.languageInspection.finishedAt
                 : r.examParticipation.exam.gradedTime;
-            this.gradedLoggedReviews.push(r);
         });
-        this.gradedReviews = Object.assign([], this.gradedReviews); // not sure if necessary to clone these
-        this.gradedLoggedReviews = Object.assign([], this.gradedLoggedReviews);
-    };
 
-    openAborted = () => {
-        const modalRef = this.modal.openRef(AbortedExamsComponent, {
-            windowClass: 'question-editor-modal',
-            size: 'xl',
-        });
-        modalRef.componentInstance.exam = this.exam;
-        modalRef.componentInstance.abortedExams = this.abortedExams;
-    };
+        ids.forEach((id) => this.manuallyMovedIds.add(id));
+        this.gradedReviews.update((current) => current.filter((gr) => !ids.includes(gr.examParticipation.id)));
+        this.gradedLoggedReviews.update((current) => [...current, ...reviews]);
+    }
 
-    openNoShows = () => {
-        const modalRef = this.modal.openRef(NoShowsComponent, {
-            windowClass: 'question-editor-modal',
-            size: 'xl',
-        });
-        modalRef.componentInstance.noShows = this.noShows;
-    };
+    openAborted() {
+        const modalRef = this.modal.openRef(AbortedExamsComponent, { size: 'xl' });
+        const currentExam = this.exam();
+        if (currentExam) {
+            modalRef.componentInstance.exam.set(currentExam);
+            modalRef.componentInstance.abortedExams.set(this.abortedExams());
+        }
+    }
 
-    abortedExamsToBeFreed = (): number =>
-        this.abortedExams.filter(
+    openNoShows() {
+        const modalRef = this.modal.openRef(NoShowsComponent, { size: 'xl' });
+        modalRef.componentInstance.noShows.set(this.noShows());
+    }
+
+    abortedExamsToBeFreed(): number {
+        return this.abortedExams().filter(
             (ae) =>
                 ae.examParticipation.exam.trialCount &&
                 ae.examParticipation.exam.examEnrolments.length > 0 &&
                 ae.examParticipation.exam.examEnrolments[0].retrialPermitted === false,
         ).length;
+    }
+
+    // Helper to get review ID (handles both regular and collaborative exams)
+    private getReviewId = (r: Review): number | string | undefined => r.examParticipation.id ?? r.examParticipation._id;
+
+    // Helper to filter out manually moved reviews
+    private filterOutManuallyMoved(reviews: Review[]): Review[] {
+        return reviews.filter((r) => {
+            const id = this.getReviewId(r);
+            return id === undefined || !this.manuallyMovedIds.has(id);
+        });
+    }
+
+    // Helper to merge auto-synced reviews with preserved manually moved reviews
+    private mergeAutoAndPreserved(autoSynced: Review[], current: Review[]): Review[] {
+        const preserved = current.filter(
+            (r) => this.getReviewId(r) !== undefined && this.manuallyMovedIds.has(this.getReviewId(r)!),
+        );
+        const autoSyncedIds = new Set(
+            autoSynced.map(this.getReviewId).filter((id): id is number | string => id !== undefined),
+        );
+        return [
+            ...autoSynced,
+            ...preserved.filter((r) => {
+                const id = this.getReviewId(r);
+                return id !== undefined && !autoSyncedIds.has(id);
+            }),
+        ];
+    }
 }

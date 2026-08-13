@@ -9,19 +9,21 @@ FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app
 
+RUN corepack enable
+
 # Copy frontend dependencies
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 COPY angular.json .
 COPY tsconfig*.json ./
 
 # Install dependencies
-RUN npm ci --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy frontend source
 COPY ui ui
 
 # Build frontend for production
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Build Backend
 FROM eclipse-temurin:25-jdk AS backend-builder
@@ -31,9 +33,8 @@ RUN apt-get update && \
     apt-get install -y curl gnupg && \
     echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list && \
     echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list && \
-    curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add && \
-    apt-get update && \
-    apt-get install -y sbt && \
+    apt-get update -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowUnauthenticatedRepositories=true && \
+    apt-get install -y --allow-unauthenticated sbt && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build

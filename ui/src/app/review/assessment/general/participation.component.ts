@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { DatePipe, LowerCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
@@ -12,52 +12,61 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 
 @Component({
     selector: 'xm-r-participation',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div class="col-md-2 ">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
+        <div class="col-md-2 ">{{ participation().started | date: 'dd.MM.yyyy' }}</div>
         <div class="col-md-4 ">
-            <span [ngClass]="participation.exam.state === 'ABORTED' ? 'text-danger' : 'text-success'">
-                {{ 'i18n_exam_status_' + participation.exam.state | lowercase | translate }}
+            <span
+                [class.text-danger]="participation().exam.state === 'ABORTED'"
+                [class.text-success]="participation().exam.state !== 'ABORTED'"
+            >
+                {{ 'i18n_exam_status_' + participation().exam.state | lowercase | translate }}
             </span>
         </div>
         <div class="col-md-2 general-info-title" [hidden]="hideGrade()">
-            {{ 'i18n_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{ translateGrade() }}</span>
+            {{ 'i18n_grade' | translate }}:<span class="text-success ms-2">{{ translateGrade() }}</span>
         </div>
         @if (!hideAnswerLink()) {
             <div class="col-md-4 xm-link">
-                <a class="pointer" (click)="viewAnswers()">{{ 'i18n_view_answers' | translate }}</a>
+                <button type="button" class="btn btn-link" (click)="viewAnswers()">
+                    {{ 'i18n_view_answers' | translate }}
+                </button>
             </div>
         }
     `,
-    imports: [NgClass, LowerCasePipe, DatePipe, TranslateModule],
+    imports: [LowerCasePipe, DatePipe, TranslateModule],
 })
 export class ParticipationComponent {
-    @Input() participation!: ExamParticipation;
-    @Input() collaborative = false;
+    readonly participation = input.required<ExamParticipation>();
+    readonly collaborative = input(false);
 
-    private route = inject(ActivatedRoute);
-    private Exam = inject(CommonExamService);
-    private Session = inject(SessionService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Exam = inject(CommonExamService);
+    private readonly Session = inject(SessionService);
 
     viewAnswers = () => {
-        const url = this.collaborative
-            ? `/staff/assessments/${this.route.snapshot.params.id}/collaborative/${this.participation._id}`
-            : `/staff/assessments/${this.participation.exam?.id}`;
+        const participationValue = this.participation();
+        const url = this.collaborative()
+            ? `/staff/assessments/${this.route.snapshot.params.id}/collaborative/${participationValue._id}`
+            : `/staff/assessments/${participationValue.exam?.id}`;
         window.open(url, '_blank');
     };
 
-    hideGrade = () => !this.participation.exam?.grade;
+    hideGrade = () => !this.participation().exam?.grade;
 
     hideAnswerLink = () => {
+        const participationValue = this.participation();
         const anonymous =
-            (this.participation.collaborativeExam && this.participation.collaborativeExam.anonymous) ||
-            this.participation.exam?.anonymous;
-        return this.participation.exam?.state === 'ABORTED' || (anonymous && !this.Session.getUser().isAdmin);
+            (participationValue.collaborativeExam && participationValue.collaborativeExam.anonymous) ||
+            participationValue.exam?.anonymous;
+        return participationValue.exam?.state === 'ABORTED' || (anonymous && !this.Session.getUser().isAdmin);
     };
 
     translateGrade = () => {
-        if (!this.participation.exam?.grade) {
+        const participationValue = this.participation();
+        if (!participationValue.exam?.grade) {
             return;
         }
-        return this.Exam.getExamGradeDisplayName(this.participation.exam.grade.name);
+        return this.Exam.getExamGradeDisplayName(participationValue.exam.grade.name);
     };
 }

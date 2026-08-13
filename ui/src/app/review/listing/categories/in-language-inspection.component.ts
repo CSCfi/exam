@@ -3,14 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
-import type { Review, ReviewListView } from 'src/app/review/review.model';
+import type { Review } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
@@ -24,7 +23,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     selector: 'xm-rl-in-language-inspection',
     templateUrl: './in-language-inspection.component.html',
     imports: [
-        FormsModule,
         TableSortComponent,
         RouterLink,
         PaginatorComponent,
@@ -37,43 +35,68 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         OrderByPipe,
         NgbCollapse,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InLanguageInspectionReviewsComponent implements OnInit {
-    @Input() reviews: Review[] = [];
-    @Input() exam!: Exam;
+export class InLanguageInspectionReviewsComponent {
+    readonly exam = input.required<Exam>();
+    readonly reviews = input<Review[]>([]);
 
-    view!: ReviewListView;
+    readonly view = linkedSignal(() =>
+        this.ReviewList.prepareView(this.reviews(), (r) => this.handleGradedReviews(r), 'examParticipation.deadline'),
+    );
 
-    private ReviewList = inject(ReviewListService);
-    private Session = inject(SessionService);
-    private CommonExam = inject(CommonExamService);
+    private readonly ReviewList = inject(ReviewListService);
+    private readonly Session = inject(SessionService);
+    private readonly CommonExam = inject(CommonExamService);
 
-    ngOnInit() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
+    showId() {
+        return this.Session.getUser().isAdmin && this.exam()?.anonymous;
     }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
+    updateFilter(value: string) {
+        this.view.update((v) => ({
+            ...v,
+            filter: value,
+            filtered: this.ReviewList.applyFilter(value, v.items),
+        }));
+    }
 
-    applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
+    applyFreeSearchFilter() {
+        this.view.update((v) => ({
+            ...v,
+            filtered: this.ReviewList.applyFilter(v.filter, v.items),
+        }));
+    }
 
-    pageSelected = (event: { page: number }) => {
-        this.view.page = event.page;
+    pageSelected(event: { page: number }) {
+        this.view.update((v) => ({ ...v, page: event.page }));
+    }
+
+    setPredicate(predicate: string) {
+        this.view.update((v) => {
+            const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
+            return { ...v, predicate, reverse };
+        });
+    }
+
+    toggleView() {
+        this.view.update((v) => ({ ...v, toggle: !v.toggle }));
+    }
+
+    onFreeSearchFilterInput = (event: Event) => {
+        this.updateFilter((event.target as HTMLInputElement).value);
+        this.applyFreeSearchFilter();
     };
 
-    setPredicate = (predicate: string) => {
-        if (this.view.predicate === predicate) {
-            this.view.reverse = !this.view.reverse;
-        }
-        this.view.predicate = predicate;
-    };
+    private translateGrade(exam: Exam) {
+        return this.ReviewList.translateGrade(exam);
+    }
 
-    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
-
-    private handleGradedReviews = (r: Review) => {
+    private handleGradedReviews(r: Review) {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 }

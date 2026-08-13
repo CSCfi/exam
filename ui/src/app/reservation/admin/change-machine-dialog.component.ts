@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, inject, model, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs';
 import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/reservation.model';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
@@ -23,89 +23,96 @@ import { Option } from 'src/app/shared/select/select.model';
             </h4>
         </div>
         <div class="modal-body">
-            <form>
-                <div class="form-group">
-                    <label for="room">{{ 'i18n_examination_location' | translate }}</label>
-                    <xm-dropdown-select
-                        id="room"
-                        [initial]="room"
-                        [options]="availableRoomOptions"
-                        [limitTo]="0"
-                        [allowClearing]="false"
-                        (optionSelected)="roomChanged($event)"
-                        placeholder="{{ 'i18n_select' | translate }}"
-                    ></xm-dropdown-select>
-                </div>
-                <div class="form-group mt-2">
-                    <label for="room">{{ 'i18n_exam_machine' | translate }}</label>
-                    <xm-dropdown-select
-                        #machineSelection
-                        [options]="availableMachineOptions"
-                        [limitTo]="0"
-                        [allowClearing]="false"
-                        (optionSelected)="machineChanged($event)"
-                        placeholder="{{ 'i18n_select' | translate }}"
-                        autofocus
-                    ></xm-dropdown-select>
-                </div>
-            </form>
+            <div class="form-group">
+                <label for="room">{{ 'i18n_examination_location' | translate }}</label>
+                <xm-dropdown-select
+                    #roomSelection
+                    id="room"
+                    [initial]="room()"
+                    [options]="availableRoomOptions()"
+                    [limitTo]="0"
+                    [allowClearing]="false"
+                    (optionSelected)="roomChanged($event)"
+                    placeholder="{{ 'i18n_select' | translate }}"
+                ></xm-dropdown-select>
+            </div>
+            <div class="form-group mt-2">
+                <label for="room">{{ 'i18n_exam_machine' | translate }}</label>
+                <xm-dropdown-select
+                    #machineSelection
+                    [options]="availableMachineOptions()"
+                    [limitTo]="0"
+                    [allowClearing]="false"
+                    (optionSelected)="machineChanged($event)"
+                    placeholder="{{ 'i18n_select' | translate }}"
+                    autofocus
+                ></xm-dropdown-select>
+            </div>
+
             <div class="d-flex flex-row-reverse flex-align-r m-3">
-                <button class="btn btn-sm btn-success" (click)="ok()" [disabled]="!machine?.id">
+                <button class="btn btn-success" (click)="ok()" [disabled]="!machine()?.id">
                     {{ 'i18n_button_save' | translate }}
                 </button>
-                <button class="btn btn-sm btn-outline-secondary me-3" (click)="cancel()">
+                <button class="btn btn-outline-secondary me-3" (click)="cancel()">
                     {{ 'i18n_button_cancel' | translate }}
                 </button>
             </div>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChangeMachineDialogComponent implements OnInit {
-    @Input() reservation!: Reservation;
+export class ChangeMachineDialogComponent {
     @ViewChild('machineSelection') machineSelection!: DropdownSelectComponent<ExamMachine, number>;
+    @ViewChild('roomSelection') roomSelection!: DropdownSelectComponent<ExamRoom, number>;
 
-    activeModal = inject(NgbActiveModal);
+    readonly reservation = model<Reservation | undefined>(undefined);
+    readonly room = signal<Option<ExamRoom, number> | undefined>(undefined);
+    readonly availableRoomOptions = signal<Option<ExamRoom, number>[]>([]);
+    readonly machine = signal<ExamMachine | undefined>(undefined);
+    readonly availableMachineOptions = signal<Option<ExamMachine, number>[]>([]);
 
-    room!: Option<ExamRoom, number>;
-    availableRoomOptions: Option<ExamRoom, number>[] = [];
-    machine?: ExamMachine;
-    availableMachineOptions: Option<ExamMachine, number>[] = [];
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    constructor() {
+        toObservable(this.reservation)
+            .pipe(
+                filter(Boolean),
+                switchMap((reservation) => {
+                    const room = reservation.machine.room;
+                    this.room.set({ id: room.id, label: room.name, value: room });
+                    return this.http.get<ExamRoom[]>('/app/rooms').pipe(map((rs) => rs.filter((r) => !r.outOfService)));
+                }),
+                takeUntilDestroyed(),
+            )
+            .subscribe((resp) => {
+                this.availableRoomOptions.set(resp.map((o) => ({ id: o.id, label: o.name, value: o })));
+                this.setAvailableMachines();
+            });
+    }
 
-    ngOnInit() {
-        const room = this.reservation.machine.room;
-        this.room = { id: room.id, label: room.name, value: room };
-        this.http
-            .get<ExamRoom[]>('/app/rooms')
-            .pipe(map((rs) => rs.filter((r) => !r.outOfService)))
-            .subscribe(
-                (resp) =>
-                    (this.availableRoomOptions = resp.map((o) => ({
-                        id: o.id,
-                        label: o.name,
-                        value: o,
-                    }))),
-            );
+    machineChanged(event?: Option<ExamMachine, number>) {
+        this.machine.set(event?.value);
+    }
+
+    roomChanged(event?: Option<ExamRoom, number>) {
+        if (!event) return;
+        // Use the option from the event directly (it's already from the options array)
+        // This ensures the dropdown displays it correctly since it's the same object reference
+        this.room.set(event);
+        this.machine.set(undefined);
+        this.machineSelection.clearSelection();
         this.setAvailableMachines();
     }
 
-    machineChanged = (event?: Option<ExamMachine, number>) => {
-        this.machine = event?.value;
-    };
-    roomChanged = (event?: Option<ExamRoom, number>) => {
-        const room = event?.value as ExamRoom;
-        this.room = { id: room.id, label: room.name, value: room };
-        delete this.machine;
-        this.machineSelection.clearSelection();
-        this.setAvailableMachines();
-    };
-
-    ok = () =>
+    ok() {
+        const currentReservation = this.reservation();
+        const currentMachine = this.machine();
+        if (!currentReservation || !currentMachine) return;
         this.http
-            .put<Reservation>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.machine?.id })
+            .put<Reservation>(`/app/reservations/${currentReservation.id}/machine`, { machineId: currentMachine.id })
             .subscribe({
                 next: (resp) => {
                     this.toast.info(this.translate.instant('i18n_updated'));
@@ -113,20 +120,29 @@ export class ChangeMachineDialogComponent implements OnInit {
                 },
                 error: (err) => this.toast.error(err),
             });
+    }
 
-    cancel = () => this.activeModal.dismiss();
+    cancel() {
+        this.activeModal.dismiss();
+    }
 
-    private setAvailableMachines = () =>
+    private setAvailableMachines() {
+        const currentReservation = this.reservation();
+        const currentRoom = this.room();
+        if (!currentReservation || !currentRoom) return;
+
         this.http
             .get<
                 { machine: ExamMachine; startAt: string; endAt: string }[]
-            >(`/app/reservations/${this.reservation.id}/${this.room.id}/machines`)
-            .subscribe(
-                (resp) =>
-                    (this.availableMachineOptions = resp.map((o) => ({
+            >(`/app/reservations/${currentReservation.id}/${currentRoom.id}/machines`)
+            .subscribe((resp) =>
+                this.availableMachineOptions.set(
+                    resp.map((o) => ({
                         id: o.machine.id,
                         label: `${o.machine.name} (${o.startAt} - ${o.endAt})`,
                         value: o.machine,
-                    }))),
+                    })),
+                ),
             );
+    }
 }

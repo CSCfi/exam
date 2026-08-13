@@ -8,11 +8,11 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-7">
         <div class="input-group">
             <input
-                [(ngModel)]="filterText"
+                [value]="filterText"
+                (input)="onFilterInput($event)"
                 type="text"
                 class="form-control"
                 placeholder="{{ 'i18n_exam_search_description' | translate }}"
-                (ngModelChange)="search($event)"
             />
             <div class="input-group-append bi-search search-append"></div>
         </div>
@@ -25,8 +25,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <tr>
                     <th class="with-top">
                         <xm-table-sort
-                            [reverse]="sorting.reverse"
-                            [predicate]="sorting.predicate"
+                            [reverse]="sorting().reverse"
+                            [predicate]="sorting().predicate"
                             by="name"
                             text="i18n_dashboard_exam"
                             (click)="setPredicate('name')"
@@ -36,8 +36,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="course.code"
                             text="i18n_dashboard_code"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('course.code')"
                         ></xm-table-sort>
                     </th>
@@ -45,8 +45,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="executionType.type"
                             text="i18n_exam_type"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('executionType.type')"
                         ></xm-table-sort>
                     </th>
@@ -54,20 +54,20 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="periodEnd"
                             text="i18n_dashboard_period"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('periodEnd')"
                         ></xm-table-sort>
                     </th>
 
-                    @for (column of extraData; track column) {
+                    @for (column of extraData(); track column) {
                         <th class="with-top with-space">
                             <xm-table-sort
                                 by="{{ column.property }}"
                                 text="{{ column.text }}"
                                 [sliced]="!!column.sliced"
-                                [predicate]="sorting.predicate"
-                                [reverse]="sorting.reverse"
+                                [predicate]="sorting().predicate"
+                                [reverse]="sorting().reverse"
                                 (click)="setPredicate(column.property)"
                             ></xm-table-sort>
                         </th>
@@ -76,8 +76,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="ownerAggregate"
                             text="i18n_teachers"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('ownerAggregate')"
                         ></xm-table-sort>
                     </th>
@@ -87,7 +87,7 @@ SPDX-License-Identifier: EUPL-1.2
             </thead>
 
             <tbody>
-                @for (exam of items | orderBy: sorting.predicate : sorting.reverse; track exam) {
+                @for (exam of items() | orderBy: sorting().predicate : sorting().reverse; track exam) {
                     <tr>
                         @if (exam.name) {
                             <td>
@@ -134,7 +134,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 </span>
                             }
                         </td>
-                        @for (column of extraData; track column) {
+                        @for (column of extraData(); track column) {
                             <td class="table-column-enroll-participation">
                                 @if (
                                     (!column.checkOwnership || isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'
@@ -150,7 +150,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 }
 
                                 @if (exam.executionType.type === 'PRINTOUT') {
-                                    <div>&ndash;</div>
+                                    &ndash;
                                 }
                             </td>
                         }
@@ -162,7 +162,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 <button
                                     (click)="deleteExam(exam)"
                                     class="pointer btn btn-link"
-                                    [attr.aria-label]="'i18n_exam_remove' | translate"
+                                    [ariaLabel]="'i18n_exam_remove' | translate"
                                 >
                                     <i class="bi-trash text-dark" aria-hidden="true"></i>
                                 </button>
@@ -172,16 +172,16 @@ SPDX-License-Identifier: EUPL-1.2
                             <button
                                 class="pointer btn btn-link"
                                 (click)="copyExam(exam)"
-                                [attr.aria-label]="'i18n_copy' | translate"
+                                [ariaLabel]="'i18n_copy' | translate"
                             >
                                 <i class="bi-files text-dark" aria-hidden="true"></i>
                             </button>
                         </td>
                     </tr>
                 }
-                @if (items?.length === 0) {
+                @if (items()?.length === 0) {
                     <tr>
-                        <td [attr.colspan]="7 + extraData.length">
+                        <td [attr.colspan]="7 + extraData().length">
                             {{ 'i18n_exam_no_result' | translate }}
                         </td>
                     </tr>

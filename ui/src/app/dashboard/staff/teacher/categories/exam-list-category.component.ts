@@ -3,14 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
 import { TeacherDashboardService } from 'src/app/dashboard/staff/teacher/teacher-dashboard.service';
 import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
@@ -28,10 +27,10 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 
 @Component({
     selector: 'xm-exam-list-category',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-list-category.component.html',
     styleUrls: ['./exam-list-category.component.scss'],
     imports: [
-        FormsModule,
         TableSortComponent,
         RouterLink,
         CourseCodeComponent,
@@ -41,34 +40,34 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         OrderByPipe,
     ],
 })
-export class ExamListCategoryComponent implements OnInit, OnDestroy {
-    @Input() items: DashboardExam[] = [];
-    @Input() extraData: ExtraData[] = [];
-    @Input() defaultPredicate = '';
-    @Input() defaultReverse = false;
-    @Output() filtered = new EventEmitter<string>();
-
-    userId: number;
-    pageSize = 10;
-    sorting = { predicate: '', reverse: false };
+export class ExamListCategoryComponent implements OnInit {
+    readonly items = input.required<DashboardExam[]>();
+    readonly extraData = input.required<ExtraData[]>();
+    readonly defaultPredicate = input('');
+    readonly defaultReverse = input(false);
+    readonly filtered = output<string>();
+    readonly deleted = output<number>();
+    readonly sorting = signal<{ predicate: string; reverse: boolean }>({ predicate: '', reverse: false });
     filterText = '';
-    filterChanged = new Subject<string>();
-    ngUnsubscribe = new Subject();
 
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private ModalService = inject(ModalService);
-    private toast = inject(ToastrService);
-    private Dashboard = inject(TeacherDashboardService);
-    private Dialog = inject(ConfirmationDialogService);
-    private Exam = inject(ExamService);
-    private CommonExam = inject(CommonExamService);
-    private DateTime = inject(DateTimeService);
-    private Session = inject(SessionService);
+    private readonly filterChanged = new Subject<string>();
+    private readonly userId: number;
+
+    private readonly router = inject(Router);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly translate = inject(TranslateService);
+    private readonly ModalService = inject(ModalService);
+    private readonly toast = inject(ToastrService);
+    private readonly Dashboard = inject(TeacherDashboardService);
+    private readonly Dialog = inject(ConfirmationDialogService);
+    private readonly Exam = inject(ExamService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly DateTime = inject(DateTimeService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.filterChanged
-            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
             .subscribe((text) => {
                 this.filterText = text;
                 this.filtered.emit(this.filterText);
@@ -76,29 +75,32 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
         this.userId = this.Session.getUser().id;
     }
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
-        this.ngUnsubscribe.complete();
-    }
-
     ngOnInit() {
-        this.sorting = {
-            predicate: this.defaultPredicate,
-            reverse: this.defaultReverse,
-        };
+        this.sorting.set({
+            predicate: this.defaultPredicate(),
+            reverse: this.defaultReverse(),
+        });
         if (this.filterText) {
             this.search(this.filterText);
         }
     }
 
     setPredicate = (predicate: string) => {
-        if (this.sorting.predicate === predicate) {
-            this.sorting.reverse = !this.sorting.reverse;
+        const currentSorting = this.sorting();
+        if (currentSorting.predicate === predicate) {
+            this.sorting.update((s) => ({ ...s, reverse: !s.reverse }));
+        } else {
+            this.sorting.update((s) => ({ ...s, predicate }));
         }
-        this.sorting.predicate = predicate;
     };
 
     search = (text: string) => this.filterChanged.next(text);
+
+    onFilterInput = (event: Event) => {
+        const value = (event.target as HTMLInputElement).value;
+        this.filterText = value;
+        this.search(value);
+    };
 
     printExamDuration = (exam: Exam) => this.DateTime.formatDuration(exam.duration);
 
@@ -114,7 +116,10 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
         this.ModalService.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent, {
             backdrop: 'static',
         })
-            .pipe(switchMap((data) => this.Dashboard.copyExam$(exam.id, data.type, data.examinationType)))
+            .pipe(
+                switchMap((data) => this.Dashboard.copyExam$(exam.id, data.type, data.examinationType)),
+                takeUntilDestroyed(this.destroyRef),
+            )
             .subscribe({
                 next: (resp) => {
                     this.toast.success(this.translate.instant('i18n_exam_copied'));
@@ -125,19 +130,20 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
 
     deleteExam = (exam: DashboardExam) => {
         if (this.isAllowedToUnpublishOrRemove(exam)) {
-            this.Dialog.open$(
-                this.translate.instant('i18n_confirm'),
-                this.translate.instant('i18n_remove_exam'),
-            ).subscribe({
-                next: () =>
-                    this.Dashboard.deleteExam$(exam.id).subscribe({
-                        next: () => {
-                            this.toast.success(this.translate.instant('i18n_exam_removed'));
-                            this.items.splice(this.items.indexOf(exam), 1);
-                        },
-                        error: (err) => this.toast.error(err),
-                    }),
-            });
+            this.Dialog.open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_remove_exam'))
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: () =>
+                        this.Dashboard.deleteExam$(exam.id)
+                            .pipe(takeUntilDestroyed(this.destroyRef))
+                            .subscribe({
+                                next: () => {
+                                    this.toast.success(this.translate.instant('i18n_exam_removed'));
+                                    this.deleted.emit(exam.id);
+                                },
+                                error: (err) => this.toast.error(err),
+                            }),
+                });
         } else {
             this.toast.warning(this.translate.instant('i18n_exam_removal_not_possible'));
         }

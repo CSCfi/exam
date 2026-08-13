@@ -9,7 +9,7 @@ import { ModalService } from './modal.service';
 
 @Injectable({ providedIn: 'root' })
 export class ConfirmationDialogService {
-    private modal = inject(ModalService);
+    private readonly modal = inject(ModalService);
 
     open$(
         title: string,
@@ -18,10 +18,10 @@ export class ConfirmationDialogService {
         cancelButtonText?: string,
     ): Observable<boolean> {
         const modalRef = this.modal.openRef(ConfirmationDialogComponent);
-        modalRef.componentInstance.title = title;
-        modalRef.componentInstance.description = description;
-        modalRef.componentInstance.confirmButtonText = confirmButtonText;
-        modalRef.componentInstance.cancelButtonText = cancelButtonText;
+        modalRef.componentInstance.title.set(title);
+        modalRef.componentInstance.description.set(description ?? '');
+        if (confirmButtonText) modalRef.componentInstance.confirmButtonText.set(confirmButtonText);
+        if (cancelButtonText) modalRef.componentInstance.cancelButtonText.set(cancelButtonText);
         return this.modal.result$<boolean>(modalRef);
     }
 }

@@ -1,0 +1,442 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package iop
+
+import base.BaseIntegrationSpec
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.icegreen.greenmail.configuration.GreenMailConfiguration
+import com.icegreen.greenmail.util.{GreenMail, ServerSetupTest}
+import database.EbeanQueryExtensions
+import helpers.{AttachmentServlet, RemoteServerHelper}
+import io.ebean.DB
+import jakarta.servlet.MultipartConfigElement
+import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+import models.attachment.Attachment
+import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
+import models.exam.{Exam, ExamState}
+import models.facility.ExamRoom
+import models.questions.QuestionType
+import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
+import models.user.{Language, User}
+import org.apache.commons.io.{FileUtils, IOUtils}
+import org.eclipse.jetty.ee10.servlet.{ServletContextHandler, ServletHolder}
+import org.eclipse.jetty.server.Server
+import org.joda.time.DateTime
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import play.api.Logging
+import play.api.http.Status
+import play.api.libs.json.Json
+import play.api.test.Helpers.*
+import services.file.FileHandler
+
+import java.io.{File, FileInputStream, IOException}
+import java.nio.file.{FileSystems, Files, Path}
+import java.util
+import java.util.UUID
+import java.util.concurrent.{Semaphore, TimeUnit}
+import java.util.stream.StreamSupport
+import scala.jdk.CollectionConverters.*
+
+class ExternalExamControllerSpec
+    extends BaseIntegrationSpec
+    with BeforeAndAfterEach
+    with BeforeAndAfterAll
+    with Matchers
+    with Logging
+    with EbeanQueryExtensions:
+
+  private val RESERVATION_REF   = "0e6d16c51f857a20ab578f57f105032e"
+  private val RESERVATION_REF_2 = "0e6d16c51f857a20ab578f57f105032f"
+  private val ROOM_REF          = "0e6d16c51f857a20ab578f57f1018456"
+  private val HASH =
+    "7cf002da-4263-4843-99b1-e8af51e" // Has to match with the externalRef in the test JSON file
+  private val MAIL_TIMEOUT = 5000L
+
+  // Server infrastructure - initialized once in beforeAll
+  private lazy val testImage: File = getTestFile("test_files/test_image.png")
+
+  // These will be initialized in beforeAll and cleaned up in afterAll
+  private var testUpload: Option[Path]                     = None
+  private var server: Option[Server]                       = None
+  private var attachmentServlet: Option[AttachmentServlet] = None
+
+  // GreenMail setup for email testing
+  private lazy val greenMail = new GreenMail(ServerSetupTest.SMTP)
+    .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication())
+
+  private def startGreenMail(): Unit = if !greenMail.isRunning then greenMail.start()
+  private def stopGreenMail(): Unit  = if greenMail.isRunning then greenMail.stop()
+
+  class EnrolmentServlet extends HttpServlet:
+    override def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
+      response.setContentType("application/json")
+      response.setStatus(HttpServletResponse.SC_OK)
+
+      val file = new File("test/resources/enrolment_with_lottery.json")
+      try
+        val fis = new FileInputStream(file)
+        val sos = response.getOutputStream
+        IOUtils.copy(fis, sos)
+        sos.flush()
+        fis.close()
+      catch case _: IOException => response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+
+    @throws[IOException]
+    override def doPost(req: HttpServletRequest, resp: HttpServletResponse): Unit =
+      resp.setContentType("application/json")
+      if req.getPathInfo.contains("/attachments") then
+        resp.setStatus(HttpServletResponse.SC_CREATED)
+        resp.getWriter.write(s"""{"id": "${UUID.randomUUID()}"}""")
+        resp.getWriter.flush()
+      else resp.setStatus(HttpServletResponse.SC_NOT_FOUND)
+
+  override def beforeAll(): Unit =
+    super.beforeAll()
+    startGreenMail()
+
+    val serverInstance = new Server(31247)
+    val context        = new ServletContextHandler(ServletContextHandler.SESSIONS)
+    context.setContextPath("/api")
+
+    val testUploadPath = Files.createTempDirectory("test_upload")
+    testUpload = Some(testUploadPath)
+
+    val fileUploadServletHolder = new ServletHolder(new EnrolmentServlet())
+    fileUploadServletHolder.getRegistration.setMultipartConfig(
+      new MultipartConfigElement(testUploadPath.toString)
+    )
+    context.addServlet(fileUploadServletHolder, "/enrolments/*")
+
+    val attachmentServletInstance = new AttachmentServlet(testImage)
+    attachmentServlet = Some(attachmentServletInstance)
+    val attachmentServletHolder = new ServletHolder(attachmentServletInstance)
+    attachmentServletHolder.getRegistration.setMultipartConfig(
+      new MultipartConfigElement(testUploadPath.toString)
+    )
+    context.addServlet(attachmentServletHolder, "/attachments/*")
+
+    serverInstance.setHandler(context)
+    serverInstance.start()
+    server = Some(serverInstance)
+
+  override def afterAll(): Unit =
+    try
+      stopGreenMail()
+      server.foreach(RemoteServerHelper.shutdownServer)
+    finally super.afterAll()
+
+  override def beforeEach(): Unit =
+    super.beforeEach()
+    greenMail.purgeEmailFromAllMailboxes()
+
+    // Clean up any leftover files from previous tests
+    // Note: app might be null in beforeEach with GuiceOneAppPerTest
+    Option(app).foreach { application =>
+      val fileHandler = application.injector.instanceOf(classOf[FileHandler])
+      val uploadPath  = fileHandler.getAttachmentPath
+      val path        = FileSystems.getDefault.getPath(uploadPath)
+      if path.toFile.exists() then FileUtils.cleanDirectory(path.toFile)
+    }
+
+  private def getTestFile(s: String): File =
+    val classLoader = this.getClass.getClassLoader
+    new File(java.util.Objects.requireNonNull(classLoader.getResource(s)).getFile)
+
+  private def createAttachment(fileName: String, filePath: String, mimeType: String): Attachment =
+    val attachment = new Attachment()
+    attachment.fileName = fileName
+    attachment.filePath = filePath
+    attachment.mimeType = mimeType
+    attachment.save()
+    attachment
+
+  private def setupTestData(): (Exam, ExamEnrolment, Reservation) =
+    ensureTestDataLoaded()
+
+    // Clean up existing enrolments
+    DB.find(classOf[ExamEnrolment]).list.foreach(_.delete())
+
+    // Setup exam
+    val exam = Option(
+      DB.find(classOf[Exam])
+        .fetch("examSections")
+        .fetch("examSections.sectionQuestions")
+        .where()
+        .idEq(1L)
+        .findOne()
+    ) match
+      case Some(e) => e
+      case None    => fail("Test exam not found")
+
+    initExamSectionQuestions(exam)
+    exam.periodStart = DateTime.now().minusDays(1)
+    exam.periodEnd = DateTime.now().plusDays(1)
+    exam.hash = HASH
+
+    val owner = Option(DB.find(classOf[User], 2L)) match
+      case Some(u) => u
+      case None    => fail("Owner user not found")
+    exam.examOwners.add(owner)
+    exam.update()
+
+    // Setup user
+    val user = Option(DB.find(classOf[User], 1L)) match
+      case Some(u) => u
+      case None    => fail("Test user not found")
+    user.language = DB.find(classOf[Language]).where().eq("code", "en").find.orNull
+    user.update()
+
+    // Setup room
+    val room = Option(DB.find(classOf[ExamRoom], 1L)) match
+      case Some(r) => r
+      case None    => fail("Test room not found")
+    room.externalRef = ROOM_REF
+    room.examMachines.get(0).ipAddress = "127.0.0.1"
+    room.examMachines.get(0).update()
+    room.update()
+
+    // Setup reservation (from onBeforeLogin equivalent)
+    val reservationUser = DB.find(classOf[User]).where().eq("email", "student@funet.fi").find match
+      case Some(u) => u
+      case None    => fail("Reservation user not found")
+
+    val machine = room.examMachines.get(0)
+    machine.ipAddress = "127.0.0.1" // so that the IP check won't fail
+    machine.update()
+
+    val reservation = new Reservation()
+    reservation.machine = machine
+    reservation.user = reservationUser
+    reservation.startAt = DateTime.now().plusMinutes(10)
+    reservation.endAt = DateTime.now().plusMinutes(70)
+    reservation.externalUserRef = reservationUser.eppn
+    reservation.externalRef = RESERVATION_REF
+    reservation.save()
+
+    // Setup enrolment
+    val enrolment = new ExamEnrolment()
+    enrolment.exam = exam
+    enrolment.user = user
+    enrolment.save()
+
+    attachmentServlet.foreach(_.setWaiter(new Semaphore(0)))
+
+    (exam, enrolment, reservation)
+
+  private def initExamSectionQuestions(exam: Exam): Unit =
+    exam.examSections = new java.util.TreeSet(exam.examSections)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .filter { esq =>
+        esq.question.`type` == QuestionType.MultipleChoiceQuestion ||
+        esq.question.`type` == QuestionType.WeightedMultipleChoiceQuestion
+      }
+      .foreach { esq =>
+        esq.question.options.asScala.foreach { o =>
+          val esqo = new ExamSectionQuestionOption()
+          esqo.option = o
+          esqo.score = o.defaultScore
+          esq.options.add(esqo)
+        }
+        esq.save()
+      }
+
+  private def getExamSectionQuestion(exam: Exam): ExamSectionQuestion =
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .headOption
+      .getOrElse(throw new Exception("No section question found"))
+
+  private def assertAttachment(attachment: Attachment, json: JsonNode): Unit =
+    json must not be null
+    json.get("fileName").asText.must(be(attachment.fileName))
+    json.get("mimeType").asText.must(be(attachment.mimeType))
+    json.get("filePath").asText.must(be(attachment.filePath))
+    json.get("externalId").isNull.must(be(false))
+
+  "ExternalExamController" when:
+    "requesting enrolment" should:
+      "handle enrolment request successfully" in:
+        val (exam, enrolment, reservation) = setupTestData()
+        val (user, session)                = runIO(loginAsStudent())
+        val external = Option(
+          DB.find(classOf[Reservation])
+            .fetch("enrolment")
+            .fetch("enrolment.externalExam")
+            .where()
+            .idEq(reservation.id)
+            .findOne()
+        ) match
+          case Some(r) => r
+          case None    => fail("External reservation not found")
+
+        external.enrolment must not be null
+        external.enrolment.externalExam must not be null
+
+        // Check that the lottery was taken in effect
+        val examData = external.enrolment.externalExam.deserialize
+        val s1       = examData.examSections.asScala.find(_.lotteryOn)
+        s1 must be(defined)
+        s1.get.sectionQuestions must have size s1.get.lotteryItemCount
+
+    "receiving exam attainment" should:
+      "process exam attainment successfully" in:
+        val (exam, enrolment, _) = setupTestData()
+
+        val reservation = new Reservation()
+        reservation.externalRef = RESERVATION_REF
+        reservation.startAt = DateTime.now().plusHours(2)
+        reservation.endAt = DateTime.now().plusHours(3)
+        reservation.save()
+
+        enrolment.reservation = reservation
+        enrolment.update()
+
+        val mapper = new ObjectMapper()
+        val node   = mapper.readTree(new File("test/resources/externalExamAttainment.json"))
+        val result =
+          runIO(makeRequest(
+            POST,
+            s"/integration/iop/exams/$RESERVATION_REF",
+            Some(Json.parse(node.toString))
+          ))
+        statusOf(result).must(be(Status.CREATED))
+
+        greenMail.purgeEmailFromAllMailboxes()
+        // Note: Email sending might be asynchronous, so we'll check for the main result first
+        // greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 2) must be(true)
+
+        val attainment = Option(DB.find(classOf[Exam]).where().eq("parent", exam).findOne()) match
+          case Some(a) => a
+          case None    => fail("Attainment not found")
+
+        // Auto-evaluation expected to occur so state should be GRADED
+        attainment.state.must(be(ExamState.GRADED))
+
+        // Check that questions' parent-child relations are preserved (just check the first one)
+        attainment.examSections.asScala.head.sectionQuestions.asScala.head.question.parent.id.must(
+          be(exam.examSections.asScala.head.sectionQuestions.asScala.head.question.id)
+        )
+
+        attachmentServlet.foreach(
+          _.getWaiter.tryAcquire(3, 10000, TimeUnit.MILLISECONDS) must be(true)
+        )
+        val fileHandler = app.injector.instanceOf(classOf[FileHandler])
+
+        val uploadPath = fileHandler.getAttachmentPath
+        val path       = FileSystems.getDefault.getPath(uploadPath)
+
+        val start                        = System.currentTimeMillis()
+        val expectedFileCount            = 3
+        var files: util.Collection[File] = new java.util.ArrayList()
+
+        var done = false
+        while (System.currentTimeMillis() < start + 10000 && !done)
+          if (!path.toFile.exists()) then Thread.sleep(100)
+          else
+            files = FileUtils.listFiles(path.toFile, null, true)
+            if (files.size() >= expectedFileCount) then
+              done = true
+            else
+              Thread.sleep(200)
+
+        files.size must be >= expectedFileCount
+        files.asScala.foreach(file => logger.info(file.toString))
+
+        // Check that we can review it
+        val (user, session) = runIO(loginAsAdmin())
+        val reviewResult    = runIO(get(s"/app/review/${attainment.id}", session = session))
+        statusOf(reviewResult).must(be(Status.OK))
+
+    "receiving no show" should:
+      "process no show successfully" in:
+        val (exam, enrolment, _) = setupTestData()
+
+        val reservation = new Reservation
+        reservation.externalRef = RESERVATION_REF_2
+        reservation.startAt = DateTime.now().minusHours(3)
+        reservation.endAt = DateTime.now().minusHours(2)
+        reservation.user = DB.find(classOf[User]).where().eq("firstName", "Sauli").find.orNull
+
+        val er = new ExternalReservation()
+        er.orgRef = "org1"
+        er.roomRef = "room2"
+        er.machineName = "machine3"
+        er.roomName = "room named 4"
+        er.save()
+        reservation.externalReservation = er
+        reservation.save()
+
+        enrolment.reservation = reservation
+        enrolment.update()
+
+        val result =
+          runIO(makeRequest(
+            POST,
+            s"/integration/iop/reservations/$RESERVATION_REF_2/noshow",
+            Some(Json.obj())
+          ))
+        statusOf(result).must(be(Status.OK))
+
+        val r = Option(DB.find(classOf[Reservation]).where().eq(
+          "externalRef",
+          RESERVATION_REF_2
+        ).findOne()) match
+          case Some(res) => res
+          case None      => fail("Reservation not found")
+
+        r must not be null
+        r.enrolment.noShow must be(true)
+
+    "providing enrolment with attachments" should:
+      "handle attachments successfully" in:
+        val (exam, enrolment, reservation) = setupTestData()
+
+        val testFile       = getTestFile("test_files/test.txt")
+        val examAttachment = createAttachment("test.txt", testFile.getAbsolutePath, "plain/text")
+        val testImageFile  = getTestFile("test_files/test_image.png")
+        val questionAttachment =
+          createAttachment("test_image.png", testImageFile.getAbsolutePath, "image/png")
+
+        exam.attachment = examAttachment
+        exam.save()
+
+        enrolment.reservation = reservation
+        enrolment.save()
+
+        val sectionQuestion = getExamSectionQuestion(exam)
+        val question        = sectionQuestion.question
+        question.attachment = questionAttachment
+        question.save()
+
+        val result = runIO(get(s"/integration/iop/reservations/$RESERVATION_REF"))
+        statusOf(result).must(be(Status.OK))
+
+        val jsonNode = contentAsJsonOf(result)
+        jsonNode must not be null
+
+        val mapper      = new ObjectMapper()
+        val jacksonNode = mapper.readTree(jsonNode.toString)
+        assertAttachment(examAttachment, jacksonNode.path("attachment"))
+
+        val questionJson = StreamSupport
+          .stream(jacksonNode.path("examSections").spliterator(), false)
+          .flatMap(node => StreamSupport.stream(node.path("sectionQuestions").spliterator(), false))
+          .filter(node => node.get("id").asLong() == sectionQuestion.id)
+          .map(node => node.path("question"))
+          .filter(node => node.get("id").asLong() == question.id)
+          .findFirst()
+          .orElseThrow(() => new Exception("Question not found!"))
+
+        assertAttachment(questionAttachment, questionJson.path("attachment"))
+        attachmentServlet.foreach(
+          _.getWaiter.tryAcquire(2, 10000, TimeUnit.MILLISECONDS) must be(true)
+        )
+
+        testUpload.foreach { uploadPath =>
+          new File(uploadPath.toString + "/" + "test.txt").exists() must be(true)
+          new File(uploadPath.toString + "/" + "test_image.png").exists() must be(true)
+        }

@@ -8,11 +8,11 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-content [content]="content" />
 <ng-template #content>
     <div class="col-md-12">
-        @if (examInfo?.examOwners) {
+        @if (examInfo()?.examOwners) {
             <div class="speed-review-title">
-                {{ examInfo?.title }}
+                {{ examInfo()?.title }}
                 <span class="speed-review-subtitle">({{ 'i18n_teachers' | translate }}:</span>
-                @for (owner of examInfo?.examOwners; track owner; let isLast = $last) {
+                @for (owner of examInfo()!.examOwners; track owner; let isLast = $last) {
                     <span class="speed-review-subtitle">
                         {{ owner.firstName }} {{ owner.lastName }}
                         @if (!isLast) {
@@ -25,7 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
         }
     </div>
 
-    @if (examReviews?.length === 0) {
+    @if (examReviews().length === 0) {
         <div class="col-md-12 mt-2">
             {{ 'i18n_no_examinations_to_grade' | translate }}
         </div>
@@ -38,8 +38,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="displayName"
                                 text="i18n_student"
-                                [predicate]="reviewPredicate"
-                                [reverse]="reverse"
+                                [predicate]="reviewPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('displayName')"
                             ></xm-table-sort>
                         </th>
@@ -47,8 +47,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="examParticipation.started"
                                 text="i18n_exam_duration"
-                                [predicate]="reviewPredicate"
-                                [reverse]="reverse"
+                                [predicate]="reviewPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('examParticipation.started')"
                             ></xm-table-sort>
                         </th>
@@ -56,8 +56,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="examParticipation.deadline"
                                 text="i18n_review_deadline"
-                                [predicate]="reviewPredicate"
-                                [reverse]="reverse"
+                                [predicate]="reviewPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('examParticipation.deadline')"
                             ></xm-table-sort>
                         </th>
@@ -70,9 +70,9 @@ SPDX-License-Identifier: EUPL-1.2
                 </thead>
                 <tbody>
                     @for (
-                        review of examReviews
-                            | orderBy: reviewPredicate : reverse
-                            | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+                        review of examReviews()
+                            | orderBy: reviewPredicate() : reverse()
+                            | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
                         track review
                     ) {
                         <tr>
@@ -103,27 +103,27 @@ SPDX-License-Identifier: EUPL-1.2
                             </td>
                             <td>
                                 @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
-                                    <div>
-                                        <span [ngClass]="inspection.ready ? 'text-success' : 'text-danger'">
-                                            <span
-                                                [ngClass]="
-                                                    isOwner(inspection.user, review.examParticipation.exam.examOwners)
-                                                        ? 'bold'
-                                                        : ''
-                                                "
-                                            >
-                                                {{ inspection.user.firstName }} {{ inspection.user.lastName }}
-                                            </span>
-                                            <span>
-                                                @if (inspection.ready) {
-                                                    <span>({{ 'i18n_ready' | translate }})</span>
-                                                }
-                                                @if (!inspection.ready) {
-                                                    <span>({{ 'i18n_in_progress' | translate }})</span>
-                                                }
-                                            </span>
+                                    <span
+                                        class="d-block"
+                                        [class.text-success]="inspection.ready"
+                                        [class.text-danger]="!inspection.ready"
+                                    >
+                                        <span
+                                            [class.bold]="
+                                                isOwner(inspection.user, review.examParticipation.exam.examOwners)
+                                            "
+                                        >
+                                            {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                                         </span>
-                                    </div>
+                                        <span>
+                                            @if (inspection.ready) {
+                                                <span>({{ 'i18n_ready' | translate }})</span>
+                                            }
+                                            @if (!inspection.ready) {
+                                                <span>({{ 'i18n_in_progress' | translate }})</span>
+                                            }
+                                        </span>
+                                    </span>
                                 }
                             </td>
                             <td class="text-success">
@@ -151,10 +151,13 @@ SPDX-License-Identifier: EUPL-1.2
                                 <select
                                     class="form-select custom-select"
                                     [disabled]="!isGradeable(review)"
-                                    [(ngModel)]="review.selectedGrade"
+                                    (change)="onGradeSelect(review, $event)"
                                 >
                                     @for (grade of review.grades | orderBy: 'id'; track grade) {
-                                        <option [ngValue]="grade">
+                                        <option
+                                            [value]="grade.id ?? grade.type"
+                                            [selected]="grade === review.selectedGrade"
+                                        >
                                             {{ grade.name }}
                                         </option>
                                     }
@@ -175,7 +178,7 @@ SPDX-License-Identifier: EUPL-1.2
                         </tr>
                     }
                     <!--Fill if page not full-->
-                    @for (r of [] | pageFill: examReviews.length : currentPage : pageSize; track r) {
+                    @for (r of [] | pageFill: examReviews().length : currentPage() : pageSize; track r) {
                         <tr>
                             <td>&nbsp;</td>
                             <td colspan="8"></td>
@@ -185,23 +188,23 @@ SPDX-License-Identifier: EUPL-1.2
             </table>
         </div>
     }
-    @if (toggleReviews) {
-        @if (examReviews.length > pageSize) {
-            <div>
-                <xm-paginator
-                    [items]="examReviews"
-                    (pageSelected)="pageSelected($event)"
-                    [pageSize]="pageSize"
-                    [currentPage]="currentPage"
-                ></xm-paginator>
-            </div>
+    @if (toggleReviews()) {
+        @if (examReviews().length > pageSize) {
+            <xm-paginator
+                [items]="examReviews()"
+                (pageSelected)="pageSelected($event)"
+                [pageSize]="pageSize"
+                [currentPage]="currentPage()"
+            ></xm-paginator>
         }
     }
 
     <!-- Buttons -->
     <div class="d-flex justify-content-between">
         <div class="speed-review-csv">
-            <a class="pointer" (click)="importGrades()">{{ 'i18n_import_grades_from_csv' | translate }}</a>
+            <button type="button" class="btn btn-link" (click)="importGrades()">
+                {{ 'i18n_import_grades_from_csv' | translate }}
+            </button>
             <sup
                 ngbPopover="{{ 'i18n_grade_import_file_description' | translate }}"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -212,7 +215,9 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
 
         <div class="speed-review-csv ms-3">
-            <a class="pointer" (click)="createGradingTemplate()">{{ 'i18n_create_grading_template' | translate }}</a>
+            <button type="button" class="btn btn-link" (click)="createGradingTemplate()">
+                {{ 'i18n_create_grading_template' | translate }}
+            </button>
             <sup
                 ngbPopover="{{ 'i18n_create_grading_template_description' | translate }}"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -225,9 +230,9 @@ SPDX-License-Identifier: EUPL-1.2
             <button class="btn btn-success" [disabled]="!hasModifications()" (click)="gradeExams()">
                 {{ 'i18n_grade_exams' | translate }}
             </button>
-            <button class="btn btn-outline-secondary me-3" [routerLink]="['/staff/exams/', examId, '5']">
+            <a class="btn btn-outline-secondary me-3" [routerLink]="['/staff/exams/', examId(), '5']">
                 {{ 'i18n_button_return' | translate }}
-            </button>
+            </a>
         </div>
     </div>
 </ng-template>

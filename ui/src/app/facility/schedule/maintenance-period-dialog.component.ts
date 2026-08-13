@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, linkedSignal, model } from '@angular/core';
+import { FormField, form, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -11,24 +11,18 @@ import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 
 @Component({
-    imports: [FormsModule, TranslateModule, DateTimePickerComponent],
-    template: `<div>
+    imports: [FormField, TranslateModule, DateTimePickerComponent],
+    template: `
         <div class="modal-header">
             <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'i18n_maintenance_period' | translate }}</h4>
         </div>
 
         <div class="modal-body">
-            <form #periodForm="ngForm" name="periodForm">
+            <form>
                 <div class="row">
                     <div class="col-md-12 mb-2">
                         <label for="description" class="form-label">{{ 'i18n_description' | translate }}:</label>
-                        <input
-                            class="form-control"
-                            id="description"
-                            name="description"
-                            [(ngModel)]="description"
-                            required
-                        />
+                        <input class="form-control" id="description" [formField]="descriptionForm.description" />
                     </div>
                 </div>
                 <div class="row">
@@ -36,7 +30,7 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
                         <label for="startDate">{{ 'i18n_begin' | translate }}:</label>
                         <xm-date-time-picker
                             id="startDate"
-                            [initialTime]="startsAt"
+                            [initialTime]="startsAt()"
                             [hourStep]="1"
                             [minuteStep]="15"
                             (updated)="onStartDateChange($event)"
@@ -47,7 +41,7 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
                         <label for="endDate">{{ 'i18n_end' | translate }}:</label>
                         <xm-date-time-picker
                             id="endDate"
-                            [initialTime]="endsAt"
+                            [initialTime]="endsAt()"
                             [hourStep]="1"
                             [minuteStep]="15"
                             (updated)="onEndDateChange($event)"
@@ -58,60 +52,60 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
             </form>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-success" [disabled]="periodForm.invalid" (click)="ok()">
+            <button class="btn btn-success" [disabled]="descriptionForm.description().invalid()" (click)="ok()">
                 {{ 'i18n_button_save' | translate }}
             </button>
             <button class="btn btn-outline-secondary float-end me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MaintenancePeriodDialogComponent implements OnInit {
-    @Input() period?: MaintenancePeriod;
-    readonly DATE_OPTIONS = {
-        'starting-day': 1,
-    };
-    readonly DATE_FORMAT = 'dd.MM.yyyy';
-    startsAt = new Date(new Date().setMinutes(60));
-    endsAt = new Date(new Date().setMinutes(60));
-    description = '';
+export class MaintenancePeriodDialogComponent {
+    readonly period = model<MaintenancePeriod | undefined>(undefined);
+    readonly startsAt = linkedSignal(() =>
+        this.period() ? new Date(this.period()!.startsAt) : new Date(new Date().setMinutes(60)),
+    );
+    readonly endsAt = linkedSignal(() =>
+        this.period() ? new Date(this.period()!.endsAt) : new Date(new Date().setMinutes(60)),
+    );
+    readonly descriptionForm = form(
+        linkedSignal(() => ({ description: this.period()?.description ?? '' })),
+        (path) => {
+            required(path.description);
+        },
+    );
 
-    private translate = inject(TranslateService);
-    private activeModal = inject(NgbActiveModal);
-    private toast = inject(ToastrService);
+    private readonly translate = inject(TranslateService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly toast = inject(ToastrService);
 
-    ngOnInit() {
-        if (this.period) {
-            this.startsAt = new Date(this.period.startsAt);
-            this.endsAt = new Date(this.period.endsAt);
-            this.description = this.period.description;
-        }
-    }
-
-    ok = () => {
-        if (this.endsAt <= this.startsAt) {
+    ok() {
+        if (this.endsAt() <= this.startsAt()) {
             this.toast.error(this.translate.instant('i18n_endtime_before_starttime'));
             return;
         }
         this.activeModal.close({
-            id: this.period?.id,
-            startsAt: this.startsAt,
-            endsAt: this.endsAt,
-            description: this.description,
+            id: this.period()?.id,
+            startsAt: this.startsAt(),
+            endsAt: this.endsAt(),
+            description: this.descriptionForm.description().value(),
         });
-    };
+    }
 
-    cancel = () => this.activeModal.dismiss();
+    cancel() {
+        this.activeModal.dismiss();
+    }
 
-    onStartDateChange = (e: { date: Date }) => {
-        this.startsAt = e.date;
-        if (this.endsAt < this.startsAt) {
-            this.endsAt = e.date;
+    onStartDateChange(e: { date: Date }) {
+        this.startsAt.set(e.date);
+        if (this.endsAt() < this.startsAt()) {
+            this.endsAt.set(e.date);
         }
-    };
+    }
 
-    onEndDateChange = (e: { date: Date }) => {
-        this.endsAt = e.date;
-    };
+    onEndDateChange(e: { date: Date }) {
+        this.endsAt.set(e.date);
+    }
 }

@@ -3,15 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 
@@ -20,33 +19,25 @@ import type { User } from 'src/app/session/session.model';
     templateUrl: './exam-owner-picker.component.html',
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamOwnerSelectorComponent implements OnInit {
-    @Input() exam!: Exam;
+    readonly exam = input.required<Exam>();
 
-    examOwners: User[] = [];
+    readonly examOwners = signal<User[]>([]);
+    readonly newOwnerData = signal<{ id?: number }>({});
+    ownerName = '';
 
-    newOwner: {
-        id?: number;
-        name?: string;
-        email?: string;
-    };
-
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-
-    constructor() {
-        this.newOwner = {};
-    }
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     ngOnInit() {
-        this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe((users) => (this.examOwners = users));
+        this.getExamOwners();
     }
 
     listOwners$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
-            tap((text) => (this.newOwner.name = text)),
             debounceTime(500),
             distinctUntilChanged(),
             exhaustMap((text) =>
@@ -59,34 +50,43 @@ export class ExamOwnerSelectorComponent implements OnInit {
             }),
         );
 
-    nameFormatter = (data: User) => `${data.firstName} ${data.lastName} <${data.email}>`;
+    nameFormatter = (data: User | string) =>
+        typeof data === 'string' ? data : `${data.firstName} ${data.lastName} <${data.email}>`;
 
-    setExamOwner = (event: NgbTypeaheadSelectItemEvent) => (this.newOwner.id = event.item.id);
+    setExamOwner(event: NgbTypeaheadSelectItemEvent) {
+        this.newOwnerData.update((o) => ({ ...o, id: event.item.id }));
+    }
 
-    addExamOwner = () => {
-        if (this.newOwner.id) {
-            this.http.post(`/app/exam/${this.exam.id}/owner/${this.newOwner.id}`, {}).subscribe({
+    addExamOwner() {
+        const owner = this.newOwnerData();
+        if (owner.id) {
+            const currentExam = this.exam();
+            this.http.post(`/app/exam/${currentExam.id}/owner/${owner.id}`, {}).subscribe({
                 next: () => {
                     this.getExamOwners();
-                    // clear input field
-                    delete this.newOwner.email;
-                    delete this.newOwner.name;
-                    delete this.newOwner.id;
+                    this.newOwnerData.set({});
+                    this.ownerName = '';
                 },
                 error: (err) => this.toast.error(err),
             });
         } else {
             this.toast.error(this.translate.instant('i18n_teacher_not_found'));
         }
-    };
+    }
 
-    removeOwner = (id: number) =>
-        this.http
-            .delete(`/app/exam/${this.exam.id}/owner/${id}`)
-            .subscribe({ next: this.getExamOwners, error: (err) => this.toast.error(err) });
+    removeOwner(id: number) {
+        const currentExam = this.exam();
+        this.http.delete(`/app/exam/${currentExam.id}/owner/${id}`).subscribe({
+            next: () => this.getExamOwners(),
+            error: (err) => this.toast.error(err),
+        });
+    }
 
-    private getExamOwners = () =>
-        this.http
-            .get<User[]>(`/app/exam/${this.exam.id}/owners`)
-            .subscribe({ next: (owners) => (this.examOwners = owners), error: (err) => this.toast.error(err) });
+    private getExamOwners() {
+        const currentExam = this.exam();
+        this.http.get<User[]>(`/app/exam/${currentExam.id}/owners`).subscribe({
+            next: (owners) => this.examOwners.set(owners),
+            error: (err) => this.toast.error(err),
+        });
+    }
 }

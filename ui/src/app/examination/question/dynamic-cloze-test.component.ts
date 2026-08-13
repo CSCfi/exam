@@ -2,101 +2,149 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef, inject } from '@angular/core';
-import { MathJaxService } from 'src/app/shared/math/mathjax.service';
-import { hashString } from 'src/app/shared/miscellaneous/helpers';
+import type { OnDestroy } from '@angular/core';
+import {
+    afterNextRender,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    ElementRef,
+    inject,
+    Injector,
+    input,
+    output,
+    Renderer2,
+    runInInjectionContext,
+    viewChild,
+} from '@angular/core';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 
-type ClozeTestAnswer = { [key: string]: string };
+type ClozeTestAnswer = Record<string, string>;
 
 @Component({
     selector: 'xm-dynamic-cloze-test',
-    template: ` <div #clozeContainer></div> `,
-    standalone: true,
+    template: `<div #clozeContainer [xmMath]="content()"></div>`,
+    imports: [MathDirective],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DynamicClozeTestComponent implements OnInit, OnDestroy {
-    @Input() answer: ClozeTestAnswer = {};
-    @Input() content = '';
-    @Input() editable = false;
-    @Output() answerChanged = new EventEmitter<ClozeTestAnswer>();
-    @ViewChild('clozeContainer', { read: ViewContainerRef, static: true }) container?: ViewContainerRef;
+export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
+    readonly container = viewChild<ElementRef<HTMLDivElement>>('clozeContainer');
 
-    componentRef?: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
+    readonly answer = input<ClozeTestAnswer>({});
+    readonly content = input('');
+    readonly answerChanged = output<{ id: string; value: string }>();
 
-    private el = inject(ElementRef);
-    private mathJaxService = inject(MathJaxService);
+    private inputListener?: () => void;
+    private focusInTracker?: () => void;
+    private focusOutTracker?: () => void;
+    private focusedInputId: string | null = null;
 
-    ngOnInit() {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(this.content, 'text/html');
+    private readonly injector = inject(Injector);
+    private readonly renderer = inject(Renderer2);
 
-        // Set input values and temporary attributes for input events
-        const inputs = doc.getElementsByTagName('input');
-        Array.from(inputs).forEach((input) => {
-            const answer = this.answer[input.id] || '';
-            input.setAttribute('value', answer);
-            input.setAttribute('data-input-handler', 'handleChange($event)');
-        });
-        // Replace all left curly braces with urlencoded symbols to please angular compiler
-        this.getTextNodes(doc.body).forEach((n) => {
-            if (n.textContent) {
-                n.textContent = n.textContent.replace(/\{/g, '&#123;');
-                n.textContent = n.textContent.replace(/\}/g, '&#125;');
-            }
+    constructor() {
+        // React to answer changes - update values without recreating HTML
+        effect(() => {
+            const currentAnswer = this.answer();
+            if (!this.container()?.nativeElement) return;
+            this.updateInputValues(currentAnswer);
         });
 
-        // Replace temporary input attributes with Angular input-directives
-        const clozeTemplate = doc.body.innerHTML.replace(/data-input-handler/g, '(input)');
-        // Compile component and module with formatted cloze template
-        const mathJaxService = this.mathJaxService;
-        const clozeComponent = Component({
-            template: clozeTemplate,
-            selector: `xm-dyn-ct-${hashString(clozeTemplate)}`,
-        })(
-            class ClozeComponent {
-                el!: ElementRef;
-                onInput!: (_: { target: HTMLInputElement }) => void;
-                ngAfterViewInit() {
-                    // this is ugly but I didn't find any other way
-                    // see: https://github.com/angular/angular/issues/11859
-                    Array.from(this.el.nativeElement.querySelectorAll('*') as Element[])
-                        .flatMap((e: Element) => Array.from(e.childNodes))
-                        .filter((n) => n.nodeName === '#text')
-                        .forEach((n) => {
-                            if (n.textContent) {
-                                n.textContent = n.textContent.replace(/&#123;/g, '{');
-                                n.textContent = n.textContent.replace(/&#125;/g, '}');
-                            }
-                        });
-                    mathJaxService.typeset([this.el.nativeElement]);
-                }
-                handleChange(event: { target: HTMLInputElement }) {
-                    this.onInput(event);
-                }
-            },
-        );
+        // React to content changes - re-setup when HTML is re-rendered
+        effect(() => {
+            const currentContent = this.content();
+            if (!currentContent) return;
 
-        if (this.container) {
-            this.componentRef = this.container.createComponent(clozeComponent);
-            this.componentRef.instance.el = this.el;
-            this.componentRef.instance.onInput = this.handleInputChange;
-        }
+            // afterNextRender requires injection context; effect runs outside it
+            runInInjectionContext(this.injector, () => {
+                afterNextRender(() => {
+                    if (!this.container()?.nativeElement) return;
+                    this.setupInputs();
+                });
+            });
+        });
+    }
+
+    ngAfterViewInit() {
+        // Initial setup - afterNextRender ensures innerHTML has been processed.
+        // Lifecycle hooks run outside injection context, so use runInInjectionContext.
+        runInInjectionContext(this.injector, () => {
+            afterNextRender(() => {
+                if (!this.container()?.nativeElement) return;
+                this.setupInputs();
+            });
+        });
     }
 
     ngOnDestroy() {
-        if (this.componentRef) this.componentRef.destroy();
+        if (this.inputListener) {
+            this.inputListener();
+        }
+        if (this.focusInTracker) {
+            this.focusInTracker();
+        }
+        if (this.focusOutTracker) {
+            this.focusOutTracker();
+        }
     }
 
-    handleInputChange = (event: { target: HTMLInputElement }) => {
-        const { id, value } = event.target;
-        this.answerChanged.emit({ id, value });
-    };
+    private setupInputs() {
+        this.updateInputValues();
+        this.attachListeners();
+    }
 
-    private getTextNodes = (el: Element) => {
-        const a = [],
-            walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
-        let n;
-        while ((n = walk.nextNode())) a.push(n);
-        return a;
-    };
+    private updateInputValues(answer?: ClozeTestAnswer) {
+        const containerEl = this.container()?.nativeElement;
+        if (!containerEl) return;
+        const currentAnswer = answer ?? this.answer();
+        const inputs = containerEl.querySelectorAll('input');
+        inputs.forEach((input: HTMLInputElement) => {
+            if (input.id && currentAnswer[input.id] !== undefined) {
+                // Don't update if this input is currently focused (user is typing)
+                if (input.id === this.focusedInputId) return;
+                input.value = currentAnswer[input.id] || '';
+            }
+        });
+    }
+
+    private attachListeners() {
+        // Remove existing listener
+        if (this.inputListener) {
+            this.inputListener();
+            this.inputListener = undefined;
+        }
+
+        if (this.focusInTracker) {
+            this.focusInTracker();
+            this.focusInTracker = undefined;
+        }
+        if (this.focusOutTracker) {
+            this.focusOutTracker();
+            this.focusOutTracker = undefined;
+        }
+        const containerEl = this.container()?.nativeElement;
+        if (!containerEl) return;
+
+        // Use event delegation on the container
+        this.inputListener = this.renderer.listen(containerEl, 'input', (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            if (target.tagName === 'INPUT' && target.id) {
+                this.answerChanged.emit({ id: target.id, value: target.value });
+            }
+        });
+
+        // Track which input has focus
+        this.focusInTracker = this.renderer.listen(containerEl, 'focusin', (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            if (target.tagName === 'INPUT' && target.id) {
+                this.focusedInputId = target.id;
+            }
+        });
+
+        this.focusOutTracker = this.renderer.listen(containerEl, 'focusout', () => {
+            // Clear immediately - updateInputValues already checks for focused input
+            this.focusedInputId = null;
+        });
+    }
 }

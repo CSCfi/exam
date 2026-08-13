@@ -4,12 +4,16 @@
 
 package validation.exam
 
-import com.fasterxml.jackson.databind.JsonNode
-import play.mvc.Http
-import validation.core.{Attrs, ValidatorAction}
+import play.api.libs.json.JsValue
+import play.api.mvc.*
+import validation.core.*
 
-class ExamDraftValidator extends ValidatorAction:
-  override def sanitize(req: Http.Request, body: JsonNode): Http.Request =
-    ExamValidator.forCreation(body) match
-      case Right(exam) => req.addAttr(Attrs.EXAM, exam)
-      case Left(ex)    => throw ex
+object ExamDraftValidator extends PlayJsonValidator:
+
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
+    ExamValidator.forCreation(json) match
+      case Right(exam) => Right(request.addAttr(ScalaAttrs.EXAM, exam))
+      case Left(ex)    => Left(Results.BadRequest(ex.getMessage))

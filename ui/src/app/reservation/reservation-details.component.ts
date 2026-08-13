@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -28,49 +28,46 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         RouterLink,
         CourseCodeComponent,
         TeacherListComponent,
-        NgClass,
         LowerCasePipe,
         DatePipe,
         TranslateModule,
         ApplyDstPipe,
         OrderByPipe,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
     ],
     styles: '.wrap { white-space: wrap !important }',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReservationDetailsComponent implements OnChanges {
-    @Input() reservations: AnyReservation[] = [];
-    @Input() isAdminView = false;
-    @Input() isSupportView = false;
-    predicate = 'reservation.startAt';
-    reverse = false;
-    fixedReservations: ReservationDetail[] = [];
+export class ReservationDetailsComponent {
+    readonly reservations = input<AnyReservation[]>([]);
+    readonly isAdminView = input(false);
+    readonly isSupportView = input(false);
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Reservation = inject(ReservationService);
+    readonly predicate = signal('reservation.startAt');
+    readonly reverse = signal(false);
+    readonly fixedReservations = linkedSignal<ReservationDetail[]>(() => this.reservations() as ReservationDetail[]);
 
-    ngOnChanges() {
-        // This is terrible but modeling these is a handful. Maybe we can move some reservation types to different views.
-        this.fixedReservations = this.reservations as ReservationDetail[];
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Reservation = inject(ReservationService);
+
+    printExamState(reservation: Reservation) {
+        return this.Reservation.printExamState(reservation);
     }
 
-    printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
-
-    getStateClass = (reservation: Reservation) => {
+    getStateClass(reservation: Reservation) {
         if (reservation.enrolment.noShow) {
             return 'text-danger';
         }
         return reservation.enrolment.exam.state === 'REVIEW' ? 'text-success' : '';
-    };
+    }
 
     removeReservation(reservation: ReservationDetail) {
         this.Reservation.cancelReservation$(reservation).subscribe(() => {
-            this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
+            const currentReservations = this.fixedReservations();
+            const updated = currentReservations.filter((r) => r.id !== reservation.id);
+            this.fixedReservations.set(updated);
             this.toast.info(this.translate.instant('i18n_reservation_removed'));
         });
     }
@@ -95,31 +92,47 @@ export class ReservationDetailsComponent implements OnChanges {
         return new Date(reservation.endAt) < DSTCorrectedDate;
     }
 
-    changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);
-
-    hasAvailableActions(r: ReservationDetail): boolean {
-        const canRemoveReservation =
-            r.enrolment.exam.state === 'PUBLISHED' &&
-            !r.enrolment.noShow &&
-            r.enrolment.exam.implementation === 'AQUARIUM' &&
-            !this.reservationIsInPast(r);
-
-        const canPermitRetrial =
-            r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.executionType.type === 'PUBLIC';
-
-        const canChangeReservationMachine =
-            r.enrolment.exam.state === 'PUBLISHED' &&
-            !r.enrolment.noShow &&
-            !r.externalReservation &&
-            r.enrolment.exam.implementation === 'AQUARIUM';
-
-        return canRemoveReservation || canPermitRetrial || canChangeReservationMachine;
+    changeReservationMachine(reservation: Reservation) {
+        // Update the reservation in the local array after the modal closes
+        // The service updates the reservation object, but we need to trigger change detection
+        // by updating the array reference
+        this.Reservation.changeMachine$(reservation).subscribe((updatedReservation) => {
+            if (updatedReservation) {
+                const currentReservations = this.fixedReservations();
+                const updatedReservations = currentReservations.map((r) =>
+                    r.id === reservation.id ? { ...r, ...updatedReservation } : r,
+                );
+                this.fixedReservations.set(updatedReservations);
+            }
+        });
     }
 
-    setPredicate = (predicate: string) => {
-        if (this.predicate === predicate) {
-            this.reverse = !this.reverse;
+    canRemoveReservation(r: ReservationDetail): boolean {
+        const isExternalUnfinished = r.enrolment.exam.state === 'EXTERNAL_UNFINISHED';
+        const isPublishedAquarium =
+            r.enrolment.exam.state === 'PUBLISHED' && r.enrolment.exam.implementation === 'AQUARIUM';
+        return (isPublishedAquarium || isExternalUnfinished) && !r.enrolment.noShow && !this.reservationIsInPast(r);
+    }
+
+    canPermitRetrial(r: ReservationDetail): boolean {
+        return r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.executionType.type === 'PUBLIC';
+    }
+
+    canChangeMachine(r: ReservationDetail): boolean {
+        const isExternalUnfinished = r.enrolment.exam.state === 'EXTERNAL_UNFINISHED';
+        const isPublishedAquarium =
+            r.enrolment.exam.state === 'PUBLISHED' && r.enrolment.exam.implementation === 'AQUARIUM';
+        return !r.enrolment.noShow && ((isPublishedAquarium && !r.externalReservation) || isExternalUnfinished);
+    }
+
+    hasAvailableActions(r: ReservationDetail): boolean {
+        return this.canRemoveReservation(r) || this.canPermitRetrial(r) || this.canChangeMachine(r);
+    }
+
+    setPredicate(predicate: string) {
+        if (this.predicate() === predicate) {
+            this.reverse.update((v) => !v);
         }
-        this.predicate = predicate;
-    };
+        this.predicate.set(predicate);
+    }
 }

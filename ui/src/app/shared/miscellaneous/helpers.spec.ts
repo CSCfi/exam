@@ -2,10 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { vi } from 'vitest';
 import {
     countBy,
-    debounce,
     deduplicate,
     groupBy,
     hashString,
@@ -26,7 +24,7 @@ describe('helpers', () => {
             expect(isNumber(42)).toBe(true);
             expect(isNumber(-5)).toBe(true);
             expect(isNumber(3.14)).toBe(true);
-            expect(isNumber(NaN)).toBe(true);
+            expect(isNumber(NaN)).toBe(false);
             expect(isNumber(Infinity)).toBe(true);
         });
 
@@ -88,58 +86,6 @@ describe('helpers', () => {
         });
     });
 
-    describe('debounce', () => {
-        beforeEach(() => {
-            vi.useFakeTimers();
-        });
-
-        afterEach(() => {
-            vi.useRealTimers();
-        });
-
-        it('should delay function execution', () => {
-            const mockFn = vi.fn().mockReturnValue('result');
-            const debouncedFn = debounce(mockFn, 100);
-
-            debouncedFn('arg1', 'arg2');
-            expect(mockFn).not.toHaveBeenCalled();
-
-            vi.advanceTimersByTime(99);
-            expect(mockFn).not.toHaveBeenCalled();
-
-            vi.advanceTimersByTime(1);
-            expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2');
-        });
-
-        it('should cancel previous calls when called multiple times', () => {
-            const mockFn = vi.fn().mockReturnValue('result');
-            const debouncedFn = debounce(mockFn, 100);
-
-            debouncedFn('call1');
-            vi.advanceTimersByTime(50);
-            debouncedFn('call2');
-            vi.advanceTimersByTime(50);
-            debouncedFn('call3');
-
-            expect(mockFn).not.toHaveBeenCalled();
-
-            vi.advanceTimersByTime(100);
-            expect(mockFn).toHaveBeenCalledTimes(1);
-            expect(mockFn).toHaveBeenCalledWith('call3');
-        });
-
-        it('should return a promise that resolves with the function result', async () => {
-            const mockFn = vi.fn().mockReturnValue('result');
-            const debouncedFn = debounce(mockFn, 100);
-
-            const promise = debouncedFn('arg');
-            vi.advanceTimersByTime(100);
-
-            const result = await promise;
-            expect(result).toBe('result');
-        });
-    });
-
     describe('groupBy', () => {
         it('should group items by the result of the function', () => {
             const items = [
@@ -185,16 +131,15 @@ describe('helpers', () => {
             expect(updated.length).toBe(3);
         });
 
-        it('should mutate the original array', () => {
+        it('should not mutate the original array', () => {
             const items = [
                 { id: 1, name: 'Alice' },
                 { id: 2, name: 'Bob' },
             ];
-            const original = items;
 
             updateList(items, 'id', { id: 1, name: 'Alicia' });
 
-            expect(original[0]).toEqual({ id: 1, name: 'Alicia' });
+            expect(items[0]).toEqual({ id: 1, name: 'Alice' });
         });
     });
 

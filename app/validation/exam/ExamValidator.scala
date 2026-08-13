@@ -6,30 +6,29 @@ package validation.exam
 
 import cats.data.ValidatedNel
 import cats.implicits.*
-import com.fasterxml.jackson.databind.JsonNode
 import models.exam.Exam
-import validation.SanitizingException
-import validation.core.{FieldError, SanitizingHelper, ValidationException, Validator}
-import validation.core.Validator.given
+import models.exam.ExamState
+import play.api.libs.json.*
+import validation.core.*
 
 import java.util
 import java.util.Date
 import scala.jdk.CollectionConverters.*
 
-/** Exam-specific validator using the generic Validator framework. Provides different validation profiles (forUpdate,
-  * forCreation) with different strictness levels.
+/** Exam-specific validator using the generic Validator framework. Provides different validation
+  * profiles (forUpdate, forCreation) with different strictness levels.
   */
 object ExamValidator:
 
-  def forUpdate(body: JsonNode): Either[ValidationException, Exam] =
-    Validator(ExamParser.parseFromJson)
+  def forUpdate(body: JsValue): Either[ValidationException, Exam] =
+    PlayValidator(ExamParser.parseFromJson)
       .withRule(requireName)
       .withRule(requireDuration)
       .withRule(requirePublishedExamHasName)
       .validate(body)
 
-  def forCreation(body: JsonNode): Either[ValidationException, Exam] =
-    Validator(ExamParser.parseFromJson)
+  def forCreation(body: JsValue): Either[ValidationException, Exam] =
+    PlayValidator(ExamParser.parseFromJson)
       .withRule(requireImplementation)
       .withRule(requireExecutionType)
       .validate(body)
@@ -37,181 +36,196 @@ object ExamValidator:
   // ========== Validation Rules ==========
 
   private def requireName(exam: Exam): ValidatedNel[FieldError, String] =
-    Validator.requireField("name", exam.getName)
+    PlayValidator.requireField("name", exam.name)
 
   private def requireDuration(exam: Exam): ValidatedNel[FieldError, Integer] =
-    Validator.requirePositive("duration", exam.getDuration)
+    val duration = Option(exam.duration).map(_.intValue()).getOrElse(0)
+    PlayValidator.requirePositive("duration", duration).map(_ => exam.duration)
 
   private def requireNonEmptySections(exam: Exam): ValidatedNel[FieldError, Unit] =
-    Option(exam.getExamSections.asScala)
+    Option(exam.examSections.asScala)
       .filter(_.nonEmpty)
       .map(_ => ())
       .toValidNel(FieldError("sections", "Exam must have at least one section"))
 
   private def requireAllSectionsNamed(exam: Exam): ValidatedNel[FieldError, Unit] =
-    Option(exam.getExamSections.asScala)
+    Option(exam.examSections.asScala)
       .filter(_.nonEmpty)
       .map { sections =>
-        val hasUnnamedSection = sections.exists(s => Option(s.getName).forall(_.trim.isEmpty))
-        if hasUnnamedSection then Validator.invalid[Unit]("sections", "All exam sections must be named")
-        else Validator.valid(())
+        val hasUnnamedSection = sections.exists(s => Option(s.name).forall(_.trim.isEmpty))
+        if hasUnnamedSection then
+          PlayValidator.invalid[Unit]("sections", "All exam sections must be named")
+        else PlayValidator.valid(())
       }
-      .getOrElse(Validator.valid(()))
+      .getOrElse(PlayValidator.valid(()))
 
   private def requireNonEmptyLanguages(exam: Exam): ValidatedNel[FieldError, Unit] =
-    Option(exam.getExamLanguages.asScala)
+    Option(exam.examLanguages.asScala)
       .filter(_.nonEmpty)
       .map(_ => ())
       .toValidNel(FieldError("languages", "Exam must have at least one language"))
 
   private def requireImplementation(exam: Exam): ValidatedNel[FieldError, Exam.Implementation] =
-    Validator.requirePresent("implementation", exam.getImplementation)
+    PlayValidator.requirePresent("implementation", exam.implementation)
 
-  private def requireExecutionType(exam: Exam): ValidatedNel[FieldError, models.exam.ExamExecutionType] =
-    Validator.requirePresent("executionType", exam.getExecutionType)
+  private def requireExecutionType(exam: Exam)
+      : ValidatedNel[FieldError, models.exam.ExamExecutionType] =
+    PlayValidator.requirePresent("executionType", exam.executionType)
 
   private def requirePublishedExamHasName(exam: Exam): ValidatedNel[FieldError, Unit] =
-    val isPublished = exam.getState == Exam.State.PUBLISHED
-    val hasNoName   = Option(exam.getName).forall(_.trim.isEmpty)
-    Validator.when(isPublished && hasNoName):
-      Validator.invalid("name", "Published exam must have a name")
+    val isPublished = exam.state == ExamState.PUBLISHED
+    val hasNoName   = Option(exam.name).forall(_.trim.isEmpty)
+    PlayValidator.when(isPublished && hasNoName):
+      PlayValidator.invalid("name", "Published exam must have a name")
 
-/** Parser for converting JSON to Exam objects. Uses the existing SanitizingHelper for consistency.
+/** Parser for converting JSON to Exam objects using Play JSON.
   */
 private object ExamParser:
 
-  def parseFromJson(body: JsonNode): Exam =
+  def parseFromJson(body: JsValue): Exam =
     val exam = new Exam()
 
-    // Parse basic fields using Scala SanitizingHelper
-    SanitizingHelper.parse[String]("name", body).foreach(exam.setName)
+    // Parse basic fields using Play JSON
+    PlayJsonHelper.parse[String]("name", body).foreach(v => exam.name = v)
 
-    SanitizingHelper.parseEnum("state", body, classOf[Exam.State]).foreach(exam.setState)
+    PlayJsonHelper.parseEnum("state", body, classOf[Exam.State]).foreach(v => exam.state = v)
 
-    SanitizingHelper
-      .parse[java.lang.Long]("periodStart", body)
+    PlayJsonHelper
+      .parse[Long]("periodStart", body)
       .map(org.joda.time.DateTime(_))
-      .foreach(exam.setPeriodStart)
+      .foreach(v => exam.periodStart = v)
 
-    SanitizingHelper
-      .parse[java.lang.Long]("periodEnd", body)
+    PlayJsonHelper
+      .parse[Long]("periodEnd", body)
       .map(org.joda.time.DateTime(_))
-      .foreach(exam.setPeriodEnd)
+      .foreach(v => exam.periodEnd = v)
 
-    SanitizingHelper.parse[Integer]("duration", body).foreach(exam.setDuration)
+    PlayJsonHelper.parse[Int]("duration", body).foreach(v => exam.duration = v)
 
-    SanitizingHelper
+    PlayJsonHelper
       .parseEnum("implementation", body, classOf[Exam.Implementation])
-      .foreach(exam.setImplementation)
+      .foreach(v => exam.implementation = v)
 
-    SanitizingHelper.parse[java.lang.Boolean]("shared", body).foreach(v => exam.setShared(v))
+    PlayJsonHelper.parse[Boolean]("shared", body).foreach(v => exam.shared = v)
 
-    SanitizingHelper
+    PlayJsonHelper
       .parse[String]("answerLanguage", body)
-      .foreach(exam.setAnswerLanguage)
+      .foreach(v => exam.answerLanguage = v)
 
-    exam.setInstruction(SanitizingHelper.parseHtml("instruction", body))
-    exam.setEnrollInstruction(SanitizingHelper.parseHtml("enrollInstruction", body))
+    exam.instruction = PlayJsonHelper.parseHtml("instruction", body).orNull
+    exam.enrollInstruction = PlayJsonHelper.parseHtml("enrollInstruction", body).orNull
 
-    SanitizingHelper
-      .parse[Integer]("trialCount", body)
-      .foreach(exam.setTrialCount)
+    PlayJsonHelper
+      .parse[Int]("trialCount", body)
+      .foreach(v => exam.trialCount = v)
 
-    SanitizingHelper
-      .parse[java.lang.Boolean]("subjectToLanguageInspection", body)
-      .foreach(exam.setSubjectToLanguageInspection)
+    PlayJsonHelper
+      .parse[Boolean]("subjectToLanguageInspection", body)
+      .foreach(v => exam.subjectToLanguageInspection = v)
 
-    SanitizingHelper.parse[String]("internalRef", body).foreach(exam.setInternalRef)
+    PlayJsonHelper.parse[String]("internalRef", body).foreach(v => exam.internalRef = v)
 
-    SanitizingHelper.parse[java.lang.Boolean]("anonymous", body).foreach(v => exam.setAnonymous(v))
+    PlayJsonHelper.parse[Boolean]("anonymous", body).foreach(v => exam.anonymous = v)
 
-    SanitizingHelper
+    PlayJsonHelper
       .parse[String]("organisations", body)
-      .foreach(exam.setOrganisations)
+      .foreach(v => exam.organisations = v)
 
     // Handle grading (ID reference)
-    SanitizingHelper.parse[Integer]("grading", body).foreach { gradeId =>
+    PlayJsonHelper.parse[Int]("grading", body).foreach { gradeId =>
       val grade = new models.exam.Grade()
-      grade.setId(gradeId)
-      exam.setGrade(grade)
+      grade.id = gradeId
+      exam.grade = grade
     }
 
     // Handle exam type
-    Option(body.get("examType"))
-      .flatMap(node => SanitizingHelper.parse[String]("type", node))
+    (body \ "examType")
+      .asOpt[JsObject]
+      .flatMap(node => PlayJsonHelper.parse[String]("type", node))
       .foreach { typeStr =>
-        val examType = new models.exam.ExamType(typeStr)
-        exam.setExamType(examType)
+        val examType = new models.exam.ExamType()
+        examType.`type` = typeStr
+        exam.examType = examType
       }
 
     // Handle execution type
-    Option(body.get("executionType"))
-      .flatMap(node => SanitizingHelper.parse[String]("type", node))
+    (body \ "executionType")
+      .asOpt[JsObject]
+      .flatMap(node => PlayJsonHelper.parse[String]("type", node))
       .foreach { typeStr =>
         val executionType = new models.exam.ExamExecutionType()
-        executionType.setType(typeStr)
-        exam.setExecutionType(executionType)
+        executionType.`type` = typeStr
+        exam.executionType = executionType
       }
 
     // Handle feedback config
-    Option(body.get("feedbackConfig")).foreach { node =>
-      if node.isNull then exam.setExamFeedbackConfig(null)
-      else if node.isObject then
+    (body \ "feedbackConfig").asOpt[JsValue] match
+      case Some(JsNull) =>
+        exam.examFeedbackConfig = null
+      case Some(obj: JsObject) =>
         val config = new models.assessment.ExamFeedbackConfig()
-        config.setReleaseType(
-          SanitizingHelper
-            .parseEnum("releaseType", node, classOf[models.assessment.ExamFeedbackConfig.ReleaseType])
-            .getOrElse(throw new SanitizingException("bad releaseType"))
-        )
-        SanitizingHelper
-          .parse[java.lang.Long]("releaseDate", node)
-          .foreach(rd => config.setReleaseDate(new org.joda.time.DateTime(rd)))
-        exam.setExamFeedbackConfig(config)
-    }
+        config.releaseType =
+          PlayJsonHelper
+            .parseEnum(
+              "releaseType",
+              obj,
+              classOf[models.assessment.ExamFeedbackConfig.ReleaseType]
+            )
+            .getOrElse(throw SanitizingException("bad releaseType"))
 
+        PlayJsonHelper
+          .parse[Long]("releaseDate", obj)
+          .foreach(rd => config.releaseDate = new org.joda.time.DateTime(rd))
+        exam.examFeedbackConfig = config
+      case _ => // None or other JsValue types
     // Handle auto-evaluation config
-    Option(body.get("evaluationConfig")).foreach { node =>
-      if node.isNull then exam.setAutoEvaluationConfig(null)
-      else if node.isObject then
+    (body \ "evaluationConfig").asOpt[JsValue] match
+      case Some(JsNull) =>
+        exam.autoEvaluationConfig = null
+      case Some(obj: JsObject) =>
         val config = new models.assessment.AutoEvaluationConfig()
-        config.setReleaseType(
-          SanitizingHelper
-            .parseEnum("releaseType", node, classOf[models.assessment.AutoEvaluationConfig.ReleaseType])
-            .getOrElse(throw new SanitizingException("bad releaseType"))
-        )
-        config.setAmountDays(
-          SanitizingHelper.parse[Integer]("amountDays", node).orNull
-        )
-        SanitizingHelper
-          .parse[java.lang.Long]("releaseDate", node)
-          .foreach(rd => config.setReleaseDate(new Date(rd)))
-        config.setGradeEvaluations(new util.HashSet())
+        config.releaseType =
+          PlayJsonHelper
+            .parseEnum(
+              "releaseType",
+              obj,
+              classOf[models.assessment.AutoEvaluationConfig.ReleaseType]
+            )
+            .getOrElse(throw SanitizingException("bad releaseType"))
 
-        Option(node.get("gradeEvaluations")).foreach { gradeEvaluations =>
-          gradeEvaluations.forEach { evaluation =>
+        config.amountDays =
+          PlayJsonHelper.parse[Int]("amountDays", obj).map(Integer.valueOf).orNull
+
+        PlayJsonHelper
+          .parse[Long]("releaseDate", obj)
+          .foreach(rd => config.releaseDate = new Date(rd))
+        config.gradeEvaluations = new util.HashSet()
+
+        (obj \ "gradeEvaluations").asOpt[List[JsValue]].foreach { gradeEvaluations =>
+          gradeEvaluations.foreach { evaluation =>
             val ge = new models.assessment.GradeEvaluation()
 
-            val gradeNode = Option(evaluation.get("grade"))
-              .filter(_.has("id"))
-              .getOrElse(throw new SanitizingException("invalid grade"))
+            val gradeObj = (evaluation \ "grade")
+              .asOpt[JsObject]
+              .filter(g => (g \ "id").isDefined)
+              .getOrElse(throw SanitizingException("invalid grade"))
 
             val grade = new models.exam.Grade()
-            grade.setId(
-              SanitizingHelper
-                .parse[Integer]("id", gradeNode)
-                .getOrElse(throw new SanitizingException("invalid grade"))
-            )
-            ge.setGrade(grade)
-            ge.setPercentage(
-              SanitizingHelper
-                .parse[Integer]("percentage", evaluation)
-                .getOrElse(throw new SanitizingException("no percentage"))
-            )
-            config.getGradeEvaluations.add(ge)
+            grade.id =
+              PlayJsonHelper
+                .parse[Int]("id", gradeObj)
+                .getOrElse(throw SanitizingException("invalid grade"))
+
+            ge.grade = grade
+            ge.percentage =
+              PlayJsonHelper
+                .parse[Int]("percentage", evaluation)
+                .getOrElse(throw SanitizingException("no percentage"))
+
+            config.gradeEvaluations.add(ge)
           }
         }
 
-        exam.setAutoEvaluationConfig(config)
-    }
-
+        exam.autoEvaluationConfig = config
+      case _ => // None or other JsValue types
     exam

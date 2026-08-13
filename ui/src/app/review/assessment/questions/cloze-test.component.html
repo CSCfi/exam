@@ -8,37 +8,31 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="col-md-12">
             <!-- question text -->
-            <div class="d-flex justify-content-between">
-                <div class="" [xmMathJax]="sectionQuestion.question.question"></div>
-                <div>
-                    <!-- points -->
-                    <div class="d-inline-block pe-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div [xmMath]="sectionQuestion().question.question"></div>
+                <!-- points + toggle grouped on the right -->
+                <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-3">
+                    <span class="text-nowrap text-muted small">
                         <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
-                        {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
+                        {{ sectionQuestion().clozeTestAnswer?.score?.correctAnswers }} /
                         {{
-                            (sectionQuestion.clozeTestAnswer?.score?.correctAnswers || 0) +
-                                (sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers || 0)
+                            (sectionQuestion().clozeTestAnswer?.score?.correctAnswers || 0) +
+                                (sectionQuestion().clozeTestAnswer?.score?.incorrectAnswers || 0)
                         }}
-                        &nbsp;<strong>{{ 'i18n_word_points' | translate }}: </strong>
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                        &nbsp;<strong>{{ 'i18n_word_points' | translate }}:</strong>
+                        <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                             {{ displayAchievedScore() }}
                         </span>
                         @if (hasForcedScore()) {
-                            <span class="text text-danger">
-                                {{ sectionQuestion.forcedScore }}
-                            </span>
+                            <span class="text-danger">{{ sectionQuestion().forcedScore }}</span>
                         }
-                        / {{ sectionQuestion.maxScore }}
-                    </div>
-                    <button
-                        class="d-inline-block btn btn-link"
-                        (click)="reviewExpanded = !reviewExpanded"
-                        [attr.aria-expanded]="reviewExpanded"
-                    >
-                        @if (!reviewExpanded) {
+                        / {{ sectionQuestion().maxScore }}
+                    </span>
+                    <button class="btn btn-link p-0" (click)="toggleReviewExpanded()" [ariaExpanded]="reviewExpanded()">
+                        @if (!reviewExpanded()) {
                             <img src="/assets/images/icon_list_show_right.svg" alt="" />
                         }
-                        @if (reviewExpanded) {
+                        @if (reviewExpanded()) {
                             <img src="/assets/images/icon_list_show_down.svg" alt="" />
                         }
                     </button>
@@ -46,67 +40,63 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
 
             <!-- question attachment -->
-            @if (reviewExpanded && sectionQuestion.question.attachment) {
+            @if (reviewExpanded() && sectionQuestion().question.attachment) {
                 <div class="ps-0 mt-2 mb-3 notice-text">
                     {{ 'i18n_question_attachment' | translate }}:
-                    <a class="pointer" (click)="downloadQuestionAttachment()">
-                        {{ sectionQuestion.question.attachment?.fileName }}</a
+                    <button
+                        type="button"
+                        class="btn btn-link"
+                        (click)="downloadQuestionAttachment()"
+                        [ariaLabel]="'i18n_download_attachment' | translate"
                     >
+                        {{ sectionQuestion().question.attachment?.fileName }}
+                    </button>
                 </div>
             }
 
             <!-- question instructions -->
-            @if (reviewExpanded && sectionQuestion.answerInstructions) {
+            @if (reviewExpanded() && sectionQuestion().answerInstructions) {
                 <div class="ps-0 mt-2 mb-3 notice-text" role="note">
                     <img src="/assets/images/icon_info.svg" alt="" />
                     <span class="ps-2">{{ 'i18n_instructions' | translate }}:</span>
-                    <span [innerHtml]="sectionQuestion.answerInstructions"></span>
+                    <span [innerHtml]="sectionQuestion().answerInstructions"></span>
                 </div>
             }
 
             <!-- answer -->
-            @if (reviewExpanded) {
+            @if (reviewExpanded()) {
                 <div class="mt-2">
                     <hr />
                 </div>
             }
 
-            @if (reviewExpanded) {
+            @if (reviewExpanded()) {
                 <div class="mb-2">
-                    <div>
-                        <span>{{ 'i18n_exam_answer' | translate | uppercase }}</span>
-                    </div>
-                    <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
-                    @if (participation.exam.executionType.type !== 'MATURITY') {
+                    {{ 'i18n_exam_answer' | translate | uppercase }}
+                    <div [xmMath]="sectionQuestion().clozeTestAnswer?.question"></div>
+                    @if (participation().exam.executionType.type !== 'MATURITY') {
                         <div class="make-inline pe-3 mt-2">
-                            <div>
-                                <span class="text text-danger"
-                                    >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
-                                    <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small></span
-                                >
-                            </div>
-                            <form #forcedPoints="ngForm" name="forcedPoints">
-                                <input
-                                    name="score"
-                                    type="number"
-                                    lang="en"
-                                    class="form-control"
-                                    [(ngModel)]="scoreValue"
-                                    xmFixedPrecision
-                                    (blur)="forcedPoints.valid && insertForcedScore()"
-                                    onclick="this.focus()"
-                                    [disabled]="!isScorable"
-                                    [min]="0"
-                                    [max]="sectionQuestion.maxScore"
-                                />
-                                @if (forcedPoints.invalid) {
-                                    <small class="alert-danger">
-                                        <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                            'i18n_error_score_input' | translate
-                                        }}
-                                    </small>
-                                }
-                            </form>
+                            <span class="text text-danger"
+                                >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
+                                <small>[0 &hellip; {{ sectionQuestion().maxScore.toFixed(2) }}]</small></span
+                            >
+                            <input
+                                type="number"
+                                lang="en"
+                                class="form-control"
+                                [formControl]="scoreControl"
+                                xmFixedPrecision
+                                onclick="this.focus()"
+                                [min]="0"
+                                [max]="sectionQuestion().maxScore"
+                            />
+                            @if (scoreControl.invalid) {
+                                <small class="alert-danger">
+                                    <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                        'i18n_error_score_input' | translate
+                                    }}
+                                </small>
+                            }
                         </div>
                     }
                 </div>

@@ -74,7 +74,7 @@ SPDX-License-Identifier: EUPL-1.2
                 >
                     {{ monthOfYear().name }}&nbsp;<span class="caret"></span>
                 </button>
-                <div ngbDropdownMenu style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="monthOfYear">
+                <div ngbDropdownMenu role="menu" aria-labelledby="monthOfYear">
                     @for (swd of months(); track swd.ord; let index = $index) {
                         <button
                             ngbDropdownItem
@@ -101,18 +101,17 @@ SPDX-License-Identifier: EUPL-1.2
                         <input
                             class="form-check-input"
                             type="radio"
-                            [ngModel]="useOrdinals()"
-                            (ngModelChange)="useOrdinalsChanged()"
-                            [value]="false"
+                            [checked]="!useOrdinals()"
+                            (change)="setUseOrdinals(false)"
                         />
                         <input
                             type="number"
                             class="ms-1 me-1 mb-1"
                             min="1"
                             max="31"
-                            [ngModel]="dayOfMonth()"
-                            (ngModelChange)="dayOfMonthChanged($event)"
+                            [value]="dayOfMonth()"
                             [disabled]="useOrdinals()"
+                            (input)="onDayOfMonthInput($event)"
                         />
                         {{ 'i18n_day' | translate }}
                         @if (mode() === REPEAT_OPTION.yearly) {
@@ -123,10 +122,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <input
                             class="form-check-input"
                             type="radio"
-                            checked
-                            [ngModel]="useOrdinals()"
-                            (ngModelChange)="useOrdinalsChanged()"
-                            [value]="true"
+                            [checked]="useOrdinals()"
+                            (change)="setUseOrdinals(true)"
                         />
                         {{ 'i18n_of_month' | translate }}
                         <span class="dropdown" ngbDropdown>
@@ -167,12 +164,7 @@ SPDX-License-Identifier: EUPL-1.2
                             >
                                 {{ weekdayOfMonth().name }}&nbsp;<span class="caret"></span>
                             </button>
-                            <div
-                                ngbDropdownMenu
-                                style="padding-left: 0; min-width: 17em"
-                                role="menu"
-                                aria-labelledby="weekdayOfMonth"
-                            >
+                            <div ngbDropdownMenu role="menu" aria-labelledby="weekdayOfMonth">
                                 @for (swd of weekdays(); track swd.ord; let index = $index) {
                                     <button
                                         ngbDropdownItem

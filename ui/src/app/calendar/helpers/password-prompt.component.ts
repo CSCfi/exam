@@ -2,27 +2,26 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     input,
-    OnChanges,
     output,
-    SimpleChanges,
+    signal,
     ViewChild,
 } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-password-prompt',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [FormField, TranslateModule],
     template: `
         @if (visible()) {
-            <form [formGroup]="passwordForm" role="form" (ngSubmit)="submit()" aria-labelledby="password-prompt-title">
+            <form role="form" (submit)="submit()" aria-labelledby="password-prompt-title">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="alert alert-warning mb-3" role="alert" aria-live="polite">
@@ -43,42 +42,32 @@ import { TranslateModule } from '@ngx-translate/core';
                             type="password"
                             class="form-control"
                             id="password"
-                            autocomplete="new-password"
-                            formControlName="password"
-                            [class.is-invalid]="
-                                passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched
-                            "
+                            autocomplete="current-password"
+                            [formField]="passwordForm.password"
+                            [class.is-invalid]="passwordForm.password().invalid() && passwordForm.password().touched()"
                             [attr.aria-describedby]="
-                                passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched
+                                passwordForm.password().invalid() && passwordForm.password().touched()
                                     ? 'password-error'
                                     : 'password-help'
                             "
-                            [attr.aria-invalid]="
-                                passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched
-                            "
+                            [ariaInvalid]="passwordForm.password().invalid() && passwordForm.password().touched()"
                             placeholder="{{ 'i18n_enter_password' | translate }}"
-                            (keyup.enter)="submit()"
-                            autocomplete="current-password"
                         />
                         <div id="password-help" class="form-text visually-hidden">
                             {{ 'i18n_enter_password' | translate }}
                         </div>
-                        <div
-                            id="password-error"
-                            class="invalid-feedback"
-                            role="alert"
-                            aria-live="polite"
-                            *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched"
-                        >
-                            {{ 'i18n_password_required' | translate }}
-                        </div>
+                        @if (passwordForm.password().invalid() && passwordForm.password().touched()) {
+                            <div id="password-error" class="invalid-feedback" role="alert" aria-live="polite">
+                                {{ 'i18n_password_required' | translate }}
+                            </div>
+                        }
                     </div>
                     <div class="col-md-6">
                         <button
                             type="submit"
                             class="btn btn-success"
-                            [disabled]="passwordForm.invalid"
-                            [attr.aria-describedby]="passwordForm.invalid ? 'password-error' : null"
+                            [disabled]="passwordForm.password().invalid()"
+                            [attr.aria-describedby]="passwordForm.password().invalid() ? 'password-error' : null"
                         >
                             {{ 'i18n_confirm' | translate }}
                         </button>
@@ -88,36 +77,24 @@ import { TranslateModule } from '@ngx-translate/core';
         }
     `,
 })
-export class PasswordPromptComponent implements AfterViewInit, OnChanges {
+export class PasswordPromptComponent implements AfterViewInit {
     @ViewChild('passwordInput') passwordInput!: ElementRef<HTMLInputElement>;
 
-    visible = input(false);
+    readonly visible = input(false);
+    readonly passwordValidated = output<string>();
 
-    passwordValidated = output<string>();
-
-    passwordForm = new FormGroup({
-        password: new FormControl('', [Validators.required]),
+    readonly passwordForm = form(signal({ password: '' }), (path) => {
+        required(path.password);
     });
 
     ngAfterViewInit() {
-        // Focus the password input when the component becomes visible
-        if (this.visible() && this.passwordInput) {
-            this.passwordInput.nativeElement.focus();
-        }
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        // Focus the password input when visibility changes to true
-        if (changes.visible && this.visible() && this.passwordInput) {
-            setTimeout(() => {
-                this.passwordInput.nativeElement.focus();
-            }, 100);
-        }
+        this.passwordInput?.nativeElement.focus();
     }
 
     submit() {
-        if (this.passwordForm.valid) {
-            this.passwordValidated.emit(this.passwordForm.value.password || '');
+        const passwordField = this.passwordForm.password();
+        if (!passwordField.invalid()) {
+            this.passwordValidated.emit(passwordField.value());
         }
     }
 }

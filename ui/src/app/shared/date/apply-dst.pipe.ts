@@ -9,10 +9,9 @@ import { DateTimeService } from './date.service';
 
 @Pipe({
     name: 'applyDst',
-    standalone: true,
 })
 export class ApplyDstPipe implements PipeTransform {
-    private DateTimeService = inject(DateTimeService);
+    private readonly DateTimeService = inject(DateTimeService);
 
     transform = (input?: string): string => {
         if (!input) return '';

@@ -3,43 +3,56 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 
 SPDX-License-Identifier: EUPL-1.2
 -->
-<div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper" [hidden]="shouldHide">
-    <div class="row align-items-center">
+<div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper" [hidden]="shouldHide()">
+    <div class="row align-items-center" cdkDragHandle>
         <div class="col-1">
             <button
                 type="button"
-                class="pointer border-none background-none"
+                class="border-none background-none"
                 (click)="toggleVisibility()"
-                [attr.aria-label]="(hideEditor ? 'i18n_show' : 'i18n_hide') | translate"
-                [attr.aria-expanded]="!hideEditor"
-                ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
+                [ariaLabel]="(hideEditor() ? 'i18n_show' : 'i18n_hide') | translate"
+                [ariaExpanded]="!hideEditor()"
+                ngbPopover="{{ (hideEditor() ? 'i18n_show' : 'i18n_hide') | translate }}"
                 triggers="mouseenter:mouseleave"
             >
-                <i [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"></i>
+                <i
+                    [class.bi-chevron-right]="!hideEditor()"
+                    [class.bi-chevron-down]="hideEditor()"
+                    aria-hidden="true"
+                ></i>
             </button>
         </div>
         <div class="col-11">{{ title | translate }}</div>
     </div>
-    <div [ngbCollapse]="hideEditor" class="body">
+    <div [ngbCollapse]="hideEditor()" class="body" (mousedown)="$event.stopPropagation()">
         <div class="row mt-2 mb-1">
             <div class="col-md-12">
                 <xm-ckeditor
-                    id="text-editor"
-                    [ngModel]="editorContent"
-                    (ngModelChange)="editorContent = $event"
-                    #ck="ngModel"
+                    id="feedback-editor"
+                    [data]="editorContent"
+                    (dataChange)="commentChanged($event)"
                     name="ck"
-                    rows="10"
-                    cols="80"
                 ></xm-ckeditor>
             </div>
         </div>
-        @if (attachment) {
+        @if (attachment()) {
         <div class="d-flex justify-content-end">
-            <a class="pointer" (click)="downloadAttachment()">{{ attachment.fileName }}</a>
-            <span class="sitnet-red pointer" (click)="removeAttachment()">
-                <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-            </span>
+            <button
+                type="button"
+                class="btn btn-link"
+                (click)="downloadAttachment()"
+                [ariaLabel]="'i18n_download_attachment' | translate"
+            >
+                {{ attachment()?.fileName }}
+            </button>
+            <button
+                type="button"
+                class="border-none background-none"
+                (click)="removeAttachment()"
+                [ariaLabel]="'i18n_remove_attachment' | translate"
+            >
+                <i class="bi-x text-danger" aria-hidden="true" title="{{ 'i18n_remove_attachment' | translate }}"></i>
+            </button>
         </div>
         }
         <div class="d-flex justify-content-between flex-row-reverse mt-2">

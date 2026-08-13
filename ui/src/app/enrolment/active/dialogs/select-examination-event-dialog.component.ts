@@ -3,15 +3,17 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
+import { forkJoin, of } from 'rxjs';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [TranslateModule, DatePipe],
     template: `
         <div class="modal-header">
@@ -20,31 +22,34 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
             </h1>
         </div>
         <div class="modal-body">
-            <div class="row mb-2">
-                <div class="col-md-12">
-                    {{ 'i18n_exam_duration' | translate }}: {{ exam.duration }}
+            @if (exam()) {
+                <p class="text-muted mb-3">
+                    {{ 'i18n_exam_duration' | translate }}: {{ exam()!.duration }}
                     {{ 'i18n_minutes' | translate }}
-                </div>
-            </div>
-            @for (config of configs; track config) {
-                <div class="row">
-                    <div class="col-md-12">
-                        {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <span>{{ config.examinationEvent.description }}</span>
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-12 mt-1">
-                        <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
+                </p>
+            }
+            <div class="list-group">
+                @for (config of configs(); track config) {
+                    <div class="list-group-item d-flex justify-content-between align-items-center gap-3">
+                        <div>
+                            <div class="fw-semibold">
+                                {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}
+                            </div>
+                            @if (config.examinationEvent.description) {
+                                <small class="text-muted">{{ config.examinationEvent.description }}</small>
+                            }
+                            @if (config.id && reasons()[config.id]) {
+                                <div class="alert alert-warning py-1 px-2 mb-0 mt-1">
+                                    <small>{{ reasons()[config.id!] }}</small>
+                                </div>
+                            }
+                        </div>
+                        <button class="btn btn-sm btn-success flex-shrink-0" (click)="selectEvent(config)" autofocus>
                             {{ 'i18n_select' | translate }}
                         </button>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
         <div class="modal-footer">
             <div class="col-md-12">
@@ -56,21 +61,45 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
     `,
 })
 export class SelectExaminationEventDialogComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() existingEventId?: number;
-    configs: ExaminationEventConfiguration[] = [];
+    readonly exam = signal<Exam | null>(null);
+    readonly enrolmentId = signal<number | undefined>(undefined);
 
-    activeModal = inject(NgbActiveModal);
+    readonly configs = computed(() => {
+        const examValue = this.exam();
+        const existingId = this.existingEventId();
+        if (!examValue) {
+            return [];
+        }
+        return examValue.examinationEventConfigurations
+            .filter((ec) => DateTime.fromISO(ec.examinationEvent.start) > DateTime.now() && ec.id !== existingId)
+            .sort(
+                (a, b) =>
+                    DateTime.fromISO(a.examinationEvent.start).toMillis() -
+                    DateTime.fromISO(b.examinationEvent.start).toMillis(),
+            );
+    });
+
+    readonly reasons = signal<Record<number, string | null>>({});
+
+    private readonly existingEventId = signal<number | undefined>(undefined);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
-        // for all confs over
-        this.configs = this.exam.examinationEventConfigurations
-            .filter(
-                (ec) =>
-                    DateTime.fromISO(ec.examinationEvent.start).toJSDate() > new Date() &&
-                    ec.id !== this.existingEventId,
-            )
-            .sort((a, b) => (a.examinationEvent.start < b.examinationEvent.start ? -1 : 1));
+        const configs = this.configs();
+        const eid = this.enrolmentId();
+        if (!eid || configs.length === 0) return;
+
+        const checks = configs.map((c) =>
+            c.id != null ? this.Enrolment.checkExaminationEventConfig$(eid, c.id) : of(null),
+        );
+        forkJoin(checks).subscribe((results) => {
+            const map: Record<number, string | null> = {};
+            configs.forEach((c, i) => {
+                if (c.id != null) map[c.id] = results[i];
+            });
+            this.reasons.set(map);
+        });
     }
 
     selectEvent(event: ExaminationEventConfiguration) {

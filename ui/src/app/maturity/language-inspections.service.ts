@@ -16,19 +16,19 @@ import type { LanguageInspection, QueryParams } from './maturity.model';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageInspectionService {
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private modal = inject(ModalService);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private dialogs = inject(ConfirmationDialogService);
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly dialogs = inject(ConfirmationDialogService);
 
     query = (params: QueryParams | { month?: string }): Observable<LanguageInspection[]> =>
         this.http.get<LanguageInspection[]>('/app/inspections', { params: params as HttpParams });
 
     showStatement = (statement: { comment: string }) => {
         const modalRef = this.modal.openRef(InspectionStatementDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.statement = statement.comment;
+        modalRef.componentInstance.statement.set(statement.comment);
     };
 
     assignInspection = (inspection: LanguageInspection) =>
