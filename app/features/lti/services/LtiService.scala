@@ -28,11 +28,11 @@ import scala.util.Try
   * EXAM acts as the *platform* here: it initiates an OIDC login against the tool (Moodle) and signs
   * the id_token that the tool validates against the JWKS endpoint below.
   *
-  * This is POC-grade. Two gaps are carried over from the original implementation deliberately,
-  * rather than silently changed:
-  *   - `state` and `nonce` are written to the session on login start but are not verified when the
-  *     tool calls back.
-  *   - `redirect_uri` is not checked against the configured target link URI.
+  * Note on `state` and `nonce`: in third-party initiated login the *tool* generates both for its
+  * authorization request. The values arriving at the callback are therefore Moodle's, not ours —
+  * the platform's job is to echo the nonce into the id_token and hand the state back untouched, so
+  * there is nothing here to compare against. The callback is instead bound to the session that
+  * started it via `login_hint`, which the tool must return verbatim.
   */
 @Singleton
 class LtiService @Inject() (private val config: Config) extends Logging:
@@ -48,15 +48,27 @@ class LtiService @Inject() (private val config: Config) extends Logging:
   def publicKeyPath: String    = config.getString("lti.platform.public-key")
   def privateKeyPath: String   = config.getString("lti.platform.private-key")
 
+  /** Redirect URIs the tool is allowed to receive the id_token on. Defaults to the configured
+    * target link URI when no explicit allow-list is given.
+    */
+  def redirectUris: List[String] =
+    if config.hasPath("lti.tool.redirect-uris") then
+      config.getStringList("lti.tool.redirect-uris").asScala.toList.filter(_.nonEmpty)
+    else List(targetLinkUri).filter(_.nonEmpty)
+
   /** Builds the OIDC third-party-initiated login URL the browser is redirected to. */
-  def buildLoginRedirect(nonce: String, state: String): Either[LtiError, String] =
+  def buildLoginRedirect(
+      loginHint: String,
+      nonce: String,
+      state: String
+  ): Either[LtiError, String] =
     if initiateLoginUrl.isEmpty || issuer.isEmpty || targetLinkUri.isEmpty || clientId.isEmpty then
       Left(LtiError.IncompleteConfiguration)
     else
       val separator = if initiateLoginUrl.contains("?") then "&" else "?"
       val params = Seq(
         "iss"             -> issuer,
-        "login_hint"      -> "hint",
+        "login_hint"      -> loginHint,
         "target_link_uri" -> targetLinkUri,
         "client_id"       -> clientId,
         "nonce"           -> nonce,
@@ -64,7 +76,16 @@ class LtiService @Inject() (private val config: Config) extends Logging:
       ).map((k, v) => s"$k=${urlEncode(v)}").mkString("&")
       Right(s"$initiateLoginUrl$separator$params")
 
-  def generateNonce: String =
+  /** The tool must echo back a registered redirect URI; anything else would leak the id_token. */
+  def validateRedirectUri(uri: String): Either[LtiError, String] =
+    Either.cond(redirectUris.contains(uri), uri, LtiError.InvalidRedirectUri)
+
+  /** Opaque per-login token, returned verbatim by the tool, tying the callback to the session. */
+  def generateLoginHint: String = randomToken
+
+  def generateNonce: String = randomToken
+
+  private def randomToken: String =
     val bytes = new Array[Byte](16)
     SecureRandom().nextBytes(bytes)
     Base64.getUrlEncoder.withoutPadding.encodeToString(bytes)
@@ -127,7 +148,9 @@ class LtiService @Inject() (private val config: Config) extends Logging:
   def jwkSet: Either[LtiError, String] =
     loadPublicKey.map { key =>
       val jwk = RSAKey.Builder(key).keyID(keyId).algorithm(JWSAlgorithm.RS256).build()
-      JWKSet(jwk).toJSONObject.toString
+      // toString, not toJSONObject.toString - the latter is a java.util.Map rendering, which no
+      // tool can parse as JSON.
+      JWKSet(jwk).toString
     }
 
   /** Self-submitting form; the launch has to reach the tool as a POST inside the same frame. */

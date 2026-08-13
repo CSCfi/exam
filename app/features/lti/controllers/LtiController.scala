@@ -31,18 +31,21 @@ class LtiController @Inject() (
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
     ) { request =>
       request.getQueryString("resourceId").map(_.trim).filter(_.nonEmpty) match
-        case None => toResult(LtiError.MissingResourceId)
+        case None             => toResult(LtiError.MissingResourceId)
         case Some(resourceId) =>
-          val state = java.util.UUID.randomUUID.toString
-          val nonce = ltiService.generateNonce
-          ltiService.buildLoginRedirect(nonce, state) match
+          // state and nonce here are spurious: the tool generates its own for the authorization
+          // request. They are sent for parity with the original implementation; login_hint is
+          // what actually ties the callback back to this session.
+          val loginHint = ltiService.generateLoginHint
+          val state     = java.util.UUID.randomUUID.toString
+          val nonce     = ltiService.generateNonce
+          ltiService.buildLoginRedirect(loginHint, nonce, state) match
             case Left(error) => toResult(error)
             case Right(url) =>
               Redirect(url).addingToSession(
-                "lti_nonce"       -> nonce,
-                "lti_state"       -> state,
+                "lti_login_hint"  -> loginHint,
                 "lti_resource_id" -> resourceId
-              )(request)
+              )(using request)
     }
 
   /** Tool calls back here; responds with a self-submitting form carrying the signed id_token. */
@@ -62,6 +65,17 @@ class LtiController @Inject() (
           params <- (redirectUri, state, nonce) match
             case (Some(uri), Some(s), Some(n)) => Right((uri, s, n))
             case _                             => Left(LtiError.MissingParameters)
+          (uri, toolState, toolNonce) = params
+          // The tool must return the login_hint we issued, which is what binds this callback
+          // to the session that started the login.
+          _ <- Either.cond(
+            request
+              .getQueryString("login_hint")
+              .exists(hint => request.session.get("lti_login_hint").contains(hint)),
+            (),
+            LtiError.LoginHintMismatch
+          )
+          validatedUri <- ltiService.validateRedirectUri(uri)
           resourceId <- request.session
             .get("lti_resource_id")
             .map(_.trim)
@@ -70,10 +84,10 @@ class LtiController @Inject() (
           idToken <- ltiService.buildIdToken(
             request.attrs(Auth.ATTR_USER),
             resourceId,
-            params._3,
-            params._1
+            toolNonce,
+            validatedUri
           )
-        yield ltiService.buildAutoPostHtml(params._1, idToken, params._2)
+        yield ltiService.buildAutoPostHtml(validatedUri, idToken, toolState)
 
       result match
         case Left(error) => toResult(error)

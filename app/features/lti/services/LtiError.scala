@@ -13,4 +13,7 @@ enum LtiError(val message: String):
   case InvalidClientId       extends LtiError("Invalid client_id")
   case MissingParameters     extends LtiError("Missing required parameters")
   case NoResourceIdInSession extends LtiError("Missing resourceId in session")
-  case KeyUnavailable        extends LtiError("LTI signing key could not be read")
+  case InvalidRedirectUri    extends LtiError("redirect_uri is not registered for this client")
+  case LoginHintMismatch
+      extends LtiError("login_hint does not match the session that started this login")
+  case KeyUnavailable extends LtiError("LTI signing key could not be read")

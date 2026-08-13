@@ -4,7 +4,7 @@
 
 package assessment
 
-import models.questions.{MultipleChoiceOption, Question, QuestionType}
+import models.questions.*
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -49,3 +49,32 @@ class ExamSectionQuestionScoreSpec extends AnyWordSpec with Matchers:
       // while the assessment view correctly honored the 0.
       "use the forced score of zero, not the auto-calculated score" in:
         multiChoiceQuestion(3.0, java.lang.Double.valueOf(0.0)).getAssessedScore must be(0.0)
+
+  // LTI answers are graded through the essay answer, so they must score like an essay.
+  // Omitting the type from these branches silently caps every LTI answer at zero.
+  private def ltiQuestion(maxScore: Double, evaluatedScore: java.lang.Double): ExamSectionQuestion =
+    val question = new Question
+    question.`type` = QuestionType.LtiQuestion
+
+    val esq = new ExamSectionQuestion
+    esq.question = question
+    esq.maxScore = maxScore
+    esq.evaluationType = QuestionEvaluationType.Points
+    if evaluatedScore != null then
+      val answer = new EssayAnswer
+      answer.evaluatedScore = evaluatedScore
+      esq.essayAnswer = answer
+    esq
+
+  "ExamSectionQuestion scoring for LtiQuestion" when:
+    "the answer has been graded" should:
+      "report the evaluated score" in:
+        ltiQuestion(5.0, java.lang.Double.valueOf(4.0)).getAssessedScore must be(4.0)
+
+    "the answer has not been graded" should:
+      "report zero" in:
+        ltiQuestion(5.0, null).getAssessedScore must be(0.0)
+
+    "a max score is configured" should:
+      "report it rather than falling through to zero" in:
+        ltiQuestion(5.0, null).getMaxAssessedScore must be(5.0)
