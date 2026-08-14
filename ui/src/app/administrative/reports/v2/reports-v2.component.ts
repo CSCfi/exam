@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, signa
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { combineLatest, Observable, of } from 'rxjs';
 import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
@@ -19,6 +19,7 @@ import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.c
 import { Option } from 'src/app/shared/select/select.model';
 import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { ExamService } from 'src/app/exam/exam.service';
 
 interface ReportRow {
     firstName: string;
@@ -118,6 +119,8 @@ export class ReportsV2Component {
 
     private readonly Reservation = inject(ReservationService);
     private readonly CommonExam = inject(CommonExamService);
+    private readonly Exam = inject(ExamService);
+    private readonly translate = inject(TranslateService);
 
     constructor() {
         const statuses = [
@@ -229,6 +232,7 @@ export class ReportsV2Component {
                             return reservations
                                 .filter((r) => {
                                     const exam = (r.enrolment?.exam.parent || r.enrolment?.exam) as Exam;
+                                    if (!exam) return false;
                                     const matchImplementation =
                                         !implementationFilter ||
                                         exam.implementation?.toLowerCase().includes(implementationFilter);
@@ -253,9 +257,9 @@ export class ReportsV2Component {
                                     );
                                 })
                                 .map((r) => {
-                                    const exam = (r.enrolment?.exam) as Exam;
-                                    const participation = r.participation;
                                     const enrolment = r.enrolment;
+                                    const exam = enrolment?.exam as Exam;
+                                    const participation = r.participation;
 
                                     return {
                                         firstName: r.user?.firstName ?? r.externalUserRef ?? '',
@@ -263,11 +267,11 @@ export class ReportsV2Component {
                                         studentEmail: r.user?.email ?? '',
                                         eppn: r.user?.eppn ?? '',
                                         studentNumber: r.user?.userIdentifier ?? '',
-                                        courseCode: exam.course?.code ?? '',
-                                        courseName: exam.course?.name ?? '',
-                                        examName: exam.name ?? '',
+                                        courseCode: exam?.course?.code ?? '',
+                                        courseName: exam?.course?.name ?? '',
+                                        examName: exam?.name ?? '',
                                         teachers:
-                                            exam.examOwners
+                                            exam?.examOwners
                                                 ?.map((o) => `${o.firstName} ${o.lastName} (${o.email})`)
                                                 .join(', ') ?? '',
                                         reservationStart: r.startAt
@@ -284,24 +288,36 @@ export class ReportsV2Component {
                                             : '',
                                         participationDuration: participation?.duration ?? '',
                                         assessmentStatus: this.Reservation.printExamState(r),
-                                        gradeScale: this.CommonExam.getScaleDisplayName(exam.gradeScale),
-                                        grade: exam.grade?.name
+                                        gradeScale: this.CommonExam.getScaleDisplayName(exam?.gradeScale),
+                                        grade: exam?.grade?.name
                                             ? this.CommonExam.getExamGradeDisplayName(exam.grade.name)
                                             : '',
                                         assessmentDateEstimated: '', // Not easily available in this object
-                                        assessmentDateLocked: exam.gradedTime
+                                        assessmentDateLocked: exam?.gradedTime
                                             ? DateTime.fromISO(exam.gradedTime as unknown as string).toFormat(
                                                   'yyyy-MM-dd HH:mm',
                                               )
                                             : '',
-                                        examId: exam.id?.toString() ?? '',
-                                        score: exam.totalScore?.toString() ?? '',
-                                        maxScore: exam.maxScore?.toString() ?? '',
-                                        language: exam.examLanguages?.map((l) => l.name).join(', ') ?? '',
-                                        organisation: exam.organisations ?? '',
-                                        additionalInfo: exam.additionalInfo ?? '',
-                                        examType: exam.examType?.name ?? exam.examType?.type ?? '',
-                                        examMethod: exam.executionType?.type ?? '', // e.g. ROOM, BYOD
+                                        examId: exam?.id?.toString() ?? '',
+                                        score: exam?.totalScore?.toString() ?? '',
+                                        maxScore: exam?.maxScore?.toString() ?? '',
+                                        language: exam?.examLanguages?.map((l) => l.name).join(', ') ?? '',
+                                        organisation: exam?.organisations ?? '',
+                                        additionalInfo: exam?.additionalInfo ?? '',
+                                        examType:
+                                            exam && exam.executionType
+                                                ? this.translate.instant(
+                                                      this.Exam.getExecutionTypeTranslation(exam.executionType),
+                                                  )
+                                                : '',
+                                        examMethod:
+                                            exam && exam.implementation
+                                                ? this.translate.instant(
+                                                      this.CommonExam.getExamImplementationTranslation(
+                                                          exam.implementation,
+                                                      ),
+                                                  )
+                                                : '',
                                         noShow: enrolment?.noShow ? 'Yes' : 'No',
                                         aborted: r.participation?.ended && r.status === 'ABORTED' ? 'Yes' : 'No',
                                     };

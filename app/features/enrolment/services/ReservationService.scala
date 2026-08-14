@@ -408,7 +408,7 @@ class ReservationService @Inject() (
       .find(classOf[Reservation])
       .fetch("enrolment", "noShow, retrialPermitted, enrolledOn")
       .fetch("user", "id, firstName, lastName, email, userIdentifier, eppn")
-      .fetch("participation", "ended")
+      .fetch("participation", "started, ended")
       .fetch("enrolment.exam", "id, name, state, trialCount, implementation, gradeScale, grade, gradedTime, totalScore, maxScore")
       .fetch("enrolment.exam.grade", "name")
       .fetch("enrolment.exam.gradeScale", "description, displayName")
