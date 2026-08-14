@@ -320,24 +320,6 @@ export class ReportsV2Component {
             });
     }
 
-    protected nameFormatter = (item: { name: string }) => item.name;
-
-    protected isAnyFilterActive(): boolean {
-        return (
-            !!this.student() ||
-            !!this.exam() ||
-            !!this.teacher() ||
-            !!this.implementation() ||
-            !!this.status() ||
-            !!this.examType() ||
-            !!this.startDate() ||
-            !!this.endDate() ||
-            !!this.eppn() ||
-            !!this.studentNumber() ||
-            !!this.email()
-        );
-    }
-
     studentSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
         this.student.set(event.item);
     }
@@ -403,6 +385,26 @@ export class ReportsV2Component {
 
     stageChanged(event: Option<string, string> | undefined) {
         this.status.set(event?.value ?? '');
+    }
+
+    protected nameFormatter(item: { name: string }) {
+        return item.name;
+    }
+
+    protected isAnyFilterActive(): boolean {
+        return (
+            !!this.student() ||
+            !!this.exam() ||
+            !!this.teacher() ||
+            !!this.implementation() ||
+            !!this.status() ||
+            !!this.examType() ||
+            !!this.startDate() ||
+            !!this.endDate() ||
+            !!this.eppn() ||
+            !!this.studentNumber() ||
+            !!this.email()
+        );
     }
 
     protected searchStudents$ = (text$: Observable<string>) => this.Reservation.searchStudents$(text$);
