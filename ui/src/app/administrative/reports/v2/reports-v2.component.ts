@@ -253,7 +253,7 @@ export class ReportsV2Component {
                                     );
                                 })
                                 .map((r) => {
-                                    const exam = (r.enrolment?.exam.parent || r.enrolment?.exam) as Exam;
+                                    const exam = (r.enrolment?.exam) as Exam;
                                     const participation = r.participation;
                                     const enrolment = r.enrolment;
 
