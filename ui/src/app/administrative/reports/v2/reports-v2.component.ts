@@ -290,7 +290,7 @@ export class ReportsV2Component {
                                             : '',
                                         assessmentDateEstimated: '', // Not easily available in this object
                                         assessmentDateLocked: exam.gradedTime
-                                            ? DateTime.fromJSDate(new Date(exam.gradedTime)).toFormat(
+                                            ? DateTime.fromISO(exam.gradedTime as unknown as string).toFormat(
                                                   'yyyy-MM-dd HH:mm',
                                               )
                                             : '',
