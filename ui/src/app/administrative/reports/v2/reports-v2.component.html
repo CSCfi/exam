@@ -399,10 +399,10 @@ SPDX-License-Identifier: EUPL-1.2
                                 }
                             </th>
                         }
-                        @if (visibleColumns().includes('assessmentDateEstimated')) {
-                            <th class="sortable" (click)="sort('assessmentDateEstimated')" [class.sorted]="sortColumn() === 'assessmentDateEstimated'">
-                                {{ 'i18n_assessment_date_estimated' | translate }}
-                                @if (sortColumn() === 'assessmentDateEstimated') {
+                        @if (visibleColumns().includes('assessmentDate')) {
+                            <th class="sortable" (click)="sort('assessmentDate')" [class.sorted]="sortColumn() === 'assessmentDate'">
+                                {{ 'i18n_assessment_date' | translate }}
+                                @if (sortColumn() === 'assessmentDate') {
                                     <i
                                         class="bi"
                                         [class.bi-caret-up-fill]="sortDirection() === 'asc'"
@@ -609,8 +609,8 @@ SPDX-License-Identifier: EUPL-1.2
                             @if (visibleColumns().includes('grade')) {
                                 <td>{{ row.grade }}</td>
                             }
-                            @if (visibleColumns().includes('assessmentDateEstimated')) {
-                                <td>{{ row.assessmentDateEstimated }}</td>
+                            @if (visibleColumns().includes('assessmentDate')) {
+                                <td>{{ row.assessmentDate }}</td>
                             }
                             @if (visibleColumns().includes('assessmentDateLocked')) {
                                 <td>{{ row.assessmentDateLocked }}</td>

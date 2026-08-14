@@ -410,6 +410,7 @@ class ReservationService @Inject() (
       .fetch("user", "id, firstName, lastName, email, userIdentifier, eppn")
       .fetch("participation", "started, ended")
       .fetch("enrolment.exam", "id, name, state, trialCount, implementation, gradeScale, grade, gradedTime, totalScore, maxScore")
+      .fetch("enrolment.exam.examRecord", "timeStamp")
       .fetch("enrolment.exam.grade", "name")
       .fetch("enrolment.exam.gradeScale", "description, displayName")
       .fetch("enrolment.exam.parent", "gradeScale")

@@ -39,7 +39,7 @@ interface ReportRow {
     assessmentStatus: string;
     gradeScale: string;
     grade: string;
-    assessmentDateEstimated: string;
+    assessmentDate: string;
     assessmentDateLocked: string;
     additionalInfo: string;
     examId: string;
@@ -162,7 +162,7 @@ export class ReportsV2Component {
             { id: 'assessmentStatus', label: 'i18n_exam_state' },
             { id: 'gradeScale', label: 'i18n_grade_scale' },
             { id: 'grade', label: 'i18n_grade' },
-            { id: 'assessmentDateEstimated', label: 'i18n_assessment_date_estimated' },
+            { id: 'assessmentDate', label: 'i18n_assessment_date' },
             { id: 'assessmentDateLocked', label: 'i18n_assessment_date_locked' },
             { id: 'examId', label: 'i18n_exam_id' },
             { id: 'score', label: 'i18n_total_score' },
@@ -292,11 +292,13 @@ export class ReportsV2Component {
                                         grade: exam?.grade?.name
                                             ? this.CommonExam.getExamGradeDisplayName(exam.grade.name)
                                             : '',
-                                        assessmentDateEstimated: '', // Not easily available in this object
-                                        assessmentDateLocked: exam?.gradedTime
+                                        assessmentDate: exam?.gradedTime
                                             ? DateTime.fromISO(exam.gradedTime as unknown as string).toFormat(
                                                   'yyyy-MM-dd HH:mm',
                                               )
+                                            : '',
+                                        assessmentDateLocked: exam?.examRecord?.timeStamp
+                                            ? DateTime.fromISO(exam.examRecord.timeStamp).toFormat('yyyy-MM-dd HH:mm')
                                             : '',
                                         examId: exam?.id?.toString() ?? '',
                                         score: exam?.totalScore?.toString() ?? '',
