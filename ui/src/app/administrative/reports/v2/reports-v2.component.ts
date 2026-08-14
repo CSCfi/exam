@@ -284,7 +284,7 @@ export class ReportsV2Component {
                                             : '',
                                         participationDuration: participation?.duration ?? '',
                                         assessmentStatus: this.Reservation.printExamState(r),
-                                        gradeScale: exam.gradeScale?.name ?? '',
+                                        gradeScale: this.CommonExam.getScaleDisplayName(exam.gradeScale),
                                         grade: exam.grade?.name
                                             ? this.CommonExam.getExamGradeDisplayName(exam.grade.name)
                                             : '',
