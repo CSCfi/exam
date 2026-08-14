@@ -423,6 +423,66 @@ SPDX-License-Identifier: EUPL-1.2
                                 }
                             </th>
                         }
+                        @if (visibleColumns().includes('examId')) {
+                            <th class="sortable" (click)="sort('examId')" [class.sorted]="sortColumn() === 'examId'">
+                                {{ 'i18n_exam_id' | translate }}
+                                @if (sortColumn() === 'examId') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('score')) {
+                            <th class="sortable" (click)="sort('score')" [class.sorted]="sortColumn() === 'score'">
+                                {{ 'i18n_total_score' | translate }}
+                                @if (sortColumn() === 'score') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('maxScore')) {
+                            <th class="sortable" (click)="sort('maxScore')" [class.sorted]="sortColumn() === 'maxScore'">
+                                {{ 'i18n_max_score' | translate }}
+                                @if (sortColumn() === 'maxScore') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('language')) {
+                            <th class="sortable" (click)="sort('language')" [class.sorted]="sortColumn() === 'language'">
+                                {{ 'i18n_language' | translate }}
+                                @if (sortColumn() === 'language') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
+                        @if (visibleColumns().includes('organisation')) {
+                            <th class="sortable" (click)="sort('organisation')" [class.sorted]="sortColumn() === 'organisation'">
+                                {{ 'i18n_faculty_name' | translate }}
+                                @if (sortColumn() === 'organisation') {
+                                    <i
+                                        class="bi"
+                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
+                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
+                                    ></i>
+                                }
+                            </th>
+                        }
                         @if (visibleColumns().includes('additionalInfo')) {
                             <th class="sortable" (click)="sort('additionalInfo')" [class.sorted]="sortColumn() === 'additionalInfo'">
                                 {{ 'i18n_additional_info' | translate }}
@@ -554,6 +614,21 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                             @if (visibleColumns().includes('assessmentDateLocked')) {
                                 <td>{{ row.assessmentDateLocked }}</td>
+                            }
+                            @if (visibleColumns().includes('examId')) {
+                                <td>{{ row.examId }}</td>
+                            }
+                            @if (visibleColumns().includes('score')) {
+                                <td>{{ row.score }}</td>
+                            }
+                            @if (visibleColumns().includes('maxScore')) {
+                                <td>{{ row.maxScore }}</td>
+                            }
+                            @if (visibleColumns().includes('language')) {
+                                <td>{{ row.language }}</td>
+                            }
+                            @if (visibleColumns().includes('organisation')) {
+                                <td>{{ row.organisation }}</td>
                             }
                             @if (visibleColumns().includes('additionalInfo')) {
                                 <td>{{ row.additionalInfo }}</td>

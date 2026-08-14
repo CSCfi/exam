@@ -41,6 +41,11 @@ interface ReportRow {
     assessmentDateEstimated: string;
     assessmentDateLocked: string;
     additionalInfo: string;
+    examId: string;
+    score: string;
+    maxScore: string;
+    language: string;
+    organisation: string;
     examType: string;
     examMethod: string;
     noShow: string;
@@ -156,6 +161,11 @@ export class ReportsV2Component {
             { id: 'grade', label: 'i18n_grade' },
             { id: 'assessmentDateEstimated', label: 'i18n_assessment_date_estimated' },
             { id: 'assessmentDateLocked', label: 'i18n_assessment_date_locked' },
+            { id: 'examId', label: 'i18n_exam_id' },
+            { id: 'score', label: 'i18n_total_score' },
+            { id: 'maxScore', label: 'i18n_max_score' },
+            { id: 'language', label: 'i18n_language' },
+            { id: 'organisation', label: 'i18n_faculty_name' },
             { id: 'additionalInfo', label: 'i18n_additional_info' },
             { id: 'examType', label: 'i18n_exam_type' },
             { id: 'examMethod', label: 'i18n_exam_method' },
@@ -284,6 +294,11 @@ export class ReportsV2Component {
                                                   'yyyy-MM-dd HH:mm',
                                               )
                                             : '',
+                                        examId: exam.id?.toString() ?? '',
+                                        score: exam.totalScore?.toString() ?? '',
+                                        maxScore: exam.maxScore?.toString() ?? '',
+                                        language: exam.examLanguages?.map((l) => l.name).join(', ') ?? '',
+                                        organisation: exam.organisations ?? '',
                                         additionalInfo: exam.additionalInfo ?? '',
                                         examType: exam.examType?.name ?? exam.examType?.type ?? '',
                                         examMethod: exam.executionType?.type ?? '', // e.g. ROOM, BYOD
