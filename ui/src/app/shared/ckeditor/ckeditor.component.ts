@@ -107,8 +107,15 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
 
     ngOnDestroy() {
         if (this.instance) {
-            this.instance.removeAllListeners();
-            CKEDITOR.instances[this.instance.name].destroy();
+            // Only destroy(). It fires the 'destroy' event and *then* calls
+            // removeAllListeners() itself — that ordering is how CKEditor 4 cleans up:
+            // ~16 core handlers hang off editor.on('destroy') and release global state
+            // (CKEDITOR.tools.removeFunction slots for every toolbar button, window
+            // scroll/resize listeners, MutationObservers, pending timeouts, container
+            // custom data). Calling instance.removeAllListeners() beforehand unregisters
+            // all of them, so none of that cleanup runs and every editor stays reachable
+            // from CKEDITOR.tools' global function array. destroy() also removes the
+            // editor from CKEDITOR.instances, so no explicit lookup is needed either.
             this.instance.destroy();
             this.instance = null;
         }
