@@ -43,7 +43,7 @@ export class ReservationDetailsComponent {
     readonly isAdminView = input(false);
     readonly isSupportView = input(false);
 
-    readonly predicate = signal('reservation.startAt');
+    readonly predicate = signal('startAt');
     readonly reverse = signal(false);
     readonly fixedReservations = linkedSignal<ReservationDetail[]>(() => this.reservations() as ReservationDetail[]);
 
