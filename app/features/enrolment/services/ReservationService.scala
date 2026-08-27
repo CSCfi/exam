@@ -203,6 +203,8 @@ class ReservationService @Inject() (
     val roomOpt        = Option(DB.find(classOf[ExamRoom], roomId))
 
     (reservationOpt, roomOpt) match
+      case (Some(reservation), _) if isExternalReservation(reservation) =>
+        Future.successful(Left(ReservationError.MachineChangeNotAllowed))
       case (Some(reservation), Some(room)) =>
         val props = PathProperties.parse("(id, name)")
         val candidates = DB.find(classOf[ExamMachine])
@@ -245,12 +247,19 @@ class ReservationService @Inject() (
         }
       case _ => Future.successful(Left(ReservationError.RoomNotFound))
 
+  // Machines of IOP reservations are assigned by the institution hosting the visit, over IOP
+  private def isExternalReservation(reservation: Reservation): Boolean =
+    Option(reservation.externalUserRef).isDefined ||
+      Option(reservation.externalReservation).isDefined
+
   def updateMachine(
       reservationId: Long,
       machineId: Long
   ): Future[Either[ReservationError, Reservation]] =
     Option(DB.find(classOf[Reservation], reservationId)) match
       case None => Future.successful(Left(ReservationError.ReservationNotFound))
+      case Some(reservation) if isExternalReservation(reservation) =>
+        Future.successful(Left(ReservationError.MachineChangeNotAllowed))
       case Some(reservation) =>
         Option(DB.find(classOf[ExamMachine], machineId)) match
           case None          => Future.successful(Left(ReservationError.MachineNotFound))
@@ -290,10 +299,12 @@ class ReservationService @Inject() (
             }
 
   private def getReservationExam(reservation: Reservation): Future[Option[Exam]] =
-    Option(reservation.enrolment.exam) match
+    // A visiting student's reservation has no enrolment on this end
+    val enrolment = Option(reservation.enrolment)
+    enrolment.flatMap(e => Option(e.exam)) match
       case opt @ Some(exam) => Future.successful(opt)
       case None =>
-        Option(reservation.enrolment.collaborativeExam) match
+        enrolment.flatMap(e => Option(e.collaborativeExam)) match
           case Some(collaborativeExam) =>
             collaborativeExamLoader
               .downloadExam(collaborativeExam)

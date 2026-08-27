@@ -33,6 +33,9 @@ object ReservationError:
   case object SuitableSlotNotFound extends ReservationError:
     val message = "Could not find suitable slot"
 
+  case object MachineChangeNotAllowed extends ReservationError:
+    val message = "Machine of an external reservation cannot be changed"
+
   case class InvalidReservation(message: String) extends ReservationError
 
   case object RemoteCallFailed extends ReservationError:

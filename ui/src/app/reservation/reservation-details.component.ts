@@ -118,11 +118,17 @@ export class ReservationDetailsComponent {
         return r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.executionType.type === 'PUBLIC';
     }
 
+    // Machines of IOP reservations are not ours to reassign, no matter when they take place
     canChangeMachine(r: ReservationDetail): boolean {
-        const isExternalUnfinished = r.enrolment.exam.state === 'EXTERNAL_UNFINISHED';
         const isPublishedAquarium =
             r.enrolment.exam.state === 'PUBLISHED' && r.enrolment.exam.implementation === 'AQUARIUM';
-        return !r.enrolment.noShow && ((isPublishedAquarium && !r.externalReservation) || isExternalUnfinished);
+        return (
+            isPublishedAquarium &&
+            !r.externalReservation &&
+            !r.externalUserRef &&
+            !r.enrolment.noShow &&
+            !this.reservationIsInPast(r)
+        );
     }
 
     hasAvailableActions(r: ReservationDetail): boolean {

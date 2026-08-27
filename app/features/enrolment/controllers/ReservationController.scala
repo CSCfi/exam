@@ -89,6 +89,8 @@ class ReservationController @Inject() (
           case Left(ReservationError.ExamNotFound)        => NotFound("Exam not found")
           case Left(ReservationError.MachineNotEligible) =>
             Forbidden(ReservationError.MachineNotEligible.message)
+          case Left(ReservationError.MachineChangeNotAllowed) =>
+            Forbidden(ReservationError.MachineChangeNotAllowed.message)
           case Left(ReservationError.SuitableSlotNotFound) =>
             InternalServerError(ReservationError.SuitableSlotNotFound.message)
           case Left(_) => Forbidden
