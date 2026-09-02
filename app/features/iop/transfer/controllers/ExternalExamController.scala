@@ -33,6 +33,8 @@ class ExternalExamController @Inject() (
         Results.InternalServerError("Could not download collaborative exam")
       case Left(ExternalExamError.FailedToProvideEnrolment) =>
         Results.InternalServerError("Failed to provide enrolment")
+      case Left(ExternalExamError.ExamNotTransferable) =>
+        Results.Conflict(ExternalExamError.ExamNotTransferable.message)
 
   def addExamForAssessment(ref: String): Action[JsValue] =
     audited.andThen(subjectNotPresent).async(parse.json) { request =>

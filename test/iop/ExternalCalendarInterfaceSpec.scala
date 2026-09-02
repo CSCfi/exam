@@ -742,6 +742,49 @@ class ExternalCalendarInterfaceSpec
         mailBody must include("You have booked an exam time")
         mailBody must include("Room 1")
 
+      "refuse an exam with LTI questions" in:
+        ensureTestDataLoaded()
+        val studentUser = DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match
+          case Some(u) => u
+          case None    => fail("Student user not found")
+        val (exam, _, _, _) = setupTestData(Some(studentUser))
+
+        // An LTI question can only be launched by the installation registered with the tool, so
+        // the student must be told before travelling rather than on exam day.
+        val question = exam.examSections.asScala
+          .flatMap(_.sectionQuestions.asScala)
+          .map(_.question)
+          .headOption
+          .getOrElse(fail("No question found on test exam"))
+        question.`type` = QuestionType.LtiQuestion
+        question.ltiId = "resource-42"
+        question.update()
+
+        val (_, session) = runIO(loginAsStudent())
+        val requestData = Json.obj(
+          "start"         -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(1)),
+          "end"           -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(2)),
+          "examId"        -> exam.id.longValue,
+          "orgId"         -> ORG_REF,
+          "roomId"        -> ROOM_REF,
+          "requestingOrg" -> "foobar"
+        )
+
+        val result = runIO(makeRequest(
+          POST,
+          "/app/iop/reservations/external",
+          Some(requestData),
+          session = session
+        ))
+
+        statusOf(result) must be(Status.FORBIDDEN)
+        contentAsStringOf(result) must be("i18n_error_exam_not_available_externally")
+
+        // Nothing may have been reserved remotely
+        DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne() must be(
+          null
+        )
+
       "prevent re-enrollment before assessment returned" in:
         ensureTestDataLoaded()
         val studentUser = DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match

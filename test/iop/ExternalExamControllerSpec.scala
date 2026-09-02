@@ -440,3 +440,21 @@ class ExternalExamControllerSpec
           new File(uploadPath.toString + "/" + "test.txt").exists() must be(true)
           new File(uploadPath.toString + "/" + "test_image.png").exists() must be(true)
         }
+
+    "providing enrolment for an exam with LTI questions" should:
+      "refuse the transfer" in:
+        val (exam, enrolment, reservation) = setupTestData()
+
+        // Only ltiId travels over IOP, never the tool registration it points into, so the visiting
+        // installation would have nothing to launch. See docs/lti-and-exam-visits.md.
+        val question = getExamSectionQuestion(exam).question
+        question.`type` = QuestionType.LtiQuestion
+        question.ltiId = "resource-42"
+        question.update()
+
+        enrolment.reservation = reservation
+        enrolment.update()
+
+        val result = runIO(get(s"/integration/iop/reservations/$RESERVATION_REF"))
+        statusOf(result).must(be(Status.CONFLICT))
+        contentAsStringOf(result) must include("LTI")

@@ -97,11 +97,26 @@ class ExternalExamService @Inject() (
         Option(enrolment.collaborativeExam) match
           case Some(collaborativeExam) =>
             collaborativeExamLoader.downloadExam(collaborativeExam).map {
+              case Some(exam) if exam.hasLtiQuestions =>
+                logger.warn(
+                  s"Refusing to provide collaborative exam [id=${collaborativeExam.id}] " +
+                    "for external examination: it contains LTI questions"
+                )
+                Left(ExternalExamError.ExamNotTransferable)
               case Some(exam) =>
                 val pp = getPath
                 Right((exam.asJson(pp), pp))
               case None => Left(ExternalExamError.CouldNotDownloadCollaborativeExam)
             }
+          case None if enrolment.exam.hasLtiQuestions =>
+            // The LTI tool registration is this installation's config, never exam content, so the
+            // visiting installation would have nothing to launch. Fail here rather than ship a
+            // dangling ltiId that surfaces as a blank iframe mid-exam.
+            logger.warn(
+              s"Refusing to provide exam [id=${enrolment.exam.id}] for external examination: " +
+                "it contains LTI questions"
+            )
+            Future.successful(Left(ExternalExamError.ExamNotTransferable))
           case None =>
             val exam = enrolment.exam
 

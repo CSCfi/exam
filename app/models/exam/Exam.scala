@@ -177,6 +177,16 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   def isUnsupervised: Boolean =
     executionType == null || executionType.`type` != ExamImplementation.AQUARIUM.toString
 
+  /** An LTI question is a live pointer into a tool this installation is registered with as an LTI
+    * platform - the registration is installation-global config, not exam content. Only `ltiId`
+    * travels over IOP, so such a question cannot be launched anywhere but here. See
+    * `docs/lti-and-exam-visits.md`.
+    */
+  def hasLtiQuestions: Boolean =
+    examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .exists(esq => Option(esq.question).map(_.`type`).contains(QuestionType.LtiQuestion))
+
   def setDerivedMaxScores(): Unit =
     examSections.asScala
       .flatMap(_.sectionQuestions.asScala)

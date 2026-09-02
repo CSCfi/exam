@@ -248,6 +248,8 @@ class ExternalCalendarController @Inject() (
             .fetch("reservation")
             .fetch("exam.examSections")
             .fetch("exam.examSections.examMaterials")
+            .fetch("exam.examSections.sectionQuestions")
+            .fetch("exam.examSections.sectionQuestions.question")
             .where()
             .eq("user.id", user.id)
             .eq("exam.id", examId)
@@ -260,6 +262,10 @@ class ExternalCalendarController @Inject() (
 
         enrolmentOpt match
           case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
+          // Tell the student now rather than on exam day: an LTI question can only be launched by
+          // the installation registered with the tool. See docs/lti-and-exam-visits.md.
+          case Some(enrolment) if enrolment.exam.hasLtiQuestions =>
+            Future.successful(Forbidden("i18n_error_exam_not_available_externally"))
           case Some(enrolment) =>
             val sectionIdsSeq = sectionIds.getOrElse(List.empty)
             calendarHandler.checkEnrolment(enrolment, user, sectionIdsSeq) match

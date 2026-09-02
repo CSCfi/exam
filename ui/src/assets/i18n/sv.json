@@ -353,6 +353,7 @@
     "i18n_reservation_in_effect": "Bokningen är redan ikraft, den kan inte längre redigeras.",
     "i18n_no_machines_available": "Tyvärr finns det inga lediga datorer",
     "i18n_error_enrolment_not_found": "Du har inte anmält dig till denna tentamen",
+    "i18n_error_exam_not_available_externally": "Denna tentamen kan inte avläggas vid en annan högskola",
     "i18n_exam_choose_response_language": "Välj minst ett språk",
     "i18n_review_saved": "Bedömning är sparad, men inte slutförd",
     "i18n_review_graded": "Bedömningen är sparad och slutligt vitsord är givet",

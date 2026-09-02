@@ -20,3 +20,5 @@ object ExternalExamError:
     val message = "Could not download collaborative exam"
   case object FailedToProvideEnrolment extends ExternalExamError:
     val message = "Failed to provide enrolment"
+  case object ExamNotTransferable extends ExternalExamError:
+    val message = "Exam contains LTI questions and cannot be taken in another installation"
