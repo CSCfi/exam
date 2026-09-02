@@ -4,14 +4,14 @@
 
 package features.iop.collaboration.controllers
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
 import models.exam.Exam
 import models.exam.ExamState
 import models.exam.GradeType
 import models.iop.CollaborativeExam
-import models.questions.ClozeTestAnswer
-import models.questions.QuestionType
 import models.user.{Role, User}
 import org.apache.pekko.stream.scaladsl.StreamConverters
 import org.joda.time.DateTime
@@ -79,34 +79,15 @@ class CollaborativeReviewController @Inject() (
     if response.status != OK then
       InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
     else
-      val root     = response.json
-      val examNode = (root \ "exam").get
+      val root = toJacksonJson(response.json)
       val blankAnswerText =
         messagesApi("clozeTest.blank.answer")(using Lang(user.language.code))
 
       // Manipulate cloze test answers for convenient display
-      val examSections = (examNode \ "examSections").as[Seq[JsValue]]
-      examSections.foreach { es =>
-        val sectionQuestions = (es \ "sectionQuestions").as[Seq[JsValue]]
-        sectionQuestions.foreach { esq =>
-          val questionType = (esq \ "question" \ "type").asOpt[String]
-          if questionType.contains(QuestionType.ClozeTestQuestion.toString) then
-            // Process cloze test answer
-            val clozeAnswer = (esq \ "clozeTestAnswer").asOpt[JsValue]
-            val cta =
-              if clozeAnswer.exists(_.asOpt[Map[String, JsValue]].exists(_.nonEmpty)) then
-                JsonDeserializer.deserialize(
-                  classOf[ClozeTestAnswer],
-                  toJacksonJson(clozeAnswer.get)
-                )
-              else new ClozeTestAnswer()
-            cta.setQuestionWithResults(toJacksonJson(esq), blankAnswerText)
-            // Note: actual JSON modification would require mutable JSON manipulation
-        }
-      }
+      CollaborativeExamProcessingService.resolveClozeTestAnswers(root.get("exam"), blankAnswerText)
 
       // Write anonymous result with admin flag
-      writeAnonymousResult(request, Ok(root), true, admin)
+      writeAnonymousResult(request, Ok(toPlayJson(root)), true, admin)
 
   private def handleMultipleAssessmentResponse(
       request: Request[?],
@@ -116,55 +97,37 @@ class CollaborativeReviewController @Inject() (
     if response.status != OK then
       InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
     else
-      val root  = response.json.as[play.api.libs.json.JsArray]
-      val valid = CollaborativeExamProcessingService.filterDeleted(root)
-      CollaborativeExamProcessingService.calculateScores(valid)
+      val root   = response.json.as[play.api.libs.json.JsArray]
+      val valid  = CollaborativeExamProcessingService.filterDeleted(root)
+      val scored = CollaborativeExamProcessingService.calculateScores(valid)
 
-      writeAnonymousResult(request, Ok(valid), true, admin)
+      writeAnonymousResult(request, Ok(scored), true, admin)
 
   // Helper to stream over Jackson JsonNode (for Java interop)
-  private def streamJackson(
-      node: com.fasterxml.jackson.databind.JsonNode
-  ): java.util.stream.Stream[com.fasterxml.jackson.databind.JsonNode] =
+  private def streamJackson(node: JsonNode): java.util.stream.Stream[JsonNode] =
     import scala.jdk.StreamConverters.*
     if Option(node).exists(_.isArray) then node.elements().asScala.asJavaSeqStream
     else java.util.stream.Stream.empty()
 
-  private def forceScoreAnswer(
-      examNode: com.fasterxml.jackson.databind.JsonNode,
-      qid: Long,
-      score: Double
-  ): Unit =
+  private def forceScoreAnswer(examNode: JsonNode, qid: Long, score: Double): Unit =
     streamJackson(examNode.get("examSections"))
       .flatMap(es => streamJackson(es.get("sectionQuestions")))
       .filter(esq => esq.get("id").asLong() == qid)
       .findAny()
-      .ifPresent(esq =>
-        esq.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].put("forcedScore", score)
-      )
+      .ifPresent(esq => esq.asInstanceOf[ObjectNode].put("forcedScore", score))
 
-  private def scoreAnswer(
-      examNode: com.fasterxml.jackson.databind.JsonNode,
-      qid: Long,
-      score: Double
-  ): Unit =
+  private def scoreAnswer(examNode: JsonNode, qid: Long, score: Double): Unit =
     streamJackson(examNode.get("examSections"))
       .flatMap(es => streamJackson(es.get("sectionQuestions")))
       .filter(esq => esq.get("id").asLong() == qid)
       .findAny()
       .ifPresent { esq =>
         val essayAnswer = esq.get("essayAnswer")
-        if essayAnswer.isObject && !essayAnswer.isEmpty then
-          essayAnswer.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].put(
-            "evaluatedScore",
-            score
-          )
+        if Option(essayAnswer).exists(a => a.isObject && !a.isEmpty) then
+          essayAnswer.asInstanceOf[ObjectNode].put("evaluatedScore", score)
         else
           val newAnswer = play.libs.Json.newObject().put("evaluatedScore", score)
-          essayAnswer.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].set(
-            "essayAnswer",
-            newAnswer
-          )
+          esq.asInstanceOf[ObjectNode].set("essayAnswer", newAnswer)
       }
 
   private def updateExamNode(examNode: JsObject, body: JsValue, user: User): JsObject =
@@ -311,12 +274,12 @@ class CollaborativeReviewController @Inject() (
                   val root          = response.json
                   val filtered      = filterFinished(root, refs)
                   val filteredArray = play.api.libs.json.JsArray(filtered)
-                  CollaborativeExamProcessingService.calculateScores(filteredArray)
+                  val scored = CollaborativeExamProcessingService.calculateScores(filteredArray)
 
                   val pos = new PipedOutputStream()
                   val pis = new PipedInputStream(pos)
                   Future {
-                    try csvBuilder.streamAssessments(filteredArray)(pos)
+                    try csvBuilder.streamAssessments(scored)(pos)
                     finally pos.close()
                   }(using ec)
                   Ok.chunked(StreamConverters.fromInputStream(() => pis))
@@ -380,13 +343,10 @@ class CollaborativeReviewController @Inject() (
                     )
                   )
                 else
-                  val root     = response.json
-                  val examNode = (root \ "exam").get
-                  score.foreach(s => scoreAnswer(toJacksonJson(examNode), qid, s))
+                  val root = toJacksonJson(response.json)
+                  score.foreach(s => scoreAnswer(root.get("exam"), qid, s))
                   val updated =
-                    root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(
-                      revision
-                    ))
+                    toPlayJson(root).as[JsObject] + ("rev" -> JsString(revision))
                   upload(url, updated)
               }
       }
@@ -466,13 +426,10 @@ class CollaborativeReviewController @Inject() (
                     )
                   )
                 else
-                  val root     = response.json
-                  val examNode = (root \ "exam").get
-                  score.foreach(s => forceScoreAnswer(toJacksonJson(examNode), qid, s))
+                  val root = toJacksonJson(response.json)
+                  score.foreach(s => forceScoreAnswer(root.get("exam"), qid, s))
                   val updated =
-                    root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(
-                      revision
-                    ))
+                    toPlayJson(root).as[JsObject] + ("rev" -> JsString(revision))
                   upload(url, updated)
               }
       }
