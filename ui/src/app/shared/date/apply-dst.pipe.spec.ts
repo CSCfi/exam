@@ -38,10 +38,29 @@ describe('ApplyDstPipe', () => {
         expect(new Date(result).getTime()).toBe(new Date(input).getTime() - 60 * 60 * 1000);
     });
 
-    it('should return the original string when the date is not in DST', () => {
+    it('should keep the instant intact when the date is not in DST', () => {
         mockDateTimeService.isDST.mockReturnValue(false);
         const input = '2024-01-15T12:00:00.000+02:00';
         const result = pipe.transform(input);
-        expect(result).toBe(input);
+        expect(new Date(result).getTime()).toBe(new Date(input).getTime());
+    });
+
+    it('should subtract one hour from epoch millis input when the date is in DST', () => {
+        mockDateTimeService.isDST.mockReturnValue(true);
+        const input = new Date('2024-07-15T12:00:00.000+03:00').getTime();
+        const result = pipe.transform(input);
+        expect(new Date(result).getTime()).toBe(input - 60 * 60 * 1000);
+    });
+
+    it('should keep epoch millis input intact when the date is not in DST', () => {
+        mockDateTimeService.isDST.mockReturnValue(false);
+        const input = new Date('2024-01-15T12:00:00.000+02:00').getTime();
+        const result = pipe.transform(input);
+        expect(new Date(result).getTime()).toBe(input);
+    });
+
+    it('should return empty string for an unparsable value', () => {
+        mockDateTimeService.isDST.mockReturnValue(false);
+        expect(pipe.transform('not-a-date')).toBe('');
     });
 });
