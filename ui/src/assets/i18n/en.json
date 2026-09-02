@@ -166,6 +166,7 @@
     "i18n_student_remove_enrolment": "Cancel the registration",
     "i18n_remove_attachment": "Remove attachment",
     "i18n_generate_report": "Generate report",
+    "i18n_export_excel": "Export in Excel format",
     "i18n_registration_time": "Registration time",
     "i18n_reservation_time": "Reservation time",
     "i18n_reservation_start": "Reservation start",

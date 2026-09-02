@@ -165,6 +165,7 @@
     "i18n_student_remove_enrolment": "Radera anmälningen",
     "i18n_remove_attachment": "Radera bilaga",
     "i18n_generate_report": "Generera rapport",
+    "i18n_export_excel": "Exportera i Excel-format",
     "i18n_registration_time": "Anmälningstid",
     "i18n_reservation_time": "Bokningstid",
     "i18n_reservation_start": "Starttid för bokning",

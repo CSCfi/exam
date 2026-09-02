@@ -20,6 +20,7 @@ import { Option } from 'src/app/shared/select/select.model';
 import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { ExamService } from 'src/app/exam/exam.service';
+import { FileService } from 'src/app/shared/file/file.service';
 
 interface ReportRow {
     firstName: string;
@@ -120,6 +121,7 @@ export class ReportsV2Component {
     private readonly Reservation = inject(ReservationService);
     private readonly CommonExam = inject(CommonExamService);
     private readonly Exam = inject(ExamService);
+    private readonly Files = inject(FileService);
     private readonly translate = inject(TranslateService);
 
     constructor() {
@@ -423,6 +425,29 @@ export class ReportsV2Component {
             !!this.studentNumber() ||
             !!this.email()
         );
+    }
+
+    protected generateReportXlsx(): void {
+        const data = this.sortedReportData();
+        if (data.length === 0) return;
+
+        const visibleCols = this.visibleColumns();
+        const colOptions = this.columnOptions();
+
+        const headers = colOptions
+            .filter((opt) => opt.id && visibleCols.includes(opt.id))
+            .map((opt) => this.translate.instant(opt.label || ''));
+
+        const rows = data.map((row) =>
+            colOptions
+                .filter((opt) => opt.id && visibleCols.includes(opt.id))
+                .map((opt) => (row[opt.id as keyof ReportRow] || '').toString()),
+        );
+
+        this.Files.download('/app/reports/generic/xlsx', `report_${DateTime.now().toFormat('yyyy-MM-dd')}.xlsx`, {
+            method: 'POST',
+            body: { headers, rows },
+        });
     }
 
     protected searchStudents$ = (text$: Observable<string>) => this.Reservation.searchStudents$(text$);

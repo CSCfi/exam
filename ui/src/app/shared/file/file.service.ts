@@ -36,7 +36,7 @@ export class FileService {
         return this._inProgress.asReadonly();
     }
 
-    download(url: string, filename: string, options: DownloadOptions = {}) {
+    download(url: string, filename: string, options: DownloadOptions & { body?: any } = {}) {
         if (this._inProgress().has(url)) return;
         this._inProgress.update((s) => new Set([...s, url]));
         const release = () =>
@@ -46,7 +46,7 @@ export class FileService {
                 return n;
             });
 
-        const { params, method: optMethod = 'GET', asBlob = true, onProgress } = options;
+        const { params, method: optMethod = 'GET', asBlob = true, onProgress, body } = options;
         const method = optMethod;
         if (asBlob) {
             this.http
@@ -55,7 +55,7 @@ export class FileService {
                     observe: 'events',
                     reportProgress: !!onProgress,
                     params: method === 'GET' ? params : undefined,
-                    body: method === 'POST' && params ? { params } : undefined,
+                    body: body || (method === 'POST' && params ? { params } : undefined),
                 })
                 .pipe(finalize(release))
                 .subscribe({
@@ -78,7 +78,7 @@ export class FileService {
                 responseType: 'text',
                 observe: 'response',
                 params: method === 'GET' ? params : undefined,
-                body: method === 'POST' && params ? { params } : undefined,
+                body: body || (method === 'POST' && params ? { params } : undefined),
             })
             .pipe(finalize(release))
             .subscribe({

@@ -166,6 +166,7 @@
     "i18n_student_remove_enrolment": "Peruuta ilmoittautuminen",
     "i18n_remove_attachment": "Poista liite",
     "i18n_generate_report": "Luo raportti",
+    "i18n_export_excel": "Vie Excel-muodossa",
     "i18n_registration_time": "Ilmoittautumisaika",
     "i18n_reservation_time": "Varausaika",
     "i18n_reservation_start": "Tenttivarauksen alkamisaika",
