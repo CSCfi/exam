@@ -229,10 +229,14 @@ class ReservationService @Inject() (
                   findSuitableSlot(machine, reservation, exam).fold(
                     Json.obj("machine" -> machine.asJson, "startAt" -> JsNull, "endAt" -> JsNull)
                   ) { slot =>
+                    // Slot times follow the same DST-shifted storage convention as
+                    // reservation times, so normalize them before rendering
+                    val start = dateTimeHandler.normalize(slot.getStart, timezone)
+                    val end   = dateTimeHandler.normalize(slot.getEnd, timezone)
                     Json.obj(
                       "machine" -> machine.asJson,
-                      "startAt" -> formatter.print(slot.getStart),
-                      "endAt"   -> formatter.print(slot.getEnd)
+                      "startAt" -> formatter.print(start),
+                      "endAt"   -> formatter.print(end)
                     )
                   }
                 }

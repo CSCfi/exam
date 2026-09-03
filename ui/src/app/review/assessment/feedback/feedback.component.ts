@@ -132,6 +132,7 @@ export class FeedbackComponent {
                         participationValue._rev = resp.rev;
                         delete resp.rev;
                     }
+                    examValue.examFeedback.attachment = resp;
                     this.attachment.set(resp);
                 });
         });
