@@ -317,6 +317,12 @@ export class SessionService {
     }
 
     private redirect(user: User): void {
+        // The examination interceptor may already be routing this user to an exam related view
+        // (waiting room, wrong machine, ...) based on the reservation headers carried by the
+        // requests made during login. Navigating to the default landing page here would cancel
+        // that pending navigation, leaving the student on the dashboard until the next session
+        // poll picks the headers up again one PING_INTERVAL later.
+        if (this.router.currentNavigation()) return;
         const url = this.router.url.startsWith('/?') ? '/' : this.router.url;
         if (url === '/' && user.isLanguageInspector) {
             this.router.navigate(['staff/inspections']);

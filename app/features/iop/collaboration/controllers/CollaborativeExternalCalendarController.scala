@@ -17,7 +17,7 @@ import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.datetime.AppClock
 import system.AuditedAction
-import validation.calendar.{ExternalReservationDTO, ReservationCreationFilter}
+import validation.calendar.ReservationCreationFilter
 import validation.core.ScalaAttrs
 
 import javax.inject.Inject
@@ -47,10 +47,15 @@ class CollaborativeExternalCalendarController @Inject() (
         val user = request.attrs(Auth.ATTR_USER)
 
         // Parse request body
-        val ExternalReservationDTO(orgRef, roomRef, examId, start, end, sectionIds) =
-          request.attrs(ScalaAttrs.ATTR_EXT_RESERVATION)
+        val dto        = request.attrs(ScalaAttrs.ATTR_EXT_RESERVATION)
+        val orgRef     = dto.orgRef
+        val roomRef    = dto.roomRef
+        val examId     = dto.examId
+        val start      = dto.start
+        val end        = dto.end
+        val sectionIds = dto.sectionIds
 
-        Try(parseUrl(orgRef, roomRef)) match
+        Try(parseUrl(orgRef = orgRef, facilityRef = roomRef)) match
           case Failure(e) =>
             Future.successful(InternalServerError("Failed to parse URL"))
           case Success(url) =>
@@ -67,15 +72,15 @@ class CollaborativeExternalCalendarController @Inject() (
 
             collaborativeExternalCalendarService
               .requestExternalReservation(
-                examId,
-                user.id,
-                orgRef,
-                roomRef,
-                start,
-                end,
-                sectionIds.getOrElse(Seq.empty),
-                body,
-                url
+                examId = examId,
+                userId = user.id,
+                orgRef = orgRef,
+                roomRef = roomRef,
+                start = start,
+                end = end,
+                sectionIds = sectionIds.getOrElse(Seq.empty),
+                requestBody = body,
+                url = url
               )
               .map {
                 case Left(error)          => Forbidden(error)

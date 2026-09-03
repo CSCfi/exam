@@ -97,6 +97,7 @@ export class StatementComponent {
                 }),
             )
             .subscribe((resp) => {
+                this.exam().languageInspection.statement.attachment = resp;
                 this.attachment.set(resp);
             });
 }
