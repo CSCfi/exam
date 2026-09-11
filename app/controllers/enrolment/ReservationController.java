@@ -180,9 +180,20 @@ public class ReservationController extends BaseController {
         }
     }
 
+    private boolean hasStarted(Reservation reservation) {
+        return !reservation.getStartAt().isAfter(dateTimeHandler.adjustDST(DateTime.now(), reservation));
+    }
+
     private Optional<Interval> findSuitableSlot(ExamMachine machine, Reservation reservation, Exam exam) {
-        var room = machine.getRoom();
         var interval = reservation.toInterval();
+        // An ongoing reservation keeps its original time: the student is already taking the
+        // exam, so the machine change must not shift the time they have left. The calendar
+        // no longer offers slots that have begun, so re-aligning to a slot would push the
+        // reservation to the next one.
+        if (hasStarted(reservation)) {
+            return Optional.of(interval);
+        }
+        var room = machine.getRoom();
         var dtz = DateTimeZone.forID(room.getLocalTimezone());
         var searchDate = dateTimeHandler.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
         var slots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.getDuration());
