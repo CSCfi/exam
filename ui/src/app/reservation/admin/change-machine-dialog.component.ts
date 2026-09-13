@@ -13,6 +13,23 @@ import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/res
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
 
+// A machine can be offered at more than one time: an ongoing reservation can either keep its
+// original time or move to the next free slot. Each of those is a choice of its own in the list.
+interface MachineSlot {
+    start: string;
+    end: string;
+    startAt: string;
+    endAt: string;
+}
+interface AvailableMachine {
+    machine: ExamMachine;
+    slots: MachineSlot[];
+}
+interface MachineChoice {
+    machine: ExamMachine;
+    slot: MachineSlot;
+}
+
 @Component({
     selector: 'xm-change-machine-dialog',
     imports: [TranslateModule, DropdownSelectComponent],
@@ -50,7 +67,7 @@ import { Option } from 'src/app/shared/select/select.model';
                 </div>
             </form>
             <div class="d-flex flex-row-reverse flex-align-r m-3">
-                <button class="btn btn-sm btn-success" (click)="ok()" [disabled]="!machine?.id">
+                <button class="btn btn-sm btn-success" (click)="ok()" [disabled]="!choice">
                     {{ 'i18n_button_save' | translate }}
                 </button>
                 <button class="btn btn-sm btn-outline-secondary me-3" (click)="cancel()">
@@ -62,14 +79,14 @@ import { Option } from 'src/app/shared/select/select.model';
 })
 export class ChangeMachineDialogComponent implements OnInit {
     @Input() reservation!: Reservation;
-    @ViewChild('machineSelection') machineSelection!: DropdownSelectComponent<ExamMachine, number>;
+    @ViewChild('machineSelection') machineSelection!: DropdownSelectComponent<MachineChoice, string>;
 
     activeModal = inject(NgbActiveModal);
 
     room!: Option<ExamRoom, number>;
     availableRoomOptions: Option<ExamRoom, number>[] = [];
-    machine?: ExamMachine;
-    availableMachineOptions: Option<ExamMachine, number>[] = [];
+    choice?: MachineChoice;
+    availableMachineOptions: Option<MachineChoice, string>[] = [];
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
@@ -92,20 +109,24 @@ export class ChangeMachineDialogComponent implements OnInit {
         this.setAvailableMachines();
     }
 
-    machineChanged = (event?: Option<ExamMachine, number>) => {
-        this.machine = event?.value;
+    machineChanged = (event?: Option<MachineChoice, string>) => {
+        this.choice = event?.value;
     };
     roomChanged = (event?: Option<ExamRoom, number>) => {
         const room = event?.value as ExamRoom;
         this.room = { id: room.id, label: room.name, value: room };
-        delete this.machine;
+        delete this.choice;
         this.machineSelection.clearSelection();
         this.setAvailableMachines();
     };
 
     ok = () =>
         this.http
-            .put<Reservation>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.machine?.id })
+            .put<Reservation>(`/app/reservations/${this.reservation.id}/machine`, {
+                machineId: this.choice?.machine.id,
+                start: this.choice?.slot.start,
+                end: this.choice?.slot.end,
+            })
             .subscribe({
                 next: (resp) => {
                     this.toast.info(this.translate.instant('i18n_updated'));
@@ -118,15 +139,15 @@ export class ChangeMachineDialogComponent implements OnInit {
 
     private setAvailableMachines = () =>
         this.http
-            .get<
-                { machine: ExamMachine; startAt: string; endAt: string }[]
-            >(`/app/reservations/${this.reservation.id}/${this.room.id}/machines`)
+            .get<AvailableMachine[]>(`/app/reservations/${this.reservation.id}/${this.room.id}/machines`)
             .subscribe(
                 (resp) =>
-                    (this.availableMachineOptions = resp.map((o) => ({
-                        id: o.machine.id,
-                        label: `${o.machine.name} (${o.startAt} - ${o.endAt})`,
-                        value: o.machine,
-                    }))),
+                    (this.availableMachineOptions = resp.flatMap((o) =>
+                        o.slots.map((slot) => ({
+                            id: `${o.machine.id}-${slot.start}`,
+                            label: `${o.machine.name} (${slot.startAt} - ${slot.endAt})`,
+                            value: { machine: o.machine, slot },
+                        })),
+                    )),
             );
 }

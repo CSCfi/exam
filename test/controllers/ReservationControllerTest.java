@@ -25,8 +25,11 @@ import models.facility.ExamMachine;
 import models.facility.ExamRoom;
 import models.user.User;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.ISODateTimeFormat;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +45,10 @@ public class ReservationControllerTest extends IntegrationTestCase {
         new GreenMailConfiguration().withDisabledAuthentication()
     );
 
+    // Anchored to today at 12:15, so that a reservation can have started a moment ago and the room
+    // still has later slots to offer. Off the hour, so that "the next slot" is never ambiguous.
+    private final DateTime fixedNow = DateTime.now().withTimeAtStartOfDay().withTime(12, 15, 0, 0);
+
     private ExamRoom room;
     private Reservation reservation;
     private ExamMachine anotherMachine;
@@ -52,7 +59,7 @@ public class ReservationControllerTest extends IntegrationTestCase {
             DefaultWorkingHours dwh = new DefaultWorkingHours();
             dwh.setWeekday(d);
             dwh.setRoom(room);
-            dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
+            dwh.setStartTime(fixedNow.withTimeAtStartOfDay());
             dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
             dwh.setTimezoneOffset(7200000);
             dwh.save();
@@ -62,6 +69,7 @@ public class ReservationControllerTest extends IntegrationTestCase {
     @Override
     @Before
     public void setUp() throws Exception {
+        DateTimeUtils.setCurrentMillisFixed(fixedNow.getMillis());
         super.setUp();
         DB.deleteAll(DB.find(ExamEnrolment.class).findList());
         Exam exam = DB.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(0);
@@ -85,7 +93,7 @@ public class ReservationControllerTest extends IntegrationTestCase {
         reservation = new Reservation();
         reservation.setUser(student);
         reservation.setMachine(machines.get(0));
-        reservation.setStartAt(DateTime.now().minusMinutes(30));
+        reservation.setStartAt(fixedNow.minusMinutes(30));
         reservation.setEndAt(reservation.getStartAt().plusMinutes(exam.getDuration()));
         reservation.save();
 
@@ -96,40 +104,109 @@ public class ReservationControllerTest extends IntegrationTestCase {
         enrolment.save();
     }
 
+    @Override
+    @After
+    public void tearDown() {
+        DateTimeUtils.setCurrentMillisSystem();
+        super.tearDown();
+    }
+
+    private JsonNode availableMachines() {
+        Result result = get("/app/reservations/" + reservation.getId() + "/" + room.getId() + "/machines");
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
+        return Json.parse(contentAsString(result));
+    }
+
+    private Result changeMachine(JsonNode slot) {
+        var body = Json.newObject().put("machineId", anotherMachine.getId());
+        if (slot != null) {
+            body.put("start", slot.get("start").asText()).put("end", slot.get("end").asText());
+        }
+        return request(Helpers.PUT, "/app/reservations/" + reservation.getId() + "/machine", body);
+    }
+
     private String asLocalTime(DateTime dateTime) {
         DateTimeZone dtz = DateTimeZone.forID(room.getLocalTimezone());
         DateTimeHandler dateTimeHandler = app.injector().instanceOf(DateTimeHandler.class);
         return DateTimeFormat.forPattern("HH:mm").withZone(dtz).print(dateTimeHandler.normalize(dateTime, dtz));
     }
 
-    @Test
-    @RunAsAdmin
-    public void testOngoingReservationMachinesAreOfferedAtOriginalTime() {
-        Result result = get("/app/reservations/" + reservation.getId() + "/" + room.getId() + "/machines");
-        assertThat(result.status()).isEqualTo(Http.Status.OK);
-
-        JsonNode node = Json.parse(contentAsString(result));
-        assertThat(node.size()).isEqualTo(1);
-        assertThat(node.get(0).get("startAt").asText()).isEqualTo(asLocalTime(reservation.getStartAt()));
-        assertThat(node.get(0).get("endAt").asText()).isEqualTo(asLocalTime(reservation.getEndAt()));
+    private DateTime parse(JsonNode slot, String field) {
+        return ISODateTimeFormat.dateTimeParser().parseDateTime(slot.get(field).asText());
     }
 
     @Test
     @RunAsAdmin
-    public void testChangingMachineOfOngoingReservationKeepsOriginalTime() {
+    public void testOngoingReservationIsOfferedItsOwnTimeAndTheNextSlot() {
+        JsonNode node = availableMachines();
+        assertThat(node.size()).isEqualTo(1);
+        JsonNode slots = node.get(0).get("slots");
+        assertThat(slots.size()).isEqualTo(2);
+
+        // The ongoing time comes first
+        JsonNode ongoing = slots.get(0);
+        assertThat(parse(ongoing, "start").getMillis()).isEqualTo(reservation.getStartAt().getMillis());
+        assertThat(parse(ongoing, "end").getMillis()).isEqualTo(reservation.getEndAt().getMillis());
+        assertThat(ongoing.get("startAt").asText()).isEqualTo(asLocalTime(reservation.getStartAt()));
+        assertThat(ongoing.get("endAt").asText()).isEqualTo(asLocalTime(reservation.getEndAt()));
+
+        // Followed by the next slot the room can offer. It is an alternative to the ongoing time,
+        // not a booking after it, so it may well start before the ongoing one ends
+        JsonNode next = slots.get(1);
+        assertThat(parse(next, "start").isAfter(parse(ongoing, "start"))).isTrue();
+        assertThat(next.get("startAt").asText()).isEqualTo(asLocalTime(parse(next, "start")));
+    }
+
+    @Test
+    @RunAsAdmin
+    public void testPickingTheOngoingSlotKeepsOriginalTime() {
         DateTime originalStart = reservation.getStartAt();
         DateTime originalEnd = reservation.getEndAt();
+        JsonNode ongoing = availableMachines().get(0).get("slots").get(0);
 
-        Result result = request(
-            Helpers.PUT,
-            "/app/reservations/" + reservation.getId() + "/machine",
-            Json.newObject().put("machineId", anotherMachine.getId())
-        );
-        assertThat(result.status()).isEqualTo(Http.Status.OK);
+        assertThat(changeMachine(ongoing).status()).isEqualTo(Http.Status.OK);
 
         Reservation updated = DB.find(Reservation.class, reservation.getId());
         assertThat(updated.getMachine().getId()).isEqualTo(anotherMachine.getId());
         assertThat(updated.getStartAt().getMillis()).isEqualTo(originalStart.getMillis());
         assertThat(updated.getEndAt().getMillis()).isEqualTo(originalEnd.getMillis());
+    }
+
+    @Test
+    @RunAsAdmin
+    public void testPickingTheNextSlotMovesReservation() {
+        JsonNode next = availableMachines().get(0).get("slots").get(1);
+
+        assertThat(changeMachine(next).status()).isEqualTo(Http.Status.OK);
+
+        Reservation updated = DB.find(Reservation.class, reservation.getId());
+        assertThat(updated.getMachine().getId()).isEqualTo(anotherMachine.getId());
+        assertThat(updated.getStartAt().getMillis()).isEqualTo(parse(next, "start").getMillis());
+        assertThat(updated.getEndAt().getMillis()).isEqualTo(parse(next, "end").getMillis());
+    }
+
+    @Test
+    @RunAsAdmin
+    public void testSlotThatWasNotOfferedIsRejected() {
+        var slot = Json.newObject()
+            .put("start", ISODateTimeFormat.dateTime().print(fixedNow.plusDays(3)))
+            .put("end", ISODateTimeFormat.dateTime().print(fixedNow.plusDays(3).plusHours(1)));
+
+        assertThat(changeMachine(slot).status()).isEqualTo(Http.Status.FORBIDDEN);
+
+        Reservation updated = DB.find(Reservation.class, reservation.getId());
+        assertThat(updated.getMachine().getId()).isEqualTo(reservation.getMachine().getId());
+    }
+
+    @Test
+    @RunAsAdmin
+    public void testMachineChangeWithoutSlotKeepsOriginalTime() {
+        DateTime originalStart = reservation.getStartAt();
+
+        assertThat(changeMachine(null).status()).isEqualTo(Http.Status.OK);
+
+        Reservation updated = DB.find(Reservation.class, reservation.getId());
+        assertThat(updated.getMachine().getId()).isEqualTo(anotherMachine.getId());
+        assertThat(updated.getStartAt().getMillis()).isEqualTo(originalStart.getMillis());
     }
 }

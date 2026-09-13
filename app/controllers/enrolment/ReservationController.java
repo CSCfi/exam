@@ -6,6 +6,7 @@ package controllers.enrolment;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import controllers.base.BaseController;
@@ -16,6 +17,7 @@ import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.FetchConfig;
 import io.ebean.text.PathProperties;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -184,49 +186,66 @@ public class ReservationController extends BaseController {
         return !reservation.getStartAt().isAfter(dateTimeHandler.adjustDST(DateTime.now(), reservation));
     }
 
-    private Optional<Interval> findSuitableSlot(ExamMachine machine, Reservation reservation, Exam exam) {
+    private List<Interval> findSuitableSlots(ExamMachine machine, Reservation reservation, Exam exam) {
         var interval = reservation.toInterval();
-        // An ongoing reservation keeps its original time: the student is already taking the
-        // exam, so the machine change must not shift the time they have left. The calendar
-        // no longer offers slots that have begun, so re-aligning to a slot would push the
-        // reservation to the next one.
+        var slots = new ArrayList<Interval>();
+        // An ongoing reservation can keep its original time: the student is already taking the
+        // exam, so the machine change need not shift the time they have left.
         if (hasStarted(reservation)) {
-            return Optional.of(interval);
+            slots.add(interval);
         }
         var room = machine.getRoom();
         var dtz = DateTimeZone.forID(room.getLocalTimezone());
         var searchDate = dateTimeHandler.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
-        var slots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.getDuration());
         // Find the first slot that starts at or after the interval's start
         // and ends at or after the interval's end
         // This handles cases where rooms have different slot start times (e.g., 10:00 vs. 10:10)
-        return slots
+        // The calendar no longer offers slots that have begun, so for an ongoing reservation this
+        // is the next free slot rather than the original one.
+        calendarHandler
+            .gatherSuitableSlots(room, searchDate, exam.getDuration())
             .stream()
             .filter(s -> !s.getStart().isBefore(interval.getStart()))
             .filter(s -> !s.getEnd().isBefore(interval.getEnd()))
-            .findFirst();
+            .filter(s -> !slots.contains(s))
+            .findFirst()
+            .ifPresent(slots::add);
+        return slots;
     }
 
-    private boolean isBookable(ExamMachine machine, Reservation reservation) {
+    private List<Interval> availableSlots(ExamMachine machine, Reservation reservation) {
         var exam = getReservationExam(reservation);
         if (exam.isEmpty() || !machine.hasRequiredSoftware(exam.get())) {
-            return false;
+            return List.of();
         }
-        // Check if the reservation time slot fits within opening hours (default and exception)
+        // Slots fit within opening hours (default and exception) by construction
         // Note: Maintenance periods are system-wide, so they were already validated when the reservation was created
-        var suitableSlotOpt = findSuitableSlot(machine, reservation, exam.get());
-        if (suitableSlotOpt.isEmpty()) {
-            return false;
-        }
-        var interval = reservation.toInterval();
-        // Check if machine is available during the reservation's time slot
-        // Exclude the current reservation if it's already assigned to this machine
-        var conflictingReservations = machine
-            .getReservations()
+        return findSuitableSlots(machine, reservation, exam.get())
             .stream()
-            .filter(r -> !r.equals(reservation) && interval.overlaps(r.toInterval()))
+            // Check if machine is available for the whole slot
+            // Exclude the current reservation if it's already assigned to this machine
+            .filter(slot ->
+                machine
+                    .getReservations()
+                    .stream()
+                    .noneMatch(r -> !r.equals(reservation) && slot.overlaps(r.toInterval()))
+            )
             .toList();
-        return conflictingReservations.isEmpty();
+    }
+
+    // The client picks one of the slots offered by findAvailableMachines. A client that sends no
+    // slot gets the first one offered, that is, the ongoing time whenever there is one.
+    private Optional<Interval> resolveSlot(JsonNode body, List<Interval> offered) {
+        if (!body.hasNonNull("start") || !body.hasNonNull("end")) {
+            return Optional.of(offered.get(0));
+        }
+        var parser = ISODateTimeFormat.dateTimeParser();
+        var start = parser.parseDateTime(body.get("start").asText());
+        var end = parser.parseDateTime(body.get("end").asText());
+        return offered
+            .stream()
+            .filter(s -> s.getStart().isEqual(start) && s.getEnd().isEqual(end))
+            .findFirst();
     }
 
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
@@ -237,12 +256,9 @@ public class ReservationController extends BaseController {
         if (reservation == null || room == null) {
             return notFound();
         }
-        var examOpt = getReservationExam(reservation);
-        if (examOpt.isEmpty()) {
+        if (getReservationExam(reservation).isEmpty()) {
             return notFound();
         }
-        var exam = examOpt.get();
-
         var timezone = DateTimeZone.forID(room.getLocalTimezone());
         var formatter = DateTimeFormat.forPattern("HH:mm").withZone(timezone);
         var props = PathProperties.parse("(id, name)");
@@ -256,27 +272,25 @@ public class ReservationController extends BaseController {
             .ne("id", reservation.getMachine().getId())
             .findList();
 
-        var available = candidates
-            .stream()
-            .filter(machine -> isBookable(machine, reservation))
-            .map(machine -> {
-                var json = Json.newObject();
-                json.set("machine", Json.toJson(machine));
-                findSuitableSlot(machine, reservation, exam).ifPresentOrElse(
-                    slot -> {
-                        json.put("startAt", formatter.print(slot.getStart()));
-                        json.put("endAt", formatter.print(slot.getEnd()));
-                    },
-                    () -> {
-                        json.put("startAt", "");
-                        json.put("endAt", "");
-                    }
-                );
-                return json;
-            })
-            .toList();
         var arrayNode = Json.newArray();
-        available.forEach(arrayNode::add);
+        candidates.forEach(machine -> {
+            var slots = availableSlots(machine, reservation);
+            if (slots.isEmpty()) {
+                return;
+            }
+            var json = Json.newObject();
+            json.set("machine", Json.toJson(machine));
+            var slotNodes = json.putArray("slots");
+            slots.forEach(slot -> {
+                var slotNode = slotNodes.addObject();
+                // start and end identify the slot when it is picked, startAt and endAt are for display
+                slotNode.put("start", ISODateTimeFormat.dateTime().print(slot.getStart()));
+                slotNode.put("end", ISODateTimeFormat.dateTime().print(slot.getEnd()));
+                slotNode.put("startAt", formatter.print(slot.getStart()));
+                slotNode.put("endAt", formatter.print(slot.getEnd()));
+            });
+            arrayNode.add(json);
+        });
         return Results.ok(arrayNode).as("application/json");
     }
 
@@ -287,7 +301,8 @@ public class ReservationController extends BaseController {
         if (reservation == null) {
             return notFound();
         }
-        var machineId = request.body().asJson().get("machineId").asLong();
+        var body = request.body().asJson();
+        var machineId = body.get("machineId").asLong();
         var machineProps = PathProperties.parse("(id, name, room(*))");
         var previous = new Reservation();
         BeanUtils.copyProperties(reservation, previous);
@@ -297,15 +312,17 @@ public class ReservationController extends BaseController {
         if (machine == null) {
             return notFound();
         }
-        var exam = getReservationExam(reservation);
-        if (exam.isEmpty() || !isBookable(machine, reservation)) {
+        var offeredSlots = availableSlots(machine, reservation);
+        if (offeredSlots.isEmpty()) {
             return forbidden("Machine not eligible for choosing");
         }
-        // Find the suitable slot for the new room and adjust reservation times
-        findSuitableSlot(machine, reservation, exam.get()).ifPresent(suitableSlot -> {
-            reservation.setStartAt(suitableSlot.getStart());
-            reservation.setEndAt(suitableSlot.getEnd());
-        });
+        var slot = resolveSlot(body, offeredSlots);
+        if (slot.isEmpty()) {
+            return forbidden("Chosen time slot is not available");
+        }
+        // Adjust reservation times to the slot that was picked
+        reservation.setStartAt(slot.get().getStart());
+        reservation.setEndAt(slot.get().getEnd());
         reservation.setMachine(machine);
         reservation.update();
         emailComposer.composeReservationChangeNotification(reservation, previous);
