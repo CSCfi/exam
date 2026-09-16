@@ -12,13 +12,13 @@ import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 
 @Component({
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
-    imports: [RouterLink, MathDirective, FormsModule, FormField, UpperCasePipe, NgbCollapse, TranslateModule],
+    imports: [RouterLink, RichTextDirective, FormsModule, FormField, UpperCasePipe, NgbCollapse, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayAnswerComponent {

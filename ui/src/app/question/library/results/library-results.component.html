@@ -108,7 +108,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <td>
                             @if (question.question) {
                                 <!-- Clamped in CSS; slicing the raw HTML cut markup mid-tag -->
-                                <span class="question-text-clamped" [xmMath]="question.question"></span>
+                                <span class="question-text-clamped" [xmRichText]="question.question"></span>
                             }
                             @if (!question.question) {
                                 <span class="text-danger">
