@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { SlicePipe, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
@@ -27,7 +27,6 @@ import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-
         ExaminationMultiChoiceComponent,
         ExaminationWeightedMultiChoiceComponent,
         UpperCasePipe,
-        SlicePipe,
         TranslateModule,
     ],
     styleUrls: ['../examination.shared.scss', './question.shared.scss', './examination-question.component.scss'],
