@@ -7,3 +7,21 @@
 .td-center-align {
     text-align: center;
 }
+
+// Question text in the listing: clip the rendered content instead of truncating the HTML source.
+// Line clamping gives the ellipsis but has no effect on tables or images, so max-height caps
+// those, and contain keeps wide content from dictating the width of the column.
+.question-text-clamped {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    max-height: 7em;
+    overflow: hidden;
+    contain: inline-size;
+}
+
+// Give the question column a share of its own; its content no longer sizes it
+.question-column {
+    width: 55%;
+}

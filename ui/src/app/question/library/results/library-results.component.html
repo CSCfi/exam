@@ -19,7 +19,7 @@ SPDX-License-Identifier: EUPL-1.2
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                         />
                     </th>
-                    <th>
+                    <th class="question-column">
                         <xm-table-sort
                             by="id"
                             text="i18n_question"
@@ -107,7 +107,8 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td>
                             @if (question.question) {
-                                <span [xmMath]="question.question | slice: 0 : 360"> </span>
+                                <!-- Clamped in CSS; slicing the raw HTML cut markup mid-tag -->
+                                <span class="question-text-clamped" [xmMath]="question.question"></span>
                             }
                             @if (!question.question) {
                                 <span class="text-danger">

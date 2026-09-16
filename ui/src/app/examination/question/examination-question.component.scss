@@ -24,6 +24,17 @@
         margin-top: 0px;
         float: right;
     }
+
+    // Collapsed state: clip the rendered content instead of truncating the HTML source.
+    // Line clamping gives the ellipsis but has no effect on tables or images, hence max-height.
+    &.clamped {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        max-height: 5.5em;
+        overflow: hidden;
+    }
 }
 
 .question-text {
