@@ -14,6 +14,14 @@ import org.jsoup.safety.Safelist
 object HtmlSafelist:
   val SAFELIST: Safelist = Safelist
     .relaxed()
+    // Inline images are not a feature: no editor offers one (CKEditor 4 had `removePlugins =
+    // 'image'` and the CKEditor 5 config never loads an image plugin), and the Moodle importer
+    // turns an imported <img> into an attachment plus a text placeholder. Only `relaxed()` itself
+    // brought <img> in, so hand-written or pasted markup was the one way to store one. Media that
+    // renders remote content is an escape from an exam room with no network restrictions, so the
+    // supported route for pictures stays what it already is: attachments.
+    // `relaxed()` carries no <video>, <audio>, <iframe>, <object> or <embed> to begin with.
+    .removeTags("img")
     .addAttributes("a", "target")
     .addAttributes(
       "span",
