@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs/operators';
@@ -106,6 +106,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 export class ExamSearchResultComponent {
     readonly exam = input.required<EnrolmentInfo | CollaborativeExamInfo>();
     readonly collaborative = input(false);
+    readonly enrolmentChanged = output<void>();
 
     readonly enrolling = signal(false);
 
@@ -118,17 +119,23 @@ export class ExamSearchResultComponent {
         }
         this.enrolling.set(true);
         this.Enrolment.checkAndEnroll$(this.exam() as Exam, this.collaborative())
-            .pipe(finalize(() => this.enrolling.set(false)))
+            .pipe(
+                finalize(() => {
+                    this.enrolling.set(false);
+                    this.enrolmentChanged.emit();
+                }),
+            )
             .subscribe();
     }
 
     makeReservation() {
         const exam = this.exam();
         if (exam.implementation !== 'AQUARIUM') {
-            this.router.navigate(['/dashboard']);
-        } else {
-            const path = this.collaborative() ? ['/calendar', exam.id, 'collaborative'] : ['/calendar', exam.id];
-            this.router.navigate(path);
+            // An examination event is picked here and now, the enrolment to pick it for exists already
+            this.enrollForExam();
+            return;
         }
+        const path = this.collaborative() ? ['/calendar', exam.id, 'collaborative'] : ['/calendar', exam.id];
+        this.router.navigate(path);
     }
 }
