@@ -283,11 +283,15 @@ public class ReservationController extends BaseController {
             var slotNodes = json.putArray("slots");
             slots.forEach(slot -> {
                 var slotNode = slotNodes.addObject();
+                // Slot times follow the same DST-shifted storage convention as reservation times,
+                // so normalize them before rendering
+                var start = dateTimeHandler.normalize(slot.getStart(), timezone);
+                var end = dateTimeHandler.normalize(slot.getEnd(), timezone);
                 // start and end identify the slot when it is picked, startAt and endAt are for display
                 slotNode.put("start", ISODateTimeFormat.dateTime().print(slot.getStart()));
                 slotNode.put("end", ISODateTimeFormat.dateTime().print(slot.getEnd()));
-                slotNode.put("startAt", formatter.print(slot.getStart()));
-                slotNode.put("endAt", formatter.print(slot.getEnd()));
+                slotNode.put("startAt", formatter.print(start));
+                slotNode.put("endAt", formatter.print(end));
             });
             arrayNode.add(json);
         });

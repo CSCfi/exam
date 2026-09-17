@@ -45,9 +45,10 @@ public class ReservationControllerTest extends IntegrationTestCase {
         new GreenMailConfiguration().withDisabledAuthentication()
     );
 
-    // Anchored to today at 12:15, so that a reservation can have started a moment ago and the room
-    // still has later slots to offer. Off the hour, so that "the next slot" is never ambiguous.
-    private final DateTime fixedNow = DateTime.now().withTimeAtStartOfDay().withTime(12, 15, 0, 0);
+    // Anchored to a summer day at 12:15, so that a reservation can have started a moment ago and the
+    // room still has later slots to offer. Off the hour, so that "the next slot" is never ambiguous,
+    // and inside DST for the room's timezone, so that the times have to be normalized for display.
+    private final DateTime fixedNow = DateTime.now().withMonthOfYear(7).withDayOfMonth(15).withTime(12, 15, 0, 0);
 
     private ExamRoom room;
     private Reservation reservation;
@@ -79,6 +80,8 @@ public class ReservationControllerTest extends IntegrationTestCase {
 
         User student = DB.find(User.class).where().eq("eppn", "student@funet.fi").findOne();
         room = DB.find(ExamRoom.class, 1L);
+        room.setLocalTimezone("Europe/Helsinki");
+        room.update();
         setWorkingHours();
 
         List<ExamMachine> machines = room
