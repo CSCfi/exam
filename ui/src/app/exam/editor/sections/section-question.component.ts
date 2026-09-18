@@ -26,14 +26,22 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { mergeDeepRight } from 'src/app/shared/miscellaneous/helpers';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
-    imports: [CdkDragHandle, NgbPopover, NgbDropdownModule, MathDirective, NgbCollapse, TranslateModule, OrderByPipe],
+    imports: [
+        CdkDragHandle,
+        NgbPopover,
+        NgbDropdownModule,
+        RichTextDirective,
+        NgbCollapse,
+        TranslateModule,
+        OrderByPipe,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionQuestionComponent {

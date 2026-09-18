@@ -8,8 +8,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamInfo } from 'src/app/calendar/calendar.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 
 @Component({
     selector: 'xm-calendar-exam-info',
@@ -73,7 +73,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                     <div class="col-12">
                         <div class="d-flex flex-column gap-1" [hidden]="examInfo().executionType?.type === 'MATURITY'">
                             <span class="exam-info-label">{{ 'i18n_calendar_instructions' | translate }}:</span>
-                            <div class="text-break" [xmMath]="examInfo().enrollInstruction"></div>
+                            <div class="text-break" [xmRichText]="examInfo().enrollInstruction"></div>
                         </div>
                     </div>
                 </div>
@@ -91,7 +91,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
         </div>
     `,
     styleUrls: ['./exam-info.component.scss', '../calendar.component.scss'],
-    imports: [CourseCodeComponent, MathDirective, DatePipe, TranslateModule],
+    imports: [CourseCodeComponent, RichTextDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent {
     readonly examInfo = input.required<ExamInfo>();
