@@ -79,10 +79,34 @@ export class AdditionalInfoComponent implements OnInit, AfterViewInit {
 
     removeQuestionAttachment() {
         const questionValue = this.question();
-        if (questionValue?.attachment) {
-            questionValue.attachment.removed = true;
-            this.attachment.update((a) => (a ? { ...a, removed: true } : undefined));
+        const current = questionValue?.attachment;
+        if (!questionValue || !current) {
+            return;
         }
+        if (current.id || current.externalId) {
+            // Something exists on the server, so saving the question has to erase it. Drop any
+            // pending replacement file as well, it must not get uploaded after all.
+            const removed: Attachment = { ...current, file: undefined, modified: false, removed: true };
+            questionValue.attachment = removed;
+            this.attachment.set(removed);
+        } else {
+            // Never uploaded anywhere, so just forget the pick.
+            delete questionValue.attachment;
+            this.attachment.set(undefined);
+        }
+    }
+
+    undoRemoveQuestionAttachment() {
+        const questionValue = this.question();
+        const current = this.attachment();
+        if (!questionValue || !current?.removed) {
+            return;
+        }
+        // Only a saved attachment can end up in the removed state, so clearing the flag is enough
+        // to put it back as it is on the server.
+        const restored: Attachment = { ...current, removed: false };
+        questionValue.attachment = restored;
+        this.attachment.set(restored);
     }
 
     getFileSize(): string {
@@ -90,9 +114,15 @@ export class AdditionalInfoComponent implements OnInit, AfterViewInit {
         return a ? this.Attachment.getFileSize(a.size) : '';
     }
 
-    hasUploadedAttachment(): boolean {
+    // A locally picked file is only sent to the server when the question itself is saved.
+    hasPendingUpload(): boolean {
+        return !!this.attachment()?.file;
+    }
+
+    // Replacing an existing attachment keeps the old id, so a pending file is never downloadable.
+    isDownloadable(): boolean {
         const a = this.attachment();
-        return !!(a && (a.id || a.externalId));
+        return !!(a && (a.id || a.externalId)) && !this.hasPendingUpload();
     }
 
     ngAfterViewInit() {
