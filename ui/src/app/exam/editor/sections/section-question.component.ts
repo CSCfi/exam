@@ -183,12 +183,7 @@ export class SectionQuestionComponent {
                     if (!attachment) {
                         return of(undefined);
                     }
-                    if (attachment.modified && attachment.file) {
-                        return this.Files.upload$<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
-                            examId: this.examId().toString(),
-                            questionId: currentSectionQuestion.id.toString(),
-                        });
-                    } else if (attachment.removed) {
+                    if (attachment.removed) {
                         this.Attachment.eraseCollaborativeQuestionAttachment$(
                             this.examId(),
                             currentSectionQuestion.id,
@@ -197,6 +192,11 @@ export class SectionQuestionComponent {
                             const updated = { ...current, question: { ...current.question } };
                             delete updated.question.attachment;
                             this.updated.emit(updated);
+                        });
+                    } else if (attachment.modified && attachment.file) {
+                        return this.Files.upload$<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
+                            examId: this.examId().toString(),
+                            questionId: currentSectionQuestion.id.toString(),
                         });
                     }
                     return of(undefined);
