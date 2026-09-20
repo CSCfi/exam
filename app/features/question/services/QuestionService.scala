@@ -161,7 +161,9 @@ class QuestionService @Inject() (
       val withSectionFilter =
         withTagFilter.inOrEmpty("examSectionQuestions.examSection.id", sectionIds.asJava)
 
-      val baseQuestions = withSectionFilter.orderBy("created desc").distinct
+      // No ordering here: distinct returns a Set, which discards it. The client sorts the
+      // library listing itself, see ui/.../library/results/library-results.component.ts
+      val baseQuestions = withSectionFilter.distinct
       val questions =
         if user.hasRole(Role.Name.TEACHER) && ownerIds.nonEmpty then
           baseQuestions.filter(_.questionOwners.contains(user))
