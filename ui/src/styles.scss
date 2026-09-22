@@ -22,14 +22,26 @@
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff2') format('woff2'),
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff') format('woff');
 }
+/* Root type size deliberately inherits the reader's browser font-size setting rather than
+   pinning a px value, so readers who raise their default get larger text. Every font-size
+   below is expressed in rem/em so it scales with this. Do not reintroduce a px value here. */
 html {
-    font-size: 13px;
-    @media (max-width: shared.$mobile-width) {
-        font-size: 15px;
-    }
+    font-size: 100%;
 }
 * {
     font-family: Arimo, Helvetica-Neue, Helvetica;
+}
+/* Minimum type sizes. Bootstrap sizes these three in em, so they shrink again for every
+   nesting level inside an already-reduced container (a .badge inside .small inside a
+   de-emphasised row compounds down fast). max() keeps the intended "smaller than my
+   context" behaviour where there is room for it, but never renders below the floor. */
+small,
+.small,
+.form-text {
+    font-size: max(0.875em, 0.8125rem);
+}
+.badge {
+    font-size: max(0.75em, 0.75rem);
 }
 :focus:not(:focus-visible) {
     outline: none;
@@ -155,13 +167,28 @@ textarea.ng-invalid {
     border-radius: 4px;
 }
 /* Generic table styling */
+/* The wide listings (language inspections, review categories, question library) run to 9-12
+   columns, and in those the uppercase header row rather than the data sets the table width.
+   So the headers are sized as micro-labels and allowed to wrap, and horizontal cell padding
+   is held at the physical size it had before the type rescale. Without this the widest tables
+   overflow their .table-responsive container in the ordinary case rather than the rare one. */
 .xm-data-table {
-    font-size: 14px;
+    font-size: 1.0625rem;
+    th,
+    td {
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+    }
     th {
         border: 0;
         font-weight: bold;
+        font-size: 0.875rem;
         text-transform: uppercase;
-        white-space: nowrap;
+        /* Wrapping only engages when a column is actually squeezed, so narrow tables are
+           unaffected. xm-table-sort ties its icon to the last word with &nbsp;, so the sort
+           affordance cannot be stranded on a line of its own. .with-space is now the default
+           and is kept only so existing templates that set it keep working. */
+        white-space: normal;
 
         &.with-space {
             white-space: normal;
