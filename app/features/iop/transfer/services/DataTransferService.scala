@@ -27,6 +27,7 @@ import java.io.File
 import java.net.URI
 import java.nio.file.Paths
 import javax.inject.Inject
+import scala.collection.mutable
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
@@ -201,16 +202,20 @@ class DataTransferService @Inject() (
           copy.setModifierWithDate(user)
           copy.save()
 
-          val userTags = DB.find(classOf[Tag]).where().eq("creator", user).list
-          val resolvedTags = question.tags.asScala.map { qt =>
-            userTags.find(_.name == qt.name).getOrElse {
-              val t = new Tag
-              t.name = qt.name
-              t.setCreatorWithDate(user)
-              t.setModifierWithDate(user)
-              DB.save(t)
-              t
-            }
+          val userTags = mutable.Map.from(
+            DB.find(classOf[Tag]).where().eq("creator", user).list.map(t => t.name.toLowerCase -> t)
+          )
+          val resolvedTags = question.tags.asScala.map(_.name.toLowerCase).distinct.map { name =>
+            userTags.getOrElseUpdate(
+              name, {
+                val t = new Tag
+                t.name = name
+                t.setCreatorWithDate(user)
+                t.setModifierWithDate(user)
+                DB.save(t)
+                t
+              }
+            )
           }
           copy.tags.addAll(resolvedTags.asJava)
 
