@@ -14,18 +14,18 @@
     vertical-align: top;
     padding: 3px;
     font-weight: bold;
-    font-size: 20px;
-    width: 46px;
-    line-height: 16px;
+    font-size: 1.5625rem;
+    width: 3.5625rem;
+    line-height: 1.25rem;
     margin-right: 15px;
 
     .month-name {
-        font-size: 14px;
+        font-size: 1.0625rem;
     }
 }
 
 .exam-title-link {
-    font-size: 16px;
+    font-size: 1.25rem;
     font-weight: 500;
     color: shared.$exam-blue;
     padding: 8px 0px; 

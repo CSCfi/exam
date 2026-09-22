@@ -70,7 +70,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         padding-left: 1.5em;
         border-left: $border-dark;
         border-radius: 0;
-        font-size: 16px;
+        font-size: 1.25rem;
         color: $nav-text;
         letter-spacing: 0.27px;
         height: auto;
@@ -160,10 +160,10 @@ $border-green: 3px solid shared.$exam-dark-green;
 
     .menu-item {
         margin: 0;
-        font-size: 16px;
+        font-size: 1.25rem;
         color: $nav-text;
         letter-spacing: 0.27px;
-        line-height: 18px;
+        line-height: 1.375rem;
         text-align: left;
         padding-left: 1em;
         @include mobile {
@@ -179,10 +179,10 @@ $border-green: 3px solid shared.$exam-dark-green;
             margin-left: 20px;
             padding-left: 0;
         }
-        font-size: 14px;
+        font-size: 1.0625rem;
         color: white;
         letter-spacing: 0.27px;
-        line-height: 18px;
+        line-height: 1.375rem;
         text-align: left;
     }
 
@@ -249,7 +249,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         padding: 0 0.65em 0 0.75em;
         border: 0;
         border-left: 2px solid rgba(255, 255, 255, 0.15);
-        font-size: 14px;
+        font-size: 1.0625rem;
         color: rgba(231, 231, 231, 0.82);
         letter-spacing: 0.22px;
         line-height: 1.25;
