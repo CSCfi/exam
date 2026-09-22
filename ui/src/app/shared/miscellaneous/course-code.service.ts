@@ -21,12 +21,15 @@ export class CourseCodeService {
 
     formatCode = (code: string): string => {
         const prefix = this.storageService.get<string>('COURSE_CODE_PREFIX');
-        if (prefix !== null && prefix !== undefined) {
-            const parts = code.split(prefix);
-            return parts.length > 1 ? parts.slice(0, parts.length - 1).join(prefix) : parts[0];
-        } else {
+        if (prefix === null || prefix === undefined) {
             this.prefix$.subscribe();
+            return code;
         }
-        return code;
+        // An empty prefix means nothing is to be stripped; splitting by it would chop off the last character
+        if (prefix === '') {
+            return code;
+        }
+        const parts = code.split(prefix);
+        return parts.length > 1 ? parts.slice(0, parts.length - 1).join(prefix) : parts[0];
     };
 }

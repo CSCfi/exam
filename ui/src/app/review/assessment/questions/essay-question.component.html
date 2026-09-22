@@ -9,7 +9,7 @@ SPDX-License-Identifier: EUPL-1.2
         <!-- question text -->
         <div class="d-flex justify-content-between align-items-start">
             <!-- question title -->
-            <div class="me-2" [xmMath]="sectionQuestion().question.question"></div>
+            <div class="me-2" [xmRichText]="sectionQuestion().question.question"></div>
             <!-- grade + toggle grouped on the right -->
             <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-3">
                 @if (sectionQuestion().evaluationType === 'Points') {
@@ -82,7 +82,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- answer -->
                 <div class="mb-2">
                     {{ 'i18n_exam_answer' | translate | uppercase }}
-                    <span class="d-block" [xmMath]="sectionQuestion().essayAnswer?.answer ?? undefined"></span>
+                    <span class="d-block" [xmRichText]="sectionQuestion().essayAnswer?.answer ?? undefined"></span>
                 </div>
 
                 <!-- answer attachment -->
