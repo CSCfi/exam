@@ -112,10 +112,10 @@ export class ExamListCategoryComponent implements OnInit {
         return `${this.translate.instant(type)} - ${this.translate.instant(impl)}`;
     };
 
-    copyExam = (exam: DashboardExam) =>
-        this.ModalService.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent, {
-            backdrop: 'static',
-        })
+    copyExam = (exam: DashboardExam) => {
+        const modal = this.ModalService.openRef(ExaminationTypeSelectorComponent, { backdrop: 'static' });
+        modal.componentInstance.hasOptionalSections.set(exam.examSections.some((es) => es.optional));
+        this.ModalService.result$<{ type: string; examinationType: string }>(modal)
             .pipe(
                 switchMap((data) => this.Dashboard.copyExam$(exam.id, data.type, data.examinationType)),
                 takeUntilDestroyed(this.destroyRef),
@@ -127,6 +127,7 @@ export class ExamListCategoryComponent implements OnInit {
                 },
                 error: () => this.toast.error(this.translate.instant('i18n_error_access_forbidden')),
             });
+    };
 
     deleteExam = (exam: DashboardExam) => {
         if (this.isAllowedToUnpublishOrRemove(exam)) {

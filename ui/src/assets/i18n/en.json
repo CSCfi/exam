@@ -790,6 +790,7 @@
     "i18n_exam_material_description": "Exam questions based on this exam material/content",
     "i18n_modify_materials": "Manage exam materials/contents",
     "i18n_optional_section": "Optional section",
+    "i18n_optional_sections_lost_in_copy": "Optional sections work only in room examinations. In the copy, every section is part of the student's exam.",
     "i18n_optional_section_description": "Student can select, if he/she wants to take the optional section. The choice is made when booking the exam time. In the exam, the student will not see the questions of the optional sections he/she has not chosen.",
     "i18n_search_by_name": "Search by name",
     "i18n_author": "Author",

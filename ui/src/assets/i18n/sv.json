@@ -790,6 +790,7 @@
     "i18n_exam_material_description": "Tentamensmaterial som sektionens frågor baseras på",
     "i18n_modify_materials": "Administrera tentamensmaterial",
     "i18n_optional_section": "Valfri sektion",
+    "i18n_optional_sections_lost_in_copy": "Valfria sektioner fungerar endast i tentamina i tentamensrum. I kopian ingår alla sektioner i studentens tentamen.",
     "i18n_optional_section_description": "Studenten kan välja om hen tenterar den valfria sektionen. Valet görs när tentamenstiden bokas. I tentamen kommer studenten inte att se frågorna i de valfria sektioner som hen inte har valt.",
     "i18n_search_by_name": "Sök på namn",
     "i18n_author": "Upphovsman",
