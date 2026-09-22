@@ -20,31 +20,47 @@ import scala.jdk.CollectionConverters.*
 class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
     extends EbeanQueryExtensions:
 
+  private val reservationProperties =
+    """(startAt, endAt, externalUserRef,
+      |user(firstName, lastName, email, userIdentifier),
+      |enrolment(noShow,
+      |  exam(id, name,
+      |    examOwners(firstName, lastName, email),
+      |    parent(examOwners(firstName, lastName, email)),
+      |    course(name, code, credits, identifier,
+      |      gradeScale(description, externalRef, displayName),
+      |      organisation(code, name, nameAbbreviation)
+      |    )
+      |  ),
+      |  collaborativeExam(name)
+      |),
+      |machine(name, ipAddress, otherIdentifier,
+      |  room(name, roomCode)
+      |)
+      |)""".stripMargin
+
+  private val reservationJsonProperties = PathProperties.parse(reservationProperties)
+
+  // Same graph as the response, plus the room timezone that normalizing start/end times reads.
+  // Without it every partially loaded room is lazy loaded again; it stays out of the JSON since
+  // that is rendered with reservationJsonProperties.
+  private val reservationFetchProperties =
+    val pp = PathProperties.parse(reservationProperties)
+    pp.addToPath("machine.room", "localTimezone")
+    pp
+
+  private val roomProperties =
+    PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
+
+  private val openingHoursProperties =
+    PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
+
   def getReservations(
       start: Option[String],
       end: Option[String],
       roomId: Option[Long]
-  ): List[Reservation] =
-    val pp = PathProperties.parse(
-      """(startAt, endAt, externalUserRef,
-        |user(firstName, lastName, email, userIdentifier),
-        |enrolment(noShow,
-        |  exam(id, name,
-        |    examOwners(firstName, lastName, email),
-        |    parent(examOwners(firstName, lastName, email)),
-        |    course(name, code, credits, identifier,
-        |      gradeScale(description, externalRef, displayName),
-        |      organisation(code, name, nameAbbreviation)
-        |    )
-        |  ),
-        |  collaborativeExam(name)
-        |),
-        |machine(name, ipAddress, otherIdentifier,
-        |  room(name, roomCode)
-        |)
-        |)""".stripMargin
-    )
-    val query = DB.find(classOf[Reservation]).apply(pp)
+  ): (List[Reservation], PathProperties) =
+    val query = DB.find(classOf[Reservation]).apply(reservationFetchProperties)
     val baseQuery = query
       .where()
       .or()  // *
@@ -72,21 +88,20 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
       withEnd.eq("machine.room.id", id)
     }
 
-    finalQuery.distinct.toList
+    val reservations = finalQuery.distinct.toList
       .map { r =>
         r.startAt = dateTimeHandler.normalize(r.startAt, r)
         r.endAt = dateTimeHandler.normalize(r.endAt, r)
         r
       }
       .sortBy(r => r.startAt.getMillis)
+    (reservations, reservationJsonProperties)
 
-  def getRooms: List[ExamRoom] =
-    val pp = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
-    DB.find(classOf[ExamRoom]).apply(pp).orderBy("name").list
+  def getRooms: (List[ExamRoom], PathProperties) =
+    (DB.find(classOf[ExamRoom]).apply(roomProperties).orderBy("name").list, roomProperties)
 
-  def getRoomOpeningHours(roomId: Long, date: String): Option[ExamRoom] =
-    val pp = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
-    DB.find(classOf[ExamRoom]).apply(pp).where().idEq(roomId).find match
+  def getRoomOpeningHours(roomId: Long, date: String): Option[(ExamRoom, PathProperties)] =
+    DB.find(classOf[ExamRoom]).apply(openingHoursProperties).where().idEq(roomId).find match
       case None => None
       case Some(room) =>
         val searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date)
@@ -96,4 +111,4 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
           !start.isAfter(searchDate) && !end.isBefore(searchDate)
         }
         room.calendarExceptionEvents = filteredEvents.asJava
-        Some(room)
+        Some((room, openingHoursProperties))

@@ -291,17 +291,17 @@ class ReviewService @Inject() (
                 else Some(ReviewError.InvalidGradeForScale)
               case None =>
                 exam.grade = null
-                if gradingType == GradeType.NOT_GRADED then
-                  exam.grade = null
-                  exam.gradingType = GradeType.NOT_GRADED
-                else if gradingType == GradeType.POINT_GRADED then
-                  exam.grade = null
+                if gradingType == GradeType.POINT_GRADED then
                   exam.gradingType = GradeType.POINT_GRADED
                   // Forced partial credit type
                   exam.creditType = DB.find(classOf[ExamType]).where().eq(
                     "type",
                     "PARTIAL"
                   ).find.orNull
+                else
+                  // Either explicitly not graded or the grade was cleared, in which case the exam
+                  // is back to awaiting one. Assign in both cases so a previous choice gets undone.
+                  exam.gradingType = gradingType
                 None
             gradeError match
               case Some(e) => Left(e)
