@@ -69,8 +69,9 @@ export class LibraryResultsComponent {
             return previous.source.every((q) => ids.has(q.id)) ? Math.min(previous.value, lastPage) : 0;
         },
     });
-    readonly questionsPredicate = signal('');
-    readonly reverse = signal(false);
+    // Newest first by default, matching the ordering the backend used to impose
+    readonly questionsPredicate = signal('created');
+    readonly reverse = signal(true);
 
     readonly user: User;
     readonly pageSize = 25;

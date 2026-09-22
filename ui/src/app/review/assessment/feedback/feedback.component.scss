@@ -16,7 +16,32 @@
     background: rgba(255, 255, 255, 0.7);
     width: 620px;
     margin: 2px;
+    // Keep the panel inside the viewport so the footer buttons stay reachable
+    // no matter how tall the editor grows.
+    max-height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
     @media (max-width: shared.$mobile-width) {
         width: auto;
     }
+}
+
+// Only lay out as a flex column while expanded: bare `.body` would tie with
+// bootstrap's `.collapse:not(.show) { display: none }` and win on source order,
+// leaving the editor stuck open.
+.body.show {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+// The editor is the only part that scrolls; header, attachment row and buttons stay put.
+.editor-area {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.footer {
+    flex: 0 0 auto;
 }

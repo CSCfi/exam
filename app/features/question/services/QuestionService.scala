@@ -161,7 +161,9 @@ class QuestionService @Inject() (
       val withSectionFilter =
         withTagFilter.inOrEmpty("examSectionQuestions.examSection.id", sectionIds.asJava)
 
-      val baseQuestions = withSectionFilter.orderBy("created desc").distinct
+      // No ordering here: distinct returns a Set, which discards it. The client sorts the
+      // library listing itself, see ui/.../library/results/library-results.component.ts
+      val baseQuestions = withSectionFilter.distinct
       val questions =
         if user.hasRole(Role.Name.TEACHER) && ownerIds.nonEmpty then
           baseQuestions.filter(_.questionOwners.contains(user))
@@ -292,18 +294,18 @@ class QuestionService @Inject() (
             case Some(tagId) =>
               DB.find(classOf[Tag]).where().idEq(tagId).find
             case None =>
-              val tagName = (tagNode \ "name").asOpt[String].getOrElse("")
+              val tagName = (tagNode \ "name").asOpt[String].getOrElse("").toLowerCase
               DB
                 .find(classOf[Tag])
                 .where()
-                .eq("name", tagName)
+                .ieq("name", tagName)
                 .eq("creator", user)
                 .list
                 .headOption match
                 case t @ Some(_) => t
                 case None =>
                   val newTag = new Tag()
-                  newTag.name = tagName.toLowerCase
+                  newTag.name = tagName
                   newTag.setCreatorWithDate(user)
                   newTag.modifier = user
                   newTag.save()
