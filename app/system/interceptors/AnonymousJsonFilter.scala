@@ -44,14 +44,17 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
       ids: Set[Long],
       properties: Set[String]
   ): Future[Result] =
-    val contentType = result.body.contentType.getOrElse("")
-    if !contentType.equalsIgnoreCase("application/json") || properties.isEmpty then
+    // Content type may carry parameters (e.g. "application/json; charset=utf-8"), compare the
+    // media type alone so those do not make us skip filtering
+    val mediaType = result.body.contentType.getOrElse("").takeWhile(_ != ';').trim
+    if !mediaType.equalsIgnoreCase("application/json") || properties.isEmpty then
       Future.successful(result)
-    result.body match
-      case HttpEntity.Strict(data, _) => filterStrictBody(result, data, ids, properties)
-      case _                          =>
-        // For streamed or chunked bodies, consume the stream first
-        result.body.consumeData.flatMap(filterStrictBody(result, _, ids, properties))
+    else
+      result.body match
+        case HttpEntity.Strict(data, _) => filterStrictBody(result, data, ids, properties)
+        case _                          =>
+          // For streamed or chunked bodies, consume the stream first
+          result.body.consumeData.flatMap(filterStrictBody(result, _, ids, properties))
 
   private def filterStrictBody(
       result: Result,
