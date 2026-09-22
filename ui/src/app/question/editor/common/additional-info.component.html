@@ -39,22 +39,23 @@ SPDX-License-Identifier: EUPL-1.2
 
         @if (attachment() && !attachment()?.removed) {
             <div class="make-inline ps-2">
-                <button
-                    type="button"
-                    class="btn btn-link"
-                    [disabled]="!hasUploadedAttachment()"
-                    (click)="downloadQuestionAttachment()"
-                    [ariaLabel]="'i18n_download_attachment' | translate"
-                >
-                    <i class="bi-paperclip" aria-hidden="true"></i>
-                    @if (!hasUploadedAttachment()) {
-                        {{ 'i18n_uploading' | translate }}:
-                    }
-                    {{ attachment()?.fileName }}
-                    @if (!hasUploadedAttachment()) {
+                @if (isDownloadable()) {
+                    <button
+                        type="button"
+                        class="btn btn-link"
+                        (click)="downloadQuestionAttachment()"
+                        [ariaLabel]="'i18n_download_attachment' | translate"
+                    >
+                        <i class="bi-paperclip" aria-hidden="true"></i>
+                        {{ attachment()?.fileName }}
+                    </button>
+                } @else {
+                    <span class="px-2">
+                        <i class="bi-paperclip" aria-hidden="true"></i>
+                        {{ attachment()?.fileName }}
                         <small>({{ getFileSize() }})</small>
-                    }
-                </button>
+                    </span>
+                }
                 <button
                     type="button"
                     class="remove-attachment border-none background-none"
@@ -62,6 +63,20 @@ SPDX-License-Identifier: EUPL-1.2
                     [ariaLabel]="'i18n_remove_attachment' | translate"
                 >
                     <img src="/assets/images/icon_remove.svg" alt="{{ 'i18n_remove_attachment' | translate }}" />
+                </button>
+            </div>
+            @if (hasPendingUpload()) {
+                <div class="mt-1 ps-2">
+                    <i class="bi-info-circle text-primary" aria-hidden="true"></i>
+                    <span class="ps-2">{{ 'i18n_attachment_pending_save' | translate }}</span>
+                </div>
+            }
+        } @else if (attachment()?.removed) {
+            <div class="mt-1 ps-2">
+                <i class="bi-info-circle text-primary" aria-hidden="true"></i>
+                <span class="ps-2">{{ 'i18n_attachment_pending_removal' | translate }}</span>
+                <button type="button" class="btn btn-link p-0 ps-2" (click)="undoRemoveQuestionAttachment()">
+                    {{ 'i18n_undo_attachment_removal' | translate }}
                 </button>
             </div>
         }
