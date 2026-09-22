@@ -57,10 +57,11 @@ export class ReservationDetailsComponent {
     }
 
     getStateClass(reservation: Reservation) {
-        if (reservation.enrolment.noShow) {
+        const state = this.printExamState(reservation);
+        if (state === 'NO_SHOW') {
             return 'text-danger';
         }
-        return reservation.enrolment.exam.state === 'REVIEW' ? 'text-success' : '';
+        return state === 'REVIEW' ? 'text-success' : '';
     }
 
     removeReservation(reservation: ReservationDetail) {

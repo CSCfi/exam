@@ -310,6 +310,18 @@ class CollaborativeReviewController @Inject() (
         }
       }
 
+  // CouchDB rejects a write whose revision is not the document's current one ("Document update
+  // conflict"). Every mutating action below first reads the assessment and applies its change on
+  // top of what it read, so the revision to write back with is the one that read returned. A
+  // revision the client hangs on to goes stale as soon as anything writes to the assessment, the
+  // client's own autosaved answer scores included.
+  private def withCurrentRevision(fetched: JsValue, updated: JsObject): JsObject =
+    (fetched \ "_rev").asOpt[String].orElse((fetched \ "rev").asOpt[String]) match
+      case Some(revision) => updated + ("rev" -> JsString(revision))
+      case None =>
+        logger.warn("No revision found in assessment, update is likely to be rejected")
+        updated - "rev"
+
   private def upload(url: URL, payload: JsValue): Future[Result] =
     wsClient.url(url.toString).put(payload).map { response =>
       if response.status != OK then
@@ -328,12 +340,9 @@ class CollaborativeReviewController @Inject() (
         case Right(ce) =>
           getURL(ce, ref) match
             case Left(errorFuture) => errorFuture
-            case Right(url) =>
-              val scoreNode = request.body \ "evaluatedScore"
-              val score =
-                if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double]
-                else None
-              val revision = (request.body \ "rev").as[String]
+            case Right(url)        =>
+              // Only a numeric score counts, anything else leaves the answer as it was
+              val score = (request.body \ "evaluatedScore").asOpt[Double]
 
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
@@ -346,7 +355,7 @@ class CollaborativeReviewController @Inject() (
                   val root = toJacksonJson(response.json)
                   score.foreach(s => scoreAnswer(root.get("exam"), qid, s))
                   val updated =
-                    toPlayJson(root).as[JsObject] + ("rev" -> JsString(revision))
+                    withCurrentRevision(response.json, toPlayJson(root).as[JsObject])
                   upload(url, updated)
               }
       }
@@ -410,13 +419,10 @@ class CollaborativeReviewController @Inject() (
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(ce) =>
           parseUrl(ce.externalRef, ref) match
-            case None => Future.successful(InternalServerError("Invalid URL"))
+            case None      => Future.successful(InternalServerError("Invalid URL"))
             case Some(url) =>
-              val scoreNode = request.body \ "forcedScore"
-              val score =
-                if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double]
-                else None
-              val revision = (request.body \ "rev").as[String]
+              // Only a numeric score counts, anything else leaves the answer as it was
+              val score = (request.body \ "forcedScore").asOpt[Double]
 
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
@@ -429,7 +435,7 @@ class CollaborativeReviewController @Inject() (
                   val root = toJacksonJson(response.json)
                   score.foreach(s => forceScoreAnswer(root.get("exam"), qid, s))
                   val updated =
-                    toPlayJson(root).as[JsObject] + ("rev" -> JsString(revision))
+                    withCurrentRevision(response.json, toPlayJson(root).as[JsObject])
                   upload(url, updated)
               }
       }
@@ -470,16 +476,11 @@ class CollaborativeReviewController @Inject() (
                     )
                   then Future.successful(Forbidden("Not allowed to update grading of this exam"))
                   else
-                    val revision = (request.body \ "rev").asOpt[String]
-                    if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
-                    else
-                      val updatedExamNode =
-                        updateExamNode(examNode.as[JsObject], request.body, user)
-                      val updated =
-                        root.as[JsObject] + ("exam" -> updatedExamNode) + ("rev" -> JsString(
-                          revision.get
-                        ))
-                      upload(url, updated)
+                    val updatedExamNode =
+                      updateExamNode(examNode.as[JsObject], request.body, user)
+                    val updated =
+                      withCurrentRevision(root, root.as[JsObject] + ("exam" -> updatedExamNode))
+                    upload(url, updated)
               }
       }
     }
@@ -512,7 +513,6 @@ class CollaborativeReviewController @Inject() (
           getURL(ce, ref) match
             case Left(errorFuture) => errorFuture
             case Right(url) =>
-              val revision = (request.body \ "rev").as[String]
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
                   Future.successful(
@@ -528,7 +528,7 @@ class CollaborativeReviewController @Inject() (
                     val examNode    = (root \ "exam").as[JsObject]
                     val updatedExam = updateFeedbackNode(examNode, comment, None)
                     val updated =
-                      root.as[JsObject] + ("exam" -> updatedExam) + ("rev" -> JsString(revision))
+                      withCurrentRevision(root, root.as[JsObject] + ("exam" -> updatedExam))
                     upload(url, updated)
               }
       }
@@ -544,7 +544,6 @@ class CollaborativeReviewController @Inject() (
           getURL(ce, assessmentRef) match
             case Left(errorFuture) => errorFuture
             case Right(url) =>
-              val revision = (request.body \ "rev").as[String]
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
                   Future.successful(
@@ -555,11 +554,10 @@ class CollaborativeReviewController @Inject() (
                 else
                   val root     = response.json
                   val examNode = (root \ "exam").as[JsObject]
-                  val updated = root.as[JsObject] + ("exam" -> updateFeedbackNode(
-                    examNode,
-                    None,
-                    Some(true)
-                  )) + ("rev" -> JsString(revision))
+                  val updated = withCurrentRevision(
+                    root,
+                    root.as[JsObject] + ("exam" -> updateFeedbackNode(examNode, None, Some(true)))
+                  )
                   upload(url, updated)
               }
       }
@@ -575,8 +573,7 @@ class CollaborativeReviewController @Inject() (
           parseUrl(ce.externalRef, ref) match
             case None => Future.successful(InternalServerError("Invalid URL"))
             case Some(url) =>
-              val user     = request.attrs(Auth.ATTR_USER)
-              val revision = (request.body \ "rev").as[String]
+              val user = request.attrs(Auth.ATTR_USER)
 
               wsClient.url(url.toString).get().flatMap { response =>
                 getResponse(response) match
@@ -598,9 +595,7 @@ class CollaborativeReviewController @Inject() (
                         val updatedExam =
                           examNode + ("assessmentInfo" -> JsString(assessmentInfo.get))
                         val updated =
-                          r.json.as[JsObject] + ("exam" -> updatedExam) + ("rev" -> JsString(
-                            revision
-                          ))
+                          withCurrentRevision(r.json, r.json.as[JsObject] + ("exam" -> updatedExam))
                         upload(url, updated)
               }
       }
@@ -646,13 +641,11 @@ class CollaborativeReviewController @Inject() (
               getRequest(ce, ref) match
                 case Left(errorFuture) => errorFuture
                 case Right(wsr) =>
-                  val revision = (request.body \ "rev").asOpt[String]
                   val gradingTypeStr =
                     (request.body \ "gradingType").asOpt[String].filter(_.nonEmpty)
                   val gradingTypeOpt =
                     gradingTypeStr.flatMap(s => Try(GradeType.valueOf(s)).toOption)
-                  if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
-                  else if gradingTypeStr.isEmpty then
+                  if gradingTypeStr.isEmpty then
                     Future.successful(BadRequest("gradingType is required"))
                   else if gradingTypeOpt.isEmpty then
                     logger.error(s"Invalid gradingType: ${gradingTypeStr.get}")
@@ -684,10 +677,10 @@ class CollaborativeReviewController @Inject() (
                                 ("gradingType"  -> JsString(gradingType.toString)) +
                                 ("gradedTime"   -> JsString(gradedTime)) +
                                 ("gradedByUser" -> gradedByUserJson)
-                              val updated =
-                                r.json.as[JsObject] + ("exam" -> updatedExam) + ("rev" -> JsString(
-                                  revision.get
-                                ))
+                              val updated = withCurrentRevision(
+                                r.json,
+                                r.json.as[JsObject] + ("exam" -> updatedExam)
+                              )
                               upload(url, updated)
                     }
       }
