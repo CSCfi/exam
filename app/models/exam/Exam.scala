@@ -153,8 +153,7 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
     isInspectedBy(user, applyToChildOnly = true) || isOwnedBy(user) || isCreatedBy(user)
 
   def isViewableForLanguageInspector(user: User): Boolean =
-    executionType != null &&
-      executionType.`type` == ExamExecutionType.Type.MATURITY.toString &&
+    isMaturity &&
       user.hasPermission(PermissionType.CAN_INSPECT_LANGUAGE) &&
       languageInspection != null &&
       languageInspection.assignee != null
@@ -166,6 +165,17 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
 
   def isPrintout: Boolean =
     executionType != null && executionType.`type` == ExamExecutionType.Type.PRINTOUT.toString
+
+  def isMaturity: Boolean =
+    executionType != null && executionType.`type` == ExamExecutionType.Type.MATURITY.toString
+
+  /** Whether the student ever gets to choose the optional sections of this exam. The choice is made
+    * while reserving a room, and no other implementation has an equivalent step, so elsewhere the
+    * flag is something the exam cannot act on - the sections are all part of the exam. A missing
+    * implementation (collaborative exams deserialized from a partner) counts as supervised.
+    */
+  def supportsOptionalSections: Boolean =
+    (implementation == null || implementation == ExamImplementation.AQUARIUM) && !isMaturity
 
   def isUnsupervised: Boolean =
     executionType == null || executionType.`type` != ExamImplementation.AQUARIUM.toString
@@ -270,7 +280,7 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   private def selectSectionsToCopy(context: ExamCopyContext): Iterable[ExamSection] =
     val sections = examSections.asScala
     val filtered =
-      if context.shouldIncludeOnlySelectedSections then
+      if context.shouldIncludeOnlySelectedSections && supportsOptionalSections then
         sections.filter(es => !es.optional || context.getSelectedSections.contains(es.id))
       else sections
     filtered.toList.sorted

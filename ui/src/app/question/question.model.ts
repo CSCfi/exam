@@ -36,6 +36,7 @@ export interface Question {
     defaultMaxScore?: number;
     modifier?: User;
     modified?: Date;
+    created?: Date;
     shared?: boolean;
     defaultAnswerInstructions?: string;
     defaultEvaluationCriteria?: string;

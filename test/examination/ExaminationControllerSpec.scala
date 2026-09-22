@@ -10,8 +10,8 @@ import com.icegreen.greenmail.util.{GreenMail, GreenMailUtil, ServerSetupTest}
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.{AutoEvaluationConfig, AutoEvaluationReleaseType, GradeEvaluation}
-import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
-import models.exam.{Exam, ExamExecutionType, ExamState}
+import models.enrolment.*
+import models.exam.*
 import models.facility.{ExamMachine, ExamRoom}
 import models.questions.{ClaimChoiceOptionType, QuestionType}
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
@@ -85,6 +85,43 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
     enrolment.save()
 
     (exam, machine, enrolment)
+
+  /** BYOD counterpart of [[setupTestData]]: no reservation, an examination event in progress
+    * instead. Optional sections are picked while reserving a machine, so such an enrolment never
+    * selects any - the student must still get every section.
+    */
+  private def setupByodTestData(): (Exam, ExamEnrolment) =
+    DB.find(classOf[ExamEnrolment]).list.foreach(_.delete())
+
+    val exam = Option(DB.find(classOf[Exam], 1L)) match
+      case Some(e) =>
+        initExamSectionQuestions(e)
+        e.implementation = ExamImplementation.WHATEVER
+        e.update()
+        e
+      case None => fail("Test exam not found")
+
+    val user = DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match
+      case Some(u) => u
+      case None    => fail("Test user not found")
+
+    val event = new ExaminationEvent()
+    event.start = Instant.now().minus(Duration.ofMinutes(10))
+    event.capacity = 10
+    event.save()
+
+    val config = new ExaminationEventConfiguration()
+    config.exam = exam
+    config.examinationEvent = event
+    config.save()
+
+    val enrolment = new ExamEnrolment()
+    enrolment.exam = exam
+    enrolment.user = user
+    enrolment.examinationEventConfiguration = config
+    enrolment.save()
+
+    (exam, enrolment)
 
   private def setAutoEvaluationConfig(exam: Exam): Unit =
     val config = new AutoEvaluationConfig()
@@ -173,6 +210,15 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
             participation.started must not be null
             participation.user.id must be(user.id)
           case None => fail("Participation not found")
+
+      "include every section of a BYOD exam, optional ones included" in:
+        val (_, session) = runIO(loginAsStudent())
+        val (exam, _)    = setupByodTestData()
+
+        exam.examSections.asScala.count(_.optional) must be > 0
+
+        val studentExam = prepareExamination(exam.hash, session)
+        studentExam.examSections must have size exam.examSections.size
 
       "reject creation with wrong IP" in:
         val (user, session)    = runIO(loginAsStudent())

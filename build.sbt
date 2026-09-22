@@ -45,6 +45,12 @@ libraryDependencies ++= Seq(
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
 Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
+// Pin the test configuration for every forked test JVM. Without this, a spec that boots a
+// Play app without extending BaseIntegrationSpec (which sets this property, but only once it
+// has been constructed) falls back to conf/application.conf and therefore to the DEV database.
+// Play applies evolutions unconditionally in Test mode - downs included, ignoring autoApply -
+// so such a run can wipe the dev database.
+Test / javaOptions += "-Dconfig.resource=integrationtest.conf"
 routesGenerator                        := InjectedRoutesGenerator
 PlayKeys.fileWatchService              := play.dev.filewatch.FileWatchService.polling(500)
 Compile / doc / sources                := Seq.empty

@@ -19,6 +19,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
 
 type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
+type ExamChoice = { type: string; examinationType: string };
 
 @Component({
     imports: [TranslateModule, NgbAccordionModule],
@@ -100,7 +101,21 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
             </div>
         </div>
 
+        @if (pendingChoice()) {
+            <div class="modal-body border-top">
+                <div class="alert alert-warning mb-0" role="alert">
+                    <i class="bi-exclamation-triangle me-2" aria-hidden="true"></i>
+                    {{ 'i18n_optional_sections_lost_in_copy' | translate }}
+                </div>
+            </div>
+        }
+
         <div class="modal-footer">
+            @if (pendingChoice(); as choice) {
+                <button class="btn btn-primary" (click)="confirmChoice(choice)">
+                    {{ 'i18n_button_accept' | translate }}
+                </button>
+            }
             <button class="btn btn-danger" (click)="cancel()">{{ 'i18n_button_cancel' | translate }}</button>
         </div>
     `,
@@ -128,6 +143,10 @@ export class ExaminationTypeSelectorComponent {
     readonly examTypePanel = viewChild<ElementRef>('examTypePanel');
     readonly links = viewChildren<ElementRef>('link');
 
+    // Set by the caller when the exam being copied has optional sections. Only room examinations can
+    // have them, so the teacher is told before a copy silently turns them into mandatory ones.
+    readonly hasOptionalSections = signal(false);
+    readonly pendingChoice = signal<ExamChoice | undefined>(undefined);
     readonly executionTypes = signal<ExamConfig[]>([]);
     readonly selectedType = signal<ExamConfig | undefined>(undefined);
     readonly focusedIndex = signal(0);
@@ -238,11 +257,25 @@ export class ExaminationTypeSelectorComponent {
     }
 
     selectConfig(type: string, examinationType = 'AQUARIUM') {
-        this.modal.close({ type, examinationType });
+        const choice = { type, examinationType };
+        if (this.hasOptionalSections() && !this.supportsOptionalSections(choice)) {
+            this.pendingChoice.set(choice);
+        } else {
+            this.modal.close(choice);
+        }
+    }
+
+    confirmChoice(choice: ExamChoice) {
+        this.modal.close(choice);
     }
 
     cancel() {
         this.modal.dismiss();
+    }
+
+    // Mirrors Exam.supportsOptionalSections on the backend
+    private supportsOptionalSections(choice: ExamChoice) {
+        return choice.examinationType === 'AQUARIUM' && choice.type !== 'MATURITY';
     }
 
     private getCurrentPanelLinks(panelIndex: number): ElementRef[] {

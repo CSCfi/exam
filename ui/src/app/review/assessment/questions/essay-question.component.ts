@@ -138,9 +138,12 @@ export class EssayQuestionComponent {
                 this.id,
                 this.ref,
                 participationValue._rev as string,
-            ).subscribe((resp) => {
-                this.toast.info(this.translate.instant('i18n_graded'));
-                this.scored.emit(resp.rev);
+            ).subscribe({
+                next: (resp) => {
+                    this.toast.info(this.translate.instant('i18n_graded'));
+                    this.scored.emit(resp.rev);
+                },
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.Assessment.saveEssayScore$(sq).subscribe(() => {

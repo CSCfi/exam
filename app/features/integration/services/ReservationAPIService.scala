@@ -19,31 +19,39 @@ import scala.jdk.CollectionConverters.*
 class ReservationAPIService @Inject() ()
     extends EbeanQueryExtensions:
 
+  private val reservationProperties =
+    """(startAt, endAt, externalUserRef,
+      |user(firstName, lastName, email, userIdentifier),
+      |enrolment(noShow,
+      |  exam(id, name,
+      |    examOwners(firstName, lastName, email),
+      |    parent(examOwners(firstName, lastName, email)),
+      |    course(name, code, credits, identifier,
+      |      gradeScale(description, externalRef, displayName),
+      |      organisation(code, name, nameAbbreviation)
+      |    )
+      |  ),
+      |  collaborativeExam(name)
+      |),
+      |machine(name, ipAddress, otherIdentifier,
+      |  room(name, roomCode)
+      |)
+      |)""".stripMargin
+
+  private val reservationJsonProperties = PathProperties.parse(reservationProperties)
+
+  private val roomProperties =
+    PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
+
+  private val openingHoursProperties =
+    PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
+
   def getReservations(
       start: Option[String],
       end: Option[String],
       roomId: Option[Long]
-  ): List[Reservation] =
-    val pp = PathProperties.parse(
-      """(startAt, endAt, externalUserRef,
-        |user(firstName, lastName, email, userIdentifier),
-        |enrolment(noShow,
-        |  exam(id, name,
-        |    examOwners(firstName, lastName, email),
-        |    parent(examOwners(firstName, lastName, email)),
-        |    course(name, code, credits, identifier,
-        |      gradeScale(description, externalRef, displayName),
-        |      organisation(code, name, nameAbbreviation)
-        |    )
-        |  ),
-        |  collaborativeExam(name)
-        |),
-        |machine(name, ipAddress, otherIdentifier,
-        |  room(name, roomCode)
-        |)
-        |)""".stripMargin
-    )
-    val query = DB.find(classOf[Reservation]).apply(pp)
+  ): (List[Reservation], PathProperties) =
+    val query = DB.find(classOf[Reservation]).apply(reservationJsonProperties)
     val baseQuery = query
       .where()
       .or()  // *
@@ -64,15 +72,13 @@ class ReservationAPIService @Inject() ()
       withEnd.eq("machine.room.id", id)
     }
 
-    finalQuery.distinct.toList.sortBy(_.startAt.toEpochMilli)
+    (finalQuery.distinct.toList.sortBy(_.startAt.toEpochMilli), reservationJsonProperties)
 
-  def getRooms: List[ExamRoom] =
-    val pp = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
-    DB.find(classOf[ExamRoom]).apply(pp).orderBy("name").list
+  def getRooms: (List[ExamRoom], PathProperties) =
+    (DB.find(classOf[ExamRoom]).apply(roomProperties).orderBy("name").list, roomProperties)
 
-  def getRoomOpeningHours(roomId: Long, date: String): Option[ExamRoom] =
-    val pp = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
-    DB.find(classOf[ExamRoom]).apply(pp).where().idEq(roomId).find match
+  def getRoomOpeningHours(roomId: Long, date: String): Option[(ExamRoom, PathProperties)] =
+    DB.find(classOf[ExamRoom]).apply(openingHoursProperties).where().idEq(roomId).find match
       case None => None
       case Some(room) =>
         val searchDate = LocalDate.parse(date)
@@ -84,4 +90,4 @@ class ReservationAPIService @Inject() ()
           !start.isAfter(searchDate) && !end.isBefore(searchDate)
         }
         room.calendarExceptionEvents = filteredEvents.asJava
-        Some(room)
+        Some((room, openingHoursProperties))
