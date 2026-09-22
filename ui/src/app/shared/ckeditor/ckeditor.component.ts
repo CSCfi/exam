@@ -25,6 +25,7 @@ import {
     CKEditorComponent as CKEditorNgComponent,
 } from '@ckeditor/ckeditor5-angular';
 import { TranslateService } from '@ngx-translate/core';
+import type { GeneralHtmlSupportConfig, MatcherObjectPattern } from 'ckeditor5';
 import {
     AccessibilityHelp,
     Alignment,
@@ -94,6 +95,69 @@ import { Math } from './plugins/math/plugin';
  */
 type PendingWatchdog = { editor: Editor | null; destroy(): Promise<unknown> };
 
+/**
+ * Drops the link button from a toolbar definition and collapses the separator pair that
+ * removing it leaves behind.
+ */
+const withoutLinks = (items: string[]) =>
+    items.filter((item) => item !== 'link').filter((item, i, all) => item !== '|' || all[i - 1] !== '|');
+
+/**
+ * Rules that apply to every editor.
+ *
+ * `htmlSupport.allow` below is a wildcard, which hands GeneralHtmlSupport every element it knows
+ * about — `script` and `style` included — so anything pasted or typed into the source editing view
+ * survives the round trip through the model and is rendered back into the editing view. The
+ * backend safelist (`validation.core.HtmlSafelist`) strips all three of these on save, so keeping
+ * them here would only produce content that silently vanishes when the answer is stored, and it
+ * would leave whether a `<script>` runs in the author's own page down to how CKEditor happens to
+ * populate a raw element.
+ */
+const ALWAYS_DISALLOWED: MatcherObjectPattern[] = [
+    { name: 'script' },
+    { name: 'style' },
+    // The array form matters: `attributes: { key: /^on.../ }` (as the CKEditor config docs show it)
+    // is read as "an attribute literally named `key`" and matches nothing.
+    { name: /[\s\S]+/, attributes: [{ key: /^on[a-z]+$/, value: true }] },
+];
+
+/**
+ * Elements that fetch and render remote content, dropped from editors that must not be a way out
+ * to the open web. An `<iframe>` in the editing view is the sharpest of these: GeneralHtmlSupport
+ * renders it live, and while CKEditor forces `sandbox=""` on it there, the page is still fetched
+ * and displayed. None of this ever has to be saved to be useful to whoever is typing, so the
+ * backend safelist cannot help — it has to be stopped in the editor.
+ */
+const REMOTE_CONTENT_ELEMENTS: MatcherObjectPattern[] = [
+    { name: 'a' },
+    { name: 'audio' },
+    { name: 'embed' },
+    { name: 'iframe' },
+    { name: 'img' },
+    { name: 'object' },
+    { name: 'oembed' },
+    { name: 'video' },
+];
+
+/**
+ * The General HTML Support rules for an editor, which decide what survives a paste or a trip
+ * through the source editing view. Exported so the spec can exercise the rules that actually ship.
+ */
+export const buildHtmlSupportConfig = (allowExternalContent: boolean): GeneralHtmlSupportConfig => ({
+    allow: [
+        {
+            name: /^.*$/,
+            styles: true,
+            attributes: true,
+            classes: true,
+        },
+    ],
+    // Dropping the Link plugin only removes the tooling; GeneralHtmlSupport would still keep an <a>
+    // arriving by paste or through the source editing view, and a GHS anchor renders as a real
+    // anchor — Ctrl/Cmd+click and the browser context menu work on it just the same.
+    disallow: allowExternalContent ? ALWAYS_DISALLOWED : [...ALWAYS_DISALLOWED, ...REMOTE_CONTENT_ELEMENTS],
+});
+
 @Component({
     selector: 'xm-ckeditor',
     template: `<div id="editor">
@@ -122,6 +186,19 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
     readonly data = input<string | null | undefined>('');
     readonly required = input(false, { transform: booleanAttribute });
     readonly enableClozeTest = input(false);
+    /**
+     * Whether this editor may reach the open web — hyperlinks and embedded remote resources.
+     *
+     * Turn it off for the student answer editors. Everything typed there is rendered live in the
+     * student's own browser, so in an exam room with no network restrictions the editor is itself
+     * a way out: an `<a href>` can be followed with Ctrl/Cmd+click or Alt+Enter (CKEditor's
+     * LinkEditing opens it in a new tab) and with the browser's own "Open link in new tab" context
+     * menu entry, and an `<iframe>` renders a whole page inline. None of it has to be saved to be
+     * useful, so the backend safelist never sees it. Off means the tooling that creates links is
+     * not loaded and {@link REMOTE_CONTENT_ELEMENTS} are filtered out of the content, whether they
+     * arrive by paste or through the source editing view.
+     */
+    readonly allowExternalContent = input(true, { transform: booleanAttribute });
     readonly id = input('word-count-id');
     readonly dataChange = output<string>();
 
@@ -261,6 +338,7 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
     }
 
     private createEditorConfig() {
+        const externalContentAllowed = this.allowExternalContent();
         const toolbarItems = [
             'undo',
             'redo',
@@ -300,16 +378,17 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
         if (this.enableClozeTest()) {
             toolbarItems.splice(5, 0, 'cloze');
         }
+        const balloonToolbarItems = ['bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList'];
         this.editorConfig = {
             toolbar: {
-                items: toolbarItems,
+                items: externalContentAllowed ? toolbarItems : withoutLinks(toolbarItems),
                 shouldNotGroupWhenFull: true,
             },
             plugins: [
                 AccessibilityHelp,
                 Alignment,
                 Autoformat,
-                AutoLink,
+                ...(externalContentAllowed ? [AutoLink] : []),
                 Autosave,
                 BalloonToolbar,
                 BlockQuote,
@@ -325,7 +404,7 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
                 Indent,
                 IndentBlock,
                 Italic,
-                Link,
+                ...(externalContentAllowed ? [Link] : []),
                 List,
                 ListProperties,
                 Paragraph,
@@ -358,7 +437,7 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
                 Cloze,
                 Math,
             ],
-            balloonToolbar: ['bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList'],
+            balloonToolbar: externalContentAllowed ? balloonToolbarItems : withoutLinks(balloonToolbarItems),
             heading: {
                 options: [
                     {
@@ -404,17 +483,9 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
                     },
                 ],
             },
-            htmlSupport: {
-                allow: [
-                    {
-                        name: /^.*$/,
-                        styles: true,
-                        attributes: true,
-                        classes: true,
-                    },
-                ],
-            },
+            htmlSupport: buildHtmlSupportConfig(externalContentAllowed),
             licenseKey: 'GPL',
+            // Inert when `allowExternalContent` is false: the Link plugin that reads it is not loaded.
             link: {
                 addTargetToExternalLinks: true,
                 defaultProtocol: 'https://',
