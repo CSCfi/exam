@@ -39,6 +39,9 @@ class LtiService @Inject() (private val config: Config) extends Logging:
 
   private val TokenLifetime = 5 * 60 * 1000
 
+  /** Path of `LtiController.startLogin` in conf/routes. */
+  private val StartLoginPath = "/integration/lti/start-login"
+
   def initiateLoginUrl: String = config.getString("lti.tool.initiate-login-url")
   def issuer: String           = config.getString("lti.platform.issuer")
   def targetLinkUri: String    = config.getString("lti.platform.target-link-uri")
@@ -47,6 +50,14 @@ class LtiService @Inject() (private val config: Config) extends Logging:
   def keyId: String            = config.getString("lti.platform.key-id")
   def publicKeyPath: String    = config.getString("lti.platform.public-key")
   def privateKeyPath: String   = config.getString("lti.platform.private-key")
+
+  /** Absolute URL of the platform's login-initiation endpoint.
+    *
+    * The UI points the LTI iframe here. It has to be absolute rather than a relative path: the
+    * launch must originate from the platform's own public origin (the one it signs id_tokens as),
+    * which is not necessarily where the UI is being served from.
+    */
+  def startLoginUrl: String = s"${issuer.stripSuffix("/")}$StartLoginPath"
 
   /** Redirect URIs the tool is allowed to receive the id_token on. Defaults to the configured
     * target link URI when no explicit allow-list is given.

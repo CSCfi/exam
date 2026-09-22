@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { concat, Observable, of, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { ClozeTestAnswer, EssayAnswer } from 'src/app/question/question.model';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
@@ -45,9 +45,14 @@ export class ExaminationService {
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
 
-    getLtiInitiateUrl$() {
-        return 'https://dev.exam.csc.fi/integration/lti/start-login';
-    }
+    // The LTI launch has to originate from the platform's own public origin, which is not
+    // necessarily where the UI is served from, so the backend hands us an absolute URL.
+    private readonly ltiLoginUrl$ = this.http.get<{ url: string }>('/app/lti/login-url').pipe(
+        map((data) => data.url),
+        shareReplay(1),
+    );
+
+    getLtiLoginUrl$ = (): Observable<string> => this.ltiLoginUrl$;
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         console.log('startExam');

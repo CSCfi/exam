@@ -6,6 +6,7 @@ package features.lti.controllers
 
 import features.lti.services.{LtiError, LtiService}
 import models.user.Role
+import play.api.libs.json.Json
 import play.api.mvc.*
 import security.Auth
 import security.Auth.{AuthenticatedAction, authorized}
@@ -24,6 +25,14 @@ class LtiController @Inject() (
     error match
       case LtiError.KeyUnavailable => InternalServerError(error.message)
       case _                       => BadRequest(error.message)
+
+  /** Hands the UI the absolute URL its LTI iframe should point at. */
+  def getStartLoginUrl: Action[AnyContent] =
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ) { _ =>
+      Ok(Json.obj("url" -> ltiService.startLoginUrl))
+    }
 
   /** Starts the OIDC third-party-initiated login against the tool. */
   def startLogin: Action[AnyContent] =

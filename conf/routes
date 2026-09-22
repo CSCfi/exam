@@ -8,6 +8,7 @@ GET           /                                                               fe
 GET           /integration/lti/start-login                                    features.lti.controllers.LtiController.startLogin
 GET           /integration/lti/oidc/login                                     features.lti.controllers.LtiController.handleOidcLogin
 GET           /integration/lti/oidc/jwks                                      features.lti.controllers.JwksController.jwks
+GET           /app/lti/login-url                                              features.lti.controllers.LtiController.getStartLoginUrl
 
 
 ############### Session interface ############
