@@ -41,7 +41,9 @@ class ExaminationRepository @Inject() (
     Using(db.beginTransaction()) { tx =>
       val isCollaborative = Option(enrolment.collaborativeExam).isDefined
       val reservation     = enrolment.reservation
-      // TODO: support for optional sections in BYOD exams
+      // Optional sections are picked while reserving a room, so BYOD examinations have none to
+      // select; Exam.selectSectionsToCopy hands them every section instead of dropping the
+      // optional ones.
       val ids = Option(reservation)
         .map(_ => enrolment.optionalSections.asScala.map(_.id.longValue()).toSet)
         .getOrElse(Set.empty[Long])

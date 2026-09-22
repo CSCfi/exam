@@ -139,7 +139,7 @@ export class MultiChoiceQuestionComponent {
                     this.toast.info(this.translate.instant('i18n_graded'));
                     this.scored.emit(resp.rev);
                 },
-                error: (err) => this.toast.error(err.data),
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.Assessment.saveForcedScore(sq).subscribe({
@@ -147,7 +147,7 @@ export class MultiChoiceQuestionComponent {
                     this.toast.info(this.translate.instant('i18n_graded'));
                     this.scored.emit('');
                 },
-                error: (err) => this.toast.error(err.data),
+                error: (err) => this.toast.error(err),
             });
         }
     };

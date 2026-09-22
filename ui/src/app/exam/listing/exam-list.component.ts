@@ -110,7 +110,9 @@ export class ExamListingComponent {
     }
 
     copyExam(exam: Exam) {
-        this.Modal.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent)
+        const modal = this.Modal.openRef(ExaminationTypeSelectorComponent);
+        modal.componentInstance.hasOptionalSections.set(exam.examSections.some((es) => es.optional));
+        this.Modal.result$<{ type: string; examinationType: string }>(modal)
             .pipe(
                 switchMap((data) => this.http.post<Exam>(`/app/exams/${exam.id}`, data)),
                 takeUntilDestroyed(this.destroyRef),

@@ -794,6 +794,7 @@
     "i18n_exam_material_description": "Tenttimateriaali/sisältö, johon aihealueen kysymykset perustuvat",
     "i18n_modify_materials": "Hallinnoi tenttimateriaaleja/sisältöjä",
     "i18n_optional_section": "Valinnainen aihealue",
+    "i18n_optional_sections_lost_in_copy": "Valinnaiset aihealueet toimivat vain tenttitilatenteissä. Kopiossa kaikki aihealueet kuuluvat opiskelijan tenttiin.",
     "i18n_optional_section_description": "Opiskelija voi valita, tenttiikö hän valinnaisen aihealueen vai ei. Valinta tehdään tenttiaikaa varatessa. Tentissä opiskelija ei näe valitsematta jättämiensä valinnaisten aihealueiden kysymyksiä.",
     "i18n_search_by_name": "Hae nimen perusteella",
     "i18n_author": "Tekijä",
