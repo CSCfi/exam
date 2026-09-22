@@ -14,7 +14,7 @@ import type { Exam } from 'src/app/exam/exam.model';
 
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { NoShowComponent } from './no-show.component';
 import { ParticipationComponent } from './participation.component';
 
@@ -25,7 +25,7 @@ type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './general-info.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    imports: [ParticipationComponent, NoShowComponent, MathDirective, DatePipe, TranslateModule],
+    imports: [ParticipationComponent, NoShowComponent, RichTextDirective, DatePipe, TranslateModule],
 })
 export class GeneralInfoComponent {
     readonly exam = input.required<Exam>();

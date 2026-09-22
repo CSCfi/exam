@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import {
+    AfterViewChecked,
     AfterViewInit,
     booleanAttribute,
     ChangeDetectionStrategy,
@@ -13,10 +14,16 @@ import {
     OnDestroy,
     output,
     signal,
+    viewChild,
     ViewEncapsulation,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { BlurEvent, ChangeEvent, CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import {
+    BlurEvent,
+    ChangeEvent,
+    CKEditorModule,
+    CKEditorComponent as CKEditorNgComponent,
+} from '@ckeditor/ckeditor5-angular';
 import { TranslateService } from '@ngx-translate/core';
 import {
     AccessibilityHelp,
@@ -80,6 +87,13 @@ import { CKEditorInitializationService } from './ckeditor-initialization.service
 import { Cloze } from './plugins/clozetest/plugin';
 import { Math } from './plugins/math/plugin';
 
+/**
+ * The subset of the (private) EditorWatchdog held by @ckeditor/ckeditor5-angular that
+ * {@link CKEditorComponent.reapOrphanedEditor} needs. `editor` stays null until the
+ * asynchronous `ClassicEditor.create()` call resolves.
+ */
+type PendingWatchdog = { editor: Editor | null; destroy(): Promise<unknown> };
+
 @Component({
     selector: 'xm-ckeditor',
     template: `<div id="editor">
@@ -104,7 +118,7 @@ import { Math } from './plugins/math/plugin';
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CKEditorComponent implements AfterViewInit, OnDestroy {
+export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
     readonly data = input<string | null | undefined>('');
     readonly required = input(false, { transform: booleanAttribute });
     readonly enableClozeTest = input(false);
@@ -119,6 +133,10 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
     private languageSubscription?: Subscription;
     private readonly currentLanguage = signal<string>('');
     private pendingContent: string | null = null;
+    private languageReloadTimer?: number;
+
+    private readonly ckeditor = viewChild(CKEditorNgComponent);
+    private innerEditor: CKEditorNgComponent | null = null;
 
     private readonly changeDetector = inject(ChangeDetectorRef);
     private readonly Translate = inject(TranslateService);
@@ -138,9 +156,31 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
         this.changeDetector.markForCheck();
     }
 
+    ngAfterViewChecked() {
+        // Track the inner <ckeditor> across the isLayoutReady() toggle so that an editor
+        // still being created when the child disappears (language change) is not orphaned.
+        const inner = this.ckeditor() ?? null;
+        if (inner === this.innerEditor) {
+            return;
+        }
+        if (this.innerEditor && !inner) {
+            this.reapOrphanedEditor(this.innerEditor);
+        }
+        this.innerEditor = inner;
+    }
+
     ngOnDestroy() {
         if (this.languageSubscription) {
             this.languageSubscription.unsubscribe();
+        }
+        if (this.languageReloadTimer !== undefined) {
+            window.clearTimeout(this.languageReloadTimer);
+            this.languageReloadTimer = undefined;
+        }
+        this.initializationService.dispose();
+        if (this.innerEditor) {
+            this.reapOrphanedEditor(this.innerEditor);
+            this.innerEditor = null;
         }
     }
 
@@ -195,6 +235,29 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
             this.pendingContent = null;
             this.changeDetector.markForCheck();
         }
+    }
+
+    /**
+     * Destroys an editor whose creation outlived the component that owns it.
+     *
+     * @ckeditor/ckeditor5-angular skips its own teardown while the editor is still being
+     * created: `destroyEditor()` bails out unless `editorWatchdog.editor` is set, and the
+     * watchdog only assigns it once the asynchronous `ClassicEditor.create()` resolves.
+     * An editor torn down inside that window is therefore never destroyed, and the
+     * watchdog's window-level 'error' / 'unhandledrejection' listeners keep it — together
+     * with its detached DOM, toolbar, menu bar and balloon panels — reachable for the rest
+     * of the session. An exam section holding ~20 essay editors leaks all of them on every
+     * section switch that interrupts their creation.
+     *
+     * `EditorWatchdog.destroy()` chains onto the pending `create()` promise, so calling it
+     * here tears the editor down as soon as it exists.
+     */
+    private reapOrphanedEditor(inner: CKEditorNgComponent) {
+        const watchdog = (inner as unknown as { editorWatchdog?: PendingWatchdog }).editorWatchdog;
+        if (!watchdog || watchdog.editor) {
+            return; // never created, or created in time — the upstream teardown handles it
+        }
+        watchdog.destroy().catch(() => undefined);
     }
 
     private createEditorConfig() {
@@ -409,7 +472,8 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
         this.editorInstance = null;
 
         // Use setTimeout to ensure the old editor is fully destroyed before creating a new one
-        setTimeout(() => {
+        this.languageReloadTimer = window.setTimeout(() => {
+            this.languageReloadTimer = undefined;
             this.isLayoutReady.set(true);
             this.changeDetector.markForCheck();
         }, 50);

@@ -9,6 +9,7 @@
 @use 'ngx-toastr/toastr';
 @use 'bootstrap-icons/font/bootstrap-icons.css';
 @use 'ckeditor5/dist/ckeditor5.css';
+@use 'highlight.js/styles/github.css';
 
 @use './app/shared/definitions.scss' as shared;
 
@@ -242,6 +243,12 @@ blockquote { border-left: 3px solid #d0d0d0; margin: 0.25rem 0; padding: 0.25rem
 code { font-family: 'Courier New', Courier, monospace; font-size: 0.9em; background: $xm-code-bg; border: $xm-code-border; border-radius: 3px; padding: 0.1em 0.35em; color: #333; }
 pre { background: $xm-code-bg; border: $xm-code-border; border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto;
     code { background: none; border: none; padding: 0; font-size: 0.875em; }
+    /* The highlight.js theme paints its own white block; only its token colors are wanted here */
+    code.hljs { background: none; padding: 0; }
+}
+figure.table {
+    max-width: 100%;
+    overflow-x: auto;
 }
 figure.table table {
     width: 100%; border-collapse: collapse; border: 1px solid #d0d0d0; border-radius: 4px; overflow: hidden; font-size: 0.9em;
@@ -253,9 +260,38 @@ figure.table table {
     tbody tr:hover { background: #f0f4ff; }
 }
 /* Ckeditor content markup */
-.marker-green { background: hsl(120, 93%, 68%); }
-.marker-yellow {background: hsl(60, 97%, 73%); }
-.marker-pink { background: hsl(201, 97%, 72%); }
-.marker-blue { background: hsl(240, 100%, 67%); }
-.pen-red { color: hsl(0, 85%, 49%); }
-.pen-green { color: hsl(112, 100%, 27%); }
+/* Colors come from CKEditor's own :root vars so content looks identical in and out of the editor */
+.marker-green { background-color: var(--ck-content-highlight-marker-green); }
+.marker-yellow { background-color: var(--ck-content-highlight-marker-yellow); }
+.marker-pink { background-color: var(--ck-content-highlight-marker-pink); }
+.marker-blue { background-color: var(--ck-content-highlight-marker-blue); }
+/* Pens color the text only, so Bootstrap's <mark> background and padding need clearing */
+.pen-red { color: var(--ck-content-highlight-pen-red); background-color: transparent; padding: 0; }
+.pen-green { color: var(--ck-content-highlight-pen-green); background-color: transparent; padding: 0; }
+
+/* Todo lists. CKEditor scopes its own rules under .ck-content, which read-only views don't use.
+   The checkbox is drawn here rather than left native because the markup is always disabled, and
+   browsers grey a disabled checkbox down until the checked state is hard to make out. */
+ul.todo-list {
+    list-style: none;
+    li { margin-bottom: 5px; }
+    li .todo-list { margin-top: 5px; }
+    .todo-list__label__description { vertical-align: middle; }
+    input[type='checkbox'] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        margin: 0 6px 0 -22px;
+        vertical-align: middle;
+        border: 1px solid #333;
+        border-radius: 2px;
+        background: #fff;
+
+        &:checked {
+            border-color: #26ab33;
+            background: #26ab33 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M3 8.5l3.5 3.5L13 5'/%3E%3C/svg%3E")
+                center / 12px no-repeat;
+        }
+    }
+}

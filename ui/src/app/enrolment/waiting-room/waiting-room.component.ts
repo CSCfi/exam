@@ -15,9 +15,8 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 export type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
@@ -33,7 +32,7 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     imports: [
         CourseCodeComponent,
         TeacherListComponent,
-        MathDirective,
+        RichTextDirective,
         UpperCasePipe,
         SlicePipe,
         DatePipe,

@@ -19,9 +19,9 @@ import { AssessmentService } from 'src/app/review/assessment/assessment.service'
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { PrintedSectionComponent } from './printed-section.component';
 
@@ -33,7 +33,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
     templateUrl: './printed-assessment.component.html',
     imports: [
         CourseCodeComponent,
-        MathDirective,
+        RichTextDirective,
         PrintedSectionComponent,
         LowerCasePipe,
         DatePipe,
