@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -27,7 +27,6 @@ type ExceptionHour = ExceptionWorkingHours & { start: string; end: string; descr
         `,
     ],
     imports: [BookingCalendarComponent, TranslateModule, NgbPopover],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AvailabilityComponent {
     readonly room = input.required<ExamRoom>();

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -20,7 +20,6 @@ import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
     templateUrl: './exam-assessment.component.html',
     styleUrls: ['../../exam.shared.scss'],
     imports: [NgbPopover, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamAssessmentComponent {
     readonly autoEvaluationRef = viewChild<AutoEvaluationComponent>('autoEvaluationComponent');

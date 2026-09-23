@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
@@ -102,7 +102,6 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
     `,
     imports: [NgbPopover, ExceptionListComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
     styleUrl: './rooms.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomExceptionsBulkComponent {
     readonly rooms = signal<SelectableRoom[]>([]);

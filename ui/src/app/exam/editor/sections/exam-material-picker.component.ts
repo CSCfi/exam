@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,7 +18,6 @@ import { ExamMaterialComponent } from './exam-material.component';
     selector: 'xm-exam-material-selector',
     templateUrl: './exam-material-picker.component.html',
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamMaterialSelectorComponent {
     readonly section = input.required<ExamSection>();

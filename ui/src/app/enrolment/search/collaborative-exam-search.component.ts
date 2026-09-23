@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,7 +23,6 @@ interface LoadingState {
 
 @Component({
     selector: 'xm-collaborative-exam-search',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <span class="col-12 align-items-center mt-3">

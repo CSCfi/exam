@@ -3,14 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSection } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-optional-sections',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [NgbCollapse, TranslateModule, LowerCasePipe, UpperCasePipe],
     template: `<div class="row mt-2 enrollment-card-dropdown">
         <div class="col col-md-12">

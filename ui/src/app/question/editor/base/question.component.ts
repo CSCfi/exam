@@ -2,17 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    OnDestroy,
-    OnInit,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, input, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -40,7 +30,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         HistoryBackComponent,
         QuestionBodyComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDestroy {
     // Inputs - simplified API

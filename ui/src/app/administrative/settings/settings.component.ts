@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,7 +17,6 @@ import { SettingsService } from './settings.service';
 @Component({
     templateUrl: './settings.component.html',
     selector: 'xm-settings',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CKEditorComponent,
         FormsModule,

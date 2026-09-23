@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -19,7 +19,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     templateUrl: './exam-owner-picker.component.html',
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamOwnerSelectorComponent implements OnInit {
     readonly exam = input.required<Exam>();

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -17,7 +17,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     imports: [TranslateModule, ApplyDstPipe, OrderByPipe, DatePipe, TableSortComponent],
     templateUrl: './no-shows.component.html',
     styleUrls: ['../review-list.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoShowsComponent {
     readonly noShows = signal<ExamEnrolment[]>([]);

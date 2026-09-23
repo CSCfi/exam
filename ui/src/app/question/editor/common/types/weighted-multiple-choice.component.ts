@@ -3,16 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { AfterViewInit, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     AbstractControl,
@@ -38,7 +29,6 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, UpperCasePipe, TranslateModule, FixedPrecisionValidatorDirective],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeightedMultipleChoiceComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();

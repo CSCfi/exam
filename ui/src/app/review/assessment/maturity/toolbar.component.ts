@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -14,7 +14,6 @@ import { MaturityService } from './maturity.service';
 
 @Component({
     selector: 'xm-r-maturity-toolbar',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<!-- language inspection controls  -->
         @if (isOwnerOrAdmin() || isUnderLanguageInspection()) {
             <div class="d-flex flex-row-reverse gap-2">

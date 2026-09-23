@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -30,7 +30,6 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
 
 @Component({
     selector: 'xm-printed-assessment',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './printed-assessment.component.html',
     imports: [
         CourseCodeComponent,

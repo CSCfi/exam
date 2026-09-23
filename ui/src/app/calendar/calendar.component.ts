@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -27,7 +27,6 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
     selector: 'xm-calendar',
     templateUrl: './calendar.component.html',
     styleUrls: ['./calendar.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CalendarExamInfoComponent,
         OptionalSectionsComponent,

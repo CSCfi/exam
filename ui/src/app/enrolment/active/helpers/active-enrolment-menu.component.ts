@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -16,7 +16,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-active-enrolment-menu',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './active-enrolment-menu.component.html',
     imports: [RouterLink, TranslateModule],
 })

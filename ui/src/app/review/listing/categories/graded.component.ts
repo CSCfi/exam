@@ -4,7 +4,7 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -45,7 +45,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         OrderByPipe,
     ],
     styleUrl: '../review-list.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GradedReviewsComponent {
     readonly exam = input.required<Exam>();

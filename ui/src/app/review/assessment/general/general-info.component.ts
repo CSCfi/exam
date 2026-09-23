@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,7 +23,6 @@ type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'xm-r-general-info',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './general-info.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [ParticipationComponent, NoShowComponent, RichTextDirective, DatePipe, TranslateModule, ApplyDstPipe],

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
@@ -31,7 +31,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         </div>
     </div>`,
     imports: [NgbDropdownModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LanguageSelectorComponent {
     readonly exam = input.required<Exam>();

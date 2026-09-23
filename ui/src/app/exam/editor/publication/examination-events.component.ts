@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -19,7 +19,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
     imports: [NgbPopoverModule, TranslateModule, DatePipe],
     selector: 'xm-examination-events',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <!-- Examination events -->
         @if (exam().implementation !== 'AQUARIUM') {

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Reservation } from 'src/app/reservation/reservation.model';
@@ -36,7 +36,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             </button>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RemoveReservationDialogComponent {
     readonly reservation = model<Reservation | undefined>(undefined);

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { NgbNavModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -58,7 +58,6 @@ interface ListedCollaborativeExam extends Exam {
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollaborativeExamListingComponent {
     readonly view = signal<ListingView>(ListingView.PUBLISHED);

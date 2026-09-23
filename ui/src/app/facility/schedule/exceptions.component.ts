@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { RoomService } from 'src/app/facility/rooms/room.service';
@@ -57,7 +57,6 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
         }
     `,
     imports: [TranslateModule, FilterByPipe],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionListComponent {
     readonly exceptions = input<ExceptionWorkingHours[]>([]);

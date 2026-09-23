@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
@@ -11,7 +11,6 @@ import { Reservation } from 'src/app/reservation/reservation.model';
 import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row my-2">
             <div class="col-12">

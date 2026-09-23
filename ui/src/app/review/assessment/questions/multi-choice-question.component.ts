@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -24,7 +24,6 @@ import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answ
 
 @Component({
     selector: 'xm-r-multi-choice-question',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './multi-choice-question.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [

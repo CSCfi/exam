@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -23,7 +23,6 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
 
 @Component({
     selector: 'xm-r-essay-question',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './essay-question.component.html',
     styleUrls: ['../assessment.shared.scss', './essay-question.component.scss'],
     imports: [

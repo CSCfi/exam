@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { QuestionComponent } from 'src/app/question/editor/base/question.component';
@@ -11,7 +11,6 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 
 @Component({
     imports: [QuestionComponent],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-body">
             <xm-question

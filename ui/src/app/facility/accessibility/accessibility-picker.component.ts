@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
@@ -42,7 +42,6 @@ import { AccessibilityService } from './accessibility.service';
         </div>
     </div>`,
     imports: [NgbDropdownModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessibilitySelectorComponent {
     readonly room = input.required<ExamRoom>();

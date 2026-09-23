@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { ExamSection } from 'src/app/exam/exam.model';
@@ -15,7 +15,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
     selector: 'xm-question-selector',
     imports: [TranslateModule, LibrarySearchComponent, LibraryResultsComponent],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <!-- title row and add new question button -->
         <div class="modal-header">

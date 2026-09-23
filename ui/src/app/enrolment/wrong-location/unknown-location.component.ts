@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -19,7 +19,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 @Component({
     selector: 'xm-unknown-location',
     templateUrl: './unknown-location.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class UnknownLocationComponent {

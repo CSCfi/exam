@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
@@ -13,7 +13,6 @@ import { Option } from 'src/app/shared/select/select.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-12">

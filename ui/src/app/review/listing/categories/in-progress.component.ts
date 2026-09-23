@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
+import { Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -40,7 +40,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         OrderByPipe,
         NgbCollapse,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InProgressReviewsComponent {
     readonly exam = input.required<Exam>();

@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -57,7 +57,6 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
         PageContentComponent,
     ],
     styleUrl: './speed-review.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpeedReviewComponent {
     readonly currentPage = signal(0);

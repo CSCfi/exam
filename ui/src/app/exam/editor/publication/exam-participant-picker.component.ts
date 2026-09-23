@@ -3,16 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    linkedSignal,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -112,7 +103,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     `,
     imports: [FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamParticipantSelectorComponent {
     readonly exam = input.required<Exam>();

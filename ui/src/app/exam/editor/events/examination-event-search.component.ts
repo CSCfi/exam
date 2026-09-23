@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,7 +36,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEventSearchComponent {
     readonly date = signal(new Date());

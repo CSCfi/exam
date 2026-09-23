@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -34,7 +34,6 @@ interface RoomWithAddressVisibility extends ExamRoom {
     selector: 'xm-opening-hours',
     templateUrl: './opening-hours.component.html',
     imports: [NgbTimepicker, FormsModule, NgbDropdownModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpenHoursComponent {
     readonly room = input.required<ExamRoom>();

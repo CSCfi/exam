@@ -4,7 +4,7 @@
 
 import { UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -24,7 +24,6 @@ import { MaturityToolbarComponent } from './toolbar.component';
 
 @Component({
     selector: 'xm-r-maturity-grading',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './grading.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [

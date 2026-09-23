@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { email, form, FormField } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -64,7 +64,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         </div>`,
     imports: [NgbPopover, FormField, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollaborativeExamOwnerSelectorComponent {
     readonly exam = input.required<Exam>();

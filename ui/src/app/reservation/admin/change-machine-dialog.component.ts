@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, ViewChild, inject, model, signal } from '@angular/core';
+import { Component, ViewChild, inject, model, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -76,7 +76,6 @@ interface MachineChoice {
             </div>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangeMachineDialogComponent {
     @ViewChild('machineSelection') machineSelection!: DropdownSelectComponent<MachineChoice, string>;

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -19,7 +19,6 @@ import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetitio
     templateUrl: './exception-dialog.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
     styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDialogComponent {
     readonly outOfService = signal(true);

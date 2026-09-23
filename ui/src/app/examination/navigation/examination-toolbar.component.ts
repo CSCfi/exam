@@ -4,7 +4,7 @@
 
 import { SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,7 +25,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     templateUrl: './examination-toolbar.component.html',
     styleUrls: ['../examination.shared.scss', './examination-toolbar.component.scss'],
     imports: [NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationToolbarComponent implements OnInit {
     readonly exam = input.required<Examination>();

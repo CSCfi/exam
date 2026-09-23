@@ -4,7 +4,7 @@
 
 import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -30,7 +30,6 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
     styleUrls: ['../enrolment.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CourseCodeComponent,
         TeacherListComponent,

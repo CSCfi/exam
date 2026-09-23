@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -14,7 +14,6 @@ import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
 
 @Component({
     selector: 'xm-exam-enrolments',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         @if (exam()?.noTrialsLeft) {
             <div class="row mt-2 ms-2 me-2">

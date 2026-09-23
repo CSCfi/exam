@@ -3,16 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    DestroyRef,
-    computed,
-    inject,
-    input,
-    linkedSignal,
-    signal,
-} from '@angular/core';
+import { Component, DestroyRef, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,7 +21,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     templateUrl: './examination-essay-question.component.html',
     imports: [FormsModule, TranslateModule, UpperCasePipe, DatePipe, CKEditorComponent],
     styleUrls: ['../examination.shared.scss', './question.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEssayQuestionComponent {
     readonly sq = input.required<Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }>();

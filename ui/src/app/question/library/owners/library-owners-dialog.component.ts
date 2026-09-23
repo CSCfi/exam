@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
@@ -41,7 +41,6 @@ import { UserService } from 'src/app/shared/user/user.service';
     `,
     selector: 'xm-library-owners-dialog',
     imports: [NgbTypeahead, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryOwnersDialogComponent {
     readonly selections = signal<number[]>([]); // Set by modal opening component

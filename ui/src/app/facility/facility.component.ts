@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -35,7 +35,6 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FacilityComponent {
     readonly maintenancePeriods = signal<MaintenancePeriod[]>([]);

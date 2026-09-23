@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -30,7 +30,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     ],
     templateUrl: './aborted.component.html',
     styleUrls: ['../review-list.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbortedExamsComponent {
     readonly exam = signal<Exam | undefined>(undefined);

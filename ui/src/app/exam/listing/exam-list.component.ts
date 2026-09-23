@@ -4,7 +4,7 @@
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { NgbNavModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -43,7 +43,6 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamListingComponent {
     readonly activeId = signal(0);

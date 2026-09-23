@@ -4,7 +4,7 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -41,7 +41,6 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
         PageFillPipe,
         OrderByPipe,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     styleUrls: ['../library.component.scss'],
 })
 export class LibraryResultsComponent {

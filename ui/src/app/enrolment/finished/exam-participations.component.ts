@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -20,7 +20,6 @@ import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-exam-participations',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participations.component.html',
     styleUrl: './exam-participations.component.scss',
     imports: [

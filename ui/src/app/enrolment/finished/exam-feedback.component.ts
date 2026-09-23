@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -19,7 +19,6 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 
 @Component({
     selector: 'xm-exam-feedback',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-feedback.component.html',
     styleUrl: './exam-feedback.component.scss',
     imports: [DatePipe, TranslateModule],

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -15,7 +15,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-r-toolbar',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<!-- Buttons -->
         <div class="pt-4 ps-0 pe-0 mt-2">
             <div class="d-flex flex-row-reverse">

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
@@ -67,7 +67,6 @@ import { QuestionReviewComponent } from './question-review.component';
     </div>`,
     styleUrls: ['../assessment/question-assessment.component.scss'],
     imports: [QuestionReviewComponent, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionReviewsComponent {
     readonly examId = signal(0);

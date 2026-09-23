@@ -2,17 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    Injectable,
-    computed,
-    inject,
-    input,
-    linkedSignal,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, Injectable, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import {
     NgbDate,
@@ -70,7 +60,6 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         { provide: NgbDatepickerI18n, useClass: DatePickerI18n },
     ],
     imports: [FormField, NgbInputDatepicker, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DatePickerComponent {
     readonly initialDate = input<Date | string | number | null>(null);

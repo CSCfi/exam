@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,7 +26,6 @@ interface NewInspector {
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styles: '.vbottom { vertical-align: bottom !important }',
     styleUrls: ['../../exam.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamInspectorSelectorComponent implements OnInit {
     readonly exam = input.required<Exam>();

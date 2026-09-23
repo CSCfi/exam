@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgbToast } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService, ToastType } from './toast.service';
 
@@ -120,7 +120,6 @@ const ICONS: Record<ToastType, string> = {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [NgbToast],
 })
 export class ToastContainerComponent {

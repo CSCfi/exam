@@ -6,7 +6,7 @@ import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -65,7 +65,6 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [DevLoginComponent, NavigationComponent, RouterOutlet, ToastContainerComponent, TranslateModule],
 })
 export class AppComponent implements OnInit {

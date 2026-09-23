@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,7 +31,6 @@ import { ExamSectionComponent } from './sections/section.component';
 
 @Component({
     selector: 'xm-assessment',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './assessment.component.html',
     imports: [
         CourseCodeComponent,

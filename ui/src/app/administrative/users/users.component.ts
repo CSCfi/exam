@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -40,7 +40,6 @@ interface UserWithOptions extends User {
 @Component({
     templateUrl: './users.component.html',
     selector: 'xm-users',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         NgbPopover,
         NgbDropdownModule,

@@ -3,17 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpParams } from '@angular/common/http';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    ViewEncapsulation,
-    computed,
-    inject,
-    input,
-    linkedSignal,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -38,7 +28,6 @@ type AvailableSlot = Slot & { availableMachines: number };
     templateUrl: './slot-picker.component.html',
     styleUrls: ['../calendar.component.scss', './slot-picker.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         NgbDropdownModule,
         SelectedRoomComponent,

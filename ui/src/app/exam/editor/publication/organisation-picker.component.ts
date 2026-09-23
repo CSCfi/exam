@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
@@ -82,7 +82,6 @@ type Organisation = {
             </div>
         }`,
     imports: [NgbPopover, NgbDropdownModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganisationSelectorComponent {
     readonly exam = input.required<Exam>();

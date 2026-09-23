@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, linkedSignal, signal } from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -31,7 +31,6 @@ import { RoomService } from './room.service';
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomEditComponent {
     readonly room = signal<ExamRoom | undefined>(undefined);

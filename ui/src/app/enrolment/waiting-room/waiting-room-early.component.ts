@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -14,7 +14,6 @@ import { WaitingEnrolment, WaitingReservation } from './waiting-room.component';
 
 @Component({
     selector: 'xm-waiting-room-early',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <xm-page-header text="i18n_exam_is_about_to_begin" />
         <xm-page-content [content]="content" />

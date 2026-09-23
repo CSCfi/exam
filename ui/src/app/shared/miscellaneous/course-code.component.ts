@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from './course-code.service';
 
@@ -13,7 +13,6 @@ import { CourseCodeService } from './course-code.service';
             <span>{{ formatCode() }}</span>
         }
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [],
 })
 export class CourseCodeComponent {

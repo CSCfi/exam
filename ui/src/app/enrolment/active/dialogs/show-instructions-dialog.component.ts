@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
@@ -10,7 +10,6 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
 @Component({
     selector: 'xm-show-instructions-dialog',
     imports: [TranslateModule, RichTextDirective],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
             <div class="modal-title">

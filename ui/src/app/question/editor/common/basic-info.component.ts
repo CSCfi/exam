@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit, output } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit, output } from '@angular/core';
 import {
     ControlContainer,
     FormControl,
@@ -21,7 +21,6 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
     templateUrl: './basic-info.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule, CKEditorComponent, UpperCasePipe],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BasicInfoComponent implements OnInit, AfterViewInit {
     readonly question = input<ReverseQuestion | QuestionDraft>();

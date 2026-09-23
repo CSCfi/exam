@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField, form, required } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,7 +14,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
     selector: 'xm-software',
     templateUrl: './software.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormsModule, FormField, TranslateModule, OrderByPipe],
 })
 export class SoftwareComponent implements OnInit {

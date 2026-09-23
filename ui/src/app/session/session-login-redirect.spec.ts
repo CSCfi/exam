@@ -4,7 +4,7 @@
 
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,7 +16,7 @@ import { vi } from 'vitest';
 import type { User } from './session.model';
 import { SessionService } from './session.service';
 
-@Component({ changeDetection: ChangeDetectionStrategy.OnPush, template: '' })
+@Component({ template: '' })
 class DummyComponent {}
 
 const student: User = {

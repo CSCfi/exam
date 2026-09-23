@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, output, signal } from '@angular/core';
+import { AfterViewInit, Component, inject, OnDestroy, output, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
@@ -32,7 +32,6 @@ interface Filterable<T> {
 @Component({
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [DropdownSelectComponent, FormField, TranslateModule],
 })
 export class LibrarySearchComponent implements AfterViewInit, OnDestroy {

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { ExamInspection } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
@@ -11,7 +11,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-r-inspection',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `@if (inspection().user?.id !== user().id) {
             <span>
                 @if (inspection().ready) {

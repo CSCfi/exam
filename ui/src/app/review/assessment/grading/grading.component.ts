@@ -5,17 +5,7 @@
 import { DatePipe, LowerCasePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    DestroyRef,
-    OnInit,
-    computed,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -40,7 +30,6 @@ import { ToolbarComponent } from './toolbar.component';
 
 @Component({
     selector: 'xm-r-grading',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './grading.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [

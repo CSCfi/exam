@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -34,7 +34,6 @@ import { Question } from 'src/app/question/question.model';
             </div>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [ExaminationQuestionComponent, TranslateModule],
 })
 export class QuestionPreviewDialogComponent {

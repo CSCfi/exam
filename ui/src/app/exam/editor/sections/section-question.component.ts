@@ -4,7 +4,7 @@
 
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -42,7 +42,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         TranslateModule,
         OrderByPipe,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionQuestionComponent {
     readonly section = input.required<ExamSection>();

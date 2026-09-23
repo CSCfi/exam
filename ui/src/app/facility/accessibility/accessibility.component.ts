@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField, form, required } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,7 +14,6 @@ import { AccessibilityService } from './accessibility.service';
     templateUrl: './accessibility.component.html',
     selector: 'xm-accessibility',
     imports: [FormsModule, FormField, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessibilityComponent {
     readonly accessibilities = signal<(Accessibility & { showName: boolean })[]>([]);

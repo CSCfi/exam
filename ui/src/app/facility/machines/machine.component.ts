@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { disabled, form, FormField, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,7 +23,6 @@ interface SoftwareWithActive extends Software {
     styleUrls: ['../rooms/rooms.component.scss'],
     selector: 'xm-machine',
     imports: [FormField, TranslateModule, PageHeaderComponent, PageContentComponent],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MachineComponent {
     readonly machine = signal<ExamMachine | undefined>(undefined);

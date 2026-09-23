@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -27,7 +27,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 
 @Component({
     selector: 'xm-exam-list-category',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-list-category.component.html',
     styleUrls: ['./exam-list-category.component.scss'],
     imports: [

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
@@ -36,7 +36,6 @@ import { ReservationService, Selection } from './reservation.service';
     ],
     templateUrl: './reservations.component.html',
     styleUrl: './reservations.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReservationsComponent {
     readonly studentInput = viewChild.required<ElementRef>('studentInput');

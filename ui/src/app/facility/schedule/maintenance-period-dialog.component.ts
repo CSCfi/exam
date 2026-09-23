@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, linkedSignal, model } from '@angular/core';
+import { Component, inject, linkedSignal, model } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -60,7 +60,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             </button>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MaintenancePeriodDialogComponent {
     readonly period = model<MaintenancePeriod | undefined>(undefined);

@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,7 +36,6 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         NgbDropdownModule,
     ],
     styles: '.wrap { white-space: wrap !important }',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReservationDetailsComponent {
     readonly reservations = input<AnyReservation[]>([]);

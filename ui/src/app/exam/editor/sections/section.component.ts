@@ -11,17 +11,7 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    ViewEncapsulation,
-    computed,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, disabled, form, max, min, required } from '@angular/forms/signals';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -58,7 +48,6 @@ import { SectionQuestionComponent } from './section-question.component';
         OrderByPipe,
     ],
     styleUrls: ['./sections.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionComponent implements OnInit {
     readonly section = input.required<ExamSection>();

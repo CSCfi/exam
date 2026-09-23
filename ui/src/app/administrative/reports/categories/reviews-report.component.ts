@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-12">

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -55,7 +55,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         </div>
     </div>`,
     imports: [NgbPopover, NgbDropdownModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SoftwareSelectorComponent {
     readonly exam = input.required<Exam>();

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
@@ -28,7 +28,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, UpperCasePipe, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultipleChoiceComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();

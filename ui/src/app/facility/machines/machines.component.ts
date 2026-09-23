@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -15,7 +15,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     selector: 'xm-machines',
     imports: [NgbPopover, RouterLink, TranslateModule],
     styleUrls: ['./machines.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MachineListComponent {
     readonly room = input.required<ExamRoom>();

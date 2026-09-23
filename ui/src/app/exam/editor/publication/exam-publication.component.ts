@@ -4,7 +4,7 @@
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -40,7 +40,6 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
         OrderByPipe,
     ],
     styleUrls: ['../../exam.shared.scss', './exam-publication.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamPublicationComponent {
     readonly exam = computed(() => this.Tabs.examSignal()!);

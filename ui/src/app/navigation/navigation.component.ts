@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -22,7 +22,6 @@ type SubmenuCollapsedMap = Readonly<Record<string, boolean>>;
     templateUrl: './navigation.component.html',
     imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
     styleUrl: './navigation.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavigationComponent {
     readonly appVersion = signal('');

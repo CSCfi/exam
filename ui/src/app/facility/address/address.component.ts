@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
+import { Component, inject, input, linkedSignal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -86,7 +86,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     `,
     styleUrls: ['../rooms/rooms.component.scss'],
     imports: [FormField, NgbPopover, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddressComponent {
     readonly address = input.required<Address>();

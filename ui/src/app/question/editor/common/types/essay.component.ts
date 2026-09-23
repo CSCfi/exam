@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
@@ -21,7 +21,6 @@ import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.m
     templateUrl: './essay.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();

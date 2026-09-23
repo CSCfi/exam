@@ -2,13 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     imports: [TranslateModule],
     selector: 'xm-question-usage',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="xm-study-item-container--warning mt-3">
             <!-- Exam contexts -->

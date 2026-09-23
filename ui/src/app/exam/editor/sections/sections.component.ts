@@ -12,7 +12,7 @@ import {
 } from '@angular/cdk/drag-drop';
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, tap } from 'rxjs/operators';
@@ -29,7 +29,6 @@ import { SectionComponent } from './section.component';
     templateUrl: './sections.component.html',
     imports: [CdkDropList, CdkDrag, CdkDragPlaceholder, CdkDragPreview, SectionComponent, TranslateModule, OrderByPipe],
     styleUrls: ['../../exam.shared.scss', './sections.component.scss', './sections.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionsComponent {
     readonly exam = computed(() => this.Tabs.examSignal()!);

@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, model, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, model, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { disabled, form, FormField, min, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -21,7 +21,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     selector: 'xm-examination-event-dialog',
     imports: [FormField, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
     templateUrl: './examination-event-dialog.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEventDialogComponent implements OnInit {
     readonly examId = model.required<number>();

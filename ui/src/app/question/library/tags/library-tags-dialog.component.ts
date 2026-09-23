@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
@@ -44,7 +44,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         </div>
     `,
     imports: [NgbTypeaheadModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryTagsDialogComponent {
     readonly selections = signal<number[]>([]);

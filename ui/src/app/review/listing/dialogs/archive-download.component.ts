@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -31,7 +31,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             </button>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveDownloadComponent {
     readonly startDate = signal<Date | null>(new Date());
