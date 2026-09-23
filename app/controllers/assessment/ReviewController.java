@@ -153,8 +153,7 @@ public class ReviewController extends BaseController {
         }
 
         String blankAnswerText = messaging.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
@@ -402,17 +401,15 @@ public class ReviewController extends BaseController {
                     .collect(Collectors.toSet())
             );
         }
-        actor
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    for (User user : recipients) {
-                        emailComposer.composeInspectionMessage(user, loggedUser, exam, body.get("msg").asText());
-                    }
-                },
-                actor.dispatcher()
-            );
+        actor.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                for (User user : recipients) {
+                    emailComposer.composeInspectionMessage(user, loggedUser, exam, body.get("msg").asText());
+                }
+            },
+            actor.dispatcher()
+        );
         return ok();
     }
 
@@ -606,16 +603,14 @@ public class ReviewController extends BaseController {
     }
 
     private void notifyPartiesAboutPrivateExamRejection(User user, Exam exam) {
-        actor
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
-                    logger.info("Inspection rejection notification email sent");
-                },
-                actor.dispatcher()
-            );
+        actor.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                logger.info("Inspection rejection notification email sent");
+            },
+            actor.dispatcher()
+        );
     }
 
     private Double round(Double src) {

@@ -29,12 +29,16 @@ public class AutoEvaluationConfig extends GeneratedIdentityModel {
     public enum ReleaseType {
         @EnumValue("1")
         IMMEDIATE,
+
         @EnumValue("2")
         GIVEN_DATE,
+
         @EnumValue("3")
         GIVEN_AMOUNT_DAYS,
+
         @EnumValue("4")
         AFTER_EXAM_PERIOD,
+
         @EnumValue("5")
         NEVER,
     }

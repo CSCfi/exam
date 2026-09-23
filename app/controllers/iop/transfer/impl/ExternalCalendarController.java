@@ -322,32 +322,30 @@ public class ExternalCalendarController extends BaseController {
         );
 
         WSRequest wsRequest = wsClient.url(url.toString());
-        return wsRequest
-            .post(body)
-            .thenComposeAsync(response -> {
-                JsonNode root = response.asJson();
-                if (response.getStatus() != Http.Status.CREATED) {
-                    return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
-                }
-                return calendarHandler
-                    .handleExternalReservation(
-                        enrolment,
-                        enrolment.getExam(),
-                        root,
-                        start,
-                        end,
-                        user,
-                        orgRef,
-                        roomRef,
-                        sectionIds
-                    )
-                    .thenApplyAsync(err -> {
-                        if (err.isEmpty()) {
-                            return created(root.get("id"));
-                        }
-                        return internalServerError();
-                    });
-            });
+        return wsRequest.post(body).thenComposeAsync(response -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != Http.Status.CREATED) {
+                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+            }
+            return calendarHandler
+                .handleExternalReservation(
+                    enrolment,
+                    enrolment.getExam(),
+                    root,
+                    start,
+                    end,
+                    user,
+                    orgRef,
+                    roomRef,
+                    sectionIds
+                )
+                .thenApplyAsync(err -> {
+                    if (err.isEmpty()) {
+                        return created(root.get("id"));
+                    }
+                    return internalServerError();
+                });
+        });
     }
 
     @Authenticated
@@ -476,9 +474,8 @@ public class ExternalCalendarController extends BaseController {
     private LocalDate parseSearchDate(String day, String startDate, String endDate, ExamRoom room)
         throws IllegalArgumentException {
         int windowSize = calendarHandler.getReservationWindowSize();
-        DateTimeZone zone = room != null
-            ? DateTimeZone.forID(room.getLocalTimezone())
-            : configReader.getDefaultTimeZone();
+        DateTimeZone zone =
+            room != null ? DateTimeZone.forID(room.getLocalTimezone()) : configReader.getDefaultTimeZone();
         LocalDate now = DateTime.now().withZone(zone).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = DateTime.parse(endDate, ISODateTimeFormat.dateTimeParser())

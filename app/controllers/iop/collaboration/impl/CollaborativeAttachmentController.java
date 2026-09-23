@@ -33,7 +33,8 @@ import play.mvc.Results;
 
 public class CollaborativeAttachmentController
     extends CollaborationController
-    implements CollaborativeAttachmentInterface<Long, CollaborativeExam> {
+    implements CollaborativeAttachmentInterface<Long, CollaborativeExam>
+{
 
     @Inject
     private WSClient wsClient;
@@ -100,14 +101,12 @@ public class CollaborativeAttachmentController
             return CompletableFuture.completedFuture(Results.internalServerError());
         }
         final WSRequest request = getWsClient().url(url.get().toString());
-        return request
-            .delete()
-            .thenComposeAsync(response -> {
-                if (response.getStatus() != OK) {
-                    return CompletableFuture.completedFuture(Results.internalServerError());
-                }
-                return CompletableFuture.completedFuture(Results.ok());
-            });
+        return request.delete().thenComposeAsync(response -> {
+            if (response.getStatus() != OK) {
+                return CompletableFuture.completedFuture(Results.internalServerError());
+            }
+            return CompletableFuture.completedFuture(Results.ok());
+        });
     }
 
     @Override

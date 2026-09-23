@@ -122,8 +122,7 @@ public class ExternalExaminationController extends ExaminationController {
 
     private void processClozeTestQuestions(Exam exam) {
         Set<Question> questionsToHide = new HashSet<>();
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
@@ -233,9 +232,9 @@ public class ExternalExaminationController extends ExaminationController {
             return Either.left(internalServerError());
         }
         return optionalQuestion
-            .<Either<Result, Tuple2<Exam, ExamSectionQuestion>>>map(examSectionQuestion ->
-                Either.right(Tuple.of(content, examSectionQuestion))
-            )
+            .<
+                Either<Result, Tuple2<Exam, ExamSectionQuestion>>
+            >map(examSectionQuestion -> Either.right(Tuple.of(content, examSectionQuestion)))
             .orElseGet(() -> Either.left(forbidden()));
     }
 

@@ -93,19 +93,17 @@ public class RoomController extends BaseController {
     private void asyncUpdateRemote(ExamRoom room) {
         // Handle remote updates in dedicated threads
         if (room.getExternalRef() != null && examVisitActivated) {
-            system
-                .scheduler()
-                .scheduleOnce(
-                    Duration.create(1, TimeUnit.SECONDS),
-                    () -> {
-                        try {
-                            externalApi.updateFacility(room);
-                        } catch (MalformedURLException e) {
-                            logger.error("Remote update of exam room #{} failed", room.getExternalRef());
-                        }
-                    },
-                    system.dispatcher()
-                );
+            system.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    try {
+                        externalApi.updateFacility(room);
+                    } catch (MalformedURLException e) {
+                        logger.error("Remote update of exam room #{} failed", room.getExternalRef());
+                    }
+                },
+                system.dispatcher()
+            );
         }
     }
 

@@ -126,35 +126,24 @@ public class ExaminationController extends BaseController {
         if (!clone.hasState(Exam.State.INITIALIZED, Exam.State.STUDENT_STARTED)) {
             return wrapAsPromise(forbidden());
         }
-        return examinationRepository
-            .findEnrolment(user, clone, ce, false)
-            .thenComposeAsync(
-                optionalEnrolment -> {
-                    if (optionalEnrolment.isEmpty()) {
-                        return wrapAsPromise(forbidden());
-                    }
-                    ExamEnrolment enrolment = optionalEnrolment.get();
-                    return getEnrolmentError(
-                        // allow state = initialized
-                        enrolment,
-                        request
-                    ).thenComposeAsync(
-                        error -> {
-                            if (error.isPresent()) {
-                                return wrapAsPromise(error.get());
-                            }
-                            return examinationRepository
-                                .createFinalExam(clone, user, enrolment)
-                                .thenComposeAsync(
-                                    e -> wrapAsPromise(ok(e, getPath(false))),
-                                    httpExecutionContext.current()
-                                );
-                        },
-                        httpExecutionContext.current()
-                    );
-                },
-                httpExecutionContext.current()
-            );
+        return examinationRepository.findEnrolment(user, clone, ce, false).thenComposeAsync(optionalEnrolment -> {
+            if (optionalEnrolment.isEmpty()) {
+                return wrapAsPromise(forbidden());
+            }
+            ExamEnrolment enrolment = optionalEnrolment.get();
+            return getEnrolmentError(
+                // allow state = initialized
+                enrolment,
+                request
+            ).thenComposeAsync(error -> {
+                if (error.isPresent()) {
+                    return wrapAsPromise(error.get());
+                }
+                return examinationRepository
+                    .createFinalExam(clone, user, enrolment)
+                    .thenComposeAsync(e -> wrapAsPromise(ok(e, getPath(false))), httpExecutionContext.current());
+            }, httpExecutionContext.current());
+        }, httpExecutionContext.current());
     }
 
     private CompletionStage<Result> createClone(
@@ -166,58 +155,45 @@ public class ExaminationController extends BaseController {
     ) {
         return examinationRepository
             .findEnrolment(user, prototype, ce, isInitialization)
-            .thenComposeAsync(
-                optionalEnrolment -> {
-                    if (optionalEnrolment.isEmpty()) {
-                        return wrapAsPromise(forbidden());
+            .thenComposeAsync(optionalEnrolment -> {
+                if (optionalEnrolment.isEmpty()) {
+                    return wrapAsPromise(forbidden());
+                }
+                ExamEnrolment enrolment = optionalEnrolment.get();
+                return getEnrolmentError(
+                    // allow state = initialized
+                    enrolment,
+                    request
+                ).thenComposeAsync(error -> {
+                    if (error.isPresent()) {
+                        return wrapAsPromise(error.get());
                     }
-                    ExamEnrolment enrolment = optionalEnrolment.get();
-                    return getEnrolmentError(
-                        // allow state = initialized
-                        enrolment,
-                        request
-                    ).thenComposeAsync(
-                        error -> {
-                            if (error.isPresent()) {
-                                return wrapAsPromise(error.get());
-                            }
-                            return examinationRepository
-                                .createExam(prototype, user, enrolment)
-                                .thenApplyAsync(oe -> postProcessClone(enrolment, oe), httpExecutionContext.current());
-                        },
-                        httpExecutionContext.current()
-                    );
-                },
-                httpExecutionContext.current()
-            );
+                    return examinationRepository
+                        .createExam(prototype, user, enrolment)
+                        .thenApplyAsync(oe -> postProcessClone(enrolment, oe), httpExecutionContext.current());
+                }, httpExecutionContext.current());
+            }, httpExecutionContext.current());
     }
 
     private CompletionStage<Result> prepareExam(CollaborativeExam ce, String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties pp = getPath(false);
-        return examinationRepository
-            .getPrototype(hash, ce, pp)
-            .thenComposeAsync(
-                optionalPrototype ->
-                    examinationRepository
-                        .getPossibleClone(hash, user, ce, pp)
-                        .thenComposeAsync(
-                            possibleClone -> {
-                                if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
-                                    return wrapAsPromise(notFound());
-                                }
-                                if (possibleClone.isEmpty()) {
-                                    // Exam not started yet, create new exam for student
-                                    return createClone(optionalPrototype.get(), user, ce, request, false);
-                                } else {
-                                    // Exam started already
-                                    return postProcessExisting(possibleClone.get(), user, ce, request);
-                                }
-                            },
-                            httpExecutionContext.current()
-                        ),
-                httpExecutionContext.current()
-            );
+        return examinationRepository.getPrototype(hash, ce, pp).thenComposeAsync(
+            optionalPrototype ->
+                examinationRepository.getPossibleClone(hash, user, ce, pp).thenComposeAsync(possibleClone -> {
+                    if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
+                        return wrapAsPromise(notFound());
+                    }
+                    if (possibleClone.isEmpty()) {
+                        // Exam not started yet, create new exam for student
+                        return createClone(optionalPrototype.get(), user, ce, request, false);
+                    } else {
+                        // Exam started already
+                        return postProcessExisting(possibleClone.get(), user, ce, request);
+                    }
+                }, httpExecutionContext.current()),
+            httpExecutionContext.current()
+        );
     }
 
     private CompletionStage<Result> prepareExam(String hash, Http.Request request) {
@@ -239,35 +215,20 @@ public class ExaminationController extends BaseController {
     public CompletionStage<Result> initializeExam(String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties pp = getPath(false);
-        return examinationRepository
-            .getCollaborativeExam(hash)
-            .thenComposeAsync(
-                oce -> {
-                    CollaborativeExam ce = oce.orElse(null);
-                    return examinationRepository
-                        .getPrototype(hash, ce, pp)
-                        .thenComposeAsync(
-                            oe -> {
-                                if (oe.isEmpty()) {
-                                    return wrapAsPromise(ok()); // check
-                                }
-                                return examinationRepository
-                                    .getPossibleClone(hash, user, ce, pp)
-                                    .thenComposeAsync(
-                                        pc -> {
-                                            if (pc.isPresent()) return wrapAsPromise(ok());
-                                            else {
-                                                return createClone(oe.get(), user, ce, request, true);
-                                            }
-                                        },
-                                        httpExecutionContext.current()
-                                    );
-                            },
-                            httpExecutionContext.current()
-                        );
-                },
-                httpExecutionContext.current()
-            );
+        return examinationRepository.getCollaborativeExam(hash).thenComposeAsync(oce -> {
+            CollaborativeExam ce = oce.orElse(null);
+            return examinationRepository.getPrototype(hash, ce, pp).thenComposeAsync(oe -> {
+                if (oe.isEmpty()) {
+                    return wrapAsPromise(ok()); // check
+                }
+                return examinationRepository.getPossibleClone(hash, user, ce, pp).thenComposeAsync(pc -> {
+                    if (pc.isPresent()) return wrapAsPromise(ok());
+                    else {
+                        return createClone(oe.get(), user, ce, request, true);
+                    }
+                }, httpExecutionContext.current());
+            }, httpExecutionContext.current());
+        }, httpExecutionContext.current());
     }
 
     @Authenticated
@@ -376,12 +337,10 @@ public class ExaminationController extends BaseController {
                 if (question == null) {
                     return forbidden();
                 }
-                question
-                    .getOptions()
-                    .forEach(o -> {
-                        o.setAnswered(optionIds.contains(o.getId()));
-                        o.update();
-                    });
+                question.getOptions().forEach(o -> {
+                    o.setAnswered(optionIds.contains(o.getId()));
+                    o.update();
+                });
                 return ok();
             })
         );
@@ -425,9 +384,10 @@ public class ExaminationController extends BaseController {
         if (ep.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             now = DateTime.now();
         } else {
-            now = ep.getReservation() == null
-                ? dateTimeHandler.adjustDST(DateTime.now())
-                : dateTimeHandler.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+            now =
+                ep.getReservation() == null
+                    ? dateTimeHandler.adjustDST(DateTime.now())
+                    : dateTimeHandler.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
         }
         ep.setEnded(now);
         ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));
@@ -460,25 +420,20 @@ public class ExaminationController extends BaseController {
             !environment.isDev() &&
             !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())
         ) {
-            return examinationRepository
-                .findRoom(enrolment)
-                .thenApplyAsync(
-                    or -> {
-                        if (or.isEmpty()) {
-                            return Optional.of(notFound());
-                        }
-                        ExamRoom room = or.get();
-                        String message =
-                            "i18n_wrong_exam_machine " +
-                            room.getName() +
-                            ", " +
-                            room.getMailAddress().toString() +
-                            ", i18n_exam_machine " +
-                            enrolment.getReservation().getMachine().getName();
-                        return Optional.of(forbidden(message));
-                    },
-                    httpExecutionContext.current()
-                );
+            return examinationRepository.findRoom(enrolment).thenApplyAsync(or -> {
+                if (or.isEmpty()) {
+                    return Optional.of(notFound());
+                }
+                ExamRoom room = or.get();
+                String message =
+                    "i18n_wrong_exam_machine " +
+                    room.getName() +
+                    ", " +
+                    room.getMailAddress().toString() +
+                    ", i18n_exam_machine " +
+                    enrolment.getReservation().getMachine().getName();
+                return Optional.of(forbidden(message));
+            }, httpExecutionContext.current());
         }
         return CompletableFuture.completedFuture(Optional.empty());
     }
@@ -516,17 +471,15 @@ public class ExaminationController extends BaseController {
         Set<User> recipients = new HashSet<>();
         recipients.addAll(exam.getParent().getExamOwners());
         recipients.addAll(exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet()));
-        actor
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    recipients.forEach(r -> {
-                        emailComposer.composePrivateExamEnded(r, exam);
-                        logger.info("Email sent to {}", r.getEmail());
-                    });
-                },
-                actor.dispatcher()
-            );
+        actor.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                recipients.forEach(r -> {
+                    emailComposer.composePrivateExamEnded(r, exam);
+                    logger.info("Email sent to {}", r.getEmail());
+                });
+            },
+            actor.dispatcher()
+        );
     }
 }

@@ -177,16 +177,14 @@ public class CollaborativeCalendarController extends CollaborationController {
         enrolment.setOptionalSections(sections);
         enrolment.save();
         // Send some emails asynchronously
-        system
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeReservationNotification(user, reservation, exam, false);
-                    logger.info("Reservation confirmation email sent to {}", user.getEmail());
-                },
-                system.dispatcher()
-            );
+        system.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                emailComposer.composeReservationNotification(user, reservation, exam, false);
+                logger.info("Reservation confirmation email sent to {}", user.getEmail());
+            },
+            system.dispatcher()
+        );
 
         return ok();
     }

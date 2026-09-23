@@ -176,10 +176,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws IllegalArgumentException {
         int windowSize = getReservationWindowSize();
-        DateTimeZone dtz = room != null
-            ? DateTimeZone.forID(room.getLocalTimezone())
-            : configReader.getDefaultTimeZone();
-        int startOffset = dtz.getOffset((exam.getPeriodStart()));
+        DateTimeZone dtz =
+            room != null ? DateTimeZone.forID(room.getLocalTimezone()) : configReader.getDefaultTimeZone();
+        int startOffset = dtz.getOffset(exam.getPeriodStart());
         int offset = dtz.getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
@@ -306,9 +305,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 if (concernsAnotherExam.isPresent()) {
                     // User has a reservation to another exam, do not allow making overlapping reservations
                     Reservation reservation = concernsAnotherExam.get();
-                    String conflictingExam = reservation.getEnrolment().getExam() != null
-                        ? reservation.getEnrolment().getExam().getName()
-                        : reservation.getEnrolment().getCollaborativeExam().getName();
+                    String conflictingExam =
+                        reservation.getEnrolment().getExam() != null
+                            ? reservation.getEnrolment().getExam().getName()
+                            : reservation.getEnrolment().getCollaborativeExam().getName();
                     results.add(new TimeSlot(reservation.toInterval(), -1, conflictingExam));
                     continue;
                 } else {
@@ -354,18 +354,16 @@ public class CalendarHandlerImpl implements CalendarHandler {
             .stream()
             .filter(slot -> maintenancePeriods.stream().noneMatch(p -> p.overlaps(slot)))
             .toList();
-        Map<Interval, Optional<Integer>> map = examSlots
-            .stream()
-            .collect(
-                Collectors.toMap(
-                    Function.identity(),
-                    es -> Optional.empty(),
-                    (u, v) -> {
-                        throw new IllegalStateException(String.format("Duplicate key %s", u));
-                    },
-                    LinkedHashMap::new
-                )
-            );
+        Map<Interval, Optional<Integer>> map = examSlots.stream().collect(
+            Collectors.toMap(
+                Function.identity(),
+                es -> Optional.empty(),
+                (u, v) -> {
+                    throw new IllegalStateException(String.format("Duplicate key %s", u));
+                },
+                LinkedHashMap::new
+            )
+        );
         // Check reservation status and machine availability for each slot
         return handleReservations(map, reservations, exam, machines, user);
     }
@@ -555,15 +553,13 @@ public class CalendarHandlerImpl implements CalendarHandler {
         // Finally nuke the old reservation if any
         if (oldReservation != null) {
             if (oldReservation.getExternalReservation() != null) {
-                return externalReservationHandler
-                    .removeExternalReservation(oldReservation)
-                    .thenApply(err -> {
-                        if (err.isEmpty()) {
-                            DB.delete(oldReservation);
-                            postProcessRemoval(reservation, exam, user, machineNode);
-                        }
-                        return err;
-                    });
+                return externalReservationHandler.removeExternalReservation(oldReservation).thenApply(err -> {
+                    if (err.isEmpty()) {
+                        DB.delete(oldReservation);
+                        postProcessRemoval(reservation, exam, user, machineNode);
+                    }
+                    return err;
+                });
             } else {
                 DB.delete(oldReservation);
                 postProcessRemoval(reservation, exam, user, machineNode);
@@ -641,16 +637,14 @@ public class CalendarHandlerImpl implements CalendarHandler {
         // Attach the external machine data just so that email can be generated
         reservation.setMachine(parseExternalMachineData(node));
         // Send some emails asynchronously
-        system
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeReservationNotification(user, reservation, exam, false);
-                    logger.info("Reservation confirmation email sent to {}", user.getEmail());
-                },
-                system.dispatcher()
-            );
+        system.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                emailComposer.composeReservationNotification(user, reservation, exam, false);
+                logger.info("Reservation confirmation email sent to {}", user.getEmail());
+            },
+            system.dispatcher()
+        );
     }
 
     private ExamMachine parseExternalMachineData(JsonNode machineNode) {
@@ -712,7 +706,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     private boolean isReservedByUser(Reservation reservation, User user) {
         boolean externallyReserved =
             reservation.getExternalUserRef() != null && reservation.getExternalRef().equals(user.getEppn());
-        return (externallyReserved || (reservation.getUser() != null && reservation.getUser().equals(user)));
+        return externallyReserved || (reservation.getUser() != null && reservation.getUser().equals(user));
     }
 
     private boolean isReservedByOthersDuring(ExamMachine machine, Interval interval, User user) {

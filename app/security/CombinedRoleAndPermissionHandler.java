@@ -26,16 +26,14 @@ class CombinedRoleAndPermissionHandler implements DynamicResourceHandler {
             String pattern = config[0].substring(config[0].indexOf('=') + 1);
             String[] roles = { config[1].substring(config[1].indexOf('=') + 1) };
             boolean anyMatch = Boolean.parseBoolean(config[2].substring(config[2].indexOf('=') + 1));
-            return deadboltHandler
-                .getSubject(request)
-                .thenApplyAsync(s -> {
-                    DeadboltAnalyzer da = new DeadboltAnalyzer();
-                    if (anyMatch) {
-                        return (da.checkPatternEquality(s, Optional.of(pattern)) || da.checkRole(s, roles));
-                    } else {
-                        return (da.checkPatternEquality(s, Optional.of(pattern)) && da.checkRole(s, roles));
-                    }
-                });
+            return deadboltHandler.getSubject(request).thenApplyAsync(s -> {
+                DeadboltAnalyzer da = new DeadboltAnalyzer();
+                if (anyMatch) {
+                    return da.checkPatternEquality(s, Optional.of(pattern)) || da.checkRole(s, roles);
+                } else {
+                    return da.checkPatternEquality(s, Optional.of(pattern)) && da.checkRole(s, roles);
+                }
+            });
         } else {
             return CompletableFuture.completedFuture(false);
         }

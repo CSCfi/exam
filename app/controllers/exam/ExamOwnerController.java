@@ -28,8 +28,7 @@ public class ExamOwnerController extends BaseController {
             return notFound();
         }
         ArrayNode node = Json.newArray();
-        exam
-            .getExamOwners()
+        exam.getExamOwners()
             .stream()
             .map(u -> {
                 ObjectNode o = Json.newObject();

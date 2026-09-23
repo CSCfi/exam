@@ -37,35 +37,27 @@ public class AuthenticatedAction extends Action<Authenticated> {
     private CompletionStage<Optional<User>> getLoggedInUser(Http.Request request) {
         Map<String, String> session = request.session().data();
         if (session.containsKey("id")) {
-            return userRepository
-                .getLoggedInUser(Long.parseLong(session.get("id")))
-                .thenApplyAsync(
-                    ou -> {
-                        if (ou.isPresent()) {
-                            User user = ou.get();
-                            user.setLoginRole(Role.Name.valueOf(session.get("role")));
-                            return Optional.of(user);
-                        }
-                        return Optional.empty();
-                    },
-                    ec.current()
-                );
+            return userRepository.getLoggedInUser(Long.parseLong(session.get("id"))).thenApplyAsync(ou -> {
+                if (ou.isPresent()) {
+                    User user = ou.get();
+                    user.setLoginRole(Role.Name.valueOf(session.get("role")));
+                    return Optional.of(user);
+                }
+                return Optional.empty();
+            }, ec.current());
         }
         return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
     public CompletionStage<Result> call(Http.Request request) {
-        return getLoggedInUser(request).thenComposeAsync(
-            ou -> {
-                if (ou.isPresent()) {
-                    User user = ou.get();
-                    return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
-                }
-                logger.info("Blocked unauthorized access to {}", request.path());
-                return CompletableFuture.completedFuture(Results.unauthorized());
-            },
-            ec.current()
-        );
+        return getLoggedInUser(request).thenComposeAsync(ou -> {
+            if (ou.isPresent()) {
+                User user = ou.get();
+                return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
+            }
+            logger.info("Blocked unauthorized access to {}", request.path());
+            return CompletableFuture.completedFuture(Results.unauthorized());
+        }, ec.current());
     }
 }

@@ -257,13 +257,11 @@ public class ExcelBuilderImpl implements ExcelBuilder {
         // section name -> question id
         Map<String, Set<Long>> questionIdsBySectionName = new LinkedHashMap<>();
 
-        parentExam
-            .getExamSections()
-            .forEach(es -> {
-                String sectionName = es.getName();
-                Set<Long> questionIds = extractQuestionIdsFromSection(es);
-                questionIdsBySectionName.put(sectionName, questionIds);
-            });
+        parentExam.getExamSections().forEach(es -> {
+            String sectionName = es.getName();
+            Set<Long> questionIds = extractQuestionIdsFromSection(es);
+            questionIdsBySectionName.put(sectionName, questionIds);
+        });
 
         /* Go through child exams and add missing questions/sections to map */
         childExams

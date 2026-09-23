@@ -398,18 +398,15 @@ public class ExamSectionController extends BaseController implements SectionQues
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
-            section
-                .getSectionQuestions()
-                .forEach(sq -> {
-                    sq
-                        .getQuestion()
-                        .getChildren()
-                        .forEach(c -> {
-                            c.setParent(null);
-                            c.update();
-                        });
-                    sq.delete();
-                });
+            section.getSectionQuestions().forEach(sq -> {
+                sq.getQuestion()
+                    .getChildren()
+                    .forEach(c -> {
+                        c.setParent(null);
+                        c.update();
+                    });
+                sq.delete();
+            });
             section.getSectionQuestions().clear();
             section.setLotteryOn(false);
             section.update();
@@ -601,8 +598,7 @@ public class ExamSectionController extends BaseController implements SectionQues
                 .stream()
                 .map(eq -> eq.getExamSection().getExam())
                 .distinct()
-                .count() >
-            1;
+                .count() > 1;
 
         ObjectNode node = Json.newObject();
         node.put("distributed", isDistributed);

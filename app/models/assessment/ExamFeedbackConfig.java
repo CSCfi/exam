@@ -25,6 +25,7 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
     public enum ReleaseType {
         @EnumValue("1")
         ONCE_LOCKED,
+
         @EnumValue("2")
         GIVEN_DATE,
     }

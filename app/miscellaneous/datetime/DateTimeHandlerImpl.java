@@ -88,7 +88,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     private boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
         DateTime earliestStart = reserved.getFirst().getStart();
         DateTime latestStop = reserved.getLast().getEnd();
-        return (!searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop));
+        return !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop);
     }
 
     @Override
@@ -216,9 +216,10 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
 
     @Override
     public DateTime normalize(DateTime dateTime, Reservation reservation) {
-        DateTimeZone dtz = reservation.getMachine() == null
-            ? configReader.getDefaultTimeZone()
-            : DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
+        DateTimeZone dtz =
+            reservation.getMachine() == null
+                ? configReader.getDefaultTimeZone()
+                : DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
         return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
     }
 
@@ -231,8 +232,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     public List<OpeningHours> getDefaultWorkingHours(LocalDate date, ExamRoom room) {
         String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
         List<OpeningHours> hours = new ArrayList<>();
-        room
-            .getDefaultWorkingHours()
+        room.getDefaultWorkingHours()
             .stream()
             .filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day))
             .forEach(dwh -> {

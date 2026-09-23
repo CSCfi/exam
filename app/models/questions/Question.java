@@ -47,12 +47,16 @@ public class Question extends OwnedModel implements AttachmentContainer {
     public enum Type {
         @EnumValue("1")
         MultipleChoiceQuestion,
+
         @EnumValue("2")
         EssayQuestion,
+
         @EnumValue("3")
         WeightedMultipleChoiceQuestion,
+
         @EnumValue("4")
         ClozeTestQuestion,
+
         @EnumValue("5")
         ClaimChoiceQuestion,
     }
@@ -60,6 +64,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
     public enum EvaluationType {
         @EnumValue("1")
         Points,
+
         @EnumValue("2")
         Selection,
     }
@@ -354,8 +359,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 .filter(Objects::nonNull)
                 .distinct()
                 .limit(3)
-                .count() ==
-            3
+                .count() == 3
         );
     }
 

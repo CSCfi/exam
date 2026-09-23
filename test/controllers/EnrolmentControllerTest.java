@@ -226,8 +226,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
                         Json.newObject().put("code", exam.getCourse().getCode())
                     );
                     waiter.resume();
-                })
-                    .start()
+                }).start()
             );
 
         waiter.await(5000, callCount);

@@ -253,16 +253,14 @@ public class IntegrationTestCase extends WithApplication {
 
     protected void initExamSectionQuestions(Exam exam) {
         exam.setExamSections(new TreeSet<>(exam.getExamSections()));
-        exam
-            .getExamInspections()
+        exam.getExamInspections()
             .stream()
             .map(ExamInspection::getUser)
             .forEach(u -> {
                 u.setLanguage(DB.find(Language.class, "en"));
                 u.update();
             });
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(

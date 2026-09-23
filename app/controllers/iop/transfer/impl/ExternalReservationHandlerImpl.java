@@ -120,22 +120,20 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
 
             // send email asynchronously
             boolean isStudentUser = user.equals(enrolment.getUser());
-            system
-                .scheduler()
-                .scheduleOnce(
-                    Duration.create(1, TimeUnit.SECONDS),
-                    () -> {
-                        emailComposer.composeReservationCancellationNotification(
-                            enrolment.getUser(),
-                            reservation,
-                            OptionConverters.toScala(Optional.of(msg)),
-                            isStudentUser,
-                            enrolment
-                        );
-                        logger.info("Reservation cancellation confirmation email sent");
-                    },
-                    system.dispatcher()
-                );
+            system.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    emailComposer.composeReservationCancellationNotification(
+                        enrolment.getUser(),
+                        reservation,
+                        OptionConverters.toScala(Optional.of(msg)),
+                        isStudentUser,
+                        enrolment
+                    );
+                    logger.info("Reservation cancellation confirmation email sent");
+                },
+                system.dispatcher()
+            );
 
             return Results.ok();
         };

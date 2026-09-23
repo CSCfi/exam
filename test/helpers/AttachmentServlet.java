@@ -63,9 +63,9 @@ public class AttachmentServlet extends BaseServlet {
             req.getPart("file");
         }
         resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp
-            .getWriter()
-            .write("{\"id\": \"abcdefg123456\", \"displayName\": \"test_image.png\", \"mimeType\": \"image/png\"}");
+        resp.getWriter().write(
+            "{\"id\": \"abcdefg123456\", \"displayName\": \"test_image.png\", \"mimeType\": \"image/png\"}"
+        );
         resp.getWriter().flush();
     }
 

@@ -63,9 +63,10 @@ public class ExaminationRepository {
             boolean isCollaborative = enrolment.getCollaborativeExam() != null;
             Reservation reservation = enrolment.getReservation();
             // TODO: support for optional sections in BYOD exams
-            Set<Long> ids = reservation == null
-                ? Collections.emptySet()
-                : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
+            Set<Long> ids =
+                reservation == null
+                    ? Collections.emptySet()
+                    : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
             ExamCopyContext context = isCollaborative
                 ? ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids).build()
                 : ExamCopyContext.forStudentExam(user).withSelectedSections(ids).build();
@@ -87,8 +88,7 @@ public class ExaminationRepository {
 
     public void processClozeTestQuestions(Exam exam) {
         Set<Question> questionsToHide = new HashSet<>();
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
@@ -106,65 +106,56 @@ public class ExaminationRepository {
     }
 
     public CompletionStage<Exam> createFinalExam(Exam clone, User user, ExamEnrolment enrolment) {
-        return CompletableFuture.supplyAsync(
-            () -> {
-                clone.setState(Exam.State.STUDENT_STARTED);
-                db.update(clone);
-                clone.setCloned(false);
-                clone.setDerivedMaxScores();
-                processClozeTestQuestions(clone);
-                if (clone.getExamParticipation() == null) {
-                    Reservation reservation = enrolment.getReservation();
-                    ExamParticipation examParticipation = new ExamParticipation();
-                    examParticipation.setUser(user);
-                    examParticipation.setExam(clone);
-                    examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam());
-                    examParticipation.setReservation(reservation);
-                    if (enrolment.getExaminationEventConfiguration() != null) {
-                        examParticipation.setExaminationEvent(
-                            enrolment.getExaminationEventConfiguration().getExaminationEvent()
-                        );
-                    }
-                    DateTime now = DateTime.now();
-                    if (enrolment.getExaminationEventConfiguration() == null) {
-                        now = reservation == null
+        return CompletableFuture.supplyAsync(() -> {
+            clone.setState(Exam.State.STUDENT_STARTED);
+            db.update(clone);
+            clone.setCloned(false);
+            clone.setDerivedMaxScores();
+            processClozeTestQuestions(clone);
+            if (clone.getExamParticipation() == null) {
+                Reservation reservation = enrolment.getReservation();
+                ExamParticipation examParticipation = new ExamParticipation();
+                examParticipation.setUser(user);
+                examParticipation.setExam(clone);
+                examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam());
+                examParticipation.setReservation(reservation);
+                if (enrolment.getExaminationEventConfiguration() != null) {
+                    examParticipation.setExaminationEvent(
+                        enrolment.getExaminationEventConfiguration().getExaminationEvent()
+                    );
+                }
+                DateTime now = DateTime.now();
+                if (enrolment.getExaminationEventConfiguration() == null) {
+                    now =
+                        reservation == null
                             ? dateTimeHandler.adjustDST(DateTime.now())
                             : dateTimeHandler.adjustDST(
                                   DateTime.now(),
                                   enrolment.getReservation().getMachine().getRoom()
                               );
-                    }
-                    examParticipation.setStarted(now);
-                    db.save(examParticipation);
                 }
-                return clone;
-            },
-            ec
-        );
+                examParticipation.setStarted(now);
+                db.save(examParticipation);
+            }
+            return clone;
+        }, ec);
     }
 
     public CompletionStage<Optional<CollaborativeExam>> getCollaborativeExam(String hash) {
-        return CompletableFuture.supplyAsync(
-            () -> {
-                Optional<CollaborativeExam> ce = db
-                    .find(CollaborativeExam.class)
-                    .where()
-                    .eq("hash", hash)
-                    .findOneOrEmpty();
-                if (ce.isPresent()) {
-                    return ce;
-                }
-                Optional<Exam> exam = db.find(Exam.class).where().eq("hash", hash).findOneOrEmpty();
-                if (exam.isPresent()) {
-                    if (!exam.get().getExamEnrolments().isEmpty()) {
-                        CollaborativeExam ce2 = exam.get().getExamEnrolments().getFirst().getCollaborativeExam();
-                        return ce2 == null ? Optional.empty() : Optional.of(ce2);
-                    }
-                }
+        return CompletableFuture.supplyAsync(() -> {
+            Optional<CollaborativeExam> ce = db.find(CollaborativeExam.class).where().eq("hash", hash).findOneOrEmpty();
+            if (ce.isPresent()) {
                 return ce;
-            },
-            ec
-        );
+            }
+            Optional<Exam> exam = db.find(Exam.class).where().eq("hash", hash).findOneOrEmpty();
+            if (exam.isPresent()) {
+                if (!exam.get().getExamEnrolments().isEmpty()) {
+                    CollaborativeExam ce2 = exam.get().getExamEnrolments().getFirst().getCollaborativeExam();
+                    return ce2 == null ? Optional.empty() : Optional.of(ce2);
+                }
+            }
+            return ce;
+        }, ec);
     }
 
     public CompletionStage<Optional<Exam>> getPossibleClone(
@@ -173,32 +164,26 @@ public class ExaminationRepository {
         CollaborativeExam ce,
         PathProperties pp
     ) {
-        return CompletableFuture.supplyAsync(
-            () -> {
-                ExpressionList<Exam> query = createQuery(pp).where().eq("hash", hash).eq("creator", user);
-                if (ce == null) {
-                    query = query.isNotNull("parent");
-                }
-                return query.findOneOrEmpty();
-            },
-            ec
-        );
+        return CompletableFuture.supplyAsync(() -> {
+            ExpressionList<Exam> query = createQuery(pp).where().eq("hash", hash).eq("creator", user);
+            if (ce == null) {
+                query = query.isNotNull("parent");
+            }
+            return query.findOneOrEmpty();
+        }, ec);
     }
 
     public CompletionStage<Optional<Exam>> getPrototype(String hash, CollaborativeExam ce, PathProperties pp) {
         if (ce != null) {
             return cel.downloadExam(ce);
         }
-        return CompletableFuture.supplyAsync(
-            () -> {
-                Exam exam = createQuery(pp).where().eq("hash", hash).isNull("parent").findOne();
-                if (exam == null) {
-                    return Optional.empty();
-                }
-                return Optional.of(exam);
-            },
-            ec
-        );
+        return CompletableFuture.supplyAsync(() -> {
+            Exam exam = createQuery(pp).where().eq("hash", hash).isNull("parent").findOne();
+            if (exam == null) {
+                return Optional.empty();
+            }
+            return Optional.of(exam);
+        }, ec);
     }
 
     private Query<Exam> createQuery(PathProperties pp) {
@@ -208,11 +193,10 @@ public class ExaminationRepository {
     }
 
     private boolean isInEffect(ExamEnrolment ee) {
-        DateTime now = ee.getExaminationEventConfiguration() == null
-            ? dateTimeHandler.adjustDST(DateTime.now())
-            : DateTime.now();
+        DateTime now =
+            ee.getExaminationEventConfiguration() == null ? dateTimeHandler.adjustDST(DateTime.now()) : DateTime.now();
         if (ee.getReservation() != null) {
-            return (ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now));
+            return ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now);
         } else if (ee.getExaminationEventConfiguration() != null) {
             DateTime start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
             DateTime end = start.plusMinutes(ee.getExam().getDuration());
@@ -227,36 +211,33 @@ public class ExaminationRepository {
         CollaborativeExam ce,
         boolean allowFuture
     ) {
-        return CompletableFuture.supplyAsync(
-            () -> {
-                List<ExamEnrolment> enrolments = db
-                    .find(ExamEnrolment.class)
-                    .fetch("reservation")
-                    .fetch("reservation.machine")
-                    .fetch("reservation.machine.room")
-                    .fetch("examinationEventConfiguration")
-                    .fetch("examinationEventConfiguration.examinationEvent")
-                    .where()
-                    .eq("user.id", user.getId())
-                    .or()
-                    .eq("exam.id", prototype.getId())
-                    .and()
-                    .eq("collaborativeExam.id", ce != null ? ce.getId() : -1)
-                    .isNull("exam.id")
-                    .endAnd()
-                    .endOr()
-                    .findList()
-                    .stream()
-                    .filter(e -> allowFuture || isInEffect(e))
-                    .toList();
+        return CompletableFuture.supplyAsync(() -> {
+            List<ExamEnrolment> enrolments = db
+                .find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .fetch("examinationEventConfiguration")
+                .fetch("examinationEventConfiguration.examinationEvent")
+                .where()
+                .eq("user.id", user.getId())
+                .or()
+                .eq("exam.id", prototype.getId())
+                .and()
+                .eq("collaborativeExam.id", ce != null ? ce.getId() : -1)
+                .isNull("exam.id")
+                .endAnd()
+                .endOr()
+                .findList()
+                .stream()
+                .filter(e -> allowFuture || isInEffect(e))
+                .toList();
 
-                if (enrolments.size() > 1) {
-                    logger.error("multiple enrolments found during examination");
-                }
-                return enrolments.isEmpty() ? Optional.empty() : Optional.of(enrolments.getFirst());
-            },
-            ec
-        );
+            if (enrolments.size() > 1) {
+                logger.error("multiple enrolments found during examination");
+            }
+            return enrolments.isEmpty() ? Optional.empty() : Optional.of(enrolments.getFirst());
+        }, ec);
     }
 
     public CompletionStage<Optional<ExamRoom>> findRoom(ExamEnrolment enrolment) {

@@ -359,13 +359,11 @@ public class EnrolmentController extends BaseController {
             if (!enrolmentsWithFutureReservations.isEmpty()) {
                 ExamEnrolment enrolment = enrolmentsWithFutureReservations.getFirst();
                 Reservation reservation = enrolment.getReservation();
-                return externalReservationHandler
-                    .removeReservation(reservation, user, "")
-                    .thenApplyAsync(result -> {
-                        enrolment.delete();
-                        ExamEnrolment newEnrolment = makeEnrolment(exam, user);
-                        return ok(newEnrolment);
-                    });
+                return externalReservationHandler.removeReservation(reservation, user, "").thenApplyAsync(result -> {
+                    enrolment.delete();
+                    ExamEnrolment newEnrolment = makeEnrolment(exam, user);
+                    return ok(newEnrolment);
+                });
             }
             List<ExamEnrolment> enrolmentsWithFutureExaminationEvents = enrolments
                 .stream()
@@ -494,16 +492,14 @@ public class EnrolmentController extends BaseController {
             if (result.status() != Http.Status.OK) {
                 return result;
             }
-            actor
-                .scheduler()
-                .scheduleOnce(
-                    Duration.create(1, TimeUnit.SECONDS),
-                    () -> {
-                        emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
-                        logger.info("Exam participation notification email sent to {}", user.getEmail());
-                    },
-                    actor.dispatcher()
-                );
+            actor.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
+                    logger.info("Exam participation notification email sent to {}", user.getEmail());
+                },
+                actor.dispatcher()
+            );
             return result;
         });
     }
@@ -573,16 +569,14 @@ public class EnrolmentController extends BaseController {
         }
         enrolment.setExaminationEventConfiguration(config);
         enrolment.update();
-        actor
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeExaminationEventNotification(user, enrolment, false);
-                    logger.info("Examination event notification email sent to {}", user.getEmail());
-                },
-                actor.dispatcher()
-            );
+        actor.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                emailComposer.composeExaminationEventNotification(user, enrolment, false);
+                logger.info("Examination event notification email sent to {}", user.getEmail());
+            },
+            actor.dispatcher()
+        );
         return ok();
     }
 
@@ -604,16 +598,14 @@ public class EnrolmentController extends BaseController {
         ExaminationEvent event = enrolment.getExaminationEventConfiguration().getExaminationEvent();
         enrolment.setExaminationEventConfiguration(null);
         enrolment.update();
-        actor
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeExaminationEventCancellationNotification(user, enrolment.getExam(), event);
-                    logger.info("Examination event cancellation notification email sent to {}", user.getEmail());
-                },
-                actor.dispatcher()
-            );
+        actor.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                emailComposer.composeExaminationEventCancellationNotification(user, enrolment.getExam(), event);
+                logger.info("Examination event cancellation notification email sent to {}", user.getEmail());
+            },
+            actor.dispatcher()
+        );
         return ok();
     }
 
@@ -641,23 +633,21 @@ public class EnrolmentController extends BaseController {
         config.delete();
         event.delete();
         var users = enrolments.stream().map(ExamEnrolment::getUser).collect(Collectors.toSet());
-        actor
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeExaminationEventCancellationNotification(
-                        CollectionConverters.asScala(users).toSet(),
-                        exam,
-                        event
-                    );
-                    logger.info(
-                        "Examination event cancellation notification email sent to {} participants",
-                        enrolments.size()
-                    );
-                },
-                actor.dispatcher()
-            );
+        actor.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                emailComposer.composeExaminationEventCancellationNotification(
+                    CollectionConverters.asScala(users).toSet(),
+                    exam,
+                    event
+                );
+                logger.info(
+                    "Examination event cancellation notification email sent to {} participants",
+                    enrolments.size()
+                );
+            },
+            actor.dispatcher()
+        );
         return ok();
     }
 

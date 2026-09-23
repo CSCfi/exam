@@ -149,7 +149,8 @@ public class DataTransferController extends BaseController {
                 .endOr()
                 .findSet();
 
-            JsonNode data = ((ObjectNode) body).put("path", path)
+            JsonNode data = ((ObjectNode) body)
+                .put("path", path)
                 .put("owner", user.getEppn())
                 .set(
                     "questions",
@@ -164,48 +165,41 @@ public class DataTransferController extends BaseController {
             URL url = parseURL(body.get("orgRef").asText());
             String uploadUrl = parseUploadURL(body.get("orgRef").asText());
             WSRequest wsr = wsClient.url(url.toString());
-            return wsr
-                .post(data)
-                .thenComposeAsync(response -> {
-                    JsonNode root = response.asJson();
-                    if (response.getStatus() != Http.Status.CREATED) {
-                        return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
-                    }
-                    Map<Long, Long> entries = StreamSupport.stream(root.get("ids").spliterator(), false).collect(
-                        Collectors.toMap(id -> id.get("src").asLong(), id -> id.get("dst").asLong())
-                    );
-                    Map<Long, Attachment> localAttachments = questions
-                        .stream()
-                        .filter(q -> q.getAttachment() != null && new File(q.getAttachment().getFilePath()).exists())
-                        .collect(Collectors.toMap(Question::getId, Question::getAttachment));
-                    // Map question copy ids to attachments
-                    Map<Long, Attachment> remoteAttachments = localAttachments
+            return wsr.post(data).thenComposeAsync(response -> {
+                JsonNode root = response.asJson();
+                if (response.getStatus() != Http.Status.CREATED) {
+                    return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+                }
+                Map<Long, Long> entries = StreamSupport.stream(root.get("ids").spliterator(), false).collect(
+                    Collectors.toMap(id -> id.get("src").asLong(), id -> id.get("dst").asLong())
+                );
+                Map<Long, Attachment> localAttachments = questions
+                    .stream()
+                    .filter(q -> q.getAttachment() != null && new File(q.getAttachment().getFilePath()).exists())
+                    .collect(Collectors.toMap(Question::getId, Question::getAttachment));
+                // Map question copy ids to attachments
+                Map<Long, Attachment> remoteAttachments = localAttachments
+                    .entrySet()
+                    .stream()
+                    .filter(e -> entries.containsKey(e.getKey()))
+                    .collect(Collectors.toMap(e -> entries.get(e.getKey()), Map.Entry::getValue));
+                return CompletableFuture.allOf(
+                    remoteAttachments
                         .entrySet()
                         .stream()
-                        .filter(e -> entries.containsKey(e.getKey()))
-                        .collect(Collectors.toMap(e -> entries.get(e.getKey()), Map.Entry::getValue));
-                    return CompletableFuture.allOf(
-                        remoteAttachments
-                            .entrySet()
-                            .stream()
-                            .map(ra -> {
-                                String host = uploadUrl.replace("/id/", String.format("/%d/", ra.getKey()));
-                                WSRequest req = wsClient.url(host);
-                                return CompletableFuture.runAsync(() ->
-                                    req
-                                        .post(createSource(ra.getValue()))
-                                        .exceptionally(e -> {
-                                            logger.error(
-                                                String.format("failed in uploading attachment id %s", ra.getKey()),
-                                                e
-                                            );
-                                            return null;
-                                        })
-                                );
-                            })
-                            .toArray(CompletableFuture[]::new)
-                    ).thenComposeAsync(__ -> wrapAsPromise(created()));
-                });
+                        .map(ra -> {
+                            String host = uploadUrl.replace("/id/", String.format("/%d/", ra.getKey()));
+                            WSRequest req = wsClient.url(host);
+                            return CompletableFuture.runAsync(() ->
+                                req.post(createSource(ra.getValue())).exceptionally(e -> {
+                                    logger.error(String.format("failed in uploading attachment id %s", ra.getKey()), e);
+                                    return null;
+                                })
+                            );
+                        })
+                        .toArray(CompletableFuture[]::new)
+                ).thenComposeAsync(__ -> wrapAsPromise(created()));
+            });
         }
         return wrapAsPromise(badRequest());
     }

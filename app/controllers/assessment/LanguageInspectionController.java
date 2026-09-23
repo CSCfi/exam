@@ -153,18 +153,16 @@ public class LanguageInspectionController extends BaseController {
             inspection.update();
 
             Set<User> recipients = inspection.getExam().getParent().getExamOwners();
-            actor
-                .scheduler()
-                .scheduleOnce(
-                    Duration.create(1, TimeUnit.SECONDS),
-                    () -> {
-                        for (User recipient : recipients) {
-                            emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
-                            logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
-                        }
-                    },
-                    actor.dispatcher()
-                );
+            actor.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    for (User recipient : recipients) {
+                        emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
+                        logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
+                    }
+                },
+                actor.dispatcher()
+            );
 
             return ok();
         });

@@ -185,14 +185,12 @@ public class CollaborativeExamController extends CollaborationController {
                 if (!ce.getState().equals(Exam.State.DRAFT) && !ce.getState().equals(Exam.State.PRE_PUBLISHED)) {
                     return wrapAsPromise(forbidden("i18n_exam_removal_not_possible"));
                 }
-                return examLoader
-                    .deleteExam(ce)
-                    .thenApplyAsync(result -> {
-                        if (result.status() == OK) {
-                            ce.delete();
-                        }
-                        return result;
-                    });
+                return examLoader.deleteExam(ce).thenApplyAsync(result -> {
+                    if (result.status() == OK) {
+                        ce.delete();
+                    }
+                    return result;
+                });
             })
             .getOrElseGet(Function.identity());
     }
@@ -230,18 +228,16 @@ public class CollaborativeExamController extends CollaborationController {
                                         .stream()
                                         .map(User::getEmail)
                                         .collect(Collectors.toSet());
-                                    as
-                                        .scheduler()
-                                        .scheduleOnce(
-                                            Duration.create(1, TimeUnit.SECONDS),
-                                            () ->
-                                                composer.composeCollaborativeExamAnnouncement(
-                                                    CollectionConverters.asScala(receivers).toSet(),
-                                                    user,
-                                                    exam
-                                                ),
-                                            as.dispatcher()
-                                        );
+                                    as.scheduler().scheduleOnce(
+                                        Duration.create(1, TimeUnit.SECONDS),
+                                        () ->
+                                            composer.composeCollaborativeExamAnnouncement(
+                                                CollectionConverters.asScala(receivers).toSet(),
+                                                user,
+                                                exam
+                                            ),
+                                        as.dispatcher()
+                                    );
                                 }
                                 return result2;
                             });

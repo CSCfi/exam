@@ -92,8 +92,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         AutoEvaluationConfig config = new AutoEvaluationConfig();
         config.setReleaseType(AutoEvaluationConfig.ReleaseType.IMMEDIATE);
         config.setGradeEvaluations(new HashSet<>());
-        exam
-            .getGradeScale()
+        exam.getGradeScale()
             .getGrades()
             .forEach(g -> {
                 GradeEvaluation ge = new GradeEvaluation();

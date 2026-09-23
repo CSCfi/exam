@@ -104,15 +104,13 @@ public class SettingsController extends BaseController {
             }
             URL url = parseExternalUrl(enrolment.getReservation().getExternalRef());
             WSRequest request = wsClient.url(url.toString()).addQueryParameter("lang", language.getCode());
-            return request
-                .get()
-                .thenApplyAsync(response -> {
-                    JsonNode root = response.asJson();
-                    if (response.getStatus() != Http.Status.OK) {
-                        return internalServerError(root.get("message").asText("Connection refused"));
-                    }
-                    return ok(root);
-                });
+            return request.get().thenApplyAsync(response -> {
+                JsonNode root = response.asJson();
+                if (response.getStatus() != Http.Status.OK) {
+                    return internalServerError(root.get("message").asText("Connection refused"));
+                }
+                return ok(root);
+            });
         } else {
             String key = String.format("maturity_instructions_%s", lang);
             return wrapAsPromise(ok(Json.toJson(get(key))));
@@ -248,9 +246,10 @@ public class SettingsController extends BaseController {
     @ActionMethod
     public Result getByodSupport() {
         ObjectNode node = Json.newObject();
-        node
-            .put("sebExaminationSupported", configReader.isSebExaminationSupported())
-            .put("homeExaminationSupported", configReader.isHomeExaminationSupported());
+        node.put("sebExaminationSupported", configReader.isSebExaminationSupported()).put(
+            "homeExaminationSupported",
+            configReader.isHomeExaminationSupported()
+        );
         return ok(Json.toJson(node));
     }
 
@@ -276,13 +275,11 @@ public class SettingsController extends BaseController {
         node.set("examDurations", durations);
 
         ObjectNode roles = Json.newObject();
-        configReader
-            .getRoleMappingJava()
-            .forEach((k, v) -> {
-                ArrayNode role = Json.newArray();
-                v.forEach(role::add);
-                roles.set(k.getName(), role);
-            });
+        configReader.getRoleMappingJava().forEach((k, v) -> {
+            ArrayNode role = Json.newArray();
+            v.forEach(role::add);
+            roles.set(k.getName(), role);
+        });
         node.set("roles", roles);
 
         GeneralSettings eula = getOrCreateSettings("eula", null, null);

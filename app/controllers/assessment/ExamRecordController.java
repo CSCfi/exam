@@ -114,16 +114,14 @@ public class ExamRecordController extends BaseController {
             score.save();
             record.setExamScore(score);
             record.save();
-            actor
-                .scheduler()
-                .scheduleOnce(
-                    Duration.create(1, TimeUnit.SECONDS),
-                    () -> {
-                        emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
-                        logger.info("Inspection ready notification email sent to {}", user.getEmail());
-                    },
-                    actor.dispatcher()
-                );
+            actor.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                    logger.info("Inspection ready notification email sent to {}", user.getEmail());
+                },
+                actor.dispatcher()
+            );
             return ok();
         });
     }

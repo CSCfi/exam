@@ -356,7 +356,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
                     o.getOption().equals("EOS") &&
                     o.getDefaultScore() == 0
             );
-        boolean hasRequiredOptions = (hasCorrectAnswer && hasIncorrectAnswer && hasSkipAnswer);
+        boolean hasRequiredOptions = hasCorrectAnswer && hasIncorrectAnswer && hasSkipAnswer;
 
         // Check if all options were saved
         assertThat(hasRequiredOptions).isTrue();

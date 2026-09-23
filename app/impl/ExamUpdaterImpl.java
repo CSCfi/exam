@@ -330,8 +330,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
     @Override
     public void preparePreview(Exam exam) {
         Set<Question> questionsToHide = new HashSet<>();
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
@@ -455,17 +454,15 @@ public class ExamUpdaterImpl implements ExamUpdater {
             })
             .collect(Collectors.toSet());
         Set<User> receivers = Stream.concat(enrolments.stream(), preEnrolments.stream()).collect(Collectors.toSet());
-        actorSystem
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    for (User u : receivers) {
-                        emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
-                        logger.info("Exam participation notification email sent to {}", u.getEmail());
-                    }
-                },
-                actorSystem.dispatcher()
-            );
+        actorSystem.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                for (User u : receivers) {
+                    emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
+                    logger.info("Exam participation notification email sent to {}", u.getEmail());
+                }
+            },
+            actorSystem.dispatcher()
+        );
     }
 }

@@ -78,26 +78,23 @@ public class EnrolmentRepository {
     }
 
     public CompletionStage<ExamRoom> getRoomInfoForEnrolment(String hash, User user) {
-        return CompletableFuture.supplyAsync(
-            () -> {
-                ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class)
-                    .fetch("user", "id")
-                    .fetch("user.language")
-                    .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
-                    .where()
-                    .disjunction()
-                    .eq("exam.hash", hash)
-                    .eq("externalExam.hash", hash)
-                    .endJunction()
-                    .isNotNull("reservation.machine.room");
-                if (user.hasRole(Role.Name.STUDENT)) {
-                    query = query.eq("user", user);
-                }
-                ExamEnrolment enrolment = query.findOne();
-                return enrolment == null ? null : enrolment.getReservation().getMachine().getRoom();
-            },
-            ec.current()
-        );
+        return CompletableFuture.supplyAsync(() -> {
+            ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class)
+                .fetch("user", "id")
+                .fetch("user.language")
+                .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
+                .where()
+                .disjunction()
+                .eq("exam.hash", hash)
+                .eq("externalExam.hash", hash)
+                .endJunction()
+                .isNotNull("reservation.machine.room");
+            if (user.hasRole(Role.Name.STUDENT)) {
+                query = query.eq("user", user);
+            }
+            ExamEnrolment enrolment = query.findOne();
+            return enrolment == null ? null : enrolment.getReservation().getMachine().getRoom();
+        }, ec.current());
     }
 
     private List<ExamEnrolment> doGetStudentEnrolments(User user) {
@@ -343,14 +340,14 @@ public class EnrolmentRepository {
     }
 
     private boolean isInsideBounds(ExamEnrolment ee, int minutesToFuture) {
-        DateTime earliest = ee.getExaminationEventConfiguration() == null
-            ? dateTimeHandler.adjustDST(new DateTime())
-            : DateTime.now();
+        DateTime earliest =
+            ee.getExaminationEventConfiguration() == null ? dateTimeHandler.adjustDST(new DateTime()) : DateTime.now();
         DateTime latest = earliest.plusMinutes(minutesToFuture);
         Reservation reservation = ee.getReservation();
-        ExaminationEvent event = ee.getExaminationEventConfiguration() != null
-            ? ee.getExaminationEventConfiguration().getExaminationEvent()
-            : null;
+        ExaminationEvent event =
+            ee.getExaminationEventConfiguration() != null
+                ? ee.getExaminationEventConfiguration().getExaminationEvent()
+                : null;
         int delay = ee.getDelay();
         return (
             (reservation != null &&

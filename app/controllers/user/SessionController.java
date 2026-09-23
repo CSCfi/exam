@@ -153,7 +153,11 @@ public class SessionController extends BaseController {
             return wrapAsPromise(unauthorized("i18n_error_unauthenticated"));
         }
         String pwd = DigestUtils.md5Hex(password);
-        User user = DB.find(User.class).where().eq("eppn", username + "@funet.fi").eq("password", pwd).findOne();
+        User user = DB.find(User.class)
+            .where()
+            .eq("eppn", username + "@funet.fi")
+            .eq("password", pwd)
+            .findOne();
 
         if (user == null) {
             return wrapAsPromise(unauthorized("i18n_error_unauthenticated"));
@@ -188,7 +192,7 @@ public class SessionController extends BaseController {
     }
 
     private boolean isUserPreEnrolled(String mail, User user) {
-        return (mail.equalsIgnoreCase(user.getEmail()) || mail.equalsIgnoreCase(user.getEppn()));
+        return mail.equalsIgnoreCase(user.getEmail()) || mail.equalsIgnoreCase(user.getEppn());
     }
 
     private void associateWithPreEnrolments(User user) {
@@ -538,15 +542,10 @@ public class SessionController extends BaseController {
         var id = session.get("id").map(Long::parseLong);
         var eppn = session.get("eppn");
         if (isStudent(session) && id.isPresent() && eppn.isPresent()) {
-            return enrolmentRepository
-                .getReservationHeaders(request, id.get(), eppn.get())
-                .thenApplyAsync(
-                    headers -> {
-                        Http.Session newSession = updateSession(session, headers);
-                        return result.withSession(newSession);
-                    },
-                    ec.current()
-                );
+            return enrolmentRepository.getReservationHeaders(request, id.get(), eppn.get()).thenApplyAsync(headers -> {
+                Http.Session newSession = updateSession(session, headers);
+                return result.withSession(newSession);
+            }, ec.current());
         } else {
             return wrapAsPromise(result.withSession(session));
         }
@@ -566,7 +565,7 @@ public class SessionController extends BaseController {
     }
 
     private boolean isStudent(Http.Session session) {
-        return (session.get("role").isPresent() && Role.Name.STUDENT.toString().equals(session.get("role").get()));
+        return session.get("role").isPresent() && Role.Name.STUDENT.toString().equals(session.get("role").get());
     }
 
     private static Optional<String> parse(String src) {

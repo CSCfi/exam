@@ -199,7 +199,7 @@ public class UserController extends BaseController {
     public Result listUnenrolledStudents(Long eid, String criteria) {
         List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).where().eq("exam.id", eid).findList();
         List<User> users = listUsersByRoleAndName("STUDENT", criteria);
-        users.removeAll(enrolments.stream().map((ExamEnrolment::getUser)).toList());
+        users.removeAll(enrolments.stream().map(ExamEnrolment::getUser).toList());
         return ok(users);
     }
 

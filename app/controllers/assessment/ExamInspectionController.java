@@ -77,8 +77,7 @@ public class ExamInspectionController extends BaseController {
         }
         inspection.save();
         // Add also as inspector to ongoing child exams if not already there.
-        exam
-            .getChildren()
+        exam.getChildren()
             .stream()
             .filter(
                 c ->
@@ -135,8 +134,7 @@ public class ExamInspectionController extends BaseController {
         }
         User inspector = inspection.getUser();
         Exam exam = inspection.getExam();
-        exam
-            .getChildren()
+        exam.getChildren()
             .stream()
             .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED))
             .forEach(c ->

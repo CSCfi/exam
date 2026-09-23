@@ -56,8 +56,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
         if (exam.getAttachment() != null) {
             futures.add(createFromExternalAttachment(exam.getAttachment(), "exam", exam.getId().toString()));
         }
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(examSection -> examSection.getSectionQuestions().stream())
             .map(sectionQuestion -> {
@@ -134,15 +133,13 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     );
                 Http.MultipartFormData.DataPart dp = new Http.MultipartFormData.DataPart("key", "value");
 
-                updateRequest
-                    .put(Source.from(Arrays.asList(filePart, dp)))
-                    .thenAccept(wsResponse -> {
-                        if (wsResponse.getStatus() != Http.Status.OK) {
-                            logger.warn("File upload {} failed!", file.getAbsoluteFile());
-                            return;
-                        }
-                        logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
-                    });
+                updateRequest.put(Source.from(Arrays.asList(filePart, dp))).thenAccept(wsResponse -> {
+                    if (wsResponse.getStatus() != Http.Status.OK) {
+                        logger.warn("File upload {} failed!", file.getAbsoluteFile());
+                        return;
+                    }
+                    logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
+                });
             })
             .toCompletableFuture();
     }
@@ -154,8 +151,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
         if (exam.getAttachment() != null) {
             futures.add(createExternalAttachment(exam.getAttachment()));
         }
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(s -> s.getSectionQuestions().stream())
             .flatMap(sq -> {
@@ -185,23 +181,21 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                 throw new RuntimeException("Invalid URL!", e);
             }
             final WSRequest request = wsClient.url(attachmentUrl.toString());
-            request
-                .stream()
-                .thenAccept(response -> {
-                    final String filePath = fileHandler.createFilePath(pathParams);
-                    response
-                        .getBodyAsSource()
-                        .runWith(FileIO.toPath(Paths.get(filePath)), Materializer.createMaterializer(actor))
-                        .thenAccept(ioResult -> {
-                            attachment.setFilePath(filePath);
-                            attachment.save();
-                            logger.info(
-                                "Saved attachment {} locally as # {}",
-                                attachment.getExternalId(),
-                                attachment.getId()
-                            );
-                        });
-                });
+            request.stream().thenAccept(response -> {
+                final String filePath = fileHandler.createFilePath(pathParams);
+                response
+                    .getBodyAsSource()
+                    .runWith(FileIO.toPath(Paths.get(filePath)), Materializer.createMaterializer(actor))
+                    .thenAccept(ioResult -> {
+                        attachment.setFilePath(filePath);
+                        attachment.save();
+                        logger.info(
+                            "Saved attachment {} locally as # {}",
+                            attachment.getExternalId(),
+                            attachment.getId()
+                        );
+                    });
+            });
         });
     }
 

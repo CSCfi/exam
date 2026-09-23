@@ -77,8 +77,7 @@ public class ExamAnswerController extends BaseController {
         Exam exam = oe.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         String blankAnswerText = messagesApi.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
@@ -91,8 +90,7 @@ public class ExamAnswerController extends BaseController {
                 }
                 esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText, false);
             });
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .forEach(esq -> {
@@ -102,10 +100,9 @@ public class ExamAnswerController extends BaseController {
         exam.setMaxScore();
         exam.setTotalScore();
         // hide the correct answers for cloze test questions
-        exam
-            .getExamSections()
+        exam.getExamSections()
             .stream()
-            .flatMap((es -> es.getSectionQuestions().stream()))
+            .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
             .forEach(esq -> esq.getQuestion().setQuestion(null));
 

@@ -22,8 +22,10 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
     public enum ClaimChoiceOptionType {
         @EnumValue("1")
         CorrectOption,
+
         @EnumValue("2")
         IncorrectOption,
+
         @EnumValue("3")
         SkipOption,
     }

@@ -95,22 +95,20 @@ public class CalendarController extends BaseController {
         // send email asynchronously
         final boolean isStudentUser = user.equals(enrolment.getUser());
 
-        system
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeReservationCancellationNotification(
-                        enrolment.getUser(),
-                        reservation,
-                        OptionConverters.toScala(Optional.empty()),
-                        isStudentUser,
-                        enrolment
-                    );
-                    logger.info("Reservation cancellation confirmation email sent");
-                },
-                system.dispatcher()
-            );
+        system.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                emailComposer.composeReservationCancellationNotification(
+                    enrolment.getUser(),
+                    reservation,
+                    OptionConverters.toScala(Optional.empty()),
+                    isStudentUser,
+                    enrolment
+                );
+                logger.info("Reservation cancellation confirmation email sent");
+            },
+            system.dispatcher()
+        );
         return ok();
     }
 
@@ -248,16 +246,14 @@ public class CalendarController extends BaseController {
         DB.save(enrolment);
         Exam exam = enrolment.getExam();
         // Send some emails asynchronously
-        system
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeReservationNotification(user, reservation, exam, false);
-                    logger.info("Reservation confirmation email sent to {}", user.getEmail());
-                },
-                system.dispatcher()
-            );
+        system.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                emailComposer.composeReservationNotification(user, reservation, exam, false);
+                logger.info("Reservation confirmation email sent to {}", user.getEmail());
+            },
+            system.dispatcher()
+        );
 
         return wrapAsPromise(ok());
     }

@@ -183,7 +183,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         double answer = Double.parseDouble(answerText);
         Double correctAnswer = Double.parseDouble(blank.text().trim().replaceAll("(^\\h*)|(\\h*$)", ""));
         Double precision = precisionAttr.isEmpty() ? 0.0 : Double.parseDouble(precisionAttr);
-        return (correctAnswer - precision <= answer && answer <= correctAnswer + precision);
+        return correctAnswer - precision <= answer && answer <= correctAnswer + precision;
     }
 
     private String escapeSpecialRegexChars(String input) {

@@ -77,12 +77,10 @@ public interface BaseAttachmentInterface<T> {
         return CompletableFuture.completedFuture(
             ok()
                 .chunked(
-                    source
-                        .via(new ChunkMaker(3 * (int) FileUtils.ONE_KB))
-                        .map(byteString -> {
-                            final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
-                            return ByteString.fromArray(encoded);
-                        })
+                    source.via(new ChunkMaker(3 * (int) FileUtils.ONE_KB)).map(byteString -> {
+                        final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
+                        return ByteString.fromArray(encoded);
+                    })
                 )
                 .as(mimeType)
                 .withHeader("Content-Disposition", "attachment; filename*=UTF-8''\"" + escapedName + "\"")

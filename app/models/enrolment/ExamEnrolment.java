@@ -194,7 +194,7 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     }
 
     public boolean isProcessed() {
-        return (exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED));
+        return exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED);
     }
 
     public void setRandomDelay() {

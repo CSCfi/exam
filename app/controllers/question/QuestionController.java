@@ -274,15 +274,13 @@ public class QuestionController extends BaseController implements SectionQuestio
         Question question = parseFromBody(request, user, null);
         question.getQuestionOwners().add(user);
         JsonNode body = request.body().asJson();
-        return question
-            .getValidationResult(body)
-            .orElseGet(() -> {
-                if (question.getType() != Question.Type.EssayQuestion) {
-                    processOptions(question, user, (ArrayNode) body.get("options"));
-                }
-                question.save();
-                return ok(question);
-            });
+        return question.getValidationResult(body).orElseGet(() -> {
+            if (question.getType() != Question.Type.EssayQuestion) {
+                processOptions(question, user, (ArrayNode) body.get("options"));
+            }
+            question.save();
+            return ok(question);
+        });
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -306,15 +304,13 @@ public class QuestionController extends BaseController implements SectionQuestio
         }
         Question updatedQuestion = parseFromBody(request, user, question);
         JsonNode body = request.body().asJson();
-        return question
-            .getValidationResult(body)
-            .orElseGet(() -> {
-                if (updatedQuestion.getType() != Question.Type.EssayQuestion) {
-                    processOptions(updatedQuestion, user, (ArrayNode) body.get("options"));
-                }
-                updatedQuestion.update();
-                return ok(updatedQuestion);
-            });
+        return question.getValidationResult(body).orElseGet(() -> {
+            if (updatedQuestion.getType() != Question.Type.EssayQuestion) {
+                processOptions(updatedQuestion, user, (ArrayNode) body.get("options"));
+            }
+            updatedQuestion.update();
+            return ok(updatedQuestion);
+        });
     }
 
     @Authenticated
@@ -337,18 +333,16 @@ public class QuestionController extends BaseController implements SectionQuestio
                 .stream()
                 .anyMatch(esq -> {
                     Exam exam = esq.getExamSection().getExam();
-                    return (exam.getState() == Exam.State.PUBLISHED && exam.getPeriodEnd().isAfterNow());
+                    return exam.getState() == Exam.State.PUBLISHED && exam.getPeriodEnd().isAfterNow();
                 })
         ) {
             return forbidden();
         }
-        question
-            .getChildren()
-            .forEach(c -> {
-                c.setParent(null);
-                c.update();
-            });
-        question.getExamSectionQuestions().forEach((Model::delete));
+        question.getChildren().forEach(c -> {
+            c.setParent(null);
+            c.update();
+        });
+        question.getExamSectionQuestions().forEach(Model::delete);
         try {
             question.delete();
         } catch (PersistenceException e) {

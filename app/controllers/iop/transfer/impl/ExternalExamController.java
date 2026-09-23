@@ -224,18 +224,16 @@ public class ExternalExamController extends BaseController implements ExternalEx
             exam.getParent().getExamOwners().stream(),
             exam.getExamInspections().stream().map(ExamInspection::getUser)
         ).collect(Collectors.toSet());
-        actor
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    recipients.forEach(r -> {
-                        emailComposer.composePrivateExamEnded(r, exam);
-                        logger.info("Email sent to {}", r.getEmail());
-                    });
-                },
-                actor.dispatcher()
-            );
+        actor.scheduler().scheduleOnce(
+            Duration.create(1, TimeUnit.SECONDS),
+            () -> {
+                recipients.forEach(r -> {
+                    emailComposer.composePrivateExamEnded(r, exam);
+                    logger.info("Email sent to {}", r.getEmail());
+                });
+            },
+            actor.dispatcher()
+        );
     }
 
     private PathProperties getPath() {
@@ -266,15 +264,13 @@ public class ExternalExamController extends BaseController implements ExternalEx
         }
         ExamEnrolment enrolment = option.get();
         if (enrolment.getCollaborativeExam() != null) {
-            return collaborativeExamLoader
-                .downloadExam(enrolment.getCollaborativeExam())
-                .thenApplyAsync(oe -> {
-                    if (oe.isPresent()) {
-                        return ok(oe.get(), getPath());
-                    } else {
-                        return internalServerError("could not download collaborative exam");
-                    }
-                });
+            return collaborativeExamLoader.downloadExam(enrolment.getCollaborativeExam()).thenApplyAsync(oe -> {
+                if (oe.isPresent()) {
+                    return ok(oe.get(), getPath());
+                } else {
+                    return internalServerError("could not download collaborative exam");
+                }
+            });
         } else {
             final Exam exam = enrolment.getExam();
 
@@ -282,8 +278,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             if (exam.getAttachment() != null) {
                 futures.add(externalAttachmentLoader.createExternalAttachment(exam.getAttachment()));
             }
-            exam
-                .getExamSections()
+            exam.getExamSections()
                 .stream()
                 .flatMap(examSection -> examSection.getSectionQuestions().stream())
                 .map(ExamSectionQuestion::getQuestion)

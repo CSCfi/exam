@@ -105,22 +105,20 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
             );
 
             WSRequest wsRequest = wsClient.url(url.toString());
-            return wsRequest
-                .post(body)
-                .thenComposeAsync(response -> {
-                    JsonNode root = response.asJson();
-                    if (response.getStatus() != Http.Status.CREATED) {
-                        return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
-                    }
-                    return calendarHandler
-                        .handleExternalReservation(enrolment, exam, root, start, end, user, orgRef, roomRef, sectionIds)
-                        .thenApplyAsync(err -> {
-                            if (err.isEmpty()) {
-                                return created(root.get("id"));
-                            }
-                            return internalServerError();
-                        });
-                });
+            return wsRequest.post(body).thenComposeAsync(response -> {
+                JsonNode root = response.asJson();
+                if (response.getStatus() != Http.Status.CREATED) {
+                    return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+                }
+                return calendarHandler
+                    .handleExternalReservation(enrolment, exam, root, start, end, user, orgRef, roomRef, sectionIds)
+                    .thenApplyAsync(err -> {
+                        if (err.isEmpty()) {
+                            return created(root.get("id"));
+                        }
+                        return internalServerError();
+                    });
+            });
         });
     }
 

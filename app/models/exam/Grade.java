@@ -17,8 +17,10 @@ public class Grade extends Model {
     public enum Type {
         @EnumValue("1")
         GRADED,
+
         @EnumValue("2")
         NOT_GRADED,
+
         @EnumValue("3")
         POINT_GRADED,
     }

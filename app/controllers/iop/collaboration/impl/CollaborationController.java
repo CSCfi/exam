@@ -143,13 +143,11 @@ public class CollaborationController extends BaseController {
         return (
             user.isAdminOrSupport() ||
             (exam
-                    .getExamOwners()
-                    .stream()
-                    .anyMatch(
-                        u ->
-                            u.getEmail().equalsIgnoreCase(user.getEmail()) ||
-                            u.getEmail().equalsIgnoreCase(user.getEppn())
-                    ) &&
+                .getExamOwners()
+                .stream()
+                .anyMatch(
+                    u -> u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
+                ) &&
                 exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED))
         );
     }
@@ -158,13 +156,11 @@ public class CollaborationController extends BaseController {
         return (
             !user.isAdminOrSupport() &&
             (exam
-                    .getExamOwners()
-                    .stream()
-                    .noneMatch(
-                        u ->
-                            u.getEmail().equalsIgnoreCase(user.getEmail()) ||
-                            u.getEmail().equalsIgnoreCase(user.getEppn())
-                    ) ||
+                .getExamOwners()
+                .stream()
+                .noneMatch(
+                    u -> u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
+                ) ||
                 !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED))
         );
     }

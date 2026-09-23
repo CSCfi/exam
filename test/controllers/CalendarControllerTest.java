@@ -135,8 +135,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         System.err.println("Request failed: " + e.getMessage());
                         waiter.resume(); // Resume even on failure to avoid hanging
                     }
-                })
-                    .start()
+                }).start()
             );
 
         waiter.await(MAIL_TIMEOUT + 1000, callCount);

@@ -68,31 +68,44 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     public enum State {
         @EnumValue("1")
         DRAFT,
+
         @EnumValue("2")
         SAVED,
+
         @EnumValue("3")
         PUBLISHED, // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
+
         @EnumValue("4")
         STUDENT_STARTED, // EXAM STARTED BY STUDENT
+
         @EnumValue("5")
         REVIEW, // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
+
         @EnumValue("6")
         REVIEW_STARTED, // REVIEW STARTED BY TEACHERS
+
         @EnumValue("7")
         GRADED, // GRADE GIVEN
+
         @EnumValue("13")
         PRE_PUBLISHED, // COLLABORATIVE EXAM READY FOR TEACHERS FOR EDITING
+
         /* FINAL STATES */
         @EnumValue("8")
         GRADED_LOGGED, // EXAM PROCESSED AND READY FOR REGISTRATION
+
         @EnumValue("9")
         ARCHIVED, // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
+
         @EnumValue("10")
         ABORTED, // EXAM ABORTED BY STUDENT WHILST TAKING
+
         @EnumValue("11")
         DELETED, // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
+
         @EnumValue("12")
         REJECTED, // EXAM NOT QUALIFIED FOR REGISTRATION
+
         @EnumValue("14")
         INITIALIZED, // EXAM PREPARED SO THAT IT IS READY FOR TAKING WHEN EXAMINATION STARTS
     }
@@ -100,8 +113,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     public enum Implementation {
         @EnumValue("1")
         AQUARIUM,
+
         @EnumValue("2")
         CLIENT_AUTH,
+
         @EnumValue("3")
         WHATEVER,
     }

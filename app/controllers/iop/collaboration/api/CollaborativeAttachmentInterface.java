@@ -65,11 +65,9 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     default Either<CompletionStage<Result>, EssayAnswer> findEssayAnswerWithAttachment(ExamSectionQuestion esq) {
-        return (
-                esq.getEssayAnswer() == null ||
-                esq.getEssayAnswer().getAttachment() == null ||
-                StringUtils.isEmpty(esq.getEssayAnswer().getAttachment().getExternalId())
-            )
+        return esq.getEssayAnswer() == null ||
+            esq.getEssayAnswer().getAttachment() == null ||
+            StringUtils.isEmpty(esq.getEssayAnswer().getAttachment().getExternalId())
             ? Either.left(CompletableFuture.completedFuture(Results.notFound()))
             : Either.right(esq.getEssayAnswer());
     }
@@ -81,7 +79,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     default Either<CompletionStage<Result>, LanguageInspection> findLanguageInspectionWithAttachment(Exam e) {
-        return (e.getLanguageInspection() == null || e.getLanguageInspection().getStatement() == null)
+        return e.getLanguageInspection() == null || e.getLanguageInspection().getStatement() == null
             ? Either.left(CompletableFuture.completedFuture(Results.notFound()))
             : Either.right(e.getLanguageInspection());
     }

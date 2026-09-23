@@ -32,7 +32,8 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 public class CollaborativeAttachmentControllerTest
-    extends BaseCollaborativeAttachmentControllerTest<CollaborativeExam> {
+    extends BaseCollaborativeAttachmentControllerTest<CollaborativeExam>
+{
 
     private final String baseURL = "/app/iop/collab/attachment";
 

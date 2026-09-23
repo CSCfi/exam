@@ -189,36 +189,34 @@ public class CollaborativeReviewController extends CollaborationController {
                     return wrapAsPromise(internalServerError());
                 }
                 WSRequest wsRequest = wsClient.url(url.get().toString());
-                return wsRequest
-                    .get()
-                    .thenApplyAsync(response -> {
-                        if (response.getStatus() != OK) {
-                            return status(response.getStatus());
+                return wsRequest.get().thenApplyAsync(response -> {
+                    if (response.getStatus() != OK) {
+                        return status(response.getStatus());
+                    }
+                    final JsonNode root = response.asJson();
+                    final Optional<JsonNode> assessment = stream(root)
+                        .filter(node -> node.path("_id").asText().equals(aid))
+                        .findFirst();
+                    if (assessment.isEmpty()) {
+                        return notFound("Assessment not found!");
+                    }
+                    final String eppn = assessment.get().path("user").path("eppn").textValue();
+                    if (ObjectUtils.isEmpty(eppn)) {
+                        return notFound("Eppn not found!");
+                    }
+                    // Filter for user eppn and left out assessment that we currently are looking.
+                    final Iterator<JsonNode> it = root.iterator();
+                    while (it.hasNext()) {
+                        JsonNode node = it.next();
+                        if (
+                            !node.path("user").path("eppn").asText().equals(eppn) ||
+                            node.path("_id").asText().equals(aid)
+                        ) {
+                            it.remove();
                         }
-                        final JsonNode root = response.asJson();
-                        final Optional<JsonNode> assessment = stream(root)
-                            .filter(node -> node.path("_id").asText().equals(aid))
-                            .findFirst();
-                        if (assessment.isEmpty()) {
-                            return notFound("Assessment not found!");
-                        }
-                        final String eppn = assessment.get().path("user").path("eppn").textValue();
-                        if (ObjectUtils.isEmpty(eppn)) {
-                            return notFound("Eppn not found!");
-                        }
-                        // Filter for user eppn and left out assessment that we currently are looking.
-                        final Iterator<JsonNode> it = root.iterator();
-                        while (it.hasNext()) {
-                            JsonNode node = it.next();
-                            if (
-                                !node.path("user").path("eppn").asText().equals(eppn) ||
-                                node.path("_id").asText().equals(aid)
-                            ) {
-                                it.remove();
-                            }
-                        }
-                        return writeAnonymousResult(request, ok(root), true, user.hasRole(Role.Name.ADMIN));
-                    });
+                    }
+                    return writeAnonymousResult(request, ok(root), true, user.hasRole(Role.Name.ADMIN));
+                });
             })
             .getOrElseGet(Function.identity());
     }
@@ -252,27 +250,25 @@ public class CollaborativeReviewController extends CollaborationController {
             .map(ce ->
                 getRequest(ce, null)
                     .map(wsr ->
-                        wsr
-                            .get()
-                            .thenApplyAsync(response -> {
-                                JsonNode root = response.asJson();
-                                if (response.getStatus() != OK) {
-                                    return internalServerError(root.get("message").asText("Connection refused"));
-                                }
-                                filterFinished(root, refs);
-                                calculateScores(root);
-                                File file;
-                                try {
-                                    file = csvBuilder.build(root);
-                                } catch (IOException e) {
-                                    return internalServerError("i18n_error_creating_csv_file");
-                                }
-                                String contentDisposition = fileHandler.getContentDisposition(file);
-                                return ok(fileHandler.encodeAndDelete(file)).withHeader(
-                                    "Content-Disposition",
-                                    contentDisposition
-                                );
-                            })
+                        wsr.get().thenApplyAsync(response -> {
+                            JsonNode root = response.asJson();
+                            if (response.getStatus() != OK) {
+                                return internalServerError(root.get("message").asText("Connection refused"));
+                            }
+                            filterFinished(root, refs);
+                            calculateScores(root);
+                            File file;
+                            try {
+                                file = csvBuilder.build(root);
+                            } catch (IOException e) {
+                                return internalServerError("i18n_error_creating_csv_file");
+                            }
+                            String contentDisposition = fileHandler.getContentDisposition(file);
+                            return ok(fileHandler.encodeAndDelete(file)).withHeader(
+                                "Content-Disposition",
+                                contentDisposition
+                            );
+                        })
                     )
                     .getOrElseGet(Function.identity())
             )
@@ -372,20 +368,18 @@ public class CollaborativeReviewController extends CollaborationController {
                                 .map(ExamInspection::getUser)
                                 .collect(Collectors.toSet());
                             recipients.addAll(exam.getExamOwners());
-                            actor
-                                .scheduler()
-                                .scheduleOnce(
-                                    Duration.create(1, TimeUnit.SECONDS),
-                                    () -> {
-                                        for (User u : recipients
-                                            .stream()
-                                            .filter(u -> !u.getEmail().equalsIgnoreCase(user.getEmail()))
-                                            .collect(Collectors.toSet())) {
-                                            emailComposer.composeInspectionMessage(u, user, ce, exam, message);
-                                        }
-                                    },
-                                    actor.dispatcher()
-                                );
+                            actor.scheduler().scheduleOnce(
+                                Duration.create(1, TimeUnit.SECONDS),
+                                () -> {
+                                    for (User u : recipients
+                                        .stream()
+                                        .filter(u -> !u.getEmail().equalsIgnoreCase(user.getEmail()))
+                                        .collect(Collectors.toSet())) {
+                                        emailComposer.composeInspectionMessage(u, user, ce, exam, message);
+                                    }
+                                },
+                                actor.dispatcher()
+                            );
                             return wrapAsPromise(ok());
                         };
                         return wsRequest.get().thenComposeAsync(onSuccess);

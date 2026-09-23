@@ -17,6 +17,7 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
     public enum Type {
         @EnumValue("1")
         CAN_INSPECT_LANGUAGE,
+
         @EnumValue("2")
         CAN_CREATE_BYOD_EXAM,
     }

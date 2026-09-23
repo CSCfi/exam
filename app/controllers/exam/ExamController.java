@@ -238,22 +238,20 @@ public class ExamController extends BaseController {
         }
         // decipher the passwords if any
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
-            exam
-                .getExaminationEventConfigurations()
-                .forEach(eec -> {
-                    String plainTextSettingsPwd = byodConfigHandler.getPlaintextPassword(
-                        eec.getEncryptedSettingsPassword(),
-                        eec.getSettingsPasswordSalt()
+            exam.getExaminationEventConfigurations().forEach(eec -> {
+                String plainTextSettingsPwd = byodConfigHandler.getPlaintextPassword(
+                    eec.getEncryptedSettingsPassword(),
+                    eec.getSettingsPasswordSalt()
+                );
+                eec.setSettingsPassword(plainTextSettingsPwd);
+                if (eec.getEncryptedQuitPassword() != null) {
+                    String plainTextQuitPwd = byodConfigHandler.getPlaintextPassword(
+                        eec.getEncryptedQuitPassword(),
+                        eec.getQuitPasswordSalt()
                     );
-                    eec.setSettingsPassword(plainTextSettingsPwd);
-                    if (eec.getEncryptedQuitPassword() != null) {
-                        String plainTextQuitPwd = byodConfigHandler.getPlaintextPassword(
-                            eec.getEncryptedQuitPassword(),
-                            eec.getQuitPasswordSalt()
-                        );
-                        eec.setQuitPassword(plainTextQuitPwd);
-                    }
-                });
+                    eec.setQuitPassword(plainTextQuitPwd);
+                }
+            });
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (
@@ -417,12 +415,10 @@ public class ExamController extends BaseController {
             return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return examUpdater
-            .updateLanguage(exam, code, user)
-            .orElseGet(() -> {
-                exam.update();
-                return ok();
-            });
+        return examUpdater.updateLanguage(exam, code, user).orElseGet(() -> {
+            exam.update();
+            return ok();
+        });
     }
 
     @Authenticated
