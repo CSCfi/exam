@@ -7,7 +7,6 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PermissionType, type Permission, type User } from 'src/app/session/session.model';
@@ -15,6 +14,7 @@ import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { UserManagementService } from './users.service';
 
 interface PermissionOption extends Permission {
@@ -86,7 +86,7 @@ export class UsersComponent {
     private readonly _filterText = signal('');
     private readonly destroyRef = inject(DestroyRef);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly session = inject(SessionService);
     private readonly userManagement = inject(UserManagementService);
 

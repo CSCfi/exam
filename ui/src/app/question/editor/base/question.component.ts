@@ -16,7 +16,6 @@ import {
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { QuestionBodyComponent } from 'src/app/question/editor/common/question-body.component';
 import { CanComponentDeactivate } from 'src/app/question/editor/common/tools/has-unsaved-changes.guard';
 import type { MultipleChoiceOption, QuestionDraft, Tag } from 'src/app/question/question.model';
@@ -27,6 +26,7 @@ import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-question',
@@ -102,7 +102,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
 
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Question = inject(QuestionService);
     private readonly Session = inject(SessionService);
 

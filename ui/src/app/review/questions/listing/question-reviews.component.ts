@@ -5,10 +5,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview } from 'src/app/review/review.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { QuestionReviewComponent } from './question-review.component';
 
 @Component({
@@ -76,7 +76,7 @@ export class QuestionReviewsComponent {
     readonly selectionToggle = signal(false);
 
     private readonly router = inject(Router);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly QuestionReview = inject(QuestionReviewService);
     private readonly Tabs = inject(ExamTabService);
 

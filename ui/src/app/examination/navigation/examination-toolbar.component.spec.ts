@@ -8,7 +8,6 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrModule } from 'ngx-toastr';
 import { EMPTY, of } from 'rxjs';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Examination, ExaminationQuestion, ExaminationSection } from 'src/app/examination/examination.model';
@@ -97,7 +96,7 @@ describe('ExaminationToolbarComponent – turnExam()', () => {
         };
 
         await TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
+            imports: [TranslateModule.forRoot()],
             providers: [
                 provideZonelessChangeDetection(),
                 provideHttpClient(withXhr()),

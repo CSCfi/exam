@@ -6,7 +6,7 @@ import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { ReservationDetailsComponent } from './reservation-details.component';
 import { ReservationService } from './reservation.service';
@@ -37,7 +37,7 @@ describe('ReservationDetailsComponent', () => {
                 provideHttpClientTesting(),
                 { provide: ReservationService, useValue: { printExamState: vi.fn() } },
                 { provide: TranslateService, useValue: { instant: (k: string) => k } },
-                { provide: ToastrService, useValue: { info: vi.fn(), error: vi.fn() } },
+                { provide: ToastService, useValue: { info: vi.fn(), error: vi.fn() } },
             ],
         });
         component = TestBed.runInInjectionContext(() => new ReservationDetailsComponent());

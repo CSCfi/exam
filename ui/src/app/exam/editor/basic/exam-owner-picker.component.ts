@@ -7,12 +7,12 @@ import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } fro
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-exam-owner-picker',
@@ -30,7 +30,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     ngOnInit() {
         this.getExamOwners();

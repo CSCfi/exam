@@ -9,7 +9,6 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -25,6 +24,7 @@ import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-rl-graded',
@@ -64,7 +64,7 @@ export class GradedReviewsComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly ReviewList = inject(ReviewListService);
     private readonly Assessment = inject(AssessmentService);

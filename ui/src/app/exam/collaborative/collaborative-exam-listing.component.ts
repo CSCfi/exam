@@ -8,7 +8,6 @@ import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-i
 import { Router, RouterLink } from '@angular/router';
 import { NgbNavModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { EMPTY, Subject } from 'rxjs';
 import {
     catchError,
@@ -28,6 +27,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { CollaborativeExamService } from './collaborative-exam.service';
 
 enum ListingView {
@@ -104,7 +104,7 @@ export class CollaborativeExamListingComponent {
     private readonly destroyRef = inject(DestroyRef);
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Session = inject(SessionService);
     private readonly CollaborativeExam = inject(CollaborativeExamService);
 

@@ -6,8 +6,8 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { FormField, form, required } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Accessibility } from 'src/app/reservation/reservation.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AccessibilityService } from './accessibility.service';
 
 @Component({
@@ -25,7 +25,7 @@ export class AccessibilityComponent {
     private readonly editNameForms = new Map<number, ReturnType<typeof this.createEditNameForm>>();
 
     private readonly accessibilityService = inject(AccessibilityService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly translate = inject(TranslateService);
 
     constructor() {

@@ -8,10 +8,10 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { examinationInterceptor } from 'src/app/interceptors/examination.interceptor';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { StorageService } from 'src/app/shared/storage/storage.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import type { User } from './session.model';
 import { SessionService } from './session.service';
@@ -77,7 +77,7 @@ describe('SessionService login redirect', () => {
                 },
                 { provide: ModalService, useValue: { openRef: vi.fn(), open$: vi.fn(), result$: vi.fn() } },
                 {
-                    provide: ToastrService,
+                    provide: ToastService,
                     useValue: {
                         success: vi.fn(),
                         info: vi.fn(),

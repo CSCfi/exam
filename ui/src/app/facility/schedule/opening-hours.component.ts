@@ -7,11 +7,11 @@ import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 const ZERO_TIME = { hour: 0, minute: 0, second: 0, millisecond: 0 };
 const DEFAULT_NEW_TIME: DefaultWorkingHoursWithEditing = {
@@ -48,7 +48,7 @@ export class OpenHoursComponent {
     private readonly dateTime = inject(DateTimeService);
     private readonly roomService = inject(RoomService);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     orderByWeekday(dwhs: DefaultWorkingHoursWithEditing[]) {
         const ordinal = (dwh: DefaultWorkingHours) => this.WEEKDAYS.indexOf(dwh.weekday);

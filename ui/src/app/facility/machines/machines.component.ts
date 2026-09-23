@@ -7,8 +7,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSign
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { ExamMachine, ExamRoom } from 'src/app/reservation/reservation.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     templateUrl: './machines.component.html',
@@ -38,7 +38,7 @@ export class MachineListComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     toggleShow() {
         this.showMachines.update((v) => !v);

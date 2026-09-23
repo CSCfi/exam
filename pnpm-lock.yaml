@@ -80,9 +80,6 @@ importers:
       mathlive:
         specifier: ^0.110.0
         version: 0.110.0
-      ngx-toastr:
-        specifier: ^20.0.5
-        version: 20.0.5(@angular/common@22.1.7(@angular/core@22.1.7(@angular/compiler@22.1.7)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.7(@angular/compiler@22.1.7)(rxjs@7.8.2))(rxjs@7.8.2)
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
@@ -3289,13 +3286,6 @@ packages:
   negotiator@1.1.0:
     resolution: {integrity: sha512-NMPBRMJgiQHjbd8phG3Vebdx4kZ1H121rbl5IkMqeOsahptB9BKo/d7oJ3zTXqTgagn2bWlNSXkh0QUGM31RYg==}
     engines: {node: '>=18'}
-
-  ngx-toastr@20.0.5:
-    resolution: {integrity: sha512-JcGu1Cbl+0SovPhxma72ygGeZHtpHWWKwBCyiabb+MSWYtXu/SOwEZ2HTWtZ4wcEYOOiy9tDQZgiEKWXpibpRw==}
-    peerDependencies:
-      '@angular/common': ^21.0.0
-      '@angular/core': ^21.0.0
-      rxjs: ^7.8.2
 
   node-addon-api@6.1.0:
     resolution: {integrity: sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==}
@@ -7536,13 +7526,6 @@ snapshots:
   negotiator@1.1.0:
     dependencies:
       content-type: 2.1.0
-
-  ngx-toastr@20.0.5(@angular/common@22.1.7(@angular/core@22.1.7(@angular/compiler@22.1.7)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.7(@angular/compiler@22.1.7)(rxjs@7.8.2))(rxjs@7.8.2):
-    dependencies:
-      '@angular/common': 22.1.7(@angular/core@22.1.7(@angular/compiler@22.1.7)(rxjs@7.8.2))(rxjs@7.8.2)
-      '@angular/core': 22.1.7(@angular/compiler@22.1.7)(rxjs@7.8.2)
-      rxjs: 7.8.2
-      tslib: 2.8.1
 
   node-addon-api@6.1.0:
     optional: true

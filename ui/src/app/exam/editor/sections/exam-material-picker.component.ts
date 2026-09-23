@@ -7,11 +7,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output, si
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ExamMaterialComponent } from './exam-material.component';
 
 @Component({
@@ -38,7 +38,7 @@ export class ExamMaterialSelectorComponent {
 
     private readonly http = inject(HttpClient);
     private readonly modal = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     selectMaterial(event: NgbTypeaheadSelectItemEvent) {
         this.selectedMaterial.set(event.item);

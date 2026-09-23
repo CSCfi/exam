@@ -5,12 +5,12 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class WrongLocationService {
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     display = (data: string[]) => {
         const [campus, building, room, machine, start, zone] = data;

@@ -7,10 +7,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { filter, forkJoin, of } from 'rxjs';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
 import { SessionService } from 'src/app/session/session.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import type { Link } from './navigation.model';
 import { NavigationService } from './navigation.service';
 
@@ -38,7 +38,7 @@ export class NavigationComponent {
 
     private readonly submenuCollapsedByRoute = signal<SubmenuCollapsedMap>({});
 
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly router = inject(Router);
     private readonly routerUrl = toSignal(
         this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),

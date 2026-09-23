@@ -9,7 +9,6 @@ import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -19,6 +18,7 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-examination-event-search',
@@ -51,7 +51,7 @@ export class ExaminationEventSearchComponent {
     private readonly http = inject(HttpClient);
     private readonly ConfirmationDialog = inject(ConfirmationDialogService);
     private readonly Enrolment = inject(EnrolmentService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         const endDate = new Date();

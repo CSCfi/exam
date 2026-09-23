@@ -6,12 +6,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { RepetitionConfig } from 'src/app/facility/facility.model';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { DateTimeService, REPEAT_OPTION } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { groupBy } from 'src/app/shared/miscellaneous/helpers';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetition-options.component';
 
 @Component({
@@ -32,7 +32,7 @@ export class ExceptionDialogComponent {
 
     private readonly translate = inject(TranslateService);
     private readonly activeModal = inject(NgbActiveModal);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly dateTime = inject(DateTimeService);
     private readonly dialogs = inject(ConfirmationDialogService);
 

@@ -7,7 +7,6 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { Review } from 'src/app/review/review.model';
@@ -16,6 +15,7 @@ import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-aborted-exams',
@@ -42,7 +42,7 @@ export class AbortedExamsComponent {
     private readonly modal = inject(NgbActiveModal);
     private readonly translate = inject(TranslateService);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Session = inject(SessionService);
 
     permitRetrial(enrolment: ExamEnrolment) {

@@ -7,11 +7,11 @@ import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angu
 import { email, form, FormField } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-collaborative-exam-owner-selector',
@@ -75,7 +75,7 @@ export class CollaborativeExamOwnerSelectorComponent {
     readonly user: User;
 
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Session = inject(SessionService);
     private readonly ExamTabs = inject(ExamTabService);
 

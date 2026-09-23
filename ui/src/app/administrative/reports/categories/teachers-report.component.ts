@@ -5,12 +5,12 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import type { User } from 'src/app/session/session.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,7 +59,7 @@ export class TeachersReportComponent {
     readonly answerEndDate = signal<Date | null>(null);
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly files = inject(FileService);
 
     getTeacherExamsByDate() {

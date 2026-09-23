@@ -7,7 +7,6 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import type { ExamSection } from 'src/app/exam/exam.model';
@@ -29,6 +28,7 @@ import { FileService } from 'src/app/shared/file/file.service';
 import { mergeDeepRight } from 'src/app/shared/miscellaneous/helpers';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-section-question',
@@ -59,7 +59,7 @@ export class SectionQuestionComponent {
     private readonly http = inject(HttpClient);
     private readonly modal = inject(ModalService);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly Question = inject(QuestionService);
     private readonly QuestionScore = inject(QuestionScoringService);

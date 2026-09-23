@@ -8,7 +8,6 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { debounceTime } from 'rxjs';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
@@ -16,6 +15,7 @@ import { AssessmentService } from 'src/app/review/assessment/assessment.service'
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
@@ -40,7 +40,7 @@ export class ClozeTestComponent {
 
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Assessment = inject(AssessmentService);
     private readonly Attachment = inject(AttachmentService);
     private readonly destroyRef = inject(DestroyRef);

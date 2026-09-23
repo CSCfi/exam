@@ -9,7 +9,6 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { skip } from 'rxjs';
 import { LibraryService } from 'src/app/question/library/library.service';
 import { LibraryQuestion } from 'src/app/question/question.model';
@@ -23,6 +22,7 @@ import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
@@ -79,7 +79,7 @@ export class LibraryResultsComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly Library = inject(LibraryService);
     private readonly Attachment = inject(AttachmentService);

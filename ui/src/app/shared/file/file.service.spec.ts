@@ -7,9 +7,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { FileService } from './file.service';
 
@@ -36,7 +36,7 @@ describe('FileService', () => {
         TestBed.configureTestingModule({
             providers: [
                 FileService,
-                { provide: ToastrService, useValue: toastSpy },
+                { provide: ToastService, useValue: toastSpy },
                 { provide: TranslateService, useValue: translateSpy },
                 provideHttpClient(withXhr()),
                 provideHttpClientTesting(),

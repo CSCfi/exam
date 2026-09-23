@@ -15,12 +15,12 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { skip } from 'rxjs';
 import { multipleChoiceOptionsValidator } from 'src/app/question/editor/common/types/multiple-choice-validators';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { MultipleChoiceOption } from 'src/app/question/question.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-multiple-choice',
@@ -40,7 +40,7 @@ export class MultipleChoiceComponent implements OnInit, AfterViewInit {
     readonly multipleChoiceForm: FormGroup;
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly QuestionScore = inject(QuestionScoringService);
     private readonly parentForm = inject(FormGroupDirective);
 

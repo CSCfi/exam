@@ -7,11 +7,11 @@ import { EventInput } from '@fullcalendar/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
 import { CalendarService } from 'src/app/calendar/calendar.service';
 import { Availability } from 'src/app/facility/facility.model';
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { RoomService } from './room.service';
 
 type ExceptionHour = ExceptionWorkingHours & { start: string; end: string; description: string };
@@ -45,7 +45,7 @@ export class AvailabilityComponent {
     );
     readonly oldExceptionsHidden = signal(true);
 
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly roomService = inject(RoomService);
     private readonly calendar = inject(CalendarService);
 

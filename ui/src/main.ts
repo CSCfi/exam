@@ -9,7 +9,6 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { provideToastr } from 'ngx-toastr';
 import { AppComponent } from './app/app.component';
 import { APP_ROUTES } from './app/app.routes';
 import { interceptors } from './app/interceptors';
@@ -23,7 +22,6 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
     providers: [
         importProvidersFrom(CommonModule, TranslateModule.forRoot()),
-        provideToastr({ preventDuplicates: true }),
         provideTranslateHttpLoader({ prefix: '/assets/i18n/', suffix: '.json' }),
         { provide: LOCALE_ID, deps: [SessionService], useFactory: (srv: SessionService) => srv.getLocale() },
         provideZonelessChangeDetection(),

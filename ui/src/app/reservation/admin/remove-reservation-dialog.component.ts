@@ -6,8 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Reservation } from 'src/app/reservation/reservation.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-remove-reservation-dialog',
@@ -44,7 +44,7 @@ export class RemoveReservationDialogComponent {
 
     private readonly activeModal = inject(NgbActiveModal);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     ok() {
         const currentReservation = this.reservation();

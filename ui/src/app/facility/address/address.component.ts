@@ -6,9 +6,9 @@ import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from 
 import { FormField, form, required } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Address } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-room-address',
@@ -105,7 +105,7 @@ export class AddressComponent {
     );
 
     private readonly room = inject(RoomService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly translate = inject(TranslateService);
 
     validateAndUpdateAddress() {

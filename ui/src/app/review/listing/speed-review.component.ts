@@ -8,7 +8,6 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -34,6 +33,7 @@ import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 @Component({
@@ -75,7 +75,7 @@ export class SpeedReviewComponent {
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
     private readonly modal = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Exam = inject(ExamService);
     private readonly CommonExam = inject(CommonExamService);
     private readonly Confirmation = inject(ConfirmationDialogService);

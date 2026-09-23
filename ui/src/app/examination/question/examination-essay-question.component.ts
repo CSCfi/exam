@@ -16,7 +16,6 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { EssayAnswer } from 'src/app/question/question.model';
@@ -24,6 +23,7 @@ import type { AnsweredQuestion, Attachment } from 'src/app/shared/attachment/att
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-examination-essay-question',
@@ -51,7 +51,7 @@ export class ExaminationEssayQuestionComponent {
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
     private readonly destroyRef = inject(DestroyRef);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly translate = inject(TranslateService);
 
     constructor() {

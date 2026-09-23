@@ -8,12 +8,12 @@ import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal
 import { RouterLink } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 import type { AnyReservation, Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
@@ -50,7 +50,7 @@ export class ReservationDetailsComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Reservation = inject(ReservationService);
 
     printExamState(reservation: Reservation) {

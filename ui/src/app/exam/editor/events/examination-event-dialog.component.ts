@@ -9,13 +9,13 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { disabled, form, FormField, min, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { combineLatest, map, switchMap } from 'rxjs';
 import type { ExaminationEvent, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-examination-event-dialog',
@@ -57,7 +57,7 @@ export class ExaminationEventDialogComponent implements OnInit {
     private readonly activeModal = inject(NgbActiveModal);
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Exam = inject(ExamService);
 
     private now = new Date();

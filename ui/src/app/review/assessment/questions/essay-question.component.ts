@@ -9,7 +9,6 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { debounceTime } from 'rxjs';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -19,6 +18,7 @@ import type { ReviewQuestion } from 'src/app/review/review.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
@@ -60,7 +60,7 @@ export class EssayQuestionComponent {
 
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Assessment = inject(AssessmentService);
     private readonly CommonExam = inject(CommonExamService);
     private readonly Attachment = inject(AttachmentService);

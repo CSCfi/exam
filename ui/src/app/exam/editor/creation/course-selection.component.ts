@@ -7,7 +7,6 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamCourseComponent } from 'src/app/exam/editor/basic/exam-course.component';
 import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-picker.component';
 import type { Course, Exam, ExamLanguage } from 'src/app/exam/exam.model';
@@ -15,6 +14,7 @@ import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-course-selection',
@@ -36,7 +36,7 @@ export class CourseSelectionComponent {
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Exam = inject(ExamService);
     private readonly Session = inject(SessionService);
 

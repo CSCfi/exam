@@ -6,11 +6,11 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { forkJoin, Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap, tap } from 'rxjs/operators';
 import type { EnrolmentInfo, ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
 
@@ -137,7 +137,7 @@ export class ExamSearchComponent {
     private readonly filterChanged = new Subject<string>();
 
     private readonly destroyRef = inject(DestroyRef);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Search = inject(ExamSearchService);
 
     constructor() {

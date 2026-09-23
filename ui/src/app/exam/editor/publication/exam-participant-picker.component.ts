@@ -16,7 +16,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, take } from 'rxjs/operators';
@@ -24,6 +23,7 @@ import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolme
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-exam-participant-selector',
@@ -131,7 +131,7 @@ export class ExamParticipantSelectorComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Enrolment = inject(EnrolmentService);
 
     listStudents$ = (criteria$: Observable<string>): Observable<User[]> =>

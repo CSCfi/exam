@@ -25,7 +25,6 @@ import {
 import { FormField, disabled, form, max, min, required } from '@angular/forms/signals';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { switchMap } from 'rxjs/operators';
 import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -38,6 +37,7 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { SectionQuestionComponent } from './section-question.component';
 
 @Component({
@@ -90,7 +90,7 @@ export class SectionComponent implements OnInit {
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
     private readonly modal = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly dialogs = inject(ConfirmationDialogService);
     private readonly QuestionScore = inject(QuestionScoringService);
     private readonly Files = inject(FileService);

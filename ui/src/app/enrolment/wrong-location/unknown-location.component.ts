@@ -8,12 +8,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { ExamRoom, Reservation } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
@@ -31,7 +31,7 @@ export class UnknownLocationComponent {
     private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Enrolment = inject(EnrolmentService);
     private readonly DateTimeService = inject(DateTimeService);
 

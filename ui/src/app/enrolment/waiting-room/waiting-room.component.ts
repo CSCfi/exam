@@ -8,7 +8,6 @@ import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { interval, map, startWith } from 'rxjs';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
@@ -19,6 +18,7 @@ import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 export type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
@@ -55,7 +55,7 @@ export class WaitingRoomComponent implements OnDestroy {
     private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Session = inject(SessionService);
     private readonly DateTimeService = inject(DateTimeService);
 

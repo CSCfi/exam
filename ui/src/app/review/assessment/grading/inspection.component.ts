@@ -5,9 +5,9 @@
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { ExamInspection } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-r-inspection',
@@ -52,7 +52,7 @@ export class InspectionComponent {
 
     private readonly translate = inject(TranslateService);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         this.reviewStatuses = [

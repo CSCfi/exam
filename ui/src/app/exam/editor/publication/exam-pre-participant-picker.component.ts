@@ -15,10 +15,10 @@ import {
 } from '@angular/core';
 import { email, form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-exam-pre-participant-selector',
@@ -123,7 +123,7 @@ export class ExamPreParticipantSelectorComponent {
 
     private readonly translate = inject(TranslateService);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Enrolment = inject(EnrolmentService);
 
     addPreParticipant = () => {

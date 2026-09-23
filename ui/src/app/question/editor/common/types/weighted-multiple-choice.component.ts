@@ -25,11 +25,11 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { skip, startWith } from 'rxjs';
 import { minOptionsValidator } from 'src/app/question/editor/common/types/multiple-choice-validators';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { MultipleChoiceOption } from 'src/app/question/question.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
@@ -86,7 +86,7 @@ export class WeightedMultipleChoiceComponent implements OnInit, AfterViewInit {
     });
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly parentForm = inject(FormGroupDirective);
 
     constructor() {

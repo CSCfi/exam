@@ -7,11 +7,11 @@ import { ChangeDetectionStrategy, Component, ViewChild, inject, model, signal } 
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { filter, map, switchMap } from 'rxjs';
 import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/reservation.model';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 // A machine can be offered at more than one time: an ongoing reservation can either keep its
 // original time or move to the next free slot. Each of those is a choice of its own in the list.
@@ -91,7 +91,7 @@ export class ChangeMachineDialogComponent {
     private readonly activeModal = inject(NgbActiveModal);
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         toObservable(this.reservation)

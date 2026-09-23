@@ -7,7 +7,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { EMPTY } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { ParticipationLike } from 'src/app/enrolment/enrolment.model';
@@ -16,6 +15,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
@@ -67,7 +67,7 @@ export class ExamParticipationsComponent {
         { initialValue: [] as ParticipationLike[] },
     );
 
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {

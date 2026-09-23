@@ -7,7 +7,6 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrModule } from 'ngx-toastr';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import type { ExamSectionQuestion } from 'src/app/question/question.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -53,7 +52,7 @@ describe('ExamService', () => {
                 .mockReturnValue({ id: 1, isAdmin: false, isSupport: false, eppn: 'u@e.fi', email: 'u@e.fi' }),
         };
         TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
+            imports: [TranslateModule.forRoot()],
             providers: [
                 ExamService,
                 provideHttpClient(withXhr()),

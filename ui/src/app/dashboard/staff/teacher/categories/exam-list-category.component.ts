@@ -7,7 +7,6 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
@@ -23,6 +22,7 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
@@ -57,7 +57,7 @@ export class ExamListCategoryComponent implements OnInit {
     private readonly destroyRef = inject(DestroyRef);
     private readonly translate = inject(TranslateService);
     private readonly ModalService = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Dashboard = inject(TeacherDashboardService);
     private readonly Dialog = inject(ConfirmationDialogService);
     private readonly Exam = inject(ExamService);

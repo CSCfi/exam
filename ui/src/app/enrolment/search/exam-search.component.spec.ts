@@ -8,10 +8,10 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { interceptors } from 'src/app/interceptors';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { ExamSearchComponent } from './exam-search.component';
 
@@ -64,7 +64,7 @@ describe('ExamSearchComponent', () => {
                 provideHttpClient(withXhr(), withInterceptors(interceptors)),
                 provideHttpClientTesting(),
                 provideRouter([]),
-                { provide: ToastrService, useValue: toast },
+                { provide: ToastService, useValue: toast },
                 { provide: ModalService, useValue: modal },
             ],
         }).compileComponents();

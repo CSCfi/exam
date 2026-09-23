@@ -5,11 +5,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { catchError, forkJoin, of } from 'rxjs';
 import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { ExamSearchResultComponent } from 'src/app/enrolment/search/exam-search-result.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
 
 @Component({
@@ -48,7 +48,7 @@ export class ExamEnrolmentsComponent {
     readonly exams = signal<EnrolmentInfo[]>([]);
 
     private readonly route = inject(ActivatedRoute);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {

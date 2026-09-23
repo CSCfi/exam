@@ -6,12 +6,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { disabled, form, FormField, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Software } from 'src/app/facility/facility.model';
 import type { ExamMachine } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { MachineService } from './machines.service';
 
 interface SoftwareWithActive extends Software {
@@ -50,7 +50,7 @@ export class MachineComponent {
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly machines = inject(MachineService);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         this.machines.getMachine(this.route.snapshot.params.id).subscribe({

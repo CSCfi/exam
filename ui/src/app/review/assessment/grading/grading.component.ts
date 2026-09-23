@@ -21,7 +21,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -35,6 +34,7 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 import { LanguageService } from 'src/app/shared/language/language.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { InspectionComponent } from './inspection.component';
 import { ToolbarComponent } from './toolbar.component';
 
@@ -78,7 +78,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     constructor() {
         const http = inject(HttpClient);
-        const toast = inject(ToastrService);
+        const toast = inject(ToastService);
         const Assessment = inject(AssessmentService);
         const Exam = inject(ExamService);
         const CommonExam = inject(CommonExamService);

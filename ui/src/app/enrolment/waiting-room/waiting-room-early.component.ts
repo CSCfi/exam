@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { WaitingEnrolment, WaitingReservation } from './waiting-room.component';
 
 @Component({
@@ -36,7 +36,7 @@ export class WaitingRoomEarlyComponent {
 
     private readonly route = inject(ActivatedRoute);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {

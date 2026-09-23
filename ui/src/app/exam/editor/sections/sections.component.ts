@@ -15,13 +15,13 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { SectionComponent } from './section.component';
 
 @Component({
@@ -40,7 +40,7 @@ export class SectionsComponent {
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Exam = inject(ExamService);
     private readonly Session = inject(SessionService);
     private readonly Tabs = inject(ExamTabService);

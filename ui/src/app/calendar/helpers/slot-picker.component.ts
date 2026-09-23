@@ -19,7 +19,6 @@ import { EventApi, EventInput } from '@fullcalendar/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
 import type { FilterableAccessibility, Organisation, Slot } from 'src/app/calendar/calendar.model';
@@ -27,6 +26,7 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
 import { PasswordPromptComponent } from 'src/app/calendar/helpers/password-prompt.component';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AccessibilityPickerComponent } from './accessibility-picker.component';
 import { SelectedRoomComponent } from './selected-room.component';
 
@@ -106,7 +106,7 @@ export class SlotPickerComponent {
 
     private readonly translate = inject(TranslateService);
     private readonly route = inject(ActivatedRoute);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Calendar = inject(CalendarService);
 
     constructor() {

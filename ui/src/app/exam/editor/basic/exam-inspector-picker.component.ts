@@ -7,12 +7,12 @@ import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } fro
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take } from 'rxjs/operators';
 import type { Exam, ExamInspection } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 interface NewInspector {
     id?: number;
@@ -35,7 +35,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
     inspectorName = '';
 
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     ngOnInit() {
         this.getInspectors();

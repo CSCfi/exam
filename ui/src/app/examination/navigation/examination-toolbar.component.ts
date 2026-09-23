@@ -8,7 +8,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, ou
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
@@ -19,6 +18,7 @@ import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-examination-toolbar',
@@ -54,7 +54,7 @@ export class ExaminationToolbarComponent implements OnInit {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly Session = inject(SessionService);
     private readonly Examination = inject(ExaminationService);

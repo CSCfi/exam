@@ -7,11 +7,11 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-owner-picker.component';
 
@@ -33,7 +33,7 @@ describe('CollaborativeExamOwnerSelectorComponent (IOP exam JSON edge cases)', (
                 provideHttpClientTesting(),
                 { provide: ExamTabService, useValue: { setExam } },
                 { provide: SessionService, useValue: { getUser: () => adminUser } },
-                { provide: ToastrService, useValue: { error: vi.fn() } },
+                { provide: ToastService, useValue: { error: vi.fn() } },
             ],
         }).compileComponents();
 
