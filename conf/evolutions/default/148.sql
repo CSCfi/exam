@@ -12,7 +12,7 @@ ALTER TABLE exam_starting_hour DROP COLUMN timezone_offset;
 
 # --- !Downs
 
--- The Ups dropped the per-row offsets for good, so a rollback cannot restore them; every row
+-- The Ups dropped the per-row offsets for good, so a rollback cannot restore them, every row
 -- comes back on the 2 hour default. The conversion below at least makes the round trip an
 -- identity: it pre-subtracts exactly what the Ups adds back, and stamps the offset explicitly
 -- as +00 rather than going through `AT TIME ZONE`, which would resolve against the session
