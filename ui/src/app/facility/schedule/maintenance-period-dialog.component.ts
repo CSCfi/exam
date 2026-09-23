@@ -88,8 +88,8 @@ export class MaintenancePeriodDialogComponent {
         }
         this.activeModal.close({
             id: this.period()?.id,
-            startsAt: this.startsAt(),
-            endsAt: this.endsAt(),
+            startsAt: this.startsAt().toISOString(),
+            endsAt: this.endsAt().toISOString(),
             description: this.descriptionForm.description().value(),
         });
     }

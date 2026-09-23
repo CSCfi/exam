@@ -60,7 +60,7 @@ pnpm run format        # Prettier format
 Run a single frontend test file:
 
 ```bash
-pnpm test --run -- path/to/file.spec.ts
+pnpm ng test --include path/to/file.spec.ts --watch=false   # or --include ui/src/app/<feature> for a directory
 ```
 
 ## Architecture
@@ -117,7 +117,7 @@ The Angular frontend calls Play REST endpoints defined in `conf/routes`. Control
 
 These session keys are computed by `EnrolmentRepository.getReservationHeaders` and merged into the session via `SessionService.updateSessionWithReservationHeaders`. `SystemFilter` only emits a header if the matching key is present in the session — it doesn't know about exams itself, it's purely a session→header mirror. **This means any `SessionController` action must explicitly call `getReservationHeaders` + `updateSessionWithReservationHeaders` to produce these headers; skipping it silently omits them.** Currently `login`, `setLoginRole`, and `checkSession` all do this — if you add a new session-mutating action, check whether it needs the same treatment.
 
-Frontend: `ui/src/app/interceptors/examination.interceptor.ts` inspects every HTTP response for these headers and redirects accordingly (e.g. to `/waitingroom/:enrolmentId/:hash`). Since login only knows a student's exam schedule once these headers are computed, and `session.service.ts`'s `restartSessionCheck()` otherwise only re-checks every `PING_INTERVAL` (30s) via `checkSession`, missing the header on `login` delays a correct redirect by up to one polling interval.
+Frontend: `ui/src/app/interceptors/examination.interceptor.ts` inspects every HTTP response for these headers and redirects accordingly (e.g. to `/waitingroom/:enrolmentId/:hash`). Since login only knows a student's exam schedule once these headers are computed, and `session.service.ts`'s `restartSessionCheck()` otherwise only re-checks every `PING_INTERVAL` (30s) via `checkSession`, missing the header on `login` delays a correct redirect by up to one polling interval. The same delay appears if something cancels the interceptor's navigation: `SessionService.redirect()` runs at the tail of `login$` and must not start a competing navigation to the default landing page — it bails out while `Router.currentNavigation()` is non-null, since the exam views are lazily loaded and their navigation is typically still pending at that point.
 
 ### IOP (Inter-Organizational Protocol)
 

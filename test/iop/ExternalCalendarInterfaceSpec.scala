@@ -491,6 +491,13 @@ class ExternalCalendarInterfaceSpec
         val mails = greenMail.getReceivedMessages
         mails must have size 1
         mails(0).getAllRecipients()(0).toString must be("actual@test.org")
+        mails(0).getSubject must include("exam visit booking")
+        mails(0).getSubject must not include "externally managed exam"
+        val mailBody = GreenMailUtil.getBody(mails(0))
+        // The exam is managed elsewhere, so the mail must identify the booking by place and sender
+        mailBody must include("Tenttiakvaario")
+        mailBody must include("uni.org")
+        mailBody must not include ",,"
 
       "fall back to externalUserRef as email recipient when externalUserEmail is not set" in:
         val (_, _, room, _) = setupTestData()

@@ -125,7 +125,8 @@ export class RoomService {
     listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
     createMaintenancePeriod$ = (period: MaintenancePeriod) =>
         this.http.post<MaintenancePeriod>('/app/maintenance', period);
-    updateMaintenancePeriod$ = (period: MaintenancePeriod) => this.http.put(`/app/maintenance/${period.id}`, period);
+    updateMaintenancePeriod$ = (period: MaintenancePeriod) =>
+        this.http.put<MaintenancePeriod>(`/app/maintenance/${period.id}`, period);
     removeMaintenancePeriod$ = (period: MaintenancePeriod) => this.http.delete(`/app/maintenance/${period.id}`);
     examVisit = () => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit');
 

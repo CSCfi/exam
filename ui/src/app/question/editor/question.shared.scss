@@ -19,7 +19,7 @@
 }
 
 .question-option-radio {
-    font-size: 20px;
+    font-size: 1.5625rem;
     margin-right: 30px;
     margin-left: 15px;
     margin-top: 12px;
@@ -114,7 +114,7 @@
 }
 
 .question-option-trash {
-    font-size: 20px;
+    font-size: 1.5625rem;
     color: #979797;
     cursor: pointer;
     margin-top: 15px;
@@ -122,7 +122,7 @@
 
 .question-option-title {
     color: #777777;
-    font-size: 12px;
+    font-size: 0.9375rem;
 }
 
 /* claim choice stuff */
@@ -190,10 +190,10 @@
 .exists-text {
     font-weight: bold;
     color: shared.$exam-blue;
-    font-size: 16px;
+    font-size: 1.25rem;
 }
 .warning-text-small {
-    font-size: 14px;
+    font-size: 1.0625rem;
 }
 
 textarea {

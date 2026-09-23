@@ -26,14 +26,22 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { mergeDeepRight } from 'src/app/shared/miscellaneous/helpers';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
-    imports: [CdkDragHandle, NgbPopover, NgbDropdownModule, MathDirective, NgbCollapse, TranslateModule, OrderByPipe],
+    imports: [
+        CdkDragHandle,
+        NgbPopover,
+        NgbDropdownModule,
+        RichTextDirective,
+        NgbCollapse,
+        TranslateModule,
+        OrderByPipe,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionQuestionComponent {
@@ -175,12 +183,7 @@ export class SectionQuestionComponent {
                     if (!attachment) {
                         return of(undefined);
                     }
-                    if (attachment.modified && attachment.file) {
-                        return this.Files.upload$<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
-                            examId: this.examId().toString(),
-                            questionId: currentSectionQuestion.id.toString(),
-                        });
-                    } else if (attachment.removed) {
+                    if (attachment.removed) {
                         this.Attachment.eraseCollaborativeQuestionAttachment$(
                             this.examId(),
                             currentSectionQuestion.id,
@@ -189,6 +192,11 @@ export class SectionQuestionComponent {
                             const updated = { ...current, question: { ...current.question } };
                             delete updated.question.attachment;
                             this.updated.emit(updated);
+                        });
+                    } else if (attachment.modified && attachment.file) {
+                        return this.Files.upload$<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
+                            examId: this.examId().toString(),
+                            questionId: currentSectionQuestion.id.toString(),
                         });
                     }
                     return of(undefined);

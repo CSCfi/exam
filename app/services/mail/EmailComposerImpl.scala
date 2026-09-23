@@ -657,18 +657,57 @@ class EmailComposerImpl @Inject() (
           subject
         )
 
+  // Cancellation of a visiting student's reservation, sent by the institution hosting the visit.
+  // The exam is managed by the student's home organisation, so neither its name nor the student's
+  // language is known here. Identify the booking by place and time and name the sending system.
   override def composeExternalReservationCancellationNotification(
       reservation: Reservation,
       message: Option[String]
   ): Unit =
-    val email = Option(reservation.externalUserEmail).getOrElse(reservation.externalUserRef)
-    doComposeReservationAdminCancellationNotification(
-      email,
-      Lang.get("en").get,
-      reservation,
-      message,
-      "externally managed exam"
-    )
+    val email        = Option(reservation.externalUserEmail).getOrElse(reservation.externalUserRef)
+    val lang         = Lang.get("en").get
+    val templatePath = s"${templateRoot}reservationCanceled.html"
+    readTemplate(templatePath) match
+      case Left(error) => logger.error(error)
+      case Right(template) =>
+        val startAt = adjustDST(reservation.startAt)
+        val date    = EmailComposerImpl.DF.print(startAt)
+        val time    = EmailComposerImpl.TF.print(startAt)
+        val room    = getReservationPlace(reservation)
+        val subject =
+          messaging("email.reservation.cancellation.subject.external", date)(using lang)
+        val info = messaging("email.reservation.cancellation.info")(using lang)
+        val cancellation = messaging(
+          "email.template.reservation.cancel.message.external",
+          date,
+          time,
+          room,
+          hostName
+        )(using lang)
+        val newBooking =
+          messaging("email.template.reservation.cancel.message.external.new.booking")(using lang)
+        val stringValues = Map("message" -> s"$cancellation<br />$newBooking")
+        sendReservationCancellationNotification(
+          stringValues,
+          message,
+          info,
+          lang,
+          email,
+          template,
+          subject
+        )
+
+  // Room of a reservation, qualified with the building name when there is one
+  private def getReservationPlace(reservation: Reservation): String =
+    val room = Option(reservation.machine).flatMap(m => Option(m.room))
+    val name = room
+      .flatMap(r => Option(r.name))
+      .orElse(Option(reservation.externalReservation).flatMap(er => Option(er.roomName)))
+      .getOrElse("")
+    room.flatMap(r => Option(r.buildingName)).filter(_.nonEmpty) match
+      case Some(building) => s"$name, $building"
+      case None           => name
+
   override def composeReservationCancellationNotification(
       student: User,
       reservation: Reservation,
