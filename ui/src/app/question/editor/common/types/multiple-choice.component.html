@@ -6,7 +6,7 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div [formGroup]="multipleChoiceForm">
     <div class="row mt-2" [formGroup]="multipleChoiceForm">
-        <div class="col-md-12">
+        <div class="col-md-12" [hidden]="!multichoiceFeaturesOn()">
             <div class="form-check">
                 <input
                     class="form-check-input"
