@@ -3,11 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, HostListener, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Toast } from 'ngx-toastr';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <b>{{ title() }}.</b>
         {{ message() }}

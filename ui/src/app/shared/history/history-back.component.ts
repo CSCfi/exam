@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -17,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
             <img class="pointer arrow_icon h-80 align-self-center" src="/assets/images/icon_history.png" alt="" />
         </button>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [TranslateModule],
 })
 export class HistoryBackComponent {

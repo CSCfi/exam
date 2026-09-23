@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
@@ -56,7 +56,7 @@ describe('QuestionService attachment save', () => {
             imports: [TranslateModule.forRoot()],
             providers: [
                 QuestionService,
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 { provide: ToastrService, useValue: { info: vi.fn(), error: vi.fn() } },
                 { provide: FileService, useValue: { upload$ } },

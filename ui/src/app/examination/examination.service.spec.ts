@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -90,7 +90,12 @@ describe('ExaminationService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
-            providers: [ExaminationService, provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+            providers: [
+                ExaminationService,
+                provideHttpClient(withXhr()),
+                provideHttpClientTesting(),
+                provideRouter([]),
+            ],
         });
         service = TestBed.inject(ExaminationService);
         httpTesting = TestBed.inject(HttpTestingController);

@@ -24,7 +24,10 @@ import { MaturityService } from './maturity.service';
                             {{ 'i18n_save' | translate }}
                         </button>
                     } @else {
-                        <button class="btn btn-secondary" [routerLink]="['/staff/exams', exam().parent?.id, '5']">
+                        <button
+                            class="btn btn-secondary"
+                            [routerLink]="['/staff/exams', $safeNavigationMigration(exam().parent?.id), '5']"
+                        >
                             {{ 'i18n_close' | translate }}
                         </button>
                     }
@@ -56,7 +59,7 @@ import { MaturityService } from './maturity.service';
                     </button>
                 }
             </div>
-            @let hint = getNextState()?.hint;
+            @let hint = $safeNavigationMigration(getNextState()?.hint);
             @if (!isReadOnly() && hint) {
                 @let hintText = hint(exam()) || '';
                 @if (hintText) {

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'xm-r-inspection-comment',
     imports: [FormField, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
             <h1 class="xm-modal-title">{{ 'i18n_inspection_comment_title' | translate }}</h1>

@@ -54,8 +54,8 @@ SPDX-License-Identifier: EUPL-1.2
             </sup>
         </div>
         <div class="col-md-6">
-            {{ exam()?.periodStart | date: 'dd.MM.yyyy' }} -
-            {{ exam()?.periodEnd | date: 'dd.MM.yyyy' }}
+            {{ $safeNavigationMigration(exam()?.periodStart) | date: 'dd.MM.yyyy' }} -
+            {{ $safeNavigationMigration(exam()?.periodEnd) | date: 'dd.MM.yyyy' }}
         </div>
     </div>
     <div class="row mt-3">

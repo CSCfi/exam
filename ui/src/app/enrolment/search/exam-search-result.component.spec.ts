@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -66,7 +66,7 @@ describe('ExamSearchResultComponent', () => {
             imports: [ExamSearchResultComponent, TranslateModule.forRoot()],
             providers: [
                 provideZonelessChangeDetection(),
-                provideHttpClient(withInterceptors(interceptors)),
+                provideHttpClient(withXhr(), withInterceptors(interceptors)),
                 provideHttpClientTesting(),
                 provideRouter([]),
                 { provide: ToastrService, useValue: toast },

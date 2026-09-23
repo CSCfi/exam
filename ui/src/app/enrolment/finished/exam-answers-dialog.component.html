@@ -13,7 +13,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="xm-answers-field">
             <strong class="d-block">{{ 'i18n_course_name' | translate }}:</strong>
             @if (sortedExam()?.course) {
-                <xm-course-code [course]="sortedExam()?.course!"></xm-course-code>
+                <xm-course-code [course]="$safeNavigationMigration(sortedExam()?.course)!"></xm-course-code>
             }
             {{ sortedExam()?.course?.name }}
         </div>
@@ -50,7 +50,10 @@ SPDX-License-Identifier: EUPL-1.2
                         @if (esq.question.type !== 'ClozeTestQuestion') {
                             <div [xmRichText]="esq.question.question" class="xm-answers-question-text"></div>
                         } @else {
-                            <div [xmRichText]="esq.clozeTestAnswer?.question" class="xm-answers-question-text"></div>
+                            <div
+                                [xmRichText]="$safeNavigationMigration(esq.clozeTestAnswer?.question)"
+                                class="xm-answers-question-text"
+                            ></div>
                         }
 
                         <!-- ESSAY -->

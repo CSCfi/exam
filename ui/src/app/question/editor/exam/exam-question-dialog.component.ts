@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
@@ -12,6 +12,7 @@ import { ExamQuestionComponent } from './exam-question.component';
 // This component is used for editing distributed exam questions.
 @Component({
     imports: [ExamQuestionComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
             <span class="xm-modal-title">{{ 'i18n_questions_edit' | translate }}</span>

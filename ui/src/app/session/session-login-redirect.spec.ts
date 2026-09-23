@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,7 +16,7 @@ import { vi } from 'vitest';
 import type { User } from './session.model';
 import { SessionService } from './session.service';
 
-@Component({ template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.OnPush, template: '' })
 class DummyComponent {}
 
 const student: User = {
@@ -56,7 +56,7 @@ describe('SessionService login redirect', () => {
         TestBed.configureTestingModule({
             imports: [TranslateModule.forRoot()],
             providers: [
-                provideHttpClient(withInterceptors([examinationInterceptor])),
+                provideHttpClient(withXhr(), withInterceptors([examinationInterceptor])),
                 provideHttpClientTesting(),
                 provideRouter([
                     { path: '', component: DummyComponent },

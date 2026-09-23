@@ -30,7 +30,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                         <a
                             class="exam-title-link"
                             [routerLink]="['/enrolments', exam().id]"
-                            [queryParams]="{ code: exam().course?.code }"
+                            [queryParams]="{ code: $safeNavigationMigration(exam().course?.code) }"
                         >
                             {{ exam().name }}
                         </a>

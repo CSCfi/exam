@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -29,7 +29,7 @@ describe('CollaborativeExamOwnerSelectorComponent (IOP exam JSON edge cases)', (
             imports: [CollaborativeExamOwnerSelectorComponent, TranslateModule.forRoot()],
             providers: [
                 provideZonelessChangeDetection(),
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 { provide: ExamTabService, useValue: { setExam } },
                 { provide: SessionService, useValue: { getUser: () => adminUser } },

@@ -6,7 +6,7 @@ import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -63,6 +63,7 @@ import { SessionService } from './session/session.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [DevLoginComponent, NavigationComponent, RouterOutlet, TranslateModule],
 })
 export class AppComponent implements OnInit {

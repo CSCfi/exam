@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { LOCALE_ID, enableProdMode, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
@@ -28,6 +28,6 @@ bootstrapApplication(AppComponent, {
         { provide: LOCALE_ID, deps: [SessionService], useFactory: (srv: SessionService) => srv.getLocale() },
         provideZonelessChangeDetection(),
         provideRouter(APP_ROUTES),
-        provideHttpClient(withInterceptors(interceptors)),
+        provideHttpClient(withXhr(), withInterceptors(interceptors)),
     ],
 });
