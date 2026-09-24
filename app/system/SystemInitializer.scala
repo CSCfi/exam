@@ -7,6 +7,7 @@ package system
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
+import features.retention.services.RetentionPolicy
 import play.api.inject.ApplicationLifecycle
 import play.api.{Environment, Logging, Mode}
 import system.jobs.*
@@ -25,8 +26,16 @@ class SystemInitializer @Inject() (
     private val collaborativeAssessmentTransferor: CollaborativeAssessmentSenderService,
     private val reservationReminder: ReservationReminderService,
     private val externalExamExpirationPoller: ExternalExamExpirationService,
-    private val weeklyReportService: WeeklyReportService
+    private val weeklyReportService: WeeklyReportService,
+    private val studentDataRetention: StudentDataRetentionJob,
+    private val retentionPolicy: RetentionPolicy
 ) extends Logging:
+  // The retention job takes over from the old expiration jobs once a deployment switches its dry
+  // run off. Until then they keep running, so today's expiry continues during the review period.
+  private val legacyExpiryJobs: List[ScheduledJob] =
+    if retentionPolicy.dryRun then List(examExpirationPoller, externalExamExpirationPoller)
+    else Nil
+
   val jobs: List[ScheduledJob] =
     if env.mode == Mode.Test then Nil
     else
@@ -35,12 +44,11 @@ class SystemInitializer @Inject() (
         reservationPoller,
         reservationReminder,
         autoEvaluator,
-        examExpirationPoller,
-        externalExamExpirationPoller,
         assessmentTransferor,
         collaborativeAssessmentTransferor,
-        weeklyReportService
-      )
+        weeklyReportService,
+        studentDataRetention
+      ) ++ legacyExpiryJobs
 
   // Start all jobs and register cleanup on Play shutdown (important for hot-reload in dev mode)
   jobs

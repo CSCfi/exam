@@ -25,6 +25,8 @@ import scala.util.control.Exception.catching
 object ExternalExamExpirationService:
   private val MONTHS_UNTIL_EXPIRATION = 4
 
+// Runs only while exam.retention.dryRun is on (see SystemInitializer). StudentDataRetentionJob
+// replaces it, so remove it once deployments have switched dry run off.
 class ExternalExamExpirationService @Inject() (
     private val configReader: ConfigReader,
     private val wsClient: WSClient,
