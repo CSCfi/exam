@@ -25,6 +25,13 @@ class ExternalExam extends GeneratedIdentityModel:
   @Temporal(TemporalType.TIMESTAMP) var finished: DateTime = uninitialized
   @Temporal(TemporalType.TIMESTAMP) var sent: DateTime     = uninitialized
 
+  // When AssessmentTransferService stopped trying to send this attempt home. Local only, so it is
+  // left out of the JSON exchanged with other installations
+  @Temporal(TemporalType.TIMESTAMP)
+  @io.ebean.annotation.JsonIgnore
+  @com.fasterxml.jackson.annotation.JsonIgnore
+  var deliveryAbandonedAt: DateTime = uninitialized
+
   var externalRef: String = uninitialized // exam.hash of the remote parent exam
   var hash: String        = uninitialized // LOCAL EXAM REFERENCE
 

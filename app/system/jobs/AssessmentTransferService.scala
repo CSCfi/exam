@@ -12,7 +12,6 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.ExamEnrolment
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsonParserSettings
 import play.api.libs.json.jackson.PlayJsonMapperModule
@@ -20,6 +19,8 @@ import play.api.libs.ws.{WSClient, writeableOf_String}
 import play.mvc.Http
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
+import services.datetime.AppClock
+import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
 
 import java.net.URI
 import javax.inject.Inject
@@ -29,6 +30,7 @@ import scala.concurrent.duration.*
 class AssessmentTransferService @Inject() (
     private val wsClient: WSClient,
     private val configReader: ConfigReader,
+    private val clock: AppClock,
     implicit val ec: BlockingIOExecutionContext
 ) extends ScheduledJob
     with Logging
@@ -46,32 +48,45 @@ class AssessmentTransferService @Inject() (
   private def send(enrolment: ExamEnrolment): IO[Unit] =
     val ref = enrolment.reservation.externalRef
     logger.info(s"Transferring back assessment for reservation $ref")
-    val url     = parseUrl(ref)
-    val request = wsClient.url(url.toString)
-    val ee      = enrolment.externalExam
-    val json    = DB.json.toJson(ee, PathProperties.parse("(*, creator(id))"))
-    val node    = objectMapper.readTree(json)
+    val url  = parseUrl(ref)
+    val ee   = enrolment.externalExam
+    val json = DB.json.toJson(ee, PathProperties.parse("(*, creator(id))"))
+    val node = objectMapper.readTree(json)
     IO.fromFuture(
       IO(
-        request
+        wsClient
+          .url(url.toString)
           .addHttpHeaders("Content-Type" -> "application/json")
           .post(node.toString)
-          .map(resp =>
-            resp.status match
-              case Http.Status.CREATED =>
-                ee.sent = DateTime.now
-                ee.update()
-                logger.info(s"Assessment transfer for reservation $ref processed successfully")
-              case _ =>
-                logger.error(s"Failed in transferring assessment for reservation $ref")
-          )
-          .recover { case e: Exception =>
-            logger.error("I/O failure while sending assessment to proxy server", e)
-          }
       )
-    ).void
+    ).attempt
+      .map {
+        case Right(response) => IopDelivery.fromResponse(response, Http.Status.CREATED)
+        case Left(e)         => DeliveryResult.Failed(e)
+      }
+      .flatMap(result =>
+        IopDelivery.decide(result, Option(ee.finished), clock.now()) match
+          case DeliveryDecision.Done =>
+            IO.blocking {
+              ee.sent = clock.now()
+              ee.update()
+            } *> IO(logger.info(s"Assessment transfer for reservation $ref processed successfully"))
+          case DeliveryDecision.GiveUp(reason) =>
+            // The attempt stays, it is removed with its booking by the retention job
+            IO.blocking {
+              ee.deliveryAbandonedAt = clock.now()
+              ee.update()
+            } *> IO(logger.warn(s"Gave up transferring assessment for reservation $ref: $reason"))
+          case DeliveryDecision.RetryLater(reason) =>
+            IO(
+              logger.error(
+                s"Failed in transferring assessment for reservation $ref ($reason), retrying later"
+              )
+            )
+      )
 
-  private def runCheck(): IO[Unit] =
+  // Visible for tests
+  def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Assessment transfer check started ->")
       DB
@@ -79,6 +94,7 @@ class AssessmentTransferService @Inject() (
         .where
         .isNotNull("externalExam")
         .isNull("externalExam.sent")
+        .isNull("externalExam.deliveryAbandonedAt")
         .isNotNull("externalExam.started")
         .isNotNull("externalExam.finished")
         .isNotNull("reservation.externalRef")
