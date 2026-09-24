@@ -7,6 +7,7 @@ package features.retention.services
 import com.typesafe.config.Config
 import org.joda.time.{DateTime, DateTimeZone, Period}
 import play.api.Logging
+import services.retention.RetentionLimits
 
 /** Retention periods for student data, read from `exam.retention.*`. Each period counts from the
   * event named in `conf/application.conf`.
@@ -25,9 +26,6 @@ final case class RetentionPolicy(
 )
 
 object RetentionPolicy extends Logging:
-  /** Institutions choose the attempt periods within these bounds. */
-  val AttemptRange: (Period, Period)         = (Period.months(6), Period.years(1))
-  val MaturityAttemptRange: (Period, Period) = (Period.months(6), Period.years(2))
 
   // Periods have no natural ordering (a month has no fixed length), so compare them by adding
   // them to a fixed instant
@@ -50,11 +48,15 @@ object RetentionPolicy extends Logging:
     RetentionPolicy(
       inactivity = period("student.inactivity"),
       booking = period("booking"),
-      attempt = clamp("exam.retention.attempt.assessed", period("attempt.assessed"), AttemptRange),
+      attempt = clamp(
+        "exam.retention.attempt.assessed",
+        period("attempt.assessed"),
+        RetentionLimits.AttemptRange
+      ),
       maturityAttempt = clamp(
         "exam.retention.attempt.maturity",
         period("attempt.maturity"),
-        MaturityAttemptRange
+        RetentionLimits.MaturityAttemptRange
       ),
       abortedAttempt = period("attempt.aborted"),
       autoLock = period("attempt.autolock"),

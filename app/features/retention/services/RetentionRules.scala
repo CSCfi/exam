@@ -6,6 +6,7 @@ package features.retention.services
 
 import models.exam.ExamState
 import org.joda.time.DateTime
+import services.retention.RetentionLimits
 
 /** What the rules need to know about a student's exam copy. */
 final case class AttemptFacts(
@@ -68,8 +69,8 @@ object RetentionRules:
 
   private def lockedExpiry(lockedAt: DateTime, f: AttemptFacts, p: RetentionPolicy): DateTime =
     val (period, range) =
-      if f.maturity then (p.maturityAttempt, RetentionPolicy.MaturityAttemptRange)
-      else (p.attempt, RetentionPolicy.AttemptRange)
+      if f.maturity then (p.maturityAttempt, RetentionLimits.MaturityAttemptRange)
+      else (p.attempt, RetentionLimits.AttemptRange)
     val base   = lockedAt.plus(period)
     val cap    = lockedAt.plus(range._2)
     val window = f.courseEnd.orElse(f.examPeriodEnd)

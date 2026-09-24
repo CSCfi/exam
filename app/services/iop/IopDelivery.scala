@@ -4,9 +4,10 @@
 
 package services.iop
 
-import org.joda.time.{DateTime, Period}
+import org.joda.time.DateTime
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.ws.WSResponse
+import services.retention.RetentionLimits
 
 /** Result of one attempt to deliver something to XM. */
 enum DeliveryResult:
@@ -37,10 +38,11 @@ enum DeliveryDecision:
   /** Leave the item for the next scheduled attempt */
   case RetryLater(reason: String)
 
-  /** Keep the item, but try it only once every [[IopDelivery.SlowRetryInterval]] from now on */
+  /** Keep the item, but try it only once every [[RetentionLimits.IopSlowRetryInterval]] from now on
+    */
   case RetrySlowly(reason: String)
 
-/** What happens to an item that still fails once [[IopDelivery.GiveUpAfter]] has passed. */
+/** What happens to an item that still fails once [[RetentionLimits.IopGiveUpAfter]] has passed. */
 enum AfterTimeLimit:
   /** For items whose loss does no harm, such as no-show notices */
   case GiveUp
@@ -53,17 +55,17 @@ enum AfterTimeLimit:
 /** Common rules for items sent to XM by scheduled jobs. A failure is normally retried on the next
   * run. An item leaves the pipeline once retrying cannot help: XM or the receiver no longer knows
   * the item (404), or the request cannot be built. An item that keeps failing otherwise is given up
-  * or retried weekly after [[GiveUpAfter]], depending on [[AfterTimeLimit]].
+  * or retried weekly after [[RetentionLimits.IopGiveUpAfter]], depending on [[AfterTimeLimit]].
   */
 object IopDelivery:
-  val GiveUpAfter: Period       = Period.days(30)
-  val SlowRetryInterval: Period = Period.weeks(1)
+  private val GiveUpAfter       = RetentionLimits.IopGiveUpAfter
+  private val SlowRetryInterval = RetentionLimits.IopSlowRetryInterval
 
   private def pastLimit(since: Option[DateTime], now: DateTime): Boolean =
     since.exists(!_.plus(GiveUpAfter).isAfter(now))
 
   /** Whether an item should be tried in this run: always within the time limit, afterwards once
-    * every [[SlowRetryInterval]] since the last attempt.
+    * every [[RetentionLimits.IopSlowRetryInterval]] since the last attempt.
     */
   def isDueForAttempt(
       since: Option[DateTime],
