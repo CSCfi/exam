@@ -4,7 +4,7 @@
 
 package retention
 
-import features.retention.services.RetentionPass
+import features.retention.services.*
 import io.ebean.DB
 import models.assessment.{ExamRecord, ExamScore}
 import models.attachment.Attachment
@@ -13,7 +13,9 @@ import models.exam.{Exam, ExamExecutionType, ExamState}
 import models.questions.{EssayAnswer, Question}
 import models.user.{Role, User}
 import org.joda.time.{DateTime, Period}
+import services.datetime.FixedAppClock
 import services.enrolment.EnrolmentHandler
+import services.file.FileHandler
 
 import java.nio.file.Files
 import scala.jdk.CollectionConverters.*
@@ -166,10 +168,16 @@ class RetentionServiceSpec extends RetentionSpecBase:
         attempt(newUser("eero", t0, Role.Name.STUDENT))
         attempt(newUser("elsa", t0, Role.Name.STUDENT))
 
-        val report = run(t0.plusMonths(7), policy.copy(batchSize = 1))
+        val small  = policy.copy(batchSize = 1)
+        val report = run(t0.plusMonths(7), small)
 
-        pass(report, RetentionPass.AttemptContent).due must be >= 2
-        pass(report, RetentionPass.AttemptContent).applied mustBe 1
+        val first = pass(report, RetentionPass.AttemptContent)
+        first.due mustBe 1
+        first.applied mustBe 1
+        first.more mustBe true
+
+        // The next run picks up where this one left off
+        pass(run(t0.plusMonths(7), small), RetentionPass.AttemptContent).applied mustBe 1
 
     "a visiting reservation is due" should:
       "delete it at XM before deleting it locally" in:
@@ -335,3 +343,45 @@ class RetentionServiceSpec extends RetentionSpecBase:
 
         exists(classOf[Reservation], reservation.id) mustBe true
         exists(classOf[ExamEnrolment], enrolment.id) mustBe true
+
+    "candidates span several pages" should:
+      "find all of them in a dry run and stop at the batch in a real run" in:
+        setup()
+        // exam_record.student is unique, so each record gets its own student
+        val students = (1 to 5).map(i => newUser(s"sivu$i", t0.plusYears(3), Role.Name.STUDENT))
+        students.foreach { student =>
+          val visitor = new Reservation
+          visitor.startAt = t0
+          visitor.endAt = t0.plusHours(2)
+          visitor.externalUserRef = "visitor@other.fi"
+          visitor.save()
+          val score = new ExamScore
+          score.student = student.eppn
+          score.save()
+          val record = new ExamRecord
+          record.student = student
+          record.examScore = score
+          record.timeStamp = t0
+          record.save()
+        }
+        // Two rows per page, so five candidates of each kind span three pages
+        val repository = new RetentionRepository(app.injector.instanceOf(classOf[FileHandler])):
+          override protected def pageSize: Int = 2
+        def service(p: RetentionPolicy) =
+          RetentionService(p, repository, FakeIop(), FixedAppClock(t0.plusYears(3)))
+        def hostReservations = DB.find(classOf[Reservation]).where()
+          .eq("externalUserRef", "visitor@other.fi").findCount()
+
+        val dry = runIO(service(policy).run(dryRun = true))
+        pass(dry, RetentionPass.HostReservations).due mustBe 5
+        pass(dry, RetentionPass.Records).due must be >= 5
+
+        val batch = runIO(service(policy.copy(batchSize = 3)).run(dryRun = false))
+        pass(batch, RetentionPass.HostReservations).due mustBe 3
+        pass(batch, RetentionPass.HostReservations).more mustBe true
+        hostReservations mustBe 2
+
+        runIO(service(policy.copy(batchSize = 3)).run(dryRun = false))
+        hostReservations mustBe 0
+        DB.find(classOf[ExamRecord]).where().in("student.id", students.map(_.id).asJava)
+          .findCount() mustBe 0

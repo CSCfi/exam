@@ -31,7 +31,7 @@ class RetentionPolicySpec extends AnyWordSpec with Matchers:
       p.record mustBe Period.years(2)
       p.hostCopy mustBe Period.months(3)
       p.dryRun mustBe true
-      p.batchSize mustBe 500
+      p.batchSize mustBe 2000
     }
     "take the assessed attempt period from the legacy expiration setting" in {
       val p = RetentionPolicy.fromConfig(config("""exam.exam.expiration.period = "P9M""""))

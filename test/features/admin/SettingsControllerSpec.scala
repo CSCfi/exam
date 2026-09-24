@@ -91,7 +91,7 @@ class SettingsControllerSpec extends BaseIntegrationSpec:
         statusOf(result).must(be(Status.OK))
         val retention = contentAsJsonOf(result) \ "retention"
         (retention \ "dryRun").as[Boolean].must(be(true))
-        (retention \ "batchSize").as[Int].must(be(500))
+        (retention \ "batchSize").as[Int].must(be(2000))
         (retention \ "studentInactivity").as[String].must(be("P6M"))
         (retention \ "booking").as[String].must(be("P2Y"))
         (retention \ "assessedAttempt").as[String].must(be("P6M"))
