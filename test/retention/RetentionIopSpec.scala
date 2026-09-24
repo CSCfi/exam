@@ -171,15 +171,16 @@ class RetentionIopSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         setup()
         val (student, enrolment) = visitingBooking()
 
+        // The booking became due two years after the reservation
         val failed = withXm(FakeXm(HttpServletResponse.SC_BAD_GATEWAY)) {
-          runIO(service(t0.plusYears(3)).run(dryRun = false))
+          runIO(service(t0.plusYears(2).plusDays(5)).run(dryRun = false))
         }
         failed.passes.find(_.pass == RetentionPass.Bookings).map(_.failed) mustBe Some(1)
         DB.find(classOf[ExamEnrolment], enrolment.id).reservation.externalRef mustBe "xm-doc"
         Option(DB.find(classOf[User], student.id)) must not be None
 
         withXm(FakeXm(HttpServletResponse.SC_NOT_FOUND)) {
-          runIO(service(t0.plusYears(3)).run(dryRun = false))
+          runIO(service(t0.plusYears(2).plusDays(6)).run(dryRun = false))
         }
         Option(DB.find(classOf[ExamEnrolment], enrolment.id)) mustBe None
         Option(DB.find(classOf[User], student.id)) mustBe None

@@ -196,12 +196,25 @@ class RetentionServiceSpec extends RetentionSpecBase:
         val iop = FakeIop(fail = true)
         val a   = attempt(newUser("frans", t0, Role.Name.STUDENT), externalRef = Some("xm-doc-2"))
 
-        val report = run(t0.plusYears(3), iop = iop)
+        // The booking became due two years after the reservation
+        val report = run(t0.plusYears(2).plusDays(5), iop = iop)
 
         pass(report, RetentionPass.Bookings).failed mustBe 1
         exists(classOf[ExamEnrolment], a.enrolment.id) mustBe true
         DB.find(classOf[Reservation], a.reservation.id).externalRef mustBe "xm-doc-2"
         exists(classOf[User], a.student.id) mustBe true
+
+      "delete the booking without XM when XM still fails 30 days after it became due" in:
+        setup()
+        val iop = FakeIop(fail = true)
+        val a   = attempt(newUser("frida", t0, Role.Name.STUDENT), externalRef = Some("xm-doc-3"))
+
+        val report = run(t0.plusYears(2).plusDays(30), iop = iop)
+
+        iop.calls.get mustBe 1
+        pass(report, RetentionPass.Bookings).failed mustBe 0
+        exists(classOf[ExamEnrolment], a.enrolment.id) mustBe false
+        exists(classOf[User], a.student.id) mustBe false
 
     "a host-side visitor reservation is past two years" should:
       "delete it" in:
