@@ -4,218 +4,21 @@
 
 package retention
 
-import base.BaseIntegrationSpec
-import cats.effect.IO
-import database.EbeanQueryExtensions
-import features.exam.copy.ExamCopyContext
-import features.retention.services.*
+import features.retention.services.RetentionPass
 import io.ebean.DB
 import models.assessment.{ExamRecord, ExamScore}
 import models.attachment.Attachment
 import models.enrolment.*
-import models.exam.{Exam, ExamState}
+import models.exam.{Exam, ExamExecutionType, ExamState}
 import models.questions.{EssayAnswer, Question}
-import models.sections.{ExamSection, ExamSectionQuestion, ExamSectionQuestionOption}
-import models.user.{Language, Role, User}
-import org.joda.time.{DateTime, DateTimeZone, Period}
-import services.datetime.FixedAppClock
+import models.user.{Role, User}
+import org.joda.time.{DateTime, Period}
 import services.enrolment.EnrolmentHandler
 
-import java.nio.file.{Files, Path}
-import java.util.concurrent.atomic.AtomicInteger
+import java.nio.file.Files
 import scala.jdk.CollectionConverters.*
 
-class RetentionServiceSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
-
-  private val t0 = new DateTime(2023, 3, 1, 10, 0, DateTimeZone.UTC)
-
-  private val policy = RetentionPolicy(
-    inactivity = Period.months(6),
-    booking = Period.years(2),
-    attempt = Period.months(6),
-    maturityAttempt = Period.months(6),
-    abortedAttempt = Period.years(1),
-    autoLock = Period.years(1),
-    record = Period.years(2),
-    hostCopy = Period.months(3),
-    dryRun = false,
-    batchSize = 500
-  )
-
-  /** Records XM calls and fails them on request. */
-  private class FakeIop(fail: Boolean = false) extends IopRetentionClient:
-    val calls                                          = new AtomicInteger(0)
-    def deleteAttachment(externalId: String): IO[Unit] = IO.unit
-    def deleteReservation(reservation: Reservation): IO[Unit] =
-      IO(calls.incrementAndGet()) *>
-        (if fail then IO.raiseError(new RuntimeException("XM unavailable")) else IO.unit)
-
-  private def service(
-      now: DateTime,
-      p: RetentionPolicy = policy,
-      iop: IopRetentionClient = FakeIop()
-  ) =
-    RetentionService(
-      p,
-      app.injector.instanceOf(classOf[RetentionRepository]),
-      iop,
-      FixedAppClock(now)
-    )
-
-  private def run(now: DateTime, p: RetentionPolicy = policy, iop: IopRetentionClient = FakeIop()) =
-    runIO(service(now, p, iop).run())
-
-  // Fixture ------------------------------------------------------------------------------------
-
-  private def setup(): Unit =
-    val _ = app
-    ensureTestDataLoaded()
-
-  private def role(name: Role.Name): Role =
-    DB.find(classOf[Role]).where().eq("name", name.toString).find.getOrElse(fail(s"No role $name"))
-
-  private def newUser(name: String, lastLogin: DateTime, roles: Role.Name*): User =
-    val user = new User
-    user.email = s"$name@retention.test"
-    user.eppn = s"$name@retention.test"
-    user.firstName = name
-    user.lastName = "Student"
-    user.language = DB.find(classOf[Language]).where().eq("code", "fi").find.orNull
-    user.roles = roles.map(role).toList.asJava
-    user.lastLogin = lastLogin.toDate
-    user.save()
-    user
-
-  private def prototype(): Exam =
-    DB.find(classOf[Exam])
-      .where()
-      .eq("name", "Johdatus alkeiden perusteisiin")
-      .eq("state", ExamState.PUBLISHED)
-      .find
-      .getOrElse(fail("Source exam not found in test data"))
-
-  private def tempFile(name: String): Path =
-    val f = Files.createTempFile(s"retention-$name", ".txt")
-    Files.writeString(f, name)
-    f
-
-  private def attachment(path: Path): Attachment =
-    val a = new Attachment
-    a.fileName = path.getFileName.toString
-    a.filePath = path.toString
-    a.mimeType = "text/plain"
-    a.save()
-    a
-
-  /** Everything retention touches for one exam attempt. */
-  private case class Attempt(
-      student: User,
-      copy: Exam,
-      enrolment: ExamEnrolment,
-      participation: ExamParticipation,
-      reservation: Reservation,
-      record: ExamRecord,
-      answerFile: Path,
-      sharedFile: Path
-  )
-
-  /** A student who sat the prototype exam at `at`, with an essay answer carrying a file, a copy of
-    * the teacher's exam attachment and a grading record.
-    */
-  private def attempt(
-      student: User,
-      at: DateTime = t0,
-      state: ExamState = ExamState.GRADED_LOGGED,
-      lockedAt: Option[DateTime] = Some(t0),
-      externalRef: Option[String] = None
-  ): Attempt =
-    val source = prototype()
-    for
-      section <- source.examSections.asScala
-      esq     <- section.sectionQuestions.asScala
-      opt     <- esq.question.options.asScala
-    do
-      val esqo = new ExamSectionQuestionOption
-      esqo.option = opt
-      esqo.examSectionQuestion = esq
-      esqo.save()
-    val sharedFile = tempFile("shared")
-    source.attachment = attachment(sharedFile)
-    source.update()
-
-    val fresh = DB.find(classOf[Exam], source.id)
-    val copy  = fresh.createCopy(ExamCopyContext.forStudentExam(student).build())
-    copy.state = state
-    copy.creator = student
-    copy.parent = fresh
-    copy.lockedAt = lockedAt.orNull
-    copy.gradedTime = lockedAt.orNull
-    copy.generateHash()
-    copy.save()
-
-    val answerFile = tempFile("answer")
-    val esq = DB.find(classOf[ExamSectionQuestion]).where().eq("examSection.exam.id", copy.id)
-      .setMaxRows(1).find.getOrElse(fail("Copy has no questions"))
-    val answer = new EssayAnswer
-    answer.answer = "My answer"
-    answer.attachment = attachment(answerFile)
-    answer.save()
-    esq.essayAnswer = answer
-    esq.update()
-
-    val reservation = new Reservation
-    reservation.startAt = at
-    reservation.endAt = at.plusHours(2)
-    reservation.user = student
-    reservation.externalRef = externalRef.orNull
-    externalRef.foreach { _ =>
-      val external = new ExternalReservation
-      external.orgRef = "host-org"
-      external.roomRef = "host-room"
-      external.save()
-      reservation.externalReservation = external
-    }
-    reservation.save()
-
-    val enrolment = new ExamEnrolment
-    enrolment.user = student
-    enrolment.exam = copy
-    enrolment.reservation = reservation
-    enrolment.enrolledOn = at.minusDays(10)
-    enrolment.save()
-
-    val participation = new ExamParticipation
-    participation.user = student
-    participation.exam = copy
-    participation.reservation = reservation
-    participation.started = at
-    participation.ended = at.plusHours(2)
-    participation.save()
-
-    val score = new ExamScore
-    score.student = student.eppn
-    score.save()
-    val record = new ExamRecord
-    record.exam = copy
-    record.student = student
-    record.examScore = score
-    record.timeStamp = lockedAt.getOrElse(at)
-    record.save()
-
-    Attempt(student, copy, enrolment, participation, reservation, record, answerFile, sharedFile)
-
-  private def exists[T](cls: Class[T], id: Long): Boolean = Option(DB.find(cls, id)).isDefined
-
-  private def sectionCount(examId: Long): Int =
-    DB.find(classOf[ExamSection]).where().eq("exam.id", examId).findCount()
-
-  private def questionsOf(examId: Long): List[Long] =
-    DB.find(classOf[ExamSectionQuestion]).where().eq("examSection.exam.id", examId).list
-      .map(_.question.id.longValue)
-      .distinct
-
-  private def pass(report: RetentionReport, prefix: String): PassResult =
-    report.passes.find(_.name.startsWith(prefix)).getOrElse(fail(s"No pass $prefix"))
+class RetentionServiceSpec extends RetentionSpecBase:
 
   // Tests ----------------------------------------------------------------------------------------
 
@@ -232,7 +35,7 @@ class RetentionServiceSpec extends BaseIntegrationSpec with EbeanQueryExtensions
 
         val report = run(t0.plusMonths(7))
 
-        pass(report, "B").applied must be >= 1
+        pass(report, RetentionPass.AttemptContent).applied must be >= 1
         val copy = DB.find(classOf[Exam], a.copy.id)
         copy.state mustBe ExamState.DELETED
         Option(copy.creator) mustBe None
@@ -282,7 +85,7 @@ class RetentionServiceSpec extends BaseIntegrationSpec with EbeanQueryExtensions
 
         val report = run(now)
 
-        pass(report, "A").applied must be >= 1
+        pass(report, RetentionPass.AutoLock).applied must be >= 1
         val copy = DB.find(classOf[Exam], a.copy.id)
         copy.state mustBe ExamState.ARCHIVED
         copy.lockedAt mustBe now
@@ -349,8 +152,8 @@ class RetentionServiceSpec extends BaseIntegrationSpec with EbeanQueryExtensions
         val report = runIO(service(t0.plusYears(3)).run(dryRun = true))
 
         report.dryRun mustBe true
-        pass(report, "B").due must be >= 1
-        pass(report, "C").due must be >= 1
+        pass(report, RetentionPass.AttemptContent).due must be >= 1
+        pass(report, RetentionPass.Records).due must be >= 1
         report.passes.map(_.applied).sum mustBe 0
         DB.find(classOf[Exam], a.copy.id).state mustBe ExamState.GRADED_LOGGED
         sectionCount(a.copy.id) must be > 0
@@ -365,8 +168,8 @@ class RetentionServiceSpec extends BaseIntegrationSpec with EbeanQueryExtensions
 
         val report = run(t0.plusMonths(7), policy.copy(batchSize = 1))
 
-        pass(report, "B").due must be >= 2
-        pass(report, "B").applied mustBe 1
+        pass(report, RetentionPass.AttemptContent).due must be >= 2
+        pass(report, RetentionPass.AttemptContent).applied mustBe 1
 
     "a visiting reservation is due" should:
       "delete it at XM before deleting it locally" in:
@@ -387,7 +190,7 @@ class RetentionServiceSpec extends BaseIntegrationSpec with EbeanQueryExtensions
 
         val report = run(t0.plusYears(3), iop = iop)
 
-        pass(report, "D bookings").failed mustBe 1
+        pass(report, RetentionPass.Bookings).failed mustBe 1
         exists(classOf[ExamEnrolment], a.enrolment.id) mustBe true
         DB.find(classOf[Reservation], a.reservation.id).externalRef mustBe "xm-doc-2"
         exists(classOf[User], a.student.id) mustBe true
@@ -410,3 +213,125 @@ class RetentionServiceSpec extends BaseIntegrationSpec with EbeanQueryExtensions
 
         exists(classOf[Reservation], visitor.id) mustBe false
         exists(classOf[Reservation], recent.id) mustBe true
+
+    "a maturity attempt is locked" should:
+      "keep its content for the maturity period" in:
+        setup()
+        val a    = attempt(newUser("maija", t0, Role.Name.STUDENT))
+        val copy = DB.find(classOf[Exam], a.copy.id)
+        copy.executionType = DB.find(classOf[ExamExecutionType]).where().eq("type", "MATURITY").find
+          .getOrElse(fail("No maturity execution type"))
+        copy.update()
+        val longer = policy.copy(maturityAttempt = Period.years(2))
+
+        run(t0.plusMonths(7), longer)
+        sectionCount(a.copy.id) must be > 0
+
+        run(t0.plusYears(2).plusDays(1), longer)
+        sectionCount(a.copy.id) mustBe 0
+
+    "the course of an attempt is still running" should:
+      "keep the attempt until the course ends" in:
+        setup()
+        val a      = attempt(newUser("kalle", t0, Role.Name.STUDENT))
+        val course = DB.find(classOf[Exam], a.copy.id).course
+        course.endDate = t0.plusMonths(10).toDate
+        course.update()
+
+        run(t0.plusMonths(7))
+        sectionCount(a.copy.id) must be > 0
+
+        run(t0.plusMonths(10).plusDays(1))
+        sectionCount(a.copy.id) mustBe 0
+
+      "fall back to the end of the exam's enrolment period without a course end" in:
+        setup()
+        val a      = attempt(newUser("kerttu", t0, Role.Name.STUDENT))
+        val course = DB.find(classOf[Exam], a.copy.id).course
+        course.endDate = null
+        course.update()
+        // Read from the teacher's exam, which a teacher may extend after the copy was made
+        val parent = DB.find(classOf[Exam], a.copy.parent.id)
+        parent.periodEnd = t0.plusMonths(9)
+        parent.update()
+
+        run(t0.plusMonths(7))
+        sectionCount(a.copy.id) must be > 0
+
+        run(t0.plusMonths(9).plusDays(1))
+        sectionCount(a.copy.id) mustBe 0
+
+    "an attempt was aborted" should:
+      "keep it for a year from the end of the exam" in:
+        setup()
+        val a = attempt(
+          newUser("olli", t0, Role.Name.STUDENT),
+          state = ExamState.ABORTED,
+          lockedAt = None
+        )
+
+        run(t0.plusMonths(11))
+        sectionCount(a.copy.id) must be > 0
+
+        run(t0.plusYears(1).plusDays(1))
+        sectionCount(a.copy.id) mustBe 0
+        DB.find(classOf[Exam], a.copy.id).state mustBe ExamState.DELETED
+
+    "the old expiration job already marked a copy deleted" should:
+      "remove the content it left behind" in:
+        setup()
+        val a = attempt(
+          newUser("veera", t0, Role.Name.STUDENT),
+          state = ExamState.DELETED,
+          lockedAt = None
+        )
+
+        run(t0.plusMonths(5))
+        sectionCount(a.copy.id) must be > 0
+
+        run(t0.plusMonths(7))
+        sectionCount(a.copy.id) mustBe 0
+        Files.exists(a.answerFile) mustBe false
+        exists(classOf[ExamEnrolment], a.enrolment.id) mustBe true
+
+    "an exam copy was created but never started" should:
+      "go with its booking, together with its question copies" in:
+        setup()
+        val a = attempt(
+          newUser("iida", t0, Role.Name.STUDENT),
+          state = ExamState.INITIALIZED,
+          lockedAt = None,
+          started = false
+        )
+        val copiedQuestions = questionsOf(a.copy.id)
+        copiedQuestions must not be empty
+
+        run(t0.plusYears(1))
+        exists(classOf[Exam], a.copy.id) mustBe true
+
+        run(t0.plusYears(3))
+        exists(classOf[Exam], a.copy.id) mustBe false
+        exists(classOf[ExamEnrolment], a.enrolment.id) mustBe false
+        copiedQuestions.filter(exists(classOf[Question], _)) mustBe empty
+        Files.exists(a.answerFile) mustBe false
+        exists(classOf[User], a.student.id) mustBe false
+
+    "a host-side visitor reservation still has an enrolment" should:
+      "leave both alone" in:
+        setup()
+        val reservation = new Reservation
+        reservation.startAt = t0
+        reservation.endAt = t0.plusHours(2)
+        reservation.externalUserRef = "visitor@other.fi"
+        reservation.save()
+        val enrolment = new ExamEnrolment
+        enrolment.preEnrolledUserEmail = "visitor@other.fi"
+        enrolment.exam = prototype()
+        enrolment.reservation = reservation
+        enrolment.enrolledOn = t0.minusDays(10)
+        enrolment.save()
+
+        run(t0.plusYears(3))
+
+        exists(classOf[Reservation], reservation.id) mustBe true
+        exists(classOf[ExamEnrolment], enrolment.id) mustBe true

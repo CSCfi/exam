@@ -161,7 +161,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
       .map(_.id.longValue)
       .distinct
     sections.foreach(_.delete())
-    questionCopies.foreach(id => collect(deleteQuestionCopy(id)))
+    questionCopies.flatMap(deleteQuestionCopy).foreach(paths += _)
 
     val exam       = DB.find(classOf[Exam], examId)
     val feedback   = exam.examFeedback
@@ -180,23 +180,26 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
 
   /** Deletes a question copied for a student exam, unless something else still uses it. Its owner
     * and tag links are shared with the original question's owners and tags, so they go by SQL and
-    * no cascade can reach the teachers' rows. Returns the question's attachment, if any.
+    * no cascade can reach the teachers' rows. Returns the file of the question's attachment, if
+    * any.
     */
-  private def deleteQuestionCopy(questionId: Long): Attachment =
+  private def deleteQuestionCopy(questionId: Long): Option[String] =
     val inUse =
       DB.find(classOf[ExamSectionQuestion]).where().eq("question.id", questionId).findCount() > 0 ||
         DB.find(classOf[Question]).where().eq("parent.id", questionId).findCount() > 0
-    if inUse then null
+    if inUse then None
     else
-      val attachment = DB.find(classOf[Question], questionId).attachment
+      val attachment = Option(DB.find(classOf[Question], questionId).attachment)
+      // Read before the delete, the row can no longer be loaded afterwards
+      val filePath = attachment.flatMap(a => Option(a.filePath))
       Seq(
         "DELETE FROM question_owner WHERE question_id = :id",
         "DELETE FROM question_tag WHERE question_id = :id",
         "DELETE FROM multiple_choice_option WHERE question_id = :id",
         "DELETE FROM question WHERE id = :id"
       ).foreach(sql => DB.sqlUpdate(sql).setParameter("id", questionId).execute())
-      Option(attachment).foreach(_.delete())
-      attachment
+      attachment.foreach(_.delete())
+      filePath
 
   // Attachment copies share the file of their original, so a file goes only once no attachment
   // refers to it any more
