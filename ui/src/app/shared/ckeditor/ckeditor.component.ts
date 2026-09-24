@@ -9,6 +9,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    DOCUMENT,
     inject,
     input,
     OnDestroy,
@@ -85,6 +86,7 @@ import i18nFi from 'ckeditor5/translations/fi.js';
 import i18nSv from 'ckeditor5/translations/sv.js';
 import { Subscription } from 'rxjs';
 import { CKEditorInitializationService } from './ckeditor-initialization.service';
+import { loadEditorStyles } from './ckeditor-styles';
 import { Cloze } from './plugins/clozetest/plugin';
 import { Math } from './plugins/math/plugin';
 
@@ -217,6 +219,8 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
 
     private readonly changeDetector = inject(ChangeDetectorRef);
     private readonly Translate = inject(TranslateService);
+    private readonly document = inject(DOCUMENT);
+    private destroyed = false;
     private initializationService = new CKEditorInitializationService(this.changeDetector);
 
     constructor() {
@@ -227,10 +231,16 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
     }
 
     ngAfterViewInit() {
-        this.currentLanguage.set(this.Translate.getCurrentLang() ?? 'en');
-        this.createEditorConfig();
-        this.isLayoutReady.set(true);
-        this.changeDetector.markForCheck();
+        // Hold the editor back until its stylesheet is in, or it renders unstyled first
+        loadEditorStyles(this.document).then(() => {
+            if (this.destroyed) {
+                return;
+            }
+            this.currentLanguage.set(this.Translate.getCurrentLang() ?? 'en');
+            this.createEditorConfig();
+            this.isLayoutReady.set(true);
+            this.changeDetector.markForCheck();
+        });
     }
 
     ngAfterViewChecked() {
@@ -247,6 +257,7 @@ export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDes
     }
 
     ngOnDestroy() {
+        this.destroyed = true;
         if (this.languageSubscription) {
             this.languageSubscription.unsubscribe();
         }
