@@ -39,7 +39,6 @@ trait ConfigReader:
   def getCourseIntegrationUrls: Map[String, String]
   def getExamExpirationDate(timeOfSubmission: DateTime): DateTime
   def getCourseValidityDate(startDate: DateTime): DateTime
-  def getExamExpirationPeriod: String
   def isMaturitySupported: Boolean
   def isPrintoutSupported: Boolean
   def getAppVersion: String

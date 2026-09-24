@@ -15,13 +15,27 @@ export type Participations = {
     [room: string]: { date: string }[];
 };
 
+/** Effective student data retention policy. Periods are ISO 8601 durations, as in the configuration. */
+export interface RetentionConfig {
+    dryRun: boolean;
+    batchSize: number;
+    studentInactivity: string;
+    booking: string;
+    assessedAttempt: string;
+    maturityAttempt: string;
+    abortedAttempt: string;
+    autoLock: string;
+    record: string;
+    hostCopy: string;
+}
+
 export interface AppConfig {
     eula: string;
     examMaxDate: string;
     examDurations: number[];
     examMaxDuration: number;
     examMinDuration: number;
-    expirationPeriod: string;
+    retention: RetentionConfig;
     anonymousReviewEnabled: boolean;
     hasCourseSearchIntegration: boolean;
     hasEnrolmentCheckIntegration: boolean;
