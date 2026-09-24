@@ -21,6 +21,7 @@ import play.api.libs.ws.{WSBodyWritables, WSClient}
 import play.api.mvc.{Result, Results}
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
+import services.iop.{DeliveryResult, IopDelivery}
 import services.json.EbeanMapper
 
 import java.net.{URI, URL}
@@ -114,23 +115,29 @@ class CollaborativeExamLoaderService @Inject() (
                   |)""".stripMargin
     PathProperties.parse(path)
 
-  def createAssessmentWithAttachments(participation: ExamParticipation): Future[Boolean] =
+  /** Uploads the attempt's attachments and then the attempt itself to XM. */
+  def sendAssessmentWithAttachments(participation: ExamParticipation): Future[DeliveryResult] =
     val ref = participation.collaborativeExam.externalRef
     logger.debug(s"Sending back collaborative assessment for exam $ref")
 
     parseAssessmentUrl(ref) match
-      case None => Future.successful(false)
+      case None => Future.successful(DeliveryResult.Invalid(s"invalid exam reference $ref"))
       case Some(_) =>
         externalAttachmentLoader
           .uploadAssessmentAttachments(participation.exam)
-          .flatMap(_ => createAssessment(participation))
+          .flatMap(_ => sendAssessment(participation))
+          .recover { case t => DeliveryResult.Failed(t) }
 
   def createAssessment(participation: ExamParticipation): Future[Boolean] =
+    sendAssessment(participation).map(_ == DeliveryResult.Delivered)
+
+  /** Sends the attempt to XM and marks it sent for review on success. */
+  def sendAssessment(participation: ExamParticipation): Future[DeliveryResult] =
     val ref = participation.collaborativeExam.externalRef
     logger.debug(s"Sending back collaborative assessment for exam $ref")
 
     parseAssessmentUrl(ref) match
-      case None => Future.successful(false)
+      case None => Future.successful(DeliveryResult.Invalid(s"invalid exam reference $ref"))
       case Some(url) =>
         val request =
           wsClient.url(url.toString).withHttpHeaders("Content-Type" -> "application/json")
@@ -139,18 +146,17 @@ class CollaborativeExamLoaderService @Inject() (
         request
           .post(json)
           .map { response =>
-            if response.status != CREATED then
-              logger.error(s"Failed in sending assessment for exam $ref")
-              false
-            else
+            val result = IopDelivery.fromResponse(response, CREATED)
+            if result == DeliveryResult.Delivered then
               participation.sentForReview = DateTime.now()
               participation.update()
               logger.info(s"Assessment for exam $ref processed successfully")
-              true
+            else logger.error(s"Failed in sending assessment for exam $ref (${result.describe})")
+            result
           }
           .recover { case t =>
             logger.error(s"Could not send assessment to xm! [id=${participation.id}]", t)
-            false
+            DeliveryResult.Failed(t)
           }
 
   def uploadAssessment(

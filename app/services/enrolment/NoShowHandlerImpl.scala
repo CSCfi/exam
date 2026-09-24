@@ -10,23 +10,32 @@ import cats.effect.unsafe.implicits.global
 import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.ExamState
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, Period}
 import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
 import play.mvc.Http
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
+import services.datetime.AppClock
+import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
 import services.mail.EmailComposer
 
 import java.net.URI
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
+object NoShowHandlerImpl:
+  /** A no-show XM still has not taken this long after the reservation ended is of no use to the
+    * home organisation any more, so it is no longer sent.
+    */
+  val GiveUpAfter: Period = Period.days(30)
+
 class NoShowHandlerImpl @Inject (
     private val composer: EmailComposer,
     private val wsClient: WSClient,
     private val configReader: ConfigReader,
+    private val clock: AppClock,
     implicit val ec: BlockingIOExecutionContext
 ) extends NoShowHandler
     with EbeanQueryExtensions
@@ -38,45 +47,41 @@ class NoShowHandlerImpl @Inject (
   private def sendEnrolmentNoShow(ee: ExamEnrolment): IO[Unit] =
     val ref = ee.reservation.externalRef
     logger.info(s"Sending no-show for enrolment with reservation $ref")
-    IO.fromFuture(
-      IO(
-        wsClient
-          .url(parseUrl(ref).toString)
-          .execute(Http.HttpVerbs.POST)
-          .map(response =>
-            if response.status != OK then logger.error(s"No success in sending no-show #$ref to XM")
-            else
-              ee.noShow = true
-              ee.update()
-              logger.info(s"Successfully sent no-show #$ref to XM")
-          )
-          .recover { case e: Exception =>
-            logger.error(s"Failed in sending no-show #$ref back", e)
-          }
-      )
-    ).void
+    // The student did not turn up either way, so the enrolment is marked also when giving up
+    postNoShow(ref, ee.reservation.endAt) { () =>
+      ee.noShow = true
+      ee.update()
+    }
 
   private def sendReservationNoShow(r: Reservation): IO[Unit] =
     val ref = r.externalRef
     logger.info(s"Sending no-show for reservation $ref")
-    IO.fromFuture(
-      IO(
-        wsClient
-          .url(parseUrl(ref).toString)
-          .execute(Http.HttpVerbs.POST)
-          .map(response =>
-            if response.status != OK then
-              logger.error(s"No success in sending no-show reservation #$ref to XM")
-            else
-              r.sentAsNoShow = true
-              r.update()
-              logger.info(s"Successfully sent no-show reservation #$ref to XM")
-          )
-          .recover { case e: Exception =>
-            logger.error(s"Failed in sending no-show reservation #$ref back", e)
-          }
+    postNoShow(ref, r.endAt) { () =>
+      r.sentAsNoShow = true
+      r.update()
+    }
+
+  /** Sends a no-show to XM. `markDone` takes it out of the next checks once XM has it, or once
+    * retrying cannot help (see [[IopDelivery]]). Other failures are retried on the next check.
+    */
+  private def postNoShow(ref: String, endAt: DateTime)(markDone: () => Unit): IO[Unit] =
+    IO.fromFuture(IO(wsClient.url(parseUrl(ref).toString).execute(Http.HttpVerbs.POST)))
+      .attempt
+      .map {
+        case Right(response) => IopDelivery.fromResponse(response, OK)
+        case Left(e)         => DeliveryResult.Failed(e)
+      }
+      .flatMap(result =>
+        IopDelivery.decide(result, Option(endAt), clock.now()) match
+          case DeliveryDecision.Done =>
+            IO.blocking(markDone()) *> IO(logger.info(s"Successfully sent no-show #$ref to XM"))
+          case DeliveryDecision.GiveUp(reason) =>
+            IO.blocking(markDone()) *> IO(
+              logger.warn(s"Gave up sending no-show #$ref to XM: $reason")
+            )
+          case DeliveryDecision.RetryLater(reason) =>
+            IO(logger.error(s"No success in sending no-show #$ref to XM ($reason), retrying later"))
       )
-    ).void
 
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/noshow").toURL
