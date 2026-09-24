@@ -10,22 +10,20 @@ import features.retention.services.RetentionService
 import org.joda.time.DateTime
 import play.api.Logging
 import services.config.ConfigReader
+import services.retention.RetentionLimits
 
 import javax.inject.Inject
 import scala.concurrent.duration.*
 
 object StudentDataRetentionJob:
-  /** Hour of the night, in the default time zone, at which the job runs. */
-  val RunHour = 2
-
   /** Time from `now` until the next run. Counting hours from midnight rather than setting the clock
     * time keeps this valid on the nights daylight saving time changes.
     */
   def untilNextRun(now: DateTime): FiniteDuration =
-    val tonight = now.withTimeAtStartOfDay().plusHours(RunHour)
+    val tonight = now.withTimeAtStartOfDay().plusHours(RetentionLimits.NightlyRunHour)
     val next =
       if tonight.isAfter(now) then tonight
-      else now.plusDays(1).withTimeAtStartOfDay().plusHours(RunHour)
+      else now.plusDays(1).withTimeAtStartOfDay().plusHours(RetentionLimits.NightlyRunHour)
     (next.getMillis - now.getMillis).millis
 
 /** Runs the student data retention passes once a night, outside exam hours. The rules live in

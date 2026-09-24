@@ -10,7 +10,7 @@ import cats.effect.unsafe.implicits.global
 import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.ExamState
-import org.joda.time.{DateTime, Period}
+import org.joda.time.DateTime
 import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
@@ -24,12 +24,6 @@ import services.mail.EmailComposer
 import java.net.URI
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
-
-object NoShowHandlerImpl:
-  /** A no-show XM still has not taken this long after the reservation ended is of no use to the
-    * home organisation any more, so it is no longer sent.
-    */
-  val GiveUpAfter: Period = Period.days(30)
 
 class NoShowHandlerImpl @Inject (
     private val composer: EmailComposer,
