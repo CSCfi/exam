@@ -173,8 +173,23 @@ class IopDeliveryJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         xm.paths("at-recent").size mustBe 2
         Option(reload(ee).deliveryAbandonedAt) mustBe None
 
-      "stop sending an attempt finished over 30 days ago" in:
+      "keep an attempt finished over 30 days ago, and retry it once a week" in:
         setup()
         val ee = finishedVisit("at-old", 31)
-        withXm(Some(FakeXm(HttpServletResponse.SC_BAD_GATEWAY)))(transfer())
-        Option(reload(ee).deliveryAbandonedAt) must not be None
+        val xm = FakeXm(HttpServletResponse.SC_BAD_GATEWAY)
+        withXm(Some(xm)) {
+          transfer()
+          // Tried again only a week after the last attempt
+          transfer()
+        }
+        xm.paths("at-old").size mustBe 1
+        Option(reload(ee).deliveryAbandonedAt) mustBe None
+        Option(reload(ee).deliveryAttemptedAt) must not be None
+
+        val stale = reload(ee)
+        stale.deliveryAttemptedAt = DateTime.now.minusDays(8)
+        stale.update()
+        val fixed = FakeXm(HttpServletResponse.SC_CREATED)
+        withXm(Some(fixed))(transfer())
+        fixed.paths("at-old").size mustBe 1
+        Option(reload(ee).sent) must not be None
