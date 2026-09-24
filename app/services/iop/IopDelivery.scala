@@ -37,12 +37,40 @@ enum DeliveryDecision:
   /** Leave the item for the next scheduled attempt */
   case RetryLater(reason: String)
 
+  /** Keep the item, but try it only once every [[IopDelivery.SlowRetryInterval]] from now on */
+  case RetrySlowly(reason: String)
+
+/** What happens to an item that still fails once [[IopDelivery.GiveUpAfter]] has passed. */
+enum AfterTimeLimit:
+  /** For items whose loss does no harm, such as no-show notices */
+  case GiveUp
+
+  /** For exam attempts, which must not get lost: a receiver may fail only until it is fixed, so
+    * they are retried once a week until the retention job removes them
+    */
+  case SlowDown
+
 /** Common rules for items sent to XM by scheduled jobs. A failure is normally retried on the next
-  * run. An item leaves the pipeline once retrying cannot help: XM no longer knows the document or
-  * the organisation (404), the request cannot be built, or it has kept failing for [[GiveUpAfter]].
+  * run. An item leaves the pipeline once retrying cannot help: XM or the receiver no longer knows
+  * the item (404), or the request cannot be built. An item that keeps failing otherwise is given up
+  * or retried weekly after [[GiveUpAfter]], depending on [[AfterTimeLimit]].
   */
 object IopDelivery:
-  val GiveUpAfter: Period = Period.days(30)
+  val GiveUpAfter: Period       = Period.days(30)
+  val SlowRetryInterval: Period = Period.weeks(1)
+
+  private def pastLimit(since: Option[DateTime], now: DateTime): Boolean =
+    since.exists(!_.plus(GiveUpAfter).isAfter(now))
+
+  /** Whether an item should be tried in this run: always within the time limit, afterwards once
+    * every [[SlowRetryInterval]] since the last attempt.
+    */
+  def isDueForAttempt(
+      since: Option[DateTime],
+      lastAttempt: Option[DateTime],
+      now: DateTime
+  ): Boolean =
+    !pastLimit(since, now) || lastAttempt.forall(!_.plus(SlowRetryInterval).isAfter(now))
 
   def fromResponse(response: WSResponse, success: Int): DeliveryResult =
     if response.status == success then DeliveryResult.Delivered
@@ -51,15 +79,25 @@ object IopDelivery:
       DeliveryResult.Rejected(response.status, answer)
 
   /** `since` is when the item became ready to send, such as the end of the exam. */
-  def decide(result: DeliveryResult, since: Option[DateTime], now: DateTime): DeliveryDecision =
+  def decide(
+      result: DeliveryResult,
+      since: Option[DateTime],
+      now: DateTime,
+      afterLimit: AfterTimeLimit = AfterTimeLimit.GiveUp
+  ): DeliveryDecision =
     result match
       case DeliveryResult.Delivered => DeliveryDecision.Done
       case DeliveryResult.Rejected(NOT_FOUND, _) =>
         DeliveryDecision.GiveUp(s"XM does not know it (${result.describe})")
       case DeliveryResult.Invalid(_) => DeliveryDecision.GiveUp(result.describe)
-      case _ if since.exists(!_.plus(GiveUpAfter).isAfter(now)) =>
-        DeliveryDecision.GiveUp(
-          s"still failing ${GiveUpAfter.getDays} days after it became ready. " +
-            s"Last answer: ${result.describe}"
-        )
+      case _ if pastLimit(since, now) =>
+        val failing = s"still failing ${GiveUpAfter.getDays} days after it became ready"
+        afterLimit match
+          case AfterTimeLimit.GiveUp =>
+            DeliveryDecision.GiveUp(s"$failing. Last answer: ${result.describe}")
+          case AfterTimeLimit.SlowDown =>
+            DeliveryDecision.RetrySlowly(
+              s"$failing, trying again in ${SlowRetryInterval.getWeeks} week. " +
+                s"Last answer: ${result.describe}"
+            )
       case _ => DeliveryDecision.RetryLater(result.describe)

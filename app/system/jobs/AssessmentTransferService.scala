@@ -12,6 +12,7 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.ExamEnrolment
+import models.iop.ExternalExam
 import play.api.Logging
 import play.api.libs.json.JsonParserSettings
 import play.api.libs.json.jackson.PlayJsonMapperModule
@@ -20,7 +21,7 @@ import play.mvc.Http
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.datetime.AppClock
-import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
+import services.iop.*
 
 import java.net.URI
 import javax.inject.Inject
@@ -65,7 +66,7 @@ class AssessmentTransferService @Inject() (
         case Left(e)         => DeliveryResult.Failed(e)
       }
       .flatMap(result =>
-        IopDelivery.decide(result, Option(ee.finished), clock.now()) match
+        IopDelivery.decide(result, Option(ee.finished), clock.now(), AfterTimeLimit.SlowDown) match
           case DeliveryDecision.Done =>
             IO.blocking {
               ee.sent = clock.now()
@@ -78,12 +79,22 @@ class AssessmentTransferService @Inject() (
               ee.update()
             } *> IO(logger.warn(s"Gave up transferring assessment for reservation $ref: $reason"))
           case DeliveryDecision.RetryLater(reason) =>
-            IO(
+            markAttempted(ee) *> IO(
               logger.error(
                 s"Failed in transferring assessment for reservation $ref ($reason), retrying later"
               )
             )
+          case DeliveryDecision.RetrySlowly(reason) =>
+            markAttempted(ee) *> IO(
+              logger.warn(s"Failed in transferring assessment for reservation $ref: $reason")
+            )
       )
+
+  private def markAttempted(ee: ExternalExam): IO[Unit] =
+    IO.blocking {
+      ee.deliveryAttemptedAt = clock.now()
+      ee.update()
+    }
 
   // Visible for tests
   def runCheck(): IO[Unit] =
@@ -99,6 +110,14 @@ class AssessmentTransferService @Inject() (
         .isNotNull("externalExam.finished")
         .isNotNull("reservation.externalRef")
         .list
+        // Attempts that have kept failing for long are tried only once a week
+        .filter(e =>
+          IopDelivery.isDueForAttempt(
+            Option(e.externalExam.finished),
+            Option(e.externalExam.deliveryAttemptedAt),
+            clock.now()
+          )
+        )
     }.flatMap(enrolments =>
       val count = enrolments.size
       if count > 0 then

@@ -7,7 +7,7 @@ package iop
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
+import services.iop.*
 
 class IopDeliverySpec extends AnyWordSpec with Matchers:
 
@@ -47,5 +47,42 @@ class IopDeliverySpec extends AnyWordSpec with Matchers:
     "keep retrying when it is unknown since when the item has been ready" in {
       IopDelivery.decide(DeliveryResult.Rejected(500, ""), None, now) mustBe
         DeliveryDecision.RetryLater("500")
+    }
+  }
+
+  "decide for exam attempts" should {
+    "retry weekly instead of giving up once the time limit has passed" in {
+      val d =
+        IopDelivery.decide(DeliveryResult.Rejected(500, "boom"), old, now, AfterTimeLimit.SlowDown)
+      d match
+        case DeliveryDecision.RetrySlowly(reason) => reason must include("500 boom")
+        case other                                => fail(s"Expected a slow retry, got $other")
+    }
+    "still give up at once when XM no longer knows the item" in {
+      val d =
+        IopDelivery.decide(DeliveryResult.Rejected(404, ""), old, now, AfterTimeLimit.SlowDown)
+      isGiveUp(d) mustBe true
+    }
+    "retry on every run while within the time limit" in {
+      IopDelivery.decide(
+        DeliveryResult.Rejected(500, ""),
+        recent,
+        now,
+        AfterTimeLimit.SlowDown
+      ) mustBe
+        DeliveryDecision.RetryLater("500")
+    }
+  }
+
+  "isDueForAttempt" should {
+    "always try an item within the time limit" in {
+      IopDelivery.isDueForAttempt(recent, Some(now.minusMinutes(5)), now) mustBe true
+    }
+    "try an item past the limit once a week" in {
+      IopDelivery.isDueForAttempt(old, Some(now.minusDays(6)), now) mustBe false
+      IopDelivery.isDueForAttempt(old, Some(now.minusDays(7)), now) mustBe true
+    }
+    "try an item past the limit that was never tried" in {
+      IopDelivery.isDueForAttempt(old, None, now) mustBe true
     }
   }
