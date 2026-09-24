@@ -59,8 +59,9 @@ object HtmlSafelist:
     .addAttributes("figure", "class")
     // Todo lists: <ul class="todo-list"><li data-list-item-id="..">
     //   <label class="todo-list__label"><input type="checkbox" disabled><span class="..">text</span>
-    .addAttributes("ul", "class")
-    .addAttributes("ol", "class")
+    // List styles (circle, square, roman, latin...) are written as `list-style-type` inline styles
+    .addAttributes("ul", "class", "style")
+    .addAttributes("ol", "class", "style")
     .addAttributes("li", "class", "style", "data-list-item-id")
     .addAttributes("label", "class")
     .addAttributes("input", "type", "checked")
