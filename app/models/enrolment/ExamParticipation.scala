@@ -56,6 +56,13 @@ class ExamParticipation extends GeneratedIdentityModel:
   @JsonDateTime
   var sentForReview: DateTime = uninitialized
 
+  // When CollaborativeAssessmentSenderService stopped trying to send this attempt to XM. Local
+  // only, so it is left out of the JSON exchanged with other installations
+  @Temporal(TemporalType.TIMESTAMP)
+  @io.ebean.annotation.JsonIgnore
+  @com.fasterxml.jackson.annotation.JsonIgnore
+  var deliveryAbandonedAt: DateTime = uninitialized
+
   override def equals(o: Any): Boolean = o match
     case e: ExamParticipation => this.id == e.id
     case _                    => false
