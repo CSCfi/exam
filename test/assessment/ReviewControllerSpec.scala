@@ -8,7 +8,7 @@ package assessment
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.assessment.ExamInspection
+import models.assessment.{ExamInspection, ExamRecord}
 import models.exam.*
 import models.user.User
 import play.api.http.Status
@@ -155,3 +155,90 @@ class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions
         Option(updated.grade) must be(None)
         updated.gradingType must be(GradeType.GRADED)
         updated.state must be(ExamState.REVIEW_STARTED)
+
+    "locking an assessment" should:
+      "not set the lock time when the exam is only graded" in:
+        val (_, session) = loginAsAdminWithExamInspection()
+        val grade        = gradeNamed("APPROVED")
+        val graded = runIO(
+          put(
+            s"/app/review/${exam.get.id}",
+            reviewBody("GRADED", Some(grade.id.intValue), "GRADED"),
+            session = session
+          )
+        )
+        statusOf(graded) must be(Status.OK)
+        Option(reload().lockedAt) must be(None)
+
+      "set the lock time on registering, and keep it when archiving" in:
+        val (_, session) = loginAsAdminWithExamInspection()
+        val grade        = gradeNamed("APPROVED")
+        runIO(
+          put(
+            s"/app/review/${exam.get.id}",
+            reviewBody("GRADED", Some(grade.id.intValue), "GRADED"),
+            session = session
+          )
+        )
+        val registered = runIO(
+          makeRequest(
+            "POST",
+            "/app/exam/record",
+            Some(Json.obj("id" -> JsNumber(BigDecimal(exam.get.id)))),
+            session = session
+          )
+        )
+        statusOf(registered) must be(Status.OK)
+        val locked = reload()
+        locked.state must be(ExamState.GRADED_LOGGED)
+        val record = DB.find(classOf[ExamRecord]).where().eq("exam.id", exam.get.id).find
+        Option(locked.lockedAt) must be(record.map(_.timeStamp))
+
+        val archived = runIO(
+          put(
+            "/app/reviews/archive",
+            Json.obj("ids" -> exam.get.id.toString),
+            session = session
+          )
+        )
+        statusOf(archived) must be(Status.OK)
+        val after = reload()
+        after.state must be(ExamState.ARCHIVED)
+        after.lockedAt must be(locked.lockedAt)
+
+      "set the lock time on registering without a record" in:
+        val (_, session) = loginAsAdminWithExamInspection()
+        runIO(
+          put(
+            s"/app/review/${exam.get.id}",
+            reviewBody("GRADED", None, "NOT_GRADED"),
+            session = session
+          )
+        )
+        val registered = runIO(
+          makeRequest(
+            "POST",
+            "/app/exam/register",
+            Some(Json.obj("id" -> JsNumber(BigDecimal(exam.get.id)))),
+            session = session
+          )
+        )
+        statusOf(registered) must be(Status.OK)
+        val locked = reload()
+        locked.state must be(ExamState.GRADED_LOGGED)
+        Option(locked.lockedAt) must not be None
+
+      "set the lock time on rejecting" in:
+        val (_, session) = loginAsAdminWithExamInspection()
+        val grade        = gradeNamed("REJECTED")
+        val rejected = runIO(
+          put(
+            s"/app/review/${exam.get.id}",
+            reviewBody("REJECTED", Some(grade.id.intValue), "GRADED"),
+            session = session
+          )
+        )
+        statusOf(rejected) must be(Status.OK)
+        val locked = reload()
+        locked.state must be(ExamState.REJECTED)
+        Option(locked.lockedAt) must not be None
