@@ -525,6 +525,7 @@ class ReviewService @Inject() (
       stateOnly: Boolean
   ): Unit =
     exam.state = state
+    if exam.hasState(ExamState.GRADED_LOGGED, ExamState.REJECTED) then exam.markLocked(DateTime.now)
     // set grading info only if the exam is really graded, not just modified
     if exam.hasState(ExamState.GRADED, ExamState.GRADED_LOGGED, ExamState.REJECTED) then
       if !stateOnly then
