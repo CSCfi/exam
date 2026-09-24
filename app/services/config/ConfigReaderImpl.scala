@@ -90,7 +90,6 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
     val window = config.getString("exam.integration.courseUnitInfo.window")
     val period = Period.parse(window)
     startDate.minus(period)
-  override def getExamExpirationPeriod: String = config.getString("exam.exam.expiration.period")
   override def isMaturitySupported: Boolean = DB
     .find(classOf[ExamExecutionType])
     .where
