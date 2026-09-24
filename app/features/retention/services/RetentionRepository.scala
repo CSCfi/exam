@@ -17,6 +17,7 @@ import models.sections.{ExamSection, ExamSectionQuestion}
 import org.joda.time.DateTime
 import play.api.Logging
 import services.file.FileHandler
+import services.retention.RetentionLimits
 
 import java.util.Date
 import javax.inject.Inject
@@ -121,7 +122,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   /** Student copies whose content is due to be deleted, by exam id. */
   def attemptCandidates(policy: RetentionPolicy, now: DateTime, limit: Int): List[Long] =
     // Nothing expires sooner than the shortest attempt period, so it bounds the preselection
-    val cutoff = now.minus(RetentionPolicy.AttemptRange._1)
+    val cutoff = now.minus(RetentionLimits.AttemptRange._1)
     collectDue(limit)((offset, size) =>
       participations
         .or()
