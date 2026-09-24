@@ -104,6 +104,12 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   @JsonDateTime
   var autoEvaluationNotified: DateTime = uninitialized
 
+  // When the assessment was first locked (registered, rejected or auto-archived). Retention
+  // periods for the student's exam copy count from this moment.
+  @Temporal(TemporalType.TIMESTAMP)
+  @JsonDateTime
+  var lockedAt: DateTime = uninitialized
+
   var instruction: String                            = uninitialized
   var enrollInstruction: String                      = uninitialized
   var anonymous: Boolean                             = false
@@ -169,6 +175,12 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
     executionType != null &&
       executionType.`type` != ExamExecutionType.Type.PUBLIC.toString &&
       !isPrintout
+
+  /** Sets the lock time unless already set, so a later transition such as archiving a registered
+    * exam keeps the original time.
+    */
+  def markLocked(at: DateTime): Unit =
+    if lockedAt == null then lockedAt = at
 
   def isPrintout: Boolean =
     executionType != null && executionType.`type` == ExamExecutionType.Type.PRINTOUT.toString
@@ -272,6 +284,7 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
     dest.executionType = executionType
     dest.inspectionComments = inspectionComments
     dest.autoEvaluationNotified = autoEvaluationNotified
+    dest.lockedAt = lockedAt
     dest.gradingType = gradingType
     dest.subjectToLanguageInspection = subjectToLanguageInspection
     dest.internalRef = internalRef
