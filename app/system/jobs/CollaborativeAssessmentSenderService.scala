@@ -15,7 +15,7 @@ import models.exam.ExamState
 import play.api.Logging
 import security.BlockingIOExecutionContext
 import services.datetime.AppClock
-import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
+import services.iop.*
 
 import javax.inject.Inject
 import scala.concurrent.duration.*
@@ -38,7 +38,12 @@ class CollaborativeAssessmentSenderService @Inject() (
     IO.fromFuture(IO(collaborativeExamLoader.sendAssessmentWithAttachments(participation)))
       .handleError(DeliveryResult.Failed(_))
       .flatMap(result =>
-        IopDelivery.decide(result, Option(participation.ended), clock.now()) match
+        IopDelivery.decide(
+          result,
+          Option(participation.ended),
+          clock.now(),
+          AfterTimeLimit.SlowDown
+        ) match
           case DeliveryDecision.Done =>
             IO(logger.info(s"Collaborative assessment for exam $ref processed successfully"))
           case DeliveryDecision.GiveUp(reason) =>
@@ -48,12 +53,22 @@ class CollaborativeAssessmentSenderService @Inject() (
               participation.update()
             } *> IO(logger.warn(s"Gave up sending collaborative assessment for exam $ref: $reason"))
           case DeliveryDecision.RetryLater(reason) =>
-            IO(
+            markAttempted(participation) *> IO(
               logger.error(
                 s"Failed to send collaborative assessment for exam $ref ($reason), retrying later"
               )
             )
+          case DeliveryDecision.RetrySlowly(reason) =>
+            markAttempted(participation) *> IO(
+              logger.warn(s"Failed to send collaborative assessment for exam $ref: $reason")
+            )
       )
+
+  private def markAttempted(participation: ExamParticipation): IO[Unit] =
+    IO.blocking {
+      participation.deliveryAttemptedAt = clock.now()
+      participation.update()
+    }
 
   // Visible for tests
   def runCheck(): IO[Unit] =
@@ -70,6 +85,14 @@ class CollaborativeAssessmentSenderService @Inject() (
         .isNotNull("started")
         .isNotNull("ended")
         .list
+        // Attempts that have kept failing for long are tried only once a week
+        .filter(p =>
+          IopDelivery.isDueForAttempt(
+            Option(p.ended),
+            Option(p.deliveryAttemptedAt),
+            clock.now()
+          )
+        )
     }.flatMap(participations =>
       val count = participations.size
       if count > 0 then
