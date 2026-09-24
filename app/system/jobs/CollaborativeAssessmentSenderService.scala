@@ -14,6 +14,8 @@ import models.enrolment.ExamParticipation
 import models.exam.ExamState
 import play.api.Logging
 import security.BlockingIOExecutionContext
+import services.datetime.AppClock
+import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
 
 import javax.inject.Inject
 import scala.concurrent.duration.*
@@ -21,6 +23,7 @@ import scala.concurrent.duration.*
 // This service sends participations to collaborative exams back to the proxy server to be assessed further.
 class CollaborativeAssessmentSenderService @Inject() (
     private val collaborativeExamLoader: CollaborativeExamLoaderService,
+    private val clock: AppClock,
     implicit val ec: BlockingIOExecutionContext
 ) extends ScheduledJob
     with Logging
@@ -32,18 +35,28 @@ class CollaborativeAssessmentSenderService @Inject() (
   private def send(participation: ExamParticipation): IO[Unit] =
     val ref = participation.collaborativeExam.externalRef
     logger.info(s"Sending collaborative assessment for exam $ref")
-    IO.fromFuture(IO(collaborativeExamLoader.createAssessmentWithAttachments(participation)))
-      .flatMap(success =>
-        if success then
-          IO(logger.info(s"Collaborative assessment for exam $ref processed successfully"))
-        else IO(logger.error(s"Failed to send collaborative assessment for exam $ref"))
+    IO.fromFuture(IO(collaborativeExamLoader.sendAssessmentWithAttachments(participation)))
+      .handleError(DeliveryResult.Failed(_))
+      .flatMap(result =>
+        IopDelivery.decide(result, Option(participation.ended), clock.now()) match
+          case DeliveryDecision.Done =>
+            IO(logger.info(s"Collaborative assessment for exam $ref processed successfully"))
+          case DeliveryDecision.GiveUp(reason) =>
+            // The attempt stays, it is handled by the retention job like any other
+            IO.blocking {
+              participation.deliveryAbandonedAt = clock.now()
+              participation.update()
+            } *> IO(logger.warn(s"Gave up sending collaborative assessment for exam $ref: $reason"))
+          case DeliveryDecision.RetryLater(reason) =>
+            IO(
+              logger.error(
+                s"Failed to send collaborative assessment for exam $ref ($reason), retrying later"
+              )
+            )
       )
-      .handleErrorWith(e =>
-        IO(logger.error(s"Error sending collaborative assessment for exam $ref", e))
-      )
-      .void
 
-  private def runCheck(): IO[Unit] =
+  // Visible for tests
+  def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Starting collaborative assessment sending check ->")
       val pp = collaborativeExamLoader.getAssessmentPath
@@ -53,6 +66,7 @@ class CollaborativeAssessmentSenderService @Inject() (
         .isNotNull("collaborativeExam")
         .in("exam.state", ExamState.ABORTED, ExamState.REVIEW)
         .isNull("sentForReview")
+        .isNull("deliveryAbandonedAt")
         .isNotNull("started")
         .isNotNull("ended")
         .list
