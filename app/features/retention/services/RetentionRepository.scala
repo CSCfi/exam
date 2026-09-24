@@ -6,6 +6,7 @@ package features.retention.services
 
 import database.EbeanQueryExtensions
 import io.ebean.DB
+import io.ebean.annotation.EnumValue
 import models.assessment.*
 import models.attachment.Attachment
 import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
@@ -23,21 +24,46 @@ import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
 /** A booking the retention job may delete: an enrolment with its reservation, participation and the
-  * remains of the student's exam copy.
+  * remains of the student's exam copy. `remote` is set when the reservation must also go at XM.
   */
-final case class BookingCandidate(enrolmentId: Long, reservation: Option[Reservation])
+final case class BookingCandidate(enrolmentId: Long, remote: Boolean)
 
-/** Candidate queries and deletions for each retention pass. Queries preselect rows in SQL with a
-  * generous cut-off and leave the final decision to [[RetentionRules]]. Every deletion runs in a
-  * transaction of its own, so a failure leaves only that item untouched.
+/** Candidate queries and deletions for each retention pass. Candidates are read page by page in id
+  * order, with only the columns the rules need, and each query stops as soon as `limit` due items
+  * are found, so a large database costs no more memory than a small one. The final decision per row
+  * is left to [[RetentionRules]]. Every deletion runs in a transaction of its own, so a failure
+  * leaves only that item untouched.
   */
 class RetentionRepository @Inject() (fileHandler: FileHandler)
     extends EbeanQueryExtensions
     with Logging:
 
+  // Rows read per candidate query. Overridden in tests to exercise paging
+  protected def pageSize: Int = 500
+
   // States in which an unfinished copy still belongs to an ongoing or abandoned exam rather than
   // to an attempt that retention looks after
   private val UnfinishedStates = Set(ExamState.INITIALIZED, ExamState.STUDENT_STARTED)
+
+  // The value Ebean stores for a state, for use in raw SQL
+  private def dbValue(state: ExamState): String =
+    classOf[ExamState].getField(state.name).getAnnotation(classOf[EnumValue]).value
+
+  /** Walks candidate rows page by page and keeps the due ones, stopping once `limit` are found.
+    * Only one page of rows is held in memory at a time.
+    */
+  private def collectDue[R, A](limit: Int, rowsPerPage: Int = pageSize)(
+      page: (Int, Int) => List[R]
+  )(due: R => Option[A]): List[A] =
+    val found = List.newBuilder[A]
+    var count = 0
+    val pages = inPages(rowsPerPage)(page).iterator
+    while count < limit && pages.hasNext do
+      pages.next().iterator.flatMap(due).take(limit - count).foreach { a =>
+        found += a
+        count += 1
+      }
+    found.result()
 
   private def dt(d: Date): Option[DateTime] = Option(d).map(new DateTime(_))
 
@@ -56,6 +82,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
 
   private def participations =
     DB.find(classOf[ExamParticipation])
+      .select("ended")
       .fetch("exam", "state, lockedAt, gradedTime")
       .fetch("exam.executionType", "type")
       .fetch("exam.course", "endDate")
@@ -66,13 +93,20 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   // Pass A
 
   /** Unassessed student copies that are due to be locked, by exam id. */
-  def autoLockCandidates(policy: RetentionPolicy, now: DateTime): List[Long] =
-    participations
-      .in("exam.state", ExamState.REVIEW, ExamState.REVIEW_STARTED, ExamState.GRADED)
-      .le("ended", now.minus(policy.autoLock))
-      .list
-      .filter(p => RetentionRules.isDue(RetentionRules.autoLockAt(attemptFacts(p), policy), now))
-      .map(_.exam.id.longValue)
+  def autoLockCandidates(policy: RetentionPolicy, now: DateTime, limit: Int): List[Long] =
+    collectDue(limit)((offset, size) =>
+      participations
+        .in("exam.state", ExamState.REVIEW, ExamState.REVIEW_STARTED, ExamState.GRADED)
+        .le("ended", now.minus(policy.autoLock))
+        .orderBy("id")
+        .setFirstRow(offset)
+        .setMaxRows(size)
+        .list
+    )(p =>
+      Option.when(RetentionRules.isDue(RetentionRules.autoLockAt(attemptFacts(p), policy), now))(
+        p.exam.id.longValue
+      )
+    )
 
   def autoLock(examId: Long, now: DateTime): Unit =
     val exam = DB.find(classOf[Exam], examId)
@@ -84,28 +118,33 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   // Pass B
 
   /** Student copies whose content is due to be deleted, by exam id. */
-  def attemptCandidates(policy: RetentionPolicy, now: DateTime): List[Long] =
+  def attemptCandidates(policy: RetentionPolicy, now: DateTime, limit: Int): List[Long] =
     // Nothing expires sooner than the shortest attempt period, so it bounds the preselection
     val cutoff = now.minus(RetentionPolicy.AttemptRange._1)
-    participations
-      .or()
-      .in("exam.state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
-      .eq("exam.state", ExamState.ABORTED)
-      .and()
-      .eq("exam.state", ExamState.DELETED)
-      .isNotEmpty("exam.examSections")
-      .endAnd()
-      .endOr()
-      .or()
-      .le("exam.lockedAt", cutoff)
-      .le("exam.gradedTime", cutoff)
-      .le("ended", cutoff)
-      .endOr()
-      .list
-      .filter(p =>
+    collectDue(limit)((offset, size) =>
+      participations
+        .or()
+        .in("exam.state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
+        .eq("exam.state", ExamState.ABORTED)
+        .and()
+        .eq("exam.state", ExamState.DELETED)
+        .isNotEmpty("exam.examSections")
+        .endAnd()
+        .endOr()
+        .or()
+        .le("exam.lockedAt", cutoff)
+        .le("exam.gradedTime", cutoff)
+        .le("ended", cutoff)
+        .endOr()
+        .orderBy("id")
+        .setFirstRow(offset)
+        .setMaxRows(size)
+        .list
+    )(p =>
+      Option.when(
         RetentionRules.isDue(RetentionRules.attemptExpiresAt(attemptFacts(p), policy), now)
-      )
-      .map(_.exam.id.longValue)
+      )(p.exam.id.longValue)
+    )
 
   /** Deletes the content of a student's exam copy and marks it deleted. The bare copy stays until
     * its booking expires, because statistics and attempt counting read the enrolment's exam.
@@ -210,16 +249,21 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
 
   // Pass C
 
-  def recordCandidates(policy: RetentionPolicy, now: DateTime): List[Long] =
-    DB.find(classOf[ExamRecord])
-      .select("timeStamp")
-      .where()
-      .le("timeStamp", now.minus(policy.record))
-      .list
-      .filter(r =>
+  def recordCandidates(policy: RetentionPolicy, now: DateTime, limit: Int): List[Long] =
+    collectDue(limit)((offset, size) =>
+      DB.find(classOf[ExamRecord])
+        .select("timeStamp")
+        .where()
+        .le("timeStamp", now.minus(policy.record))
+        .orderBy("id")
+        .setFirstRow(offset)
+        .setMaxRows(size)
+        .list
+    )(r =>
+      Option.when(
         RetentionRules.isDue(RetentionRules.recordExpiresAt(Option(r.timeStamp), policy), now)
-      )
-      .map(_.id.longValue)
+      )(r.id.longValue)
+    )
 
   def deleteRecord(recordId: Long): Unit =
     Using.resource(DB.beginTransaction()) { tx =>
@@ -236,41 +280,59 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   private def studentCopy(e: ExamEnrolment): Option[Exam] =
     Option(e.exam).filter(x => Option(x.parent).isDefined || Option(e.collaborativeExam).isDefined)
 
-  private def attemptRetained(e: ExamEnrolment): Boolean =
-    studentCopy(e).exists { copy =>
-      !UnfinishedStates.contains(copy.state) &&
-      DB.find(classOf[ExamSection]).where().eq("exam.id", copy.id).findCount() > 0
+  /** Enrolments whose booking is due to be deleted. An enrolment whose student copy still holds an
+    * attempt that retention looks after is left out in SQL: the copy has sections and is past the
+    * unfinished states.
+    */
+  def bookingCandidates(
+      policy: RetentionPolicy,
+      now: DateTime,
+      limit: Int
+  ): List[BookingCandidate] =
+    val sql =
+      s"""SELECT e.id, e.enrolled_on, r.start_at, ev.start AS event_start,
+         |       (r.external_ref IS NOT NULL AND r.external_reservation_id IS NOT NULL) AS remote
+         |FROM exam_enrolment e
+         |LEFT JOIN reservation r ON r.id = e.reservation_id
+         |LEFT JOIN examination_event_configuration c ON c.id = e.examination_event_configuration_id
+         |LEFT JOIN examination_event ev ON ev.id = c.examination_event_id
+         |LEFT JOIN exam x ON x.id = e.exam_id
+         |WHERE e.user_id IS NOT NULL
+         |AND (r.start_at <= :cutoff OR ev.start <= :cutoff OR e.enrolled_on <= :cutoff)
+         |AND NOT (x.id IS NOT NULL
+         |         AND (x.parent_id IS NOT NULL OR e.collaborative_exam_id IS NOT NULL)
+         |         AND x.state NOT IN (${UnfinishedStates.map(dbValue).mkString(", ")})
+         |         AND EXISTS (SELECT 1 FROM exam_section s WHERE s.exam_id = x.id))
+         |ORDER BY e.id""".stripMargin
+    collectDue(limit)((offset, size) =>
+      DB.sqlQuery(sql)
+        .setParameter("cutoff", now.minus(policy.booking).toDate)
+        .setFirstRow(offset)
+        .setMaxRows(size)
+        .findList()
+        .asScala
+        .toList
+    ) { row =>
+      val facts = BookingFacts(
+        reservationStart = dt(row.getTimestamp("start_at")),
+        examinationEventStart = dt(row.getTimestamp("event_start")),
+        enrolledOn = dt(row.getTimestamp("enrolled_on")),
+        attemptRetained = false
+      )
+      Option.when(RetentionRules.isDue(RetentionRules.bookingExpiresAt(facts, policy), now))(
+        BookingCandidate(row.getLong("id").longValue, row.getBoolean("remote"))
+      )
     }
 
-  def bookingCandidates(policy: RetentionPolicy, now: DateTime): List[BookingCandidate] =
-    val cutoff = now.minus(policy.booking)
+  /** The reservation of an enrolment, with the external data XM needs to find it. */
+  def reservationOf(enrolmentId: Long): Option[Reservation] =
     DB.find(classOf[ExamEnrolment])
-      .fetch("exam", "state")
-      .fetch("exam.parent", "id")
-      .fetch("collaborativeExam", "id")
       .fetch("reservation")
       .fetch("reservation.externalReservation")
-      .fetch("examinationEventConfiguration.examinationEvent", "start")
       .where()
-      .isNotNull("user")
-      .or()
-      .le("reservation.startAt", cutoff)
-      .le("examinationEventConfiguration.examinationEvent.start", cutoff)
-      .le("enrolledOn", cutoff)
-      .endOr()
-      .list
-      .filter { e =>
-        val facts = BookingFacts(
-          reservationStart = Option(e.reservation).flatMap(r => Option(r.startAt)),
-          examinationEventStart = Option(e.examinationEventConfiguration)
-            .flatMap(c => Option(c.examinationEvent))
-            .flatMap(ev => Option(ev.start)),
-          enrolledOn = Option(e.enrolledOn),
-          attemptRetained = attemptRetained(e)
-        )
-        RetentionRules.isDue(RetentionRules.bookingExpiresAt(facts, policy), now)
-      }
-      .map(e => BookingCandidate(e.id.longValue, Option(e.reservation)))
+      .idEq(enrolmentId)
+      .find
+      .flatMap(e => Option(e.reservation))
 
   /** Deletes an enrolment with its participation, reservation and the bare exam copy. */
   def deleteBooking(enrolmentId: Long): Unit =
@@ -311,25 +373,29 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
 
   // Pass D′
 
-  def hostReservationCandidates(policy: RetentionPolicy, now: DateTime): List[Long] =
-    DB.find(classOf[Reservation])
-      .fetch("enrolment", "id")
-      .where()
-      .isNotNull("externalUserRef")
-      .isNull("user")
-      .le("startAt", now.minus(policy.booking))
-      .list
-      .filter(r => Option(r.enrolment).isEmpty)
-      .filter(r =>
-        DB.find(classOf[ExamParticipation]).where().eq("reservation.id", r.id).findCount() == 0
-      )
-      .filter(r =>
+  def hostReservationCandidates(policy: RetentionPolicy, now: DateTime, limit: Int): List[Long] =
+    val sql =
+      """SELECT r.id, r.start_at FROM reservation r
+        |WHERE r.external_user_ref IS NOT NULL AND r.user_id IS NULL AND r.start_at <= :cutoff
+        |AND NOT EXISTS (SELECT 1 FROM exam_enrolment e WHERE e.reservation_id = r.id)
+        |AND NOT EXISTS (SELECT 1 FROM exam_participation p WHERE p.reservation_id = r.id)
+        |ORDER BY r.id""".stripMargin
+    collectDue(limit)((offset, size) =>
+      DB.sqlQuery(sql)
+        .setParameter("cutoff", now.minus(policy.booking).toDate)
+        .setFirstRow(offset)
+        .setMaxRows(size)
+        .findList()
+        .asScala
+        .toList
+    )(row =>
+      Option.when(
         RetentionRules.isDue(
-          RetentionRules.hostReservationExpiresAt(Option(r.startAt), policy),
+          RetentionRules.hostReservationExpiresAt(dt(row.getTimestamp("start_at")), policy),
           now
         )
-      )
-      .map(_.id.longValue)
+      )(row.getLong("id").longValue)
+    )
 
   def deleteHostReservation(reservationId: Long): Unit =
     Using.resource(DB.beginTransaction()) { tx =>
@@ -343,42 +409,56 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
     * (external exam id, attachment id at XM). The copy is sent home at the end of the attempt, and
     * each run removes what XM still has, as ExternalExamExpirationService has done.
     */
-  def hostAttachmentCandidates(): List[(Long, String)] =
-    sentHostCopies().flatMap { ee =>
-      val ids =
-        try
-          ee.deserialize.examSections.asScala.toList
-            .flatMap(_.sectionQuestions.asScala)
-            .flatMap(q => Option(q.essayAnswer))
-            .flatMap(a => Option(a.attachment))
-            .flatMap(a => Option(a.externalId))
-        catch
-          case e: Exception =>
-            logger.error(s"Failed to deserialize external exam ${ee.id}", e)
-            Nil
-      ids.map(ee.id.longValue -> _)
-    }
+  def hostAttachmentCandidates(limit: Int): List[(Long, String)] =
+    // Each row carries a whole exam as JSON, so the pages are small
+    collectDue(limit, rowsPerPage = math.min(pageSize, 50))((offset, size) =>
+      sentHostCopies.orderBy("id").setFirstRow(offset).setMaxRows(size).list
+    )(ee => Option(attachmentIds(ee).map(ee.id.longValue -> _)).filter(_.nonEmpty))
+      .flatten
+      .take(limit)
+
+  private def attachmentIds(ee: ExternalExam): List[String] =
+    try
+      ee.deserialize.examSections.asScala.toList
+        .flatMap(_.sectionQuestions.asScala)
+        .flatMap(q => Option(q.essayAnswer))
+        .flatMap(a => Option(a.attachment))
+        .flatMap(a => Option(a.externalId))
+    catch
+      case e: Exception =>
+        logger.error(s"Failed to deserialize external exam ${ee.id}", e)
+        Nil
 
   /** Host-side copies of visiting exam attempts whose content is due to be cleared, by id. */
-  def hostCopyCandidates(policy: RetentionPolicy, now: DateTime): List[Long] =
-    sentHostCopies()
-      .filter(ee =>
+  def hostCopyCandidates(policy: RetentionPolicy, now: DateTime, limit: Int): List[Long] =
+    collectDue(limit)((offset, size) =>
+      DB.find(classOf[ExternalExam])
+        .select("sent")
+        .where()
+        .le("sent", now.minus(policy.hostCopy))
+        .jsonExists("content", "id")
+        .orderBy("id")
+        .setFirstRow(offset)
+        .setMaxRows(size)
+        .list
+    )(ee =>
+      Option.when(
         RetentionRules.isDue(RetentionRules.hostCopyExpiresAt(Option(ee.sent), policy), now)
-      )
-      .map(_.id.longValue)
+      )(ee.id.longValue)
+    )
 
   def clearHostCopy(externalExamId: Long): Unit =
     val ee = DB.find(classOf[ExternalExam], externalExamId)
     ee.content = Map.empty[String, Object].asJava
     ee.update()
 
-  private def sentHostCopies(): List[ExternalExam] =
-    DB.find(classOf[ExternalExam]).where().isNotNull("sent").jsonExists("content", "id").list
+  private def sentHostCopies =
+    DB.find(classOf[ExternalExam]).where().isNotNull("sent").jsonExists("content", "id")
 
   // Pass E
 
-  def accountCandidates(policy: RetentionPolicy, now: DateTime): List[Long] =
-    DB.sqlQuery(
+  def accountCandidates(policy: RetentionPolicy, now: DateTime, limit: Int): List[Long] =
+    val sql =
       """SELECT u.id, u.last_login FROM app_user u
         |WHERE u.last_login <= :cutoff
         |AND NOT EXISTS (SELECT 1 FROM exam_enrolment e WHERE e.user_id = u.id)
@@ -388,22 +468,27 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         |AND EXISTS (SELECT 1 FROM app_user_role ur JOIN role ro ON ro.id = ur.role_id
         |            WHERE ur.app_user_id = u.id AND ro.name = :student)
         |AND NOT EXISTS (SELECT 1 FROM app_user_role ur JOIN role ro ON ro.id = ur.role_id
-        |                WHERE ur.app_user_id = u.id AND ro.name <> :student)""".stripMargin
-    )
-      .setParameter("cutoff", now.minus(policy.inactivity).toDate)
-      .setParameter("student", models.user.Role.Name.STUDENT.toString)
-      .findList()
-      .asScala
-      .toList
-      .filter { row =>
-        val facts = AccountFacts(
-          lastLogin = dt(row.getTimestamp("last_login")),
-          studentOnly = true,
-          hasRemainingData = false
-        )
-        RetentionRules.isDue(RetentionRules.accountExpiresAt(facts, policy), now)
-      }
-      .map(_.getLong("id").longValue)
+        |                WHERE ur.app_user_id = u.id AND ro.name <> :student)
+        |ORDER BY u.id""".stripMargin
+    collectDue(limit)((offset, size) =>
+      DB.sqlQuery(sql)
+        .setParameter("cutoff", now.minus(policy.inactivity).toDate)
+        .setParameter("student", models.user.Role.Name.STUDENT.toString)
+        .setFirstRow(offset)
+        .setMaxRows(size)
+        .findList()
+        .asScala
+        .toList
+    ) { row =>
+      val facts = AccountFacts(
+        lastLogin = dt(row.getTimestamp("last_login")),
+        studentOnly = true,
+        hasRemainingData = false
+      )
+      Option.when(RetentionRules.isDue(RetentionRules.accountExpiresAt(facts, policy), now))(
+        row.getLong("id").longValue
+      )
+    }
 
   /** Deletes a user account. Role and permission links go explicitly, so that no cascade can reach
     * the shared role rows. Any other remaining reference makes the delete fail and roll back.
