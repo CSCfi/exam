@@ -24,9 +24,10 @@ import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
 /** A booking the retention job may delete: an enrolment with its reservation, participation and the
-  * remains of the student's exam copy. `remote` is set when the reservation must also go at XM.
+  * remains of the student's exam copy. `remote` is set when the reservation must also go at XM, and
+  * `dueAt` is when its retention ended.
   */
-final case class BookingCandidate(enrolmentId: Long, remote: Boolean)
+final case class BookingCandidate(enrolmentId: Long, remote: Boolean, dueAt: DateTime)
 
 /** Candidate queries and deletions for each retention pass. Candidates are read page by page in id
   * order, with only the columns the rules need, and each query stops as soon as `limit` due items
@@ -319,9 +320,10 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         enrolledOn = dt(row.getTimestamp("enrolled_on")),
         attemptRetained = false
       )
-      Option.when(RetentionRules.isDue(RetentionRules.bookingExpiresAt(facts, policy), now))(
-        BookingCandidate(row.getLong("id").longValue, row.getBoolean("remote"))
-      )
+      RetentionRules
+        .bookingExpiresAt(facts, policy)
+        .filter(at => RetentionRules.isDue(Some(at), now))
+        .map(at => BookingCandidate(row.getLong("id").longValue, row.getBoolean("remote"), at))
     }
 
   /** The reservation of an enrolment, with the external data XM needs to find it. */
