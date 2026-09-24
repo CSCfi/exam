@@ -9,6 +9,7 @@ import cats.effect.syntax.all.concurrentParTraverseOps
 import org.joda.time.DateTime
 import play.api.Logging
 import services.datetime.AppClock
+import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
 
 import javax.inject.Inject
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -86,7 +87,9 @@ class RetentionService @Inject() (
       c <- pass(RetentionPass.Records)(repository.recordCandidates(policy, now, _))(id =>
         IO.blocking(repository.deleteRecord(id))
       )
-      d <- pass(RetentionPass.Bookings)(repository.bookingCandidates(policy, now, _))(deleteBooking)
+      d <- pass(RetentionPass.Bookings)(repository.bookingCandidates(policy, now, _))(
+        deleteBooking(_)(now)
+      )
       d2 <-
         pass(RetentionPass.HostReservations)(repository.hostReservationCandidates(policy, now, _))(
           id =>
@@ -106,16 +109,28 @@ class RetentionService @Inject() (
       _ <- IO((report.header :: report.lines).foreach(logger.info(_)))
     yield report
 
-  // A visiting reservation must go at XM first: its externalRef is the only key to the XM
-  // document, so the local rows stay until that call succeeds
-  private def deleteBooking(b: BookingCandidate): IO[Unit] =
-    // Only the home organisation holds the external reservation data. A host-side copy of the
-    // same reservation is removed through XM when the home organisation deletes its own
+  // A visiting reservation goes at XM first: its externalRef is the only key to the XM document,
+  // so the local rows normally stay until that call succeeds. If XM keeps failing, for example
+  // because the host organisation is gone, the booking is deleted locally anyway 30 days after it
+  // became due, and XM's own expiry removes its copy.
+  private def deleteBooking(b: BookingCandidate)(now: DateTime): IO[Unit] =
     val remote =
       if b.remote then
         IO.blocking(repository.reservationOf(b.enrolmentId)).flatMap {
-          case Some(r) => iop.deleteReservation(r)
-          case None    => IO.unit
+          case Some(r) =>
+            iop.deleteReservation(r).attempt.flatMap {
+              case Right(_) => IO.unit
+              case Left(e) =>
+                IopDelivery.decide(DeliveryResult.Failed(e), Some(b.dueAt), now) match
+                  case DeliveryDecision.GiveUp(reason) =>
+                    IO(
+                      logger.warn(
+                        s"Retention: deleting booking ${b.enrolmentId} without XM, $reason"
+                      )
+                    )
+                  case _ => IO.raiseError(e)
+            }
+          case None => IO.unit
         }
       else IO.unit
     remote *> IO.blocking(repository.deleteBooking(b.enrolmentId))
