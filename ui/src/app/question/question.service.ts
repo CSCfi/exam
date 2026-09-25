@@ -140,7 +140,8 @@ export class QuestionService {
                     if (question.attachment && question.attachment.removed) {
                         return this.Attachment.eraseQuestionAttachment$(question).pipe(
                             map(() => {
-                                delete response.question.attachment;
+                                // Keep the key so that callers merging this response drop the old attachment
+                                response.question.attachment = undefined;
                                 return response;
                             }),
                         );
