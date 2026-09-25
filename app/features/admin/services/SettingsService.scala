@@ -5,6 +5,7 @@
 package features.admin.services
 
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.retention.services.RetentionPolicy
 import io.ebean.DB
 import models.admin.GeneralSettings
 import models.enrolment.ExamEnrolment
@@ -21,6 +22,7 @@ import scala.util.Try
 
 class SettingsService @Inject() (
     private val configReader: ConfigReader,
+    private val retentionPolicy: RetentionPolicy,
     private val wsClient: WSClient
 )(implicit ec: BlockingIOExecutionContext)
     extends EbeanQueryExtensions
@@ -164,11 +166,27 @@ class SettingsService @Inject() (
       "supportsMaturity"             -> configReader.isMaturitySupported,
       "supportsPrintouts"            -> configReader.isPrintoutSupported,
       "maxFileSize"                  -> configReader.getMaxFileSize,
-      "expirationPeriod"             -> configReader.getExamExpirationPeriod,
+      "retention"                    -> retention,
       "defaultTimeZone"              -> configReader.getDefaultTimeZone.getID,
       "sebQuitLink"                  -> configReader.getQuitExaminationLink,
       "isSebExaminationSupported"    -> configReader.isSebExaminationSupported,
       "isHomeExaminationSupported"   -> configReader.isHomeExaminationSupported
+    )
+
+  // The effective policy, after range checks, so the page shows what the retention job applies
+  private def retention: JsObject =
+    val p = retentionPolicy
+    Json.obj(
+      "dryRun"            -> p.dryRun,
+      "batchSize"         -> p.batchSize,
+      "studentInactivity" -> p.inactivity.toString,
+      "booking"           -> p.booking.toString,
+      "assessedAttempt"   -> p.attempt.toString,
+      "maturityAttempt"   -> p.maturityAttempt.toString,
+      "abortedAttempt"    -> p.abortedAttempt.toString,
+      "autoLock"          -> p.autoLock.toString,
+      "record"            -> p.record.toString,
+      "hostCopy"          -> p.hostCopy.toString
     )
 
   def getCourseCodePrefix: String = configReader.getCourseCodePrefix

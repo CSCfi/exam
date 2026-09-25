@@ -82,3 +82,28 @@ class SettingsControllerSpec extends BaseIntegrationSpec:
         val result       = runIO(put("/app/settings/reservationWindow", data, session = session))
 
         statusOf(result).must(be(Status.FORBIDDEN))
+
+    "getting the configuration" should:
+      "include the effective retention policy" in:
+        val (_, session) = runIO(loginAsAdmin())
+        val result       = runIO(get("/app/config", session = session))
+
+        statusOf(result).must(be(Status.OK))
+        val retention = contentAsJsonOf(result) \ "retention"
+        (retention \ "dryRun").as[Boolean].must(be(true))
+        (retention \ "batchSize").as[Int].must(be(2000))
+        (retention \ "studentInactivity").as[String].must(be("P6M"))
+        (retention \ "booking").as[String].must(be("P2Y"))
+        (retention \ "assessedAttempt").as[String].must(be("P6M"))
+        (retention \ "maturityAttempt").as[String].must(be("P6M"))
+        (retention \ "abortedAttempt").as[String].must(be("P1Y"))
+        (retention \ "autoLock").as[String].must(be("P1Y"))
+        (retention \ "record").as[String].must(be("P2Y"))
+        (retention \ "hostCopy").as[String].must(be("P3M"))
+        (contentAsJsonOf(result) \ "expirationPeriod").toOption.must(be(None))
+
+      "deny access to non-admins" in:
+        val (_, session) = runIO(loginAsTeacher())
+        val result       = runIO(get("/app/config", session = session))
+
+        statusOf(result).must(be(Status.FORBIDDEN))
