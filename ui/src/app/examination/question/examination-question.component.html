@@ -36,11 +36,12 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- question text -->
                 <div class="col mt-3 order-1">
                     @if (sq().question.type !== 'ClozeTestQuestion') {
-                        @if (expanded()) {
-                            <div class="section-box-title" [xmMath]="sq().question.question"></div>
-                        } @else {
-                            <div class="section-box-title" [xmMath]="sq().question.question | slice: 0 : 240"></div>
-                        }
+                        <!-- Collapsed questions are clamped in CSS; slicing the raw HTML cut markup mid-tag -->
+                        <div
+                            class="section-box-title"
+                            [class.clamped]="!expanded()"
+                            [xmRichText]="sq().question.question"
+                        ></div>
                     } @else {
                         <div class="section-box-title">
                             <xm-dynamic-cloze-test

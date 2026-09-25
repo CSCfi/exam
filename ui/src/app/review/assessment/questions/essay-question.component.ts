@@ -17,8 +17,8 @@ import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
@@ -27,7 +27,7 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     templateUrl: './essay-question.component.html',
     styleUrls: ['../assessment.shared.scss', './essay-question.component.scss'],
     imports: [
-        MathDirective,
+        RichTextDirective,
         NgbCollapse,
         ReactiveFormsModule,
         FixedPrecisionValidatorDirective,
@@ -138,9 +138,12 @@ export class EssayQuestionComponent {
                 this.id,
                 this.ref,
                 participationValue._rev as string,
-            ).subscribe((resp) => {
-                this.toast.info(this.translate.instant('i18n_graded'));
-                this.scored.emit(resp.rev);
+            ).subscribe({
+                next: (resp) => {
+                    this.toast.info(this.translate.instant('i18n_graded'));
+                    this.scored.emit(resp.rev);
+                },
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.Assessment.saveEssayScore$(sq).subscribe(() => {

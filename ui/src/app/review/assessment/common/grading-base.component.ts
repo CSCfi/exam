@@ -46,8 +46,9 @@ export abstract class GradingBaseComponent {
                 exam.gradingType = 'GRADED';
             }
         } else {
+            // The empty option was picked, clear the grade and mark the exam as still awaiting one
             delete exam.grade;
-            exam.gradingType = 'NOT_GRADED';
+            exam.gradingType = 'GRADED';
         }
     };
 

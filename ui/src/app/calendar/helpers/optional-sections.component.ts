@@ -25,68 +25,49 @@ import type { ExamInfo, SelectableSection } from 'src/app/calendar/calendar.mode
                 }
             </span>
             @for (section of examInfo().examSections; track section.id) {
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong>{{ 'i18n_exam_section' | translate }}:</strong> {{ section.name }}
+                <div class="col-md-12 mb-3">
+                    <div>
+                        <strong>{{ 'i18n_exam_section' | translate }}:</strong> {{ section.name }}
+                    </div>
+                    @if (section.description) {
+                        <div class="mt-1">{{ section.description }}</div>
+                    }
+                    @if (section.optional) {
+                        <div class="d-flex flex-wrap align-items-center column-gap-3 row-gap-1 mt-1">
+                            <div class="text text-success">
+                                {{ 'i18n_optional_section' | translate | uppercase }}
                             </div>
-                            <div class="col-md-6">
-                                @if (section.optional) {
-                                    <div class="text text-success">
-                                        {{ 'i18n_optional_section' | translate | uppercase }}
-                                    </div>
-                                }
+                            <div class="form-check mb-0">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    [checked]="section.selected"
+                                    [id]="'optional-section-' + section.id"
+                                    (change)="onSectionSelectedChange(section, $event)"
+                                />
+                                <label class="form-check-label" [for]="'optional-section-' + section.id">
+                                    {{ 'i18n_select_optional_section' | translate }}
+                                </label>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6">
-                                {{ section.description }}
-                            </div>
-                            <div class="col-md-6">
-                                @if (section.optional) {
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            value=""
-                                            [checked]="section.selected"
-                                            id="check1"
-                                            (change)="onSectionSelectedChange(section, $event)"
-                                        />
-                                        <label class="form-check-label" for="check1">
-                                            {{ 'i18n_select_optional_section' | translate }}
-                                        </label>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @if (section.examMaterials.length > 0) {
-                    <div class="row">
-                        <div class="col-md-12">
+                    }
+                    @if (section.examMaterials.length > 0) {
+                        <div class="mt-1">
                             <strong>{{ 'i18n_exam_materials' | translate }}</strong>
                         </div>
-                    </div>
-                }
-                @for (material of section.examMaterials; track material.id) {
-                    <div class="row">
-                        <span class="col-md-12">
-                            {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
-                            @if (material.author) {
-                                <span> {{ 'i18n_author' | translate | uppercase }}: {{ material.author }} </span>
-                            }
-                            @if (material.isbn) {
-                                <span> ISBN: {{ material.isbn }} </span>
-                            }
-                        </span>
-                    </div>
-                }
+                        @for (material of section.examMaterials; track material.id) {
+                            <div>
+                                {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
+                                @if (material.author) {
+                                    <span> {{ 'i18n_author' | translate | uppercase }}: {{ material.author }} </span>
+                                }
+                                @if (material.isbn) {
+                                    <span> ISBN: {{ material.isbn }} </span>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
             }
         </div>
     `,

@@ -13,6 +13,23 @@ import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/res
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
 
+// A machine can be offered at more than one time: an ongoing reservation can either keep its
+// original time or move to the next free slot. Each of those is a choice of its own in the list.
+interface MachineSlot {
+    start: string;
+    end: string;
+    startAt: string;
+    endAt: string;
+}
+interface AvailableMachine {
+    machine: ExamMachine;
+    slots: MachineSlot[];
+}
+interface MachineChoice {
+    machine: ExamMachine;
+    slot: MachineSlot;
+}
+
 @Component({
     selector: 'xm-change-machine-dialog',
     imports: [TranslateModule, DropdownSelectComponent],
@@ -50,7 +67,7 @@ import { Option } from 'src/app/shared/select/select.model';
             </div>
 
             <div class="d-flex flex-row-reverse flex-align-r m-3">
-                <button class="btn btn-success" (click)="ok()" [disabled]="!machine()?.id">
+                <button class="btn btn-success" (click)="ok()" [disabled]="!choice()">
                     {{ 'i18n_button_save' | translate }}
                 </button>
                 <button class="btn btn-outline-secondary me-3" (click)="cancel()">
@@ -62,14 +79,14 @@ import { Option } from 'src/app/shared/select/select.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangeMachineDialogComponent {
-    @ViewChild('machineSelection') machineSelection!: DropdownSelectComponent<ExamMachine, number>;
+    @ViewChild('machineSelection') machineSelection!: DropdownSelectComponent<MachineChoice, string>;
     @ViewChild('roomSelection') roomSelection!: DropdownSelectComponent<ExamRoom, number>;
 
     readonly reservation = model<Reservation | undefined>(undefined);
     readonly room = signal<Option<ExamRoom, number> | undefined>(undefined);
     readonly availableRoomOptions = signal<Option<ExamRoom, number>[]>([]);
-    readonly machine = signal<ExamMachine | undefined>(undefined);
-    readonly availableMachineOptions = signal<Option<ExamMachine, number>[]>([]);
+    readonly choice = signal<MachineChoice | undefined>(undefined);
+    readonly availableMachineOptions = signal<Option<MachineChoice, string>[]>([]);
 
     private readonly activeModal = inject(NgbActiveModal);
     private readonly http = inject(HttpClient);
@@ -93,8 +110,8 @@ export class ChangeMachineDialogComponent {
             });
     }
 
-    machineChanged(event?: Option<ExamMachine, number>) {
-        this.machine.set(event?.value);
+    machineChanged(event?: Option<MachineChoice, string>) {
+        this.choice.set(event?.value);
     }
 
     roomChanged(event?: Option<ExamRoom, number>) {
@@ -102,17 +119,21 @@ export class ChangeMachineDialogComponent {
         // Use the option from the event directly (it's already from the options array)
         // This ensures the dropdown displays it correctly since it's the same object reference
         this.room.set(event);
-        this.machine.set(undefined);
+        this.choice.set(undefined);
         this.machineSelection.clearSelection();
         this.setAvailableMachines();
     }
 
     ok() {
         const currentReservation = this.reservation();
-        const currentMachine = this.machine();
-        if (!currentReservation || !currentMachine) return;
+        const currentChoice = this.choice();
+        if (!currentReservation || !currentChoice) return;
         this.http
-            .put<Reservation>(`/app/reservations/${currentReservation.id}/machine`, { machineId: currentMachine.id })
+            .put<Reservation>(`/app/reservations/${currentReservation.id}/machine`, {
+                machineId: currentChoice.machine.id,
+                start: currentChoice.slot.start,
+                end: currentChoice.slot.end,
+            })
             .subscribe({
                 next: (resp) => {
                     this.toast.info(this.translate.instant('i18n_updated'));
@@ -132,16 +153,16 @@ export class ChangeMachineDialogComponent {
         if (!currentReservation || !currentRoom) return;
 
         this.http
-            .get<
-                { machine: ExamMachine; startAt: string; endAt: string }[]
-            >(`/app/reservations/${currentReservation.id}/${currentRoom.id}/machines`)
+            .get<AvailableMachine[]>(`/app/reservations/${currentReservation.id}/${currentRoom.id}/machines`)
             .subscribe((resp) =>
                 this.availableMachineOptions.set(
-                    resp.map((o) => ({
-                        id: o.machine.id,
-                        label: `${o.machine.name} (${o.startAt} - ${o.endAt})`,
-                        value: o.machine,
-                    })),
+                    resp.flatMap((o) =>
+                        o.slots.map((slot) => ({
+                            id: `${o.machine.id}-${slot.start}`,
+                            label: `${o.machine.name} (${slot.startAt} - ${slot.endAt})`,
+                            value: { machine: o.machine, slot },
+                        })),
+                    ),
                 ),
             );
     }

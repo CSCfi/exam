@@ -5,15 +5,15 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 
 @Component({
     selector: 'xm-printed-essay',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/essay.component.html',
     styleUrls: ['./print.shared.scss'],
-    imports: [MathDirective, TranslateModule],
+    imports: [RichTextDirective, TranslateModule],
 })
 export class PrintedEssayComponent {
     readonly sectionQuestion = input.required<ExamSectionQuestion>();

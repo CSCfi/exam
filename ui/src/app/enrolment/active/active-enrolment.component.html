@@ -238,7 +238,7 @@ SPDX-License-Identifier: EUPL-1.2
                 class="row mb-3 mt-3 instructions-collapse"
                 [ngbCollapse]="!showInstructions()"
             >
-                <div [xmMath]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
+                <div [xmRichText]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
             </div>
         </div>
     }

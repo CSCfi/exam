@@ -34,7 +34,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (sortedExam()?.instruction) {
         <div class="xm-bordered-area p-3 mb-4 small">
             <strong>{{ 'i18n_exam_instruction' | translate }}</strong>
-            <div [xmMath]="sortedExam()!.instruction" class="mt-1"></div>
+            <div [xmRichText]="sortedExam()!.instruction" class="mt-1"></div>
         </div>
     }
 
@@ -48,16 +48,16 @@ SPDX-License-Identifier: EUPL-1.2
                         <!-- Question -->
                         <div class="xm-answers-question-label">{{ 'i18n_question' | translate }}</div>
                         @if (esq.question.type !== 'ClozeTestQuestion') {
-                            <div [xmMath]="esq.question.question" class="xm-answers-question-text"></div>
+                            <div [xmRichText]="esq.question.question" class="xm-answers-question-text"></div>
                         } @else {
-                            <div [xmMath]="esq.clozeTestAnswer?.question" class="xm-answers-question-text"></div>
+                            <div [xmRichText]="esq.clozeTestAnswer?.question" class="xm-answers-question-text"></div>
                         }
 
                         <!-- ESSAY -->
                         @if (esq.question.type === 'EssayQuestion') {
                             <div class="xm-answers-field">
                                 <span class="xm-answers-meta-label">{{ 'i18n_exam_answer' | translate }}:</span>
-                                <div [xmMath]="esq.essayAnswer?.answer ?? undefined"></div>
+                                <div [xmRichText]="esq.essayAnswer?.answer ?? undefined"></div>
                             </div>
                             @if (esq.essayAnswer?.attachment) {
                                 <div class="xm-answers-field">
@@ -157,7 +157,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (sortedExam()?.examFeedback?.comment) {
                 <div>
                     <span class="xm-answers-meta-label d-block">{{ 'i18n_teachers_comment' | translate }}:</span>
-                    <div [xmMath]="sortedExam()!.examFeedback.comment" class="mt-1"></div>
+                    <div [xmRichText]="sortedExam()!.examFeedback.comment" class="mt-1"></div>
                 </div>
             }
             @if (sortedExam()?.course?.credits) {

@@ -17,14 +17,27 @@ SPDX-License-Identifier: EUPL-1.2
 @if (sq().essayAnswer || isPreview()) {
     <div class="row">
         <div class="col-md-12">
+            <!--
+                [allowExternalContent]="false": anything a student types here is rendered live in
+                their own browser, so a link stays followable from inside the editor (Ctrl/Cmd+click,
+                Alt+Enter, browser context menu) and an <iframe> renders a whole page inline. Neither
+                has to be saved to be useful, so backend sanitizing never sees it. In exam rooms with
+                no network restrictions that is a way out to the open web.
+            -->
             @if (isPreview()) {
-                <xm-ckeditor name="essayAnswer" [ariaLabel]="questionTitle()" [id]="sq().id.toString()" />
+                <xm-ckeditor
+                    name="essayAnswer"
+                    [ariaLabel]="questionTitle()"
+                    [id]="sq().id.toString()"
+                    [allowExternalContent]="false"
+                />
             } @else {
                 <xm-ckeditor
                     [ariaLabel]="questionTitle()"
                     [id]="sq().id.toString()"
                     [data]="isPreview() ? '' : (sq().essayAnswer.answer ?? '')"
                     (dataChange)="answerChanged($event)"
+                    [allowExternalContent]="false"
                 />
             }
         </div>

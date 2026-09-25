@@ -14,26 +14,22 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     template: `@if (reviewExpanded()) {
         @for (option of sectionQuestion().options | orderBy: 'option.id'; track option) {
             <div class="ps-2 mb-2">
-                <div [class]="getSelectedOptionClass(option)">
-                    <div class="make-inline float-start">
-                        @switch (determineClaimOptionType(option)) {
-                            @case ('CorrectOption') {
-                                <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
-                            }
-                            @case ('IncorrectOption') {
-                                <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
-                            }
-                            @case ('SkipOption') {
-                                <img src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
-                            }
+                <div [class]="getSelectedOptionClass(option)" class="d-flex align-items-center gap-2">
+                    @switch (determineClaimOptionType(option)) {
+                        @case ('CorrectOption') {
+                            <img class="flex-shrink-0" src="/assets/images/icon_correct_answer_radio.png" alt="" />
                         }
-                    </div>
-                    <div class="make-inline w-75 my-1 ms-3">
-                        <span class="exam-question-option-text">{{ option.option.option }}</span>
-                    </div>
-                    <div class="make-inline float-end answer-score-text">
-                        <span> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
-                    </div>
+                        @case ('IncorrectOption') {
+                            <img class="flex-shrink-0" src="/assets/images/icon_wrong_answer_radio.png" alt="" />
+                        }
+                        @case ('SkipOption') {
+                            <img class="flex-shrink-0" src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
+                        }
+                    }
+                    <span class="exam-question-option-text flex-grow-1 text-break">{{ option.option.option }}</span>
+                    <span class="answer-score-text text-nowrap">
+                        {{ option.score }} {{ 'i18n_unit_points' | translate }}
+                    </span>
                 </div>
             </div>
         }

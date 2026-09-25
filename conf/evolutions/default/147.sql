@@ -4,8 +4,8 @@
 
 # --- !Ups
 
-ALTER TABLE question ADD COLUMN lti_id TEXT;
+CREATE INDEX ix_reservation_start_at ON reservation (start_at);
 
 # --- !Downs
 
-ALTER TABLE question DROP COLUMN lti_id;
+DROP INDEX ix_reservation_start_at;

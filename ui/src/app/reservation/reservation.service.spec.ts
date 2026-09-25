@@ -55,11 +55,18 @@ describe('ReservationService', () => {
     });
 
     describe('printExamState', () => {
-        it('should return NO_SHOW when enrolment.noShow is true', () => {
+        it('should return NO_SHOW when enrolment.noShow is true and the exam was never sat', () => {
+            const r = {
+                enrolment: { noShow: true, exam: { state: 'INITIALIZED' }, collaborativeExam: { state: 'PUBLISHED' } },
+            };
+            expect(service.printExamState(r)).toBe('NO_SHOW');
+        });
+
+        it('should ignore a stale noShow when the exam state proves the student sat it', () => {
             const r = {
                 enrolment: { noShow: true, exam: { state: 'GRADED' }, collaborativeExam: { state: 'PUBLISHED' } },
             };
-            expect(service.printExamState(r)).toBe('NO_SHOW');
+            expect(service.printExamState(r)).toBe('GRADED');
         });
 
         it('should return exam.state when enrolment has exam', () => {

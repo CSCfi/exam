@@ -458,7 +458,7 @@ export class SectionComponent implements OnInit {
             return;
         }
 
-        if (attachment.modified && attachment.file) {
+        if (attachment.modified && attachment.file && !attachment.removed) {
             this.Files.upload$<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
                 examId: this.examId().toString(),
                 questionId: data.id.toString(),

@@ -6,11 +6,10 @@ import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LOCALE_ID, enableProdMode, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { ToastrModule } from 'ngx-toastr';
+import { provideToastr } from 'ngx-toastr';
 import { AppComponent } from './app/app.component';
 import { APP_ROUTES } from './app/app.routes';
 import { interceptors } from './app/interceptors';
@@ -23,12 +22,12 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(CommonModule, TranslateModule.forRoot(), ToastrModule.forRoot({ preventDuplicates: true })),
+        importProvidersFrom(CommonModule, TranslateModule.forRoot()),
+        provideToastr({ preventDuplicates: true }),
         provideTranslateHttpLoader({ prefix: '/assets/i18n/', suffix: '.json' }),
         { provide: LOCALE_ID, deps: [SessionService], useFactory: (srv: SessionService) => srv.getLocale() },
         provideZonelessChangeDetection(),
         provideRouter(APP_ROUTES),
         provideHttpClient(withInterceptors(interceptors)),
-        provideAnimationsAsync(), // needed for ng-bootstrap and ngx-toastr
     ],
 });

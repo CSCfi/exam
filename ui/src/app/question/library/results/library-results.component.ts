@@ -17,10 +17,10 @@ import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber, isString } from 'src/app/shared/miscellaneous/helpers';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
@@ -32,7 +32,7 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     imports: [
         NgbPopover,
         TableSortComponent,
-        MathDirective,
+        RichTextDirective,
         RouterLink,
         PaginatorComponent,
         SlicePipe,
@@ -69,8 +69,9 @@ export class LibraryResultsComponent {
             return previous.source.every((q) => ids.has(q.id)) ? Math.min(previous.value, lastPage) : 0;
         },
     });
-    readonly questionsPredicate = signal('');
-    readonly reverse = signal(false);
+    // Newest first by default, matching the ordering the backend used to impose
+    readonly questionsPredicate = signal('created');
+    readonly reverse = signal(true);
 
     readonly user: User;
     readonly pageSize = 25;

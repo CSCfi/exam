@@ -9,9 +9,9 @@ import database.EbeanQueryExtensions
 import features.exam.copy.ExamCopyContext
 import features.exam.services.ExamService
 import io.ebean.DB
-import models.exam.{Exam, ExamState}
+import models.exam.{Exam, ExamImplementation, ExamState}
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
-import models.user.User
+import models.user.{Permission, PermissionType, User}
 
 import scala.jdk.CollectionConverters.*
 
@@ -47,6 +47,18 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   private def allSectionQuestions(exam: Exam): List[ExamSectionQuestion] =
     exam.examSections.asScala.flatMap(_.sectionQuestions.asScala).toList
+
+  /** Grants the permission required for copying an exam into a BYOD one. Only the in-memory user
+    * needs it, that is the very instance the service checks.
+    */
+  private def withByodPermission(user: User): User =
+    val permission = new Permission
+    permission.`type` = PermissionType.CAN_CREATE_BYOD_EXAM
+    user.permissions.add(permission)
+    user
+
+  private def reload(exam: Exam): Exam =
+    DB.find(classOf[Exam]).where().idEq(exam.id).find.getOrElse(fail("Exam not found"))
 
   /** Seeds ExamSectionQuestionOption rows for every MC/weighted-MC/claim-choice question in the
     * exam. In production these are created when a teacher configures the exam section; the YAML
@@ -185,6 +197,30 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         val copy             = fresh.createCopy(ExamCopyContext.forCollaborativeExam(s).build())
 
         copy.examSections.size mustEqual nonOptionalCount
+
+    "BYOD copy" should:
+      "keep every section of the prototype" in:
+        val t      = withByodPermission(teacher())
+        val source = loadSourceExam()
+        source.examSections.asScala.count(_.optional) must be > 0
+
+        val copy = examService
+          .copyExam(source.id, t, Some("WHATEVER"), Some("PUBLIC"))
+          .getOrElse(fail("Copying the exam failed"))
+
+        reload(copy).examSections.size mustEqual source.examSections.size
+
+      "hand the student every section, there being no reservation to select them at" in:
+        val s = student()
+        initSourceExamOptions(loadSourceExam())
+        val fresh = loadSourceExam()
+        fresh.implementation = ExamImplementation.WHATEVER
+        fresh.examSections.asScala.count(_.optional) must be > 0
+
+        // No selected sections, just like an enrolment without a reservation
+        val copy = fresh.createCopy(ExamCopyContext.forStudentExam(s).build())
+
+        copy.examSections.size mustEqual fresh.examSections.size
 
     "lottery section student copy" should:
       "include only lotteryItemCount questions from a lottery section" in:

@@ -86,6 +86,7 @@ class ExamController @Inject() (
         "(*, course(id, code), " +
           "children(id, state, examInspections(user(id, firstName, lastName))), " +
           "examinationDates(*), " +
+          "examSections(id, optional), " +
           "examOwners(id, firstName, lastName), executionType(type), " +
           "examInspections(id, user(id, firstName, lastName)), " +
           "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"

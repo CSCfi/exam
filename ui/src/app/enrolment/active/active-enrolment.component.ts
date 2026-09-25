@@ -15,8 +15,8 @@ import type { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.component';
 import { OptionalSectionsComponent } from './helpers/optional-sections.component';
@@ -32,7 +32,7 @@ import { OptionalSectionsComponent } from './helpers/optional-sections.component
         CourseCodeComponent,
         TeacherListComponent,
         OptionalSectionsComponent,
-        MathDirective,
+        RichTextDirective,
         UpperCasePipe,
         SlicePipe,
         DatePipe,

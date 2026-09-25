@@ -14,6 +14,10 @@ export class CKEditorInitializationService {
     private mathElementHelper = new MathElementHelperService();
     private clozeElementHelper = new ClozeElementHelperService();
 
+    private readonly timers = new Set<number>();
+    private processingTimeout?: number;
+    private disposed = false;
+
     constructor(private changeDetector: ChangeDetectorRef) {}
 
     initializeEditor(editor: Editor, wordCountId: string): void {
@@ -22,6 +26,37 @@ export class CKEditorInitializationService {
         this.setupMathCommandListener(editor);
         this.setupModelChangeListener(editor);
         this.setupClickHandlers(editor);
+    }
+
+    /**
+     * Cancels every pending timer. Must be called when the owning component is destroyed:
+     * a timer left running holds the editor (and everything it references) reachable, and
+     * fires markForCheck() on an already destroyed view.
+     */
+    dispose(): void {
+        this.disposed = true;
+        this.timers.forEach((id) => window.clearTimeout(id));
+        this.timers.clear();
+        this.processingTimeout = undefined;
+    }
+
+    /** setTimeout that dispose() can cancel, and that turns into a no-op once disposed. */
+    private schedule(callback: () => void, delay: number): number | undefined {
+        if (this.disposed) return undefined;
+        const id = window.setTimeout(() => {
+            this.timers.delete(id);
+            if (this.disposed) return;
+            callback();
+        }, delay);
+        this.timers.add(id);
+        return id;
+    }
+
+    /** Renders the math fields, then re-attaches their handlers once MathLive has painted. */
+    private processMathFields(editor: Editor): void {
+        void this.mathFieldService.processMathInEditor(editor);
+        this.changeDetector.markForCheck();
+        this.schedule(() => this.injectHandlersAndStylesForMathFields(editor), 100);
     }
 
     private setupWordCount(editor: Editor, wordCountId: string): void {
@@ -33,48 +68,36 @@ export class CKEditorInitializationService {
     }
 
     private setupMathFieldProcessing(editor: Editor): void {
-        setTimeout(() => {
-            this.mathFieldService.processMathInEditor(editor);
-            this.changeDetector.markForCheck();
-            setTimeout(() => {
-                this.injectHandlersAndStylesForMathFields(editor);
-            }, 100);
-        }, 200);
+        this.schedule(() => this.processMathFields(editor), 200);
     }
 
     private setupMathCommandListener(editor: Editor): void {
         const mathCommand = editor.commands.get('insertMath');
         if (mathCommand) {
             mathCommand.on('execute', () => {
-                setTimeout(() => {
-                    this.mathFieldService.processMathInEditor(editor);
-                    this.changeDetector.markForCheck();
-                    setTimeout(() => {
-                        this.injectHandlersAndStylesForMathFields(editor);
-                    }, 100);
-                }, 100);
+                this.schedule(() => this.processMathFields(editor), 100);
             });
         }
     }
 
     private setupModelChangeListener(editor: Editor): void {
-        let processingTimeout: any = null;
         let lastProcessingTime = 0;
 
         editor.model.document.on('change:data', () => {
+            if (this.disposed) return;
             const now = Date.now();
-            if (processingTimeout) clearTimeout(processingTimeout);
+            if (this.processingTimeout !== undefined) {
+                window.clearTimeout(this.processingTimeout);
+                this.timers.delete(this.processingTimeout);
+            }
 
             const timeSinceLastProcessing = now - lastProcessingTime;
             const delay = timeSinceLastProcessing > 500 ? 100 : 500;
 
-            processingTimeout = setTimeout(() => {
+            this.processingTimeout = this.schedule(() => {
+                this.processingTimeout = undefined;
                 lastProcessingTime = Date.now();
-                this.mathFieldService.processMathInEditor(editor);
-                this.changeDetector.markForCheck();
-                setTimeout(() => {
-                    this.injectHandlersAndStylesForMathFields(editor);
-                }, 100);
+                this.processMathFields(editor);
             }, delay);
         });
     }
@@ -86,7 +109,7 @@ export class CKEditorInitializationService {
                 const clozeElement = this.clozeElementHelper.findClozeElementInView(data.target);
                 if (clozeElement) {
                     if (this.clozeElementHelper.selectClozeElement(editor, clozeElement as unknown as ViewElement)) {
-                        setTimeout(() => {
+                        this.schedule(() => {
                             this.clozeElementHelper.openClozeDialog(editor);
                             this.changeDetector.markForCheck();
                         }, 50);
@@ -140,7 +163,7 @@ export class CKEditorInitializationService {
                             this.mathElementHelper.findAndSelectMathByExpression(editor, expression);
                         }
 
-                        setTimeout(() => {
+                        this.schedule(() => {
                             this.mathElementHelper.openMathDialogWithExpression(editor, expression, el);
                             this.changeDetector.markForCheck();
                         }, 0);

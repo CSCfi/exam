@@ -61,7 +61,12 @@ export class QuestionService {
         this.http.post<Question>(this.questionsApi(), this.getQuestionData(question)).pipe(
             tap(() => this.toast.info(this.translate.instant('i18n_question_added'))),
             switchMap((response) => {
-                if (question.attachment && question.attachment.file && question.attachment.modified) {
+                if (
+                    question.attachment &&
+                    question.attachment.file &&
+                    question.attachment.modified &&
+                    !question.attachment.removed
+                ) {
                     const formFileName = question.attachment.fileName;
                     return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
                         questionId: response.id.toString(),
@@ -83,7 +88,9 @@ export class QuestionService {
         this.http.put<Question>(this.questionsApi(question.id), this.getQuestionData(question)).pipe(
             tap(() => this.toast.info(this.translate.instant('i18n_question_saved'))),
             switchMap((response) => {
-                if (question.attachment && question.attachment.file && question.attachment.modified) {
+                if (question.attachment && question.attachment.removed) {
+                    return this.Attachment.eraseQuestionAttachment$(question).pipe(map(() => response));
+                } else if (question.attachment && question.attachment.file && question.attachment.modified) {
                     const formFileName = question.attachment.fileName;
                     return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
                         questionId: question.id.toString(),
@@ -96,8 +103,6 @@ export class QuestionService {
                         }),
                         map(() => ({ ...response, attachment: question.attachment })),
                     );
-                } else if (question.attachment && question.attachment.removed) {
-                    return this.Attachment.eraseQuestionAttachment$(question).pipe(map(() => response));
                 }
                 return of(response);
             }),
@@ -138,7 +143,14 @@ export class QuestionService {
             .pipe(
                 tap((response) => Object.assign(response.question, question)),
                 switchMap((response) => {
-                    if (question.attachment && question.attachment.modified && question.attachment.file) {
+                    if (question.attachment && question.attachment.removed) {
+                        return this.Attachment.eraseQuestionAttachment$(question).pipe(
+                            map(() => {
+                                delete response.question.attachment;
+                                return response;
+                            }),
+                        );
+                    } else if (question.attachment && question.attachment.modified && question.attachment.file) {
                         return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
                             questionId: question.id.toString(),
                         }).pipe(
@@ -147,13 +159,6 @@ export class QuestionService {
                                 response.question.attachment = resp;
                             }),
                             map(() => response),
-                        );
-                    } else if (question.attachment && question.attachment.removed) {
-                        return this.Attachment.eraseQuestionAttachment$(question).pipe(
-                            map(() => {
-                                delete response.question.attachment;
-                                return response;
-                            }),
                         );
                     }
                     return of(response);

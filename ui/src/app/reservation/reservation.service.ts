@@ -28,6 +28,19 @@ export interface Selection {
     [data: string]: string;
 }
 
+// States a student's copy can only be in because they actually sat the exam. A no-show flag left
+// behind by the sweep (the copy was still INITIALIZED when it ran) must not mask any of these.
+const ATTENDED_STATES = [
+    'STUDENT_STARTED',
+    'ABORTED',
+    'REVIEW',
+    'REVIEW_STARTED',
+    'GRADED',
+    'GRADED_LOGGED',
+    'REJECTED',
+    'ARCHIVED',
+];
+
 const STATE_ORDER = [
     'PUBLISHED',
     'NO_SHOW',
@@ -50,12 +63,12 @@ export class ReservationService {
 
     printExamState = (reservation: {
         enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
-    }) =>
-        reservation.enrolment.noShow
-            ? 'NO_SHOW'
-            : reservation.enrolment.exam
-              ? reservation.enrolment.exam.state
-              : reservation.enrolment.collaborativeExam.state;
+    }) => {
+        const state = reservation.enrolment.exam
+            ? reservation.enrolment.exam.state
+            : reservation.enrolment.collaborativeExam.state;
+        return reservation.enrolment.noShow && !ATTENDED_STATES.includes(state) ? 'NO_SHOW' : state;
+    };
 
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(

@@ -18,14 +18,14 @@ import {
     runInInjectionContext,
     viewChild,
 } from '@angular/core';
-import { MathDirective } from 'src/app/shared/math/math.directive';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 
 type ClozeTestAnswer = Record<string, string>;
 
 @Component({
     selector: 'xm-dynamic-cloze-test',
-    template: `<div #clozeContainer [xmMath]="content()"></div>`,
-    imports: [MathDirective],
+    template: `<div #clozeContainer [xmRichText]="content()"></div>`,
+    imports: [RichTextDirective],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
