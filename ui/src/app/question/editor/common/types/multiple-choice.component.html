@@ -7,6 +7,11 @@ SPDX-License-Identifier: EUPL-1.2
 <div [formGroup]="multipleChoiceForm">
     <div class="row mt-2" [formGroup]="multipleChoiceForm">
         <div class="col-md-12" [hidden]="!multichoiceFeaturesOn()">
+            <div class="row mt-2 mx-2">
+                <ul>
+                    <li>{{ 'i18n_multiple_choice_shuffle_options_description' | translate }}</li>
+                </ul>
+            </div>
             <div class="form-check">
                 <input
                     class="form-check-input"
