@@ -27,11 +27,11 @@ class SystemInitializer @Inject() (
     private val reservationReminder: ReservationReminderService,
     private val externalExamExpirationPoller: ExternalExamExpirationService,
     private val weeklyReportService: WeeklyReportService,
-    private val studentDataRetention: StudentDataRetentionJob,
+    private val studentDataRetentionJob: StudentDataRetentionJob,
     private val retentionPolicy: RetentionPolicy
 ) extends Logging:
   // The retention job takes over from the old expiration jobs once a deployment switches its dry
-  // run off. Until then they keep running, so today's expiry continues during the review period.
+  // run off. Until then, they keep running, so today's expiry continues during the review period.
   private val legacyExpiryJobs: List[ScheduledJob] =
     if retentionPolicy.dryRun then List(examExpirationPoller, externalExamExpirationPoller)
     else Nil
@@ -47,7 +47,7 @@ class SystemInitializer @Inject() (
         assessmentTransferor,
         collaborativeAssessmentTransferor,
         weeklyReportService,
-        studentDataRetention
+        studentDataRetentionJob
       ) ++ legacyExpiryJobs
 
   // Start all jobs and register cleanup on Play shutdown (important for hot-reload in dev mode)

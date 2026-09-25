@@ -33,7 +33,7 @@ class XmRetentionClient @Inject() (wsClient: WSClient, configReader: ConfigReade
       else IO.raiseError(XmRequestFailed(url, response.status))
     }
 
-  /** Uses XM's originator route, which deletes the reservation at the hosting organisation first
+  /** Uses XM's originator route, which deletes the reservation at the hosting organization first
     * and then removes the XM document.
     */
   def deleteReservation(reservation: Reservation): IO[Unit] =

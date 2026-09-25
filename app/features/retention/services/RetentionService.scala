@@ -95,7 +95,7 @@ class RetentionService @Inject() (
           id =>
             IO.blocking(repository.deleteHostReservation(id))
         )
-      h1 <- pass(RetentionPass.HostAttachments)(repository.hostAttachmentCandidates(_))((_, id) =>
+      h1 <- pass(RetentionPass.HostAttachments)(repository.hostAttachmentCandidates)((_, id) =>
         iop.deleteAttachment(id)
       )
       h2 <- pass(RetentionPass.HostCopies)(repository.hostCopyCandidates(policy, now, _))(id =>
@@ -111,7 +111,7 @@ class RetentionService @Inject() (
 
   // A visiting reservation goes at XM first: its externalRef is the only key to the XM document,
   // so the local rows normally stay until that call succeeds. If XM keeps failing, for example
-  // because the host organisation is gone, the booking is deleted locally anyway 30 days after it
+  // because the host organization is gone, the booking is deleted locally anyway 30 days after it
   // became due, and XM's own expiry removes its copy.
   private def deleteBooking(b: BookingCandidate)(now: DateTime): IO[Unit] =
     val remote =

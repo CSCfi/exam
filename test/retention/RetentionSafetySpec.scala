@@ -8,7 +8,7 @@ import io.ebean.DB
 import models.exam.{Exam, ExaminationDate}
 import models.facility.Software
 import models.questions.{Question, Tag}
-import models.user.{Language, Role, User}
+import models.user.*
 import play.api.libs.json.Json
 
 import java.nio.file.{Files, Path}
@@ -80,6 +80,11 @@ class RetentionSafetySpec extends RetentionSpecBase:
         question.update()
       }
 
+  private def grant(user: User, permission: Permission): Unit =
+    val fresh = DB.find(classOf[User], user.id)
+    fresh.permissions.add(permission)
+    fresh.update()
+
   "A retention run" when:
     "one student's data has expired and another student sat the same exam recently" should:
       "remove or change only rows created for the expired student" in:
@@ -97,8 +102,15 @@ class RetentionSafetySpec extends RetentionSpecBase:
             at = recent,
             lockedAt = Some(recent)
           )
-        val before      = snapshot()
-        val expired     = attempt(newUser("expired", t0, Role.Name.STUDENT))
+        // A permission row both students link to, so a cascade through the user's permissions
+        // would show up as a removed shared row
+        val permission = new Permission
+        permission.`type` = PermissionType.CAN_INSPECT_LANGUAGE
+        permission.save()
+        grant(bystander.student, permission)
+        val before  = snapshot()
+        val expired = attempt(newUser("expired", t0, Role.Name.STUDENT))
+        grant(expired.student, permission)
         val withExpired = snapshot()
         val expiredRows = withExpired -- before
         val expiredIds  = expiredRows.flatMap(rowId)
@@ -118,6 +130,9 @@ class RetentionSafetySpec extends RetentionSpecBase:
         withClue(report.summary)(report.passes.map(_.failed).sum mustBe 0)
 
         exists(classOf[User], expired.student.id) mustBe false
+        exists(classOf[Permission], permission.id) mustBe true
+        DB.find(classOf[User], bystander.student.id).permissions.asScala.map(_.id) mustBe
+          List(permission.id)
         Files.exists(expired.answerFile) mustBe false
         Files.exists(bystander.answerFile) mustBe true
         Files.exists(expired.sharedFile) mustBe true

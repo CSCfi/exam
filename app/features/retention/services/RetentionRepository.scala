@@ -14,6 +14,7 @@ import models.exam.{Exam, ExamExecutionType, ExamState}
 import models.iop.ExternalExam
 import models.questions.Question
 import models.sections.{ExamSection, ExamSectionQuestion}
+import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
 import services.file.FileHandler
@@ -231,7 +232,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
     if inUse then None
     else
       val attachment = Option(DB.find(classOf[Question], questionId).attachment)
-      // Read before the delete, the row can no longer be loaded afterwards
+      // Read before deletion, so the row can no longer be loaded afterward
       val filePath = attachment.flatMap(a => Option(a.filePath))
       Seq(
         "DELETE FROM question_owner WHERE question_id = :id",
@@ -243,7 +244,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
       filePath
 
   // Attachment copies share the file of their original, so a file goes only once no attachment
-  // refers to it any more
+  // refers to it anymore
   private def removeUnreferencedFiles(paths: List[String]): Unit =
     paths
       .filter(p => DB.find(classOf[Attachment]).where().eq("filePath", p).findCount() == 0)
@@ -493,16 +494,10 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
       )
     }
 
-  /** Deletes a user account. Role and permission links go explicitly, so that no cascade can reach
-    * the shared role rows. Any other remaining reference makes the delete fail and roll back.
+  /** Deletes a user account.
     */
   def deleteUser(userId: Long): Unit =
     Using.resource(DB.beginTransaction()) { tx =>
-      DB.sqlUpdate("DELETE FROM app_user_role WHERE app_user_id = :id").setParameter("id", userId)
-        .execute()
-      DB.sqlUpdate("DELETE FROM app_user_permission WHERE app_user_id = :id")
-        .setParameter("id", userId)
-        .execute()
-      DB.sqlUpdate("DELETE FROM app_user WHERE id = :id").setParameter("id", userId).execute()
+      DB.delete(classOf[User], userId)
       tx.commit()
     }
