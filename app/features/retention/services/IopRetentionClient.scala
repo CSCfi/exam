@@ -11,7 +11,7 @@ import models.enrolment.Reservation
   * document XM no longer has as already deleted.
   */
 trait IopRetentionClient:
-  /** Deletes a visiting reservation at XM and, through XM, at the hosting organisation. */
+  /** Deletes a visiting reservation at XM and, through XM, at the hosting organization. */
   def deleteReservation(reservation: Reservation): IO[Unit]
 
   /** Deletes an answer attachment of a visiting exam attempt from XM. */

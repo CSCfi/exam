@@ -33,7 +33,7 @@ object RetentionPolicy extends Logging:
 
   private def length(p: Period): Long = Reference.plus(p).getMillis
 
-  def clamp(key: String, value: Period, range: (Period, Period)): Period =
+  private def clamp(key: String, value: Period, range: (Period, Period)): Period =
     val (min, max) = range
     if length(value) < length(min) then
       logger.warn(s"$key = $value is below the allowed minimum $min, using $min")
