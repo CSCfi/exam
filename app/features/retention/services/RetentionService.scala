@@ -11,6 +11,7 @@ import play.api.Logging
 import services.datetime.AppClock
 import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
 
+import java.nio.file.Path
 import javax.inject.Inject
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -37,11 +38,17 @@ final case class PassResult(
     more: Boolean = false
 )
 
+/** One item in the retention report: what a pass selected and what became of it. The outcome is
+  * "due" in a dry run, and "done" or "failed: …" in a real run.
+  */
+final case class ReportRow(pass: RetentionPass, item: ReportItem, outcome: String)
+
 final case class RetentionReport(
     ranAt: DateTime,
     dryRun: Boolean,
     passes: List[PassResult],
-    took: FiniteDuration = Duration.Zero
+    took: FiniteDuration = Duration.Zero,
+    items: List[ReportRow] = Nil
 ):
   def header: String =
     val mode = if dryRun then "dry run, nothing changed" else "deleting"
@@ -74,7 +81,7 @@ class RetentionService @Inject() (
     // A dry run counts everything that is due. A real run looks for one item more than a batch,
     // only to tell whether more remain.
     val limit = if dryRun then Int.MaxValue else policy.batchSize + 1
-    def pass[A](p: RetentionPass)(select: Int => List[A])(apply: A => IO[Unit]) =
+    def pass[A](p: RetentionPass)(select: Int => List[Candidate[A]])(apply: A => IO[Unit]) =
       runPass(p, dryRun)(IO.blocking(select(limit)))(apply)
     for
       start <- IO.monotonic
@@ -105,9 +112,22 @@ class RetentionService @Inject() (
         IO.blocking(repository.deleteUser(id))
       )
       end <- IO.monotonic
-      report = RetentionReport(now, dryRun, List(a, b, c, d, d2, h1, h2, e), end - start)
+      results = List(a, b, c, d, d2, h1, h2, e)
+      report  = RetentionReport(now, dryRun, results.map(_._1), end - start, results.flatMap(_._2))
       _ <- IO((report.header :: report.lines).foreach(logger.info(_)))
+      _ <- writeReport(report)
     yield report
+
+  // A failure to write the report is logged but does not fail the run, which has already happened
+  private def writeReport(report: RetentionReport): IO[Unit] =
+    policy.reportDir match
+      case None => IO.unit
+      case Some(dir) =>
+        IO.blocking(RetentionReportFile.write(Path.of(dir), report)).attempt.flatMap {
+          case Right(file) =>
+            IO(logger.info(s"Retention report with ${report.items.size} items written to $file"))
+          case Left(e) => IO(logger.warn(s"Could not write the retention report to $dir", e))
+        }
 
   // A visiting reservation goes at XM first: its externalRef is the only key to the XM document,
   // so the local rows normally stay until that call succeeds. If XM keeps failing, for example
@@ -135,20 +155,30 @@ class RetentionService @Inject() (
       else IO.unit
     remote *> IO.blocking(repository.deleteBooking(b.enrolmentId))
 
-  private def runPass[A](pass: RetentionPass, dryRun: Boolean)(select: IO[List[A]])(
+  private def runPass[A](pass: RetentionPass, dryRun: Boolean)(select: IO[List[Candidate[A]]])(
       apply: A => IO[Unit]
-  ): IO[PassResult] =
+  ): IO[(PassResult, List[ReportRow])] =
     select.flatMap { due =>
-      if dryRun || due.isEmpty then IO.pure(PassResult(pass, due.size, 0, 0))
+      if dryRun || due.isEmpty then
+        IO.pure(PassResult(pass, due.size, 0, 0) -> due.map(c => ReportRow(pass, c.report, "due")))
       else
         val batch = due.take(policy.batchSize)
         val more  = due.size > batch.size
         batch
-          .parTraverseN(MaxConcurrency)(item =>
-            apply(item).attempt.flatTap {
-              case Left(e) => IO(logger.warn(s"Retention, ${pass.label}: skipping $item", e))
-              case _       => IO.unit
+          .parTraverseN(MaxConcurrency)(candidate =>
+            apply(candidate.item).attempt.flatTap {
+              case Left(e) =>
+                IO(logger.warn(s"Retention, ${pass.label}: skipping ${candidate.item}", e))
+              case _ => IO.unit
             }
           )
-          .map(rs => PassResult(pass, batch.size, rs.count(_.isRight), rs.count(_.isLeft), more))
+          .map { results =>
+            val rows = batch.zip(results).map {
+              case (c, Right(_)) => ReportRow(pass, c.report, "done")
+              case (c, Left(e))  => ReportRow(pass, c.report, s"failed: ${e.getMessage}")
+            }
+            val done   = results.count(_.isRight)
+            val result = PassResult(pass, batch.size, done, results.size - done, more)
+            result -> rows
+          }
     }

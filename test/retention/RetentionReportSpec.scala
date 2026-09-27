@@ -4,13 +4,17 @@
 
 package retention
 
-import features.retention.services.{PassResult, RetentionPass, RetentionReport}
+import com.opencsv.CSVReader
+import features.retention.services.*
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import system.jobs.StudentDataRetentionJob
 
+import java.nio.file.Files
 import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+import scala.util.Using
 
 class RetentionReportSpec extends AnyWordSpec with Matchers:
 
@@ -67,5 +71,52 @@ class RetentionReportSpec extends AnyWordSpec with Matchers:
     }
     "have a distinct label for every pass" in {
       RetentionPass.values.map(_.label).distinct.length mustBe RetentionPass.values.length
+    }
+  }
+
+  "RetentionReportFile" should {
+    val item = ReportItem(
+      kind = "exam copy",
+      id = "42",
+      userId = Some(7L),
+      exam = Some("Algoritmit, \"syksy\" 2024"),
+      course = Some("TIE-101"),
+      countsFrom = Some(at.minusMonths(7)),
+      dueAt = Some(at.minusMonths(1)),
+      detail = "state GRADED_LOGGED"
+    )
+    val report = RetentionReport(
+      at,
+      dryRun = true,
+      List(PassResult(RetentionPass.AttemptContent, 1, 0, 0)),
+      items = List(ReportRow(RetentionPass.AttemptContent, item, "due"))
+    )
+
+    "write one row per item under a header, quoting commas and quotes" in {
+      val dir  = Files.createTempDirectory("retention-report")
+      val file = RetentionReportFile.write(dir.resolve("nested"), report)
+      file.getFileName.toString mustBe "retention-2026-09-24T18-03-00-dry-run.csv"
+      val rows =
+        Using.resource(new CSVReader(Files.newBufferedReader(file)))(_.readAll().asScala.toList)
+      rows.head.toList mustBe RetentionReportFile.Header.toList
+      rows(1).toList mustBe List(
+        at.toString,
+        "dry run",
+        "Expired attempt content",
+        "exam copy",
+        "42",
+        "7",
+        "Algoritmit, \"syksy\" 2024",
+        "TIE-101",
+        at.minusMonths(7).toString,
+        at.minusMonths(1).toString,
+        "due",
+        "state GRADED_LOGGED"
+      )
+      rows.size mustBe 2
+    }
+    "name a real run's file without the dry-run suffix" in {
+      RetentionReportFile.fileName(report.copy(dryRun = false)) mustBe
+        "retention-2026-09-24T18-03-00.csv"
     }
   }

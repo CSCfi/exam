@@ -398,3 +398,68 @@ class RetentionServiceSpec extends RetentionSpecBase:
         hostReservations mustBe 0
         DB.find(classOf[ExamRecord]).where().in("student.id", students.map(_.id).asJava)
           .findCount() mustBe 0
+
+    "a run is reported" should:
+      "list every due item of a dry run, identifying the student only by user id" in:
+        setup()
+        val a   = attempt(newUser("raili", t0, Role.Name.STUDENT))
+        val now = t0.plusYears(3)
+
+        val report = runIO(service(now).run(dryRun = true))
+
+        val mine = report.items.filter(_.item.userId.contains(a.student.id.longValue))
+        // The booking and the account follow only once the attempt's content is gone, which a
+        // dry run doesn't do, so they appear in a later report
+        mine.map(r => r.pass -> r.item.kind).toSet mustBe Set(
+          RetentionPass.AttemptContent -> "exam copy",
+          RetentionPass.Records        -> "grading record"
+        )
+        mine.map(_.outcome).toSet mustBe Set("due")
+        val copy = mine.find(_.item.kind == "exam copy").get.item
+        copy.id mustBe a.copy.id.toString
+        copy.exam mustBe Some("Johdatus alkeiden perusteisiin")
+        copy.countsFrom mustBe Some(t0)
+        copy.dueAt mustBe Some(t0.plusMonths(6))
+        report.items.map(_.item.toString).mkString must not include a.student.email
+
+      "mark handled items in a real run and write the file" in:
+        setup()
+        val a   = attempt(newUser("reijo", t0, Role.Name.STUDENT))
+        val dir = Files.createTempDirectory("retention-reports")
+
+        val report =
+          runIO(service(t0.plusMonths(7), policy.copy(reportDir = Some(dir.toString))).run())
+
+        val mine = report.items.filter(_.item.userId.contains(a.student.id.longValue))
+        mine.map(r => r.item.kind -> r.outcome) mustBe List("exam copy" -> "done")
+        val files = Files.list(dir).iterator().asScala.toList
+        files.map(_.getFileName.toString) mustBe List(RetentionReportFile.fileName(report))
+        val text = Files.readString(files.head)
+        text must include(a.copy.id.toString)
+        text must not include a.student.email
+        text.linesIterator.size mustBe report.items.size + 1
+
+      "keep the run going when the report cannot be written" in:
+        setup()
+        val a       = attempt(newUser("riku", t0, Role.Name.STUDENT))
+        val blocker = Files.createTempFile("retention", "not-a-directory")
+
+        runIO(service(t0.plusMonths(7), policy.copy(reportDir = Some(blocker.toString))).run())
+
+        DB.find(classOf[Exam], a.copy.id).state mustBe ExamState.DELETED
+
+      "describe a booking by its reservation" in:
+        setup()
+        val a = attempt(newUser("ronja", t0, Role.Name.STUDENT))
+        // Remove the content first, so the booking is due in the dry run
+        run(t0.plusMonths(7))
+
+        val report = runIO(service(t0.plusYears(3)).run(dryRun = true))
+        val booking = report.items.find(r =>
+          r.pass == RetentionPass.Bookings && r.item.id == a.enrolment.id.toString
+        ).get.item
+
+        booking.userId mustBe Some(a.student.id.longValue)
+        booking.countsFrom mustBe Some(t0)
+        booking.dueAt mustBe Some(t0.plusYears(2))
+        booking.detail mustBe s"reservation ${a.reservation.id}"
