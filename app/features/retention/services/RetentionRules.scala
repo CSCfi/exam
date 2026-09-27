@@ -62,10 +62,20 @@ object RetentionRules:
     */
   def attemptExpiresAt(f: AttemptFacts, p: RetentionPolicy): Option[DateTime] =
     f.state match
-      case ExamState.ABORTED             => f.ended.map(_.plus(p.abortedAttempt))
-      case s if LockedStates.contains(s) => f.lockedAt.map(lockedExpiry(_, f, p))
-      case ExamState.DELETED             => f.gradedTime.orElse(f.ended).map(lockedExpiry(_, f, p))
-      case _                             => None
+      case ExamState.ABORTED => attemptCountsFrom(f).map(_.plus(p.abortedAttempt))
+      case s if LockedStates.contains(s) || s == ExamState.DELETED =>
+        attemptCountsFrom(f).map(lockedExpiry(_, f, p))
+      case _ => None
+
+  /** The time an attempt's retention counts from: its lock time, the end of the exam for an aborted
+    * or unfinished attempt, and grading or else the end of the exam for a copy the old job marked
+    * deleted.
+    */
+  def attemptCountsFrom(f: AttemptFacts): Option[DateTime] =
+    f.state match
+      case s if LockedStates.contains(s) => f.lockedAt
+      case ExamState.DELETED             => f.gradedTime.orElse(f.ended)
+      case _                             => f.ended
 
   private def lockedExpiry(lockedAt: DateTime, f: AttemptFacts, p: RetentionPolicy): DateTime =
     val (period, range) =
@@ -84,8 +94,13 @@ object RetentionRules:
     */
   def bookingExpiresAt(f: BookingFacts, p: RetentionPolicy): Option[DateTime] =
     if f.attemptRetained then None
-    else
-      f.reservationStart.orElse(f.examinationEventStart).orElse(f.enrolledOn).map(_.plus(p.booking))
+    else bookingCountsFrom(f).map(_.plus(p.booking))
+
+  /** The time a booking's retention counts from: the reservation, the examination event, or the
+    * enrolment, whichever is known first.
+    */
+  def bookingCountsFrom(f: BookingFacts): Option[DateTime] =
+    f.reservationStart.orElse(f.examinationEventStart).orElse(f.enrolledOn)
 
   /** Host-side visitor reservations have no local enrolment and are timed from their start. */
   def hostReservationExpiresAt(start: Option[DateTime], p: RetentionPolicy): Option[DateTime] =

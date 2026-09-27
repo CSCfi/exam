@@ -22,7 +22,9 @@ final case class RetentionPolicy(
     record: Period,
     hostCopy: Period,
     dryRun: Boolean,
-    batchSize: Int
+    batchSize: Int,
+    // Directory for the CSV report of each run, or None to write no report
+    reportDir: Option[String] = None
 )
 
 object RetentionPolicy extends Logging:
@@ -63,5 +65,7 @@ object RetentionPolicy extends Logging:
       record = period("record"),
       hostCopy = period("iop.hostCopy"),
       dryRun = config.getBoolean("exam.retention.dryRun"),
-      batchSize = config.getInt("exam.retention.batchSize")
+      batchSize = config.getInt("exam.retention.batchSize"),
+      reportDir =
+        Option(config.getString("exam.retention.reportDir")).map(_.trim).filter(_.nonEmpty)
     )
