@@ -73,9 +73,13 @@ class NoShowHandlerImpl @Inject (
             IO.blocking(markDone()) *> IO(
               logger.warn(s"Gave up sending no-show #$ref to XM: $reason")
             )
-          case DeliveryDecision.RetryLater(reason) =>
-            IO(logger.error(s"No success in sending no-show #$ref to XM ($reason), retrying later"))
+          case DeliveryDecision.RetryLater(reason) => retryLater(ref, reason)
+          // Only exam attempts are retried weekly, a no-show is given up instead
+          case DeliveryDecision.RetrySlowly(reason) => retryLater(ref, reason)
       )
+
+  private def retryLater(ref: String, reason: String): IO[Unit] =
+    IO(logger.error(s"No success in sending no-show #$ref to XM ($reason), retrying later"))
 
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/noshow").toURL
