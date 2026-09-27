@@ -16,7 +16,7 @@ class LtiServiceSpec extends AnyWordSpec with Matchers:
   private def service(extra: String = ""): LtiService =
     val base =
       s"""lti.platform.issuer = "https://exam.example.org"
-         |lti.platform.target-link-uri = "$launchUri"
+         |lti.tool.target-link-uri = "$launchUri"
          |lti.platform.client-id = "client"
          |lti.platform.deployment-id = "deployment"
          |lti.platform.key-id = "kid"
@@ -65,7 +65,7 @@ class LtiServiceSpec extends AnyWordSpec with Matchers:
       val incomplete = LtiService(
         ConfigFactory.parseString(
           """lti.platform.issuer = ""
-            |lti.platform.target-link-uri = ""
+            |lti.tool.target-link-uri = ""
             |lti.platform.client-id = ""
             |lti.tool.initiate-login-url = ""
             |""".stripMargin

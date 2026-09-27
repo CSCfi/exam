@@ -44,7 +44,7 @@ class LtiService @Inject() (private val config: Config) extends Logging:
 
   def initiateLoginUrl: String = config.getString("lti.tool.initiate-login-url")
   def issuer: String           = config.getString("lti.platform.issuer")
-  def targetLinkUri: String    = config.getString("lti.platform.target-link-uri")
+  def targetLinkUri: String    = config.getString("lti.tool.target-link-uri")
   def clientId: String         = config.getString("lti.platform.client-id")
   def deploymentId: String     = config.getString("lti.platform.deployment-id")
   def keyId: String            = config.getString("lti.platform.key-id")

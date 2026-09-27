@@ -174,7 +174,7 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       val params = queryOf(location)
       params("iss") must be(setting("lti.platform.issuer"))
       params("client_id") must be(clientId)
-      params("target_link_uri") must be(setting("lti.platform.target-link-uri"))
+      params("target_link_uri") must be(setting("lti.tool.target-link-uri"))
       params("login_hint") must not be empty
 
     "keep query parameters already present in the configured tool URL" in:
