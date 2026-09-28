@@ -9,6 +9,7 @@ import cats.syntax.all.*
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
+import models.exam.ExamState
 import org.joda.time.DateTime
 import play.api.Logging
 import services.datetime.DateTimeHandler
@@ -35,21 +36,38 @@ class ReservationPollerService @Inject() (
         start.plusMinutes(duration).isBeforeNow
       case _ => false
 
+  /** Enrolments that may be no-shows. The exam state and time limits are applied in the query:
+    * leaving them to isPast would load every finished attempt ever made. Kept in line with the
+    * checks in NoShowHandler.handleNoShows: an exam not yet started, or no local copy at all
+    * (collaborative and external exams).
+    */
+  def findNoShowCandidates(): List[ExamEnrolment] =
+    DB.find(classOf[ExamEnrolment])
+      .fetch("exam")
+      .fetch("collaborativeExam")
+      .fetch("externalExam")
+      .fetch("reservation")
+      .fetch("examinationEventConfiguration.examinationEvent")
+      .where
+      .eq("noShow", false)
+      .isNull("reservation.externalReservation")
+      .or()
+      .eq("exam.state", ExamState.PUBLISHED)
+      .eq("exam.state", ExamState.INITIALIZED)
+      .isNull("exam")
+      .isNotNull("externalExam")
+      .endOr()
+      .or()
+      .lt("reservation.endAt", dateTimeHandler.adjustDST(DateTime.now))
+      .lt("examinationEventConfiguration.examinationEvent.start", DateTime.now)
+      .endOr()
+      .list
+      .filter(isPast)
+
   private def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Starting no-show check ->")
-      val enrolments = DB
-        .find(classOf[ExamEnrolment])
-        .fetch("exam")
-        .fetch("collaborativeExam")
-        .fetch("externalExam")
-        .fetch("reservation")
-        .fetch("examinationEventConfiguration.examinationEvent")
-        .where
-        .eq("noShow", false)
-        .isNull("reservation.externalReservation")
-        .list
-        .filter(isPast)
+      val enrolments = findNoShowCandidates()
 
       // The following are cases where an external user has made a reservation but did not log in before
       // the reservation ended. Mark those as no-shows as well.
