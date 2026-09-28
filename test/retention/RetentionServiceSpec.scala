@@ -163,6 +163,17 @@ class RetentionServiceSpec extends RetentionSpecBase:
         exists(classOf[User], a.student.id) mustBe true
 
     "more items are due than the batch size" should:
+      "count them all in a dry run but list only the next run's batch" in:
+        setup()
+        attempt(newUser("eila", t0, Role.Name.STUDENT))
+        attempt(newUser("emil", t0, Role.Name.STUDENT))
+
+        val small  = policy.copy(batchSize = 1)
+        val report = runIO(service(t0.plusMonths(7), small).run(dryRun = true))
+
+        pass(report, RetentionPass.AttemptContent).due must be >= 2
+        report.items.count(_.pass == RetentionPass.AttemptContent) mustBe 1
+
       "handle only a batch per run" in:
         setup()
         attempt(newUser("eero", t0, Role.Name.STUDENT))
@@ -400,7 +411,7 @@ class RetentionServiceSpec extends RetentionSpecBase:
           .findCount() mustBe 0
 
     "a run is reported" should:
-      "list every due item of a dry run, identifying the student only by user id" in:
+      "list the due items of a dry run, identifying the student only by user id" in:
         setup()
         val a   = attempt(newUser("raili", t0, Role.Name.STUDENT))
         val now = t0.plusYears(3)

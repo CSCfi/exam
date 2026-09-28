@@ -78,10 +78,12 @@ class RetentionService @Inject() (
 
   def run(dryRun: Boolean): IO[RetentionReport] =
     val now = clock.now()
-    // A dry run counts everything that is due. A real run looks for one item more than a batch,
-    // only to tell whether more remain.
-    val limit = if dryRun then Int.MaxValue else policy.batchSize + 1
-    def pass[A](p: RetentionPass)(select: Int => List[Candidate[A]])(apply: A => IO[Unit]) =
+    // Both keep at most a batch per pass: a real run handles no more, and a dry run reports the
+    // items the next real run would take. A dry run counts everything that is due, a real run
+    // looks for one item more than a batch only to tell whether more remain.
+    val limit =
+      Limit(policy.batchSize, if dryRun then Int.MaxValue else policy.batchSize + 1)
+    def pass[A](p: RetentionPass)(select: Limit => Selection[A])(apply: A => IO[Unit]) =
       runPass(p, dryRun)(IO.blocking(select(limit)))(apply)
     for
       start <- IO.monotonic
@@ -125,7 +127,11 @@ class RetentionService @Inject() (
       case Some(dir) =>
         IO.blocking(RetentionReportFile.write(Path.of(dir), report)).attempt.flatMap {
           case Right(file) =>
-            IO(logger.info(s"Retention report with ${report.items.size} items written to $file"))
+            val scope =
+              if report.dryRun then s" (the next run's first ${policy.batchSize} per pass)" else ""
+            IO(logger.info(
+              s"Retention report with ${report.items.size} items$scope written to $file"
+            ))
           case Left(e) => IO(logger.warn(s"Could not write the retention report to $dir", e))
         }
 
@@ -155,15 +161,16 @@ class RetentionService @Inject() (
       else IO.unit
     remote *> IO.blocking(repository.deleteBooking(b.enrolmentId))
 
-  private def runPass[A](pass: RetentionPass, dryRun: Boolean)(select: IO[List[Candidate[A]]])(
+  private def runPass[A](pass: RetentionPass, dryRun: Boolean)(select: IO[Selection[A]])(
       apply: A => IO[Unit]
   ): IO[(PassResult, List[ReportRow])] =
-    select.flatMap { due =>
-      if dryRun || due.isEmpty then
-        IO.pure(PassResult(pass, due.size, 0, 0) -> due.map(c => ReportRow(pass, c.report, "due")))
+    select.flatMap { selection =>
+      val batch = selection.items
+      if dryRun || batch.isEmpty then
+        val rows = batch.map(c => ReportRow(pass, c.report, "due"))
+        IO.pure(PassResult(pass, selection.due, 0, 0) -> rows)
       else
-        val batch = due.take(policy.batchSize)
-        val more  = due.size > batch.size
+        val more = selection.due > batch.size
         batch
           .parTraverseN(MaxConcurrency)(candidate =>
             apply(candidate.item).attempt.flatTap {
