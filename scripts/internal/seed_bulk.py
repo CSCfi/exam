@@ -30,7 +30,8 @@ Example:
     python3 scripts/internal/seed_bulk.py --dsn "host=localhost dbname=exam_perf user=exam \\
         password=exam" --allow-db exam_perf --attempts 1000000
 
-Seeded users log in (dev login) as perfs<N> / perft<N> / perfa<N> with password "pwd".
+Seeded users log in (dev login) as perfs<N> / perft<N> / perfa<N> with password "pwd". Their
+email addresses are under example.invalid, so emails sent to them are never delivered.
 
 A full run takes about half an hour, so back up the seeded database once (in parallel, directory
 format) and restore that instead of seeding again. Stop the application first, and refresh the
@@ -430,12 +431,15 @@ class Seeder:
             for n in range(count):
                 uid = self.ids.take('app_user')
                 fn, ln = self.rng.choice(first), self.rng.choice(last)
+                # Dev login needs the funet.fi eppn. The address is undeliverable (RFC 2606), so
+                # the jobs' emails cannot reach anyone on a server whose mailer is not mocked
                 eppn = f'{a.prefix}{kind}{n}@funet.fi'
+                email = f'{a.prefix}{kind}{n}@example.invalid'
                 org = self.rng.choice(self.orgs)[0]
                 ident = f'{self.rng.randint(10_000_000, 99_999_999)}' if kind == 's' else None
                 empno = f'E{uid}' if kind == 't' else None
                 # last_login is filled in from the seeded activity at the end
-                self.add('app_user', (uid, eppn, eppn, ln, fn, PASSWORD_MD5, org, True, ident,
+                self.add('app_user', (uid, email, eppn, ln, fn, PASSWORD_MD5, org, True, ident,
                                       empno, self.rng.choice(langs), None, 1))
                 self.add('app_user_role', (uid, roles[role]))
                 if kind == 't':
