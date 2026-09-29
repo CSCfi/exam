@@ -18,6 +18,7 @@ import services.mail.EmailComposer
 
 import javax.inject.Inject
 import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
 
 class AutoEvaluationNotifierService @Inject() (
@@ -26,6 +27,12 @@ class AutoEvaluationNotifierService @Inject() (
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:
+
+  private val ScheduledReleaseTypes = List(
+    AutoEvaluationReleaseType.GIVEN_DATE,
+    AutoEvaluationReleaseType.GIVEN_AMOUNT_DAYS,
+    AutoEvaluationReleaseType.AFTER_EXAM_PERIOD
+  )
 
   private def adjustReleaseDate(date: DateTime) =
     dateTimeHandler.adjustDST(date.withHourOfDay(5).withMinuteOfHour(0).withSecondOfMinute(0))
@@ -61,6 +68,9 @@ class AutoEvaluationNotifierService @Inject() (
       DB.find(classOf[Exam])
         .fetch("autoEvaluationConfig")
         .where
+        // The release types this job handles. IMMEDIATE is notified at grading and NEVER not at
+        // all; left in, they would be loaded again on every run for as long as they stay GRADED
+        .in("autoEvaluationConfig.releaseType", ScheduledReleaseTypes.asJava)
         .eq("state", ExamState.GRADED)
         .isNotNull("gradedTime")
         .isNotNull("autoEvaluationConfig")
