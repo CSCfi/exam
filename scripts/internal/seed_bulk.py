@@ -31,6 +31,14 @@ Example:
         password=exam" --allow-db exam_perf --attempts 1000000
 
 Seeded users log in (dev login) as perfs<N> / perft<N> / perfa<N> with password "pwd".
+
+A full run takes about half an hour, so back up the seeded database once (in parallel, directory
+format) and restore that instead of seeding again. Stop the application first, and refresh the
+planner statistics after a restore, which pg_restore does not carry over:
+
+    pg_dump -h localhost -U exam -Fd -j 4 -f ~/backups/exam_perf_seed exam_perf
+    pg_restore -h localhost -U exam -d exam_perf --clean --if-exists -j 4 ~/backups/exam_perf_seed
+    vacuumdb -h localhost -U exam --analyze-only -j 4 exam_perf
 """
 
 import argparse
