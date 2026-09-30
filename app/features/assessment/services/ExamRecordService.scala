@@ -50,14 +50,16 @@ class ExamRecordService @Inject() (
         validateExamState(exam, gradeRequired, user) match
           case Some(error) => Left(error)
           case None =>
+            val now = DateTime.now
             exam.state = ExamState.GRADED_LOGGED
+            exam.markLocked(now)
             exam.update()
             DB.find(classOf[ExamParticipation]).fetch("user").where.eq(
               "exam.id",
               exam.id
             ).find match
               case Some(participation) =>
-                val record = createRecord(exam, participation, gradeRequired)
+                val record = createRecord(exam, participation, gradeRequired, now)
                 val score  = createScore(record, participation.ended)
                 score.save()
                 record.examScore = score
@@ -83,6 +85,7 @@ class ExamRecordService @Inject() (
           case Some(error) => Left(error)
           case None =>
             exam.state = ExamState.GRADED_LOGGED
+            exam.markLocked(DateTime.now)
             exam.grade = null
             exam.gradingType = GradeType.NOT_GRADED
             exam.update()
@@ -148,14 +151,19 @@ class ExamRecordService @Inject() (
       user.hasPermission(PermissionType.CAN_INSPECT_LANGUAGE)
     }
 
-  private def createRecord(exam: Exam, participation: ExamParticipation, releasable: Boolean) =
+  private def createRecord(
+      exam: Exam,
+      participation: ExamParticipation,
+      releasable: Boolean,
+      timeStamp: DateTime
+  ) =
     val student = participation.user
     val teacher = exam.gradedByUser
     val record  = new ExamRecord
     record.exam = exam
     record.student = student
     record.teacher = teacher
-    record.timeStamp = DateTime.now
+    record.timeStamp = timeStamp
     record.releasable = releasable
     record
 

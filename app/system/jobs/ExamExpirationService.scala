@@ -18,6 +18,8 @@ import services.config.ConfigReader
 import javax.inject.Inject
 import scala.concurrent.duration.*
 
+// Runs only while exam.retention.dryRun is on (see SystemInitializer). StudentDataRetentionJob
+// replaces it, so remove it once deployments have switched dry run off.
 class ExamExpirationService @Inject() (private val configReader: ConfigReader)
     extends ScheduledJob
     with Logging
