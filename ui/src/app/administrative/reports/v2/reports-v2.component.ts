@@ -273,7 +273,10 @@ export class ReportsV2Component {
                                         courseName: exam?.course?.name ?? '',
                                         examName: exam?.name ?? '',
                                         teachers:
-                                            exam?.examOwners
+                                            (exam?.examOwners?.length
+                                                ? exam.examOwners
+                                                : exam?.parent?.examOwners
+                                            )
                                                 ?.map((o) => `${o.firstName} ${o.lastName} (${o.email})`)
                                                 .join(', ') ?? '',
                                         reservationStart: r.startAt
