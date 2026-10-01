@@ -15,7 +15,8 @@
     margin-left: 10px;
     margin-top: 10px;
     color: #2c2c2c;
-    font-size: 16px;
+    font-size: 1.25rem;
+    max-width: 100%;
 
     &.arrow {
         margin-left: 0px;
@@ -23,13 +24,24 @@
         margin-top: 0px;
         float: right;
     }
+
+    // Collapsed state: clip the rendered content instead of truncating the HTML source.
+    // Line clamping gives the ellipsis but has no effect on tables or images, hence max-height.
+    &.clamped {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        max-height: 5.5em;
+        overflow: hidden;
+    }
 }
 
 .question-text {
     display: inline;
     margin: 0;
     line-height: 1.5em;
-    font-size: 22px;
+    font-size: 1.6875rem;
     color: #2c2c2c;
 
     p {
@@ -38,7 +50,7 @@
     }
 }
 .attachment-name {
-    font-size: 12px;
+    font-size: 0.9375rem;
     color: #555555;
 }
 .info-question-separator {

@@ -141,7 +141,11 @@ SPDX-License-Identifier: EUPL-1.2
         :
     </div>
     @if (exam()?.examFeedback?.comment) {
-        <div class="col-md-10" [class.text-danger]="!isCommentRead()" [xmMath]="exam()?.examFeedback?.comment"></div>
+        <div
+            class="col-md-10"
+            [class.text-danger]="!isCommentRead()"
+            [xmRichText]="exam()?.examFeedback?.comment"
+        ></div>
     }
     @if (exam()?.examFeedback?.attachment) {
         <div class="col-md-offset-2 col-md-10">

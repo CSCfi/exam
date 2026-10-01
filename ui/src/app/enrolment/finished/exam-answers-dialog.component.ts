@@ -10,16 +10,16 @@ import { Exam } from 'src/app/exam/exam.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AnsweredQuestion } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 
 @Component({
     selector: 'xm-exam-answers-dialog',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-answers-dialog.component.html',
     styleUrl: './exam-answers-dialog.component.scss',
-    imports: [TranslateModule, MathDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
+    imports: [TranslateModule, RichTextDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
 export class ExamAnswersDialogComponent {
     // Regular properties for programmatic access (set by modal service)

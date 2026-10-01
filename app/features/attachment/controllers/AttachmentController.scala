@@ -195,8 +195,9 @@ class AttachmentController @Inject() (
     }
 
   def downloadExamAttachment(id: Long): Action[AnyContent] =
-    authenticated.async { _ =>
-      attachmentService.downloadExamAttachment(id).flatMap {
+    authenticated.async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      attachmentService.downloadExamAttachment(id, user).flatMap {
         case Right(attachment) =>
           attachmentService.serveAttachment(attachment).map {
             case Right(source) => serveAsStream(attachment, source)

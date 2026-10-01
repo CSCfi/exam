@@ -241,6 +241,88 @@ class DataTransferControllerSpec
         imported.foreach(q => q.tags.size must be(1))
         DB.find(classOf[Tag]).where().eq("creator", user).eq("name", "kissa").list.size must be(1)
 
+      "import question carrying same-named tags of different creators creates only one tag" in:
+        ensureTestDataLoaded()
+        val user = DB.find(classOf[User]).where().eq("email", "teacher@funet.fi").find match
+          case Some(u) => u
+          case None    => fail("Teacher user not found")
+
+        val payload = Json.obj(
+          "type"   -> "QUESTION",
+          "orgRef" -> ORG_REF,
+          "owner"  -> "teacher@funet.fi",
+          "path"   -> "/integration/iop/import",
+          "ids"    -> Json.arr(1),
+          "questions" -> Json.arr(
+            Json.obj(
+              "id"              -> 1,
+              "type"            -> "EssayQuestion",
+              "question"        -> "Question **sametagimport",
+              "shared"          -> false,
+              "creator"         -> Json.obj("id" -> 2),
+              "options"         -> Json.arr(),
+              "defaultMaxScore" -> 4.0,
+              "tags" -> Json.arr(
+                Json.obj("id" -> 101, "name" -> "hevonen", "objectVersion" -> 1),
+                Json.obj("id" -> 102, "name" -> "hevonen", "objectVersion" -> 1)
+              ),
+              "objectVersion" -> 1
+            )
+          )
+        )
+
+        val result = runIO(makeRequest(POST, "/integration/iop/import", body = Some(payload)))
+        statusOf(result) must be(Status.CREATED)
+
+        val imported = DB.find(classOf[Question]).where().like("question", "% **sametagimport").list
+        imported.size must be(1)
+        imported.head.tags.size must be(1)
+        DB.find(classOf[Tag]).where().eq("creator", user).eq("name", "hevonen").list.size must be(1)
+
+      "import tag differing only by case reuses the existing tag" in:
+        ensureTestDataLoaded()
+        val user = DB.find(classOf[User]).where().eq("email", "teacher@funet.fi").find match
+          case Some(u) => u
+          case None    => fail("Teacher user not found")
+
+        val existing = new Tag()
+        existing.setCreatorWithDate(user)
+        existing.setModifierWithDate(user)
+        existing.name = "kameli"
+        existing.save()
+
+        val payload = Json.obj(
+          "type"   -> "QUESTION",
+          "orgRef" -> ORG_REF,
+          "owner"  -> "teacher@funet.fi",
+          "path"   -> "/integration/iop/import",
+          "ids"    -> Json.arr(1),
+          "questions" -> Json.arr(
+            Json.obj(
+              "id"              -> 1,
+              "type"            -> "EssayQuestion",
+              "question"        -> "Question **casetagimport",
+              "shared"          -> false,
+              "creator"         -> Json.obj("id" -> 2),
+              "options"         -> Json.arr(),
+              "defaultMaxScore" -> 4.0,
+              "tags" -> Json.arr(
+                Json.obj("id" -> 201, "name" -> "KAMELI", "objectVersion" -> 1)
+              ),
+              "objectVersion" -> 1
+            )
+          )
+        )
+
+        val result = runIO(makeRequest(POST, "/integration/iop/import", body = Some(payload)))
+        statusOf(result) must be(Status.CREATED)
+
+        val imported = DB.find(classOf[Question]).where().like("question", "% **casetagimport").list
+        imported.size must be(1)
+        imported.head.tags.size must be(1)
+        imported.head.tags.get(0).id must be(existing.id)
+        DB.find(classOf[Tag]).where().eq("creator", user).ieq("name", "kameli").list.size must be(1)
+
       "import question with attachment (does not work like this anymore)" ignore:
         val mapper = new ObjectMapper()
         val from   = new File("test/resources/questionImportWithAttachment.json")

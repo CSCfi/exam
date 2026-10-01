@@ -166,7 +166,7 @@ class ExaminationService @Inject() (
     validateEnrolment(hash, user, requestData).flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right(_) =>
-        Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
+        findOwnSectionQuestion(questionId, hash, user) match
           case None => Future.successful(Left(QuestionNotFound))
           case Some(question) =>
             val answer = Option(question.essayAnswer) match
@@ -192,7 +192,7 @@ class ExaminationService @Inject() (
     validateEnrolment(hash, user, requestData).map {
       case Left(error) => Left(error)
       case Right(_) =>
-        Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
+        findOwnSectionQuestion(questionId, hash, user) match
           case None => Left(QuestionNotFound)
           case Some(question) =>
             question.options.asScala.foreach { o =>
@@ -212,7 +212,7 @@ class ExaminationService @Inject() (
     validateEnrolment(hash, user, requestData).flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right(_) =>
-        Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
+        findOwnSectionQuestion(questionId, hash, user) match
           case None => Future.successful(Left(QuestionNotFound))
           case Some(esq) =>
             val objectVersion = answerDTO.objectVersion.getOrElse(0L)
@@ -304,6 +304,21 @@ class ExaminationService @Inject() (
                 }
           }
       }
+
+  // Enrolment validation only proves the caller owns the exam identified by `hash`; the answer
+  // methods still receive an arbitrary questionId. Scope the lookup to the caller's own exam so a
+  // student can't write answers into another student's exam instance by passing a foreign question id.
+  private def findOwnSectionQuestion(
+      questionId: Long,
+      hash: String,
+      user: User
+  ): Option[ExamSectionQuestion] =
+    DB.find(classOf[ExamSectionQuestion])
+      .where()
+      .idEq(questionId)
+      .eq("examSection.exam.hash", hash)
+      .eq("examSection.exam.creator", user)
+      .find
 
   private def findParticipation(exam: Exam, user: User): Option[ExamParticipation] =
     DB.find(classOf[ExamParticipation])

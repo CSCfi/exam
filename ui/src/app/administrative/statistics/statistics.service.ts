@@ -16,7 +16,7 @@ export class StatisticsService {
     listReservations$ = (params: QueryParams) =>
         this.http.get<{ noShows: number; appearances: number }>('/app/statistics/reservations', { params: params });
     listResponses$ = (params: QueryParams) =>
-        this.http.get<{ assessed: number; unAssessed: number; aborted: number }>('/app/statistics/responses', {
+        this.http.get<{ assessed: number; unassessed: number; aborted: number }>('/app/statistics/responses', {
             params: params,
         });
     listParticipations$ = (params: QueryParams) =>

@@ -15,8 +15,8 @@ import { QuestionScoringService } from 'src/app/question/question-scoring.servic
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 import { ClaimChoiceAnswerComponent } from './claim-choice-answer.component';
 import { MultiChoiceAnswerComponent } from './multi-choice-answer.component';
@@ -28,7 +28,7 @@ import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answ
     templateUrl: './multi-choice-question.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [
-        MathDirective,
+        RichTextDirective,
         MultiChoiceAnswerComponent,
         WeightedMultiChoiceAnswerComponent,
         ClaimChoiceAnswerComponent,
@@ -139,7 +139,7 @@ export class MultiChoiceQuestionComponent {
                     this.toast.info(this.translate.instant('i18n_graded'));
                     this.scored.emit(resp.rev);
                 },
-                error: (err) => this.toast.error(err.data),
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.Assessment.saveForcedScore(sq).subscribe({
@@ -147,7 +147,7 @@ export class MultiChoiceQuestionComponent {
                     this.toast.info(this.translate.instant('i18n_graded'));
                     this.scored.emit('');
                 },
-                error: (err) => this.toast.error(err.data),
+                error: (err) => this.toast.error(err),
             });
         }
     };

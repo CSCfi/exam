@@ -83,7 +83,7 @@ export class ExceptionDialogRepetitionOptionsComponent {
         // Initialize signals that depend on DateTimeService
         this.weekdays.set(
             this.DateTimeService.getWeekdayNames(true).map((d, i) => {
-                return { selected: false, day: d, ord: i === 6 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
+                return { selected: false, day: d, ord: i + 1 }; // 1-7 mo-su, as in Luxon
             }),
         );
         this.months.set(
@@ -126,7 +126,7 @@ export class ExceptionDialogRepetitionOptionsComponent {
     startChanged(e: { date: Date }) {
         this._startRaw.set(e.date);
         if (this.endDate() < e.date) {
-            this._endRaw.set(e.date);
+            this._endRaw.set(this.clampEndToStart(e.date, this._endRaw()));
         }
         this.optionChanged.emit(this.getConfig());
     }
@@ -179,5 +179,16 @@ export class ExceptionDialogRepetitionOptionsComponent {
         const wholeWeekValue = this.wholeWeek();
         this.weekdays.update((weekdays) => weekdays.map((wd) => ({ ...wd, selected: wholeWeekValue })));
         this.optionChanged.emit(this.getConfig());
+    }
+
+    // Pull the ending date onto the starting one, keeping the ending time of day when it still comes after start
+    private clampEndToStart(start: Date, end: Date): Date {
+        const candidate = DateTime.fromJSDate(start).set({
+            hour: end.getHours(),
+            minute: end.getMinutes(),
+            second: 0,
+            millisecond: 0,
+        });
+        return candidate.toMillis() > start.getTime() ? candidate.toJSDate() : start;
     }
 }

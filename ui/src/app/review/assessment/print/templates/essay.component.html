@@ -8,7 +8,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <span [xmMath]="sectionQuestion().question.question"></span>
+            <span [xmRichText]="sectionQuestion().question.question"></span>
         </div>
     </div>
     <!-- question attachment -->
@@ -50,7 +50,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_exam_answer' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <span [xmMath]="sectionQuestion().essayAnswer?.answer ?? undefined"></span>&nbsp;
+            <span [xmRichText]="sectionQuestion().essayAnswer?.answer ?? undefined"></span>&nbsp;
         </div>
     </div>
     <!-- answer attachment -->

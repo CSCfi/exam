@@ -291,17 +291,17 @@ class ReviewService @Inject() (
                 else Some(ReviewError.InvalidGradeForScale)
               case None =>
                 exam.grade = null
-                if gradingType == GradeType.NOT_GRADED then
-                  exam.grade = null
-                  exam.gradingType = GradeType.NOT_GRADED
-                else if gradingType == GradeType.POINT_GRADED then
-                  exam.grade = null
+                if gradingType == GradeType.POINT_GRADED then
                   exam.gradingType = GradeType.POINT_GRADED
                   // Forced partial credit type
                   exam.creditType = DB.find(classOf[ExamType]).where().eq(
                     "type",
                     "PARTIAL"
                   ).find.orNull
+                else
+                  // Either explicitly not graded or the grade was cleared, in which case the exam
+                  // is back to awaiting one. Assign in both cases so a previous choice gets undone.
+                  exam.gradingType = gradingType
                 None
             gradeError match
               case Some(e) => Left(e)
@@ -446,11 +446,13 @@ class ReviewService @Inject() (
     Option(DB.find(classOf[Exam], examId)) match
       case Some(exam) =>
         if exam.hasState(ExamState.ABORTED, ExamState.ARCHIVED) then Left(ReviewError.Forbidden)
+        else if !exam.isCreatedBy(user) then Left(ReviewError.Forbidden)
         else
-          Option(DB.find(classOf[Comment], commentId)) match
+          Option(exam.examFeedback).filter(_.id.longValue == commentId) match
             case Some(comment) =>
               comment.setModifierWithDate(user)
               comment.feedbackStatus = status
+              comment.update()
               Right(())
             case None => Left(ReviewError.BadRequest)
       case None => Left(ReviewError.ExamNotFound)

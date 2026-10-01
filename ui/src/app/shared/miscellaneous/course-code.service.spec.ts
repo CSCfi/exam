@@ -47,6 +47,11 @@ describe('CourseCodeService', () => {
             expect(service.formatCode('a-b-c')).toBe('a-b');
         });
 
+        it('should return the code unchanged when the prefix is an empty string', () => {
+            mockStorage.get.mockReturnValue('');
+            expect(service.formatCode('CS-101')).toBe('CS-101');
+        });
+
         it('should return the full code when the prefix is not found in the code', () => {
             mockStorage.get.mockReturnValue('XYZ');
             // "CS-101".split("XYZ") = ["CS-101"] → parts[0] = "CS-101"

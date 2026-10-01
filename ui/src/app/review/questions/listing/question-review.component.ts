@@ -8,7 +8,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 
 @Component({
     selector: 'xm-question-review',
@@ -52,7 +52,7 @@ import { MathDirective } from 'src/app/shared/math/math.directive';
 
         <!-- Question -->
         <div class="ms-2">
-            <div [xmMath]="review().question.question"></div>
+            <div [xmRichText]="review().question.question"></div>
             @if (review().question.defaultAnswerInstructions) {
                 <a (click)="toggleExpanded()" class="pointer-hand">
                     @if (!review().expanded) {
@@ -76,7 +76,7 @@ import { MathDirective } from 'src/app/shared/math/math.directive';
         }
     </div>`,
     styleUrls: ['./question-review.component.scss'],
-    imports: [MathDirective, LowerCasePipe, TranslateModule],
+    imports: [RichTextDirective, LowerCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionReviewComponent {

@@ -80,15 +80,9 @@ export class FacilityComponent {
         modalRef.componentInstance.period.set(period);
         this.modal.result$<MaintenancePeriod>(modalRef).subscribe((res) => {
             this.room.updateMaintenancePeriod$(res).subscribe({
-                next: () => {
+                next: (mp) => {
                     this.toast.info(this.translate.instant('i18n_maintenance_period_updated'));
-                    this.maintenancePeriods.update((periods) => {
-                        const index = periods.indexOf(period);
-                        if (index === -1) return periods;
-                        const updated = [...periods];
-                        updated[index] = res;
-                        return updated;
-                    });
+                    this.maintenancePeriods.update((periods) => periods.map((p) => (p.id === period.id ? mp : p)));
                 },
                 error: (err) => this.toast.error(err),
             });

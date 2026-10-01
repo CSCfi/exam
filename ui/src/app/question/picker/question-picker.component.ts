@@ -38,6 +38,7 @@ import { LibraryQuestion } from 'src/app/question/question.model';
                         [questions]="questions()"
                         (selected)="questionSelected($event)"
                         (copied)="questionCopied()"
+                        (updated)="resultsUpdated($event)"
                         [disableLinks]="true"
                     ></xm-library-results>
                 </div>

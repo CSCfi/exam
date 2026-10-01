@@ -4,11 +4,13 @@
 
 package functional
 
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import base.BaseIntegrationSpec
 import services.config.ByodConfigHandler
 
-class ByodConfigHandlerSpec extends PlaySpec with GuiceOneAppPerTest:
+// Extends BaseIntegrationSpec so the test configuration is pinned even when the suite is run
+// outside sbt (e.g. from the IDE). Booting a Play app without it falls back to application.conf,
+// i.e. the dev database, which Test mode would then evolve - downs included.
+class ByodConfigHandlerSpec extends BaseIntegrationSpec:
 
   private lazy val byodConfigHandler = app.injector.instanceOf(classOf[ByodConfigHandler])
 

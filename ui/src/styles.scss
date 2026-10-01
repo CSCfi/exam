@@ -9,6 +9,7 @@
 @use 'ngx-toastr/toastr';
 @use 'bootstrap-icons/font/bootstrap-icons.css';
 @use 'ckeditor5/dist/ckeditor5.css';
+@use 'highlight.js/styles/github.css';
 
 @use './app/shared/definitions.scss' as shared;
 
@@ -21,14 +22,26 @@
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff2') format('woff2'),
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff') format('woff');
 }
+/* Root type size deliberately inherits the reader's browser font-size setting rather than
+   pinning a px value, so readers who raise their default get larger text. Every font-size
+   below is expressed in rem/em so it scales with this. Do not reintroduce a px value here. */
 html {
-    font-size: 13px;
-    @media (max-width: shared.$mobile-width) {
-        font-size: 15px;
-    }
+    font-size: 100%;
 }
 * {
     font-family: Arimo, Helvetica-Neue, Helvetica;
+}
+/* Minimum type sizes. Bootstrap sizes these three in em, so they shrink again for every
+   nesting level inside an already-reduced container (a .badge inside .small inside a
+   de-emphasised row compounds down fast). max() keeps the intended "smaller than my
+   context" behaviour where there is room for it, but never renders below the floor. */
+small,
+.small,
+.form-text {
+    font-size: max(0.875em, 0.8125rem);
+}
+.badge {
+    font-size: max(0.75em, 0.75rem);
 }
 :focus:not(:focus-visible) {
     outline: none;
@@ -154,13 +167,28 @@ textarea.ng-invalid {
     border-radius: 4px;
 }
 /* Generic table styling */
+/* The wide listings (language inspections, review categories, question library) run to 9-12
+   columns, and in those the uppercase header row rather than the data sets the table width.
+   So the headers are sized as micro-labels and allowed to wrap, and horizontal cell padding
+   is held at the physical size it had before the type rescale. Without this the widest tables
+   overflow their .table-responsive container in the ordinary case rather than the rare one. */
 .xm-data-table {
-    font-size: 14px;
+    font-size: 1.0625rem;
+    th,
+    td {
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+    }
     th {
         border: 0;
         font-weight: bold;
+        font-size: 0.875rem;
         text-transform: uppercase;
-        white-space: nowrap;
+        /* Wrapping only engages when a column is actually squeezed, so narrow tables are
+           unaffected. xm-table-sort ties its icon to the last word with &nbsp;, so the sort
+           affordance cannot be stranded on a line of its own. .with-space is now the default
+           and is kept only so existing templates that set it keep working. */
+        white-space: normal;
 
         &.with-space {
             white-space: normal;
@@ -242,6 +270,12 @@ blockquote { border-left: 3px solid #d0d0d0; margin: 0.25rem 0; padding: 0.25rem
 code { font-family: 'Courier New', Courier, monospace; font-size: 0.9em; background: $xm-code-bg; border: $xm-code-border; border-radius: 3px; padding: 0.1em 0.35em; color: #333; }
 pre { background: $xm-code-bg; border: $xm-code-border; border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto;
     code { background: none; border: none; padding: 0; font-size: 0.875em; }
+    /* The highlight.js theme paints its own white block; only its token colors are wanted here */
+    code.hljs { background: none; padding: 0; }
+}
+figure.table {
+    max-width: 100%;
+    overflow-x: auto;
 }
 figure.table table {
     width: 100%; border-collapse: collapse; border: 1px solid #d0d0d0; border-radius: 4px; overflow: hidden; font-size: 0.9em;
@@ -253,9 +287,38 @@ figure.table table {
     tbody tr:hover { background: #f0f4ff; }
 }
 /* Ckeditor content markup */
-.marker-green { background: hsl(120, 93%, 68%); }
-.marker-yellow {background: hsl(60, 97%, 73%); }
-.marker-pink { background: hsl(201, 97%, 72%); }
-.marker-blue { background: hsl(240, 100%, 67%); }
-.pen-red { color: hsl(0, 85%, 49%); }
-.pen-green { color: hsl(112, 100%, 27%); }
+/* Colors come from CKEditor's own :root vars so content looks identical in and out of the editor */
+.marker-green { background-color: var(--ck-content-highlight-marker-green); }
+.marker-yellow { background-color: var(--ck-content-highlight-marker-yellow); }
+.marker-pink { background-color: var(--ck-content-highlight-marker-pink); }
+.marker-blue { background-color: var(--ck-content-highlight-marker-blue); }
+/* Pens color the text only, so Bootstrap's <mark> background and padding need clearing */
+.pen-red { color: var(--ck-content-highlight-pen-red); background-color: transparent; padding: 0; }
+.pen-green { color: var(--ck-content-highlight-pen-green); background-color: transparent; padding: 0; }
+
+/* Todo lists. CKEditor scopes its own rules under .ck-content, which read-only views don't use.
+   The checkbox is drawn here rather than left native because the markup is always disabled, and
+   browsers grey a disabled checkbox down until the checked state is hard to make out. */
+ul.todo-list {
+    list-style: none;
+    li { margin-bottom: 5px; }
+    li .todo-list { margin-top: 5px; }
+    .todo-list__label__description { vertical-align: middle; }
+    input[type='checkbox'] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        margin: 0 6px 0 -22px;
+        vertical-align: middle;
+        border: 1px solid #333;
+        border-radius: 2px;
+        background: #fff;
+
+        &:checked {
+            border-color: #26ab33;
+            background: #26ab33 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M3 8.5l3.5 3.5L13 5'/%3E%3C/svg%3E")
+                center / 12px no-repeat;
+        }
+    }
+}

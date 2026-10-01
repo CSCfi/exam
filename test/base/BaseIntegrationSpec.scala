@@ -32,9 +32,10 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
 
   implicit lazy val executionContext: ExecutionContext      = app.actorSystem.dispatcher
   implicit lazy val ioRuntime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.implicits.global
-  // Implicit values needed for Play test helpers
-  implicit lazy val materializer: Materializer = app.materializer
-  implicit val timeout: Timeout                = Timeout(5.seconds)
+  // Implicit values needed for Play test helpers. GuiceOneAppPerTest builds a new app per test, so
+  // this must resolve per use - a memoized one would point at an already shut down materializer.
+  implicit def materializer: Materializer = app.materializer
+  implicit val timeout: Timeout           = Timeout(5.seconds)
 
   // IDEA seems to need this
   System.setProperty("config.resource", "integrationtest.conf")
