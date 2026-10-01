@@ -214,6 +214,7 @@ export class ReservationService {
         id: -ee.id,
         user: ee.user,
         enrolment: ee,
+        participation: ee.reservation?.participation,
         startAt: ee.examinationEventConfiguration?.examinationEvent.start,
         endAt:
             DateTime.fromISO(ee.examinationEventConfiguration?.examinationEvent.start as string)

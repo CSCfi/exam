@@ -291,7 +291,9 @@ export class ReportsV2Component {
                                         participationEnd: participation?.ended
                                             ? DateTime.fromISO(participation.ended).toFormat('yyyy-MM-dd HH:mm')
                                             : '',
-                                        participationDuration: participation?.duration ?? '',
+                                        participationDuration: participation?.duration
+                                            ? DateTime.fromISO(participation.duration).toUTC().toFormat('HH:mm:ss')
+                                            : '',
                                         assessmentStatus: this.Reservation.printExamState(r),
                                         gradeScale: this.CommonExam.getScaleDisplayName(exam?.gradeScale),
                                         grade: exam?.grade?.name
