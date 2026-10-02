@@ -110,23 +110,13 @@ class ReservationService @Inject() (
       .find match
       case None =>
         Option(DB.find(classOf[Reservation], reservationId)) match
-          case None => Future.successful(Left(ReservationError.ReservationNotFound))
-          case Some(reservation) =>
-            if Option(reservation.externalOrgRef).isDefined then
-              externalReservationHandler
-                .revokeExternalStudentReservation(reservation, message)
-                .map {
-                  case None    => Right(())
-                  case Some(_) => Left(ReservationError.RemoteCallFailed)
-                }
-            else
-              if reservation.endAt.isAfter(DateTime.now()) then
-                emailComposer.composeExternalReservationCancellationNotification(
-                  reservation,
-                  message
-                )
-              reservation.delete()
-              Future.successful(Right(()))
+          case None              => Future.successful(Left(ReservationError.ReservationNotFound))
+          case Some(reservation) => removeVisitorReservation(reservation, message)
+      // A visiting student has logged in here and has been handed a copy of the exam
+      case Some(enrolment) if Option(enrolment.externalExam).isDefined =>
+        if Option(enrolment.externalExam.started).isDefined then
+          Future.successful(Left(ReservationError.ParticipationExists))
+        else removeVisitorReservation(enrolment.reservation, message)
       case Some(enrolment) =>
         DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.exam).find match
           case Some(participation) =>
@@ -267,6 +257,24 @@ class ReservationService @Inject() (
               }
         }
       case _ => Future.successful(Left(ReservationError.RoomNotFound))
+
+  // Reservation of a visiting student, made here by their home organisation
+  private def removeVisitorReservation(
+      reservation: Reservation,
+      message: Option[String]
+  ): Future[Either[ReservationError, Unit]] =
+    if Option(reservation.externalOrgRef).isDefined then
+      externalReservationHandler
+        .revokeExternalStudentReservation(reservation, message)
+        .map {
+          case None    => Right(())
+          case Some(_) => Left(ReservationError.RemoteCallFailed)
+        }
+    else
+      if reservation.endAt.isAfter(DateTime.now()) then
+        emailComposer.composeExternalReservationCancellationNotification(reservation, message)
+      externalReservationHandler.deleteVisitorReservation(reservation)
+      Future.successful(Right(()))
 
   // Machines of IOP reservations are assigned by the institution hosting the visit, over IOP
   private def isExternalReservation(reservation: Reservation): Boolean =
