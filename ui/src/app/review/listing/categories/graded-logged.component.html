@@ -162,7 +162,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 [checked]="review.selected"
                                 (change)="onReviewToggle(review, $event)"
                                 class="selectionBox"
-                                [value]="review.examParticipation.id"
+                                [value]="review.examParticipation.id || review.examParticipation._id"
                             />
                         </td>
                         @if (showId()) {

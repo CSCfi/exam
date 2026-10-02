@@ -99,7 +99,7 @@ export class ReviewListService {
         items
             .filter(
                 (i) =>
-                    ids.indexOf(i.examParticipation.id.toString()) > -1 ||
+                    (i.examParticipation.id != null && ids.indexOf(i.examParticipation.id.toString()) > -1) ||
                     (i.examParticipation._id && ids.indexOf(i.examParticipation._id) > -1),
             )
             .forEach((pi) => (pi.selected = !pi.selected || override));
