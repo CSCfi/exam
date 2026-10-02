@@ -659,7 +659,8 @@ class EmailComposerImpl @Inject() (
 
   // Cancellation of a visiting student's reservation, sent by the institution hosting the visit.
   // The exam is managed by the student's home organisation, so neither its name nor the student's
-  // language is known here. Identify the booking by place and time and name the sending system.
+  // language is known here. Identify the booking by place and time; the system address is left out
+  // since the student has no use for it.
   override def composeExternalReservationCancellationNotification(
       reservation: Reservation,
       message: Option[String]
@@ -681,8 +682,7 @@ class EmailComposerImpl @Inject() (
           "email.template.reservation.cancel.message.external",
           date,
           time,
-          room,
-          hostName
+          room
         )(using lang)
         val newBooking =
           messaging("email.template.reservation.cancel.message.external.new.booking")(using lang)
