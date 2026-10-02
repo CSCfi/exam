@@ -358,7 +358,8 @@ class ReservationService @Inject() (
     val baseQuery = DB
       .find(classOf[ExamEnrolment])
       .fetch("user", "id, firstName, lastName, email, userIdentifier")
-      .fetch("exam", "id, name, state, trialCount, implementation")
+      // duration is what the UI adds to the event start to show when the examination ends
+      .fetch("exam", "id, name, state, trialCount, implementation, duration")
       .fetch("exam.course", "code")
       .fetch("exam.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
       .fetch("exam.parent.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
