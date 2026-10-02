@@ -155,7 +155,7 @@ export class AutoEvaluationComponent implements OnInit {
         if (!formGroup) return undefined;
         const gradeId = formGroup.get('gradeId')?.value;
         if (!gradeId) return undefined;
-        return this.exam().gradeScale?.grades.find((g) => g.id === gradeId);
+        return this.exam().gradeScale?.grades?.find((g) => g.id === gradeId);
     }
 
     getPercentageFromForm(index: number): number {
@@ -174,7 +174,7 @@ export class AutoEvaluationComponent implements OnInit {
     private createDefaultConfig(exam: Exam): AutoEvaluationConfig {
         return {
             releaseType: this.releaseTypes[0].name,
-            gradeEvaluations: exam.gradeScale!.grades.map((g) => ({
+            gradeEvaluations: (exam.gradeScale?.grades ?? []).map((g) => ({
                 grade: { ...g },
                 percentage: 0,
             })),
