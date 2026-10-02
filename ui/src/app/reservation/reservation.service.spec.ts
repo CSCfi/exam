@@ -12,7 +12,7 @@ import type { Exam } from 'src/app/exam/exam.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { vi } from 'vitest';
-import type { Reservation } from './reservation.model';
+import type { RemoteTransferExamReservation, Reservation } from './reservation.model';
 import { ReservationService, type Selection } from './reservation.service';
 
 describe('ReservationService', () => {
@@ -306,6 +306,28 @@ describe('ReservationService', () => {
             const result = await resultPromise;
             expect(result.length).toBe(1);
             expect(result[0].id).toBe(1);
+        });
+
+        it('should keep collaborative exams taken at another organisation', async () => {
+            const collaborativeVisit = {
+                ...baseReservation,
+                externalReservation: { orgName: 'Org', orgCode: 'ORG', machineName: 'M9', roomName: 'R9' },
+                enrolment: {
+                    ...baseReservation.enrolment,
+                    exam: null as never,
+                    collaborativeExam: { id: 5, name: 'Collab', state: 'PUBLISHED' } as never,
+                },
+            } as unknown as Reservation;
+            const params: Selection = { roomId: '1' };
+            const resultPromise = firstValueFrom(service.listReservations$(params));
+            const req = httpMock.expectOne((r) => r.url === '/app/reservations');
+            req.flush([collaborativeVisit]);
+            const result = await resultPromise;
+            expect(result.length).toBe(1);
+            const visit = result[0] as RemoteTransferExamReservation;
+            expect((visit.enrolment.exam as { name: string }).name).toBe('Collab');
+            expect(visit.org).toEqual({ name: 'Org', code: 'ORG' });
+            expect(visit.machine.name).toBe('M9');
         });
     });
 

@@ -251,11 +251,15 @@ export class ReservationService {
                     parent: null,
                 },
             } as LocalTransferExamEnrolment;
-        } else if (isRemoteTransfer(r) && r.externalReservation) {
+            return;
+        }
+        if (isRemoteTransfer(r) && r.externalReservation) {
             // Transfer exams taken elsewhere
             r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
             r.machine = { name: r.externalReservation.machineName, room: { name: r.externalReservation.roomName } };
-        } else if (isCollaborative(r)) {
+        }
+        // Not exclusive with the above: a collaborative exam taken elsewhere is both
+        if (isCollaborative(r)) {
             if (!r.enrolment.exam) {
                 r.enrolment.exam = {
                     ...r.enrolment.collaborativeExam,
