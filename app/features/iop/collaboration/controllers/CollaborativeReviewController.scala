@@ -30,6 +30,7 @@ import services.json.JsonDeserializer
 import services.mail.EmailComposer
 import system.AuditedAction
 import system.interceptors.{AnonymousHandler, AnonymousJsonFilter}
+import validation.core.PlayJsonHelper
 
 import java.io.{PipedInputStream, PipedOutputStream}
 import java.net.{URI, URL}
@@ -258,7 +259,9 @@ class CollaborativeReviewController @Inject() (
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
     .async(controllerComponents.parsers.json) { request =>
-      val refs = (request.body \ "refs").asOpt[Seq[String]].getOrElse(Seq.empty)
+      val refs = (request.body \ "params").toOption
+        .flatMap(PlayJsonHelper.parseCommaSeparatedStrings("ids", _))
+        .getOrElse(List.empty)
       collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
         case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
