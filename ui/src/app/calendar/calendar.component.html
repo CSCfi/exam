@@ -54,6 +54,7 @@ SPDX-License-Identifier: EUPL-1.2
                 [organisation]="selectedOrganisation()"
                 [minDate]="minDate()"
                 [maxDate]="maxDate()"
+                [examDuration]="examInfo().duration"
                 [disabled]="!sectionSelectionOk()"
                 (cancelled)="makeExternalReservation()"
                 (selected)="createReservation($event)"
