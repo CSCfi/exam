@@ -57,6 +57,7 @@ export class SlotPickerComponent {
     readonly disabled = input(false);
     readonly minDate = input<Date>(new Date());
     readonly maxDate = input<Date>(new Date());
+    readonly examDuration = input(0);
     readonly cancelled = output<void>();
     readonly selected = output<{
         start: string;
