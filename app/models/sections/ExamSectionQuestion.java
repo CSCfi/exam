@@ -301,7 +301,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
         Question blueprint = question.copy(optionMap, context.shouldSetParent());
         if (context.shouldSetParent()) {
-            blueprint.setParent(question);
+            // The question is deserialized from an external source, refer to it only if it exists locally
+            blueprint.setParent(context.isLocalQuestion(question.getId()) ? question : null);
         }
         blueprint.save();
         persistQuestionOwners(blueprint, context);
