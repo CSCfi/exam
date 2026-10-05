@@ -146,7 +146,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
             inspection.save();
         }
         Set<ExamSection> sections = new TreeSet<>(src.getExamSections());
-        ExamCopyContext context = ExamCopyContext.forCopyWithAnswers(user).build();
+        ExamCopyContext context =
+            parent == null
+                ? ExamCopyContext.forCollaborativeCopyWithAnswers(user).build()
+                : ExamCopyContext.forCopyWithAnswers(user).withLocalQuestionIds(getLocalQuestionIds(sections)).build();
         for (ExamSection es : sections) {
             ExamSection esCopy = es.copy(clone, context);
             esCopy.setCreatorWithDate(user);
@@ -163,6 +166,15 @@ public class ExternalExamController extends BaseController implements ExternalEx
         }
         clone.save();
         return clone;
+    }
+
+    private Set<Long> getLocalQuestionIds(Set<ExamSection> sections) {
+        Set<Long> ids = sections
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .map(esq -> esq.getQuestion().getId())
+            .collect(Collectors.toSet());
+        return ids.isEmpty() ? ids : new HashSet<>(DB.find(Question.class).where().idIn(ids).findIds());
     }
 
     @SubjectNotPresent
