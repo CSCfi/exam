@@ -5,6 +5,7 @@
 package iop
 
 import base.BaseIntegrationSpec
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, ServerSetupTest}
@@ -266,6 +267,42 @@ class ExternalExamControllerSpec
       .headOption
       .getOrElse(throw new Exception("No section question found"))
 
+  private def setReservation(enrolment: ExamEnrolment): Unit =
+    val reservation = new Reservation()
+    reservation.externalRef = RESERVATION_REF
+    reservation.startAt = DateTime.now().plusHours(2)
+    reservation.endAt = DateTime.now().plusHours(3)
+    reservation.save()
+    enrolment.reservation = reservation
+    enrolment.update()
+
+  private def questions(node: JsonNode): Seq[ObjectNode] =
+    node.at("/content/examSections").asScala.toSeq
+      .flatMap(_.get("sectionQuestions").asScala)
+      .map(_.get("question").asInstanceOf[ObjectNode])
+
+  private def setQuestionId(node: JsonNode, from: Long, to: Long): Unit =
+    questions(node).filter(_.get("id").asLong == from).foreach(_.put("id", to))
+
+  private def getQuestionIds(node: JsonNode): Seq[Long] = questions(node).map(_.get("id").asLong)
+
+  private def getParentQuestionIds(attainment: Exam): Seq[Option[Long]] =
+    DB.find(classOf[ExamSectionQuestion])
+      .fetch("question.parent")
+      .where()
+      .eq("examSection.exam", attainment)
+      .findList()
+      .asScala
+      .toSeq
+      .map(esq => Option(esq.question.parent).map(_.id.longValue))
+
+  private def postAttainment(node: JsonNode) =
+    runIO(makeRequest(
+      POST,
+      s"/integration/iop/exams/$RESERVATION_REF",
+      Some(Json.parse(node.toString))
+    ))
+
   private def assertAttachment(attachment: Attachment, json: JsonNode): Unit =
     json must not be null
     json.get("fileName").asText.must(be(attachment.fileName))
@@ -332,10 +369,8 @@ class ExternalExamControllerSpec
         // Auto-evaluation expected to occur so state should be GRADED
         attainment.state.must(be(ExamState.GRADED))
 
-        // Check that questions' parent-child relations are preserved (just check the first one)
-        attainment.examSections.asScala.head.sectionQuestions.asScala.head.question.parent.id.must(
-          be(exam.examSections.asScala.head.sectionQuestions.asScala.head.question.id)
-        )
+        // Check that the copied questions refer to the local questions they originate from
+        getParentQuestionIds(attainment).flatten must contain theSameElementsAs getQuestionIds(node)
 
         attachmentServlet.foreach(
           _.getWaiter.tryAcquire(3, 10000, TimeUnit.MILLISECONDS) must be(true)
@@ -366,6 +401,26 @@ class ExternalExamControllerSpec
         val (user, session) = runIO(loginAsAdmin())
         val reviewResult    = runIO(get(s"/app/review/${attainment.id}", session = session))
         statusOf(reviewResult).must(be(Status.OK))
+
+      "leave out parent of a question that no longer exists locally" in:
+        val (exam, enrolment, _) = setupTestData()
+        setReservation(enrolment)
+        val node =
+          new ObjectMapper().readTree(new File("test/resources/externalExamAttainment.json"))
+        // Question no longer exists locally
+        setQuestionId(node, 5L, 5555555555L)
+        statusOf(postAttainment(node)).must(be(Status.CREATED))
+
+        val attainment = Option(DB.find(classOf[Exam]).where().eq("parent", exam).findOne()) match
+          case Some(a) => a
+          case None    => fail("Attainment not found")
+        val parentIds = getParentQuestionIds(attainment)
+        parentIds must have size getQuestionIds(node).size
+        parentIds.count(_.isEmpty).must(be(1))
+        parentIds.flatten must contain noneOf (5L, 5555555555L)
+        attachmentServlet.foreach(
+          _.getWaiter.tryAcquire(3, 10000, TimeUnit.MILLISECONDS) must be(true)
+        )
 
     "receiving collaborative exam attainment" should:
       "create the participation and send it on for assessment" in:
@@ -408,6 +463,34 @@ class ExternalExamControllerSpec
         assessmentServlet.received must be(defined)
 
         DB.find(classOf[ExamEnrolment], enrolment.id).exam.id must be(participation.exam.id)
+
+      "copy questions without parents" in:
+        val (exam, enrolment, _) = setupTestData()
+        val ce                   = new CollaborativeExam()
+        ce.externalRef = "2ed47d23dfcb3f279089db32dabcccf4"
+        ce.save()
+        enrolment.collaborativeExam = ce
+        setReservation(enrolment)
+        val node = new ObjectMapper()
+          .readTree(new File("test/resources/externalExamAttainment.json"))
+          .asInstanceOf[ObjectNode]
+        // No local exam to match with
+        node.put("externalRef", ce.externalRef)
+        // Collaborative exams are always public
+        node.at("/content/executionType").asInstanceOf[ObjectNode].put("id", 1).put(
+          "type",
+          "PUBLIC"
+        )
+        // Question ids are generated by the collaboration service. Question 5 exists locally by coincidence
+        setQuestionId(node, 6L, 6543008447255910L)
+        statusOf(postAttainment(node)).must(be(Status.CREATED))
+
+        val attainment = DB.find(classOf[ExamEnrolment], enrolment.id).exam
+        attainment.id must not be exam.id
+        attainment.parent must be(null)
+        val parentIds = getParentQuestionIds(attainment)
+        parentIds must have size getQuestionIds(node).size
+        parentIds.forall(_.isEmpty).must(be(true))
 
     "receiving no show" should:
       "process no show successfully" in:

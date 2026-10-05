@@ -16,7 +16,7 @@ import models.exam.Exam
 import models.exam.ExamState
 import models.exam.GradeType
 import models.iop.ExternalExam
-import models.questions.QuestionType
+import models.questions.{Question, QuestionType}
 import models.sections.ExamSection
 import models.user.User
 import org.joda.time.DateTime
@@ -214,7 +214,14 @@ class ExternalExamHandlerImpl @Inject() (
     }
 
     val sections = new java.util.TreeSet[ExamSection](src.examSections)
-    val context  = ExamCopyContext.forCopyWithAnswers(Some(user)).build()
+    val context =
+      if Option(parent).isEmpty then
+        ExamCopyContext.forCollaborativeCopyWithAnswers(Some(user)).build()
+      else
+        ExamCopyContext
+          .forCopyWithAnswers(Some(user))
+          .withLocalQuestionIds(getLocalQuestionIds(sections.asScala.toSet))
+          .build()
     sections.asScala.foreach { es =>
       val esCopy = es.copy(clone, context)
       esCopy.setCreatorWithDate(user)
@@ -231,6 +238,18 @@ class ExternalExamHandlerImpl @Inject() (
     }
     clone.save()
     clone
+
+  private def getLocalQuestionIds(sections: Set[ExamSection]): Set[Long] =
+    val ids = sections.flatMap(_.sectionQuestions.asScala).map(_.question.id)
+    if ids.isEmpty then Set.empty
+    else
+      DB.find(classOf[Question])
+        .where()
+        .idIn(ids.asJava)
+        .findIds[java.lang.Long]()
+        .asScala
+        .map(_.longValue)
+        .toSet
 
   private def notifyTeachers(exam: Exam): Unit =
     val recipients = (
