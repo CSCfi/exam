@@ -168,24 +168,16 @@ textarea.ng-invalid {
 }
 /* Generic table styling */
 /* The wide listings (language inspections, review categories, question library) run to 9-12
-   columns, and in those the uppercase header row rather than the data sets the table width.
-   So the headers are sized as micro-labels and allowed to wrap, and horizontal cell padding
-   is held at the physical size it had before the type rescale. Without this the widest tables
-   overflow their .table-responsive container in the ordinary case rather than the rare one. */
+   columns, and in those the uppercase header row rather than the data sets the table width,
+   so the headers are allowed to wrap to keep them inside their .table-responsive container. */
 .xm-data-table {
-    font-size: 1.0625rem;
-    th,
-    td {
-        padding-left: 0.4rem;
-        padding-right: 0.4rem;
-    }
+    font-size: 0.875rem;
     th {
         border: 0;
         font-weight: bold;
-        font-size: 0.875rem;
         text-transform: uppercase;
         /* Wrapping only engages when a column is actually squeezed, so narrow tables are
-           unaffected. xm-table-sort ties its icon to the last word with &nbsp;, so the sort
+           unaffected. xm-table-sort keeps its icon glued to the last word, so the sort
            affordance cannot be stranded on a line of its own. .with-space is now the default
            and is kept only so existing templates that set it keep working. */
         white-space: normal;
