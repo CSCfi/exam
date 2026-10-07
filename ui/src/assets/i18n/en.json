@@ -448,7 +448,7 @@
     "i18n_begin": "Starts",
     "i18n_end": "Ends",
     "i18n_room_in_service": "Exam room in use",
-    "i18n_already_enrolled": "You have already registered for the exam. You can change your booking on the Dashboard.",
+    "i18n_already_enrolled": "You have already registered for the exam. You can change your booking on the Reservations page.",
     "i18n_exam_questions": "Exam questions",
     "i18n_minimum_of_two_options_required": "Question has to have at least two alternative answer options",
     "i18n_correct_option_required": "One of the answer options has to be marked as correct",
