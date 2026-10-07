@@ -49,11 +49,11 @@ SPDX-License-Identifier: EUPL-1.2
             </th>
             <th class="reservation-search">
                 <xm-table-sort
-                    by="startAt"
+                    by="startOrd"
                     text="i18n_date_time"
                     [predicate]="predicate()"
                     [reverse]="reverse()"
-                    (click)="setPredicate('startAt')"
+                    (click)="setPredicate('startOrd')"
                 >
                 </xm-table-sort>
             </th>
