@@ -5,9 +5,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, of, Subject } from 'rxjs';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { vi } from 'vitest';
 import type { RemoteTransferExamReservation, Reservation } from './reservation.model';
@@ -36,6 +38,8 @@ describe('ReservationService', () => {
             providers: [
                 ReservationService,
                 { provide: ModalService, useValue: modalSpy },
+                // DateTimeService, reached through ReservationService, translates month names
+                { provide: TranslateService, useValue: { currentLang: 'en' } },
                 provideHttpClient(),
                 provideHttpClientTesting(),
             ],
@@ -252,6 +256,37 @@ describe('ReservationService', () => {
             httpMock.expectNone((r) => r.url === '/app/events');
             reservationsReq.flush([baseReservation]);
             await resultPromise;
+        });
+
+        it('should order examination events among reservations by the times actually shown', async () => {
+            // Reservation times are rendered through the DST correction, examination event times
+            // are not, so the raw timestamps alone would put the event first even though it starts
+            // half an hour later on screen.
+            vi.spyOn(TestBed.inject(DateTimeService), 'isDST').mockReturnValue(true);
+            const reservation = {
+                ...baseReservation,
+                startAt: '2025-06-01T10:00:00Z', // shown at 09:00
+                enrolment: {
+                    ...baseReservation.enrolment,
+                    exam: { ...baseReservation.enrolment.exam, implementation: 'AQUARIUM' },
+                } as ExamEnrolment,
+            };
+            const event = {
+                ...baseReservation.enrolment,
+                id: 2,
+                user: baseReservation.user,
+                exam: { ...baseReservation.enrolment.exam, implementation: 'CLIENT_AUTH', duration: 60 },
+                examinationEventConfiguration: {
+                    examinationEvent: { start: '2025-06-01T09:30:00Z' }, // shown at 09:30
+                },
+            } as unknown as ExamEnrolment;
+
+            const resultPromise = firstValueFrom(service.listReservations$({}));
+            httpMock.expectOne((r) => r.url === '/app/reservations').flush([reservation]);
+            httpMock.expectOne((r) => r.url === '/app/events').flush([event]);
+            const result = await resultPromise;
+
+            expect([...result].sort((a, b) => a.startOrd - b.startOrd).map((r) => r.id)).toEqual([1, -2]);
         });
 
         it('should filter out reservations without enrolment.exam', async () => {
