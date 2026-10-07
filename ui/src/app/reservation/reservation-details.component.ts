@@ -43,8 +43,9 @@ export class ReservationDetailsComponent {
     readonly isAdminView = input(false);
     readonly isSupportView = input(false);
 
-    readonly predicate = signal('reservation.startAt');
-    readonly reverse = signal(false);
+    readonly predicate = signal('startOrd');
+    // Most recent examinations first: the near end of the range is the one people act on
+    readonly reverse = signal(true);
     readonly fixedReservations = linkedSignal<ReservationDetail[]>(() => this.reservations() as ReservationDetail[]);
 
     private readonly http = inject(HttpClient);
@@ -139,7 +140,10 @@ export class ReservationDetailsComponent {
     setPredicate(predicate: string) {
         if (this.predicate() === predicate) {
             this.reverse.update((v) => !v);
+        } else {
+            // Another column starts over from ascending rather than inheriting this one's direction
+            this.predicate.set(predicate);
+            this.reverse.set(false);
         }
-        this.predicate.set(predicate);
     }
 }
