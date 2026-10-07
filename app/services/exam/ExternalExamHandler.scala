@@ -42,7 +42,10 @@ import scala.util.{Random, Try}
 @ImplementedBy(classOf[ExternalExamHandlerImpl])
 trait ExternalExamHandler:
   def requestEnrolment(user: User, reservation: Reservation): Future[Option[ExamEnrolment]]
-  def createCopyForAssessment(enrolment: ExamEnrolment, externalExam: ExternalExam): Exam
+  def createCopyForAssessment(
+      enrolment: ExamEnrolment,
+      externalExam: ExternalExam
+  ): ExamParticipation
 
 class ExternalExamHandlerImpl @Inject() (
     wsClient: WSClient,
@@ -144,7 +147,10 @@ class ExternalExamHandlerImpl @Inject() (
         )
     }
 
-  override def createCopyForAssessment(enrolment: ExamEnrolment, externalExam: ExternalExam): Exam =
+  override def createCopyForAssessment(
+      enrolment: ExamEnrolment,
+      externalExam: ExternalExam
+  ): ExamParticipation =
     val parent = DB.find(classOf[Exam]).where().eq("hash", externalExam.externalRef).findOne()
     val src    = externalExam.deserialize
     val clone  = createCopy(src, parent, enrolment.user)
@@ -168,7 +174,7 @@ class ExternalExamHandlerImpl @Inject() (
       autoEvaluationHandler.autoEvaluate(clone)
 
     ep.save()
-    clone
+    ep
 
   private def createCopy(src: Exam, parent: Exam, user: User): Exam =
     val clone = src.scalarCopy()

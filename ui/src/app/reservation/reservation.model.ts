@@ -114,6 +114,7 @@ type ReservationDisplay = Omit<Reservation, 'machine' | 'enrolment'> & {
     machine: Partial<MachineDisplay>;
     userAggregate: string;
     stateOrd: number;
+    startOrd: number;
     enrolment: ExamEnrolmentDisplay;
 };
 export type LocalTransferExamEnrolment = Omit<ExamEnrolmentDisplay, 'exam'> & {
