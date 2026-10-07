@@ -77,7 +77,7 @@ SPDX-License-Identifier: EUPL-1.2
                 @for (control of gradeArray.controls; track control.get('gradeId')?.value; let index = $index) {
                     <div class="row ps-3 mb-2" [formGroupName]="index">
                         <div class="col-md-2">
-                            {{ displayGrade(getGradeFromForm(index)!) }}
+                            {{ displayGrade(getGradeFromForm(index)) }}
                         </div>
                         <div class="col-md-4">
                             <input
