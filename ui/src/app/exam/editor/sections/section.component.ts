@@ -313,6 +313,20 @@ export class SectionComponent implements OnInit {
     }
 
     copyQuestion(sq: ExamSectionQuestion) {
+        if (this.collaborative()) {
+            // Collaborative questions live only in the XM exam document, so there is nothing to copy on the
+            // backend. Ids get regenerated on insert. The attachment is left out because sharing its XM file
+            // between two questions would break the other one once either removes it.
+            const copy: Question = {
+                ...sq.question,
+                question: `<p>**COPY**</p>${sq.question.question}`,
+                attachment: undefined,
+            };
+            this.insertExamQuestion(copy, sq.sequenceNumber, () =>
+                this.toast.info(this.translate.instant('i18n_question_copied')),
+            );
+            return;
+        }
         this.http.post<Question>(`/app/question/${sq.question.id}`, {}).subscribe({
             next: (copy) => {
                 this.insertExamQuestion(copy, sq.sequenceNumber);
@@ -400,7 +414,7 @@ export class SectionComponent implements OnInit {
         return this.QuestionScore.calculateMaxScore(question);
     }
 
-    private insertExamQuestion(question: Question, seq: number) {
+    private insertExamQuestion(question: Question, seq: number, onInserted?: () => void) {
         const currentSection = this.section();
         const resource = this.collaborative()
             ? `/app/iop/exams/${this.examId()}/sections/${currentSection.id}/questions`
@@ -445,6 +459,7 @@ export class SectionComponent implements OnInit {
                         sectionQuestions: [...currentSection.sectionQuestions, newSectionQuestion],
                     };
                     this.updated.emit(updated);
+                    onInserted?.();
                 });
             },
             error: (err) => this.toast.error(err),
