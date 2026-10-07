@@ -79,6 +79,10 @@ export class DateTimeService {
         return range(1, 12).map((m) => this.getLocalizedDateForMonth(m, locale).monthLong as string);
     };
 
+    // The wall clock EXAM shows for a reservation is one hour ahead of the stored instant during
+    // DST, so displayed times (and anything ordered by them) have to be corrected the same way.
+    applyDst = (date: DateTime): DateTime => (this.isDST(date.toJSDate()) ? date.minus({ hours: 1 }) : date);
+
     isDST = (date: Date | string | number): boolean => {
         const d = new Date(date);
         const jan = new Date(d.getFullYear(), 0, 1);

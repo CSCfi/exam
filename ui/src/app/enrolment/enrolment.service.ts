@@ -22,6 +22,7 @@ import type {
     CollaborativeParticipation,
     EnrolmentInfo,
     ExamEnrolment,
+    ExaminationEventAvailability,
     ParticipationLike,
     ReviewedExam,
 } from './enrolment.model';
@@ -259,10 +260,16 @@ export class EnrolmentService {
     loadParticipations$ = (filter: string) =>
         this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: filter } });
 
-    checkExaminationEventConfig$ = (enrolmentId: number, configId: number): Observable<string | null> =>
+    checkExaminationEventConfig$ = (
+        enrolmentId: number,
+        configId: number,
+    ): Observable<ExaminationEventAvailability | null> =>
         this.http.get(`/app/enrolments/${enrolmentId}/examination/${configId}`, { responseType: 'text' }).pipe(
             map(() => null),
-            catchError((err) => of(err as string)),
+            // error interceptor hands us only the translated message, so compare against that
+            catchError((err: string) =>
+                of({ full: err === this.translate.instant('i18n_error_max_enrolments_reached'), message: err }),
+            ),
         );
 
     selectExaminationEvent$ = (

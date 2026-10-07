@@ -14,9 +14,10 @@ import io.ebean.DB
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import models.attachment.Attachment
-import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
+import models.enrolment.*
 import models.exam.{Exam, ExamState}
 import models.facility.ExamRoom
+import models.iop.CollaborativeExam
 import models.questions.QuestionType
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Language, User}
@@ -93,6 +94,19 @@ class ExternalExamControllerSpec
         resp.getWriter.flush()
       else resp.setStatus(HttpServletResponse.SC_NOT_FOUND)
 
+  // Stands in for XM receiving collaborative assessments
+  class AssessmentServlet extends HttpServlet:
+    @volatile var received: Option[String] = None
+
+    override def doPost(req: HttpServletRequest, resp: HttpServletResponse): Unit =
+      received = Some(IOUtils.toString(req.getInputStream, "UTF-8"))
+      resp.setContentType("application/json")
+      resp.setStatus(HttpServletResponse.SC_CREATED)
+      resp.getWriter.write(s"""{"id": "${UUID.randomUUID()}", "rev": "1"}""")
+      resp.getWriter.flush()
+
+  private val assessmentServlet = new AssessmentServlet()
+
   override def beforeAll(): Unit =
     super.beforeAll()
     startGreenMail()
@@ -117,6 +131,8 @@ class ExternalExamControllerSpec
       new MultipartConfigElement(testUploadPath.toString)
     )
     context.addServlet(attachmentServletHolder, "/attachments/*")
+
+    context.addServlet(new ServletHolder(assessmentServlet), "/exams/*")
 
     serverInstance.setHandler(context)
     serverInstance.start()
@@ -350,6 +366,48 @@ class ExternalExamControllerSpec
         val (user, session) = runIO(loginAsAdmin())
         val reviewResult    = runIO(get(s"/app/review/${attainment.id}", session = session))
         statusOf(reviewResult).must(be(Status.OK))
+
+    "receiving collaborative exam attainment" should:
+      "create the participation and send it on for assessment" in:
+        val (_, _, _) = setupTestData()
+        assessmentServlet.received = None
+
+        val ce = new CollaborativeExam()
+        ce.externalRef = "collab-exam-ref"
+        ce.save()
+
+        val reservation = new Reservation()
+        reservation.externalRef = RESERVATION_REF_2
+        reservation.startAt = DateTime.now().minusHours(2)
+        reservation.endAt = DateTime.now().minusHours(1)
+        reservation.save()
+
+        val student   = DB.find(classOf[User], 1L)
+        val enrolment = new ExamEnrolment()
+        enrolment.collaborativeExam = ce
+        enrolment.user = student
+        enrolment.reservation = reservation
+        enrolment.save()
+
+        val node =
+          new ObjectMapper().readTree(new File("test/resources/externalExamAttainment.json"))
+        val result =
+          runIO(makeRequest(
+            POST,
+            s"/integration/iop/exams/$RESERVATION_REF_2",
+            Some(Json.parse(node.toString))
+          ))
+        statusOf(result).must(be(Status.CREATED))
+
+        val participation =
+          DB.find(classOf[ExamParticipation]).where().eq("collaborativeExam", ce).find match
+            case Some(p) => p
+            case None    => fail("Participation not found")
+        participation.reservation.id must be(reservation.id)
+        participation.sentForReview must not be null
+        assessmentServlet.received must be(defined)
+
+        DB.find(classOf[ExamEnrolment], enrolment.id).exam.id must be(participation.exam.id)
 
     "receiving no show" should:
       "process no show successfully" in:
