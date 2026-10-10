@@ -268,7 +268,7 @@ class ExamService @Inject() (
 
   private def didGradeChange(exam: Exam, grading: Int): Boolean =
     val canOverrideGrading = configReader.isCourseGradeScaleOverridable
-    if canOverrideGrading || Option(exam.course.gradeScale).isEmpty then
+    if canOverrideGrading || Option(exam.course).flatMap(c => Option(c.gradeScale)).isEmpty then
       DB.find(classOf[GradeScale]).fetch("grades").where().idEq(grading).find match
         case None => false
         case Some(scale) =>
