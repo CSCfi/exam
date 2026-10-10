@@ -967,21 +967,21 @@ class EmailComposerImpl @Inject() (
         logger.error(error)
         ""
       case Right(enrolmentTemplate) =>
-        DB
+        // Owners and inspectors separately, for the same reason as in getReviews
+        def exams(teacherPath: String) = DB
           .find(classOf[Exam])
           .fetch("course")
           .fetch("examEnrolments")
           .fetch("examEnrolments.reservation")
           .fetch("examEnrolments.examinationEventConfiguration.examinationEvent")
           .where
-          .disjunction
-          .eq("examOwners", teacher)
-          .eq("examInspections.user", teacher)
-          .endJunction
+          .eq(teacherPath, teacher)
           .isNotNull("course")
           .eq("state", ExamState.PUBLISHED)
           .gt("periodEnd", new Date)
           .list
+        (exams("examOwners") ++ exams("examInspections.user"))
+          .distinctBy(_.id)
           .map(e => (e, getEnrolments(e)))
           .filterNot((_, ees) => ees.isEmpty)
           .map((exam, enrolments) =>
@@ -1019,17 +1019,23 @@ class EmailComposerImpl @Inject() (
           )
           .mkString
 
-  // return exams in review state where the teacher is either owner or inspector
-  private def getReviews(teacher: User, states: Seq[Exam.State]) = DB
-    .find(classOf[ExamParticipation])
-    .where
-    .disjunction
-    .eq("exam.parent.examOwners", teacher)
-    .eq("exam.examInspections.user", teacher)
-    .endJunction
-    .in("exam.state", states.asJava)
-    .isNotNull("exam.parent")
-    .list
+  // return exams in review state where the teacher is either owner or inspector. Owners and
+  // inspectors are looked up separately: an OR across the two joins keeps the database from using
+  // either index, which makes every call scan the whole exam table
+  private def getReviews(teacher: User, states: Seq[Exam.State]): List[ExamParticipation] =
+    def reviews(teacherPath: String) = DB
+      .find(classOf[ExamParticipation])
+      .select("deadline")
+      .fetch("exam", "state")
+      .fetch("exam.parent", "name")
+      .fetch("exam.parent.course", "code")
+      .where
+      .eq(teacherPath, teacher)
+      .in("exam.state", states.asJava)
+      .isNotNull("exam.parent")
+      .list
+    (reviews("exam.parent.examOwners") ++ reviews("exam.examInspections.user"))
+      .distinctBy(_.id)
 
   private def createAssessmentBlock(assessments: Seq[ExamParticipation], lang: Lang) =
     readTemplate(s"${templateRoot}weeklySummary/inspectionInfoSimple.html") match
