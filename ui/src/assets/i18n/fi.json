@@ -1125,7 +1125,7 @@
     "i18n_allow_negative_score": "Tehtävästä saadut miinuspisteet vaikuttavat koko tentin pisteisiin",
     "i18n_weighted_multiple_choice_description_1": "Monivalinta monta oikein -kysymyksessä on mahdollista, että tehtävästä saadut miinuspisteet lasketaan koko tentin pisteisiin. Saat tämän käyttöön valitsemalla kohdan \"Tehtävästä saadut miinuspisteet vaikuttavat koko tentin pisteisiin\". Tentin kokonaispistemäärä ei kuitenkaan voi olla negatiivinen, eli minimipistemäärä tentille on 0 pistettä.",
     "i18n_weighted_multiple_choice_description_2": "Vastausvaihtojen määrää ei ole rajoitettu, vaihtoehdoista vähintään yhden pitää olla oikein",
-    "i18n_weighted_multiple_choice_description_3": "Vastausten järjestys sekoitetaan automaattisesti opiskelijoille, mutta voit valita, että vaihtoehtojen sekoitusta ei tehdä ottamalla valinnan pois kohdasta \"Sekoita vastausvaihtoehdot opiskelijan tentissä\".",
+    "i18n_multiple_choice_shuffle_options_description": "Vastausten järjestys sekoitetaan automaattisesti opiskelijoille, mutta voit valita, että vaihtoehtojen sekoitusta ei tehdä ottamalla valinnan pois kohdasta \"Sekoita vastausvaihtoehdot opiskelijan tentissä\".",
     "i18n_weighted_multiple_choice_description_4": "Kysymyksen oikeat ja väärät vastaukset määrittyvät vastausvaihtoehdon pistelukeman mukaan",
     "i18n_weighted_multiple_choice_description_5": "Oikean vastauksen pistelukema on aina enemmän kuin 0.",
     "i18n_weighted_multiple_choice_description_6": "Väärän vastauksen pistelukema on aina vähemmän kuin 0.",
