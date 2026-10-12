@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -11,16 +11,16 @@ import { DateTime } from 'luxon';
 import { combineLatest, Observable, of } from 'rxjs';
 import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
 import type { User } from 'src/app/session/session.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { FileService } from 'src/app/shared/file/file.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
-import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
-import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import { ExamService } from 'src/app/exam/exam.service';
-import { FileService } from 'src/app/shared/file/file.service';
 
 interface ReportRow {
     firstName: string;
@@ -273,10 +273,7 @@ export class ReportsV2Component {
                                         courseName: exam?.course?.name ?? '',
                                         examName: exam?.name ?? '',
                                         teachers:
-                                            (exam?.examOwners?.length
-                                                ? exam.examOwners
-                                                : exam?.parent?.examOwners
-                                            )
+                                            (exam?.examOwners?.length ? exam.examOwners : exam?.parent?.examOwners)
                                                 ?.map((o) => `${o.firstName} ${o.lastName} (${o.email})`)
                                                 .join(', ') ?? '',
                                         reservationStart: r.startAt

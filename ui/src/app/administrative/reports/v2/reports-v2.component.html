@@ -151,21 +151,17 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-3">
             <label class="form-label">{{ 'i18n_visible_columns' | translate }}</label>
             <div ngbDropdown #columnDropdown="ngbDropdown" autoClose="outside">
-                <button
-                    ngbDropdownToggle
-                    class="btn btn-outline-secondary w-100"
-                    type="button"
-                >
+                <button ngbDropdownToggle class="btn btn-outline-secondary w-100" type="button">
                     {{ 'i18n_choose' | translate }}
                 </button>
-                <div ngbDropdownMenu class="xm-scrollable-menu" style="max-height: 300px; overflow-y: auto;">
-                  <div class="d-flex justify-content-between p-2 border-bottom sticky-top bg-white">
-                      <button type="button" class="btn btn-sm btn-link p-0" (click)="showAllColumns()">
-                        {{ 'i18n_show_all' | translate }}
-                      </button>
-                      <button type="button" class="btn btn-sm btn-link p-0 text-danger" (click)="hideAllColumns()">
-                        {{ 'i18n_hide_all' | translate }}
-                      </button>
+                <div ngbDropdownMenu class="xm-scrollable-menu" style="max-height: 300px; overflow-y: auto">
+                    <div class="d-flex justify-content-between p-2 border-bottom sticky-top bg-white">
+                        <button type="button" class="btn btn-sm btn-link p-0" (click)="showAllColumns()">
+                            {{ 'i18n_show_all' | translate }}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-link p-0 text-danger" (click)="hideAllColumns()">
+                            {{ 'i18n_hide_all' | translate }}
+                        </button>
                     </div>
                     @for (opt of columnOptions(); track opt.id) {
                         <button
@@ -196,7 +192,11 @@ SPDX-License-Identifier: EUPL-1.2
                 <thead class="sticky-top">
                     <tr>
                         @if (visibleColumns().includes('firstName')) {
-                            <th class="sortable" (click)="sort('firstName')" [class.sorted]="sortColumn() === 'firstName'">
+                            <th
+                                class="sortable"
+                                (click)="sort('firstName')"
+                                [class.sorted]="sortColumn() === 'firstName'"
+                            >
                                 {{ 'i18n_firstname' | translate }}
                                 @if (sortColumn() === 'firstName') {
                                     <i
@@ -208,7 +208,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('lastName')) {
-                            <th class="sortable" (click)="sort('lastName')" [class.sorted]="sortColumn() === 'lastName'">
+                            <th
+                                class="sortable"
+                                (click)="sort('lastName')"
+                                [class.sorted]="sortColumn() === 'lastName'"
+                            >
                                 {{ 'i18n_lastname' | translate }}
                                 @if (sortColumn() === 'lastName') {
                                     <i
@@ -220,7 +224,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('studentEmail')) {
-                            <th class="sortable" (click)="sort('studentEmail')" [class.sorted]="sortColumn() === 'studentEmail'">
+                            <th
+                                class="sortable"
+                                (click)="sort('studentEmail')"
+                                [class.sorted]="sortColumn() === 'studentEmail'"
+                            >
                                 {{ 'i18n_email' | translate }}
                                 @if (sortColumn() === 'studentEmail') {
                                     <i
@@ -244,7 +252,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('studentNumber')) {
-                            <th class="sortable" (click)="sort('studentNumber')" [class.sorted]="sortColumn() === 'studentNumber'">
+                            <th
+                                class="sortable"
+                                (click)="sort('studentNumber')"
+                                [class.sorted]="sortColumn() === 'studentNumber'"
+                            >
                                 {{ 'i18n_student_number' | translate }}
                                 @if (sortColumn() === 'studentNumber') {
                                     <i
@@ -256,7 +268,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('courseCode')) {
-                            <th class="sortable" (click)="sort('courseCode')" [class.sorted]="sortColumn() === 'courseCode'">
+                            <th
+                                class="sortable"
+                                (click)="sort('courseCode')"
+                                [class.sorted]="sortColumn() === 'courseCode'"
+                            >
                                 {{ 'i18n_course_code' | translate }}
                                 @if (sortColumn() === 'courseCode') {
                                     <i
@@ -268,7 +284,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('courseName')) {
-                            <th class="sortable" (click)="sort('courseName')" [class.sorted]="sortColumn() === 'courseName'">
+                            <th
+                                class="sortable"
+                                (click)="sort('courseName')"
+                                [class.sorted]="sortColumn() === 'courseName'"
+                            >
                                 {{ 'i18n_course_name' | translate }}
                                 @if (sortColumn() === 'courseName') {
                                     <i
@@ -280,7 +300,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('examName')) {
-                            <th class="sortable" (click)="sort('examName')" [class.sorted]="sortColumn() === 'examName'">
+                            <th
+                                class="sortable"
+                                (click)="sort('examName')"
+                                [class.sorted]="sortColumn() === 'examName'"
+                            >
                                 {{ 'i18n_exam_name' | translate }}
                                 @if (sortColumn() === 'examName') {
                                     <i
@@ -292,7 +316,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('teachers')) {
-                            <th class="sortable" (click)="sort('teachers')" [class.sorted]="sortColumn() === 'teachers'">
+                            <th
+                                class="sortable"
+                                (click)="sort('teachers')"
+                                [class.sorted]="sortColumn() === 'teachers'"
+                            >
                                 {{ 'i18n_exam_owners' | translate }}
                                 @if (sortColumn() === 'teachers') {
                                     <i
@@ -304,7 +332,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('reservationStart')) {
-                            <th class="sortable" (click)="sort('reservationStart')" [class.sorted]="sortColumn() === 'reservationStart'">
+                            <th
+                                class="sortable"
+                                (click)="sort('reservationStart')"
+                                [class.sorted]="sortColumn() === 'reservationStart'"
+                            >
                                 {{ 'i18n_reservation_start' | translate }}
                                 @if (sortColumn() === 'reservationStart') {
                                     <i
@@ -316,7 +348,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('reservationEnd')) {
-                            <th class="sortable" (click)="sort('reservationEnd')" [class.sorted]="sortColumn() === 'reservationEnd'">
+                            <th
+                                class="sortable"
+                                (click)="sort('reservationEnd')"
+                                [class.sorted]="sortColumn() === 'reservationEnd'"
+                            >
                                 {{ 'i18n_reservation_end' | translate }}
                                 @if (sortColumn() === 'reservationEnd') {
                                     <i
@@ -328,7 +364,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('participationStart')) {
-                            <th class="sortable" (click)="sort('participationStart')" [class.sorted]="sortColumn() === 'participationStart'">
+                            <th
+                                class="sortable"
+                                (click)="sort('participationStart')"
+                                [class.sorted]="sortColumn() === 'participationStart'"
+                            >
                                 {{ 'i18n_participation_start' | translate }}
                                 @if (sortColumn() === 'participationStart') {
                                     <i
@@ -340,7 +380,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('participationEnd')) {
-                            <th class="sortable" (click)="sort('participationEnd')" [class.sorted]="sortColumn() === 'participationEnd'">
+                            <th
+                                class="sortable"
+                                (click)="sort('participationEnd')"
+                                [class.sorted]="sortColumn() === 'participationEnd'"
+                            >
                                 {{ 'i18n_participation_end' | translate }}
                                 @if (sortColumn() === 'participationEnd') {
                                     <i
@@ -352,7 +396,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('participationDuration')) {
-                            <th class="sortable" (click)="sort('participationDuration')" [class.sorted]="sortColumn() === 'participationDuration'">
+                            <th
+                                class="sortable"
+                                (click)="sort('participationDuration')"
+                                [class.sorted]="sortColumn() === 'participationDuration'"
+                            >
                                 {{ 'i18n_participation_duration' | translate }}
                                 @if (sortColumn() === 'participationDuration') {
                                     <i
@@ -364,7 +412,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('assessmentStatus')) {
-                            <th class="sortable" (click)="sort('assessmentStatus')" [class.sorted]="sortColumn() === 'assessmentStatus'">
+                            <th
+                                class="sortable"
+                                (click)="sort('assessmentStatus')"
+                                [class.sorted]="sortColumn() === 'assessmentStatus'"
+                            >
                                 {{ 'i18n_exam_state' | translate }}
                                 @if (sortColumn() === 'assessmentStatus') {
                                     <i
@@ -376,7 +428,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('gradeScale')) {
-                            <th class="sortable" (click)="sort('gradeScale')" [class.sorted]="sortColumn() === 'gradeScale'">
+                            <th
+                                class="sortable"
+                                (click)="sort('gradeScale')"
+                                [class.sorted]="sortColumn() === 'gradeScale'"
+                            >
                                 {{ 'i18n_grade_scale' | translate }}
                                 @if (sortColumn() === 'gradeScale') {
                                     <i
@@ -400,7 +456,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('assessmentDate')) {
-                            <th class="sortable" (click)="sort('assessmentDate')" [class.sorted]="sortColumn() === 'assessmentDate'">
+                            <th
+                                class="sortable"
+                                (click)="sort('assessmentDate')"
+                                [class.sorted]="sortColumn() === 'assessmentDate'"
+                            >
                                 {{ 'i18n_assessment_date' | translate }}
                                 @if (sortColumn() === 'assessmentDate') {
                                     <i
@@ -412,7 +472,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('assessmentDateLocked')) {
-                            <th class="sortable" (click)="sort('assessmentDateLocked')" [class.sorted]="sortColumn() === 'assessmentDateLocked'">
+                            <th
+                                class="sortable"
+                                (click)="sort('assessmentDateLocked')"
+                                [class.sorted]="sortColumn() === 'assessmentDateLocked'"
+                            >
                                 {{ 'i18n_assessment_date_locked' | translate }}
                                 @if (sortColumn() === 'assessmentDateLocked') {
                                     <i
@@ -448,7 +512,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('maxScore')) {
-                            <th class="sortable" (click)="sort('maxScore')" [class.sorted]="sortColumn() === 'maxScore'">
+                            <th
+                                class="sortable"
+                                (click)="sort('maxScore')"
+                                [class.sorted]="sortColumn() === 'maxScore'"
+                            >
                                 {{ 'i18n_max_score' | translate }}
                                 @if (sortColumn() === 'maxScore') {
                                     <i
@@ -460,7 +528,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('language')) {
-                            <th class="sortable" (click)="sort('language')" [class.sorted]="sortColumn() === 'language'">
+                            <th
+                                class="sortable"
+                                (click)="sort('language')"
+                                [class.sorted]="sortColumn() === 'language'"
+                            >
                                 {{ 'i18n_language' | translate }}
                                 @if (sortColumn() === 'language') {
                                     <i
@@ -472,7 +544,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('organisation')) {
-                            <th class="sortable" (click)="sort('organisation')" [class.sorted]="sortColumn() === 'organisation'">
+                            <th
+                                class="sortable"
+                                (click)="sort('organisation')"
+                                [class.sorted]="sortColumn() === 'organisation'"
+                            >
                                 {{ 'i18n_faculty_name' | translate }}
                                 @if (sortColumn() === 'organisation') {
                                     <i
@@ -484,7 +560,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('additionalInfo')) {
-                            <th class="sortable" (click)="sort('additionalInfo')" [class.sorted]="sortColumn() === 'additionalInfo'">
+                            <th
+                                class="sortable"
+                                (click)="sort('additionalInfo')"
+                                [class.sorted]="sortColumn() === 'additionalInfo'"
+                            >
                                 {{ 'i18n_additional_info' | translate }}
                                 @if (sortColumn() === 'additionalInfo') {
                                     <i
@@ -496,7 +576,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('examType')) {
-                            <th class="sortable" (click)="sort('examType')" [class.sorted]="sortColumn() === 'examType'">
+                            <th
+                                class="sortable"
+                                (click)="sort('examType')"
+                                [class.sorted]="sortColumn() === 'examType'"
+                            >
                                 {{ 'i18n_exam_type' | translate }}
                                 @if (sortColumn() === 'examType') {
                                     <i
@@ -508,7 +592,11 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                         }
                         @if (visibleColumns().includes('examMethod')) {
-                            <th class="sortable" (click)="sort('examMethod')" [class.sorted]="sortColumn() === 'examMethod'">
+                            <th
+                                class="sortable"
+                                (click)="sort('examMethod')"
+                                [class.sorted]="sortColumn() === 'examMethod'"
+                            >
                                 {{ 'i18n_exam_method' | translate }}
                                 @if (sortColumn() === 'examMethod') {
                                     <i
@@ -549,19 +637,29 @@ SPDX-License-Identifier: EUPL-1.2
                     @for (row of sortedReportData(); track $index) {
                         <tr>
                             @if (visibleColumns().includes('firstName')) {
-                                <td class="text-truncate" style="max-width: 150px;" [title]="row.firstName">{{ row.firstName }}</td>
+                                <td class="text-truncate" style="max-width: 150px" [title]="row.firstName">
+                                    {{ row.firstName }}
+                                </td>
                             }
                             @if (visibleColumns().includes('lastName')) {
-                                <td class="text-truncate" style="max-width: 150px;" [title]="row.lastName">{{ row.lastName }}</td>
+                                <td class="text-truncate" style="max-width: 150px" [title]="row.lastName">
+                                    {{ row.lastName }}
+                                </td>
                             }
                             @if (visibleColumns().includes('studentEmail')) {
-                                <td class="text-truncate" style="max-width: 200px;" [title]="row.studentEmail">{{ row.studentEmail }}</td>
+                                <td class="text-truncate" style="max-width: 200px" [title]="row.studentEmail">
+                                    {{ row.studentEmail }}
+                                </td>
                             }
                             @if (visibleColumns().includes('eppn')) {
-                                <td class="text-truncate" style="max-width: 200px;" [title]="row.eppn">{{ row.eppn }}</td>
+                                <td class="text-truncate" style="max-width: 200px" [title]="row.eppn">
+                                    {{ row.eppn }}
+                                </td>
                             }
                             @if (visibleColumns().includes('studentNumber')) {
-                                <td class="text-truncate" style="max-width: 120px;" [title]="row.studentNumber">{{ row.studentNumber }}</td>
+                                <td class="text-truncate" style="max-width: 120px" [title]="row.studentNumber">
+                                    {{ row.studentNumber }}
+                                </td>
                             }
                             @if (visibleColumns().includes('courseCode')) {
                                 <td>{{ row.courseCode }}</td>
@@ -571,17 +669,21 @@ SPDX-License-Identifier: EUPL-1.2
                                     <span [title]="row.courseName.length > 50 ? row.courseName : ''">
                                         {{
                                             row.courseName.length > 50
-                                                ? (row.courseName | slice: 0:50) + '...'
+                                                ? (row.courseName | slice: 0 : 50) + '...'
                                                 : row.courseName
                                         }}
                                     </span>
                                 </td>
                             }
                             @if (visibleColumns().includes('examName')) {
-                                <td class="text-truncate" style="max-width: 250px;" [title]="row.examName">{{ row.examName }}</td>
+                                <td class="text-truncate" style="max-width: 250px" [title]="row.examName">
+                                    {{ row.examName }}
+                                </td>
                             }
                             @if (visibleColumns().includes('teachers')) {
-                                <td class="text-truncate" style="max-width: 250px;" [title]="row.teachers">{{ row.teachers }}</td>
+                                <td class="text-truncate" style="max-width: 250px" [title]="row.teachers">
+                                    {{ row.teachers }}
+                                </td>
                             }
                             @if (visibleColumns().includes('reservationStart')) {
                                 <td>{{ row.reservationStart }}</td>

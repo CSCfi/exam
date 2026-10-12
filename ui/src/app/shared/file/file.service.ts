@@ -36,7 +36,7 @@ export class FileService {
         return this._inProgress.asReadonly();
     }
 
-    download(url: string, filename: string, options: DownloadOptions & { body?: any } = {}) {
+    download(url: string, filename: string, options: DownloadOptions & { body?: unknown } = {}) {
         if (this._inProgress().has(url)) return;
         this._inProgress.update((s) => new Set([...s, url]));
         const release = () =>
