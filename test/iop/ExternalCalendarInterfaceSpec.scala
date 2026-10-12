@@ -494,9 +494,10 @@ class ExternalCalendarInterfaceSpec
         mails(0).getSubject must include("exam visit booking")
         mails(0).getSubject must not include "externally managed exam"
         val mailBody = GreenMailUtil.getBody(mails(0))
-        // The exam is managed elsewhere, so the mail must identify the booking by place and sender
+        // The exam is managed elsewhere, so the mail must identify the booking by place. The host
+        // system's address is of no use to the student
         mailBody must include("Tenttiakvaario")
-        mailBody must include("uni.org")
+        mailBody must not include "uni.org"
         mailBody must not include ",,"
 
       "fall back to externalUserRef as email recipient when externalUserEmail is not set" in:
@@ -584,6 +585,86 @@ class ExternalCalendarInterfaceSpec
         val mails = greenMail.getReceivedMessages
         mails must have size 1
         mails(0).getAllRecipients()(0).toString must be("external@test.org")
+        GreenMailUtil.getBody(mails(0)) must not include "http"
+
+      "remove reservation of a visitor that has already logged in" in:
+        val (_, _, room, _) = setupTestData()
+        val eppn            = "newuser@test.org"
+        val (start, end)    = createSafeTimes
+
+        val reservation = new Reservation()
+        reservation.externalRef = RESERVATION_REF
+        reservation.externalOrgRef = ORG_REF
+        reservation.externalUserRef = eppn
+        reservation.externalUserEmail = "external@test.org"
+        reservation.startAt = start
+        reservation.endAt = end
+        reservation.machine = room.examMachines.get(0)
+        reservation.save()
+
+        runIO(login(eppn))
+        val enrolment =
+          DB.find(classOf[ExamEnrolment])
+            .where()
+            .eq("reservation.externalRef", RESERVATION_REF)
+            .find match
+            case Some(e) => e
+            case None    => fail("Enrolment not found")
+        runIO(logout())
+
+        val (_, session) = runIO(loginAsAdmin())
+        val result = runIO(
+          makeRequest(
+            DELETE,
+            s"/app/reservations/${reservation.id}?msg=cancellation+notice",
+            session = session
+          )
+        )
+        statusOf(result) must be(Status.OK)
+
+        Option(DB.find(classOf[Reservation], reservation.id)) must be(empty)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) must be(empty)
+        Option(DB.find(classOf[ExternalExam], enrolment.externalExam.id)) must be(empty)
+
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val mails = greenMail.getReceivedMessages
+        mails must have size 1
+        mails(0).getAllRecipients()(0).toString must be("external@test.org")
+
+      "refuse to remove reservation of a visitor that has started the exam" in:
+        val (_, _, room, _) = setupTestData()
+        val eppn            = "newuser@test.org"
+        val (start, end)    = createSafeTimes
+
+        val reservation = new Reservation()
+        reservation.externalRef = RESERVATION_REF
+        reservation.externalOrgRef = ORG_REF
+        reservation.externalUserRef = eppn
+        reservation.startAt = start
+        reservation.endAt = end
+        reservation.machine = room.examMachines.get(0)
+        reservation.save()
+
+        runIO(login(eppn))
+        val enrolment =
+          DB.find(classOf[ExamEnrolment])
+            .where()
+            .eq("reservation.externalRef", RESERVATION_REF)
+            .find match
+            case Some(e) => e
+            case None    => fail("Enrolment not found")
+        runIO(logout())
+        enrolment.externalExam.started = fixedNow
+        enrolment.externalExam.update()
+
+        val (_, session) = runIO(loginAsAdmin())
+        val result = runIO(
+          makeRequest(DELETE, s"/app/reservations/${reservation.id}", session = session)
+        )
+        statusOf(result) must be(Status.FORBIDDEN)
+
+        Option(DB.find(classOf[Reservation], reservation.id)) must be(defined)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) must be(defined)
 
     "providing enrolment" should:
       "return enrolment data successfully" in:

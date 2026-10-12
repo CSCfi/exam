@@ -151,10 +151,16 @@ class ExternalReservationHandlerService @Inject() (
             if response.status != OK then Some(INTERNAL_SERVER_ERROR)
             else
               emailComposer.composeExternalReservationCancellationNotification(reservation, message)
-              reservation.delete()
+              deleteVisitorReservation(reservation)
               None
           }
           .recover { case _ => Some(INTERNAL_SERVER_ERROR) }
+
+  // Logging in as a visitor creates an enrolment (and an exam copy) referencing the reservation
+  def deleteVisitorReservation(reservation: Reservation): Unit =
+    Option(reservation.enrolment) match
+      case Some(enrolment) => enrolment.delete() // cascades to reservation and external exam
+      case None            => reservation.delete()
 
   // remove reservation on the external side, initiated by the reservation holder
   def removeReservation(

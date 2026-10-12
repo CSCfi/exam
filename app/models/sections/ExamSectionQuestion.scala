@@ -176,7 +176,9 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
       context: ExamCopyContext
   ): Unit =
     val (blueprint, optionMap) = question.copyWithOptions(context.shouldSetParent)
-    if context.shouldSetParent then blueprint.parent = question
+    // The question is deserialized from an external source, refer to it only if it exists locally
+    if context.shouldSetParent then
+      blueprint.parent = if context.isLocalQuestion(question.id) then question else null
     blueprint.save()
     persistQuestionOwners(blueprint, context)
     options.asScala.foreach { opt =>

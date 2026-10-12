@@ -5,22 +5,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, HostListener, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
+import { Toast } from 'ngx-toastr';
 
 @Component({
     template: `
-        <b>{{ title }}.</b>
-        {{ message }}
+        <b>{{ title() }}.</b>
+        {{ message() }}
     `,
 })
 export class SessionExpireWarningComponent extends Toast {
     private readonly http = inject(HttpClient);
     private readonly i18n = inject(TranslateService);
-
-    // constructor is only necessary when not using AoT
-    constructor() {
-        super(inject(ToastrService), inject(ToastPackage));
-    }
 
     @HostListener('window:keydown', ['$event'])
     handleKeyDown(event: KeyboardEvent) {
