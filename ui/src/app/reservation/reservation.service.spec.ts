@@ -73,6 +73,24 @@ describe('ReservationService', () => {
             expect(service.printExamState(r)).toBe('GRADED');
         });
 
+        it('should ignore a stale noShow on a student copy that retention deleted', () => {
+            const r = {
+                enrolment: {
+                    noShow: true,
+                    exam: { state: 'DELETED', parent: { id: 1 } },
+                    collaborativeExam: { state: 'PUBLISHED' },
+                },
+            };
+            expect(service.printExamState(r)).toBe('DELETED');
+        });
+
+        it('should keep NO_SHOW on a booking for an exam that was itself deleted', () => {
+            const r = {
+                enrolment: { noShow: true, exam: { state: 'DELETED' }, collaborativeExam: { state: 'PUBLISHED' } },
+            };
+            expect(service.printExamState(r)).toBe('NO_SHOW');
+        });
+
         it('should return exam.state when enrolment has exam', () => {
             const r = {
                 enrolment: { noShow: false, exam: { state: 'GRADED' }, collaborativeExam: { state: 'PUBLISHED' } },

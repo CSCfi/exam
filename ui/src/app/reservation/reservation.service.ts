@@ -53,6 +53,7 @@ const STATE_ORDER = [
     'GRADED_LOGGED',
     'REJECTED',
     'ARCHIVED',
+    'DELETED',
     'EXTERNAL_UNFINISHED',
     'EXTERNAL_FINISHED',
 ];
@@ -64,12 +65,17 @@ export class ReservationService {
     private readonly DateTimeService = inject(DateTimeService);
 
     printExamState = (reservation: {
-        enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
+        enrolment: {
+            exam: { state: string; parent?: unknown };
+            collaborativeExam: { state: string };
+            noShow: boolean;
+        };
     }) => {
-        const state = reservation.enrolment.exam
-            ? reservation.enrolment.exam.state
-            : reservation.enrolment.collaborativeExam.state;
-        return reservation.enrolment.noShow && !ATTENDED_STATES.includes(state) ? 'NO_SHOW' : state;
+        const exam = reservation.enrolment.exam;
+        const state = exam ? exam.state : reservation.enrolment.collaborativeExam.state;
+        // Retention deletes the content of copies the student sat, so a deleted copy was attended too
+        const attended = ATTENDED_STATES.includes(state) || (state === 'DELETED' && !!exam?.parent);
+        return reservation.enrolment.noShow && !attended ? 'NO_SHOW' : state;
     };
 
     getReservationCount = (exam: Exam) =>

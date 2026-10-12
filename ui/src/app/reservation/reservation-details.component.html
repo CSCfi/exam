@@ -125,6 +125,7 @@ SPDX-License-Identifier: EUPL-1.2
                         @if (
                             !r.enrolment.collaborativeExam &&
                             r.enrolment.exam.id &&
+                            r.enrolment.exam.state !== 'DELETED' &&
                             (isAdminView() || isSupportView() || r.enrolment.exam.state !== 'ABORTED')
                         ) {
                             <a

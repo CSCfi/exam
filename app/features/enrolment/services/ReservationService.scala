@@ -385,7 +385,11 @@ class ReservationService @Inject() (
           .eq("exam.parent.examOwners", user)
           .eq("exam.examOwners", user)
           .endJunction()
+          // A student copy stripped by retention stays listed as deleted until its booking goes
+          .or()
           .ne("exam.state", ExamState.DELETED)
+          .isNotNull("exam.parent")
+          .endOr()
       else baseQuery
 
     val withStartFilter = start.fold(withTeacherFilter) { s =>
@@ -409,7 +413,10 @@ class ReservationService @Inject() (
 
     val withExamFilter = examId.fold(withStudentFilter) { eid =>
       withStudentFilter
+        .or()
         .ne("exam.state", ExamState.DELETED)
+        .isNotNull("exam.parent")
+        .endOr()
         .disjunction()
         .eq("exam.parent.id", eid)
         .eq("exam.id", eid)
@@ -473,7 +480,11 @@ class ReservationService @Inject() (
         baseQuery
           .isNull("enrolment.externalExam")
           .isNull("enrolment.collaborativeExam")
+          // A student copy stripped by retention stays listed as deleted until its booking goes
+          .or()
           .ne("enrolment.exam.state", ExamState.DELETED)
+          .isNotNull("enrolment.exam.parent")
+          .endOr()
           .or()
           .eq("enrolment.exam.parent.examOwners", user)
           .eq("enrolment.exam.examOwners", user)
