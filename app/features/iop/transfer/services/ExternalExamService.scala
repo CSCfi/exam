@@ -105,6 +105,10 @@ class ExternalExamService @Inject() (
             }
           case None =>
             val exam = enrolment.exam
+            // Never send duplicate option rows to the examination site, the exam is not saved here
+            exam.examSections.asScala
+              .flatMap(_.sectionQuestions.asScala)
+              .foreach(esq => esq.options = esq.distinctOptions)
 
             val examAttachmentFuture = Option(exam.attachment)
               .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
