@@ -18,42 +18,27 @@ SPDX-License-Identifier: EUPL-1.2
             </h3>
         </div>
     </div>
-    <div class="row g-2 participation-meta">
-        @if (!collaborative()) {
-            <div class="col-12">
-                @if (participation().exam.course) {
-                    <div class="participation-meta-line">
-                        <span class="participation-meta-label">{{ 'i18n_course_name' | translate }}:</span>
-                        <span class="participation-meta-value">
-                            <xm-course-code [course]="participation().exam.course!"></xm-course-code>
-                            {{ participation().exam.course?.name }}
-                        </span>
-                    </div>
-                }
-                <div class="participation-meta-line">
-                    <span class="participation-meta-label">{{ 'i18n_exam_endtime' | translate }}:</span>
-                    <span class="participation-meta-value">{{
-                        participation().ended | applyDst | date: 'dd.MM.yyyy'
-                    }}</span>
-                </div>
-                <div class="participation-meta-line">
-                    <span class="participation-meta-label">{{ 'i18n_teachers' | translate }}:</span>
-                    <span class="participation-meta-value">
-                        <xm-teacher-list [exam]="participation().exam" [useParent]="true"></xm-teacher-list>
-                    </span>
-                </div>
+    @if (!collaborative() && participation().exam.course) {
+        <div class="row">
+            <div class="col-md-3 col-lg-2">{{ 'i18n_course_name' | translate }}:</div>
+            <div class="col-md-9 col-lg-10 participation-meta-value">
+                <xm-course-code [course]="participation().exam.course!"></xm-course-code>
+                {{ participation().exam.course?.name }}
             </div>
-        } @else {
-            <div class="col-12">
-                <div class="participation-meta-line">
-                    <span class="participation-meta-label">{{ 'i18n_exam_endtime' | translate }}:</span>
-                    <span class="participation-meta-value">{{
-                        participation().ended | applyDst | date: 'dd.MM.yyyy'
-                    }}</span>
-                </div>
-            </div>
-        }
+        </div>
+    }
+    <div class="row">
+        <div class="col-md-3 col-lg-2">{{ 'i18n_exam_endtime' | translate }}:</div>
+        <div class="col-md-9 col-lg-10">{{ participation().ended | applyDst | date: 'dd.MM.yyyy' }}</div>
     </div>
+    @if (!collaborative()) {
+        <div class="row">
+            <div class="col-md-3 col-lg-2">{{ 'i18n_teachers' | translate }}:</div>
+            <div class="col-md-9 col-lg-10 participation-meta-value">
+                <xm-teacher-list [exam]="participation().exam" [useParent]="true"></xm-teacher-list>
+            </div>
+        </div>
+    }
 
     @if (reviewedExam()) {
         <div class="row mt-2">

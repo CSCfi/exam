@@ -448,7 +448,7 @@
     "i18n_begin": "Börjar",
     "i18n_end": "Slutar",
     "i18n_room_in_service": "Tentamensutrymmet är i bruk",
-    "i18n_already_enrolled": "Du har redan anmält dig till tentamen. Du kan ändra din platsbokning på Arbetsbordet.",
+    "i18n_already_enrolled": "Du har redan anmält dig till tentamen. Du kan ändra din platsbokning på Bokningar-sidan.",
     "i18n_exam_questions": "Frågor",
     "i18n_minimum_of_two_options_required": "Frågan måste ha minst två svarsalternativ",
     "i18n_correct_option_required": "En av svarsalternativen måste vara korrekt",

@@ -12,7 +12,7 @@ import io.ebean.text.PathProperties
 import models.exam.Exam
 import models.questions.Question
 import models.questions.QuestionType
-import models.sections.{ExamSection, ExamSectionQuestion}
+import models.sections.ExamSectionQuestion
 import models.user.{Role, User}
 import org.joda.time.DateTime
 import play.api.Logging
@@ -54,7 +54,7 @@ class CollaborativeExamSectionController @Inject() (
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))
     ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      collaborativeExamSectionService.addSection(examId, user.id).map {
+      collaborativeExamSectionService.addSection(examId, user).map {
         case Left(error)    => Forbidden(error)
         case Right(section) => Ok(section.asJson)
       }
@@ -349,16 +349,5 @@ class CollaborativeExamSectionController @Inject() (
           }
       }
     }
-
-  private def createDraft(exam: Exam, user: User): ExamSection =
-    val section = new ExamSection()
-    section.lotteryItemCount = 1
-    section.sectionQuestions = Set.empty[ExamSectionQuestion].asJava
-    section.sequenceNumber = exam.examSections.size()
-    section.expanded = true
-    section.id = CollaborativeExamProcessingService.newId()
-    CollaborativeExamProcessingService.cleanUser(user)
-    section.setCreatorWithDate(user)
-    section
 
   // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)

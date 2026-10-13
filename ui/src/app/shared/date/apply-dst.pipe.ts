@@ -19,10 +19,7 @@ export class ApplyDstPipe implements PipeTransform {
         if (!input) return '';
         const date = this.parse(input);
         if (!date.isValid) return '';
-        if (this.DateTimeService.isDST(date.toJSDate())) {
-            return date.minus({ hours: 1 }).toISO() as string;
-        }
-        return date.toISO() as string;
+        return this.DateTimeService.applyDst(date).toISO() as string;
     };
 
     private parse = (input: string | number | Date): DateTime => {
