@@ -1125,7 +1125,7 @@
     "i18n_allow_negative_score": "Minuspoäng som studenten får för denna uppgift inverkar på tentamens totala poäng",
     "i18n_weighted_multiple_choice_description_1": "I en flervalsfråga med flera rätta svar är det möjligt att dra av minuspoäng från uppgiften från tentamens totala poäng. Du tar detta i bruk genom att välja \"Minuspoäng som studenten får för denna uppgift inverkar på tentamens totala poäng\". Tentamens totala poäng kan inte vara negativ, vilket betyder att minimipoäng för hela tentamen alltid är minst 0.",
     "i18n_weighted_multiple_choice_description_2": "Mängden svarsalternativ är inte begränsad, minst ett av alternativen måste vara rätt.",
-    "i18n_weighted_multiple_choice_description_3": "Svarsalternativen blandas automatiskt för studerande, men du kan välja att svarsalternativen inte blandas genom att inaktivera inställningen \"Blanda svarsalternativen för studeranden\" ",
+    "i18n_multiple_choice_shuffle_options_description": "Svarsalternativen blandas automatiskt för studerande, men du kan välja att svarsalternativen inte blandas genom att inaktivera inställningen \"Blanda svarsalternativen för studeranden\" ",
     "i18n_weighted_multiple_choice_description_4": "Frågans rätta och fel svar definieras genom poängmängden för svarsalternativen.",
     "i18n_weighted_multiple_choice_description_5": "Ett rätt svar har alltid poäng som är större än 0.",
     "i18n_weighted_multiple_choice_description_6": "Ett fel svar har alltid poäng som är mindre eller lika med 0.",
