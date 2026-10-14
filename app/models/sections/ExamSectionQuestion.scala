@@ -158,7 +158,7 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
         esqCopy.question = question
         esqCopy.creator = creator
         esqCopy.created = created
-        options.asScala.foreach(o => esqCopy.options.add(o.copy()))
+        distinctOptions.asScala.foreach(o => esqCopy.options.add(o.copy()))
     esqCopy
 
   private def copyScalarFields(dest: ExamSectionQuestion): Unit =
@@ -181,7 +181,7 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
       blueprint.parent = if context.isLocalQuestion(question.id) then question else null
     blueprint.save()
     persistQuestionOwners(blueprint, context)
-    options.asScala.foreach { opt =>
+    distinctOptions.asScala.foreach { opt =>
       Option(opt.option).filter(_.id != 0) match
         case Some(parentOpt) =>
           optionMap.get(parentOpt.id) match
@@ -230,6 +230,20 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
   private def shuffleOptions(): Unit =
     // need to wrap with a java list for interop with ebean/gson
     options = new java.util.ArrayList(Random.shuffle(options.asScala.toSeq).asJava)
+
+  // Older versions could store the same option several times for a section question. Keep one row
+  // per option, preferring an answered one and then the oldest one.
+  def distinctOptions: java.util.List[ExamSectionQuestionOption] =
+    val all = options.asScala.toSeq
+    val preferred = all
+      .filter(_.option != null)
+      .groupBy(_.option.id)
+      .view
+      .mapValues(_.minBy(o =>
+        (!o.answered, Option(o.id).map(_.longValue).filter(_ != 0).getOrElse(Long.MaxValue))
+      ))
+      .toMap
+    all.filter(o => o.option == null || preferred(o.option.id).eq(o)).asJava
 
   def addOption(option: ExamSectionQuestionOption, preserveScores: Boolean): Unit =
     if question.`type` != QuestionType.ClaimChoiceQuestion then
