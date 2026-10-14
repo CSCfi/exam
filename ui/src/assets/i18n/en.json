@@ -1125,7 +1125,7 @@
     "i18n_allow_negative_score": "The minus points received for the assignment affect the overall exam score.",
     "i18n_weighted_multiple_choice_description_1": "In multiple-choice questions, it is possible that the minus points received for the assignment are counted towards the total exam score. You can enable this by selecting \"The minus points received for the assignment affect the overall exam score\". However, the total exam score cannot be negative, meaning that the minimum score for the exam is 0 points.",
     "i18n_weighted_multiple_choice_description_2": "There is no limit to the number of answer options, but at least one of the options must be correct",
-    "i18n_weighted_multiple_choice_description_3": "The order of the answer options is automatically randomized for students, but you can choose to not randomize the options by deselecting the \"Mix the answer options in the student's exam\".",
+    "i18n_multiple_choice_shuffle_options_description": "The order of the answer options is automatically randomized for students, but you can choose to not randomize the options by deselecting the \"Mix the answer options in the student's exam\".",
     "i18n_weighted_multiple_choice_description_4": "The correct and incorrect answers in the exam are determined according to the score of the answer option",
     "i18n_weighted_multiple_choice_description_5": "The score for a correct answer is always greater than 0.",
     "i18n_weighted_multiple_choice_description_6": "The score for an incorrect answer is always less than 0.",
