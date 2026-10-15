@@ -150,7 +150,7 @@
     "i18n_question_attachment": "Question attachment",
     "i18n_question_instruction": "Question instructions",
     "i18n_question_lti_id": "LTI resource identifier (Id)",
-    "i18n_question_lti_id_instruction": "LTI tehtävän tunniste (Id)",
+    "i18n_question_lti_id_instruction": "LTI resource identifier (Id)",
     "i18n_question_mc": "Multiple choice question (one correct answer)",
     "i18n_question_type": "Question type",
     "i18n_question_unanswered": "Unanswered",

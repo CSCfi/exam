@@ -149,7 +149,7 @@
     "i18n_question_answered": "Besvarad",
     "i18n_question_attachment": "Frågans bilaga",
     "i18n_question_instruction": "Anvisning för uppgiften",
-    "i18n_question_lti_id": "LTI tehtävän tunniste (Id)",
+    "i18n_question_lti_id": "LTI-resursens identifierare (Id)",
     "i18n_question_lti_id_instruction": "LTI-resursens identifierare (Id)",
     "i18n_question_mc": "Flervalsfråga (ett rätt alternativ)",
     "i18n_question_type": "Frågetyp",
