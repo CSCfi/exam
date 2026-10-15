@@ -22,5 +22,5 @@ class ReportAPIController @Inject() (
   def getExamEnrolments(start: Option[String], end: Option[String]): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
       val (participations, pp) = reportAPIService.getExamEnrolments(start, end)
-      Ok(participations.asJson(pp))
+      Ok.chunked(participations.asJsonArray(pp)).as(JSON)
     }

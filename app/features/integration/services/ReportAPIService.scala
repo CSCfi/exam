@@ -5,18 +5,25 @@
 package features.integration.services
 
 import database.EbeanQueryExtensions
-import io.ebean.DB
 import io.ebean.text.PathProperties
+import io.ebean.{DB, ExpressionList}
 import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.exam.ExamState
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Source
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, Interval}
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
 
+object ReportAPIService:
+  private val PageSize = 1000
+
 class ReportAPIService @Inject() () extends EbeanQueryExtensions:
+  import ReportAPIService.PageSize
 
   private val pathProperties = PathProperties.parse(
     """(id, enrolledOn, noShow,
@@ -50,11 +57,37 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
       |)""".stripMargin
   )
 
+  /** Enrolments with a reservation or examination event inside [start, end], in keyset pages by id.
+    * A coarse version of the date condition runs in SQL so that each page reads only rows that may
+    * be in range; the exact check (see inRange) is applied to each page in memory. Dates are parsed
+    * up front so that invalid input fails before the response starts.
+    */
   def getExamEnrolments(
       start: Option[String],
       end: Option[String]
-  ): (List[ExamEnrolment], PathProperties) =
-    val participations = DB.find(classOf[ExamEnrolment])
+  )(using ExecutionContext): (Source[List[ExamEnrolment], NotUsed], PathProperties) =
+    val startDate = start.map(ISODateTimeFormat.dateTimeParser().parseDateTime)
+    val endDate   = end.map(ISODateTimeFormat.dateTimeParser().parseDateTime)
+    val range = new Interval(
+      startDate.getOrElse(new DateTime(0L)),
+      endDate.getOrElse(new DateTime(Long.MaxValue))
+    )
+    val pages = keysetPages(PageSize, (ee: ExamEnrolment) => ee.id.longValue)(
+      fetchPage(startDate, endDate, _)
+    ) { rows =>
+      val participations = rows.filter(inRange(_, range))
+      setParentSoftware(participations)
+      participations
+    }
+    (pages, pathProperties)
+
+  private def fetchPage(
+      startDate: Option[DateTime],
+      endDate: Option[DateTime],
+      after: Option[Long]
+  ): List[ExamEnrolment] =
+    val query = DB
+      .find(classOf[ExamEnrolment])
       .apply(pathProperties)
       .where()
       .or()
@@ -66,10 +99,30 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
       .isNotNull("reservation.externalReservation")
       .isNotNull("examinationEventConfiguration")
       .endOr()
-      .list
-      .filter(ee => filterByDate(ee, start, end))
 
-    // Relations from exam to software exist on the parent exam. Therefore, fetch parent exam IDs separately
+    def within(el: ExpressionList[ExamEnrolment], from: String, to: String) =
+      val withStart = startDate.fold(el)(s => el.ge(from, s.toDate))
+      endDate.fold(withStart)(e => withStart.le(to, e.toDate))
+
+    // Superset of inRange: the event end depends on the exam duration, so only its start is
+    // bounded here. Rows with neither reservation nor event are always in range.
+    val inPeriod =
+      if startDate.isEmpty && endDate.isEmpty then query
+      else
+        val eventStart  = "examinationEventConfiguration.examinationEvent.start"
+        val reservation = within(query.or().and(), "reservation.startAt", "reservation.endAt")
+        within(reservation.endAnd().and(), eventStart, eventStart)
+          .endAnd()
+          .and()
+          .isNull("reservation")
+          .isNull("examinationEventConfiguration")
+          .endAnd()
+          .endOr()
+
+    after.fold(inPeriod)(id => inPeriod.gt("id", id)).orderBy("id").setMaxRows(PageSize).list
+
+  // Relations from exam to software exist on the parent exam, so they are fetched separately
+  private def setParentSoftware(participations: List[ExamEnrolment]): Unit =
     val parentExamIds = participations.flatMap { participation =>
       Option(participation.exam)
         .flatMap(exam => Option(exam.parent))
@@ -93,19 +146,8 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
         software <- softwareByExam.get(parent.id) if software.nonEmpty
       do exam.softwares = software.asJava
     }
-    (participations, pathProperties)
 
-  private def filterByDate(
-      enrolment: ExamEnrolment,
-      start: Option[String],
-      end: Option[String]
-  ): Boolean =
-    val min       = start.getOrElse(new DateTime(0L).toDateTimeISO.toString)
-    val max       = end.getOrElse(new DateTime(Long.MaxValue).toDateTimeISO.toString)
-    val startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(min)
-    val endDate   = ISODateTimeFormat.dateTimeParser().parseDateTime(max)
-    val range     = new Interval(startDate, endDate)
-
+  private def inRange(enrolment: ExamEnrolment, range: Interval): Boolean =
     Option(enrolment.reservation)
       .map { reservation =>
         val period = new Interval(reservation.startAt, reservation.endAt)
