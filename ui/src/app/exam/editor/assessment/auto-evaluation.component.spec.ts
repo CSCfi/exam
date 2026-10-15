@@ -189,6 +189,28 @@ describe('AutoEvaluationComponent', () => {
 
             expect(component.form.enabled).toBe(true);
         });
+
+        it('should rebuild grade rows when the grade scale changes', async () => {
+            fixture.componentRef.setInput('exam', makeExam({ autoEvaluationConfig: mockAutoEvaluationConfig }));
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            const otherGrades: Grade[] = [
+                { id: 10, name: 'Pass', marksRejection: false },
+                { id: 11, name: 'Fail', marksRejection: true },
+            ];
+            const otherScale: GradeScale = { ...mockGradeScale, id: 2, grades: otherGrades };
+            fixture.componentRef.setInput(
+                'exam',
+                makeExam({ gradeScale: otherScale, autoEvaluationConfig: mockAutoEvaluationConfig }),
+            );
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(component.gradeArray.length).toBe(2);
+            expect(component.getGradeFromForm(0)).toBeDefined();
+            expect(component.getGradeFromForm(1)).toBeDefined();
+        });
     });
 
     describe('selectedReleaseType computed signal', () => {

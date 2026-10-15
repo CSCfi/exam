@@ -6,6 +6,7 @@ import {
     afterNextRender,
     ChangeDetectionStrategy,
     Component,
+    computed,
     DestroyRef,
     inject,
     Injector,
@@ -31,10 +32,18 @@ import { CalendarService } from './calendar.service';
 
 /** Align with `definitions.scss` `$mobile-width` — below this, use day grid instead of week. */
 const CALENDAR_MOBILE_MAX_WIDTH_PX = 1024;
+/** Default height of a 30-minute grid slot, see `.fc .fc-timegrid-slot` in `styles.scss`. */
+const SLOT_HEIGHT_EM = 1.8;
+const SLOT_MINUTES = 30;
+/** Height of a 45-minute event at the default slot height; fits both lines (time range and availability). */
+const MIN_EVENT_HEIGHT_EM = 2.7;
+/** Shorter exams are scaled as this long, otherwise the grid would grow to tens of thousands of pixels. */
+const MIN_SCALED_DURATION = 10;
 
 @Component({
     selector: 'xm-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    host: { '[style.--xm-fc-slot-height]': 'slotHeight()' },
     template: `
         @if (visible()) {
             <div class="row my-2">
@@ -64,6 +73,18 @@ export class BookingCalendarComponent {
     readonly minDate = input<Date>();
     readonly maxDate = input<Date>();
     readonly accessibilities = input<Accessibility[]>([]);
+    /** Exam duration in minutes; short exams get taller grid slots so their events stay readable. */
+    readonly examDuration = input(0);
+
+    readonly slotHeight = computed(() => {
+        const duration = this.examDuration();
+        if (!(duration > 0)) {
+            return `${SLOT_HEIGHT_EM}em`;
+        }
+        const scaledDuration = Math.max(duration, MIN_SCALED_DURATION);
+        const height = Math.max(SLOT_HEIGHT_EM, (MIN_EVENT_HEIGHT_EM * SLOT_MINUTES) / scaledDuration);
+        return `${Math.round(height * 100) / 100}em`;
+    });
 
     readonly calendarOptions = signal<CalendarOptions>({});
     readonly searchStart = signal(DateTime.now().startOf('week').toISO());

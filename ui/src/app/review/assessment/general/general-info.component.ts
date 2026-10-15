@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,7 +28,7 @@ type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
     styleUrls: ['../assessment.shared.scss'],
     imports: [ParticipationComponent, NoShowComponent, RichTextDirective, DatePipe, TranslateModule, ApplyDstPipe],
 })
-export class GeneralInfoComponent {
+export class GeneralInfoComponent implements OnInit {
     readonly exam = input.required<Exam>();
     readonly participation = input.required<Participation>();
     readonly collaborative = input(false);
@@ -54,7 +54,8 @@ export class GeneralInfoComponent {
     private readonly Attachment = inject(AttachmentService);
     private readonly destroyRef = inject(DestroyRef);
 
-    constructor() {
+    ngOnInit() {
+        // Inputs are not yet bound in the constructor, so collaborative() must be read here
         const id = this.route.snapshot.params.id;
         const ref = this.route.snapshot.params.ref;
         const url = this.collaborative()

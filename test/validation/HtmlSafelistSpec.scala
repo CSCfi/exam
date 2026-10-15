@@ -51,4 +51,13 @@ class HtmlSafelistSpec extends AnyWordSpec with Matchers:
       kept must include("<math-field")
       kept must include("<td>cell</td>")
     }
+
+    "keep list styles" in {
+      clean("""<ul style="list-style-type:square;"><li>a</li></ul>""") must include(
+        """<ul style="list-style-type:square;">"""
+      )
+      clean("""<ol style="list-style-type:lower-roman;"><li>a</li></ol>""") must include(
+        """<ol style="list-style-type:lower-roman;">"""
+      )
+    }
   }
