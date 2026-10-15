@@ -5,13 +5,14 @@
 package services.iop
 
 import org.apache.pekko.util.ByteString
-import play.api.http.HttpEntity
+import play.api.http.{HttpChunk, HttpEntity}
 import play.api.libs.json.*
 import play.api.mvc.Result
 
 import java.time.Instant
 import java.time.format.DateTimeFormatterBuilder
 import scala.util.Try
+import scala.util.matching.Regex
 
 /** Writes every timestamp in IOP JSON with exactly three fractional digits (`…09:00:00.000Z`).
   *
@@ -41,8 +42,28 @@ object IopTimestamps:
           .map(json => ByteString(Json.stringify(normalise(json))))
       case _ => None
 
-  /** A JSON response with normalised timestamps; anything else unchanged */
+  // A whole JSON string that is a timestamp; an escaped quote is inside a longer string
+  private val QuotedTimestamp =
+    """(?<!\\)"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z)"""".r
+
+  /** JSON text with normalised timestamps, for a fragment that is not a JSON value on its own */
+  def normaliseText(text: String): String =
+    QuotedTimestamp.replaceAllIn(
+      text,
+      m => Regex.quoteReplacement(s"\"${Millis.format(Instant.parse(m.group(1)))}\"")
+    )
+
+  /** A JSON response with normalised timestamps; anything else unchanged. A chunked response is
+    * normalised chunk by chunk, which needs every timestamp to be inside one chunk: the streamed
+    * responses (`EbeanJsonExtensions.asJsonArray`) send whole rows in each chunk.
+    */
   def normalise(result: Result): Result = result.body match
     case HttpEntity.Strict(data, contentType) if contentType.exists(_.contains("json")) =>
       normalise(data).fold(result)(b => result.copy(body = HttpEntity.Strict(b, contentType)))
+    case HttpEntity.Chunked(chunks, contentType) if contentType.exists(_.contains("json")) =>
+      val normalised = chunks.map {
+        case HttpChunk.Chunk(data) => HttpChunk.Chunk(ByteString(normaliseText(data.utf8String)))
+        case last                  => last
+      }
+      result.copy(body = HttpEntity.Chunked(normalised, contentType))
     case _ => result

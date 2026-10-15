@@ -11,12 +11,14 @@ import features.enrolment.services.ReservationError.*
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.text.PathProperties
-import io.ebean.{DB, FetchConfig}
+import io.ebean.{DB, ExpressionList, FetchConfig}
 import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.Exam
 import models.exam.ExamState
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.{Role, User}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Source
 import play.api.Logging
 import play.api.libs.json.{JsArray, Json}
 import security.BlockingIOExecutionContext
@@ -33,6 +35,11 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
+object ReservationService:
+  private val PageSize = 1000
+  // States of the reservation search that are not exam states
+  private val SpecialStates = Set("NO_SHOW", "EXTERNAL_UNFINISHED", "EXTERNAL_FINISHED")
+
 class ReservationService @Inject() (
     private val emailComposer: EmailComposer,
     private val collaborativeExamLoader: CollaborativeExamLoaderService,
@@ -45,6 +52,7 @@ class ReservationService @Inject() (
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:
+  import ReservationService.{PageSize, SpecialStates}
 
   def getExams(filter: Option[String], user: User): List[Exam] =
     val pp = props[Exam]("(id, name)")
@@ -462,6 +470,10 @@ class ReservationService @Inject() (
         }
       }
 
+  /** Reservations matching the filters, ordered by start time and streamed in keyset pages so that
+    * an unfiltered search does not load the whole history. Dates and state are parsed up front so
+    * that invalid input fails before the response starts.
+    */
   def listReservations(
       state: Option[String],
       ownerId: Option[Long],
@@ -473,7 +485,41 @@ class ReservationService @Inject() (
       end: Option[String],
       externalRef: Option[String],
       user: User
-  ): List[Reservation] =
+  ): Source[List[Reservation], NotUsed] =
+    val startDate = start.map(TimeUtils.parseInstant)
+    val endDate   = end.map(TimeUtils.parseInstant)
+    state.filterNot(SpecialStates.contains).foreach(ExamState.valueOf)
+
+    keysetPages(PageSize, (r: Reservation) => (r.startAt, r.id.longValue)) { after =>
+      reservationQuery(
+        state,
+        ownerId,
+        studentId,
+        roomId,
+        machineId,
+        examId,
+        startDate,
+        endDate,
+        externalRef,
+        user
+      ).after(path[Reservation]("startAt"), after)
+        .orderBy(s"${path[Reservation]("startAt")}, ${path[Reservation]("id")}")
+        .setMaxRows(PageSize)
+        .list
+    }(_.distinctBy(_.id)) // Joins through exam owners can repeat a reservation
+
+  private def reservationQuery(
+      state: Option[String],
+      ownerId: Option[Long],
+      studentId: Option[Long],
+      roomId: Option[Long],
+      machineId: Option[Long],
+      examId: Option[Long],
+      startDate: Option[Instant],
+      endDate: Option[Instant],
+      externalRef: Option[String],
+      user: User
+  ): ExpressionList[Reservation] =
     val baseQuery = DB
       .find(classOf[Reservation])
       .fetch(path[Reservation]("enrolment"), "noShow, retrialPermitted, enrolledOn")
@@ -525,13 +571,10 @@ class ReservationService @Inject() (
           .endOr()
       else baseQuery
 
-    val withStartFilter = start.fold(withTeacherFilter) { s =>
-      withTeacherFilter.ge(path[Reservation]("startAt"), TimeUtils.parseInstant(s))
-    }
-
-    val withEndFilter = end.fold(withStartFilter) { e =>
-      withStartFilter.lt(path[Reservation]("endAt"), TimeUtils.parseInstant(e))
-    }
+    val withStartFilter =
+      startDate.fold(withTeacherFilter)(withTeacherFilter.ge(path[Reservation]("startAt"), _))
+    val withEndFilter =
+      endDate.fold(withStartFilter)(withStartFilter.lt(path[Reservation]("endAt"), _))
 
     val withStateFilter = state.fold(withEndFilter) {
       case "NO_SHOW" => withEndFilter.eq(path[Reservation]("enrolment.noShow"), true)
@@ -584,7 +627,7 @@ class ReservationService @Inject() (
       else withExamFilter
     }
 
-    val query = if ownerId.isDefined && user.isAdminOrSupport then
+    if ownerId.isDefined && user.isAdminOrSupport then
       val userId = ownerId.get
       withExternalRefFilter
         .disjunction()
@@ -592,5 +635,3 @@ class ReservationService @Inject() (
         .eq(path[Reservation]("enrolment.exam.parent.examOwners.id"), userId)
         .endJunction()
     else withExternalRefFilter
-
-    query.orderBy(path[Reservation]("startAt")).distinct.toList

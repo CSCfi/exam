@@ -11,14 +11,21 @@ import io.ebean.text.PathProperties
 import models.enrolment.Reservation
 import models.exam.ExamState
 import models.facility.ExamRoom
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Source
 import services.datetime.TimeUtils
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.{Instant, LocalDate, ZoneOffset}
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
+
+object ReservationAPIService:
+  private val PageSize = 1000
 
 class ReservationAPIService @Inject() ()
     extends EbeanQueryExtensions:
+  import ReservationAPIService.PageSize
 
   private val reservationJsonProperties = props[Reservation](
     """(startAt, endAt, externalUserRef,
@@ -46,11 +53,28 @@ class ReservationAPIService @Inject() ()
   private val openingHoursProperties =
     props[ExamRoom]("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
 
+  /** Reservations ordered by start time, fetched in keyset pages so that memory use does not grow
+    * with the requested period. Pages are fetched lazily on `ec` as the stream is pulled. Dates are
+    * parsed up front so that invalid input fails before the response starts.
+    */
   def getReservations(
       start: Option[String],
       end: Option[String],
       roomId: Option[Long]
-  ): (List[Reservation], PathProperties) =
+  )(using ec: ExecutionContext): (Source[List[Reservation], NotUsed], PathProperties) =
+    val startDate = start.map(TimeUtils.parseInstant)
+    val endDate   = end.map(TimeUtils.parseInstant)
+    val pages = keysetPages(PageSize, (r: Reservation) => (r.startAt, r.id.longValue))(
+      fetchPage(startDate, endDate, roomId, _)
+    )(identity)
+    (pages, reservationJsonProperties)
+
+  private def fetchPage(
+      startDate: Option[Instant],
+      endDate: Option[Instant],
+      roomId: Option[Long],
+      after: Option[(Instant, Long)]
+  ): List[Reservation] =
     val query = DB.find(classOf[Reservation]).apply(reservationJsonProperties)
     val baseQuery = query
       .where()
@@ -65,17 +89,15 @@ class ReservationAPIService @Inject() ()
       .isNotNull(path[Reservation]("externalUserRef"))
       .endOr() // *
 
-    val withStart = start.fold(baseQuery)(s =>
-      baseQuery.ge(path[Reservation]("startAt"), TimeUtils.parseInstant(s))
-    )
-    val withEnd =
-      end.fold(withStart)(e => withStart.lt(path[Reservation]("endAt"), TimeUtils.parseInstant(e)))
+    val withStart = startDate.fold(baseQuery)(s => baseQuery.ge(path[Reservation]("startAt"), s))
+    val withEnd   = endDate.fold(withStart)(e => withStart.lt(path[Reservation]("endAt"), e))
+    val withRoom  = roomId.fold(withEnd)(id => withEnd.eq(path[Reservation]("machine.room.id"), id))
 
-    val finalQuery = roomId.fold(withEnd) { id =>
-      withEnd.eq(path[Reservation]("machine.room.id"), id)
-    }
-
-    (finalQuery.distinct.toList.sortBy(_.startAt.toEpochMilli), reservationJsonProperties)
+    withRoom
+      .after(path[Reservation]("startAt"), after)
+      .orderBy(s"${path[Reservation]("startAt")}, ${path[Reservation]("id")}")
+      .setMaxRows(PageSize)
+      .list
 
   def getRooms: (List[ExamRoom], PathProperties) =
     (
