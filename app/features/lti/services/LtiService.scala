@@ -9,7 +9,13 @@ import com.nimbusds.jose.jwk.{JWKSet, RSAKey}
 import com.nimbusds.jose.{JOSEObjectType, JWSAlgorithm, JWSHeader}
 import com.nimbusds.jwt.{JWTClaimsSet, SignedJWT}
 import com.typesafe.config.Config
-import models.user.User
+import database.EbeanQueryExtensions
+import io.ebean.DB
+import models.enrolment.ExamEnrolment
+import models.exam.Exam
+import models.questions.QuestionType
+import models.sections.ExamSectionQuestion
+import models.user.{Role, User}
 import play.api.Logging
 
 import java.net.URLEncoder
@@ -35,7 +41,7 @@ import scala.util.Try
   * started it via `login_hint`, which the tool must return verbatim.
   */
 @Singleton
-class LtiService @Inject() (private val config: Config) extends Logging:
+class LtiService @Inject() (private val config: Config) extends Logging with EbeanQueryExtensions:
 
   private val TokenLifetime = 5 * 60 * 1000
 
@@ -101,10 +107,64 @@ class LtiService @Inject() (private val config: Config) extends Logging:
     SecureRandom().nextBytes(bytes)
     Base64.getUrlEncoder.withoutPadding.encodeToString(bytes)
 
-  /** Signs the LTI 1.3 resource link id_token for the given user and resource. */
+  /** Resolves the LTI question being launched and the exam it sits in.
+    *
+    * Everything the id_token asserts about the launch comes from here rather than from the browser:
+    * the question has to belong to the exam identified by `examHash`, and the user has to be
+    * allowed to open that exam - the student who is taking it, or a teacher previewing it.
+    */
+  def findLaunch(
+      sectionQuestionId: Long,
+      examHash: String,
+      user: User
+  ): Either[LtiError, LtiLaunch] =
+    DB.find(classOf[ExamSectionQuestion])
+      .fetch("question")
+      .fetch("examSection.exam")
+      .where()
+      .idEq(sectionQuestionId)
+      .eq("examSection.exam.hash", examHash)
+      .find
+      .filter(esq => Option(esq.question).exists(_.`type` == QuestionType.LtiQuestion))
+      .filter(esq => canLaunch(esq.examSection.exam, user))
+      .flatMap { esq =>
+        Option(esq.question.ltiId).map(_.trim).filter(_.nonEmpty).map { resourceId =>
+          LtiLaunch(resourceId, launchContext(esq.examSection.exam))
+        }
+      }
+      .toRight(LtiError.LaunchNotFound)
+
+  private def canLaunch(exam: Exam, user: User): Boolean =
+    user.loginRole match
+      case Role.Name.STUDENT => exam.isCreatedBy(user)
+      case Role.Name.TEACHER => exam.isInspectedOrCreatedOrOwnedBy(user)
+      case Role.Name.ADMIN   => true
+      case _                 => false
+
+  /** The LTI context is the course the launch happens in, shared by everyone taking the exam. A
+    * student's exam is a copy, so it is identified by the exam it was copied from: the parent exam,
+    * or the collaborative exam for copies that have no local parent.
+    */
+  private def launchContext(exam: Exam): LtiContext =
+    val prototype = Option(exam.parent).getOrElse(exam)
+    val id = Option(exam.parent) match
+      case Some(parent) => s"exam-${parent.id}"
+      case None =>
+        DB.find(classOf[ExamEnrolment])
+          .where()
+          .eq("exam", exam)
+          .isNotNull("collaborativeExam")
+          .find
+          .map(e => s"collaborative-exam-${e.collaborativeExam.id}")
+          .getOrElse(s"exam-${exam.id}")
+    val title = Option(prototype.name).filter(_.nonEmpty).getOrElse(id)
+    val label = Option(prototype.course).flatMap(c => Option(c.code)).filter(_.nonEmpty)
+    LtiContext(id, label.getOrElse(title), title)
+
+  /** Signs the LTI 1.3 resource link id_token for the given user and launch. */
   def buildIdToken(
       user: User,
-      resourceId: String,
+      launch: LtiLaunch,
       nonce: String,
       redirectUri: String
   ): Either[LtiError, String] =
@@ -112,13 +172,14 @@ class LtiService @Inject() (private val config: Config) extends Logging:
     val exp = new Date(now.getTime + TokenLifetime)
 
     val context = Map(
-      "id"    -> "platorm-internal-id-12345678",
-      "label" -> "Oma tehtavava label",
-      "title" -> "Oma tehtava title",
+      "id"    -> launch.context.id,
+      "label" -> launch.context.label,
+      "title" -> launch.context.title,
       "type"  -> List("http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering").asJava
     ).asJava
-    val resourceLink = Map("id" -> resourceId, "title" -> "Tehtava moodle toolissa").asJava
-    val custom       = Map("id" -> resourceId).asJava
+    // Moodle's published LTI resources are identified by the custom `id` parameter.
+    val resourceLink = Map("id" -> launch.resourceId).asJava
+    val custom       = Map("id" -> launch.resourceId).asJava
 
     val claims = JWTClaimsSet
       .Builder()
@@ -137,11 +198,7 @@ class LtiService @Inject() (private val config: Config) extends Logging:
       .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
       .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", deploymentId)
       .claim("https://purl.imsglobal.org/spec/lti/claim/target_link_uri", redirectUri)
-      // FIXME: every launch is asserted as Learner regardless of the user's actual EXAM role.
-      .claim(
-        "https://purl.imsglobal.org/spec/lti/claim/roles",
-        List("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner").asJava
-      )
+      .claim("https://purl.imsglobal.org/spec/lti/claim/roles", rolesOf(user).asJava)
       .claim("https://purl.imsglobal.org/spec/lti/claim/context", context)
       .claim("https://purl.imsglobal.org/spec/lti/claim/resource_link", resourceLink)
       .claim("https://purl.imsglobal.org/spec/lti/claim/custom", custom)
@@ -154,6 +211,16 @@ class LtiService @Inject() (private val config: Config) extends Logging:
       jwt.sign(RSASSASigner(key))
       jwt.serialize
     }
+
+  /** LTI roles for the user's current EXAM role. Teachers reach a launch by previewing an exam. */
+  private def rolesOf(user: User): List[String] =
+    val membership  = "http://purl.imsglobal.org/vocab/lis/v2/membership"
+    val institution = "http://purl.imsglobal.org/vocab/lis/v2/institution/person"
+    user.loginRole match
+      case Role.Name.STUDENT => List(s"$membership#Learner")
+      case Role.Name.TEACHER => List(s"$membership#Instructor")
+      case Role.Name.ADMIN   => List(s"$membership#Instructor", s"$institution#Administrator")
+      case _                 => Nil
 
   /** JWK set the tool fetches to verify tokens signed by [[buildIdToken]]. */
   def jwkSet: Either[LtiError, String] =
@@ -225,3 +292,8 @@ class LtiService @Inject() (private val config: Config) extends Logging:
     input.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 
   private def urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8)
+
+/** The LTI question being launched: the tool's resource id and the exam it is launched from. */
+final case class LtiLaunch(resourceId: String, context: LtiContext)
+
+final case class LtiContext(id: String, label: String, title: String)

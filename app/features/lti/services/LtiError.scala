@@ -5,15 +5,16 @@
 package features.lti.services
 
 enum LtiError(val message: String):
-  case MissingResourceId extends LtiError("Missing resourceId")
+  case MissingLaunchTarget extends LtiError("Missing sectionQuestionId or examHash")
+  case LaunchNotFound      extends LtiError("No LTI question found for this launch")
   case IncompleteConfiguration
       extends LtiError(
         "Missing required LTI settings (tool initiate url, issuer, target link uri, client id)."
       )
-  case InvalidClientId       extends LtiError("Invalid client_id")
-  case MissingParameters     extends LtiError("Missing required parameters")
-  case NoResourceIdInSession extends LtiError("Missing resourceId in session")
-  case InvalidRedirectUri    extends LtiError("redirect_uri is not registered for this client")
+  case InvalidClientId    extends LtiError("Invalid client_id")
+  case MissingParameters  extends LtiError("Missing required parameters")
+  case NoLaunchInSession  extends LtiError("Missing launch target in session")
+  case InvalidRedirectUri extends LtiError("redirect_uri is not registered for this client")
   case LoginHintMismatch
       extends LtiError("login_hint does not match the session that started this login")
   case KeyUnavailable extends LtiError("LTI signing key could not be read")

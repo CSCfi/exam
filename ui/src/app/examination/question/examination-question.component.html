@@ -141,7 +141,11 @@ SPDX-License-Identifier: EUPL-1.2
                                     </xm-examination-weighted-multi-choice-question>
                                 }
                                 @case ('LtiQuestion') {
-                                    <xm-examination-lti-question [sq]="sq()" [isPreview]="isPreview()">
+                                    <xm-examination-lti-question
+                                        [sq]="sq()"
+                                        [examHash]="exam()?.hash"
+                                        [isPreview]="isPreview()"
+                                    >
                                     </xm-examination-lti-question>
                                 }
                             }

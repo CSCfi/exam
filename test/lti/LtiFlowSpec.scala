@@ -9,6 +9,11 @@ import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.crypto.RSASSAVerifier
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jwt.{JWTClaimsSet, SignedJWT}
+import io.ebean.DB
+import models.exam.Exam
+import models.questions.QuestionType
+import models.sections.ExamSectionQuestion
+import models.user.User
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -37,6 +42,7 @@ import scala.jdk.CollectionConverters.*
 class LtiFlowSpec extends BaseIntegrationSpec:
 
   private val ResourceId = "resource-42"
+  private val ExamHash   = "lti-exam-hash"
   private val ToolState  = "tool-state-abc"
   private val ToolNonce  = "tool-nonce-xyz"
 
@@ -93,17 +99,58 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       )
       .toMap
 
+  private def findExam(id: Long): Exam =
+    Option(
+      DB.find(classOf[Exam])
+        .fetch("examSections")
+        .fetch("examSections.sectionQuestions")
+        .fetch("examSections.sectionQuestions.question")
+        .where()
+        .idEq(id)
+        .findOne()
+    ).getOrElse(fail(s"Test exam $id not found"))
+
+  /** Turns the first question of test exam 1 into an LTI question in an exam created by `creator`.
+    * Returns the section question id the UI would launch with.
+    */
+  private def setUpLtiQuestion(creator: User, parent: Option[Exam] = None): Long =
+    val exam = findExam(1L)
+    exam.hash = ExamHash
+    exam.creator = creator
+    exam.parent = parent.orNull
+    exam.update()
+    val esq = exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .headOption
+      .getOrElse(fail("Test exam has no section questions"))
+    esq.question.`type` = QuestionType.LtiQuestion
+    esq.question.ltiId = ResourceId
+    esq.question.update()
+    esq.id
+
   /** Step 1: the user starts a launch. Returns the redirect the browser would follow and the
     * session it has to carry into the callback.
     */
   private def initiateLogin(
       userSession: Session,
-      resourceId: String = ResourceId
+      sectionQuestionId: Long,
+      examHash: String = ExamHash
   ): (Result, Session) =
-    val result = runIO(
-      get(s"/integration/lti/start-login?resourceId=${encode(resourceId)}", session = userSession)
-    )
+    val query  = s"sectionQuestionId=$sectionQuestionId&examHash=${encode(examHash)}"
+    val result = runIO(get(s"/integration/lti/start-login?$query", session = userSession))
     (result, sessionOf(result))
+
+  /** A teacher previewing their own exam, logged in and ready to launch its LTI question. */
+  private def teacherReadyToLaunch(): (User, Session, Long) =
+    val (teacher, session) = runIO(loginAsTeacher())
+    (teacher, session, setUpLtiQuestion(teacher))
+
+  private def ltiSessionOf(userSession: Session, sectionQuestionId: Long): Session =
+    initiateLogin(userSession, sectionQuestionId)._2
+
+  private def claimsOf(result: Result): JWTClaimsSet =
+    statusOf(result) must be(Status.OK)
+    verifyAsTool(formValue(contentAsStringOf(result), "id_token"))
 
   /** Step 2: what the tool sends back to the platform's OIDC endpoint. `state` and `nonce` are the
     * tool's own — the platform never issued them and has nothing to compare them against.
@@ -144,10 +191,10 @@ class LtiFlowSpec extends BaseIntegrationSpec:
 
   /** The whole happy path, ending in a verified token. */
   private def launch(): (String, JWTClaimsSet) =
-    val (_, userSession) = runIO(loginAsTeacher())
-    val (_, ltiSession)  = initiateLogin(userSession)
-    val loginHint        = ltiSession("lti_login_hint")
-    val result           = callback(ltiSession, toolParams(loginHint))
+    val (_, userSession, esqId) = teacherReadyToLaunch()
+    val ltiSession              = ltiSessionOf(userSession, esqId)
+    val loginHint               = ltiSession("lti_login_hint")
+    val result                  = callback(ltiSession, toolParams(loginHint))
     statusOf(result) must be(Status.OK)
     val html = contentAsStringOf(result)
     (html, verifyAsTool(formValue(html, "id_token")))
@@ -166,8 +213,8 @@ class LtiFlowSpec extends BaseIntegrationSpec:
 
   "Login initiation" should:
     "redirect to the tool with the parameters it needs to call back" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (result, _)      = initiateLogin(userSession)
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val (result, _)             = initiateLogin(userSession, esqId)
       statusOf(result) must be(Status.SEE_OTHER)
       val location = headerOf(result, "Location").getOrElse(fail("No redirect"))
       location must startWith(setting("lti.tool.initiate-login-url").split("\\?").head)
@@ -178,33 +225,60 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       params("login_hint") must not be empty
 
     "keep query parameters already present in the configured tool URL" in:
-      val configured       = queryOf(setting("lti.tool.initiate-login-url"))
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (result, _)      = initiateLogin(userSession)
-      val params           = queryOf(headerOf(result, "Location").getOrElse(fail("No redirect")))
+      val configured              = queryOf(setting("lti.tool.initiate-login-url"))
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val (result, _)             = initiateLogin(userSession, esqId)
+      val params = queryOf(headerOf(result, "Location").getOrElse(fail("No redirect")))
       configured.foreach((k, v) => params.get(k) must be(Some(v)))
 
     "bind the launch to this session" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)  = initiateLogin(userSession)
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
       ltiSession.get("lti_login_hint") must not be empty
-      ltiSession.get("lti_resource_id") must be(Some(ResourceId))
+      ltiSession.get("lti_section_question_id") must be(Some(esqId.toString))
+      ltiSession.get("lti_exam_hash") must be(Some(ExamHash))
 
     "issue a distinct login_hint per launch" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val first            = initiateLogin(userSession)._2("lti_login_hint")
-      val second           = initiateLogin(userSession)._2("lti_login_hint")
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val first                   = ltiSessionOf(userSession, esqId)("lti_login_hint")
+      val second                  = ltiSessionOf(userSession, esqId)("lti_login_hint")
       first must not be second
 
-    "reject a launch without a resource id" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val result           = runIO(get("/integration/lti/start-login", session = userSession))
-      statusOf(result) must be(Status.BAD_REQUEST)
+    "reject a launch without a section question and exam" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      Seq(
+        "",
+        s"?sectionQuestionId=$esqId",
+        s"?examHash=$ExamHash",
+        s"?sectionQuestionId=not-a-number&examHash=$ExamHash"
+      ).foreach { query =>
+        withClue(s"query '$query': ")(
+          statusOf(runIO(get(s"/integration/lti/start-login$query", session = userSession))) must
+            be(Status.BAD_REQUEST)
+        )
+      }
+
+    // The id_token asserts the exam context, so the pair has to match an exam the user can open.
+    "reject a question that is not in the given exam" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      statusOf(initiateLogin(userSession, esqId, "some-other-exam")._1) must be(Status.NOT_FOUND)
+
+    "reject a question that is not an LTI question" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val question                = DB.find(classOf[ExamSectionQuestion], esqId).question
+      question.`type` = QuestionType.EssayQuestion
+      question.update()
+      statusOf(initiateLogin(userSession, esqId)._1) must be(Status.NOT_FOUND)
+
+    "reject a student launching from someone else's exam" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val (_, studentSession)     = runIO(loginAsStudent())
+      statusOf(initiateLogin(studentSession, esqId)._1) must be(Status.NOT_FOUND)
 
     "require an authenticated user" in:
-      statusOf(runIO(get(s"/integration/lti/start-login?resourceId=$ResourceId"))) must be(
-        Status.UNAUTHORIZED
-      )
+      val (_, _, esqId) = teacherReadyToLaunch()
+      val query         = s"sectionQuestionId=$esqId&examHash=$ExamHash"
+      statusOf(runIO(get(s"/integration/lti/start-login?$query"))) must be(Status.UNAUTHORIZED)
 
   "A launch" should:
     "produce an id_token the tool can verify against the published JWKS" in:
@@ -213,10 +287,9 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       claims.getAudience.asScala must contain(clientId)
 
     "identify the logged-in user" in:
-      val (user, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)     = initiateLogin(userSession)
-      val result              = callback(ltiSession, toolParams(ltiSession("lti_login_hint")))
-      val claims              = verifyAsTool(formValue(contentAsStringOf(result), "id_token"))
+      val (user, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession                 = ltiSessionOf(userSession, esqId)
+      val claims = claimsOf(callback(ltiSession, toolParams(ltiSession("lti_login_hint"))))
       claims.getSubject must be(user.eppn)
       claims.getStringClaim("email") must be(user.email)
       claims.getStringClaim("given_name") must be(user.firstName)
@@ -238,15 +311,39 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       claims.getJSONObjectClaim(s"$lti/custom").get("id") must be(ResourceId)
       claims.getJWTID must not be empty
 
-    // Pinning current behaviour, not endorsing it: LtiService asserts every launch as Learner
-    // regardless of the user's EXAM role (see the FIXME on the roles claim). This test is meant
-    // to fail when that is fixed, so the change is deliberate.
-    "assert the launching user as a Learner, even when they are a teacher" in:
+    "describe the exam as the context when a teacher previews it" in:
       val (_, claims) = launch()
-      val roles = claims
-        .getStringListClaim("https://purl.imsglobal.org/spec/lti/claim/roles")
-        .asScala
-      roles must contain("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner")
+      val exam        = findExam(1L)
+      val context = claims.getJSONObjectClaim("https://purl.imsglobal.org/spec/lti/claim/context")
+      context.get("id") must be(s"exam-${exam.id}")
+      context.get("title") must be(exam.name)
+      context.get("label") must be(exam.course.code)
+
+    // Every student takes their own copy of the exam; the context has to be the exam they share,
+    // or the tool would see one course per student.
+    "describe the original exam as the context for a student's copy" in:
+      val (student, studentSession) = runIO(loginAsStudent())
+      val prototype                 = findExam(2L)
+      val esqId                     = setUpLtiQuestion(student, Some(prototype))
+      val ltiSession                = ltiSessionOf(studentSession, esqId)
+      val claims  = claimsOf(callback(ltiSession, toolParams(ltiSession("lti_login_hint"))))
+      val context = claims.getJSONObjectClaim("https://purl.imsglobal.org/spec/lti/claim/context")
+      context.get("id") must be(s"exam-${prototype.id}")
+      context.get("title") must be(prototype.name)
+      context.get("label") must be(prototype.course.code)
+
+    "assert a student as a Learner" in:
+      val (student, studentSession) = runIO(loginAsStudent())
+      val esqId                     = setUpLtiQuestion(student, Some(findExam(2L)))
+      val ltiSession                = ltiSessionOf(studentSession, esqId)
+      val claims = claimsOf(callback(ltiSession, toolParams(ltiSession("lti_login_hint"))))
+      claims.getStringListClaim("https://purl.imsglobal.org/spec/lti/claim/roles").asScala must
+        be(Seq("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"))
+
+    "assert a teacher as an Instructor" in:
+      val (_, claims) = launch()
+      claims.getStringListClaim("https://purl.imsglobal.org/spec/lti/claim/roles").asScala must
+        be(Seq("http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor"))
 
     "expire five minutes after issue" in:
       val (_, claims) = launch()
@@ -260,9 +357,9 @@ class LtiFlowSpec extends BaseIntegrationSpec:
     // The launch is a self-submitting cross-origin form POST, so form-action has to allow the
     // tool's origin or the browser blocks it. Fails if the LTI settings and the CSP drift apart.
     "be allowed to post cross-origin by the CSP" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)  = initiateLogin(userSession)
-      val result           = callback(ltiSession, toolParams(ltiSession("lti_login_hint")))
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
+      val result                  = callback(ltiSession, toolParams(ltiSession("lti_login_hint")))
       val csp    = headerOf(result, "Content-Security-Policy").getOrElse(fail("No CSP header"))
       val tool   = URI(launchUri)
       val origin = s"${tool.getScheme}://${tool.getAuthority}"
@@ -271,21 +368,21 @@ class LtiFlowSpec extends BaseIntegrationSpec:
     // The controller sets its own no-store, but SystemFilter overwrites Cache-Control on every
     // /integration response - so assert the property, not the exact value the controller asked for.
     "not be cached" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)  = initiateLogin(userSession)
-      val result           = callback(ltiSession, toolParams(ltiSession("lti_login_hint")))
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
+      val result                  = callback(ltiSession, toolParams(ltiSession("lti_login_hint")))
       headerOf(result, "Cache-Control").getOrElse(fail("No Cache-Control")) must include("no-store")
 
   "A tampered callback" should:
     "be rejected when the client_id is not ours" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)  = initiateLogin(userSession)
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
       val params = toolParams(ltiSession("lti_login_hint")) + ("client_id" -> "someone-else")
       statusOf(callback(ltiSession, params)) must be(Status.BAD_REQUEST)
 
     "not hand the token to an unregistered redirect_uri" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)  = initiateLogin(userSession)
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
       val params =
         toolParams(ltiSession("lti_login_hint")) + ("redirect_uri" -> "https://attacker.test/steal")
       val result = callback(ltiSession, params)
@@ -293,9 +390,9 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       contentAsStringOf(result) must not include "id_token"
 
     "be rejected when a required parameter is missing" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)  = initiateLogin(userSession)
-      val full             = toolParams(ltiSession("lti_login_hint"))
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
+      val full                    = toolParams(ltiSession("lti_login_hint"))
       Seq("redirect_uri", "state", "nonce").foreach { missing =>
         withClue(s"missing $missing: ")(
           statusOf(callback(ltiSession, full - missing)) must be(Status.BAD_REQUEST)
@@ -303,25 +400,26 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       }
 
     "be rejected when the login_hint is missing" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)  = initiateLogin(userSession)
-      val params           = toolParams(ltiSession("lti_login_hint")) - "login_hint"
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
+      val params                  = toolParams(ltiSession("lti_login_hint")) - "login_hint"
       statusOf(callback(ltiSession, params)) must be(Status.BAD_REQUEST)
 
     // The guard that keeps a launch started in one session from being completed in another.
     "be rejected when the login_hint belongs to a different session" in:
-      val (_, teacherSession) = runIO(loginAsTeacher())
-      val teacherHint         = initiateLogin(teacherSession)._2("lti_login_hint")
-      val (_, studentSession) = runIO(loginAsStudent())
-      val (_, studentLti)     = initiateLogin(studentSession)
-      val result              = callback(studentLti, toolParams(teacherHint))
+      val (_, teacherSession, esqId) = teacherReadyToLaunch()
+      val teacherHint                = ltiSessionOf(teacherSession, esqId)("lti_login_hint")
+      val (student, studentSession)  = runIO(loginAsStudent())
+      // The student needs a launch of their own to have a session to complete it in
+      val studentLti = ltiSessionOf(studentSession, setUpLtiQuestion(student, Some(findExam(2L))))
+      val result     = callback(studentLti, toolParams(teacherHint))
       statusOf(result) must be(Status.BAD_REQUEST)
       contentAsStringOf(result) must not include "id_token"
 
-    "be rejected when the session has no resource id" in:
-      val (_, userSession) = runIO(loginAsTeacher())
-      val (_, ltiSession)  = initiateLogin(userSession)
-      val stripped         = Session(ltiSession.data - "lti_resource_id")
+    "be rejected when the session has no launch target" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
+      val stripped = Session(ltiSession.data - "lti_section_question_id" - "lti_exam_hash")
       statusOf(callback(stripped, toolParams(ltiSession("lti_login_hint")))) must be(
         Status.BAD_REQUEST
       )

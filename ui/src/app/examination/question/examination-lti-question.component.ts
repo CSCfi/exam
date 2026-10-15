@@ -33,15 +33,18 @@ import { ExaminationService } from 'src/app/examination/examination.service';
 })
 export class ExaminationLtiComponent {
     readonly sq = input.required<ExaminationQuestion>();
+    readonly examHash = input<string>();
     readonly isPreview = input(false);
 
     // The base URL comes from lti.platform.issuer on the backend; it still has to be listed in
     // the frame-src allow-list in application.conf for the iframe to load.
     readonly ltiUrl = computed(() => {
         const base = this.loginUrl();
-        if (!base) return null;
-        const id = this.sq()?.question?.ltiId ?? '';
-        return this.sanitizer.bypassSecurityTrustResourceUrl(`${base}?resourceId=${encodeURIComponent(id)}`);
+        const hash = this.examHash();
+        if (!base || !hash) return null;
+        // The backend resolves the tool resource and the exam context from these, never from the UI.
+        const params = new URLSearchParams({ sectionQuestionId: String(this.sq().id), examHash: hash });
+        return this.sanitizer.bypassSecurityTrustResourceUrl(`${base}?${params}`);
     });
 
     private readonly sanitizer = inject(DomSanitizer);

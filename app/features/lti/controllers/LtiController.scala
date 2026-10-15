@@ -24,6 +24,7 @@ class LtiController @Inject() (
   private def toResult(error: LtiError): Result =
     error match
       case LtiError.KeyUnavailable => InternalServerError(error.message)
+      case LtiError.LaunchNotFound => NotFound(error.message)
       case _                       => BadRequest(error.message)
 
   /** Hands the UI the absolute URL its LTI iframe should point at. */
@@ -39,9 +40,19 @@ class LtiController @Inject() (
     authenticated.andThen(
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
     ) { request =>
-      request.getQueryString("resourceId").map(_.trim).filter(_.nonEmpty) match
-        case None             => toResult(LtiError.MissingResourceId)
-        case Some(resourceId) =>
+      val target =
+        for
+          sectionQuestionId <- request.getQueryString("sectionQuestionId").flatMap(_.toLongOption)
+          examHash          <- request.getQueryString("examHash").map(_.trim).filter(_.nonEmpty)
+        yield (sectionQuestionId, examHash)
+      // Fail before redirecting to the tool rather than in the callback, the user sees it sooner.
+      target.toRight(LtiError.MissingLaunchTarget).flatMap { (sectionQuestionId, examHash) =>
+        ltiService
+          .findLaunch(sectionQuestionId, examHash, request.attrs(Auth.ATTR_USER))
+          .map(_ => (sectionQuestionId, examHash))
+      } match
+        case Left(error)                          => toResult(error)
+        case Right((sectionQuestionId, examHash)) =>
           // state and nonce here are spurious: the tool generates its own for the authorization
           // request. They are sent for parity with the original implementation; login_hint is
           // what actually ties the callback back to this session.
@@ -52,8 +63,9 @@ class LtiController @Inject() (
             case Left(error) => toResult(error)
             case Right(url) =>
               Redirect(url).addingToSession(
-                "lti_login_hint"  -> loginHint,
-                "lti_resource_id" -> resourceId
+                "lti_login_hint"          -> loginHint,
+                "lti_section_question_id" -> sectionQuestionId.toString,
+                "lti_exam_hash"           -> examHash
               )(using request)
     }
 
@@ -85,17 +97,14 @@ class LtiController @Inject() (
             LtiError.LoginHintMismatch
           )
           validatedUri <- ltiService.validateRedirectUri(uri)
-          resourceId <- request.session
-            .get("lti_resource_id")
-            .map(_.trim)
-            .filter(_.nonEmpty)
-            .toRight(LtiError.NoResourceIdInSession)
-          idToken <- ltiService.buildIdToken(
-            request.attrs(Auth.ATTR_USER),
-            resourceId,
-            toolNonce,
-            validatedUri
-          )
+          sectionQuestionId <- request.session
+            .get("lti_section_question_id")
+            .flatMap(_.toLongOption)
+            .toRight(LtiError.NoLaunchInSession)
+          examHash <- request.session.get("lti_exam_hash").toRight(LtiError.NoLaunchInSession)
+          user = request.attrs(Auth.ATTR_USER)
+          launch  <- ltiService.findLaunch(sectionQuestionId, examHash, user)
+          idToken <- ltiService.buildIdToken(user, launch, toolNonce, validatedUri)
         yield ltiService.buildAutoPostHtml(validatedUri, idToken, toolState)
 
       result match
