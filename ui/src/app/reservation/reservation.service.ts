@@ -149,6 +149,7 @@ export class ReservationService {
                             : (r.externalUserRef ?? r.enrolment?.exam?.id?.toString() ?? ''),
                         org: '',
                         stateOrd: 0,
+                        startOrd: 0,
                         enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
                     })) as AnyReservation[],
             ),
@@ -163,6 +164,7 @@ export class ReservationService {
                             teacherAggregate: exam.examOwners.map((o) => o.lastName + o.firstName).join(),
                         };
                         r.stateOrd = STATE_ORDER.indexOf(this.printExamState(r));
+                        r.startOrd = this.startMillis(r);
                         return r;
                     });
             }),
@@ -219,6 +221,13 @@ export class ReservationService {
                 .toISO() || '',
     });
 
+    // Machine reservations and examination events end up in the same table. Ordering by a number
+    // keeps it independent of how each endpoint happens to serialize its timestamps.
+    private startMillis = (r: AnyReservation): number => {
+        const start = DateTime.fromISO(r.startAt);
+        return start.isValid ? start.toMillis() : 0;
+    };
+
     private normalizeVariant = (r: AnyReservation): void => {
         if (isLocalTransfer(r)) {
             // Transfer exams taken here
@@ -233,11 +242,15 @@ export class ReservationService {
                     parent: null,
                 },
             } as LocalTransferExamEnrolment;
-        } else if (isRemoteTransfer(r) && r.externalReservation) {
+            return;
+        }
+        if (isRemoteTransfer(r) && r.externalReservation) {
             // Transfer exams taken elsewhere
             r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
             r.machine = { name: r.externalReservation.machineName, room: { name: r.externalReservation.roomName } };
-        } else if (isCollaborative(r)) {
+        }
+        // Not exclusive with the above: a collaborative exam taken elsewhere is both
+        if (isCollaborative(r)) {
             if (!r.enrolment.exam) {
                 r.enrolment.exam = {
                     ...r.enrolment.collaborativeExam,

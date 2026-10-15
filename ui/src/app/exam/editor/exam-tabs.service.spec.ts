@@ -107,5 +107,30 @@ describe('ExamTabService', () => {
             await firstValueFrom(service.saveExam$({}, true));
             expect(service.getExam()).toBe(saved);
         });
+
+        it('should keep the course grade scale when the server response has none', async () => {
+            const gradeScale = { id: 5, grades: [] };
+            const course = { id: 1, gradeScale };
+            updateExam$.mockReturnValueOnce(of({ ...mockExam, course, gradeScale: undefined }));
+            service.setExam({ ...mockExam, course } as unknown as Exam);
+            const saved = await firstValueFrom(service.saveExam$({}, true));
+            expect(saved.gradeScale).toBe(gradeScale);
+            expect(service.getExam().gradeScale).toBe(gradeScale);
+        });
+    });
+
+    describe('setExam grade scale default', () => {
+        it('should apply the course grade scale when exam has none', () => {
+            const gradeScale = { id: 5, grades: [] };
+            service.setExam({ ...mockExam, course: { id: 1, gradeScale } } as unknown as Exam);
+            expect(service.getExam().gradeScale).toBe(gradeScale);
+        });
+
+        it('should not override a grade scale set for the exam', () => {
+            const examScale = { id: 6, grades: [] };
+            const course = { id: 1, gradeScale: { id: 5, grades: [] } };
+            service.setExam({ ...mockExam, course, gradeScale: examScale } as unknown as Exam);
+            expect(service.getExam().gradeScale).toBe(examScale);
+        });
     });
 });

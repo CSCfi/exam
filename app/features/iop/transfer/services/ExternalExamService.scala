@@ -73,14 +73,15 @@ class ExternalExamService @Inject() (
             if parent.isEmpty && Option(enrolment.collaborativeExam).isEmpty then
               Future.successful(Left(ExternalExamError.ParentExamNotFound))
             else
-              val clone = externalExamHandler.createCopyForAssessment(enrolment, ee)
+              val participation = externalExamHandler.createCopyForAssessment(enrolment, ee)
+              val clone         = participation.exam
               enrolment.exam = clone
               enrolment.update()
 
               Option(enrolment.collaborativeExam) match
                 case Some(_) =>
                   collaborativeExamLoader
-                    .createAssessment(clone.examParticipation)
+                    .createAssessment(participation)
                     .map(success =>
                       if success then Right(())
                       else Left(ExternalExamError.FailedToCreateAssessment)
@@ -104,6 +105,10 @@ class ExternalExamService @Inject() (
             }
           case None =>
             val exam = enrolment.exam
+            // Never send duplicate option rows to the examination site, the exam is not saved here
+            exam.examSections.asScala
+              .flatMap(_.sectionQuestions.asScala)
+              .foreach(esq => esq.options = esq.distinctOptions)
 
             val examAttachmentFuture = Option(exam.attachment)
               .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))

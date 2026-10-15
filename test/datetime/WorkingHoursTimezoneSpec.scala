@@ -15,9 +15,9 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 /** Working hours are stored as a plain local wall-clock TIME and belong to the room's own timezone:
-  * evolution 149 rebuilt the column as `start_time AT TIME ZONE 'UTC'` plus the old
+  * evolution 151 rebuilt the column as `start_time AT TIME ZONE 'UTC'` plus the old
   * `timezone_offset`, which is local time by construction. Exam starting hours moved the same way
-  * in 148, and `CalendarHandlerImpl.nextStartingTime` duly applies them to a room-zone
+  * in 150, and `CalendarHandlerImpl.nextStartingTime` duly applies them to a room-zone
   * ZonedDateTime.
   *
   * A room that opens at 09:00 must therefore open at 09:00 local on both sides of a DST transition,

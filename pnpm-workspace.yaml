@@ -2,10 +2,6 @@
 #
 # SPDX-License-Identifier: EUPL-1.2
 
-# --- Supply Chain Security ---
-# Only allow packages that have been "in the wild" for at least 1 day
-# to avoid zero-day malicious releases.
-minimumReleaseAge: 1440
-
-# Verify that store files haven't been tampered with before linking.
-verifyStoreIntegrity: true
+# Refuse package versions published less than 3 days ago (in minutes).
+# Hijacked npm releases are usually caught and pulled within hours.
+minimumReleaseAge: 4320

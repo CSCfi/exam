@@ -4,43 +4,78 @@
 
 # --- !Ups
 
-ALTER TABLE default_working_hours
-    ALTER COLUMN start_time TYPE TIME
-    USING ((start_time AT TIME ZONE 'UTC') + (timezone_offset * INTERVAL '1 millisecond'));
+UPDATE reservation
+SET    start_at = start_at - INTERVAL '1 hour',
+       end_at   = end_at   - INTERVAL '1 hour'
+FROM   exam_machine m
+JOIN   exam_room rm ON m.room_id = rm.id
+WHERE  reservation.machine_id = m.id
+  AND  reservation.external_ref IS NULL
+  AND  (reservation.start_at AT TIME ZONE rm.local_timezone) - (reservation.start_at AT TIME ZONE 'UTC')
+         <>
+       (DATE_TRUNC('year', reservation.start_at) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', reservation.start_at) AT TIME ZONE 'UTC');
 
-ALTER TABLE default_working_hours
-    ALTER COLUMN end_time TYPE TIME
-    USING ((end_time AT TIME ZONE 'UTC') + (timezone_offset * INTERVAL '1 millisecond'));
+UPDATE exam_participation ep
+SET    started  = ep.started  - INTERVAL '1 hour',
+       ended    = CASE WHEN ep.ended    IS NOT NULL THEN ep.ended    - INTERVAL '1 hour' ELSE ep.ended    END,
+       deadline = CASE WHEN ep.deadline IS NOT NULL THEN ep.deadline - INTERVAL '1 hour' ELSE ep.deadline END
+FROM   reservation r
+JOIN   exam_machine m  ON r.machine_id = m.id
+JOIN   exam_room    rm ON m.room_id    = rm.id
+WHERE  ep.reservation_id = r.id
+  AND  r.external_ref IS NULL
+  AND  (ep.started AT TIME ZONE rm.local_timezone) - (ep.started AT TIME ZONE 'UTC')
+         <>
+       (DATE_TRUNC('year', ep.started) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', ep.started) AT TIME ZONE 'UTC');
 
-ALTER TABLE default_working_hours DROP COLUMN timezone_offset;
-
-ALTER TABLE exception_working_hours DROP COLUMN start_date_timezone_offset;
-
-ALTER TABLE exception_working_hours DROP COLUMN end_date_timezone_offset;
+UPDATE external_exam ee
+SET    started  = ee.started  - INTERVAL '1 hour',
+       finished = CASE WHEN ee.finished IS NOT NULL THEN ee.finished - INTERVAL '1 hour' ELSE ee.finished END
+FROM   exam_enrolment enr
+JOIN   reservation r   ON enr.reservation_id = r.id
+JOIN   exam_machine m  ON r.machine_id       = m.id
+JOIN   exam_room    rm ON m.room_id          = rm.id
+WHERE  enr.external_exam_id = ee.id
+  AND  r.external_ref IS NULL
+  AND  (ee.started AT TIME ZONE rm.local_timezone) - (ee.started AT TIME ZONE 'UTC')
+         <>
+       (DATE_TRUNC('year', ee.started) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', ee.started) AT TIME ZONE 'UTC');
 
 # --- !Downs
 
--- As in 148: the per-row offsets are gone for good, so everything comes back on the 2 hour
--- default. Pre-subtracting what the Ups adds back, and stamping +00 explicitly instead of
--- letting `AT TIME ZONE` resolve against the session timezone, keeps the round trip an identity
--- and stops a summer rollback from moving every opening hour an hour earlier.
+UPDATE reservation
+SET    start_at = start_at + INTERVAL '1 hour',
+       end_at   = end_at   + INTERVAL '1 hour'
+FROM   exam_machine m
+JOIN   exam_room rm ON m.room_id = rm.id
+WHERE  reservation.machine_id = m.id
+  AND  reservation.external_ref IS NULL
+  AND  (reservation.start_at AT TIME ZONE rm.local_timezone) - (reservation.start_at AT TIME ZONE 'UTC')
+         <>
+       (DATE_TRUNC('year', reservation.start_at) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', reservation.start_at) AT TIME ZONE 'UTC');
 
-ALTER TABLE default_working_hours ADD COLUMN timezone_offset INTEGER NOT NULL DEFAULT 7200000;
+UPDATE exam_participation ep
+SET    started  = ep.started  + INTERVAL '1 hour',
+       ended    = CASE WHEN ep.ended    IS NOT NULL THEN ep.ended    + INTERVAL '1 hour' ELSE ep.ended    END,
+       deadline = CASE WHEN ep.deadline IS NOT NULL THEN ep.deadline + INTERVAL '1 hour' ELSE ep.deadline END
+FROM   reservation r
+JOIN   exam_machine m  ON r.machine_id = m.id
+JOIN   exam_room    rm ON m.room_id    = rm.id
+WHERE  ep.reservation_id = r.id
+  AND  r.external_ref IS NULL
+  AND  (ep.started AT TIME ZONE rm.local_timezone) - (ep.started AT TIME ZONE 'UTC')
+         <>
+       (DATE_TRUNC('year', ep.started) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', ep.started) AT TIME ZONE 'UTC');
 
-ALTER TABLE default_working_hours
-    ALTER COLUMN start_time TYPE TIMETZ
-    USING (((start_time - (7200000 * INTERVAL '1 millisecond'))::text || '+00')::timetz);
-
-ALTER TABLE default_working_hours
-    ALTER COLUMN end_time TYPE TIMETZ
-    USING (((end_time - (7200000 * INTERVAL '1 millisecond'))::text || '+00')::timetz);
-
-ALTER TABLE default_working_hours ALTER COLUMN timezone_offset DROP DEFAULT;
-
-ALTER TABLE exception_working_hours ADD COLUMN start_date_timezone_offset INTEGER NOT NULL DEFAULT 7200000;
-
-ALTER TABLE exception_working_hours ALTER COLUMN start_date_timezone_offset DROP DEFAULT;
-
-ALTER TABLE exception_working_hours ADD COLUMN end_date_timezone_offset INTEGER NOT NULL DEFAULT 7200000;
-
-ALTER TABLE exception_working_hours ALTER COLUMN end_date_timezone_offset DROP DEFAULT;
+UPDATE external_exam ee
+SET    started  = ee.started  + INTERVAL '1 hour',
+       finished = CASE WHEN ee.finished IS NOT NULL THEN ee.finished + INTERVAL '1 hour' ELSE ee.finished END
+FROM   exam_enrolment enr
+JOIN   reservation r   ON enr.reservation_id = r.id
+JOIN   exam_machine m  ON r.machine_id       = m.id
+JOIN   exam_room    rm ON m.room_id          = rm.id
+WHERE  enr.external_exam_id = ee.id
+  AND  r.external_ref IS NULL
+  AND  (ee.started AT TIME ZONE rm.local_timezone) - (ee.started AT TIME ZONE 'UTC')
+         <>
+       (DATE_TRUNC('year', ee.started) AT TIME ZONE rm.local_timezone) - (DATE_TRUNC('year', ee.started) AT TIME ZONE 'UTC');

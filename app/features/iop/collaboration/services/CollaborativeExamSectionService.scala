@@ -54,34 +54,24 @@ class CollaborativeExamSectionService @Inject() (
     section.sectionQuestions = Set.empty[models.sections.ExamSectionQuestion].asJava
     section.sequenceNumber = exam.examSections.size()
     section.expanded = true
-    section.id = newId()
-    cleanUser(user)
+    section.id = CollaborativeExamProcessingService.newId()
+    CollaborativeExamProcessingService.cleanUser(user)
     section.setCreatorWithDate(user)
     section
-
-  private def cleanUser(user: User): Unit =
-    user.id = null
-    user.email = null
-    user.eppn = null
-    user.firstName = null
-    user.lastName = null
-
-  private def newId(): Long = scala.util.Random.nextLong(9223372036854775807L)
 
   /** Get exam with authorization check
     *
     * @param examId
     *   the collaborative exam ID
-    * @param userId
-    *   the user ID
+    * @param user
+    *   the authenticated user (must carry its login role)
     * @return
     *   Future containing Either[error message, (CollaborativeExam, Exam)]
     */
   private def getExamForSectionOperation(
       examId: Long,
-      userId: Long
+      user: User
   ): Future[Either[String, (models.iop.CollaborativeExam, Exam)]] =
-    val user    = io.ebean.DB.find(classOf[User], userId)
     val homeOrg = configReader.getHomeOrganisationRef
 
     (for
@@ -104,16 +94,15 @@ class CollaborativeExamSectionService @Inject() (
     *
     * @param examId
     *   the collaborative exam ID
-    * @param userId
-    *   the user ID
+    * @param user
+    *   the authenticated user (must carry its login role)
     * @return
     *   Future containing Either[error message, ExamSection]
     */
-  def addSection(examId: Long, userId: Long): Future[Either[String, ExamSection]] =
-    getExamForSectionOperation(examId, userId).flatMap {
+  def addSection(examId: Long, user: User): Future[Either[String, ExamSection]] =
+    getExamForSectionOperation(examId, user).flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right((ce, exam)) =>
-        val user    = io.ebean.DB.find(classOf[User], userId)
         val section = createDraft(exam, user)
         exam.examSections.add(section)
         examLoader.uploadExam(ce, exam, user, section, null).map { result =>
@@ -127,8 +116,8 @@ class CollaborativeExamSectionService @Inject() (
     *
     * @param examId
     *   the collaborative exam ID
-    * @param userId
-    *   the user ID
+    * @param user
+    *   the authenticated user (must carry its login role)
     * @param updater
     *   function to update the exam, returns Some(error) or None
     * @param resultProvider
@@ -138,14 +127,13 @@ class CollaborativeExamSectionService @Inject() (
     */
   def updateSections(
       examId: Long,
-      userId: Long,
+      user: User,
       updater: (Exam, User) => Option[String],
       resultProvider: Exam => Option[? <: Model]
   ): Future[Either[String, Unit]] =
-    getExamForSectionOperation(examId, userId).flatMap {
+    getExamForSectionOperation(examId, user).flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right((ce, exam)) =>
-        val user = io.ebean.DB.find(classOf[User], userId)
         updater(exam, user) match
           case Some(error) => Future.successful(Left(error))
           case None =>

@@ -32,8 +32,8 @@ libraryDependencies ++= Seq(
   "org.cryptonode.jncryptor" % "jncryptor"          % "1.2.0",
   "org.typelevel"           %% "cats-core"          % "2.13.0",
   "org.typelevel"           %% "cats-effect"        % "3.7.0",
-  "org.jsoup"                % "jsoup"              % "1.22.1",
-  "org.postgresql"           % "postgresql"         % "42.7.10",
+  "org.jsoup"                % "jsoup"              % "1.23.2",
+  "org.postgresql"           % "postgresql"         % "42.7.14",
   "com.icegreen"             % "greenmail"          % "2.1.8"  % Test,
   "com.icegreen"             % "greenmail-junit4"   % "2.1.8"  % Test,
   "org.eclipse.jetty"        % "jetty-server"       % "12.1.7" % Test,
@@ -41,6 +41,17 @@ libraryDependencies ++= Seq(
   "org.yaml"                 % "snakeyaml"          % "2.6"    % Test,
   "org.scalatest"           %% "scalatest"          % "3.2.20" % Test,
   "org.scalatestplus.play"  %% "scalatestplus-play" % "7.0.2"  % Test
+)
+
+// Security fixes for transitive dependencies (Play / Pekko / commons-email)
+dependencyOverrides ++= Seq(
+  "com.fasterxml.jackson.core"    % "jackson-databind"     % "2.21.7",
+  "com.fasterxml.jackson.core"    % "jackson-core"         % "2.21.7",
+  "com.fasterxml.jackson.core"    % "jackson-annotations"  % "2.21",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.7",
+  "ch.qos.logback"                % "logback-core"         % "1.5.38",
+  "ch.qos.logback"                % "logback-classic"      % "1.5.38",
+  "com.sun.mail"                  % "jakarta.mail"         % "1.6.8"
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")

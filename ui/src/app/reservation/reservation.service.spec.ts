@@ -10,7 +10,7 @@ import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { vi } from 'vitest';
-import type { Reservation } from './reservation.model';
+import type { RemoteTransferExamReservation, Reservation } from './reservation.model';
 import { ReservationService, type Selection } from './reservation.service';
 
 describe('ReservationService', () => {
@@ -254,6 +254,33 @@ describe('ReservationService', () => {
             await resultPromise;
         });
 
+        it('should order examination events among reservations by start time', async () => {
+            const reservation = {
+                ...baseReservation,
+                startAt: '2025-06-01T10:00:00Z',
+                enrolment: {
+                    ...baseReservation.enrolment,
+                    exam: { ...baseReservation.enrolment.exam, implementation: 'AQUARIUM' },
+                } as ExamEnrolment,
+            };
+            const event = {
+                ...baseReservation.enrolment,
+                id: 2,
+                user: baseReservation.user,
+                exam: { ...baseReservation.enrolment.exam, implementation: 'CLIENT_AUTH', duration: 60 },
+                examinationEventConfiguration: {
+                    examinationEvent: { start: '2025-06-01T09:30:00Z' },
+                },
+            } as unknown as ExamEnrolment;
+
+            const resultPromise = firstValueFrom(service.listReservations$({}));
+            httpMock.expectOne((r) => r.url === '/app/reservations').flush([reservation]);
+            httpMock.expectOne((r) => r.url === '/app/events').flush([event]);
+            const result = await resultPromise;
+
+            expect([...result].sort((a, b) => a.startOrd - b.startOrd).map((r) => r.id)).toEqual([-2, 1]);
+        });
+
         it('should filter out reservations without enrolment.exam', async () => {
             const withExam = {
                 ...baseReservation,
@@ -271,6 +298,28 @@ describe('ReservationService', () => {
             const result = await resultPromise;
             expect(result.length).toBe(1);
             expect(result[0].id).toBe(1);
+        });
+
+        it('should keep collaborative exams taken at another organisation', async () => {
+            const collaborativeVisit = {
+                ...baseReservation,
+                externalReservation: { orgName: 'Org', orgCode: 'ORG', machineName: 'M9', roomName: 'R9' },
+                enrolment: {
+                    ...baseReservation.enrolment,
+                    exam: null as never,
+                    collaborativeExam: { id: 5, name: 'Collab', state: 'PUBLISHED' } as never,
+                },
+            } as unknown as Reservation;
+            const params: Selection = { roomId: '1' };
+            const resultPromise = firstValueFrom(service.listReservations$(params));
+            const req = httpMock.expectOne((r) => r.url === '/app/reservations');
+            req.flush([collaborativeVisit]);
+            const result = await resultPromise;
+            expect(result.length).toBe(1);
+            const visit = result[0] as RemoteTransferExamReservation;
+            expect((visit.enrolment.exam as { name: string }).name).toBe('Collab');
+            expect(visit.org).toEqual({ name: 'Org', code: 'ORG' });
+            expect(visit.machine.name).toBe('M9');
         });
     });
 

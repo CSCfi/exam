@@ -309,6 +309,30 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
           statusOf(result).must(be(Status.BAD_REQUEST))
         }
 
+    "copying questions" should:
+      "copy an owned question" in:
+        val q            = getQuestionWithOwnership
+        val (_, session) = runIO(loginAsTeacher())
+        val result       = runIO(makeRequest(POST, s"/app/question/${q.id}", session = session))
+        statusOf(result).must(be(Status.OK))
+        val copyId = (contentAsJsonOf(result) \ "id").as[Long]
+        copyId must not be q.id
+        DB.find(classOf[Question], copyId).question must startWith("<p>**COPY**</p>")
+
+      "return not found for a nonexistent question" in:
+        val (_, session) = runIO(loginAsTeacher())
+        val result       = runIO(makeRequest(POST, "/app/question/987654321", session = session))
+        statusOf(result).must(be(Status.NOT_FOUND))
+
+      "return forbidden for an unshared question the teacher does not own" in:
+        val q               = getQuestionWithOwnership
+        val (user, session) = runIO(loginAsTeacher())
+        q.questionOwners.removeIf(_.id == user.id)
+        q.shared = false
+        q.update()
+        val result = runIO(makeRequest(POST, s"/app/question/${q.id}", session = session))
+        statusOf(result).must(be(Status.FORBIDDEN))
+
   // Helper methods
   /** Fetch the test question fresh from DB and ensure teacher ownership is set up. This avoids test
     * isolation issues where question owners might be cleared between tests.
