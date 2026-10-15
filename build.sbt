@@ -43,6 +43,9 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play"  %% "scalatestplus-play" % "7.0.2"  % Test
 )
 
+// Ebean pulls in Joda support transitively; keep it off the classpath so stray Joda imports fail
+excludeDependencies += "io.ebean" % "ebean-joda-time"
+
 // Security fixes for transitive dependencies (Play / Pekko / commons-email)
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core"    % "jackson-databind"     % "2.21.7",
