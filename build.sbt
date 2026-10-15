@@ -28,8 +28,8 @@ libraryDependencies += "org.apache.poi"           % "poi"                   % "5
 libraryDependencies += "org.apache.poi"           % "poi-ooxml"             % "5.4.1"
 libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"             % "1.2.0"
 libraryDependencies += "joda-time"                % "joda-time"             % "2.14.0"
-libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.21.2"
-libraryDependencies += "org.postgresql"           % "postgresql"            % "42.7.8"
+libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.23.2"
+libraryDependencies += "org.postgresql"           % "postgresql"            % "42.7.14"
 libraryDependencies += "com.icegreen"             % "greenmail"             % "2.1.6"  % "test"
 libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "2.1.6"  % "test"
 libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.9.0"  % "test"
@@ -40,10 +40,13 @@ libraryDependencies += "org.easytesting"          % "fest-assert"           % "1
 libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2.5"    % "test"
 
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core"    % "jackson-databind"     % "2.20.0",
-  "com.fasterxml.jackson.core"    % "jackson-core"         % "2.20.0",
-  "com.fasterxml.jackson.core"    % "jackson-annotations"  % "2.20",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.20.0"
+  "com.fasterxml.jackson.core"    % "jackson-databind"     % "2.21.7",
+  "com.fasterxml.jackson.core"    % "jackson-core"         % "2.21.7",
+  "com.fasterxml.jackson.core"    % "jackson-annotations"  % "2.21",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.7",
+  "ch.qos.logback"                % "logback-core"         % "1.5.38",
+  "ch.qos.logback"                % "logback-classic"      % "1.5.38",
+  "com.sun.mail"                  % "jakarta.mail"         % "1.6.8"
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
