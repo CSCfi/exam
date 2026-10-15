@@ -78,7 +78,8 @@ To check a branch locally before merging, scan the runtime jars and the frontend
     $ trivy rootfs --scanners vuln target/universal/stage/lib
     $ trivy fs --scanners vuln pnpm-lock.yaml
 
-Use `rootfs` for the jars; `fs` mode reads only lockfiles and silently finds nothing there. To see why a library is
+Use `rootfs` for the jars; `fs` mode reads only lockfiles and silently finds nothing there. For the frontend,
+`pnpm audit --prod` gives the same results as the Trivy lockfile scan. To see why a library is
 on the classpath, use `sbt "dependencyTree"` or `sbt "whatDependsOn <org> <artifact>"`.
 
 ## More information
