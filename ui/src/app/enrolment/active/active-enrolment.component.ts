@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, Signal, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, Signal, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -22,7 +22,6 @@ import { OptionalSectionsComponent } from './helpers/optional-sections.component
 
 @Component({
     selector: 'xm-active-enrolment',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './active-enrolment.component.html',
     imports: [
         RouterLink,

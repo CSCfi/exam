@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
@@ -17,7 +17,6 @@ import { SessionService } from 'src/app/session/session.service';
     selector: 'xm-question-tags',
     templateUrl: './tags.component.html',
     imports: [TranslateModule, NgbPopover, NgbTypeahead],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TagsComponent {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();

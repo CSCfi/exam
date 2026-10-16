@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
@@ -27,7 +27,6 @@ interface ExtendedRoom extends ExamRoom {
     selector: 'xm-rooms',
     imports: [TranslateModule, RoomComponent],
     styleUrl: './rooms.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomListComponent {
     readonly rooms = signal<ExtendedRoom[]>([]);

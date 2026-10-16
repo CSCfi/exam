@@ -4,12 +4,11 @@
 
 import { UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
@@ -19,12 +18,12 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 import { LanguageService } from 'src/app/shared/language/language.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { InspectionCommentsComponent } from './inspection-comments.component';
 import { MaturityToolbarComponent } from './toolbar.component';
 
 @Component({
     selector: 'xm-r-maturity-grading',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './grading.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [
@@ -53,7 +52,7 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
 
     constructor() {
         const http = inject(HttpClient);
-        const toast = inject(ToastrService);
+        const toast = inject(ToastService);
         const Assessment = inject(AssessmentService);
         const Exam = inject(ExamService);
         const CommonExam = inject(CommonExamService);

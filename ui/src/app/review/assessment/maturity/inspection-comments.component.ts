@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { switchMap } from 'rxjs/operators';
@@ -17,7 +17,6 @@ type InspectionComment = { comment: string; creator: User; created: Date };
 
 @Component({
     selector: 'xm-r-inspection-comments',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div class="row mb-3 mt-2 align-items-center">
             <div class="col-md-2 ">{{ 'i18n_inspector_comments' | translate }}:</div>
             <div class="col-md-10">

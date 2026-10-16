@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-accessibility-picker',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div class="row mt-4">
         <div class="col-md-12">
             @if (!disabled()) {

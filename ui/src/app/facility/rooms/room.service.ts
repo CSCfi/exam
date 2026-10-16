@@ -5,7 +5,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Address, Availability, MaintenancePeriod, WorkingHour } from 'src/app/facility/facility.model';
@@ -13,13 +12,14 @@ import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-di
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
     private readonly http = inject(HttpClient);
     private readonly modal = inject(ModalService);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly dialogs = inject(ConfirmationDialogService);
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
@@ -10,7 +10,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-claim-choice-answer',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `@if (reviewExpanded()) {
         @for (option of sectionQuestion().options | orderBy: 'option.id'; track option) {
             <div class="ps-2 mb-2">

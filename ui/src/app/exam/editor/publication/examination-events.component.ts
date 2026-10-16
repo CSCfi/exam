@@ -4,22 +4,21 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { ExaminationEventDialogComponent } from 'src/app/exam/editor/events/examination-event-dialog.component';
 import { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     imports: [NgbPopoverModule, TranslateModule, DatePipe],
     selector: 'xm-examination-events',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <!-- Examination events -->
         @if (exam().implementation !== 'AQUARIUM') {
@@ -85,7 +84,7 @@ export class ExaminationEventsComponent implements OnInit {
 
     private readonly HttpClient = inject(HttpClient);
     private readonly ModalService = inject(ModalService);
-    private readonly ToastrService = inject(ToastrService);
+    private readonly ToastService = inject(ToastService);
     private readonly TranslateService = inject(TranslateService);
     private readonly ConfirmationDialogService = inject(ConfirmationDialogService);
     private readonly ExamService = inject(ExamService);
@@ -149,7 +148,7 @@ export class ExaminationEventsComponent implements OnInit {
                         this.configurations.update((cs) => cs.filter((c) => c !== configuration));
                         this.eventsChange.emit(this.configurations());
                     },
-                    error: (err) => this.ToastrService.error(err),
+                    error: (err) => this.ToastService.error(err),
                 }),
         });
     }

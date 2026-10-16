@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -26,7 +26,6 @@ type Scores = {
 };
 @Component({
     selector: 'xm-exam-participation',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participation.component.html',
     imports: [CourseCodeComponent, TeacherListComponent, NgbCollapse, ExamFeedbackComponent, DatePipe, TranslateModule],
     styleUrl: './exam-participations.component.scss',

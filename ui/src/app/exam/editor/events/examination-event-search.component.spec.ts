@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { ExaminationEventSearchComponent } from './examination-event-search.component';
 
@@ -30,11 +30,11 @@ describe('ExaminationEventSearchComponent (date range parameters)', () => {
             imports: [ExaminationEventSearchComponent, TranslateModule.forRoot()],
             providers: [
                 provideZonelessChangeDetection(),
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 { provide: ConfirmationDialogService, useValue: { open$: vi.fn() } },
                 { provide: EnrolmentService, useValue: { removeAllEventEnrolmentConfigs$: vi.fn() } },
-                { provide: ToastrService, useValue: { info: vi.fn(), error: vi.fn() } },
+                { provide: ToastService, useValue: { info: vi.fn(), error: vi.fn() } },
             ],
         }).compileComponents();
 

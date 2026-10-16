@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { LanguageInspectionService } from 'src/app/maturity/language-inspections.service';
@@ -18,7 +18,6 @@ import { Option } from 'src/app/shared/select/select.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: 'xm-maturity-reporting',
     templateUrl: './maturity-reporting.component.html',
     styleUrls: ['./maturity-reporting.component.scss'],

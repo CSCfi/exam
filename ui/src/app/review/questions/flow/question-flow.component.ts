@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview } from 'src/app/review/review.model';
@@ -35,7 +35,6 @@ import { QuestionFlowCategoryComponent } from './question-flow-category.componen
         }`,
     styleUrls: ['./question-flow.component.scss'],
     imports: [QuestionFlowCategoryComponent, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionFlowComponent {
     readonly reviews = input<QuestionReview[]>([]);

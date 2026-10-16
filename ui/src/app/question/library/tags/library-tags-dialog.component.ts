@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import { LibraryService } from 'src/app/question/library/library.service';
 import { Tag } from 'src/app/question/question.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     template: `
@@ -44,7 +44,6 @@ import { Tag } from 'src/app/question/question.model';
         </div>
     `,
     imports: [NgbTypeaheadModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryTagsDialogComponent {
     readonly selections = signal<number[]>([]);
@@ -54,7 +53,7 @@ export class LibraryTagsDialogComponent {
 
     protected readonly activeModal = inject(NgbActiveModal);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Library = inject(LibraryService);
 
     constructor() {

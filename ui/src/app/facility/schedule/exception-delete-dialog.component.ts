@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
@@ -40,7 +40,6 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
     `,
     styleUrls: ['../rooms/rooms.component.scss'],
     imports: [TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDeleteDialogComponent {
     readonly message = signal<string | undefined>(undefined);

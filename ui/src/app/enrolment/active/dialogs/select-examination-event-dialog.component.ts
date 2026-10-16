@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -14,7 +14,6 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [TranslateModule, DatePipe],
     template: `
         <div class="modal-header">

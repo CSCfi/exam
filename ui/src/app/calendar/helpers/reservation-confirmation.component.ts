@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamInfo } from 'src/app/calendar/calendar.model';
@@ -21,7 +21,6 @@ export type CalendarReservationChoice = {
 
 @Component({
     selector: 'xm-calendar-reservation-confirmation',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row mb-4">
             <div class="col-md-8 col-12 p-0">

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import type { ExamInspection } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 
@@ -18,7 +18,6 @@ type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
         </span>
     `,
     imports: [],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TeacherListComponent {
     readonly exam = input<Personnel & { parent: Personnel | null }>();

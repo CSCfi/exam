@@ -2,13 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import type { CollaborativeExam, Exam, ExamImpl } from 'src/app/exam/exam.model';
@@ -19,6 +18,7 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ReservationDetailsComponent } from './reservation-details.component';
 import type { AnyReservation, ExamMachine, ExamRoom } from './reservation.model';
 import { ReservationService, Selection } from './reservation.service';
@@ -36,7 +36,6 @@ import { ReservationService, Selection } from './reservation.service';
     ],
     templateUrl: './reservations.component.html',
     styleUrl: './reservations.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReservationsComponent {
     readonly studentInput = viewChild.required<ElementRef>('studentInput');
@@ -65,7 +64,7 @@ export class ReservationsComponent {
     private readonly isInteroperable$ = toObservable(this.isInteroperable);
 
     private readonly route = inject(ActivatedRoute);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Session = inject(SessionService);
     private readonly Reservation = inject(ReservationService);
 

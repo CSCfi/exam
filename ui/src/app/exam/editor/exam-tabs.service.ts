@@ -4,11 +4,11 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamTabService {
@@ -18,7 +18,7 @@ export class ExamTabService {
 
     private readonly Exam = inject(ExamService);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     get tabChangeSignal() {
         return this.tabChange.asReadonly();

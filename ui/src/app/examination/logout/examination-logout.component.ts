@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
@@ -28,7 +28,6 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
         </div>
     `,
     imports: [TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationLogoutComponent {
     readonly quitLink = signal<string | undefined>(undefined);

@@ -3,11 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Observable, catchError, forkJoin, of, tap } from 'rxjs';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { QuestionFlowComponent } from 'src/app/review/questions/flow/question-flow.component';
@@ -20,6 +19,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { EssayAnswerListComponent } from './essay-answers.component';
 
 @Component({
@@ -36,7 +36,6 @@ import { EssayAnswerListComponent } from './essay-answers.component';
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionAssessmentComponent {
     readonly examId = signal(0);
@@ -51,7 +50,7 @@ export class QuestionAssessmentComponent {
 
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly QuestionReview = inject(QuestionReviewService);
     private readonly Assessment = inject(AssessmentService);
     private readonly Session = inject(SessionService);

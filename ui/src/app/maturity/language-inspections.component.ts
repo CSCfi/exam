@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -15,7 +15,6 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
 
 @Component({
     selector: 'xm-language-inspections',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <xm-page-header text="i18n_language_inspections" />
         <xm-page-content [content]="content" />

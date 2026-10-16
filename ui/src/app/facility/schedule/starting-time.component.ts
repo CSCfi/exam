@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { FormField, form, max, min } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -74,7 +74,6 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
             </div>
         </div>`,
     imports: [FormField, TranslateModule, NgbPopover],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StartingTimeComponent {
     readonly roomIds = input<number[]>([]);

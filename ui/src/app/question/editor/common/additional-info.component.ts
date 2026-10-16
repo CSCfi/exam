@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, linkedSignal, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, input, linkedSignal, OnInit } from '@angular/core';
 import { ControlContainer, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,7 +15,6 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
     templateUrl: './additional-info.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule, NgbPopover],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdditionalInfoComponent implements OnInit, AfterViewInit {
     readonly question = input<ReverseQuestion | QuestionDraft>();

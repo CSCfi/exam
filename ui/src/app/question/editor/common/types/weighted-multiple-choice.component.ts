@@ -3,16 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { AfterViewInit, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     AbstractControl,
@@ -25,11 +16,11 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { skip, startWith } from 'rxjs';
 import { minOptionsValidator } from 'src/app/question/editor/common/types/multiple-choice-validators';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { MultipleChoiceOption } from 'src/app/question/question.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
@@ -38,7 +29,6 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, UpperCasePipe, TranslateModule, FixedPrecisionValidatorDirective],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeightedMultipleChoiceComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();
@@ -86,7 +76,7 @@ export class WeightedMultipleChoiceComponent implements OnInit, AfterViewInit {
     });
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly parentForm = inject(FormGroupDirective);
 
     constructor() {

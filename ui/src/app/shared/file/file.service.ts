@@ -6,10 +6,10 @@ import type { HttpEvent, HttpResponse } from '@angular/common/http';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { catchError, finalize, Observable, of, tap, throwError } from 'rxjs';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
 
@@ -28,7 +28,7 @@ export class FileService {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     private readonly _inProgress = signal<ReadonlySet<string>>(new Set());
     /** Reactive set of URLs whose downloads are currently in flight. */

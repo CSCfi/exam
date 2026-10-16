@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -69,7 +69,6 @@ interface ReportRow {
     ],
     templateUrl: './reports-v2.component.html',
     styleUrl: './reports-v2.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportsV2Component {
     readonly studentInput = viewChild.required<ElementRef>('studentInput');

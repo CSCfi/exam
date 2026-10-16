@@ -4,11 +4,10 @@
 
 import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { interval, map, startWith } from 'rxjs';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
@@ -17,6 +16,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 export type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
@@ -28,7 +28,6 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
     styleUrls: ['../enrolment.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CourseCodeComponent,
         TeacherListComponent,
@@ -52,7 +51,7 @@ export class WaitingRoomComponent implements OnDestroy {
     private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Session = inject(SessionService);
 
     constructor() {

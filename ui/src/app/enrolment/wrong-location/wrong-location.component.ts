@@ -3,63 +3,78 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { Component, computed, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
     selector: 'xm-wrong-location',
     templateUrl: './wrong-location.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class WrongLocationComponent {
-    readonly cause = signal('');
-    readonly enrolment = signal<ExamEnrolment | undefined>(undefined);
-    readonly reservation = signal<Reservation | undefined>(undefined);
-    readonly isUpcoming = signal(false);
-    readonly roomInstructions = signal('');
-    readonly currentMachine = signal<ExamMachine | undefined>(undefined);
-    readonly occasion = signal({ startAt: '', endAt: '' });
+    readonly cause = computed<string>(() => this.data()?.cause ?? '');
+    readonly enrolment = computed(() =>
+        this.enrolmentResource.hasValue() ? this.enrolmentResource.value() : undefined,
+    );
+    readonly reservation = computed(() => this.enrolment()?.reservation);
+    readonly roomInstructions = computed(() => {
+        const room = this.reservation()?.machine.room;
+        return room ? this.getRoomInstructions(this.translate.currentLang.toUpperCase(), room) : '';
+    });
+    readonly currentMachine = computed(() =>
+        this.machineResource.hasValue() ? this.machineResource.value() : undefined,
+    );
+    readonly occasion = computed(() => {
+        const reservation = this.reservation();
+        return reservation ? this.getOccasion(reservation) : { startAt: '', endAt: '' };
+    });
 
-    private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Enrolment = inject(EnrolmentService);
     private readonly DateTimeService = inject(DateTimeService);
 
+    private readonly params = toSignal(this.route.paramMap);
+    private readonly data = toSignal(this.route.data);
+
+    // Both requests fire in parallel and refetch if the route params change
+    private readonly enrolmentResource = httpResource<ExamEnrolment>(
+        () => {
+            const eid = this.params()?.get('eid');
+            return eid ? `/app/student/enrolments/${eid}` : undefined;
+        },
+        {
+            parse: (value) => {
+                const enrolment = value as ExamEnrolment;
+                if (!enrolment.reservation) {
+                    throw Error('no reservation found');
+                }
+                return enrolment;
+            },
+        },
+    );
+    private readonly machineResource = httpResource<ExamMachine>(() => {
+        const mid = this.params()?.get('mid');
+        return mid ? `/app/machines/${mid}` : undefined;
+    });
+
     constructor() {
-        this.cause.set(this.route.snapshot.data.cause);
-        if (this.route.snapshot.params.eid) {
-            this.isUpcoming.set(true);
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.eid}`).subscribe({
-                next: (enrolment) => {
-                    if (!enrolment.reservation) {
-                        throw Error('no reservation found');
-                    }
-                    this.setOccasion(enrolment.reservation);
-                    this.enrolment.set(enrolment);
-                    this.reservation.set(enrolment.reservation);
-                    const room = enrolment.reservation.machine.room;
-                    const code = this.translate.currentLang.toUpperCase();
-                    this.roomInstructions.set(this.getRoomInstructions(code, room));
-                    this.http
-                        .get<ExamMachine>(`/app/machines/${this.route.snapshot.params.mid}`)
-                        .subscribe((machine) => this.currentMachine.set(machine));
-                },
-                error: (err) => this.toast.error(err),
-            });
-        }
+        effect(() => {
+            const err = this.enrolmentResource.error();
+            if (err) this.toast.error(err.message);
+        });
     }
 
     printExamDuration() {
@@ -89,13 +104,13 @@ export class WrongLocationComponent {
         }
     }
 
-    private setOccasion(reservation: Reservation) {
+    private getOccasion(reservation: Reservation) {
         const tz = reservation.machine.room.localTimezone;
         const start = DateTime.fromISO(reservation.startAt, { zone: tz });
         const end = DateTime.fromISO(reservation.endAt, { zone: tz });
-        this.occasion.set({
+        return {
             startAt: start.toLocaleString(DateTime.TIME_24_SIMPLE),
             endAt: end.toLocaleString(DateTime.TIME_24_SIMPLE),
-        });
+        };
     }
 }

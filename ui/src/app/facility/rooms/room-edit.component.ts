@@ -2,17 +2,17 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, linkedSignal, signal } from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { AccessibilitySelectorComponent } from 'src/app/facility/accessibility/accessibility-picker.component';
 import { AddressComponent } from 'src/app/facility/address/address.component';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AvailabilityComponent } from './availability.component';
 import { InteroperabilityService } from './interoperability.service';
 import { RoomService } from './room.service';
@@ -31,7 +31,6 @@ import { RoomService } from './room.service';
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomEditComponent {
     readonly room = signal<ExamRoom | undefined>(undefined);
@@ -55,7 +54,7 @@ export class RoomEditComponent {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly roomService = inject(RoomService);
     private readonly interoperability = inject(InteroperabilityService);
 
