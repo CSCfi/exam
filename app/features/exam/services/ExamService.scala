@@ -535,7 +535,7 @@ class ExamService @Inject() (
       .fetch(path[Exam]("gradeScale"))
       .fetch(path[Exam]("gradeScale.grades"))
       .fetch(path[Exam]("grade"))
-      .fetch(path[Exam]("examEnrolments"), "preEnrolledUserEmail")
+      .fetch(path[Exam]("examEnrolments"), "preEnrolledUserEmail, noShow")
       .fetch(path[Exam]("examEnrolments.user"))
       .fetch(path[Exam]("examEnrolments.reservation"), "endAt")
       .fetch(path[Exam]("children"), "id")
