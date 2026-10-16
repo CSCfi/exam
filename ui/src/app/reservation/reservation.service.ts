@@ -75,7 +75,7 @@ export class ReservationService {
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(
             (enrolment) =>
-                (enrolment.reservation && DateTime.fromISO(enrolment.reservation.endAt) > DateTime.now()) ||
+                (enrolment.reservation && this.actualEndAt(enrolment.reservation) > DateTime.now()) ||
                 (enrolment.examinationEventConfiguration &&
                     new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
         ).length;
@@ -271,5 +271,13 @@ export class ReservationService {
                 r.enrolment.exam.examOwners = [];
             }
         }
+    };
+
+    // Reservation times are stored an hour ahead during DST, take that off before comparing with the current time
+    private actualEndAt = (reservation: Reservation) => {
+        const tz =
+            reservation.externalReservation?.roomTz ?? reservation.machine?.room?.localTimezone ?? 'Europe/Helsinki';
+        const end = DateTime.fromISO(reservation.endAt, { zone: tz });
+        return end.isInDST ? end.minus({ hours: 1 }) : end;
     };
 }
