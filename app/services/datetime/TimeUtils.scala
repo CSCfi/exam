@@ -22,3 +22,12 @@ object TimeUtils:
     */
   def zoneIdOf(timezone: String): ZoneId =
     Option(timezone).filter(_.nonEmpty).map(ZoneId.of).getOrElse(ZoneOffset.UTC)
+
+  /** Adds a calendar period to an instant. [[Instant]] itself rejects months and years, so the
+    * period is applied in UTC; over periods of months the zone moves the result by hours at most.
+    */
+  def plusPeriod(instant: Instant, period: Period): Instant =
+    instant.atZone(ZoneOffset.UTC).plus(period).toInstant
+
+  def minusPeriod(instant: Instant, period: Period): Instant =
+    instant.atZone(ZoneOffset.UTC).minus(period).toInstant

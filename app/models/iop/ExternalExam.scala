@@ -26,6 +26,18 @@ class ExternalExam extends GeneratedIdentityModel:
   @JsonInstant var finished: Instant                  = uninitialized
   @JsonInstant var sent: Instant                      = uninitialized
 
+  // When AssessmentTransferService stopped trying to send this attempt home, because XM or the
+  // receiver no longer knew it. Local only, so it is left out of the JSON exchanged with other
+  // installations
+  @io.ebean.annotation.JsonIgnore
+  @com.fasterxml.jackson.annotation.JsonIgnore
+  var deliveryAbandonedAt: Instant = uninitialized
+
+  // When AssessmentTransferService last tried to send this attempt, for the weekly retries
+  @io.ebean.annotation.JsonIgnore
+  @com.fasterxml.jackson.annotation.JsonIgnore
+  var deliveryAttemptedAt: Instant = uninitialized
+
   var externalRef: String = uninitialized // exam.hash of the remote parent exam
   var hash: String        = uninitialized // LOCAL EXAM REFERENCE
 

@@ -347,6 +347,19 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
   ): Unit =
     streamTo(os)(wb => buildStudentActivitySheets(wb, student, participations))
 
+  override def streamGenericReport(headers: List[String], rows: List[List[String]])(
+      os: OutputStream
+  ): Unit =
+    streamTo(os) { wb =>
+      val sheet = wb.createSheet("Report").asInstanceOf[SXSSFSheet]
+      sheet.trackAllColumnsForAutoSizing()
+      addSheetHeader(sheet, headers.toArray)
+      rows.zipWithIndex.foreach { case (row, idx) =>
+        addSheetRow(sheet, row.toArray, idx + 1)
+      }
+      headers.indices.foreach(i => sheet.autoSizeColumn(i, true))
+    }
+
   private def buildExamSheet(wb: Workbook, exam: Exam): Unit =
     val values = Map(
       "Creator ID"       -> exam.creator.id.toString,

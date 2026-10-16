@@ -359,11 +359,20 @@ class ReservationService @Inject() (
       // duration is what the UI adds to the event start to show when the examination ends
       .fetch("exam", "id, name, state, trialCount, implementation, duration")
       .fetch("exam.course", "code")
+      .fetch("exam", "id, name, state, trialCount, implementation, gradeScale")
+      .fetch("exam.examLanguages", "name")
+      .fetch("exam.gradeScale", "description, displayName")
+      .fetch("exam.parent", "gradeScale")
+      .fetch("exam.parent.gradeScale", "description, displayName")
+      .fetch("exam.course", "code, name, gradeScale")
+      .fetch("exam.course.gradeScale", "description, displayName")
       .fetch("exam.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
       .fetch("exam.parent.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
       .fetch("exam.examInspections.user", "id, firstName, lastName")
       .fetch("exam.executionType", "type")
       .fetch("examinationEventConfiguration.examinationEvent")
+      .fetch("reservation")
+      .fetch("reservation.participation", "started, ended, duration")
       .where()
       .isNotNull("examinationEventConfiguration")
       .isNotNull("exam")
@@ -375,7 +384,11 @@ class ReservationService @Inject() (
           .eq("exam.parent.examOwners", user)
           .eq("exam.examOwners", user)
           .endJunction()
+          // A student copy stripped by retention stays listed as deleted until its booking goes
+          .or()
           .ne("exam.state", ExamState.DELETED)
+          .isNotNull("exam.parent")
+          .endOr()
       else baseQuery
 
     val withStartFilter = start.fold(withTeacherFilter) { s =>
@@ -401,7 +414,10 @@ class ReservationService @Inject() (
 
     val withExamFilter = examId.fold(withStudentFilter) { eid =>
       withStudentFilter
+        .or()
         .ne("exam.state", ExamState.DELETED)
+        .isNotNull("exam.parent")
+        .endOr()
         .disjunction()
         .eq("exam.parent.id", eid)
         .eq("exam.id", eid)
@@ -443,11 +459,21 @@ class ReservationService @Inject() (
   ): List[Reservation] =
     val baseQuery = DB
       .find(classOf[Reservation])
-      .fetch("enrolment", "noShow, retrialPermitted")
-      .fetch("user", "id, firstName, lastName, email, userIdentifier")
-      .fetch("enrolment.exam", "id, name, state, trialCount, implementation")
-      .fetch("enrolment.externalExam", "id, externalRef, finished")
-      .fetch("enrolment.exam.course", "code")
+      .fetch("enrolment", "noShow, retrialPermitted, enrolledOn")
+      .fetch("user", "id, firstName, lastName, email, userIdentifier, eppn")
+      .fetch("participation", "started, ended, duration")
+      .fetch(
+        "enrolment.exam",
+        "id, name, state, trialCount, implementation, gradeScale, grade, gradedTime, totalScore, maxScore, examLanguages"
+      )
+      .fetch("enrolment.exam.examLanguages", "name")
+      .fetch("enrolment.exam.examRecord", "timeStamp")
+      .fetch("enrolment.exam.grade", "name")
+      .fetch("enrolment.exam.gradeScale", "description, displayName")
+      .fetch("enrolment.exam.parent", "gradeScale")
+      .fetch("enrolment.exam.parent.gradeScale", "description, displayName")
+      .fetch("enrolment.exam.course", "code, name, gradeScale")
+      .fetch("enrolment.exam.course.gradeScale", "description, displayName")
       .fetch("enrolment.exam.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
       .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
       .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
@@ -463,7 +489,11 @@ class ReservationService @Inject() (
         baseQuery
           .isNull("enrolment.externalExam")
           .isNull("enrolment.collaborativeExam")
+          // A student copy stripped by retention stays listed as deleted until its booking goes
+          .or()
           .ne("enrolment.exam.state", ExamState.DELETED)
+          .isNotNull("enrolment.exam.parent")
+          .endOr()
           .or()
           .eq("enrolment.exam.parent.examOwners", user)
           .eq("enrolment.exam.examOwners", user)

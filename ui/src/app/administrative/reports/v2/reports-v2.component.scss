@@ -1,0 +1,69 @@
+// SPDX-FileCopyrightText: 2026 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+.form-label {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.table {
+    margin-top: 1rem;
+    white-space: nowrap;
+    font-size: 0.875rem;
+
+    th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+
+        &.sortable {
+            cursor: pointer;
+            user-select: none;
+
+            &.sorted {
+                background-color: #e2e6ea;
+                color: #000;
+            }
+
+            &:hover {
+                background-color: #e9ecef;
+            }
+
+            i {
+                margin-left: 0.5rem;
+                font-size: 0.8rem;
+            }
+        }
+    }
+
+    td {
+        vertical-align: middle;
+    }
+}
+
+.overflow-auto {
+    max-height: 70vh;
+}
+
+[ngbDropdownMenu] {
+    z-index: 1050; // Ensure it's above sticky table headers (z-index: 1)
+    min-width: 200px;
+
+    .btn-link {
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.8rem;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .sticky-top {
+      z-index: 2;
+    }
+}

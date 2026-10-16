@@ -88,7 +88,6 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
     val window = config.getString("exam.integration.courseUnitInfo.window")
     val period = java.time.Period.parse(window)
     startDate.atZone(getDefaultTimeZone).minus(period).toInstant
-  override def getExamExpirationPeriod: String = config.getString("exam.exam.expiration.period")
   override def isMaturitySupported: Boolean = DB
     .find(classOf[ExamExecutionType])
     .where

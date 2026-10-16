@@ -17,7 +17,7 @@ fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-${SED} -i "s/version := .*/version := \"$1\"/g" "${DIR}/../../build.sbt"
+${SED} -i "s/^version\( *\):= .*/version\1:= \"$1\"/" "${DIR}/../../build.sbt"
 ${SED} -i "s/exam.release.version = .*/exam.release.version = \"$1\"/g" "${DIR}/../../conf/application.conf"
 ${SED} -i "s/\"version\": .*/\"version\": \"$1\",/g" "${DIR}/../../package.json"
 
