@@ -62,12 +62,12 @@ import type { User } from 'src/app/session/session.model';
                 }
             </span>
         </div>
-        @if (examEnrolments().length > 0) {
+        @if (activeEnrolments().length > 0) {
             <div class="row mt-3">
                 <div class="col-md-5 offset-md-3">{{ 'i18n_exam_participants' | translate }}:</div>
             </div>
             <!-- Students not having finished the exam, sorted alphabetically -->
-            @for (enrolment of examEnrolments(); track enrolment) {
+            @for (enrolment of activeEnrolments(); track enrolment) {
                 <div class="row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
                     <div class="col-md-5 offset-md-3 d-flex align-items-center justify-content-between mt-2">
                         <small>
@@ -119,6 +119,8 @@ export class ExamParticipantSelectorComponent {
     readonly participantsChange = output<ExamEnrolment[]>();
 
     readonly examEnrolments = linkedSignal(() => this.exam().examEnrolments);
+    // No-shows of private exams get a fresh enrolment, keep the old ones out of the participant list
+    readonly activeEnrolments = computed(() => this.examEnrolments().filter((ee) => !ee.noShow));
     readonly newParticipantData = signal<{ id?: number }>({});
     readonly participants = computed(() => {
         const currentExam = this.exam();
