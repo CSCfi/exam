@@ -174,7 +174,7 @@ export class ReportsV2Component {
             { id: 'additionalInfo', label: 'i18n_additional_info' },
             { id: 'examType', label: 'i18n_exam_type' },
             { id: 'examMethod', label: 'i18n_exam_method' },
-            { id: 'noShow', label: 'i18n_no_show' },
+            { id: 'noShow', label: 'i18n_report_no_show' },
             { id: 'aborted', label: 'i18n_aborted' },
         ];
 
