@@ -175,6 +175,12 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
       (os: OutputStream) => excelBuilder.streamStudentActivity(student, participations)(os)
     }
 
+  /** Streams a generic report. Caller must close the stream. */
+  def streamGenericReportAsExcel(headers: List[String], rows: List[List[String]])(
+      os: OutputStream
+  ): Unit =
+    excelBuilder.streamGenericReport(headers, rows)(os)
+
   private def fetchStudentParticipations(
       studentId: Long,
       from: String,

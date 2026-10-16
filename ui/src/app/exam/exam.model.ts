@@ -193,6 +193,7 @@ export interface ExamImpl {
     examFeedback: Feedback;
     grade?: SelectableGrade;
     gradedTime?: Date;
+    examRecord?: { timeStamp: string };
     contentGrade?: string;
     gradingType: GradingType;
     credit: number;
