@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
@@ -15,12 +15,12 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { skip } from 'rxjs';
 import { multipleChoiceOptionsValidator } from 'src/app/question/editor/common/types/multiple-choice-validators';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { MultipleChoiceOption } from 'src/app/question/question.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-multiple-choice',
@@ -28,7 +28,6 @@ import { MultipleChoiceOption } from 'src/app/question/question.model';
     styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, UpperCasePipe, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultipleChoiceComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();
@@ -40,7 +39,7 @@ export class MultipleChoiceComponent implements OnInit, AfterViewInit {
     readonly multipleChoiceForm: FormGroup;
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly QuestionScore = inject(QuestionScoringService);
     private readonly parentForm = inject(FormGroupDirective);
 

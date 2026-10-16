@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { NgbNavChangeEvent, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -28,7 +28,6 @@ import { ExamTabService } from './exam-tabs.service';
         HistoryBackComponent,
     ],
     styleUrl: './exam-tabs.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamTabsComponent {
     readonly exam = computed(() => this.Tabs.examSignal());

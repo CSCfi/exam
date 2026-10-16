@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -29,7 +29,6 @@ import { ExaminationService } from 'src/app/examination/examination.service';
     `,
     imports: [FormsModule, TranslateModule],
     styleUrls: ['./question.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationLtiComponent {
     readonly sq = input.required<ExaminationQuestion>();

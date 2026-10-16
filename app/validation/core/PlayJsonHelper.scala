@@ -5,6 +5,9 @@
 package validation.core
 
 import play.api.libs.json.*
+import services.datetime.TimeUtils
+
+import java.time.Instant
 
 /** Helper functions for parsing and validating Play JSON values
   */
@@ -71,12 +74,12 @@ object PlayJsonHelper:
       Option(html).map(Jsoup.clean(_, HtmlSafelist.SAFELIST)).orNull
     }
 
-  /** Parse a DateTime field using Joda DateTime
+  /** Parse a datetime field into an [[java.time.Instant]]. Accepts full ISO offset datetime strings
+    * and date-only strings (midnight UTC).
     */
-  def parseDateTime(fieldName: String, json: JsValue): Option[org.joda.time.DateTime] =
-    import org.joda.time.format.ISODateTimeFormat
+  def parseDateTime(fieldName: String, json: JsValue): Option[Instant] =
     parse[String](fieldName, json).flatMap { str =>
-      scala.util.Try(org.joda.time.DateTime.parse(str, ISODateTimeFormat.dateTimeParser())).toOption
+      scala.util.Try(TimeUtils.parseInstant(str)).toOption
     }
 
   /** Parse an array field and convert to Long list

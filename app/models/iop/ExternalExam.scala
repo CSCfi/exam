@@ -11,19 +11,32 @@ import jakarta.persistence.*
 import models.base.GeneratedIdentityModel
 import models.exam.Exam
 import models.user.User
-import org.joda.time.DateTime
+import services.datetime.JsonInstant
 import services.json.{EbeanMapper, JsonDeserializer}
 
+import java.time.Instant
 import scala.compiletime.uninitialized
 
 @Entity
 class ExternalExam extends GeneratedIdentityModel:
-  @OneToOne var creator: User                              = uninitialized
-  @DbJsonB var content: java.util.Map[String, Object]      = uninitialized
-  @Temporal(TemporalType.TIMESTAMP) var created: DateTime  = uninitialized
-  @Temporal(TemporalType.TIMESTAMP) var started: DateTime  = uninitialized
-  @Temporal(TemporalType.TIMESTAMP) var finished: DateTime = uninitialized
-  @Temporal(TemporalType.TIMESTAMP) var sent: DateTime     = uninitialized
+  @OneToOne var creator: User                         = uninitialized
+  @DbJsonB var content: java.util.Map[String, Object] = uninitialized
+  @JsonInstant var created: Instant                   = uninitialized
+  @JsonInstant var started: Instant                   = uninitialized
+  @JsonInstant var finished: Instant                  = uninitialized
+  @JsonInstant var sent: Instant                      = uninitialized
+
+  // When AssessmentTransferService stopped trying to send this attempt home, because XM or the
+  // receiver no longer knew it. Local only, so it is left out of the JSON exchanged with other
+  // installations
+  @io.ebean.annotation.JsonIgnore
+  @com.fasterxml.jackson.annotation.JsonIgnore
+  var deliveryAbandonedAt: Instant = uninitialized
+
+  // When AssessmentTransferService last tried to send this attempt, for the weekly retries
+  @io.ebean.annotation.JsonIgnore
+  @com.fasterxml.jackson.annotation.JsonIgnore
+  var deliveryAttemptedAt: Instant = uninitialized
 
   var externalRef: String = uninitialized // exam.hash of the remote parent exam
   var hash: String        = uninitialized // LOCAL EXAM REFERENCE

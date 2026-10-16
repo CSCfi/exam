@@ -86,7 +86,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <td colspan="2">
                     <strong>Sallitut apuv&auml;lineet / Tillåtna verktyg / Tools allowed:</strong>
                     <br />
-                    <div [innerHtml]="exam()?.enrollInstruction"></div>
+                    <div [innerHtml]="$safeNavigationMigration(exam()?.enrollInstruction)"></div>
                 </td>
             </tr>
             <tr>
@@ -167,7 +167,10 @@ SPDX-License-Identifier: EUPL-1.2
                     <span class="col-md-12 pquestion" [xmRichText]="esq.question.question"></span>
                 }
                 @if (esq.question.type === 'ClozeTestQuestion') {
-                    <span class="col-md-12 pquestion" [xmRichText]="esq.clozeTestAnswer?.question"></span>
+                    <span
+                        class="col-md-12 pquestion"
+                        [xmRichText]="$safeNavigationMigration(esq.clozeTestAnswer?.question)"
+                    ></span>
                 }
                 @if (
                     esq.question.type === 'MultipleChoiceQuestion' ||

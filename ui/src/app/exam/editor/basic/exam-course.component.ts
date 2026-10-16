@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { CoursePickerComponent } from 'src/app/exam/editor/common/course-picker.component';
 import type { Course, Exam } from 'src/app/exam/exam.model';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-exam-course',
@@ -54,7 +54,6 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
             </div>
         </div> `,
     imports: [NgbPopover, CoursePickerComponent, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamCourseComponent {
     readonly exam = input.required<Exam>();
@@ -62,7 +61,7 @@ export class ExamCourseComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Exam = inject(CommonExamService);
 
     displayGradeScale() {

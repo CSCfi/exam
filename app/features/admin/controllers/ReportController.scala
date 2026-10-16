@@ -8,6 +8,7 @@ import database.EbeanJsonExtensions
 import features.admin.services.ReportService
 import models.user.Role
 import org.apache.pekko.stream.scaladsl.StreamConverters
+import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.BlockingIOExecutionContext
@@ -159,4 +160,21 @@ class ReportController @Inject() (
                 "Content-Disposition" -> "attachment; filename=\"student_activity.xlsx\""
               )
           )
+    }
+
+  def genericReport: Action[JsValue] =
+    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+      val headers = (request.body \ "headers").as[List[String]]
+      val rows    = (request.body \ "rows").as[List[List[String]]]
+      val pos     = new PipedOutputStream()
+      val pis     = new PipedInputStream(pos)
+      Future {
+        try reportService.streamGenericReportAsExcel(headers, rows)(pos)
+        finally pos.close()
+      }(using ec)
+      Future.successful(
+        Ok.chunked(StreamConverters.fromInputStream(() => pis))
+          .as(XLSX_MIME)
+          .withHeaders("Content-Disposition" -> "attachment; filename=\"report.xlsx\"")
+      )
     }

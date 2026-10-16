@@ -2,17 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    DestroyRef,
-    inject,
-    input,
-    OnInit,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
@@ -55,7 +45,6 @@ import { UsageComponent } from './usage.component';
         UsageComponent,
         WeightedMultipleChoiceComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionBodyComponent implements OnInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();

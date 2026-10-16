@@ -6,11 +6,11 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, model, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { ExamSection } from 'src/app/exam/exam.model';
 import { LibraryResultsComponent } from 'src/app/question/library/results/library-results.component';
 import { LibrarySearchComponent } from 'src/app/question/library/search/library-search.component';
 import { LibraryQuestion } from 'src/app/question/question.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-question-selector',
@@ -67,7 +67,7 @@ export class QuestionSelectorComponent {
     private readonly modal = inject(NgbActiveModal);
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     resultsUpdated = (event: LibraryQuestion[]) => this.questions.set(event);
     questionSelected = (event: number[]) => this.selections.set(event);

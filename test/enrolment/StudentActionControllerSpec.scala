@@ -11,12 +11,12 @@ import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
 import models.exam.{Exam, ExamState}
 import models.facility.ExamRoom
 import models.user.User
-import org.joda.time.DateTime
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status
 import play.api.libs.json.JsArray
 import services.json.JsonDeserializer
 
+import java.time.{Duration, Instant}
 import java.util.TimeZone
 
 class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
@@ -37,7 +37,7 @@ class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfte
   private def createEnrolment(examId: Long): ExamEnrolment =
     val exam = Option(DB.find(classOf[Exam], examId)) match
       case Some(e) =>
-        e.periodEnd = DateTime.now().plusYears(1)
+        e.periodEnd = Instant.now().plus(Duration.ofDays(365))
         e.state = ExamState.PUBLISHED
         e.save()
         e
@@ -58,8 +58,8 @@ class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfte
     val reservation = new Reservation()
     reservation.machine = machine
     reservation.user = user
-    reservation.startAt = DateTime.now().minusMinutes(10)
-    reservation.endAt = DateTime.now().plusMinutes(70)
+    reservation.startAt = Instant.now().minus(Duration.ofMinutes(10))
+    reservation.endAt = Instant.now().plus(Duration.ofMinutes(70))
     reservation.save()
 
     val enrolment = new ExamEnrolment()

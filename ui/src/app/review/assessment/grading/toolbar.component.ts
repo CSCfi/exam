@@ -2,20 +2,19 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Examination } from 'src/app/examination/examination.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from 'src/app/review/assessment/collaborative-assessment.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-r-toolbar',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<!-- Buttons -->
         <div class="pt-4 ps-0 pe-0 mt-2">
             <div class="d-flex flex-row-reverse">
@@ -84,7 +83,7 @@ export class ToolbarComponent {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Assessment = inject(AssessmentService);
     private readonly CollaborativeAssessment = inject(CollaborativeAssesmentService);
     private readonly Exam = inject(ExamService);

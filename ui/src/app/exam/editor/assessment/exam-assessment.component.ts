@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import { AutoEvaluationConfig, Exam, ExamFeedbackConfig, ExamType, GradeScale } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AutoEvaluationComponent } from './auto-evaluation.component';
 import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
 
@@ -20,7 +20,6 @@ import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
     templateUrl: './exam-assessment.component.html',
     styleUrls: ['../../exam.shared.scss'],
     imports: [NgbPopover, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamAssessmentComponent {
     readonly autoEvaluationRef = viewChild<AutoEvaluationComponent>('autoEvaluationComponent');
@@ -39,7 +38,7 @@ export class ExamAssessmentComponent {
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Tabs = inject(ExamTabService);
     private readonly Exam = inject(ExamService);
 

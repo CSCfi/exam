@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -32,7 +32,6 @@ import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-
         ExaminationLtiComponent,
     ],
     styleUrls: ['../examination.shared.scss', './question.shared.scss', './examination-question.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationQuestionComponent {
     readonly exam = input<Examination | undefined>(undefined);

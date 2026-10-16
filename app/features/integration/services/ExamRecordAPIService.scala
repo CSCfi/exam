@@ -7,14 +7,14 @@ package features.integration.services
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.{ExamRecord, ExamScore}
-import org.joda.time.format.ISODateTimeFormat
+import services.datetime.TimeUtils
 
 import javax.inject.Inject
 
 class ExamRecordAPIService @Inject() () extends EbeanQueryExtensions:
 
   def getNewRecords(startDate: String): List[ExamScore] =
-    val start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate)
+    val start = TimeUtils.parseInstant(startDate)
     DB.find(classOf[ExamRecord])
       .fetch("examScore")
       .where()

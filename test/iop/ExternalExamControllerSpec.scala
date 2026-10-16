@@ -25,7 +25,6 @@ import models.user.{Language, User}
 import org.apache.commons.io.{FileUtils, IOUtils}
 import org.eclipse.jetty.ee10.servlet.{ServletContextHandler, ServletHolder}
 import org.eclipse.jetty.server.Server
-import org.joda.time.DateTime
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Logging
@@ -36,6 +35,7 @@ import services.file.FileHandler
 
 import java.io.{File, FileInputStream, IOException}
 import java.nio.file.{FileSystems, Files, Path}
+import java.time.{Duration, Instant}
 import java.util
 import java.util.UUID
 import java.util.concurrent.{Semaphore, TimeUnit}
@@ -189,8 +189,8 @@ class ExternalExamControllerSpec
       case None    => fail("Test exam not found")
 
     initExamSectionQuestions(exam)
-    exam.periodStart = DateTime.now().minusDays(1)
-    exam.periodEnd = DateTime.now().plusDays(1)
+    exam.periodStart = Instant.now().minus(Duration.ofDays(1))
+    exam.periodEnd = Instant.now().plus(Duration.ofDays(1))
     exam.hash = HASH
 
     val owner = Option(DB.find(classOf[User], 2L)) match
@@ -227,8 +227,8 @@ class ExternalExamControllerSpec
     val reservation = new Reservation()
     reservation.machine = machine
     reservation.user = reservationUser
-    reservation.startAt = DateTime.now().plusMinutes(10)
-    reservation.endAt = DateTime.now().plusMinutes(70)
+    reservation.startAt = Instant.now().plus(Duration.ofMinutes(10))
+    reservation.endAt = Instant.now().plus(Duration.ofMinutes(70))
     reservation.externalUserRef = reservationUser.eppn
     reservation.externalRef = RESERVATION_REF
     reservation.save()
@@ -270,8 +270,8 @@ class ExternalExamControllerSpec
   private def setReservation(enrolment: ExamEnrolment): Unit =
     val reservation = new Reservation()
     reservation.externalRef = RESERVATION_REF
-    reservation.startAt = DateTime.now().plusHours(2)
-    reservation.endAt = DateTime.now().plusHours(3)
+    reservation.startAt = Instant.now().plus(Duration.ofHours(2))
+    reservation.endAt = Instant.now().plus(Duration.ofHours(3))
     reservation.save()
     enrolment.reservation = reservation
     enrolment.update()
@@ -341,8 +341,8 @@ class ExternalExamControllerSpec
 
         val reservation = new Reservation()
         reservation.externalRef = RESERVATION_REF
-        reservation.startAt = DateTime.now().plusHours(2)
-        reservation.endAt = DateTime.now().plusHours(3)
+        reservation.startAt = Instant.now().plus(Duration.ofHours(2))
+        reservation.endAt = Instant.now().plus(Duration.ofHours(3))
         reservation.save()
 
         enrolment.reservation = reservation
@@ -433,8 +433,8 @@ class ExternalExamControllerSpec
 
         val reservation = new Reservation()
         reservation.externalRef = RESERVATION_REF_2
-        reservation.startAt = DateTime.now().minusHours(2)
-        reservation.endAt = DateTime.now().minusHours(1)
+        reservation.startAt = Instant.now().minus(Duration.ofHours(2))
+        reservation.endAt = Instant.now().minus(Duration.ofHours(1))
         reservation.save()
 
         val student   = DB.find(classOf[User], 1L)
@@ -498,8 +498,8 @@ class ExternalExamControllerSpec
 
         val reservation = new Reservation
         reservation.externalRef = RESERVATION_REF_2
-        reservation.startAt = DateTime.now().minusHours(3)
-        reservation.endAt = DateTime.now().minusHours(2)
+        reservation.startAt = Instant.now().minus(Duration.ofHours(3))
+        reservation.endAt = Instant.now().minus(Duration.ofHours(2))
         reservation.user = DB.find(classOf[User]).where().eq("firstName", "Sauli").find.orNull
 
         val er = new ExternalReservation()

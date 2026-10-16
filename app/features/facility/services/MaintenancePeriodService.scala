@@ -8,13 +8,13 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.facility.services.MaintenancePeriodError.*
 import io.ebean.DB
 import models.calendar.MaintenancePeriod
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSClient
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.Future
 
@@ -30,7 +30,7 @@ class MaintenancePeriodService @Inject() (
   def listMaintenancePeriods: List[MaintenancePeriod] =
     DB.find(classOf[MaintenancePeriod])
       .where()
-      .gt("endsAt", DateTime.now())
+      .gt("endsAt", Instant.now())
       .list
 
   def createMaintenancePeriod(body: JsValue)
@@ -90,7 +90,7 @@ class MaintenancePeriodService @Inject() (
       .addHttpHeaders("Content-Type" -> "application/json")
 
   private def parseBody(body: JsValue) =
-    def parseDate(d: String) = DateTime.parse(d, ISODateTimeFormat.dateTimeParser())
+    def parseDate(d: String) = Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(d))
     val start                = (body \ "startsAt").asOpt[String].map(parseDate)
     val end                  = (body \ "endsAt").asOpt[String].map(parseDate)
     val description          = (body \ "description").asOpt[String]
@@ -98,8 +98,8 @@ class MaintenancePeriodService @Inject() (
 
   private def update(
       period: MaintenancePeriod,
-      start: DateTime,
-      end: DateTime,
+      start: Instant,
+      end: Instant,
       description: String
   ) =
     period.startsAt = start

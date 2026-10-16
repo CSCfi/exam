@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 name                   := "exam"
-version                := "6.4.0"
+version                := "7.1.0"
 licenses += "EUPL 1.2" -> url("https://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 scalaVersion           := "3.8.3"
 scalacOptions ++= Seq(
@@ -32,7 +32,6 @@ libraryDependencies ++= Seq(
   "org.cryptonode.jncryptor" % "jncryptor"          % "1.2.0",
   "org.typelevel"           %% "cats-core"          % "2.13.0",
   "org.typelevel"           %% "cats-effect"        % "3.7.0",
-  "joda-time"                % "joda-time"          % "2.14.1",
   "org.jsoup"                % "jsoup"              % "1.23.2",
   "org.postgresql"           % "postgresql"         % "42.7.14",
   "com.nimbusds"             % "nimbus-jose-jwt"    % "10.5",
@@ -41,9 +40,12 @@ libraryDependencies ++= Seq(
   "org.eclipse.jetty"        % "jetty-server"       % "12.1.7" % Test,
   "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet" % "12.1.7" % Test,
   "org.yaml"                 % "snakeyaml"          % "2.6"    % Test,
-  "org.scalatest"           %% "scalatest"          % "3.2.19" % Test,
+  "org.scalatest"           %% "scalatest"          % "3.2.20" % Test,
   "org.scalatestplus.play"  %% "scalatestplus-play" % "7.0.2"  % Test
 )
+
+// Ebean pulls in Joda support transitively; keep it off the classpath so stray Joda imports fail
+excludeDependencies += "io.ebean" % "ebean-joda-time"
 
 // Security fixes for transitive dependencies (Play / Pekko / commons-email)
 dependencyOverrides ++= Seq(

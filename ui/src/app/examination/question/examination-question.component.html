@@ -83,7 +83,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="row">
                     <div class="col-md-12">
                         <div class="attachment-name float-end">
-                            {{ sq().question.attachment?.fileName | uppercase }}
+                            {{ $safeNavigationMigration(sq().question.attachment?.fileName) | uppercase }}
                         </div>
                     </div>
                 </div>

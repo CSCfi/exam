@@ -463,6 +463,7 @@ GET           /app/reports/examnames                                            
 GET           /app/reports/examnames/:id/:reportType                             features.admin.controllers.ReportController.getExam(id: Long, reportType: String)
 GET           /app/reports/examenrollments/:id                                   features.admin.controllers.ReportController.getExamEnrolments(id: Long)
 GET           /app/reports/student/:id/:from/:to                                 features.admin.controllers.ReportController.reportStudentActivity(id: Long, from: String, to: String)
+POST          /app/reports/generic/xlsx                                          features.admin.controllers.ReportController.genericReport
 
 ################# Statistics interface ##################
 

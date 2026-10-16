@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgbDropdownModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
@@ -32,7 +32,6 @@ enum Tab {
 @Component({
     templateUrl: './statistics.component.html',
     selector: 'xm-statistics',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         NgbNavModule,
         NgbDropdownModule,

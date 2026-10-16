@@ -3,22 +3,21 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ExamMaterialComponent } from './exam-material.component';
 
 @Component({
     selector: 'xm-exam-material-selector',
     templateUrl: './exam-material-picker.component.html',
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamMaterialSelectorComponent {
     readonly section = input.required<ExamSection>();
@@ -38,7 +37,7 @@ export class ExamMaterialSelectorComponent {
 
     private readonly http = inject(HttpClient);
     private readonly modal = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     selectMaterial(event: NgbTypeaheadSelectItemEvent) {
         this.selectedMaterial.set(event.item);

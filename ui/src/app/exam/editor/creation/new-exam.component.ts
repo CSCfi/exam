@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamExecutionType, Implementation } from 'src/app/exam/exam.model';
@@ -16,7 +16,6 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
     selector: 'xm-new-exam',
     templateUrl: './new-exam.component.html',
     imports: [NgbPopover, TranslateModule, PageHeaderComponent, PageContentComponent],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewExamComponent {
     readonly executionTypes = signal<(ExamExecutionType & { name: string })[]>([]);

@@ -2,11 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Subject, forkJoin, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
 import type { CollaborativeExamInfo } from 'src/app/enrolment/enrolment.model';
@@ -14,6 +13,7 @@ import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { CollaborativeExam } from 'src/app/exam/exam.model';
 import { isObject } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
 
@@ -23,7 +23,6 @@ interface LoadingState {
 
 @Component({
     selector: 'xm-collaborative-exam-search',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <span class="col-12 align-items-center mt-3">
@@ -132,7 +131,7 @@ export class CollaborativeExamSearchComponent {
     private readonly filterChanged: Subject<string> = new Subject<string>();
     private readonly _filterText = signal('');
     private readonly destroyRef = inject(DestroyRef);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Search = inject(ExamSearchService);
     private readonly Enrolment = inject(EnrolmentService);
 

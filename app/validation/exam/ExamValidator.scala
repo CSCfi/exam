@@ -11,6 +11,7 @@ import models.exam.ExamState
 import play.api.libs.json.*
 import validation.core.*
 
+import java.time.Instant
 import java.util
 import java.util.Date
 import scala.jdk.CollectionConverters.*
@@ -92,12 +93,12 @@ private object ExamParser:
 
     PlayJsonHelper
       .parse[Long]("periodStart", body)
-      .map(org.joda.time.DateTime(_))
+      .map(Instant.ofEpochMilli)
       .foreach(v => exam.periodStart = v)
 
     PlayJsonHelper
       .parse[Long]("periodEnd", body)
-      .map(org.joda.time.DateTime(_))
+      .map(Instant.ofEpochMilli)
       .foreach(v => exam.periodEnd = v)
 
     PlayJsonHelper.parse[Int]("duration", body).foreach(v => exam.duration = v)
@@ -175,7 +176,7 @@ private object ExamParser:
 
         PlayJsonHelper
           .parse[Long]("releaseDate", obj)
-          .foreach(rd => config.releaseDate = new org.joda.time.DateTime(rd))
+          .foreach(rd => config.releaseDate = Instant.ofEpochMilli(rd))
         exam.examFeedbackConfig = config
       case _ => // None or other JsValue types
     // Handle auto-evaluation config

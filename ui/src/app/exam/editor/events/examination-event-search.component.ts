@@ -4,12 +4,11 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -19,6 +18,7 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-examination-event-search',
@@ -36,7 +36,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEventSearchComponent {
     readonly date = signal(new Date());
@@ -51,7 +50,7 @@ export class ExaminationEventSearchComponent {
     private readonly http = inject(HttpClient);
     private readonly ConfirmationDialog = inject(ConfirmationDialogService);
     private readonly Enrolment = inject(EnrolmentService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         const endDate = new Date();
@@ -130,14 +129,15 @@ export class ExaminationEventSearchComponent {
 
     query() {
         const params: { start?: string; end?: string } = {};
-        const tzOffset = new Date().getTimezoneOffset() * 60000;
         const currentStartDate = this.startDate();
         const currentEndDate = this.endDate();
+        // The bounds are already the instants of local midnight either side of the range, and the
+        // backend compares them against examinationEvent.start directly, so they travel as they are.
         if (currentStartDate) {
-            params.start = new Date(currentStartDate.getTime() + tzOffset).toISOString();
+            params.start = currentStartDate.toISOString();
         }
         if (currentEndDate) {
-            params.end = new Date(currentEndDate.getTime() + tzOffset).toISOString();
+            params.end = currentEndDate.toISOString();
         }
         this.http
             .get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params })

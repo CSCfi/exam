@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
+import { Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,7 +38,6 @@ interface ExtendedRoom extends ExamRoom {
         TranslateModule,
     ],
     styleUrl: './rooms.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomComponent {
     readonly room = input.required<ExtendedRoom>();

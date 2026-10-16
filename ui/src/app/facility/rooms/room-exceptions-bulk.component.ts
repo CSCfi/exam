@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { RoomService } from './room.service';
 
 type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
@@ -102,14 +102,13 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
     `,
     imports: [NgbPopover, ExceptionListComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
     styleUrl: './rooms.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomExceptionsBulkComponent {
     readonly rooms = signal<SelectableRoom[]>([]);
     readonly roomIds = signal<number[]>([]);
     readonly allSelected = signal(false);
 
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly roomService = inject(RoomService);
     private readonly translate = inject(TranslateService);
 

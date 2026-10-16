@@ -3,23 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpParams } from '@angular/common/http';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    ViewEncapsulation,
-    computed,
-    inject,
-    input,
-    linkedSignal,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
 import type { FilterableAccessibility, Organisation, Slot } from 'src/app/calendar/calendar.model';
@@ -27,6 +16,7 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
 import { PasswordPromptComponent } from 'src/app/calendar/helpers/password-prompt.component';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AccessibilityPickerComponent } from './accessibility-picker.component';
 import { SelectedRoomComponent } from './selected-room.component';
 
@@ -38,7 +28,6 @@ type AvailableSlot = Slot & { availableMachines: number };
     templateUrl: './slot-picker.component.html',
     styleUrls: ['../calendar.component.scss', './slot-picker.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         NgbDropdownModule,
         SelectedRoomComponent,
@@ -106,7 +95,7 @@ export class SlotPickerComponent {
 
     private readonly translate = inject(TranslateService);
     private readonly route = inject(ActivatedRoute);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Calendar = inject(CalendarService);
 
     constructor() {
@@ -259,8 +248,6 @@ export class SlotPickerComponent {
     }
 
     private adjust(date: string, tz: string): Date {
-        const adjusted = DateTime.fromISO(date, { zone: tz });
-        const offset = adjusted.isInDST ? -1 : 0;
-        return adjusted.plus({ hours: offset }).toJSDate();
+        return DateTime.fromISO(date, { zone: tz }).toJSDate();
     }
 }

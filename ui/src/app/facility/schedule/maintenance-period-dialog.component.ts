@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, linkedSignal, model } from '@angular/core';
+import { Component, inject, linkedSignal, model } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     imports: [FormField, TranslateModule, DateTimePickerComponent],
@@ -60,7 +60,6 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
             </button>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MaintenancePeriodDialogComponent {
     readonly period = model<MaintenancePeriod | undefined>(undefined);
@@ -79,7 +78,7 @@ export class MaintenancePeriodDialogComponent {
 
     private readonly translate = inject(TranslateService);
     private readonly activeModal = inject(NgbActiveModal);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     ok() {
         if (this.endsAt() <= this.startsAt()) {

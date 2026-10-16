@@ -4,21 +4,19 @@
 
 import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { interval, map, startWith } from 'rxjs';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
-import { DateTimeService } from 'src/app/shared/date/date.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 export type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
@@ -30,7 +28,6 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
     styleUrls: ['../enrolment.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CourseCodeComponent,
         TeacherListComponent,
@@ -39,7 +36,6 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
         SlicePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         PageHeaderComponent,
         PageContentComponent,
     ],
@@ -55,9 +51,8 @@ export class WaitingRoomComponent implements OnDestroy {
     private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Session = inject(SessionService);
-    private readonly DateTimeService = inject(DateTimeService);
 
     constructor() {
         if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {
@@ -126,8 +121,8 @@ export class WaitingRoomComponent implements OnDestroy {
         const start = DateTime.fromISO(reservation.startAt, { zone: tz });
         const end = DateTime.fromISO(reservation.endAt, { zone: tz });
         reservation.occasion = {
-            startAt: start.minus({ hour: start.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
-            endAt: end.minus({ hour: end.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
+            startAt: start.toLocaleString(DateTime.TIME_24_SIMPLE),
+            endAt: end.toLocaleString(DateTime.TIME_24_SIMPLE),
         };
     }
 
@@ -139,11 +134,7 @@ export class WaitingRoomComponent implements OnDestroy {
         if (enrolment.examinationEventConfiguration) {
             return DateTime.fromISO(enrolment.examinationEventConfiguration.examinationEvent.start).toJSDate();
         }
-        const start = DateTime.fromISO(enrolment.reservation.startAt);
-        if (this.DateTimeService.isDST(new Date())) {
-            return start.minus({ hour: 1 }).toJSDate();
-        }
-        return start.toJSDate();
+        return DateTime.fromISO(enrolment.reservation.startAt).toJSDate();
     }
 
     private calculateOffset() {

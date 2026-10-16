@@ -16,8 +16,6 @@ import models.iop.CollaborativeExam
 import models.user.User
 import org.apache.commons.io.IOUtils
 import org.eclipse.jetty.server.Server
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Application
@@ -26,7 +24,10 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.test.Helpers.*
-import services.datetime.{AppClock, FixedAppClock}
+import services.datetime.{AppClock, FixedAppClock, TimeUtils}
+
+import java.time.*
+import java.time.format.DateTimeFormatter
 
 /** Covers the student-facing endpoint used for booking a visit to another organisation for a
   * collaborative exam. The stand-in for XM is bound to a wildcard path on purpose, so that a
@@ -48,7 +49,7 @@ class CollaborativeExternalCalendarControllerSpec
 
   // Anchored to today at 10:00, same rationale as in ExternalCalendarInterfaceSpec: keeps the
   // time-of-day within working hours while staying well clear of midnight
-  private val fixedNow: DateTime = DateTime.now().withTimeAtStartOfDay().plusHours(10)
+  private val fixedNow: Instant = LocalDate.now().atTime(10, 0).atZone(ZoneOffset.UTC).toInstant
 
   private class ReservationServlet extends HttpServlet:
     @volatile var lastUri: Option[String]   = None
@@ -86,8 +87,8 @@ class CollaborativeExternalCalendarControllerSpec
         )
         val reservation = Json.obj(
           "id"      -> RESERVATION_REF,
-          "start"   -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(1)),
-          "end"     -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(2)),
+          "start"   -> DateTimeFormatter.ISO_INSTANT.format(fixedNow.plus(Duration.ofHours(1))),
+          "end"     -> DateTimeFormatter.ISO_INSTANT.format(fixedNow.plus(Duration.ofHours(2))),
           "orgName" -> "Remote University",
           "orgCode" -> "RU",
           "machine" -> Json.obj("name" -> "Machine 1", "room" -> room)
@@ -139,8 +140,8 @@ class CollaborativeExternalCalendarControllerSpec
       case None    => fail("Test exam not found")
 
     exam.state = ExamState.PUBLISHED
-    exam.periodStart = fixedNow.minusDays(1)
-    exam.periodEnd = fixedNow.plusDays(1)
+    exam.periodStart = fixedNow.minus(Duration.ofDays(1))
+    exam.periodEnd = fixedNow.plus(Duration.ofDays(1))
     exam.update()
 
     // The exam lives in XM for real; here the stand-in serves the local one back
@@ -154,22 +155,21 @@ class CollaborativeExternalCalendarControllerSpec
       val enrolment = new ExamEnrolment()
       enrolment.collaborativeExam = ce
       enrolment.user = student
-      enrolment.enrolledOn = fixedNow.minusDays(1)
+      enrolment.enrolledOn = fixedNow.minus(Duration.ofDays(1))
       enrolment.save()
 
     (ce, student)
 
   private def reservationRequest(examId: Long): JsValue = Json.obj(
-    "start"      -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(1)),
-    "end"        -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(2)),
+    "start"      -> DateTimeFormatter.ISO_INSTANT.format(fixedNow.plus(Duration.ofHours(1))),
+    "end"        -> DateTimeFormatter.ISO_INSTANT.format(fixedNow.plus(Duration.ofHours(2))),
     "examId"     -> examId,
     "orgId"      -> ORG_REF,
     "roomId"     -> ROOM_REF,
     "sectionIds" -> Json.arr(1)
   )
 
-  private def instantOf(timestamp: String): Long =
-    ISODateTimeFormat.dateTimeParser().parseDateTime(timestamp).getMillis
+  private def instantOf(timestamp: String): Instant = TimeUtils.parseInstant(timestamp)
 
   private def requestReservation(examId: Long) =
     val (_, session) = runIO(loginAsStudent())
@@ -201,8 +201,8 @@ class CollaborativeExternalCalendarControllerSpec
         (sent \ "requestingOrg").as[String] must be("test-org")
         (sent \ "user").as[String] must be(student.eppn)
         // The proxy gets the instants, printed in whichever zone the request was parsed into
-        instantOf((sent \ "start").as[String]) must be(fixedNow.plusHours(1).getMillis)
-        instantOf((sent \ "end").as[String]) must be(fixedNow.plusHours(2).getMillis)
+        instantOf((sent \ "start").as[String]) must be(fixedNow.plus(Duration.ofHours(1)))
+        instantOf((sent \ "end").as[String]) must be(fixedNow.plus(Duration.ofHours(2)))
         (sent \ "optionalSections").as[JsArray].value.map(_.as[Long]) must be(Seq(1L))
 
       "store the reservation against the enrolment" in:

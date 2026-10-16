@@ -3,13 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { httpResource } from '@angular/common/http';
+import { Component, computed, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { combineLatest, EMPTY } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 import type { ReviewedExam, Scores } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -19,7 +16,6 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 
 @Component({
     selector: 'xm-exam-feedback',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-feedback.component.html',
     styleUrl: './exam-feedback.component.scss',
     imports: [DatePipe, TranslateModule],
@@ -31,20 +27,14 @@ export class ExamFeedbackComponent {
     readonly scores = input.required<Scores>();
     readonly collaborative = input(false);
 
-    // Load answers reactively when assessment or collaborative changes
-    readonly assessmentWithAnswers = toSignal(
-        combineLatest([toObservable(this.assessment), toObservable(this.collaborative)]).pipe(
-            switchMap(([assessment, collaborative]) => {
-                if (collaborative) {
-                    return EMPTY;
-                }
-                return this.http.get<Exam | undefined>(`/app/feedback/exams/${assessment.id}/answers`);
-            }),
-        ),
-        { initialValue: undefined },
+    // Backend responds with an empty body (null) when answers are not released
+    readonly assessmentWithAnswers = computed(() => (this.answers.hasValue() ? this.answers.value() : null));
+
+    // Refetches when assessment or collaborative changes; an undefined request leaves the resource idle
+    private readonly answers = httpResource<Exam | null>(() =>
+        this.collaborative() ? undefined : `/app/feedback/exams/${this.assessment().id}/answers`,
     );
 
-    private readonly http = inject(HttpClient);
     private readonly modal = inject(ModalService);
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);

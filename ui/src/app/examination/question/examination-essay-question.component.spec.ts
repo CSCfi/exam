@@ -5,13 +5,13 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import type { EssayAnswer } from 'src/app/question/question.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { ExaminationEssayQuestionComponent } from './examination-essay-question.component';
 
@@ -75,7 +75,7 @@ describe('ExaminationEssayQuestionComponent', () => {
                 { provide: ExaminationService, useValue: mockExamination },
                 { provide: AttachmentService, useValue: {} },
                 { provide: FileService, useValue: {} },
-                { provide: ToastrService, useValue: { error: vi.fn(), success: vi.fn() } },
+                { provide: ToastService, useValue: { error: vi.fn(), success: vi.fn() } },
             ],
         })
             .overrideComponent(ExaminationEssayQuestionComponent, {

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
@@ -10,7 +10,6 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
 
 @Component({
     selector: 'xm-printed-cloze-test',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/cloze-test.component.html',
     styleUrls: ['./print.shared.scss'],
     imports: [RichTextDirective, TranslateModule],

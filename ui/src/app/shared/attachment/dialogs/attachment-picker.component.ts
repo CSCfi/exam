@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -71,7 +71,6 @@ import { FileService } from 'src/app/shared/file/file.service';
         </div>
     `,
     styleUrls: ['./attachment-picker.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttachmentSelectorComponent {
     readonly fileObject = signal<File | undefined>(undefined);

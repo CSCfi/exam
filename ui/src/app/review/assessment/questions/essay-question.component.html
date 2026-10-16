@@ -96,7 +96,10 @@ SPDX-License-Identifier: EUPL-1.2
                             <img src="/assets/images/icon_attachment.svg" alt="" class="ps-2" />
                         </button>
                         <div class="attachment-name">
-                            {{ sectionQuestion().essayAnswer?.attachment?.fileName | uppercase }}
+                            {{
+                                $safeNavigationMigration(sectionQuestion().essayAnswer?.attachment?.fileName)
+                                    | uppercase
+                            }}
                         </div>
                     </div>
                 }

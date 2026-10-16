@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
@@ -28,7 +28,6 @@ import { claimChoiceFormValidator } from './claim-choice-validators';
     styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClaimChoiceComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();

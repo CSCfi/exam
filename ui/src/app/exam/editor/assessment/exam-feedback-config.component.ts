@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input, OnInit, output, signal } from '@angular/core';
+import { Component, input, OnInit, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -22,7 +22,6 @@ type ExamFeedbackConfigTemplate = {
     templateUrl: './exam-feedback-config.component.html',
     styleUrls: ['./exam-feedback-config.component.scss'],
     imports: [NgbPopover, NgbCollapse, NgbDropdownModule, DatePickerComponent, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamFeedbackConfigComponent implements OnInit {
     readonly exam = input.required<Exam>();

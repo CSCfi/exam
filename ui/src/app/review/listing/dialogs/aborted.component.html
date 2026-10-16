@@ -100,10 +100,10 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                             @if (review.examParticipation.exam.implementation === 'AQUARIUM') {
                                 <td>
-                                    {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                                    {{ review.examParticipation.started | date: 'dd.MM.yyyy' }}
                                     {{ 'i18n_clock_short' | translate }}
-                                    {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                                    {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
+                                    {{ review.examParticipation.started | date: 'HH:mm' }} -
+                                    {{ review.examParticipation.ended | date: 'HH:mm' }} ({{
                                         review.examParticipation.started | minuteDiff: review.examParticipation.ended
                                     }}&nbsp;min)
                                 </td>

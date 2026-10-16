@@ -8,16 +8,18 @@ import base.BaseIntegrationSpec
 import io.ebean.DB
 import models.calendar.ExceptionWorkingHours
 import models.facility.ExamRoom
-import org.joda.time.DateTime
 import play.api.http.Status
 import play.api.libs.json.*
+
+import java.time.{LocalDate, ZoneOffset}
+import java.util.Date
 
 class ReservationInterfaceSpec extends BaseIntegrationSpec:
 
   "ReservationInterface" when:
     "getting reservations" should:
       "return reservations for existing room and empty array for non-existing room" in:
-        val filter = DateTime.now().withYear(1999).toString("yyyy-MM-dd")
+        val filter = LocalDate.now().withYear(1999).toString
 
         // Test existing room
         val result1 = runIO(get(s"/integration/reservations?start=$filter&roomId=1"))
@@ -53,23 +55,26 @@ class ReservationInterfaceSpec extends BaseIntegrationSpec:
           case None    => fail("Test room not found")
 
         val ewh = new ExceptionWorkingHours()
-        ewh.startDate = DateTime.now().withDayOfMonth(15).toDate
-        ewh.endDate = DateTime.now().plusMonths(1).withDayOfMonth(15).toDate
-        ewh.startDateTimezoneOffset = 0
-        ewh.endDateTimezoneOffset = 0
+        ewh.startDate =
+          Date.from(LocalDate.now().withDayOfMonth(15).atStartOfDay(ZoneOffset.UTC).toInstant)
+        ewh.endDate = Date.from(
+          LocalDate.now().plusMonths(1).withDayOfMonth(15).atStartOfDay(ZoneOffset.UTC).toInstant
+        )
 
         val ewh2 = new ExceptionWorkingHours()
-        ewh2.startDate = DateTime.now().plusMonths(1).withDayOfMonth(1).toDate
-        ewh2.endDate = DateTime.now().plusMonths(1).withDayOfMonth(15).toDate
-        ewh2.startDateTimezoneOffset = 0
-        ewh2.endDateTimezoneOffset = 0
+        ewh2.startDate = Date.from(
+          LocalDate.now().plusMonths(1).withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC).toInstant
+        )
+        ewh2.endDate = Date.from(
+          LocalDate.now().plusMonths(1).withDayOfMonth(15).atStartOfDay(ZoneOffset.UTC).toInstant
+        )
 
         room.calendarExceptionEvents.add(ewh)
         room.calendarExceptionEvents.add(ewh2)
         room.update()
 
         // Execute
-        val filter = DateTime.now().toString("yyyy-MM-dd")
+        val filter = LocalDate.now().toString
         val result = runIO(get(s"/integration/rooms/1/openinghours?date=$filter"))
         statusOf(result).must(be(Status.OK))
 

@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
@@ -24,7 +24,6 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
     templateUrl: './printout.component.html',
     imports: [CourseCodeComponent, TeacherListComponent, RichTextDirective, DatePipe, TranslateModule, OrderByPipe],
     styleUrl: './printout.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrintoutComponent {
     readonly exam = signal<Printout | undefined>(undefined);

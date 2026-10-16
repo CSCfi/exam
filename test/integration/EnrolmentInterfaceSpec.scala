@@ -12,11 +12,11 @@ import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import models.exam.{Exam, ExamState}
 import org.eclipse.jetty.server.Server
-import org.joda.time.DateTime
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
 import play.api.libs.json.JsArray
 
+import java.time.{Duration, Instant}
 import scala.compiletime.uninitialized
 
 class EnrolmentInterfaceSpec
@@ -67,8 +67,8 @@ class EnrolmentInterfaceSpec
       .eq("state", ExamState.PUBLISHED)
       .find
       .foreach(exam =>
-        exam.periodStart = DateTime.now().minusDays(1)
-        exam.periodEnd = DateTime.now().plusDays(1)
+        exam.periodStart = Instant.now().minus(Duration.ofDays(1))
+        exam.periodEnd = Instant.now().plus(Duration.ofDays(1))
         exam.save()
       );
 
