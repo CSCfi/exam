@@ -503,7 +503,7 @@ class ExamService @Inject() (
       .fetch("gradeScale")
       .fetch("gradeScale.grades")
       .fetch("grade")
-      .fetch("examEnrolments", "preEnrolledUserEmail")
+      .fetch("examEnrolments", "preEnrolledUserEmail, noShow")
       .fetch("examEnrolments.user")
       .fetch("examEnrolments.reservation", "endAt")
       .fetch("children", "id")
