@@ -102,6 +102,8 @@ class ExternalExamHandlerImpl @Inject() (
           document.examSections.asScala
             .flatMap(_.sectionQuestions.asScala)
             .foreach { esq =>
+              // The home organisation may still send duplicate option rows
+              esq.options = esq.distinctOptions
               val questionType = Option(esq.question).map(_.`type`)
               questionType match
                 case Some(QuestionType.ClaimChoiceQuestion) =>
