@@ -9,11 +9,11 @@ import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.User
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, Interval, LocalDate}
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc.Result
 
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
 
 /** Error types for calendar handler operations */
@@ -49,14 +49,14 @@ trait CalendarHandler:
   def getRandomMachine(
       room: ExamRoom,
       exam: Exam,
-      start: DateTime,
-      end: DateTime,
+      start: Instant,
+      end: Instant,
       aids: Seq[Long]
   ): Option[ExamMachine]
 
   def createReservation(
-      start: DateTime,
-      end: DateTime,
+      start: Instant,
+      end: Instant,
       machine: ExamMachine,
       user: User
   ): Reservation
@@ -71,8 +71,8 @@ trait CalendarHandler:
       enrolment: ExamEnrolment,
       exam: Exam,
       node: JsValue,
-      start: DateTime,
-      end: DateTime,
+      start: Instant,
+      end: Instant,
       user: User,
       orgRef: String,
       roomRef: String,
@@ -86,22 +86,19 @@ trait CalendarHandler:
       user: User
   ): Set[CalendarHandler.TimeSlot]
 
-  def normalizeMaintenanceTime(dateTime: DateTime): DateTime
-
   def checkEnrolment(enrolment: ExamEnrolment, user: User, sectionIds: Seq[Long]): Option[Result]
 
   def getEnrolment(examId: Long, user: User): ExamEnrolment
 
 object CalendarHandler:
   case class TimeSlot(interval: Interval, machineCount: Int, exam: String):
-    val start: String           = ISODateTimeFormat.dateTime().print(interval.getStart)
-    val end: String             = ISODateTimeFormat.dateTime().print(interval.getEnd)
+    val start: String           = DateTimeFormatter.ISO_INSTANT.format(interval.start)
+    val end: String             = DateTimeFormatter.ISO_INSTANT.format(interval.end)
     val availableMachines: Int  = machineCount
     val ownReservation: Boolean = machineCount < 0
     val conflictingExam: String = exam
 
   object TimeSlot:
-    // JSON serialization for TimeSlot (excludes the Interval field to avoid Joda serialization issues)
     implicit val writes: Writes[TimeSlot] = (slot: TimeSlot) =>
       Json.obj(
         "start"             -> slot.start,

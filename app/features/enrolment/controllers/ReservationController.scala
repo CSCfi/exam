@@ -8,12 +8,11 @@ import database.EbeanJsonExtensions
 import features.enrolment.services.{ReservationError, ReservationService}
 import io.ebean.text.PathProperties
 import models.user.Role
-import org.joda.time.Interval
-import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.{Auth, BlockingIOExecutionContext}
+import services.datetime.{Interval, TimeUtils}
 import system.AuditedAction
 
 import javax.inject.Inject
@@ -85,12 +84,11 @@ class ReservationController @Inject() (
       request =>
         val machineId = (request.body \ "machineId").as[Long]
         // The client picks one of the slots offered by findAvailableMachines
-        val parser = ISODateTimeFormat.dateTimeParser
         val chosenSlot =
           for
             start <- (request.body \ "start").asOpt[String]
             end   <- (request.body \ "end").asOpt[String]
-          yield Interval(parser.parseDateTime(start), parser.parseDateTime(end))
+          yield Interval(TimeUtils.parseInstant(start), TimeUtils.parseInstant(end))
         reservationService.updateMachine(reservationId, machineId, chosenSlot).map {
           case Right(reservation)                         => Ok(reservation.asJson)
           case Left(ReservationError.ReservationNotFound) => NotFound("Reservation not found")

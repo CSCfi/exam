@@ -80,6 +80,7 @@ export class ReservationsComponent {
             'GRADED_LOGGED',
             'REJECTED',
             'ARCHIVED',
+            'DELETED',
             'STUDENT_STARTED',
             'PUBLISHED',
             'ABORTED',

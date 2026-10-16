@@ -88,9 +88,7 @@ export class ExceptionDialogComponent {
             {
                 id: 0,
                 startDate: startDate.toISO()!,
-                startDateTimezoneOffset: startDate.offset,
                 endDate: endDate.toISO()!,
-                endDateTimezoneOffset: endDate.offset,
                 outOfService: this.outOfService(),
             },
         ];

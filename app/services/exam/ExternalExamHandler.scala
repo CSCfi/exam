@@ -19,7 +19,6 @@ import models.iop.ExternalExam
 import models.questions.{Question, QuestionType}
 import models.sections.ExamSection
 import models.user.User
-import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import play.api.http.Status.*
 import play.api.libs.json.Json
@@ -32,6 +31,7 @@ import services.json.EbeanMapper
 import services.json.JsonDeserializer
 import services.mail.EmailComposer
 
+import java.time.{Duration, Instant}
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.Future
@@ -130,7 +130,7 @@ class ExternalExamHandlerImpl @Inject() (
           ee.hash = ref
           ee.content = content
           ee.creator = user
-          ee.created = DateTime.now()
+          ee.created = Instant.now()
           ee.save()
 
           val enrolment = new ExamEnrolment()
@@ -165,12 +165,12 @@ class ExternalExamHandlerImpl @Inject() (
     ep.ended = externalExam.finished
     ep.reservation = enrolment.reservation
     ep.duration =
-      new DateTime(externalExam.finished.getMillis - externalExam.started.getMillis)
+      Instant.ofEpochMilli(externalExam.finished.toEpochMilli - externalExam.started.toEpochMilli)
 
     if clone.state == ExamState.REVIEW then
       val settings     = configReader.getOrCreateSettings("review_deadline", None, Some("14"))
       val deadlineDays = settings.value.toInt
-      val deadline     = externalExam.finished.plusDays(deadlineDays)
+      val deadline     = externalExam.finished.plus(Duration.ofDays(deadlineDays))
       ep.deadline = deadline
       if clone.isPrivate then notifyTeachers(clone)
       autoEvaluationHandler.autoEvaluate(clone)

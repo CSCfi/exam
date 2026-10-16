@@ -11,13 +11,12 @@ import models.exam.ExamState
 import models.exam.{Exam, ExamExecutionType}
 import models.iop.CollaborativeExam
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.datetime.DateTimeHandler
 import services.enrolment.EnrolmentHandler
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 
@@ -29,7 +28,6 @@ class CollaborativeEnrolmentService @Inject() (
     collaborativeExamService: CollaborativeExamService,
     examLoader: CollaborativeExamLoaderService,
     configReader: ConfigReader,
-    dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
     private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
@@ -56,7 +54,7 @@ class CollaborativeEnrolmentService @Inject() (
     exam.state == ExamState.PUBLISHED &&
     Option(exam.executionType).exists(_.`type` == ExamExecutionType.Type.PUBLIC.toString) &&
     Option(exam.periodEnd).isDefined &&
-    exam.periodEnd.isAfterNow
+    exam.periodEnd.isAfter(Instant.now())
 
   /** Check if a user can enroll in an exam
     *
@@ -102,14 +100,13 @@ class CollaborativeEnrolmentService @Inject() (
       checkExamEnrollability(examOpt, user, configReader.getHomeOrganisationRef) match
         case Left(error) => Left(error)
         case Right(_) =>
-          val now = dateTimeHandler.adjustDST(DateTime.now())
           val enrolments = DB
             .find(classOf[ExamEnrolment])
             .where()
             .eq("user", user)
             .eq("collaborativeExam.id", examId)
             .disjunction()
-            .gt("reservation.endAt", now.toDate)
+            .gt("reservation.endAt", Instant.now())
             .isNull("reservation")
             .endJunction()
             .or()
@@ -152,7 +149,7 @@ class CollaborativeEnrolmentService @Inject() (
 
   private def makeEnrolment(exam: CollaborativeExam, user: User): ExamEnrolment =
     val enrolment = new ExamEnrolment()
-    enrolment.enrolledOn = DateTime.now()
+    enrolment.enrolledOn = Instant.now()
     enrolment.user = user
     enrolment.collaborativeExam = exam
     enrolment.setRandomDelay()
@@ -164,7 +161,7 @@ class CollaborativeEnrolmentService @Inject() (
       user: User,
       ce: CollaborativeExam
   ): Option[ExamEnrolment] =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = Instant.now()
     val futureReservations = enrolments.filter { ee =>
       Option(ee.reservation).exists(_.toInterval.isAfter(now))
     }
@@ -199,7 +196,7 @@ class CollaborativeEnrolmentService @Inject() (
       // reservation in effect
       else if enrolments
           .flatMap(e => Option(e.reservation))
-          .exists(r => r.toInterval.contains(dateTimeHandler.adjustDST(DateTime.now(), r)))
+          .exists(r => r.toInterval.contains(Instant.now()))
       then
         tx.rollback()
         Left("i18n_reservation_in_effect")
