@@ -3,18 +3,17 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { NgbActiveModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { ExamMaterial } from 'src/app/exam/exam.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-exam-material',
     templateUrl: './exam-material.component.html',
     imports: [FormField, TranslateModule, NgbPopoverModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamMaterialComponent {
     readonly materials = signal<ExamMaterial[]>([]);
@@ -35,7 +34,7 @@ export class ExamMaterialComponent {
 
     private readonly activeModal = inject(NgbActiveModal);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         this.http.get<ExamMaterial[]>('/app/materials').subscribe({

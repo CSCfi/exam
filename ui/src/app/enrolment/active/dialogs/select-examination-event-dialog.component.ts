@@ -3,17 +3,17 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { forkJoin, of } from 'rxjs';
+import type { ExaminationEventAvailability } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [TranslateModule, DatePipe],
     template: `
         <div class="modal-header">
@@ -40,11 +40,16 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
                             }
                             @if (config.id && reasons()[config.id]) {
                                 <div class="alert alert-warning py-1 px-2 mb-0 mt-1">
-                                    <small>{{ reasons()[config.id!] }}</small>
+                                    <small>{{ reasons()[config.id!]!.message }}</small>
                                 </div>
                             }
                         </div>
-                        <button class="btn btn-sm btn-success flex-shrink-0" (click)="selectEvent(config)" autofocus>
+                        <button
+                            class="btn btn-sm btn-success flex-shrink-0"
+                            [disabled]="isFull(config)"
+                            (click)="selectEvent(config)"
+                            autofocus
+                        >
                             {{ 'i18n_select' | translate }}
                         </button>
                     </div>
@@ -79,7 +84,7 @@ export class SelectExaminationEventDialogComponent implements OnInit {
             );
     });
 
-    readonly reasons = signal<Record<number, string | null>>({});
+    readonly reasons = signal<Record<number, ExaminationEventAvailability | null>>({});
 
     private readonly existingEventId = signal<number | undefined>(undefined);
     private readonly activeModal = inject(NgbActiveModal);
@@ -94,12 +99,16 @@ export class SelectExaminationEventDialogComponent implements OnInit {
             c.id != null ? this.Enrolment.checkExaminationEventConfig$(eid, c.id) : of(null),
         );
         forkJoin(checks).subscribe((results) => {
-            const map: Record<number, string | null> = {};
+            const map: Record<number, ExaminationEventAvailability | null> = {};
             configs.forEach((c, i) => {
                 if (c.id != null) map[c.id] = results[i];
             });
             this.reasons.set(map);
         });
+    }
+
+    isFull(config: ExaminationEventConfiguration) {
+        return config.id != null && !!this.reasons()[config.id]?.full;
     }
 
     selectEvent(event: ExaminationEventConfiguration) {

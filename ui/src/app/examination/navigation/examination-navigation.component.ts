@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination, ExaminationSection, NavigationPage } from 'src/app/examination/examination.model';
 
@@ -49,7 +49,6 @@ import type { Examination, ExaminationSection, NavigationPage } from 'src/app/ex
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationNavigationComponent {
     readonly exam = input.required<Examination>();

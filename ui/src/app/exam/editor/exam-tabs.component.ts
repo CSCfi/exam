@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { NgbNavChangeEvent, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -28,7 +28,6 @@ import { ExamTabService } from './exam-tabs.service';
         HistoryBackComponent,
     ],
     styleUrl: './exam-tabs.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamTabsComponent {
     readonly exam = computed(() => this.Tabs.examSignal());
@@ -51,7 +50,6 @@ export class ExamTabsComponent {
         this.collaborative.set(this.route.snapshot.queryParamMap.get('collaborative') === 'true');
         this.route.data.subscribe((data) => {
             this.Tabs.setExam(data.exam);
-            this.initGradeScale();
             this.Tabs.setCollaborative(this.collaborative());
         });
     }
@@ -78,14 +76,5 @@ export class ExamTabsComponent {
         if (code) return `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
         if (name) return name;
         return this.translate.instant('i18n_no_name');
-    }
-
-    private initGradeScale() {
-        // Set exam grade scale from course default if not specifically set for exam
-        const currentExam = this.exam();
-        if (!currentExam) return;
-        if (!currentExam.gradeScale && currentExam.course && currentExam.course.gradeScale) {
-            this.Tabs.setExam({ ...currentExam, gradeScale: currentExam.course.gradeScale });
-        }
     }
 }

@@ -12,9 +12,8 @@ import io.ebean.text.PathProperties
 import models.exam.Exam
 import models.questions.Question
 import models.questions.QuestionType
-import models.sections.{ExamSection, ExamSectionQuestion}
+import models.sections.ExamSectionQuestion
 import models.user.{Role, User}
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc.*
@@ -25,6 +24,7 @@ import services.exam.{ExamUpdater, SectionQuestionHandler}
 import services.json.JsonDeserializer
 import system.AuditedAction
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -54,7 +54,7 @@ class CollaborativeExamSectionController @Inject() (
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))
     ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      collaborativeExamSectionService.addSection(examId, user.id).map {
+      collaborativeExamSectionService.addSection(examId, user).map {
         case Left(error)    => Forbidden(error)
         case Right(section) => Ok(section.asJson)
       }
@@ -235,7 +235,7 @@ class CollaborativeExamSectionController @Inject() (
 
                   // Insert a new section question
                   esq.creator = user
-                  esq.created = DateTime.now()
+                  esq.created = Instant.now()
                   updateExamQuestion(esq, question)
                   esq.options.asScala.foreach(o =>
                     o.id = CollaborativeExamProcessingService.newId()
@@ -349,16 +349,5 @@ class CollaborativeExamSectionController @Inject() (
           }
       }
     }
-
-  private def createDraft(exam: Exam, user: User): ExamSection =
-    val section = new ExamSection()
-    section.lotteryItemCount = 1
-    section.sectionQuestions = Set.empty[ExamSectionQuestion].asJava
-    section.sequenceNumber = exam.examSections.size()
-    section.expanded = true
-    section.id = CollaborativeExamProcessingService.newId()
-    CollaborativeExamProcessingService.cleanUser(user)
-    section.setCreatorWithDate(user)
-    section
 
   // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)

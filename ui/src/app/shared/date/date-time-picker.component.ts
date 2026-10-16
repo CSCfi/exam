@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input, linkedSignal, output } from '@angular/core';
+import { Component, input, linkedSignal, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
 import { DatePickerComponent } from './date-picker.component';
@@ -35,7 +35,6 @@ import { DatePickerComponent } from './date-picker.component';
     `,
     styleUrls: ['./date-time-picker.component.scss'],
     imports: [DatePickerComponent, NgbTimepicker, FormsModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DateTimePickerComponent {
     readonly initialTime = input<Date | null>(null);

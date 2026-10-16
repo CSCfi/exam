@@ -2,15 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { FileService } from 'src/app/shared/file/file.service';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-md-12">
@@ -42,7 +41,7 @@ export class EnrolmentsReportComponent {
     readonly enrolment = signal<number | undefined>(undefined);
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly files = inject(FileService);
 
     getExamEnrolments() {

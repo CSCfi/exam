@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview } from 'src/app/review/review.model';
@@ -77,7 +77,6 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
     </div>`,
     styleUrls: ['./question-review.component.scss'],
     imports: [RichTextDirective, LowerCasePipe, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionReviewComponent {
     readonly review = input.required<QuestionReview>();

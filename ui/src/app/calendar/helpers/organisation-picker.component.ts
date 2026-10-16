@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Organisation } from 'src/app/calendar/calendar.model';
@@ -10,7 +10,6 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
 
 @Component({
     selector: 'xm-calendar-organisation-picker',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div
             class="row m-2 details-view"

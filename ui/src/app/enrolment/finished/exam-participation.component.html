@@ -32,9 +32,7 @@ SPDX-License-Identifier: EUPL-1.2
                 }
                 <div class="participation-meta-line">
                     <span class="participation-meta-label">{{ 'i18n_exam_endtime' | translate }}:</span>
-                    <span class="participation-meta-value">{{
-                        participation().ended | applyDst | date: 'dd.MM.yyyy'
-                    }}</span>
+                    <span class="participation-meta-value">{{ participation().ended | date: 'dd.MM.yyyy' }}</span>
                 </div>
                 <div class="participation-meta-line">
                     <span class="participation-meta-label">{{ 'i18n_teachers' | translate }}:</span>
@@ -47,9 +45,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-12">
                 <div class="participation-meta-line">
                     <span class="participation-meta-label">{{ 'i18n_exam_endtime' | translate }}:</span>
-                    <span class="participation-meta-value">{{
-                        participation().ended | applyDst | date: 'dd.MM.yyyy'
-                    }}</span>
+                    <span class="participation-meta-value">{{ participation().ended | date: 'dd.MM.yyyy' }}</span>
                 </div>
             </div>
         }

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
@@ -18,7 +18,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 
 @Component({
     selector: 'xm-enrolment-details',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-enrolment-details.component.html',
     imports: [
         CourseCodeComponent,

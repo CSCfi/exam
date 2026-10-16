@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -21,7 +21,6 @@ type ReleaseType = { name: string; translation: string };
     templateUrl: './auto-evaluation.component.html',
     styleUrls: ['./auto-evaluation.component.scss'],
     imports: [NgbPopover, NgbCollapse, ReactiveFormsModule, NgbDropdownModule, DatePickerComponent, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoEvaluationComponent implements OnInit {
     readonly exam = input.required<Exam>();
@@ -54,6 +53,8 @@ export class AutoEvaluationComponent implements OnInit {
         { initialValue: 'IMMEDIATE' },
     );
 
+    private gradeScaleId?: number;
+
     private readonly Exam = inject(ExamService);
     private readonly CommonExam = inject(CommonExamService);
 
@@ -61,6 +62,15 @@ export class AutoEvaluationComponent implements OnInit {
         toObservable(this.exam)
             .pipe(skip(1), takeUntilDestroyed())
             .subscribe((exam) => {
+                if (exam.gradeScale && exam.gradeScale.id !== this.gradeScaleId) {
+                    // Grade scale changed, grade rows of the old scale are no longer valid
+                    this.gradeScaleId = exam.gradeScale.id;
+                    const config = exam.autoEvaluationConfig;
+                    const matches = config?.gradeEvaluations.every((ge) =>
+                        exam.gradeScale!.grades.some((g) => g.id === ge.grade.id),
+                    );
+                    this.buildGradeArray(config && matches ? config : this.createDefaultConfig(exam));
+                }
                 if (exam.autoEvaluationConfig != null) {
                     this.form.enable({ emitEvent: false });
                 } else {
@@ -75,6 +85,7 @@ export class AutoEvaluationComponent implements OnInit {
 
     ngOnInit() {
         const exam = this.exam();
+        this.gradeScaleId = exam.gradeScale?.id;
         const config = exam.autoEvaluationConfig ?? this.createDefaultConfig(exam);
         this.buildGradeArray(config);
         this.form.get('releaseType')?.patchValue(config.releaseType || 'IMMEDIATE', { emitEvent: true });
@@ -140,8 +151,8 @@ export class AutoEvaluationComponent implements OnInit {
         return this.Exam.getMaxScore(this.exam());
     }
 
-    displayGrade(grade: Grade) {
-        return this.CommonExam.getExamGradeDisplayName(grade.name);
+    displayGrade(grade?: Grade) {
+        return grade ? this.CommonExam.getExamGradeDisplayName(grade.name) : '';
     }
 
     scoreLimit(ev: GradeEvaluation | number) {

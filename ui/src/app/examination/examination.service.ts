@@ -6,10 +6,10 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { concat, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { ClozeTestAnswer, EssayAnswer } from 'src/app/question/question.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
 export interface SaveAnswerOptions {
@@ -43,7 +43,7 @@ export class ExaminationService {
     private readonly router = inject(Router);
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         const getUrl = (h: string) => (isPreview && id ? `/app/exams/${id}/preview` : `/app/student/exam/${h}`);

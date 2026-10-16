@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, TemplateRef } from '@angular/core';
+import { Component, input, TemplateRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 
@@ -43,7 +43,6 @@ import { HistoryBackComponent } from 'src/app/shared/history/history-back.compon
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageHeaderComponent {
     readonly text = input(''); // header title text

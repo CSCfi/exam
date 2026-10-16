@@ -14,7 +14,6 @@ import models.exam.GradeType
 import models.iop.CollaborativeExam
 import models.user.{Role, User}
 import org.apache.pekko.stream.scaladsl.StreamConverters
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.libs.json.*
@@ -30,9 +29,11 @@ import services.json.JsonDeserializer
 import services.mail.EmailComposer
 import system.AuditedAction
 import system.interceptors.{AnonymousHandler, AnonymousJsonFilter}
+import validation.core.PlayJsonHelper
 
 import java.io.{PipedInputStream, PipedOutputStream}
 import java.net.{URI, URL}
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -165,7 +166,7 @@ class CollaborativeReviewController @Inject() (
     stateOpt match
       case Some(state)
           if state == ExamState.GRADED.toString || state == ExamState.GRADED_LOGGED.toString =>
-        val gradedTime = DateTime.now().toString()
+        val gradedTime = Instant.now().toString()
         val gradedByUserJson = Json.obj(
           "id"        -> JsNumber(user.id.longValue()),
           "email"     -> user.email,
@@ -258,7 +259,9 @@ class CollaborativeReviewController @Inject() (
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
     .async(controllerComponents.parsers.json) { request =>
-      val refs = (request.body \ "refs").asOpt[Seq[String]].getOrElse(Seq.empty)
+      val refs = (request.body \ "params").toOption
+        .flatMap(PlayJsonHelper.parseCommaSeparatedStrings("ids", _))
+        .getOrElse(List.empty)
       collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
         case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
@@ -665,7 +668,7 @@ class CollaborativeReviewController @Inject() (
                             case Some(errorFuture) => errorFuture
                             case None =>
                               val examNode   = (r.json \ "exam").as[JsObject]
-                              val gradedTime = DateTime.now().toString()
+                              val gradedTime = Instant.now().toString()
                               val gradedByUserJson = Json.obj(
                                 "id"        -> JsNumber(user.id.longValue()),
                                 "email"     -> user.email,

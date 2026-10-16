@@ -52,6 +52,7 @@ const STATE_ORDER = [
     'GRADED_LOGGED',
     'REJECTED',
     'ARCHIVED',
+    'DELETED',
     'EXTERNAL_UNFINISHED',
     'EXTERNAL_FINISHED',
 ];
@@ -62,12 +63,17 @@ export class ReservationService {
     private readonly modal = inject(ModalService);
 
     printExamState = (reservation: {
-        enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
+        enrolment: {
+            exam: { state: string; parent?: unknown };
+            collaborativeExam: { state: string };
+            noShow: boolean;
+        };
     }) => {
-        const state = reservation.enrolment.exam
-            ? reservation.enrolment.exam.state
-            : reservation.enrolment.collaborativeExam.state;
-        return reservation.enrolment.noShow && !ATTENDED_STATES.includes(state) ? 'NO_SHOW' : state;
+        const exam = reservation.enrolment.exam;
+        const state = exam ? exam.state : reservation.enrolment.collaborativeExam.state;
+        // Retention deletes the content of copies the student sat, so a deleted copy was attended too
+        const attended = ATTENDED_STATES.includes(state) || (state === 'DELETED' && !!exam?.parent);
+        return reservation.enrolment.noShow && !attended ? 'NO_SHOW' : state;
     };
 
     getReservationCount = (exam: Exam) =>
@@ -149,7 +155,9 @@ export class ReservationService {
                             : (r.externalUserRef ?? r.enrolment?.exam?.id?.toString() ?? ''),
                         org: '',
                         stateOrd: 0,
+                        startOrd: 0,
                         enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
+                        status: '',
                     })) as AnyReservation[],
             ),
             map((all) => {
@@ -162,7 +170,9 @@ export class ReservationService {
                             ...(r.enrolment as ExamEnrolment),
                             teacherAggregate: exam.examOwners.map((o) => o.lastName + o.firstName).join(),
                         };
+                        r.status = this.printExamState(r);
                         r.stateOrd = STATE_ORDER.indexOf(this.printExamState(r));
+                        r.startOrd = this.startMillis(r);
                         return r;
                     });
             }),
@@ -212,12 +222,20 @@ export class ReservationService {
         id: -ee.id,
         user: ee.user,
         enrolment: ee,
+        participation: ee.reservation?.participation,
         startAt: ee.examinationEventConfiguration?.examinationEvent.start,
         endAt:
             DateTime.fromISO(ee.examinationEventConfiguration?.examinationEvent.start as string)
                 .plus({ minutes: ee.exam.duration })
                 .toISO() || '',
     });
+
+    // Machine reservations and examination events end up in the same table. Ordering by a number
+    // keeps it independent of how each endpoint happens to serialize its timestamps.
+    private startMillis = (r: AnyReservation): number => {
+        const start = DateTime.fromISO(r.startAt);
+        return start.isValid ? start.toMillis() : 0;
+    };
 
     private normalizeVariant = (r: AnyReservation): void => {
         if (isLocalTransfer(r)) {
@@ -233,11 +251,15 @@ export class ReservationService {
                     parent: null,
                 },
             } as LocalTransferExamEnrolment;
-        } else if (isRemoteTransfer(r) && r.externalReservation) {
+            return;
+        }
+        if (isRemoteTransfer(r) && r.externalReservation) {
             // Transfer exams taken elsewhere
             r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
             r.machine = { name: r.externalReservation.machineName, room: { name: r.externalReservation.roomName } };
-        } else if (isCollaborative(r)) {
+        }
+        // Not exclusive with the above: a collaborative exam taken elsewhere is both
+        if (isCollaborative(r)) {
             if (!r.enrolment.exam) {
                 r.enrolment.exam = {
                     ...r.enrolment.collaborativeExam,

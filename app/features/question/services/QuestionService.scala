@@ -21,6 +21,7 @@ import services.exam.{OptionUpdateOptions, SectionQuestionHandler}
 import services.xml.{MoodleXmlExporter, MoodleXmlImporter}
 import validation.core.SanitizingHelper
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Try}
@@ -207,13 +208,14 @@ class QuestionService @Inject() (
       case None => Left(AccessForbidden)
 
   def copyQuestion(id: Long, user: User): Either[QuestionError, Question] =
-    val baseQuery = DB.find(classOf[Question]).fetch("questionOwners").where().idEq(id)
-    val query =
-      if user.hasRole(Role.Name.TEACHER) then
-        baseQuery.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
-      else baseQuery
-    query.find match
-      case None => Left(AccessForbidden)
+    // Look the question up without the access filter so that a missing question is reported as such
+    // rather than as a permission problem
+    DB.find(classOf[Question]).fetch("questionOwners").where().idEq(id).find match
+      case None => Left(QuestionNotFound)
+      case Some(question)
+          if user.hasRole(Role.Name.TEACHER) && !question.shared &&
+            !question.questionOwners.asScala.exists(_.id == user.id) =>
+        Left(AccessForbidden)
       case Some(question) =>
         val sortedOptions = question.options.asScala.toSeq.sorted
         question.options.clear()
@@ -416,7 +418,7 @@ class QuestionService @Inject() (
         // Not allowed to remove if used in active exams
         if question.examSectionQuestions.asScala.exists { esq =>
             val exam = esq.examSection.exam
-            exam.state == ExamState.PUBLISHED && exam.periodEnd.isAfterNow
+            exam.state == ExamState.PUBLISHED && exam.periodEnd.isAfter(Instant.now())
           }
         then Left(QuestionInUse)
         else

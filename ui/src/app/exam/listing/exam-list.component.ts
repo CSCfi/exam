@@ -4,12 +4,11 @@
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { NgbNavModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
@@ -22,6 +21,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
@@ -43,7 +43,6 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamListingComponent {
     readonly activeId = signal(0);
@@ -64,7 +63,7 @@ export class ExamListingComponent {
     private readonly translate = inject(TranslateService);
     private readonly router = inject(Router);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly Exam = inject(ExamService);
     private readonly Modal = inject(ModalService);

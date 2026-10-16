@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
@@ -12,7 +12,6 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 
 @Component({
     selector: 'xm-r-participation',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="col-md-2 ">{{ participation().started | date: 'dd.MM.yyyy' }}</div>
         <div class="col-md-4 ">

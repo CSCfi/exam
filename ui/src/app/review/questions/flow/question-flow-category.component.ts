@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { SlicePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
@@ -46,7 +46,6 @@ import { SessionService } from 'src/app/session/session.service';
             }
         </div>`,
     imports: [UpperCasePipe, SlicePipe, TranslateModule, NgbCollapse],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionFlowCategoryComponent {
     readonly categoryTitle = input('');

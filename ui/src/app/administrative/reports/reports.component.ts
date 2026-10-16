@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import { ExamRoom } from 'src/app/reservation/reservation.model';
@@ -28,7 +28,6 @@ enum UserRole {
 }
 @Component({
     selector: 'xm-reports',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <xm-page-header text="i18n_reports" />
         <xm-page-content [content]="content" />

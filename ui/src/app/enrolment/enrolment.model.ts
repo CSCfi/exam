@@ -77,6 +77,7 @@ export type ParticipationLike =
 
 export interface ExamEnrolment {
     id: number;
+    enrolledOn?: string | Date;
     information: string;
     reservation?: Reservation;
     exam: Exam;
@@ -109,4 +110,9 @@ export interface CollaborativeExamInfo extends CollaborativeExam {
     course: Course;
     examInspections: ExamInspection[];
     parent: null;
+}
+
+export interface ExaminationEventAvailability {
+    full: boolean;
+    message: string;
 }

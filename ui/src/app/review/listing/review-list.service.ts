@@ -5,7 +5,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -13,6 +12,7 @@ import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import type { Review, ReviewListView } from 'src/app/review/review.model';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 type Selection = { [k: string]: boolean };
 
@@ -20,7 +20,7 @@ type Selection = { [k: string]: boolean };
 export class ReviewListService {
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly CommonExam = inject(CommonExamService);
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
@@ -99,7 +99,7 @@ export class ReviewListService {
         items
             .filter(
                 (i) =>
-                    ids.indexOf(i.examParticipation.id.toString()) > -1 ||
+                    (i.examParticipation.id != null && ids.indexOf(i.examParticipation.id.toString()) > -1) ||
                     (i.examParticipation._id && ids.indexOf(i.examParticipation._id) > -1),
             )
             .forEach((pi) => (pi.selected = !pi.selected || override));

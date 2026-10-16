@@ -2,13 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrModule } from 'ngx-toastr';
 import { EMPTY, of } from 'rxjs';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Examination, ExaminationQuestion, ExaminationSection } from 'src/app/examination/examination.model';
@@ -97,10 +96,10 @@ describe('ExaminationToolbarComponent – turnExam()', () => {
         };
 
         await TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
+            imports: [TranslateModule.forRoot()],
             providers: [
                 provideZonelessChangeDetection(),
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 provideRouter([]),
                 { provide: ExaminationService, useValue: mockExamination },

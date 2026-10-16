@@ -49,11 +49,11 @@ SPDX-License-Identifier: EUPL-1.2
             </th>
             <th class="reservation-search">
                 <xm-table-sort
-                    by="startAt"
+                    by="startOrd"
                     text="i18n_date_time"
                     [predicate]="predicate()"
                     [reverse]="reverse()"
-                    (click)="setPredicate('startAt')"
+                    (click)="setPredicate('startOrd')"
                 >
                 </xm-table-sort>
             </th>
@@ -125,6 +125,7 @@ SPDX-License-Identifier: EUPL-1.2
                         @if (
                             !r.enrolment.collaborativeExam &&
                             r.enrolment.exam.id &&
+                            r.enrolment.exam.state !== 'DELETED' &&
                             (isAdminView() || isSupportView() || r.enrolment.exam.state !== 'ABORTED')
                         ) {
                             <a
@@ -173,9 +174,9 @@ SPDX-License-Identifier: EUPL-1.2
                 }
                 @if (r.enrolment.exam.external || r.enrolment.exam.implementation === 'AQUARIUM') {
                     <td class="reservation-search">
-                        {{ r.startAt | applyDst | date: 'dd.MM.yyyy' }} <br />{{
-                            r.startAt | applyDst | date: 'HH:mm'
-                        }}-{{ r.endAt | applyDst | date: 'HH:mm' }}
+                        {{ r.startAt | date: 'dd.MM.yyyy' }} <br />{{ r.startAt | date: 'HH:mm' }}-{{
+                            r.endAt | date: 'HH:mm'
+                        }}
                     </td>
                 }
                 @if (!r.enrolment.exam.external && r.enrolment.exam.implementation !== 'AQUARIUM') {

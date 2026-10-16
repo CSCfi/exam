@@ -16,14 +16,16 @@ import models.exam.*
 import models.iop.CollaborativeExam
 import models.user.User
 import org.apache.commons.mail.EmailAttachment
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.{Environment, Logging, Mode}
 import services.config.{ByodConfigHandler, ConfigReader}
 import services.file.FileHandler
 
 import java.io.{File, FileOutputStream, IOException}
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZonedDateTime}
 import java.util.Date
 import javax.inject.Inject
 import scala.concurrent.duration.*
@@ -34,9 +36,9 @@ import scala.util.control.Exception.catching
 object EmailComposerImpl:
   private val TAG_OPEN  = "{{"
   private val TAG_CLOSE = "}}"
-  private val DTF       = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm ZZZ")
-  private val DF        = DateTimeFormat.forPattern("dd.MM.yyyy")
-  private val TF        = DateTimeFormat.forPattern("HH:mm")
+  private val DTF       = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm z")
+  private val DF        = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+  private val TF        = DateTimeFormatter.ofPattern("HH:mm")
 class EmailComposerImpl @Inject() (
     private val emailSender: EmailSender,
     private val fileHandler: FileHandler,
@@ -48,7 +50,7 @@ class EmailComposerImpl @Inject() (
     with EbeanQueryExtensions
     with Logging:
   private val hostName      = configReader.getHostName
-  private val timeZone      = configReader.getDefaultTimeZone
+  private val timeZone      = ZoneId.of(configReader.getDefaultTimeZone.getId)
   private val systemAccount = configReader.getSystemAccount
   private val baseSystemUrl = configReader.getBaseSystemUrl
   private val templateRoot  = s"${env.rootPath.getAbsolutePath}/conf/template/email/"
@@ -205,7 +207,7 @@ class EmailComposerImpl @Inject() (
         val examInfo    = s"${exam.name} $courseCode"
         val teacherName = getTeachers(exam)
         val startDate =
-          EmailComposerImpl.DTF.print(new DateTime(config.examinationEvent.start, timeZone))
+          EmailComposerImpl.DTF.format(config.examinationEvent.start.atZone(timeZone))
         val examDuration = s"${exam.duration / 60}h ${exam.duration % 60}min"
         val description  = config.examinationEvent.description
         val settingsFile =
@@ -276,7 +278,7 @@ class EmailComposerImpl @Inject() (
         logger.error(error)
         ""
       case Right(template) =>
-        val time        = EmailComposerImpl.DTF.print(adjustDST(event.start))
+        val time        = EmailComposerImpl.DTF.format(event.start.atZone(timeZone))
         val teacherName = getTeachers(exam)
         val courseCode =
           Option(exam.course).flatMap(c => Option(c.code)).map(c =>
@@ -345,10 +347,10 @@ class EmailComposerImpl @Inject() (
         val teacherName =
           if !exam.examOwners.isEmpty then getTeachers(exam)
           else s"${exam.creator.firstName} ${exam.creator.lastName}"
-        val startDate = adjustDST(reservation.startAt)
-        val endDate   = adjustDST(reservation.endAt)
+        val startDate = reservation.startAt.atZone(timeZone)
+        val endDate   = reservation.endAt.atZone(timeZone)
         val reservationDate =
-          s"${EmailComposerImpl.DTF.print(startDate)} - ${EmailComposerImpl.DTF.print(endDate)}"
+          s"${EmailComposerImpl.DTF.format(startDate)} - ${EmailComposerImpl.DTF.format(endDate)}"
         val examDuration = s"${exam.duration / 60}h ${exam.duration % 60}min"
         val machine      = reservation.machine
         val er           = reservation.externalReservation
@@ -423,8 +425,8 @@ class EmailComposerImpl @Inject() (
 
   private def createReservationEvent(
       lang: Lang,
-      start: DateTime,
-      end: DateTime,
+      start: ZonedDateTime,
+      end: ZonedDateTime,
       address: String,
       placeInfo: List[String]
   ) =
@@ -434,8 +436,8 @@ class EmailComposerImpl @Inject() (
 
     val summary = event.setSummary(messaging("ical.reservation.summary")(using lang))
     summary.setLanguage(lang.code)
-    event.setDateStart(start.toDate)
-    event.setDateEnd(end.toDate)
+    event.setDateStart(Date.from(start.toInstant))
+    event.setDateEnd(Date.from(end.toInstant))
     event.setLocation(address)
     val roomInfo = placeInfo.mkString(", ")
     event.setDescription(messaging("ical.reservation.room.info", roomInfo)(using lang))
@@ -493,18 +495,17 @@ class EmailComposerImpl @Inject() (
       case Right(template) =>
         val lang      = getLang(current.user)
         val enrolment = current.enrolment
-        val startDate = adjustDST(enrolment.reservation.startAt)
-        val endDate   = adjustDST(enrolment.reservation.endAt)
+        val startDate = enrolment.reservation.startAt.atZone(timeZone)
+        val endDate   = enrolment.reservation.endAt.atZone(timeZone)
         val reservationDate =
-          s"${EmailComposerImpl.DTF.print(startDate)} - ${EmailComposerImpl.DTF.print(endDate)}"
+          s"${EmailComposerImpl.DTF.format(startDate)} - ${EmailComposerImpl.DTF.format(endDate)}"
         val examName =
           Option(enrolment.exam).map(_.name).getOrElse(enrolment.collaborativeExam.name)
         val subject = messaging("email.template.reservation.change.subject", examName)(using lang)
         val previousSlot =
-          s"${EmailComposerImpl.DTF.print(adjustDST(previous.startAt))} - ${EmailComposerImpl.DTF
-              .print(adjustDST(previous.endAt))}"
+          s"${EmailComposerImpl.DTF.format(previous.startAt.atZone(timeZone))} - ${EmailComposerImpl.DTF.format(previous.endAt.atZone(timeZone))}"
         val newSlot =
-          s"${EmailComposerImpl.DTF.print(adjustDST(current.startAt))} - ${EmailComposerImpl.DTF.print(adjustDST(current.endAt))}"
+          s"${EmailComposerImpl.DTF.format(current.startAt.atZone(timeZone))} - ${EmailComposerImpl.DTF.format(current.endAt.atZone(timeZone))}"
         val values = Map(
           "message" -> messaging("email.template.reservation.change.message")(using lang),
           "previousTimeslot" -> messaging("email.template.reservation.change.previous.time")(
@@ -590,7 +591,7 @@ class EmailComposerImpl @Inject() (
             .getOrElse(reservation.externalReservation.roomName)
         val info = messaging("email.reservation.cancellation.info")(using lang)
         val time = s"${EmailComposerImpl.DTF
-            .print(adjustDST(reservation.startAt))} - ${EmailComposerImpl.DTF.print(adjustDST(reservation.endAt))}"
+            .format(reservation.startAt.atZone(timeZone))} - ${EmailComposerImpl.DTF.format(reservation.endAt.atZone(timeZone))}"
         val owners = Option(enrolment.exam.parent).map(_.examOwners).getOrElse(
           enrolment.exam.examOwners
         )
@@ -634,14 +635,16 @@ class EmailComposerImpl @Inject() (
       case Right(template) =>
         val subject =
           messaging("email.reservation.cancellation.subject.forced", examName)(using lang)
-        val date = EmailComposerImpl.DF.print(adjustDST(reservation.startAt))
+        val date =
+          EmailComposerImpl.DF.format(reservation.startAt.atZone(timeZone))
         val room =
           Option(reservation.machine)
             .flatMap(m => Option(m.room))
             .flatMap(r => Option(r.name))
             .getOrElse(reservation.externalReservation.roomName)
         val info = messaging("email.reservation.cancellation.info")(using lang)
-        val time = EmailComposerImpl.TF.print(adjustDST(reservation.startAt))
+        val time =
+          EmailComposerImpl.TF.format(reservation.startAt.atZone(timeZone))
         val stringValues = Map(
           "message" -> messaging("email.template.reservation.cancel.message", date, time, room)(
             using lang
@@ -659,7 +662,8 @@ class EmailComposerImpl @Inject() (
 
   // Cancellation of a visiting student's reservation, sent by the institution hosting the visit.
   // The exam is managed by the student's home organisation, so neither its name nor the student's
-  // language is known here. Identify the booking by place and time and name the sending system.
+  // language is known here. Identify the booking by place and time; the system address is left out
+  // since the student has no use for it.
   override def composeExternalReservationCancellationNotification(
       reservation: Reservation,
       message: Option[String]
@@ -670,9 +674,9 @@ class EmailComposerImpl @Inject() (
     readTemplate(templatePath) match
       case Left(error) => logger.error(error)
       case Right(template) =>
-        val startAt = adjustDST(reservation.startAt)
-        val date    = EmailComposerImpl.DF.print(startAt)
-        val time    = EmailComposerImpl.TF.print(startAt)
+        val startAt = reservation.startAt.atZone(timeZone)
+        val date    = EmailComposerImpl.DF.format(startAt)
+        val time    = EmailComposerImpl.TF.format(startAt)
         val room    = getReservationPlace(reservation)
         val subject =
           messaging("email.reservation.cancellation.subject.external", date)(using lang)
@@ -681,8 +685,7 @@ class EmailComposerImpl @Inject() (
           "email.template.reservation.cancel.message.external",
           date,
           time,
-          room,
-          hostName
+          room
         )(using lang)
         val newBooking =
           messaging("email.template.reservation.cancel.message.external.new.booking")(using lang)
@@ -762,16 +765,17 @@ class EmailComposerImpl @Inject() (
             lang
           )
         val events = exam.examinationEventConfigurations.asScala.toList
-          .map(c => new DateTime(c.examinationEvent.start, timeZone))
+          .map(c => c.examinationEvent.start.atZone(timeZone))
           .sorted
-          .map(EmailComposerImpl.DTF.print)
+          .map(EmailComposerImpl.DTF.format)
           .mkString(", ")
         val examPeriod =
           if isAquarium then
             messaging(
               "email.template.participant.notification.exam.period",
-              s"${EmailComposerImpl.DF.print(new DateTime(exam.periodStart))} - ${EmailComposerImpl.DF
-                  .print(new DateTime(exam.periodEnd))}"
+              s"${EmailComposerImpl.DF.format(
+                  exam.periodStart.atZone(ZoneOffset.UTC)
+                )} - ${EmailComposerImpl.DF.format(exam.periodEnd.atZone(ZoneOffset.UTC))}"
             )(using lang)
           else
             messaging("email.template.participant.notification.exam.event", s"$events ($timeZone)")(
@@ -929,8 +933,9 @@ class EmailComposerImpl @Inject() (
         val examInfo = exam.name
         val examPeriod = messaging(
           "email.template.participant.notification.exam.period",
-          s"%${EmailComposerImpl.DF.print(new DateTime(exam.periodStart))} - ${EmailComposerImpl.DF
-              .print(new DateTime(exam.periodEnd))}"
+          s"%${EmailComposerImpl.DF.format(
+              exam.periodStart.atZone(ZoneOffset.UTC)
+            )} - ${EmailComposerImpl.DF.format(exam.periodEnd.atZone(ZoneOffset.UTC))}"
         )(using lang)
         val examDuration = s"${exam.duration / 60}h ${exam.duration % 60}min"
         val stringValues = Map(
@@ -953,8 +958,8 @@ class EmailComposerImpl @Inject() (
     .filter(ee =>
       val reservation = ee.reservation
       val eec         = ee.examinationEventConfiguration
-      if Option(reservation).nonEmpty then reservation.startAt.isAfterNow
-      else if Option(eec).nonEmpty then eec.examinationEvent.start.isAfterNow
+      if Option(reservation).nonEmpty then Instant.now().isBefore(reservation.startAt)
+      else if Option(eec).nonEmpty then Instant.now().isBefore(eec.examinationEvent.start)
       else false
     )
     .sorted
@@ -967,21 +972,21 @@ class EmailComposerImpl @Inject() (
         logger.error(error)
         ""
       case Right(enrolmentTemplate) =>
-        DB
+        // Owners and inspectors separately, for the same reason as in getReviews
+        def exams(teacherPath: String) = DB
           .find(classOf[Exam])
           .fetch("course")
           .fetch("examEnrolments")
           .fetch("examEnrolments.reservation")
           .fetch("examEnrolments.examinationEventConfiguration.examinationEvent")
           .where
-          .disjunction
-          .eq("examOwners", teacher)
-          .eq("examInspections.user", teacher)
-          .endJunction
+          .eq(teacherPath, teacher)
           .isNotNull("course")
           .eq("state", ExamState.PUBLISHED)
           .gt("periodEnd", new Date)
           .list
+        (exams("examOwners") ++ exams("examInspections.user"))
+          .distinctBy(_.id)
           .map(e => (e, getEnrolments(e)))
           .filterNot((_, ees) => ees.isEmpty)
           .map((exam, enrolments) =>
@@ -1000,17 +1005,14 @@ class EmailComposerImpl @Inject() (
                 val first = enrolments.head
                 val date =
                   if Option(first.reservation).nonEmpty then
-                    adjustDST(first.reservation.startAt)
+                    first.reservation.startAt.atZone(timeZone)
                   else
-                    new DateTime(
-                      first.examinationEventConfiguration.examinationEvent.start,
-                      timeZone
-                    )
+                    first.examinationEventConfiguration.examinationEvent.start.atZone(timeZone)
                 commonValues + ("enrolments" ->
                   messaging(
                     "email.template.enrolment.first",
                     enrolments.length,
-                    EmailComposerImpl.DTF.print(date)
+                    EmailComposerImpl.DTF.format(date)
                   )(using
                     lang
                   ))
@@ -1019,17 +1021,23 @@ class EmailComposerImpl @Inject() (
           )
           .mkString
 
-  // return exams in review state where the teacher is either owner or inspector
-  private def getReviews(teacher: User, states: Seq[Exam.State]) = DB
-    .find(classOf[ExamParticipation])
-    .where
-    .disjunction
-    .eq("exam.parent.examOwners", teacher)
-    .eq("exam.examInspections.user", teacher)
-    .endJunction
-    .in("exam.state", states.asJava)
-    .isNotNull("exam.parent")
-    .list
+  // return exams in review state where the teacher is either owner or inspector. Owners and
+  // inspectors are looked up separately: an OR across the two joins keeps the database from using
+  // either index, which makes every call scan the whole exam table
+  private def getReviews(teacher: User, states: Seq[Exam.State]): List[ExamParticipation] =
+    def reviews(teacherPath: String) = DB
+      .find(classOf[ExamParticipation])
+      .select("deadline")
+      .fetch("exam", "state")
+      .fetch("exam.parent", "name")
+      .fetch("exam.parent.course", "code")
+      .where
+      .eq(teacherPath, teacher)
+      .in("exam.state", states.asJava)
+      .isNotNull("exam.parent")
+      .list
+    (reviews("exam.parent.examOwners") ++ reviews("exam.examInspections.user"))
+      .distinctBy(_.id)
 
   private def createAssessmentBlock(assessments: Seq[ExamParticipation], lang: Lang) =
     readTemplate(s"${templateRoot}weeklySummary/inspectionInfoSimple.html") match
@@ -1051,7 +1059,7 @@ class EmailComposerImpl @Inject() (
               messaging(
                 "email.weekly.report.review.summary",
                 amount,
-                EmailComposerImpl.DF.print(new DateTime(deadline))
+                EmailComposerImpl.DF.format(deadline.atZone(ZoneOffset.UTC))
               )(
                 using lang
               )
@@ -1078,12 +1086,6 @@ class EmailComposerImpl @Inject() (
   private def getLang(user: User) =
     val code = Option(user.language).flatMap(l => Option(l.code)).getOrElse("en")
     Lang.get(code).get
-
-  private def adjustDST(date: DateTime) = {
-    val dateTime = new DateTime(date, timeZone)
-    if !timeZone.isStandardOffset(date.getMillis) then dateTime.minusHours(1)
-    else dateTime
-  }
 
   override def scheduleEmail(delay: Duration)(action: => Unit): Unit =
     (IO.sleep(delay) *> IO.blocking(action))

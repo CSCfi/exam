@@ -6,7 +6,6 @@ import {
     AfterViewChecked,
     AfterViewInit,
     booleanAttribute,
-    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     DOCUMENT,
@@ -182,7 +181,6 @@ export const buildHtmlSupportConfig = (allowExternalContent: boolean): GeneralHt
     imports: [FormsModule, CKEditorModule],
     styleUrls: ['./ckeditor.styles.scss', './ckeditor.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CKEditorComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
     readonly data = input<string | null | undefined>('');

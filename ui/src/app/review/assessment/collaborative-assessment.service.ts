@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -14,6 +13,7 @@ import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam, SelectableGrade } from 'src/app/exam/exam.model';
 import { Feedback } from 'src/app/review/review.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AssessmentService } from './assessment.service';
 
 interface Payload {
@@ -33,7 +33,7 @@ export class CollaborativeAssesmentService {
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
     private readonly router = inject(Router);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly dialogs = inject(ConfirmationDialogService);
     private readonly Assessment = inject(AssessmentService);
 

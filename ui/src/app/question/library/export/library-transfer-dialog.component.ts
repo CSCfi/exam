@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 type Organisation = {
     _id: string;
@@ -19,7 +19,6 @@ type Organisation = {
     selector: 'xm-library-transfer',
     templateUrl: './library-transfer-dialog.component.html',
     imports: [NgbDropdownModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryTransferDialogComponent {
     readonly selections = signal<number[]>([]); // Set by modal opening component
@@ -30,7 +29,7 @@ export class LibraryTransferDialogComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {

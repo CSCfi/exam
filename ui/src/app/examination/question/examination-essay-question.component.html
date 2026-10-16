@@ -65,7 +65,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (exam()?.implementation !== 'CLIENT_AUTH' && attachment()?.fileName) {
         <div class="col-md-9 mt-2">
             <span class="float-end">
-                <span class="pe-2">{{ attachment()?.fileName | uppercase }}</span>
+                <span class="pe-2">{{ $safeNavigationMigration(attachment()?.fileName) | uppercase }}</span>
                 <button class="btn btn-success" (click)="removeQuestionAnswerAttachment()">
                     {{ 'i18n_remove_answer_attachment' | translate }}
                     <img src="/assets/images/icon_attachment.svg" alt="attachment" />

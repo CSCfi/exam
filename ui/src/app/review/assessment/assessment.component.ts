@@ -3,11 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Examination } from 'src/app/examination/examination.model';
@@ -20,6 +19,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborative-assessment.service';
 import { FeedbackComponent } from './feedback/feedback.component';
@@ -31,7 +31,6 @@ import { ExamSectionComponent } from './sections/section.component';
 
 @Component({
     selector: 'xm-assessment',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './assessment.component.html',
     imports: [
         CourseCodeComponent,
@@ -64,7 +63,7 @@ export class AssessmentComponent {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Assessment = inject(AssessmentService);
     private readonly CollaborativeAssessment = inject(CollaborativeAssesmentService);
     private readonly QuestionScore = inject(QuestionScoringService);
@@ -145,7 +144,7 @@ export class AssessmentComponent {
 
     onExamUpdated = () => {
         const examValue = this.exam();
-        if (examValue) this.exam.set({ ...examValue });
+        if (examValue) this.setExam({ ...examValue });
     };
 
     isOwnerOrAdmin = () => {
@@ -176,23 +175,32 @@ export class AssessmentComponent {
         if (!examValue || examValue.state !== 'REVIEW') return;
 
         const state = 'REVIEW_STARTED';
+        // Apply the state to whatever exam is current when the response arrives, the one captured
+        // here may have been replaced (and further edited) in the meantime
+        const markStarted = () => {
+            const current = this.exam();
+            if (current) this.setExam({ ...current, state });
+        };
         if (!this.collaborative) {
             const review = this.Assessment.getPayload(examValue, state);
-            this.http.put(`/app/review/${review.id}`, review).subscribe(() => {
-                examValue.state = state;
-                this.exam.set(examValue); // Update signal to trigger change detection
-            });
+            this.http.put(`/app/review/${review.id}`, review).subscribe(markStarted);
         } else {
             if (!participationValue) return;
             const review = this.CollaborativeAssessment.getPayload(examValue, state, participationValue._rev as string);
             const url = `/app/iop/reviews/${this.examId}/${this.ref}`;
             this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
-                participationValue._rev = resp.rev;
-                examValue.state = state;
-                this.participation.set(participationValue); // Update signal
-                this.exam.set(examValue); // Update signal to trigger change detection
+                const current = this.participation();
+                if (current) current._rev = resp.rev;
+                markStarted();
             });
         }
+    };
+
+    // Grading and feedback edit exam() in place while collaborative saves read participation().exam,
+    // so both must always point at the same object
+    private setExam = (exam: Examination) => {
+        this.exam.set(exam);
+        this.participation.update((p) => (p ? { ...p, exam } : p));
     };
 
     private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);

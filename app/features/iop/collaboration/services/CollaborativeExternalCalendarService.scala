@@ -10,18 +10,18 @@ import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.exam.ExamState
 import models.user.User
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import play.api.Logging
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{JsonBodyWritables, WSClient}
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.datetime.{CalendarHandler, DateTimeHandler}
+import services.datetime.CalendarHandler
 import services.enrolment.EnrolmentHandler
 
 import java.net.{URI, URL}
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -35,7 +35,6 @@ class CollaborativeExternalCalendarService @Inject() (
     examLoader: CollaborativeExamLoaderService,
     calendarHandler: CalendarHandler,
     configReader: ConfigReader,
-    dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
     wsClient: WSClient,
     private val ec: BlockingIOExecutionContext
@@ -62,7 +61,7 @@ class CollaborativeExternalCalendarService @Inject() (
   ): Option[String] =
     val oldReservation = enrolment.reservation
     if exam.state == ExamState.STUDENT_STARTED ||
-      (oldReservation != null && oldReservation.toInterval.isBefore(DateTime.now()))
+      (oldReservation != null && oldReservation.toInterval.isBefore(Instant.now()))
     then Some("i18n_reservation_in_effect")
     else if oldReservation == null && !enrolmentHandler.isAllowedToParticipate(exam, user) then
       Some("i18n_no_trials_left")
@@ -82,7 +81,7 @@ class CollaborativeExternalCalendarService @Inject() (
   private def findEnrolmentForExternalReservation(
       examId: Long,
       userId: Long,
-      now: DateTime
+      now: Instant
   ): Future[Option[ExamEnrolment]] =
     Future(
       DB.find(classOf[ExamEnrolment])
@@ -92,7 +91,7 @@ class CollaborativeExternalCalendarService @Inject() (
         .eq("collaborativeExam.id", examId)
         .disjunction()
         .isNull("reservation")
-        .gt("reservation.startAt", now.toDate)
+        .gt("reservation.startAt", now)
         .endJunction()
         .find
     )(using ec)
@@ -103,8 +102,8 @@ class CollaborativeExternalCalendarService @Inject() (
       user: User,
       url: java.net.URL,
       requestBody: JsValue,
-      start: DateTime,
-      end: DateTime,
+      start: Instant,
+      end: Instant,
       orgRef: String,
       roomRef: String,
       sectionIds: Seq[Long]
@@ -131,8 +130,8 @@ class CollaborativeExternalCalendarService @Inject() (
       requestBody: JsValue,
       enrolment: ExamEnrolment,
       exam: Exam,
-      start: DateTime,
-      end: DateTime,
+      start: Instant,
+      end: Instant,
       user: User,
       orgRef: String,
       roomRef: String,
@@ -196,13 +195,13 @@ class CollaborativeExternalCalendarService @Inject() (
       userId: Long,
       orgRef: String,
       roomRef: String,
-      start: DateTime,
-      end: DateTime,
+      start: Instant,
+      end: Instant,
       sectionIds: Seq[Long],
       requestBody: JsValue,
       url: java.net.URL
   ): Future[Either[String, JsValue]] =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = Instant.now()
 
     (for
       ceOpt <- collaborativeExamService.findById(examId)
@@ -249,10 +248,8 @@ class CollaborativeExternalCalendarService @Inject() (
           Future.successful(Left("Invalid date"))
         case Some(_) =>
           // Build URL
-          val start =
-            ISODateTimeFormat.dateTime().print(new org.joda.time.DateTime(exam.periodStart))
-          val end =
-            ISODateTimeFormat.dateTime().print(new org.joda.time.DateTime(exam.periodEnd))
+          val start    = DateTimeFormatter.ISO_INSTANT.format(exam.periodStart)
+          val end      = DateTimeFormatter.ISO_INSTANT.format(exam.periodEnd)
           val duration = exam.duration
 
           Try(parseUrl(orgRef, roomRef, date, start, end, duration)) match
@@ -312,7 +309,7 @@ class CollaborativeExternalCalendarService @Inject() (
       roomRef: String,
       date: String
   ): Future[Either[String, JsValue]] =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = Instant.now()
 
     (for
       ceOpt <- collaborativeExamService.findById(examId)
@@ -341,7 +338,7 @@ class CollaborativeExternalCalendarService @Inject() (
     *   Future containing Some(ExamEnrolment) if found, None otherwise
     */
   def findEnrolledExam(examId: Long, userId: Long): Future[Option[ExamEnrolment]] =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = Instant.now()
     Future(
       DB.find(classOf[ExamEnrolment])
         .where()
@@ -349,7 +346,7 @@ class CollaborativeExternalCalendarService @Inject() (
         .eq("collaborativeExam.id", examId)
         .disjunction()
         .isNull("reservation")
-        .gt("reservation.startAt", now.toDate)
+        .gt("reservation.startAt", now)
         .endJunction()
         .find
     )(using ec)

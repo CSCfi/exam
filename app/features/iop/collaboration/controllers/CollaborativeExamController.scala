@@ -12,7 +12,6 @@ import models.exam.*
 import models.exam.GradeType
 import models.sections.ExamSection
 import models.user.{Language, Role, User}
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.data.validation.{Constraints, Invalid}
 import play.api.libs.json.*
@@ -23,10 +22,12 @@ import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
 import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.exam.ExamUpdater
+import services.json.EbeanMapper
 import services.mail.EmailComposer
 import system.AuditedAction
 import validation.exam.ExamValidator
 
+import java.time.{Duration, LocalDate, ZoneOffset}
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -83,9 +84,9 @@ class CollaborativeExamController @Inject() (
     exam.implementation = ExamImplementation.AQUARIUM
     exam.gradeScale = DB.find(classOf[GradeScale]).list.head
 
-    val start = DateTime.now().withTimeAtStartOfDay()
+    val start = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant
     exam.periodStart = start
-    exam.periodEnd = start.plusDays(1)
+    exam.periodEnd = start.plus(Duration.ofDays(1))
     exam.duration = configReader.getExamDurations.head
 
     exam.trialCount = 1
@@ -126,7 +127,14 @@ class CollaborativeExamController @Inject() (
       }
     }
 
-  private def getExam(id: Long, postProcessor: Exam => Unit, user: User): Future[Result] =
+  /** Without a post-processor the exam document is returned as stored in XM. With one, the
+    * processed exam is serialized instead, so that the changes it makes reach the response.
+    */
+  private def getExam(
+      id: Long,
+      postProcessor: Option[Exam => Unit],
+      user: User
+  ): Future[Result] =
     val homeOrg = configReader.getHomeOrganisationRef
     collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
       case Left(errorResult) => Future.successful(errorResult)
@@ -140,11 +148,13 @@ class CollaborativeExamController @Inject() (
             if !collaborativeExamAuthorizationService.isAuthorizedToView(exam, user, homeOrg) then
               NotFound("i18n_error_exam_not_found")
             else
-              postProcessor(exam)
+              val jsonObj = postProcessor match
+                case None => root.as[JsObject]
+                case Some(process) =>
+                  process(exam)
+                  Json.parse(EbeanMapper.create().writeValueAsString(exam)).as[JsObject]
               // Add local database ID to the JSON response
-              val jsonObj    = root.as[JsObject]
-              val jsonWithId = jsonObj + ("id" -> JsNumber(BigDecimal(ce.id)))
-              Ok(jsonWithId)
+              Ok(jsonObj + ("id" -> JsNumber(BigDecimal(ce.id))))
         }
     }
 
@@ -161,12 +171,12 @@ class CollaborativeExamController @Inject() (
 
   def getExam(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
-      getExam(id, _ => (), request.attrs(Auth.ATTR_USER))
+      getExam(id, None, request.attrs(Auth.ATTR_USER))
     }
 
   def getExamPreview(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
-      getExam(id, exam => examUpdater.preparePreview(exam), request.attrs(Auth.ATTR_USER))
+      getExam(id, Some(examUpdater.preparePreview), request.attrs(Auth.ATTR_USER))
     }
 
   def createExam(): Action[AnyContent] =

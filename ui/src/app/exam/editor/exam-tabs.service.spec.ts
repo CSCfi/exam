@@ -4,10 +4,10 @@
 
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom, of } from 'rxjs';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { ExamTabService } from './exam-tabs.service';
 
@@ -24,7 +24,7 @@ describe('ExamTabService', () => {
                 ExamTabService,
                 { provide: ExamService, useValue: { updateExam$ } },
                 { provide: TranslateService, useValue: { instant: (key: string) => key } },
-                { provide: ToastrService, useValue: { info: vi.fn(), error: vi.fn() } },
+                { provide: ToastService, useValue: { info: vi.fn(), error: vi.fn() } },
             ],
         });
         service = TestBed.inject(ExamTabService);
@@ -106,6 +106,31 @@ describe('ExamTabService', () => {
             service.setExam(mockExam);
             await firstValueFrom(service.saveExam$({}, true));
             expect(service.getExam()).toBe(saved);
+        });
+
+        it('should keep the course grade scale when the server response has none', async () => {
+            const gradeScale = { id: 5, grades: [] };
+            const course = { id: 1, gradeScale };
+            updateExam$.mockReturnValueOnce(of({ ...mockExam, course, gradeScale: undefined }));
+            service.setExam({ ...mockExam, course } as unknown as Exam);
+            const saved = await firstValueFrom(service.saveExam$({}, true));
+            expect(saved.gradeScale).toBe(gradeScale);
+            expect(service.getExam().gradeScale).toBe(gradeScale);
+        });
+    });
+
+    describe('setExam grade scale default', () => {
+        it('should apply the course grade scale when exam has none', () => {
+            const gradeScale = { id: 5, grades: [] };
+            service.setExam({ ...mockExam, course: { id: 1, gradeScale } } as unknown as Exam);
+            expect(service.getExam().gradeScale).toBe(gradeScale);
+        });
+
+        it('should not override a grade scale set for the exam', () => {
+            const examScale = { id: 6, grades: [] };
+            const course = { id: 1, gradeScale: { id: 5, grades: [] } };
+            service.setExam({ ...mockExam, course, gradeScale: examScale } as unknown as Exam);
+            expect(service.getExam().gradeScale).toBe(examScale);
         });
     });
 });

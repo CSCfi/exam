@@ -4,11 +4,11 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamTabService {
@@ -18,7 +18,7 @@ export class ExamTabService {
 
     private readonly Exam = inject(ExamService);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     get tabChangeSignal() {
         return this.tabChange.asReadonly();
@@ -31,7 +31,7 @@ export class ExamTabService {
     }
 
     notifyTabChange = (tab: number) => this.tabChange.set({ tab, timestamp: Date.now() });
-    setExam = (exam: Exam) => this.exam.set(exam);
+    setExam = (exam: Exam) => this.exam.set(this.withDefaultGradeScale(exam));
     getExam = (): Exam => {
         const exam = this.exam();
         if (!exam) {
@@ -44,6 +44,7 @@ export class ExamTabService {
 
     saveExam$ = (overrides: Record<string, unknown> = {}, silent = false): Observable<Exam> =>
         this.Exam.updateExam$(this.getExam(), overrides, this.collaborative()).pipe(
+            map(this.withDefaultGradeScale),
             tap((savedExam) => {
                 this.exam.set(savedExam);
                 if (!silent) {
@@ -55,4 +56,9 @@ export class ExamTabService {
                 return throwError(() => new Error(err));
             }),
         );
+
+    // Fall back to the course grade scale if none is set for the exam. When the course scale is enforced
+    // the backend does not store it on the exam, so it must be reapplied to every exam coming from the server.
+    private withDefaultGradeScale = (exam: Exam): Exam =>
+        !exam.gradeScale && exam.course?.gradeScale ? { ...exam, gradeScale: exam.course.gradeScale } : exam;
 }

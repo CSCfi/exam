@@ -58,6 +58,9 @@ trait ExcelBuilder:
       os: OutputStream
   ): Unit
 
+  /** Streams a generic report with headers and rows. Caller must close the stream. */
+  def streamGenericReport(headers: List[String], rows: List[List[String]])(os: OutputStream): Unit
+
 object ExcelBuilder:
   enum CellType:
     case DECIMAL, STRING

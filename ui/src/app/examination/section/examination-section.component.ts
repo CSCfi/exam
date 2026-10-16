@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -78,7 +78,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         </div>`,
     imports: [ExaminationQuestionComponent, TranslateModule, OrderByPipe],
     styleUrls: ['../examination.shared.scss', './examination-section.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationSectionComponent {
     readonly exam = input.required<Examination>();
