@@ -322,14 +322,14 @@ export class SectionComponent implements OnInit {
                 question: `<p>**COPY**</p>${sq.question.question}`,
                 attachment: undefined,
             };
-            this.insertExamQuestion(copy, sq.sequenceNumber, () =>
+            this.insertExamQuestion(copy, sq.sequenceNumber + 1, () =>
                 this.toast.info(this.translate.instant('i18n_question_copied')),
             );
             return;
         }
         this.http.post<Question>(`/app/question/${sq.question.id}`, {}).subscribe({
             next: (copy) => {
-                this.insertExamQuestion(copy, sq.sequenceNumber);
+                this.insertExamQuestion(copy, sq.sequenceNumber + 1);
                 this.toast.info(this.translate.instant('i18n_question_copied'));
             },
             error: (err) => this.toast.error(err),
@@ -439,11 +439,7 @@ export class SectionComponent implements OnInit {
                                 },
                             };
                         }
-                        const updated = {
-                            ...currentSection,
-                            sectionQuestions: [...currentSection.sectionQuestions, examSectionQuestion],
-                        };
-                        this.updated.emit(updated);
+                        this.updated.emit(this.withInsertedQuestion(currentSection, examSectionQuestion));
                     }
                     return;
                 }
@@ -454,16 +450,19 @@ export class SectionComponent implements OnInit {
                     if (uploadedAttachment) {
                         newSectionQuestion.question.attachment = uploadedAttachment;
                     }
-                    const updated = {
-                        ...currentSection,
-                        sectionQuestions: [...currentSection.sectionQuestions, newSectionQuestion],
-                    };
-                    this.updated.emit(updated);
+                    this.updated.emit(this.withInsertedQuestion(currentSection, newSectionQuestion));
                     onInserted?.();
                 });
             },
             error: (err) => this.toast.error(err),
         });
+    }
+
+    // Mirrors the backend: questions at or after the insert position are shifted down by one
+    private withInsertedQuestion(section: ExamSection, esq: ExamSectionQuestion): ExamSection {
+        const questions = [...section.sectionQuestions].sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+        questions.splice(esq.sequenceNumber ?? questions.length, 0, esq);
+        return { ...section, sectionQuestions: questions.map((sq, i) => ({ ...sq, sequenceNumber: i })) };
     }
 
     private addCollabAttachment(data: ExamSectionQuestion, question: Question, callback: () => void) {
