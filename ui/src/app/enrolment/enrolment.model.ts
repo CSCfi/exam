@@ -77,6 +77,7 @@ export type ParticipationLike =
 
 export interface ExamEnrolment {
     id: number;
+    enrolledOn?: string | Date;
     information: string;
     reservation?: Reservation;
     exam: Exam;

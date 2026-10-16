@@ -153,6 +153,7 @@ export class ReservationService {
                         stateOrd: 0,
                         startOrd: 0,
                         enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
+                        status: '',
                     })) as AnyReservation[],
             ),
             map((all) => {
@@ -165,6 +166,7 @@ export class ReservationService {
                             ...(r.enrolment as ExamEnrolment),
                             teacherAggregate: exam.examOwners.map((o) => o.lastName + o.firstName).join(),
                         };
+                        r.status = this.printExamState(r);
                         r.stateOrd = STATE_ORDER.indexOf(this.printExamState(r));
                         r.startOrd = this.displayedStartMillis(r);
                         return r;
@@ -216,6 +218,7 @@ export class ReservationService {
         id: -ee.id,
         user: ee.user,
         enrolment: ee,
+        participation: ee.reservation?.participation,
         startAt: ee.examinationEventConfiguration?.examinationEvent.start,
         endAt:
             DateTime.fromISO(ee.examinationEventConfiguration?.examinationEvent.start as string)

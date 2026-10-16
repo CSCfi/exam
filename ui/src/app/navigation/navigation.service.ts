@@ -135,6 +135,13 @@ export class NavigationService {
                             submenu: emptySubmenu,
                         },
                         {
+                            route: 'staff/reports-v2',
+                            visible: true,
+                            name: 'i18n_reports_v2',
+                            iconPng: 'icon_reports.png',
+                            submenu: emptySubmenu,
+                        },
+                        {
                             route: 'staff/statistics',
                             visible: true,
                             name: 'i18n_statistics',

@@ -7,6 +7,7 @@ import { ActivatedRouteSnapshot, Route } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { map, Observable } from 'rxjs';
 import { ReportsComponent } from 'src/app/administrative/reports/reports.component';
+import { ReportsV2Component } from 'src/app/administrative/reports/v2/reports-v2.component';
 import { SettingsComponent } from 'src/app/administrative/settings/settings.component';
 import { StatisticsComponent } from 'src/app/administrative/statistics/statistics.component';
 import { UsersComponent } from 'src/app/administrative/users/users.component';
@@ -249,6 +250,11 @@ export const STAFF_ROUTES: Route[] = [
             },
             { path: 'machines/:id', component: MachineComponent, title: () => buildTitle('i18n_machine_title') },
             { path: 'reports', component: ReportsComponent, title: () => buildTitle('i18n_reports_title') },
+            {
+                path: 'reports-v2',
+                component: ReportsV2Component,
+                title: () => buildTitle('i18n_reports_v2'),
+            },
             { path: 'statistics', component: StatisticsComponent, title: () => buildTitle('i18n_statistics_title') },
         ],
     },
