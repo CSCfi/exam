@@ -4,12 +4,13 @@
 
 package retention
 
+import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
 import models.user.{Role, User}
-import org.joda.time.DateTime
 
 import java.nio.file.{Files, Path}
+import java.time.Instant
 
 /** Evolution 151 gives retention a time to count from for accounts that never logged in and for
   * enrolments with no reservation, examination event or enrolment time.
@@ -37,7 +38,7 @@ class RetentionBackfillSpec extends RetentionSpecBase:
       enrolment.user = student
       enrolment.exam = prototype()
       enrolment.save()
-      val later = DateTime.now.plusYears(3)
+      val later = Instant.now().plusYears(3)
 
       // Without a time to count from, neither is ever due
       run(later)
@@ -45,8 +46,8 @@ class RetentionBackfillSpec extends RetentionSpecBase:
       exists(classOf[ExamEnrolment], enrolment.id) mustBe true
 
       applyEvolution151()
-      val before = DateTime.now.minusMinutes(1)
-      DB.find(classOf[User], neverLoggedIn.id).lastLogin.getTime must be > before.getMillis
+      val before = Instant.now().minusMinutes(1)
+      DB.find(classOf[User], neverLoggedIn.id).lastLogin.getTime must be > before.toEpochMilli
       DB.find(classOf[ExamEnrolment], enrolment.id).enrolledOn.isAfter(before) mustBe true
 
       run(later)
@@ -61,5 +62,5 @@ class RetentionBackfillSpec extends RetentionSpecBase:
 
       applyEvolution151()
 
-      DB.find(classOf[User], a.student.id).lastLogin.getTime mustBe t0.getMillis
+      DB.find(classOf[User], a.student.id).lastLogin.getTime mustBe t0.toEpochMilli
       DB.find(classOf[ExamEnrolment], a.enrolment.id).enrolledOn mustBe enrolledOn

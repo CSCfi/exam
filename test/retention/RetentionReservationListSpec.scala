@@ -5,16 +5,16 @@
 package retention
 
 import features.retention.services.RetentionRepository
+import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.enrolment.*
 import models.exam.{Exam, ExamState}
 import models.user.User
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import play.api.http.Status
 import play.api.libs.json.*
 import play.api.mvc.Session
 
+import java.time.Instant
 import scala.jdk.CollectionConverters.*
 
 /** A student copy stripped by retention is listed as deleted until its booking is removed. */
@@ -22,10 +22,8 @@ class RetentionReservationListSpec extends RetentionSpecBase:
 
   private lazy val repository = app.injector.instanceOf(classOf[RetentionRepository])
 
-  private val iso = ISODateTimeFormat.dateTime
-
-  private def window(at: DateTime) =
-    s"start=${iso.print(at.minusDays(1))}&end=${iso.print(at.plusDays(1))}"
+  private def window(at: Instant) =
+    s"start=${at.minusDays(1)}&end=${at.plusDays(1)}"
 
   private def owned(teacher: User): Exam =
     val exam = prototype()
@@ -42,7 +40,7 @@ class RetentionReservationListSpec extends RetentionSpecBase:
       (enrolment \ "exam" \ "id").as[Long] -> (enrolment \ "exam" \ "state").as[String]
     }.toMap
 
-  private def reservations(at: DateTime, session: Session) =
+  private def reservations(at: Instant, session: Session) =
     listed(s"/app/reservations?${window(at)}", session)
 
   "Listing reservations" should:

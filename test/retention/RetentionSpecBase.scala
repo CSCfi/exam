@@ -9,6 +9,7 @@ import cats.effect.IO
 import database.EbeanQueryExtensions
 import features.exam.copy.ExamCopyContext
 import features.retention.services.*
+import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.assessment.{ExamRecord, ExamScore}
 import models.attachment.Attachment
@@ -17,27 +18,27 @@ import models.exam.{Exam, ExamState}
 import models.questions.EssayAnswer
 import models.sections.{ExamSection, ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Language, Role, User}
-import org.joda.time.{DateTime, DateTimeZone, Period}
 import services.datetime.FixedAppClock
 
 import java.nio.file.{Files, Path}
+import java.time.{Instant, Period}
 import java.util.concurrent.atomic.AtomicInteger
 import scala.jdk.CollectionConverters.*
 
 /** Test data and helpers shared by the retention specs that run against the database. */
 abstract class RetentionSpecBase extends BaseIntegrationSpec with EbeanQueryExtensions:
 
-  protected val t0 = new DateTime(2023, 3, 1, 10, 0, DateTimeZone.UTC)
+  protected val t0 = utc(2023, 3, 1, 10, 0)
 
   protected val policy = RetentionPolicy(
-    inactivity = Period.months(6),
-    booking = Period.years(2),
-    attempt = Period.months(6),
-    maturityAttempt = Period.months(6),
-    abortedAttempt = Period.years(1),
-    autoLock = Period.years(1),
-    record = Period.years(2),
-    hostCopy = Period.months(3),
+    inactivity = Period.ofMonths(6),
+    booking = Period.ofYears(2),
+    attempt = Period.ofMonths(6),
+    maturityAttempt = Period.ofMonths(6),
+    abortedAttempt = Period.ofYears(1),
+    autoLock = Period.ofYears(1),
+    record = Period.ofYears(2),
+    hostCopy = Period.ofMonths(3),
     dryRun = false,
     batchSize = 500
   )
@@ -51,7 +52,7 @@ abstract class RetentionSpecBase extends BaseIntegrationSpec with EbeanQueryExte
         (if fail then IO.raiseError(new RuntimeException("XM unavailable")) else IO.unit)
 
   protected def service(
-      now: DateTime,
+      now: Instant,
       p: RetentionPolicy = policy,
       iop: IopRetentionClient = FakeIop()
   ) =
@@ -63,7 +64,7 @@ abstract class RetentionSpecBase extends BaseIntegrationSpec with EbeanQueryExte
     )
 
   protected def run(
-      now: DateTime,
+      now: Instant,
       p: RetentionPolicy = policy,
       iop: IopRetentionClient = FakeIop()
   ) =
@@ -78,7 +79,7 @@ abstract class RetentionSpecBase extends BaseIntegrationSpec with EbeanQueryExte
   protected def role(name: Role.Name): Role =
     DB.find(classOf[Role]).where().eq("name", name.toString).find.getOrElse(fail(s"No role $name"))
 
-  protected def newUser(name: String, lastLogin: DateTime, roles: Role.Name*): User =
+  protected def newUser(name: String, lastLogin: Instant, roles: Role.Name*): User =
     val user = new User
     user.email = s"$name@retention.test"
     user.eppn = s"$name@retention.test"
@@ -86,7 +87,7 @@ abstract class RetentionSpecBase extends BaseIntegrationSpec with EbeanQueryExte
     user.lastName = "Student"
     user.language = DB.find(classOf[Language]).where().eq("code", "fi").find.orNull
     user.roles = roles.map(role).toList.asJava
-    user.lastLogin = lastLogin.toDate
+    user.lastLogin = java.util.Date.from(lastLogin)
     user.save()
     user
 
@@ -150,9 +151,9 @@ abstract class RetentionSpecBase extends BaseIntegrationSpec with EbeanQueryExte
     */
   protected def attempt(
       student: User,
-      at: DateTime = t0,
+      at: Instant = t0,
       state: ExamState = ExamState.GRADED_LOGGED,
-      lockedAt: Option[DateTime] = Some(t0),
+      lockedAt: Option[Instant] = Some(t0),
       externalRef: Option[String] = None,
       started: Boolean = true
   ): Attempt =

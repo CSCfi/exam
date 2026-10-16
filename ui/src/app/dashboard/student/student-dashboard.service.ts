@@ -44,12 +44,8 @@ export class StudentDashboardService {
         const start = DateTime.fromISO(reservation.startAt, { zone: tz });
         const end = DateTime.fromISO(reservation.endAt, { zone: tz });
         return {
-            startAt: start.isInDST
-                ? start.minus({ hours: 1 }).toLocaleString(DateTime.TIME_24_SIMPLE)
-                : start.toLocaleString(DateTime.TIME_24_SIMPLE),
-            endAt: end.isInDST
-                ? end.minus({ hours: 1 }).toLocaleString(DateTime.TIME_24_SIMPLE)
-                : end.toLocaleString(DateTime.TIME_24_SIMPLE),
+            startAt: start.toLocaleString(DateTime.TIME_24_SIMPLE),
+            endAt: end.toLocaleString(DateTime.TIME_24_SIMPLE),
             tz: tz,
         };
     }

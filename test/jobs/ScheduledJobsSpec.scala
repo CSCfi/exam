@@ -8,16 +8,17 @@ import base.BaseIntegrationSpec
 import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, GreenMailUtil, ServerSetupTest}
 import database.EbeanQueryExtensions
+import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.assessment.ExamInspection
 import models.enrolment.{ExamParticipation, Reservation}
 import models.exam.{Exam, ExamExecutionType, ExamState}
 import models.user.{Language, User}
-import org.joda.time.DateTime
 import org.scalatest.BeforeAndAfterAll
 import services.mail.EmailComposer
 import system.jobs.ExamAutoSaverService
 
+import java.time.Instant
 import scala.jdk.CollectionConverters.*
 
 /** Scheduled jobs keep working through bad rows, and the weekly report finds both the exams a
@@ -69,15 +70,15 @@ class ScheduledJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions
     p.exam = copy
     p.user = student
     p.reservation = reservation.orNull
-    p.started = DateTime.now.minusHours(3)
-    p.deadline = DateTime.now.plusDays(7)
+    p.started = Instant.now().minusHours(3)
+    p.deadline = Instant.now().plusDays(7)
     p.save()
     p
 
   private def pastReservation(student: User): Reservation =
     val r = new Reservation
-    r.startAt = DateTime.now.minusHours(3)
-    r.endAt = DateTime.now.minusHours(2)
+    r.startAt = Instant.now().minusHours(3)
+    r.endAt = Instant.now().minusHours(2)
     r.user = student
     r.save()
     r

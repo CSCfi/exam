@@ -4,7 +4,7 @@
 
 package services.retention
 
-import org.joda.time.Period
+import java.time.Period
 
 /** Fixed limits of student data retention, from the consortium's retention proposal. The periods
   * each deployment may choose are read from `exam.retention.*` in `application.conf`. These are the
@@ -12,10 +12,10 @@ import org.joda.time.Period
   */
 object RetentionLimits:
   /** Range a deployment may choose its assessed attempt period from (proposal item 4). */
-  val AttemptRange: (Period, Period) = (Period.months(6), Period.years(1))
+  val AttemptRange: (Period, Period) = (Period.ofMonths(6), Period.ofYears(1))
 
   /** Range a deployment may choose its maturity exam period from (proposal item 5). */
-  val MaturityAttemptRange: (Period, Period) = (Period.months(6), Period.years(2))
+  val MaturityAttemptRange: (Period, Period) = (Period.ofMonths(6), Period.ofYears(2))
 
   /** Hour of the night, in the default time zone, at which the retention job runs. */
   val NightlyRunHour: Int = 2
@@ -23,7 +23,7 @@ object RetentionLimits:
   /** How long an item sent through XM is retried on every run before it is given up, or for exam
     * attempts retried only weekly.
     */
-  val IopGiveUpAfter: Period = Period.days(30)
+  val IopGiveUpAfter: Period = Period.ofDays(30)
 
   /** How often an exam attempt that has kept failing past [[IopGiveUpAfter]] is retried. */
-  val IopSlowRetryInterval: Period = Period.weeks(1)
+  val IopSlowRetryInterval: Period = Period.ofWeeks(1)

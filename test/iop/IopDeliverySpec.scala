@@ -4,14 +4,14 @@
 
 package iop
 
-import org.joda.time.{DateTime, DateTimeZone}
+import helpers.InstantArithmetic.*
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import services.iop.*
 
 class IopDeliverySpec extends AnyWordSpec with Matchers:
 
-  private val now    = new DateTime(2026, 9, 24, 12, 0, DateTimeZone.UTC)
+  private val now    = utc(2026, 9, 24, 12, 0)
   private val recent = Some(now.minusDays(1))
   private val old    = Some(now.minusDays(30))
 

@@ -11,6 +11,7 @@ import models.exam.Exam
 import models.exam.ExamState
 import models.user.User
 
+import java.time.{Duration, Instant}
 import java.util.Date
 import javax.inject.Inject
 
@@ -79,5 +80,7 @@ class EnrolmentHandlerImpl @Inject() (noShowHandler: NoShowHandler) extends Enro
       case None => true
       case Some(config) =>
         Option(enrolment.exam).forall(exam =>
-          config.examinationEvent.start.plusMinutes(exam.duration).isBeforeNow
+          config.examinationEvent.start
+            .plus(Duration.ofMinutes(exam.duration.toLong))
+            .isBefore(Instant.now())
         )

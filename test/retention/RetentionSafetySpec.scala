@@ -4,6 +4,7 @@
 
 package retention
 
+import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.exam.{Exam, ExaminationDate}
 import models.facility.Software
@@ -61,7 +62,7 @@ class RetentionSafetySpec extends RetentionSpecBase:
     source.update()
     val date = new ExaminationDate
     date.exam = source
-    date.date = t0.toDate
+    date.date = java.util.Date.from(t0)
     date.save()
 
     val tag = new Tag

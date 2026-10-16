@@ -6,12 +6,14 @@ package enrolment
 
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
+import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.enrolment.*
 import models.exam.{Exam, ExamState}
 import models.user.User
-import org.joda.time.DateTime
 import system.jobs.ReservationPollerService
+
+import java.time.Instant
 
 /** The no-show check loads only enrolments that can still be no-shows, not every past attempt. */
 class NoShowCandidatesSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
@@ -27,8 +29,8 @@ class NoShowCandidatesSpec extends BaseIntegrationSpec with EbeanQueryExtensions
 
   private def withReservation(exam: Exam, endedHoursAgo: Int, noShow: Boolean = false) =
     val r = new Reservation
-    r.startAt = DateTime.now.minusHours(endedHoursAgo + 2)
-    r.endAt = DateTime.now.minusHours(endedHoursAgo)
+    r.startAt = Instant.now().minusHours(endedHoursAgo + 2)
+    r.endAt = Instant.now().minusHours(endedHoursAgo)
     r.user = user
     r.save()
     val e = new ExamEnrolment
@@ -41,7 +43,7 @@ class NoShowCandidatesSpec extends BaseIntegrationSpec with EbeanQueryExtensions
 
   private def withEvent(exam: Exam, startedHoursAgo: Int) =
     val event = new ExaminationEvent
-    event.start = DateTime.now.minusHours(startedHoursAgo)
+    event.start = Instant.now().minusHours(startedHoursAgo)
     event.description = "no-show spec"
     event.capacity = 10
     event.save()

@@ -8,6 +8,7 @@ import base.BaseIntegrationSpec
 import com.fasterxml.jackson.databind.ObjectMapper
 import database.EbeanQueryExtensions
 import features.retention.services.*
+import helpers.InstantArithmetic.*
 import helpers.RemoteServerHelper
 import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
@@ -17,26 +18,26 @@ import models.exam.Exam
 import models.iop.ExternalExam
 import models.user.{Role, User}
 import org.eclipse.jetty.server.Server
-import org.joda.time.{DateTime, DateTimeZone, Period}
 import services.datetime.FixedAppClock
 
+import java.time.{Instant, Period}
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.jdk.CollectionConverters.*
 
 /** The XM side of retention, against a fake XM on the port integrationtest.conf points at. */
 class RetentionIopSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
-  private val t0 = new DateTime(2023, 3, 1, 10, 0, DateTimeZone.UTC)
+  private val t0 = utc(2023, 3, 1, 10, 0)
 
   private val policy = RetentionPolicy(
-    inactivity = Period.months(6),
-    booking = Period.years(2),
-    attempt = Period.months(6),
-    maturityAttempt = Period.months(6),
-    abortedAttempt = Period.years(1),
-    autoLock = Period.years(1),
-    record = Period.years(2),
-    hostCopy = Period.months(3),
+    inactivity = Period.ofMonths(6),
+    booking = Period.ofYears(2),
+    attempt = Period.ofMonths(6),
+    maturityAttempt = Period.ofMonths(6),
+    abortedAttempt = Period.ofYears(1),
+    autoLock = Period.ofYears(1),
+    record = Period.ofYears(2),
+    hostCopy = Period.ofMonths(3),
     dryRun = false,
     batchSize = 500
   )
@@ -63,7 +64,7 @@ class RetentionIopSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   private def client = app.injector.instanceOf(classOf[XmRetentionClient])
 
-  private def service(now: DateTime) =
+  private def service(now: Instant) =
     RetentionService(
       policy,
       app.injector.instanceOf(classOf[RetentionRepository]),
@@ -91,7 +92,7 @@ class RetentionIopSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
     student.eppn = "visitor@retention.test"
     student.roles =
       List(DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).find.get).asJava
-    student.lastLogin = t0.toDate
+    student.lastLogin = java.util.Date.from(t0)
     student.save()
     val reservation = visitingReservation()
     reservation.user = student
@@ -104,7 +105,7 @@ class RetentionIopSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
     enrolment.save()
     (student, enrolment)
 
-  private def hostCopy(sent: DateTime, attachmentId: String): ExternalExam =
+  private def hostCopy(sent: Instant, attachmentId: String): ExternalExam =
     val json =
       s"""{"id": 1, "examSections": [{"sectionQuestions": [
          |  {"essayAnswer": {"answer": "text", "attachment": {"externalId": "$attachmentId"}}}

@@ -37,15 +37,15 @@ class CourseService @Inject() (
             .where
             .disjunction()
             .isNull("endDate")
-            .gt("endDate", org.joda.time.DateTime.now())
+            .gt("endDate", java.time.Instant.now())
             .endJunction()
             .ilike("name", s"%$x%")
             .orderBy("code")
             .list
             .filter(c =>
               Option(c.startDate).isEmpty || configReader
-                .getCourseValidityDate(new org.joda.time.DateTime(c.startDate))
-                .isBeforeNow
+                .getCourseValidityDate(c.startDate.toInstant)
+                .isBefore(java.time.Instant.now())
             )
         }
       case (Some("name"), Some(_)) =>

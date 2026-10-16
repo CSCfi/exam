@@ -14,7 +14,7 @@ export class WrongLocationService {
 
     display = (data: string[]) => {
         const [campus, building, room, machine, start, zone] = data;
-        const time = this.getTime(DateTime.fromISO(start, { zone: zone }));
+        const time = DateTime.fromISO(start, { zone: zone });
         const timeFmt = time.toLocaleString(DateTime.TIME_24_SIMPLE);
         const i18nRoom = this.translate.instant('i18n_at_room');
         const i18nMachine = this.translate.instant('i18n_at_machine');
@@ -48,6 +48,4 @@ export class WrongLocationService {
             this.toast.error(this.translate.instant('i18n_seb_exam_ongoing'), '', { timeOut: 10000 });
         }
     };
-
-    private getTime = (date: DateTime): DateTime => (date.isInDST ? date.minus({ hours: 1 }) : date);
 }

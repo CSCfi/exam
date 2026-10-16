@@ -10,14 +10,13 @@ import io.ebean.text.PathProperties
 import models.enrolment.Reservation
 import models.exam.ExamState
 import models.facility.ExamRoom
-import org.joda.time.LocalDate
-import org.joda.time.format.ISODateTimeFormat
-import services.datetime.DateTimeHandler
+import services.datetime.TimeUtils
 
+import java.time.{LocalDate, ZoneOffset}
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
-class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
+class ReservationAPIService @Inject() ()
     extends EbeanQueryExtensions:
 
   private val reservationProperties =
@@ -41,14 +40,6 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
 
   private val reservationJsonProperties = PathProperties.parse(reservationProperties)
 
-  // Same graph as the response, plus the room timezone that normalizing start/end times reads.
-  // Without it every partially loaded room is lazy loaded again; it stays out of the JSON since
-  // that is rendered with reservationJsonProperties.
-  private val reservationFetchProperties =
-    val pp = PathProperties.parse(reservationProperties)
-    pp.addToPath("machine.room", "localTimezone")
-    pp
-
   private val roomProperties =
     PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
 
@@ -60,7 +51,7 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
       end: Option[String],
       roomId: Option[Long]
   ): (List[Reservation], PathProperties) =
-    val query = DB.find(classOf[Reservation]).apply(reservationFetchProperties)
+    val query = DB.find(classOf[Reservation]).apply(reservationJsonProperties)
     val baseQuery = query
       .where()
       .or()  // *
@@ -74,28 +65,14 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
       .isNotNull("externalUserRef")
       .endOr() // *
 
-    val withStart = start.fold(baseQuery) { s =>
-      val startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(s)
-      baseQuery.ge("startAt", startDate.toDate)
-    }
-
-    val withEnd = end.fold(withStart) { e =>
-      val endDate = ISODateTimeFormat.dateTimeParser().parseDateTime(e)
-      withStart.lt("endAt", endDate.toDate)
-    }
+    val withStart = start.fold(baseQuery)(s => baseQuery.ge("startAt", TimeUtils.parseInstant(s)))
+    val withEnd   = end.fold(withStart)(e => withStart.lt("endAt", TimeUtils.parseInstant(e)))
 
     val finalQuery = roomId.fold(withEnd) { id =>
       withEnd.eq("machine.room.id", id)
     }
 
-    val reservations = finalQuery.distinct.toList
-      .map { r =>
-        r.startAt = dateTimeHandler.normalize(r.startAt, r)
-        r.endAt = dateTimeHandler.normalize(r.endAt, r)
-        r
-      }
-      .sortBy(r => r.startAt.getMillis)
-    (reservations, reservationJsonProperties)
+    (finalQuery.distinct.toList.sortBy(_.startAt.toEpochMilli), reservationJsonProperties)
 
   def getRooms: (List[ExamRoom], PathProperties) =
     (DB.find(classOf[ExamRoom]).apply(roomProperties).orderBy("name").list, roomProperties)
@@ -104,10 +81,12 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
     DB.find(classOf[ExamRoom]).apply(openingHoursProperties).where().idEq(roomId).find match
       case None => None
       case Some(room) =>
-        val searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date)
+        val searchDate = LocalDate.parse(date)
         val filteredEvents = room.calendarExceptionEvents.asScala.filter { ee =>
-          val start = new LocalDate(ee.startDate).withDayOfMonth(1)
-          val end   = new LocalDate(ee.endDate).dayOfMonth().withMaximumValue()
+          val start = ee.startDate.toInstant.atZone(ZoneOffset.UTC).toLocalDate.withDayOfMonth(1)
+          val end = ee.endDate.toInstant.atZone(ZoneOffset.UTC).toLocalDate.withDayOfMonth(
+            ee.endDate.toInstant.atZone(ZoneOffset.UTC).toLocalDate.lengthOfMonth
+          )
           !start.isAfter(searchDate) && !end.isBefore(searchDate)
         }
         room.calendarExceptionEvents = filteredEvents.asJava

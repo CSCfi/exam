@@ -19,7 +19,7 @@ import models.user.User
 import play.api.{Environment, Logging}
 import security.BlockingIOExecutionContext
 import services.config.ByodConfigHandler
-import services.datetime.{AppClock, DateTimeHandler}
+import services.datetime.AppClock
 import validation.answer.{ClozeTestAnswerDTO, EssayAnswerDTO}
 
 import javax.inject.Inject
@@ -28,7 +28,6 @@ import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class ExternalExaminationService @Inject() (
-    private val dateTimeHandler: DateTimeHandler,
     private val byodConfigHandler: ByodConfigHandler,
     override protected val environment: Environment,
     private val clock: AppClock,
@@ -194,11 +193,7 @@ class ExternalExaminationService @Inject() (
       .fold(
         _ => Left(SerializationFailed),
         _ =>
-          val now = dateTimeHandler.adjustDST(
-            clock.now(),
-            enrolment.reservation.machine.room
-          )
-          externalExam.started = now
+          externalExam.started = clock.now()
           externalExam.update()
           processExamForResponse(newExam)
           Right(newExam)
@@ -268,7 +263,7 @@ class ExternalExaminationService @Inject() (
       .find
 
   private def getEnrolment(user: User, prototype: ExternalExam): Option[ExamEnrolment] =
-    val now = dateTimeHandler.adjustDST(clock.now())
+    val now = clock.now()
     DB.find(classOf[ExamEnrolment])
       .fetch("reservation")
       .fetch("reservation.machine")
@@ -276,8 +271,8 @@ class ExternalExaminationService @Inject() (
       .where()
       .eq("user.id", user.id)
       .eq("externalExam.hash", prototype.hash)
-      .le("reservation.startAt", now.toDate)
-      .gt("reservation.endAt", now.toDate)
+      .le("reservation.startAt", now)
+      .gt("reservation.endAt", now)
       .eq("reservation.externalUserRef", user.eppn)
       .find
 
@@ -314,9 +309,7 @@ class ExternalExaminationService @Inject() (
         getEnrolment(user, ee) match
           case None => Left(EnrolmentNotFound)
           case Some(enrolment) =>
-            val now =
-              dateTimeHandler.adjustDST(clock.now(), enrolment.reservation.machine.room)
-            ee.finished = now
+            ee.finished = clock.now()
             Try(ee.deserialize)
               .fold(
                 _ => Left(DeserializationFailed),

@@ -10,7 +10,6 @@ import cats.effect.unsafe.implicits.global
 import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.ExamState
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
@@ -22,6 +21,7 @@ import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
 import services.mail.EmailComposer
 
 import java.net.URI
+import java.time.Instant
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
@@ -58,7 +58,7 @@ class NoShowHandlerImpl @Inject (
   /** Sends a no-show to XM. `markDone` takes it out of the next checks once XM has it, or once
     * retrying cannot help (see [[IopDelivery]]). Other failures are retried on the next check.
     */
-  private def postNoShow(ref: String, endAt: DateTime)(markDone: () => Unit): IO[Unit] =
+  private def postNoShow(ref: String, endAt: Instant)(markDone: () => Unit): IO[Unit] =
     IO.fromFuture(IO(wsClient.url(parseUrl(ref).toString).execute(Http.HttpVerbs.POST)))
       .attempt
       .map {
@@ -155,7 +155,7 @@ class NoShowHandlerImpl @Inject (
     else
       newEnrolment.preEnrolledUserEmail = enrolment.preEnrolledUserEmail
     newEnrolment.exam = enrolment.exam
-    newEnrolment.enrolledOn = DateTime.now()
+    newEnrolment.enrolledOn = Instant.now()
     newEnrolment.information = enrolment.information
     newEnrolment.setRandomDelay()
     newEnrolment.save()

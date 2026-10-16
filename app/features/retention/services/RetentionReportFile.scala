@@ -8,6 +8,8 @@ import com.opencsv.CSVWriter
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import scala.util.Using
 
 /** Writes the items of a retention run to a CSV file, so that admins can review in a spreadsheet
@@ -29,8 +31,12 @@ object RetentionReportFile:
     "detail"
   )
 
+  // In UTC, like the times inside the report
+  private val StampFormat =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss").withZone(ZoneOffset.UTC)
+
   def fileName(report: RetentionReport): String =
-    val stamp = report.ranAt.toString("yyyy-MM-dd'T'HH-mm-ss")
+    val stamp = StampFormat.format(report.ranAt)
     s"retention-$stamp${if report.dryRun then "-dry-run" else ""}.csv"
 
   /** Writes the report into `dir`, creating it if needed, and returns the file. */

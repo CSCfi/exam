@@ -13,7 +13,6 @@ import models.enrolment.ExamParticipation
 import models.exam.Exam
 import models.iop.CollaborativeExam
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.http.Status.*
 import play.api.libs.json.*
@@ -25,6 +24,7 @@ import services.iop.{DeliveryResult, IopDelivery}
 import services.json.EbeanMapper
 
 import java.net.{URI, URL}
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -148,7 +148,7 @@ class CollaborativeExamLoaderService @Inject() (
           .map { response =>
             val result = IopDelivery.fromResponse(response, CREATED)
             if result == DeliveryResult.Delivered then
-              participation.sentForReview = DateTime.now()
+              participation.sentForReview = Instant.now()
               participation.update()
               logger.info(s"Assessment for exam $ref processed successfully")
             else logger.error(s"Failed in sending assessment for exam $ref (${result.describe})")

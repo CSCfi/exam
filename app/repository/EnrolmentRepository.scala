@@ -12,14 +12,15 @@ import models.exam.{ExamImplementation, ExamState}
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.{Role, User}
 import org.apache.commons.codec.binary.Base64
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, DateTimeZone, Minutes}
 import play.api.mvc.{AnyContent, Request, RequestHeader}
 import play.api.{Environment, Logging, Mode}
 import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
-import services.datetime.{AppClock, DateTimeHandler}
+import services.datetime.AppClock
+import services.datetime.TimeUtils
 
+import java.time.*
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
@@ -28,7 +29,6 @@ class EnrolmentRepository @Inject() (
     environment: Environment,
     blockingIOExecutionContext: BlockingIOExecutionContext,
     byodConfigHandler: ByodConfigHandler,
-    dateTimeHandler: DateTimeHandler,
     configReader: ConfigReader,
     clock: AppClock
 ) extends Logging
@@ -69,7 +69,7 @@ class EnrolmentRepository @Inject() (
     }
 
   private def doGetStudentEnrolments(user: User): List[ExamEnrolment] =
-    val now = dateTimeHandler.adjustDST(clock.now())
+    val now = clock.now()
     val pp = PathProperties.parse(
       """(*,
         |examinationEventConfiguration(
@@ -105,7 +105,7 @@ class EnrolmentRepository @Inject() (
       .where()
       .eq("user", user)
       .or()
-      .gt("reservation.endAt", now.toDate)
+      .gt("reservation.endAt", now)
       .isNull("reservation")
       .endOr()
       .list
@@ -114,7 +114,7 @@ class EnrolmentRepository @Inject() (
           case None => true
           case Some(config) =>
             val start = config.examinationEvent.start
-            start.plusMinutes(ee.exam.duration).isAfterNow
+            start.plus(Duration.ofMinutes(ee.exam.duration.toLong)).isAfter(Instant.now())
       }
 
     // Hide section info if no optional sections exist
@@ -127,12 +127,12 @@ class EnrolmentRepository @Inject() (
     enrolments.filter { ee =>
       Option(ee.exam).flatMap(e => Option(e.periodEnd)) match
         case Some(periodEnd) =>
-          periodEnd.isAfterNow && ee.exam.hasState(
+          periodEnd.isAfter(Instant.now()) && ee.exam.hasState(
             ExamState.PUBLISHED,
             ExamState.STUDENT_STARTED
           )
         case None =>
-          Option(ee.collaborativeExam).exists(_.periodEnd.isAfterNow)
+          Option(ee.collaborativeExam).exists(_.periodEnd.isAfter(Instant.now()))
     }
 
   private def doGetReservationHeaders(
@@ -147,7 +147,10 @@ class EnrolmentRepository @Inject() (
       case None =>
         val now = clock.now()
         val lookAheadMinutes =
-          Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
+          Duration.between(
+            now,
+            LocalDate.now(ZoneOffset.UTC).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant
+          ).toMinutes.toInt
         getNextEnrolment(userId, lookAheadMinutes) match
           case Some(upcomingEnrolment) =>
             handleUpcomingEnrolment(upcomingEnrolment, request, headers, eppn)
@@ -194,8 +197,7 @@ class EnrolmentRepository @Inject() (
           )
 
         if error.isDefined then
-          val msg =
-            ISODateTimeFormat.dateTime().print(new DateTime(config.examinationEvent.start))
+          val msg = DateTimeFormatter.ISO_INSTANT.format(config.examinationEvent.start)
           headers.put("x-exam-wrong-agent-config", msg)
           logger.warn("Wrong agent config for SEB")
           false
@@ -218,12 +220,9 @@ class EnrolmentRepository @Inject() (
               case None =>
                 // IP is not known
                 val local = configReader.isLocalUser(eppn)
-                val zone  = DateTimeZone.forID(room.localTimezone)
-                val start = {
-                  ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(
-                    enrolment.reservation.startAt
-                  ))
-                }
+                val zone  = TimeUtils.zoneIdOf(room.localTimezone)
+                val start = ZonedDateTime.ofInstant(enrolment.reservation.startAt, zone)
+                  .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                 val msg = Seq(
                   enrolment.id,
                   room.campus,
@@ -231,7 +230,7 @@ class EnrolmentRepository @Inject() (
                   room.roomCode,
                   examMachine.name,
                   start,
-                  zone.getID,
+                  room.localTimezone,
                   if local then "true" else enrolment.id
                 ).mkString(":::")
                 ("x-exam-unknown-machine", msg)
@@ -274,22 +273,24 @@ class EnrolmentRepository @Inject() (
   ): Unit =
     if Option(enrolment.exam).exists(_.implementation == ExamImplementation.WHATEVER) then
       // Home exam, don't set headers unless it starts in 5 minutes
-      val threshold = clock.now().plusMinutes(5)
+      val threshold = clock.now().plus(Duration.ofMinutes(5))
       val start     = enrolment.examinationEventConfiguration.examinationEvent.start
       if start.isBefore(threshold) then
         headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.id}")
     else if isMachineOk(enrolment, request, headers, eppn) then
       if Option(enrolment.exam).exists(_.implementation == ExamImplementation.AQUARIUM) then
         // Aquarium exam
-        val threshold      = clock.now().plusMinutes(5)
-        val thresholdEarly = clock.now().withTimeAtStartOfDay().plusDays(1)
-        val start =
-          dateTimeHandler.normalize(enrolment.reservation.startAt, enrolment.reservation)
+        val threshold = clock.now().plus(Duration.ofMinutes(5))
+        val thresholdEarly =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant
+        val start = enrolment.reservation.startAt
         // if start is within 5 minutes, set the upcoming exam header
         if start.isBefore(threshold) then
           headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.id}")
         // otherwise set the early login header if start is within today. For dev purposes skip requirement
-        else if start.isBefore(thresholdEarly) && start.isAfterNow && environment.mode != Mode.Dev
+        else if start.isBefore(thresholdEarly) && start.isAfter(
+            clock.now()
+          ) && environment.mode != Mode.Dev
         then
           headers.put("x-exam-aquarium-login", s"${getExamHash(enrolment)}:::${enrolment.id}")
       else
@@ -297,11 +298,9 @@ class EnrolmentRepository @Inject() (
         headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.id}")
 
   private def isInsideBounds(ee: ExamEnrolment, minutesToFuture: Int): Boolean =
-    val earliest = Option(ee.examinationEventConfiguration) match
-      case None    => dateTimeHandler.adjustDST(clock.now())
-      case Some(_) => clock.now()
-    val latest = earliest.plusMinutes(minutesToFuture)
-    val delay  = ee.delay
+    val earliest = clock.now()
+    val latest   = earliest.plus(Duration.ofMinutes(minutesToFuture.toLong))
+    val delay    = ee.delay
 
     Option(ee.reservation).exists { reservation =>
       reservation.startAt.plusMillis(delay).isBefore(latest) &&
@@ -309,17 +308,15 @@ class EnrolmentRepository @Inject() (
     } ||
     Option(ee.examinationEventConfiguration).map(_.examinationEvent).exists { event =>
       event.start.plusMillis(delay).isBefore(latest) &&
-      event.start.plusMinutes(ee.exam.duration).isAfter(earliest)
+      event.start.plus(Duration.ofMinutes(ee.exam.duration.toLong)).isAfter(earliest)
     }
 
-  private def getStartTime(enrolment: ExamEnrolment): DateTime =
+  private def getStartTime(enrolment: ExamEnrolment): Instant =
     Option(enrolment.reservation) match
       case Some(reservation) =>
         reservation.startAt.plusMillis(enrolment.delay)
       case None =>
-        enrolment.examinationEventConfiguration.examinationEvent.start.plusMillis(
-          enrolment.delay
-        )
+        enrolment.examinationEventConfiguration.examinationEvent.start.plusMillis(enrolment.delay)
 
   private def getNextEnrolment(userId: Long, minutesToFuture: Int): Option[ExamEnrolment] =
     val results = db

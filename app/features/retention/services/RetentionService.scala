@@ -6,12 +6,12 @@ package features.retention.services
 
 import cats.effect.IO
 import cats.effect.syntax.all.concurrentParTraverseOps
-import org.joda.time.DateTime
 import play.api.Logging
 import services.datetime.AppClock
 import services.iop.{DeliveryDecision, DeliveryResult, IopDelivery}
 
 import java.nio.file.Path
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -44,7 +44,7 @@ final case class PassResult(
 final case class ReportRow(pass: RetentionPass, item: ReportItem, outcome: String)
 
 final case class RetentionReport(
-    ranAt: DateTime,
+    ranAt: Instant,
     dryRun: Boolean,
     passes: List[PassResult],
     took: FiniteDuration = Duration.Zero,
@@ -139,7 +139,7 @@ class RetentionService @Inject() (
   // so the local rows normally stay until that call succeeds. If XM keeps failing, for example
   // because the host organization is gone, the booking is deleted locally anyway 30 days after it
   // became due, and XM's own expiry removes its copy.
-  private def deleteBooking(b: BookingCandidate)(now: DateTime): IO[Unit] =
+  private def deleteBooking(b: BookingCandidate)(now: Instant): IO[Unit] =
     val remote =
       if b.remote then
         IO.blocking(repository.reservationOf(b.enrolmentId)).flatMap {

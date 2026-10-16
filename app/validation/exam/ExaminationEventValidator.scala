@@ -5,13 +5,14 @@
 package validation.exam
 
 import cats.data.ValidatedNel
-import org.joda.time.DateTime
 import play.api.libs.json.*
 import play.api.mvc.{Request, Result, Results}
 import validation.core.*
 
+import java.time.Instant
+
 case class ExaminationEventDTO(
-    start: DateTime,
+    start: Instant,
     description: String,
     capacity: Int,
     settingsPassword: Option[String],
@@ -27,7 +28,7 @@ object ExaminationEventValidator extends PlayJsonValidator:
         .withRule(requirePositiveCapacity)
         .validate(body)
 
-    private def requireStartDate(event: ExaminationEventDTO): ValidatedNel[FieldError, DateTime] =
+    private def requireStartDate(event: ExaminationEventDTO): ValidatedNel[FieldError, Instant] =
       PlayValidator.requirePresent("start", event.start)
 
     private def requireDescription(event: ExaminationEventDTO): ValidatedNel[FieldError, String] =

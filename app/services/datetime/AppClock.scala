@@ -4,13 +4,13 @@
 
 package services.datetime
 
-import org.joda.time.DateTime
+import java.time.Instant
 
 trait AppClock:
-  def now(): DateTime
+  def now(): Instant
 
 class SystemAppClock extends AppClock:
-  def now(): DateTime = DateTime.now()
+  def now(): Instant = Instant.now()
 
-class FixedAppClock(fixedTime: DateTime) extends AppClock:
-  def now(): DateTime = fixedTime
+class FixedAppClock(fixedTime: Instant) extends AppClock:
+  def now(): Instant = fixedTime

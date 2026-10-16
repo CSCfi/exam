@@ -15,11 +15,13 @@ import models.iop.ExternalExam
 import models.questions.Question
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
+import services.datetime.TimeUtils.minusPeriod
 import services.file.FileHandler
 import services.retention.RetentionLimits
 
+import java.sql.Timestamp
+import java.time.Instant
 import java.util.Date
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
@@ -29,7 +31,7 @@ import scala.util.Using
   * remains of the student's exam copy. `remote` is set when the reservation must also go at XM, and
   * `dueAt` is when its retention ended.
   */
-final case class BookingCandidate(enrolmentId: Long, remote: Boolean, dueAt: DateTime)
+final case class BookingCandidate(enrolmentId: Long, remote: Boolean, dueAt: Instant)
 
 /** What the retention report says about one item a pass selected. Students appear only by their
   * internal user id.
@@ -40,8 +42,8 @@ final case class ReportItem(
     userId: Option[Long] = None,
     exam: Option[String] = None,
     course: Option[String] = None,
-    countsFrom: Option[DateTime] = None,
-    dueAt: Option[DateTime] = None,
+    countsFrom: Option[Instant] = None,
+    dueAt: Option[Instant] = None,
     detail: String = ""
 )
 
@@ -100,7 +102,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
       isLast = rows.size < rowsPerPage
     Selection(found.result(), count)
 
-  private def dt(d: Date): Option[DateTime] = Option(d).map(new DateTime(_))
+  private def dt(d: Date): Option[Instant] = Option(d).map(d => Instant.ofEpochMilli(d.getTime))
 
   private def attemptFacts(p: ExamParticipation): AttemptFacts =
     val exam = p.exam
@@ -126,7 +128,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
       .where()
       .isNotNull("exam")
 
-  private def attemptReport(p: ExamParticipation, facts: AttemptFacts, dueAt: Option[DateTime]) =
+  private def attemptReport(p: ExamParticipation, facts: AttemptFacts, dueAt: Option[Instant]) =
     ReportItem(
       kind = "exam copy",
       id = p.exam.id.toString,
@@ -143,13 +145,13 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   /** Unassessed student copies that are due to be locked, by exam id. */
   def autoLockCandidates(
       policy: RetentionPolicy,
-      now: DateTime,
+      now: Instant,
       limit: Limit
   ): Selection[Long] =
     collectDue(limit)((after, size) =>
       participations
         .in("exam.state", ExamState.REVIEW, ExamState.REVIEW_STARTED, ExamState.GRADED)
-        .le("ended", now.minus(policy.autoLock))
+        .le("ended", minusPeriod(now, policy.autoLock))
         .gt("id", after)
         .orderBy("id")
         .setMaxRows(size)
@@ -162,7 +164,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
       )
     }
 
-  def autoLock(examId: Long, now: DateTime): Unit =
+  def autoLock(examId: Long, now: Instant): Unit =
     val exam = DB.find(classOf[Exam], examId)
     if RetentionRules.UnlockedStates.contains(exam.state) then
       exam.state = ExamState.ARCHIVED
@@ -172,9 +174,9 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   // Pass B
 
   /** Student copies whose content is due to be deleted, by exam id. */
-  def attemptCandidates(policy: RetentionPolicy, now: DateTime, limit: Limit): Selection[Long] =
+  def attemptCandidates(policy: RetentionPolicy, now: Instant, limit: Limit): Selection[Long] =
     // Nothing expires sooner than the shortest attempt period, so it bounds the preselection
-    val cutoff = now.minus(RetentionLimits.AttemptRange._1)
+    val cutoff = minusPeriod(now, RetentionLimits.AttemptRange._1)
     collectDue(limit)((after, size) =>
       participations
         .or()
@@ -305,7 +307,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
 
   // Pass C
 
-  def recordCandidates(policy: RetentionPolicy, now: DateTime, limit: Limit): Selection[Long] =
+  def recordCandidates(policy: RetentionPolicy, now: Instant, limit: Limit): Selection[Long] =
     collectDue(limit)((after, size) =>
       DB.find(classOf[ExamRecord])
         .select("timeStamp")
@@ -313,7 +315,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         .fetch("exam", "name")
         .fetch("examScore", "courseUnitCode")
         .where()
-        .le("timeStamp", now.minus(policy.record))
+        .le("timeStamp", minusPeriod(now, policy.record))
         .gt("id", after)
         .orderBy("id")
         .setMaxRows(size)
@@ -357,7 +359,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
     */
   def bookingCandidates(
       policy: RetentionPolicy,
-      now: DateTime,
+      now: Instant,
       limit: Limit
   ): Selection[BookingCandidate] =
     val sql =
@@ -380,7 +382,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
          |ORDER BY e.id""".stripMargin
     collectDue(limit)((after, size) =>
       DB.sqlQuery(sql)
-        .setParameter("cutoff", now.minus(policy.booking).toDate)
+        .setParameter("cutoff", Timestamp.from(minusPeriod(now, policy.booking)))
         .setParameter("after", after)
         .setMaxRows(size)
         .findList()
@@ -468,7 +470,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
 
   def hostReservationCandidates(
       policy: RetentionPolicy,
-      now: DateTime,
+      now: Instant,
       limit: Limit
   ): Selection[Long] =
     val sql =
@@ -480,7 +482,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         |ORDER BY r.id""".stripMargin
     collectDue(limit)((after, size) =>
       DB.sqlQuery(sql)
-        .setParameter("cutoff", now.minus(policy.booking).toDate)
+        .setParameter("cutoff", Timestamp.from(minusPeriod(now, policy.booking)))
         .setParameter("after", after)
         .setMaxRows(size)
         .findList()
@@ -544,14 +546,14 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   /** Host-side copies of visiting exam attempts whose content is due to be cleared, by id. */
   def hostCopyCandidates(
       policy: RetentionPolicy,
-      now: DateTime,
+      now: Instant,
       limit: Limit
   ): Selection[Long] =
     collectDue(limit)((after, size) =>
       DB.find(classOf[ExternalExam])
         .select("sent")
         .where()
-        .le("sent", now.minus(policy.hostCopy))
+        .le("sent", minusPeriod(now, policy.hostCopy))
         .jsonExists("content", "id")
         .gt("id", after)
         .orderBy("id")
@@ -582,7 +584,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
 
   // Pass E
 
-  def accountCandidates(policy: RetentionPolicy, now: DateTime, limit: Limit): Selection[Long] =
+  def accountCandidates(policy: RetentionPolicy, now: Instant, limit: Limit): Selection[Long] =
     val sql =
       """SELECT u.id, u.last_login FROM app_user u
         |WHERE u.last_login <= :cutoff
@@ -598,7 +600,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         |ORDER BY u.id""".stripMargin
     collectDue(limit)((after, size) =>
       DB.sqlQuery(sql)
-        .setParameter("cutoff", now.minus(policy.inactivity).toDate)
+        .setParameter("cutoff", Timestamp.from(minusPeriod(now, policy.inactivity)))
         .setParameter("student", models.user.Role.Name.STUDENT.toString)
         .setParameter("after", after)
         .setMaxRows(size)

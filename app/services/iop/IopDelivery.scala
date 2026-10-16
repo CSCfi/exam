@@ -4,10 +4,12 @@
 
 package services.iop
 
-import org.joda.time.DateTime
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.ws.WSResponse
+import services.datetime.TimeUtils
 import services.retention.RetentionLimits
+
+import java.time.Instant
 
 /** Result of one attempt to deliver something to XM. */
 enum DeliveryResult:
@@ -61,18 +63,19 @@ object IopDelivery:
   private val GiveUpAfter       = RetentionLimits.IopGiveUpAfter
   private val SlowRetryInterval = RetentionLimits.IopSlowRetryInterval
 
-  private def pastLimit(since: Option[DateTime], now: DateTime): Boolean =
-    since.exists(!_.plus(GiveUpAfter).isAfter(now))
+  private def pastLimit(since: Option[Instant], now: Instant): Boolean =
+    since.exists(!TimeUtils.plusPeriod(_, GiveUpAfter).isAfter(now))
 
   /** Whether an item should be tried in this run: always within the time limit, afterwards once
     * every [[RetentionLimits.IopSlowRetryInterval]] since the last attempt.
     */
   def isDueForAttempt(
-      since: Option[DateTime],
-      lastAttempt: Option[DateTime],
-      now: DateTime
+      since: Option[Instant],
+      lastAttempt: Option[Instant],
+      now: Instant
   ): Boolean =
-    !pastLimit(since, now) || lastAttempt.forall(!_.plus(SlowRetryInterval).isAfter(now))
+    !pastLimit(since, now) ||
+      lastAttempt.forall(!TimeUtils.plusPeriod(_, SlowRetryInterval).isAfter(now))
 
   def fromResponse(response: WSResponse, success: Int): DeliveryResult =
     if response.status == success then DeliveryResult.Delivered
@@ -83,8 +86,8 @@ object IopDelivery:
   /** `since` is when the item became ready to send, such as the end of the exam. */
   def decide(
       result: DeliveryResult,
-      since: Option[DateTime],
-      now: DateTime,
+      since: Option[Instant],
+      now: Instant,
       afterLimit: AfterTimeLimit = AfterTimeLimit.GiveUp
   ): DeliveryDecision =
     result match
@@ -99,7 +102,7 @@ object IopDelivery:
             DeliveryDecision.GiveUp(s"$failing. Last answer: ${result.describe}")
           case AfterTimeLimit.SlowDown =>
             DeliveryDecision.RetrySlowly(
-              s"$failing, trying again in ${SlowRetryInterval.getWeeks} week. " +
+              s"$failing, trying again in ${SlowRetryInterval.getDays / 7} week. " +
                 s"Last answer: ${result.describe}"
             )
       case _ => DeliveryDecision.RetryLater(result.describe)

@@ -5,6 +5,7 @@
 package retention
 
 import features.retention.services.*
+import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.assessment.{ExamRecord, ExamScore}
 import models.attachment.Attachment
@@ -12,12 +13,12 @@ import models.enrolment.*
 import models.exam.{Exam, ExamExecutionType, ExamState}
 import models.questions.{EssayAnswer, Question}
 import models.user.{Role, User}
-import org.joda.time.{DateTime, Period}
 import services.datetime.FixedAppClock
 import services.enrolment.EnrolmentHandler
 import services.file.FileHandler
 
 import java.nio.file.Files
+import java.time.{Instant, Period}
 import scala.jdk.CollectionConverters.*
 
 class RetentionServiceSpec extends RetentionSpecBase:
@@ -254,7 +255,7 @@ class RetentionServiceSpec extends RetentionSpecBase:
         copy.executionType = DB.find(classOf[ExamExecutionType]).where().eq("type", "MATURITY").find
           .getOrElse(fail("No maturity execution type"))
         copy.update()
-        val longer = policy.copy(maturityAttempt = Period.years(2))
+        val longer = policy.copy(maturityAttempt = Period.ofYears(2))
 
         run(t0.plusMonths(7), longer)
         sectionCount(a.copy.id) must be > 0
@@ -267,7 +268,7 @@ class RetentionServiceSpec extends RetentionSpecBase:
         setup()
         val a      = attempt(newUser("kalle", t0, Role.Name.STUDENT))
         val course = DB.find(classOf[Exam], a.copy.id).course
-        course.endDate = t0.plusMonths(10).toDate
+        course.endDate = java.util.Date.from(t0.plusMonths(10))
         course.update()
 
         run(t0.plusMonths(7))

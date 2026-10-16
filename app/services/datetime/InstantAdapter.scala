@@ -6,15 +6,14 @@ package services.datetime
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.{JsonSerializer, SerializerProvider}
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 
-class DateTimeAdapter extends JsonSerializer[DateTime] {
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+
+class InstantAdapter extends JsonSerializer[Instant]:
   override def serialize(
-      value: DateTime,
+      value: Instant,
       gen: JsonGenerator,
       serializers: SerializerProvider
-  ): Unit = {
-    gen.writeString(ISODateTimeFormat.dateTime.print(value))
-  }
-}
+  ): Unit =
+    gen.writeString(DateTimeFormatter.ISO_INSTANT.format(value))

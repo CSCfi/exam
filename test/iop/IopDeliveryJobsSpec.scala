@@ -6,6 +6,7 @@ package iop
 
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
+import helpers.InstantArithmetic.*
 import helpers.RemoteServerHelper
 import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
@@ -15,10 +16,10 @@ import models.exam.Exam
 import models.iop.ExternalExam
 import models.user.User
 import org.eclipse.jetty.server.Server
-import org.joda.time.DateTime
 import services.enrolment.NoShowHandler
 import system.jobs.AssessmentTransferService
 
+import java.time.Instant
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.jdk.CollectionConverters.*
 
@@ -54,8 +55,8 @@ class IopDeliveryJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   private def visitorReservation(ref: String, endedDaysAgo: Int): Reservation =
     val r = new Reservation
-    r.startAt = DateTime.now.minusDays(endedDaysAgo).minusHours(2)
-    r.endAt = DateTime.now.minusDays(endedDaysAgo)
+    r.startAt = Instant.now().minusDays(endedDaysAgo).minusHours(2)
+    r.endAt = Instant.now().minusDays(endedDaysAgo)
     r.externalRef = ref
     r.externalUserRef = "visitor@other.fi"
     r.save()
@@ -68,7 +69,7 @@ class IopDeliveryJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
   // Assessment transfers ----------------------------------------------------------------------
 
   private def finishedVisit(ref: String, finishedDaysAgo: Int): ExternalExam =
-    val finished = DateTime.now.minusDays(finishedDaysAgo)
+    val finished = Instant.now().minusDays(finishedDaysAgo)
     val student  = new User
     student.email = s"$ref@retention.test"
     student.eppn = s"$ref@retention.test"
@@ -187,7 +188,7 @@ class IopDeliveryJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         Option(reload(ee).deliveryAttemptedAt) must not be None
 
         val stale = reload(ee)
-        stale.deliveryAttemptedAt = DateTime.now.minusDays(8)
+        stale.deliveryAttemptedAt = Instant.now().minusDays(8)
         stale.update()
         val fixed = FakeXm(HttpServletResponse.SC_CREATED)
         withXm(Some(fixed))(transfer())

@@ -10,9 +10,9 @@ import models.base.GeneratedIdentityModel
 import models.exam.Exam
 import models.iop.CollaborativeExam
 import models.user.User
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 
+import java.time.Instant
 import scala.compiletime.uninitialized
 
 @Entity
@@ -36,39 +36,25 @@ class ExamParticipation extends GeneratedIdentityModel:
   @JsonBackReference
   var examinationEvent: ExaminationEvent = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var started: DateTime = uninitialized
+  @JsonInstant var started: Instant  = uninitialized
+  @JsonInstant var ended: Instant    = uninitialized
+  @JsonInstant var duration: Instant = uninitialized // FIXME: maybe int in seconds
+  @JsonInstant var deadline: Instant = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var ended: DateTime = uninitialized
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var duration: DateTime = uninitialized
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var deadline: DateTime = uninitialized
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var sentForReview: DateTime = uninitialized
+  @JsonInstant
+  var sentForReview: Instant = uninitialized
 
   // When CollaborativeAssessmentSenderService stopped trying to send this attempt to XM, because
   // XM no longer knew it. Local only, so it is left out of the JSON exchanged with other
   // installations
-  @Temporal(TemporalType.TIMESTAMP)
   @io.ebean.annotation.JsonIgnore
   @com.fasterxml.jackson.annotation.JsonIgnore
-  var deliveryAbandonedAt: DateTime = uninitialized
+  var deliveryAbandonedAt: Instant = uninitialized
 
   // When CollaborativeAssessmentSenderService last tried to send this attempt, for the weekly retries
-  @Temporal(TemporalType.TIMESTAMP)
   @io.ebean.annotation.JsonIgnore
   @com.fasterxml.jackson.annotation.JsonIgnore
-  var deliveryAttemptedAt: DateTime = uninitialized
+  var deliveryAttemptedAt: Instant = uninitialized
 
   override def equals(o: Any): Boolean = o match
     case e: ExamParticipation => this.id == e.id

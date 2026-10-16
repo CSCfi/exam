@@ -5,9 +5,11 @@
 package features.retention.services
 
 import com.typesafe.config.Config
-import org.joda.time.{DateTime, DateTimeZone, Period}
 import play.api.Logging
+import services.datetime.TimeUtils
 import services.retention.RetentionLimits
+
+import java.time.{Instant, Period}
 
 /** Retention periods for student data, read from `exam.retention.*`. Each period counts from the
   * event named in `conf/application.conf`.
@@ -31,9 +33,9 @@ object RetentionPolicy extends Logging:
 
   // Periods have no natural ordering (a month has no fixed length), so compare them by adding
   // them to a fixed instant
-  private val Reference = new DateTime(2000, 1, 1, 0, 0, DateTimeZone.UTC)
+  private val Reference = Instant.parse("2000-01-01T00:00:00Z")
 
-  private def length(p: Period): Long = Reference.plus(p).getMillis
+  private def length(p: Period): Long = TimeUtils.plusPeriod(Reference, p).toEpochMilli
 
   private def clamp(key: String, value: Period, range: (Period, Period)): Period =
     val (min, max) = range

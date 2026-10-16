@@ -5,42 +5,44 @@
 package retention
 
 import features.retention.services.*
+import helpers.InstantArithmetic.*
 import models.exam.ExamState
-import org.joda.time.{DateTime, DateTimeZone, Period}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
+import java.time.{Instant, Period}
 
 class RetentionRulesSpec extends AnyWordSpec with Matchers:
 
   private val policy = RetentionPolicy(
-    inactivity = Period.months(6),
-    booking = Period.years(2),
-    attempt = Period.months(6),
-    maturityAttempt = Period.months(6),
-    abortedAttempt = Period.years(1),
-    autoLock = Period.years(1),
-    record = Period.years(2),
-    hostCopy = Period.months(3),
+    inactivity = Period.ofMonths(6),
+    booking = Period.ofYears(2),
+    attempt = Period.ofMonths(6),
+    maturityAttempt = Period.ofMonths(6),
+    abortedAttempt = Period.ofYears(1),
+    autoLock = Period.ofYears(1),
+    record = Period.ofYears(2),
+    hostCopy = Period.ofMonths(3),
     dryRun = false,
     batchSize = 500
   )
 
-  private def at(y: Int, m: Int, d: Int) = new DateTime(y, m, d, 12, 0, DateTimeZone.UTC)
+  private def at(y: Int, m: Int, d: Int) = utc(y, m, d, 12, 0)
 
   private val t0 = at(2025, 1, 15)
 
   private def attempt(
       state: ExamState = ExamState.GRADED_LOGGED,
       maturity: Boolean = false,
-      lockedAt: Option[DateTime] = Some(t0),
-      gradedTime: Option[DateTime] = None,
-      ended: Option[DateTime] = None,
-      courseEnd: Option[DateTime] = None,
-      examPeriodEnd: Option[DateTime] = None
+      lockedAt: Option[Instant] = Some(t0),
+      gradedTime: Option[Instant] = None,
+      ended: Option[Instant] = None,
+      courseEnd: Option[Instant] = None,
+      examPeriodEnd: Option[Instant] = None
   ) = AttemptFacts(state, maturity, lockedAt, gradedTime, ended, courseEnd, examPeriodEnd)
 
   // Checks the item is kept one day before `expiry` and is due exactly at it and a day after
-  private def dueExactlyAt(expiresAt: Option[DateTime], expiry: DateTime): Unit =
+  private def dueExactlyAt(expiresAt: Option[Instant], expiry: Instant): Unit =
     expiresAt mustBe Some(expiry)
     RetentionRules.isDue(expiresAt, expiry.minusDays(1)) mustBe false
     RetentionRules.isDue(expiresAt, expiry) mustBe true
@@ -81,11 +83,11 @@ class RetentionRulesSpec extends AnyWordSpec with Matchers:
         )
     }
     "use the configured period up to a year" in {
-      val longer = policy.copy(attempt = Period.years(1))
+      val longer = policy.copy(attempt = Period.ofYears(1))
       dueExactlyAt(RetentionRules.attemptExpiresAt(attempt(), longer), t0.plusYears(1))
     }
     "use the maturity period for maturity exams" in {
-      val p = policy.copy(maturityAttempt = Period.years(2))
+      val p = policy.copy(maturityAttempt = Period.ofYears(2))
       dueExactlyAt(RetentionRules.attemptExpiresAt(attempt(maturity = true), p), t0.plusYears(2))
       dueExactlyAt(RetentionRules.attemptExpiresAt(attempt(maturity = false), p), t0.plusMonths(6))
     }
