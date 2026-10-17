@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 // SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
@@ -22,7 +22,6 @@ import { TranslateModule } from '@ngx-translate/core';
             display: inline;
         }
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [TranslateModule],
 })
 export class TableSortComponent {

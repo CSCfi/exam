@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Exam } from 'src/app/exam/exam.model';
@@ -16,7 +16,6 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
 
 @Component({
     selector: 'xm-exam-answers-dialog',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-answers-dialog.component.html',
     styleUrl: './exam-answers-dialog.component.scss',
     imports: [TranslateModule, RichTextDirective, UpperCasePipe, DatePipe, CourseCodeComponent],

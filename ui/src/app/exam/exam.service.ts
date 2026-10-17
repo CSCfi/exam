@@ -7,13 +7,13 @@ import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { SessionService } from 'src/app/session/session.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import type {
     Exam,
     ExamExecutionType,
@@ -44,7 +44,7 @@ export class ExamService {
     private readonly router = inject(Router);
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly CommonExam = inject(CommonExamService);
     private readonly QuestionScore = inject(QuestionScoringService);
     private readonly Session = inject(SessionService);

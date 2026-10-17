@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -40,7 +40,6 @@ import { SoftwareSelectorComponent } from './software-picker.component';
         CKEditorComponent,
         TranslateModule,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BasicExamInfoComponent {
     readonly exam = computed(() => this.ExamTabs.examSignal()!);

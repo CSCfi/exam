@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -50,7 +50,6 @@ interface MonthOfYear {
     templateUrl: './exception-repetition-options.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
     styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDialogRepetitionOptionsComponent {
     readonly mode = input(REPEAT_OPTION.once);

@@ -4,12 +4,11 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -17,7 +16,6 @@ import { AssessmentService } from 'src/app/review/assessment/assessment.service'
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import type { Review } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
@@ -25,6 +23,7 @@ import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-rl-graded',
@@ -39,13 +38,11 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         SlicePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         PageFillPipe,
         DiffInDaysPipe,
         OrderByPipe,
     ],
     styleUrl: '../review-list.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GradedReviewsComponent {
     readonly exam = input.required<Exam>();
@@ -64,7 +61,7 @@ export class GradedReviewsComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly ReviewList = inject(ReviewListService);
     private readonly Assessment = inject(AssessmentService);

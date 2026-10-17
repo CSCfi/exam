@@ -9,7 +9,6 @@ import { debounceTime, distinctUntilChanged, EMPTY, exhaustMap, forkJoin, map, O
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
 import { User } from 'src/app/session/session.model';
-import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { Option } from 'src/app/shared/select/select.model';
 import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.component';
@@ -53,6 +52,7 @@ const STATE_ORDER = [
     'GRADED_LOGGED',
     'REJECTED',
     'ARCHIVED',
+    'DELETED',
     'EXTERNAL_UNFINISHED',
     'EXTERNAL_FINISHED',
 ];
@@ -61,15 +61,19 @@ const STATE_ORDER = [
 export class ReservationService {
     private readonly http = inject(HttpClient);
     private readonly modal = inject(ModalService);
-    private readonly DateTimeService = inject(DateTimeService);
 
     printExamState = (reservation: {
-        enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
+        enrolment: {
+            exam: { state: string; parent?: unknown };
+            collaborativeExam: { state: string };
+            noShow: boolean;
+        };
     }) => {
-        const state = reservation.enrolment.exam
-            ? reservation.enrolment.exam.state
-            : reservation.enrolment.collaborativeExam.state;
-        return reservation.enrolment.noShow && !ATTENDED_STATES.includes(state) ? 'NO_SHOW' : state;
+        const exam = reservation.enrolment.exam;
+        const state = exam ? exam.state : reservation.enrolment.collaborativeExam.state;
+        // Retention deletes the content of copies the student sat, so a deleted copy was attended too
+        const attended = ATTENDED_STATES.includes(state) || (state === 'DELETED' && !!exam?.parent);
+        return reservation.enrolment.noShow && !attended ? 'NO_SHOW' : state;
     };
 
     getReservationCount = (exam: Exam) =>
@@ -153,6 +157,7 @@ export class ReservationService {
                         stateOrd: 0,
                         startOrd: 0,
                         enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
+                        status: '',
                     })) as AnyReservation[],
             ),
             map((all) => {
@@ -165,8 +170,9 @@ export class ReservationService {
                             ...(r.enrolment as ExamEnrolment),
                             teacherAggregate: exam.examOwners.map((o) => o.lastName + o.firstName).join(),
                         };
+                        r.status = this.printExamState(r);
                         r.stateOrd = STATE_ORDER.indexOf(this.printExamState(r));
-                        r.startOrd = this.displayedStartMillis(r);
+                        r.startOrd = this.startMillis(r);
                         return r;
                     });
             }),
@@ -216,6 +222,7 @@ export class ReservationService {
         id: -ee.id,
         user: ee.user,
         enrolment: ee,
+        participation: ee.reservation?.participation,
         startAt: ee.examinationEventConfiguration?.examinationEvent.start,
         endAt:
             DateTime.fromISO(ee.examinationEventConfiguration?.examinationEvent.start as string)
@@ -223,18 +230,11 @@ export class ReservationService {
                 .toISO() || '',
     });
 
-    // Machine reservations and examination events end up in the same table but are rendered with
-    // different date pipes: only the former gets the DST correction. Ordering has to go by the
-    // instant actually on screen, or the two kinds interleave wrongly during DST. A number also
-    // keeps the order independent of how each endpoint happens to serialize its timestamps.
-    private displayedStartMillis = (r: AnyReservation): number => {
+    // Machine reservations and examination events end up in the same table. Ordering by a number
+    // keeps it independent of how each endpoint happens to serialize its timestamps.
+    private startMillis = (r: AnyReservation): number => {
         const start = DateTime.fromISO(r.startAt);
-        if (!start.isValid) return 0;
-        // Transfer exams get the correction too, and normalizeVariant has already given the
-        // collaborative ones an AQUARIUM implementation by the time this runs.
-        const isDstCorrected =
-            isLocalTransfer(r) || (r.enrolment?.exam as Exam | undefined)?.implementation === 'AQUARIUM';
-        return (isDstCorrected ? this.DateTimeService.applyDst(start) : start).toMillis();
+        return start.isValid ? start.toMillis() : 0;
     };
 
     private normalizeVariant = (r: AnyReservation): void => {

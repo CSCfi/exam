@@ -24,8 +24,11 @@ SPDX-License-Identifier: EUPL-1.2
                     {{ 'i18n_open_it' | translate }} {{ 'i18n_exam_attachment' | translate }}
                     <i class="bi bi-paperclip ps-2"></i>
                 </button>
-                <small class="d-block text-truncate text-muted mt-1" [title]="exam().attachment?.fileName">
-                    {{ exam().attachment?.fileName | uppercase | slice: 0 : 50 }}
+                <small
+                    class="d-block text-truncate text-muted mt-1"
+                    [title]="$safeNavigationMigration(exam().attachment?.fileName)"
+                >
+                    {{ $safeNavigationMigration(exam().attachment?.fileName) | uppercase | slice: 0 : 50 }}
                 </small>
             </div>
         }

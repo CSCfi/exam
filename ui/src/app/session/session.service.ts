@@ -7,16 +7,15 @@ import type { Signal } from '@angular/core';
 import { DOCUMENT, DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import { EMPTY, Subscription, defer, interval, of, throwError } from 'rxjs';
-import { catchError, delay, map, switchMap, tap } from 'rxjs/operators';
+import { EMPTY, Subscription, defer, fromEvent, interval, merge, of, throwError } from 'rxjs';
+import { catchError, delay, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { StorageService } from 'src/app/shared/storage/storage.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
-import { SessionExpireWarningComponent } from './session-timeout-toastr';
 import { Role, User } from './session.model';
 
 interface Env {
@@ -40,7 +39,7 @@ export class SessionService {
     private readonly Storage = inject(StorageService);
     private readonly document = inject<Document>(DOCUMENT);
     private readonly modal = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         this.userChange = this._userChange.asReadonly();
@@ -121,17 +120,18 @@ export class SessionService {
             next: (resp) => {
                 if (resp === 'alarm') {
                     this.toastTapSubscription.unsubscribe();
-                    this.toastTapSubscription = this.toast
-                        .warning(
-                            this.i18n.instant('i18n_continue_session'),
-                            this.i18n.instant('i18n_session_will_expire_soon'),
-                            {
-                                timeOut: 30000,
-                                toastComponent: SessionExpireWarningComponent,
-                                progressBar: true,
-                            },
-                        )
-                        .onTap.subscribe(() => {
+                    const warning = this.toast.warning(
+                        this.i18n.instant('i18n_continue_session'),
+                        this.i18n.instant('i18n_session_will_expire_soon'),
+                        { timeOut: 30000, progressBar: true },
+                    );
+                    // Ctrl+E extends the session as well as tapping the warning, for as long as it is shown
+                    const ctrlE$ = fromEvent<KeyboardEvent>(this.document, 'keydown').pipe(
+                        filter((e) => e.ctrlKey && e.key === 'e'),
+                    );
+                    this.toastTapSubscription = merge(warning.onTap, ctrlE$)
+                        .pipe(take(1), takeUntil(warning.onHidden))
+                        .subscribe(() => {
                             this.http.put<void>('/app/session', {}).subscribe({
                                 next: () => {
                                     this.toast.clear();
@@ -205,7 +205,7 @@ export class SessionService {
                         const orgs = resp.headers.get('x-exam-delay-execution');
                         this.toast.error(`${this.i18n.instant(resp.error)}: ${orgs}.`, 'Notice', {
                             timeOut: 10000,
-                            positionClass: 'toast-center-center',
+                            position: 'center',
                         });
                         setTimeout(() => this.logout(), 10000);
                     } else {

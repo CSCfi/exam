@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
@@ -11,7 +11,6 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
 
 @Component({
     selector: 'xm-printed-multi-choice',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/multi-choice.component.html',
     styleUrls: ['./print.shared.scss'],
     imports: [RichTextDirective, TranslateModule],

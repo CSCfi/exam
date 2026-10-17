@@ -3,17 +3,17 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { SoftwareComponent } from 'src/app/software/software.component';
 import { AccessibilityComponent } from './accessibility/accessibility.component';
 import { MaintenancePeriod } from './facility.model';
@@ -35,7 +35,6 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
         PageHeaderComponent,
         PageContentComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FacilityComponent {
     readonly maintenancePeriods = signal<MaintenancePeriod[]>([]);
@@ -45,7 +44,7 @@ export class FacilityComponent {
     private readonly modal = inject(ModalService);
     private readonly translate = inject(TranslateService);
     private readonly session = inject(SessionService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly room = inject(RoomService);
 
     constructor() {

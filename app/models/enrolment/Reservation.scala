@@ -9,9 +9,11 @@ import jakarta.persistence.*
 import models.base.GeneratedIdentityModel
 import models.facility.ExamMachine
 import models.user.User
-import org.joda.time.{DateTime, Interval}
-import services.datetime.JsonDateTime
+import services.datetime.Interval
+import services.datetime.IntervalExtensions.*
+import services.datetime.JsonInstant
 
+import java.time.Instant
 import scala.compiletime.uninitialized
 
 @Entity
@@ -25,6 +27,10 @@ class Reservation extends GeneratedIdentityModel with Ordered[Reservation]:
   @JsonBackReference
   var machine: ExamMachine = uninitialized
 
+  @OneToOne(mappedBy = "reservation")
+  @JsonBackReference
+  var participation: ExamParticipation = uninitialized
+
   @ManyToOne
   @JoinColumn(name = "user_id")
   @JsonBackReference
@@ -33,13 +39,8 @@ class Reservation extends GeneratedIdentityModel with Ordered[Reservation]:
   @OneToOne(cascade = Array(CascadeType.ALL))
   var externalReservation: ExternalReservation = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var startAt: DateTime = uninitialized
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var endAt: DateTime = uninitialized
+  @JsonInstant var startAt: Instant = uninitialized
+  @JsonInstant var endAt: Instant   = uninitialized
 
   var reminderSent: Boolean     = false
   var sentAsNoShow: Boolean     = false
@@ -49,7 +50,7 @@ class Reservation extends GeneratedIdentityModel with Ordered[Reservation]:
   var externalOrgRef: String    = uninitialized
   var externalOrgName: String   = uninitialized
 
-  def toInterval: Interval = new Interval(startAt, endAt)
+  def toInterval: Interval = startAt to endAt
 
   override def compare(o: Reservation): Int = startAt.compareTo(o.startAt)
 

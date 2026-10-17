@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -37,7 +37,6 @@ import type { ExamSectionQuestionOption } from 'src/app/question/question.model'
     `,
     imports: [TranslateModule],
     styleUrls: ['./question.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationWeightedMultiChoiceComponent implements OnInit {
     readonly sq = input.required<ExaminationQuestion>();

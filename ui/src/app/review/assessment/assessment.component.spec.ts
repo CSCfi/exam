@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { ExamService } from 'src/app/exam/exam.service';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { SessionService } from 'src/app/session/session.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { AssessmentComponent } from './assessment.component';
 import { AssessmentService } from './assessment.service';
@@ -28,14 +28,14 @@ describe('AssessmentComponent (collaborative)', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             providers: [
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 {
                     provide: ActivatedRoute,
                     useValue: { snapshot: { data: { collaborative: true }, params: { id: 7, ref: 'abc' } } },
                 },
                 { provide: Router, useValue: { navigate: vi.fn() } },
-                { provide: ToastrService, useValue: { info: vi.fn(), error: vi.fn() } },
+                { provide: ToastService, useValue: { info: vi.fn(), error: vi.fn() } },
                 { provide: SessionService, useValue: { getUser: () => ({ id: 1 }) } },
                 { provide: QuestionScoringService, useValue: { getQuestionAmounts: () => ({}) } },
                 { provide: ExamService, useValue: { isOwnerOrAdmin: () => true } },

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -22,7 +22,6 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
         OrganisationSelectorComponent,
     ],
     selector: 'xm-exam-publication-participants',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         @if (!collaborative()) {
             <div class="row mt-2">

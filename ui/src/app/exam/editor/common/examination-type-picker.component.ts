@@ -4,7 +4,6 @@
 
 import { HttpClient } from '@angular/common/http';
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     Injector,
@@ -136,7 +135,6 @@ type ExamChoice = { type: string; examinationType: string };
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationTypeSelectorComponent {
     readonly acc = viewChild.required<NgbAccordionDirective>('acc');

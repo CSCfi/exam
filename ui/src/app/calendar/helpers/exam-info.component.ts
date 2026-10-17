@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamInfo } from 'src/app/calendar/calendar.model';
@@ -13,7 +13,6 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
 
 @Component({
     selector: 'xm-calendar-exam-info',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row xm-study-item-container m-2 details-view">
             <div class="col-md-12">

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { ReviewQuestion } from 'src/app/review/review.model';
@@ -38,7 +38,6 @@ import { EssayAnswerComponent } from './essay-answer.component';
         </div>
     `,
     imports: [EssayAnswerComponent, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayAnswerListComponent {
     readonly answers = input<ReviewQuestion[]>([]);

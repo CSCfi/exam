@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-archive-download',
@@ -31,7 +31,6 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
             </button>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveDownloadComponent {
     readonly startDate = signal<Date | null>(new Date());
@@ -39,7 +38,7 @@ export class ArchiveDownloadComponent {
 
     private readonly modal = inject(NgbActiveModal);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     startDateChanged(event: { date: Date | null }) {
         this.startDate.set(event.date);

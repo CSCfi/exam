@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, TemplateRef } from '@angular/core';
+import { Component, input, TemplateRef } from '@angular/core';
 
 @Component({
     selector: 'xm-page-content',
@@ -15,7 +15,6 @@ import { ChangeDetectionStrategy, Component, input, TemplateRef } from '@angular
             </div>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageContentComponent {
     readonly content = input.required<TemplateRef<unknown>>();

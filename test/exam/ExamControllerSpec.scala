@@ -7,11 +7,11 @@ package exam
 import base.BaseIntegrationSpec
 import io.ebean.DB
 import models.exam.{Exam, ExamState, ExamType}
-import org.joda.time.DateTime
 import play.api.http.Status
 import play.api.libs.json.*
 import play.api.test.Helpers.*
 
+import java.time.{Duration, Instant}
 import scala.jdk.CollectionConverters.*
 
 class ExamControllerSpec extends BaseIntegrationSpec:
@@ -40,8 +40,8 @@ class ExamControllerSpec extends BaseIntegrationSpec:
         }
 
         val ids = activeExams.asScala.map { exam =>
-          exam.periodStart = DateTime.now()
-          exam.periodEnd = DateTime.now().plusWeeks(1)
+          exam.periodStart = Instant.now()
+          exam.periodEnd = Instant.now().plus(Duration.ofDays(7))
           exam.update()
           exam.id
         }.toSet

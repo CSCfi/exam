@@ -4,11 +4,10 @@
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -21,7 +20,6 @@ import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
@@ -34,6 +32,7 @@ import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 @Component({
@@ -48,7 +47,6 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
         SlicePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         PageFillPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,
@@ -57,7 +55,6 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
         PageContentComponent,
     ],
     styleUrl: './speed-review.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpeedReviewComponent {
     readonly currentPage = signal(0);
@@ -75,7 +72,7 @@ export class SpeedReviewComponent {
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
     private readonly modal = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Exam = inject(ExamService);
     private readonly CommonExam = inject(CommonExamService);
     private readonly Confirmation = inject(ConfirmationDialogService);

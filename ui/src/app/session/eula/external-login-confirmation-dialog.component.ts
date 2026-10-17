@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { User } from 'src/app/session/session.model';
@@ -27,7 +27,6 @@ import { User } from 'src/app/session/session.model';
             </button>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExternalLoginConfirmationDialogComponent {
     readonly user = signal<User | undefined>(undefined);

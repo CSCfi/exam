@@ -6,10 +6,10 @@ import type { HttpEvent, HttpResponse } from '@angular/common/http';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { catchError, finalize, Observable, of, tap, throwError } from 'rxjs';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
 
@@ -28,7 +28,7 @@ export class FileService {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     private readonly _inProgress = signal<ReadonlySet<string>>(new Set());
     /** Reactive set of URLs whose downloads are currently in flight. */
@@ -36,7 +36,7 @@ export class FileService {
         return this._inProgress.asReadonly();
     }
 
-    download(url: string, filename: string, options: DownloadOptions = {}) {
+    download(url: string, filename: string, options: DownloadOptions & { body?: unknown } = {}) {
         if (this._inProgress().has(url)) return;
         this._inProgress.update((s) => new Set([...s, url]));
         const release = () =>
@@ -46,7 +46,7 @@ export class FileService {
                 return n;
             });
 
-        const { params, method: optMethod = 'GET', asBlob = true, onProgress } = options;
+        const { params, method: optMethod = 'GET', asBlob = true, onProgress, body } = options;
         const method = optMethod;
         if (asBlob) {
             this.http
@@ -55,7 +55,7 @@ export class FileService {
                     observe: 'events',
                     reportProgress: !!onProgress,
                     params: method === 'GET' ? params : undefined,
-                    body: method === 'POST' && params ? { params } : undefined,
+                    body: body || (method === 'POST' && params ? { params } : undefined),
                 })
                 .pipe(finalize(release))
                 .subscribe({
@@ -78,7 +78,7 @@ export class FileService {
                 responseType: 'text',
                 observe: 'response',
                 params: method === 'GET' ? params : undefined,
-                body: method === 'POST' && params ? { params } : undefined,
+                body: body || (method === 'POST' && params ? { params } : undefined),
             })
             .pipe(finalize(release))
             .subscribe({

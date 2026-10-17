@@ -9,9 +9,9 @@ import jakarta.persistence.*
 import models.base.GeneratedIdentityModel
 import models.exam.Exam
 import models.user.User
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 
+import java.time.Instant
 import scala.compiletime.uninitialized
 
 @Entity
@@ -29,8 +29,7 @@ class ExamRecord extends GeneratedIdentityModel:
   @JsonManagedReference
   var examScore: ExamScore = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var timeStamp: DateTime = uninitialized
+  @JsonInstant
+  var timeStamp: Instant = uninitialized
 
   var releasable: Boolean = false

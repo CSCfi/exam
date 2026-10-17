@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { disabled, form, FormField, min, required } from '@angular/forms/signals';
@@ -19,7 +19,6 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
     imports: [RouterLink, RichTextDirective, FormsModule, FormField, UpperCasePipe, NgbCollapse, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayAnswerComponent {
     readonly answer = input.required<ReviewQuestion>();

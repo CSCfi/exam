@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -14,6 +13,7 @@ import type { LanguageInspection } from 'src/app/maturity/maturity.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { SessionService } from 'src/app/session/session.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 type State = {
     id: number;
@@ -44,7 +44,7 @@ export class MaturityService {
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly Assessment = inject(AssessmentService);
     private readonly Session = inject(SessionService);

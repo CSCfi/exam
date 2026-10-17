@@ -2,21 +2,20 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { Reservation } from 'src/app/reservation/reservation.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-active-enrolment-menu',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './active-enrolment-menu.component.html',
     imports: [RouterLink, TranslateModule],
 })
@@ -27,7 +26,7 @@ export class ActiveEnrolmentMenuComponent {
     readonly eventConfigSelected = output<ExaminationEventConfiguration>();
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Enrolment = inject(EnrolmentService);
     private readonly Confirmation = inject(ConfirmationDialogService);
     private readonly destroyRef = inject(DestroyRef);

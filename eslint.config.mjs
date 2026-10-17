@@ -2,30 +2,22 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { defineConfig, globalIgnores } from "eslint/config";
-import noRelativeImportPaths from "eslint-plugin-no-relative-import-paths";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import angular from "angular-eslint";
+import noRelativeImportPaths from "eslint-plugin-no-relative-import-paths";
+import { defineConfig, globalIgnores } from "eslint/config";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
-});
-
-export default defineConfig([globalIgnores(["projects/**/*", "ui/src/assets/components/**/*"]),  {
+export default defineConfig([globalIgnores(["projects/**/*", "ui/src/assets/components/**/*"]), {
     files: ["**/*.ts"],
 
-    extends: compat.extends(
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates",
-    ),
+    extends: [
+        js.configs.recommended,
+        tseslint.configs.recommended,
+        angular.configs.tsRecommended,
+    ],
+
+    processor: angular.processInlineTemplates,
 
     plugins: {
         "no-relative-import-paths": noRelativeImportPaths,
@@ -65,6 +57,6 @@ export default defineConfig([globalIgnores(["projects/**/*", "ui/src/assets/comp
     },
 }, {
     files: ["**/*.html"],
-    extends: compat.extends("plugin:@angular-eslint/template/recommended"),
+    extends: [angular.configs.templateRecommended],
     rules: {},
 }]);

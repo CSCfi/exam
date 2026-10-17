@@ -2,13 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-add-enrolment-information-dialog',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">

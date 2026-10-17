@@ -2,22 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    input,
-    output,
-    signal,
-    ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, input, output, signal, ViewChild } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-password-prompt',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormField, TranslateModule],
     template: `
         @if (visible()) {

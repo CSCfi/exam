@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
+import { Component, inject, input, linkedSignal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Address } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-room-address',
@@ -86,7 +86,6 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
     `,
     styleUrls: ['../rooms/rooms.component.scss'],
     imports: [FormField, NgbPopover, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddressComponent {
     readonly address = input.required<Address>();
@@ -105,7 +104,7 @@ export class AddressComponent {
     );
 
     private readonly room = inject(RoomService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly translate = inject(TranslateService);
 
     validateAndUpdateAddress() {

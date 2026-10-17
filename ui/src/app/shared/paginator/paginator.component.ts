@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { range as _range } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
@@ -23,7 +23,6 @@ import { range as _range } from 'src/app/shared/miscellaneous/helpers';
         </ul>
     `,
     styleUrls: ['./paginator.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginatorComponent {
     readonly items = input<unknown[]>([]);

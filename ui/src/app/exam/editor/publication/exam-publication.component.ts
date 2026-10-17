@@ -4,12 +4,11 @@
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime, Duration } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
@@ -19,6 +18,7 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
 import { ExamPublicationParticipantsComponent } from './exam-publication-participants.component';
 import { ExaminationEventsComponent } from './examination-events.component';
@@ -40,7 +40,6 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
         OrderByPipe,
     ],
     styleUrls: ['../../exam.shared.scss', './exam-publication.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamPublicationComponent {
     readonly exam = computed(() => this.Tabs.examSignal()!);
@@ -55,7 +54,7 @@ export class ExamPublicationComponent {
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
     private readonly modal = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Session = inject(SessionService);
     private readonly Exam = inject(ExamService);
     private readonly Tabs = inject(ExamTabService);

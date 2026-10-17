@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Option } from './select.model';
@@ -58,7 +58,6 @@ import { Option } from './select.model';
     </div>`,
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
     styleUrl: './dropdown-select.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DropdownSelectComponent<V, I> {
     private static instanceCount = 0;

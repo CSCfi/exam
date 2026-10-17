@@ -12,7 +12,6 @@ import models.exam.ExamState
 import models.facility.ExamRoom
 import models.sections.ExamSection
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.{JsObject, JsValue, Json}
 import security.BlockingIOExecutionContext
@@ -20,6 +19,7 @@ import services.datetime.*
 import services.enrolment.EnrolmentHandler
 import services.mail.EmailComposer
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -34,7 +34,6 @@ class CollaborativeCalendarService @Inject() (
     collaborativeExamService: CollaborativeExamService,
     examLoader: CollaborativeExamLoaderService,
     calendarHandler: CalendarHandler,
-    dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
     emailComposer: EmailComposer,
     clock: AppClock,
@@ -66,7 +65,7 @@ class CollaborativeCalendarService @Inject() (
       Some("i18n_no_trials_left")
     else None
 
-  def findEnrolment(examId: Long, userId: Long, now: DateTime): Future[Option[ExamEnrolment]] =
+  def findEnrolment(examId: Long, userId: Long, now: Instant): Future[Option[ExamEnrolment]] =
     Future(
       DB.find(classOf[ExamEnrolment])
         .fetch("reservation")
@@ -75,7 +74,7 @@ class CollaborativeCalendarService @Inject() (
         .eq("collaborativeExam.id", examId)
         .disjunction()
         .isNull("reservation")
-        .gt("reservation.startAt", now.toDate)
+        .gt("reservation.startAt", now)
         .endJunction()
         .find
     )(using ec)
@@ -84,13 +83,13 @@ class CollaborativeCalendarService @Inject() (
       examId: Long,
       roomId: Long,
       userId: Long,
-      start: DateTime,
-      end: DateTime,
+      start: Instant,
+      end: Instant,
       aids: Seq[Long],
       sectionIds: Seq[Long]
   ): Future[Either[String, (ExamEnrolment, Reservation)]] =
     val room = DB.find(classOf[ExamRoom], roomId)
-    val now  = dateTimeHandler.adjustDST(clock.now(), room)
+    val now  = clock.now()
 
     (for
         ceOpt <- collaborativeExamService.findById(examId)
@@ -169,7 +168,7 @@ class CollaborativeCalendarService @Inject() (
       aids: Option[Seq[Long]],
       userId: Long
   ): Future[Either[String, play.api.libs.json.JsValue]] =
-    val now = dateTimeHandler.adjustDST(clock.now())
+    val now = clock.now()
     (for
       ceOpt <- collaborativeExamService.findById(examId)
       ce <- ceOpt match

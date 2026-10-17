@@ -19,7 +19,6 @@ import models.iop.ExternalExam
 import models.questions.QuestionType
 import models.sections.ExamSectionQuestionOption
 import models.user.User
-import org.joda.time.DateTime
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
@@ -29,6 +28,7 @@ import services.json.JsonDeserializer
 
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.time.{Duration, Instant}
 import java.util.UUID
 import scala.jdk.CollectionConverters.*
 
@@ -72,7 +72,7 @@ class ExternalExaminationControllerSpec
     val ee = new ExternalExam()
     ee.externalRef = UUID.randomUUID().toString
     ee.hash = UUID.randomUUID().toString
-    ee.created = DateTime.now()
+    ee.created = Instant.now()
     ee.creator = user
     ee.content =
       EJson.parseObject(
@@ -89,8 +89,8 @@ class ExternalExaminationControllerSpec
     val reservation = new Reservation()
     reservation.machine = machine
     reservation.user = user
-    reservation.startAt = DateTime.now().minusMinutes(10)
-    reservation.endAt = DateTime.now().plusMinutes(70)
+    reservation.startAt = Instant.now().minus(Duration.ofMinutes(10))
+    reservation.endAt = Instant.now().plus(Duration.ofMinutes(70))
     reservation.externalUserRef = user.eppn
     reservation.externalRef = "foobar"
     reservation.save()
