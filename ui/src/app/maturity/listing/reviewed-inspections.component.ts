@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -34,7 +34,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         PageFillPipe,
         OrderByPipe,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReviewedInspectionsComponent {
     readonly inspections = input<LanguageInspectionData[]>([]);

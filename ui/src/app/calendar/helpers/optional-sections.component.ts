@@ -3,13 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamInfo, SelectableSection } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-optional-sections',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div
             class="row m-2 xm details-view"

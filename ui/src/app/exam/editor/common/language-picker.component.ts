@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 import { LanguageService } from 'src/app/shared/language/language.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-language-picker',
@@ -31,7 +31,6 @@ import { LanguageService } from 'src/app/shared/language/language.service';
         </div>
     </div>`,
     imports: [NgbDropdownModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LanguageSelectorComponent {
     readonly exam = input.required<Exam>();
@@ -43,7 +42,7 @@ export class LanguageSelectorComponent {
 
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Language = inject(LanguageService);
 
     constructor() {

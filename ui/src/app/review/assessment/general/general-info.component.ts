@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,7 +14,6 @@ import type { Exam } from 'src/app/exam/exam.model';
 
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { NoShowComponent } from './no-show.component';
 import { ParticipationComponent } from './participation.component';
@@ -23,10 +22,9 @@ type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'xm-r-general-info',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './general-info.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    imports: [ParticipationComponent, NoShowComponent, RichTextDirective, DatePipe, TranslateModule, ApplyDstPipe],
+    imports: [ParticipationComponent, NoShowComponent, RichTextDirective, DatePipe, TranslateModule],
 })
 export class GeneralInfoComponent implements OnInit {
     readonly exam = input.required<Exam>();

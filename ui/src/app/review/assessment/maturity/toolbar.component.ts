@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -14,7 +14,6 @@ import { MaturityService } from './maturity.service';
 
 @Component({
     selector: 'xm-r-maturity-toolbar',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<!-- language inspection controls  -->
         @if (isOwnerOrAdmin() || isUnderLanguageInspection()) {
             <div class="d-flex flex-row-reverse gap-2">
@@ -24,7 +23,10 @@ import { MaturityService } from './maturity.service';
                             {{ 'i18n_save' | translate }}
                         </button>
                     } @else {
-                        <button class="btn btn-secondary" [routerLink]="['/staff/exams', exam().parent?.id, '5']">
+                        <button
+                            class="btn btn-secondary"
+                            [routerLink]="['/staff/exams', $safeNavigationMigration(exam().parent?.id), '5']"
+                        >
                             {{ 'i18n_close' | translate }}
                         </button>
                     }
@@ -56,7 +58,7 @@ import { MaturityService } from './maturity.service';
                     </button>
                 }
             </div>
-            @let hint = getNextState()?.hint;
+            @let hint = $safeNavigationMigration(getNextState()?.hint);
             @if (!isReadOnly() && hint) {
                 @let hintText = hint(exam()) || '';
                 @if (hintText) {

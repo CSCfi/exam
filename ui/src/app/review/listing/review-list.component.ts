@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,7 +38,6 @@ import { ReviewListService } from './review-list.service';
         TranslateModule,
     ],
     styleUrl: './review-list.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReviewListComponent {
     readonly exam = signal<Exam | undefined>(undefined);

@@ -142,10 +142,16 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                                 <!-- 4 -->
                                 <td>
-                                    {{ event.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm' }} -
                                     {{
-                                        getEventEndTime(event.examinationEvent?.start, event.exam?.duration)
-                                            | date: 'HH:mm'
+                                        $safeNavigationMigration(event.examinationEvent?.start)
+                                            | date: 'dd.MM.yyyy HH:mm'
+                                    }}
+                                    -
+                                    {{
+                                        getEventEndTime(
+                                            $safeNavigationMigration(event.examinationEvent?.start),
+                                            $safeNavigationMigration(event.exam?.duration)
+                                        ) | date: 'HH:mm'
                                     }}
                                 </td>
                                 <!-- 5 -->

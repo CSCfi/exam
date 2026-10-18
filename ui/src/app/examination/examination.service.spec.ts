@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
 import type { ClozeTestAnswer, EssayAnswer } from 'src/app/question/question.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 import { ExaminationService } from './examination.service';
@@ -85,16 +85,21 @@ function makeExam(sections: ExaminationSection[]): Examination {
 describe('ExaminationService', () => {
     let service: ExaminationService;
     let httpTesting: HttpTestingController;
-    let toastr: ToastrService;
+    let toastr: ToastService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
-            providers: [ExaminationService, provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+            imports: [TranslateModule.forRoot()],
+            providers: [
+                ExaminationService,
+                provideHttpClient(withXhr()),
+                provideHttpClientTesting(),
+                provideRouter([]),
+            ],
         });
         service = TestBed.inject(ExaminationService);
         httpTesting = TestBed.inject(HttpTestingController);
-        toastr = TestBed.inject(ToastrService);
+        toastr = TestBed.inject(ToastService);
     });
 
     afterEach(() => httpTesting.verify());

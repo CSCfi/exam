@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
@@ -15,7 +15,6 @@ import type { User } from 'src/app/session/session.model';
     selector: 'xm-question-owners',
     templateUrl: './owners.component.html',
     imports: [TranslateModule, NgbTypeahead, NgbPopover],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OwnersComponent {
     readonly currentOwners = input<User[]>([]);

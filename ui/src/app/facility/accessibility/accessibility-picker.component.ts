@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AccessibilityService } from './accessibility.service';
 
 @Component({
@@ -42,7 +42,6 @@ import { AccessibilityService } from './accessibility.service';
         </div>
     </div>`,
     imports: [NgbDropdownModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessibilitySelectorComponent {
     readonly room = input.required<ExamRoom>();
@@ -57,7 +56,7 @@ export class AccessibilitySelectorComponent {
     });
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly accessibilityService = inject(AccessibilityService);
 
     constructor() {

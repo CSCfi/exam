@@ -2,14 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, of, Subject } from 'rxjs';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
-import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { vi } from 'vitest';
 import type { RemoteTransferExamReservation, Reservation } from './reservation.model';
@@ -38,9 +36,7 @@ describe('ReservationService', () => {
             providers: [
                 ReservationService,
                 { provide: ModalService, useValue: modalSpy },
-                // DateTimeService, reached through ReservationService, translates month names
-                { provide: TranslateService, useValue: { currentLang: 'en' } },
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
             ],
         });
@@ -71,6 +67,24 @@ describe('ReservationService', () => {
                 enrolment: { noShow: true, exam: { state: 'GRADED' }, collaborativeExam: { state: 'PUBLISHED' } },
             };
             expect(service.printExamState(r)).toBe('GRADED');
+        });
+
+        it('should ignore a stale noShow on a student copy that retention deleted', () => {
+            const r = {
+                enrolment: {
+                    noShow: true,
+                    exam: { state: 'DELETED', parent: { id: 1 } },
+                    collaborativeExam: { state: 'PUBLISHED' },
+                },
+            };
+            expect(service.printExamState(r)).toBe('DELETED');
+        });
+
+        it('should keep NO_SHOW on a booking for an exam that was itself deleted', () => {
+            const r = {
+                enrolment: { noShow: true, exam: { state: 'DELETED' }, collaborativeExam: { state: 'PUBLISHED' } },
+            };
+            expect(service.printExamState(r)).toBe('NO_SHOW');
         });
 
         it('should return exam.state when enrolment has exam', () => {
@@ -258,14 +272,10 @@ describe('ReservationService', () => {
             await resultPromise;
         });
 
-        it('should order examination events among reservations by the times actually shown', async () => {
-            // Reservation times are rendered through the DST correction, examination event times
-            // are not, so the raw timestamps alone would put the event first even though it starts
-            // half an hour later on screen.
-            vi.spyOn(TestBed.inject(DateTimeService), 'isDST').mockReturnValue(true);
+        it('should order examination events among reservations by start time', async () => {
             const reservation = {
                 ...baseReservation,
-                startAt: '2025-06-01T10:00:00Z', // shown at 09:00
+                startAt: '2025-06-01T10:00:00Z',
                 enrolment: {
                     ...baseReservation.enrolment,
                     exam: { ...baseReservation.enrolment.exam, implementation: 'AQUARIUM' },
@@ -277,7 +287,7 @@ describe('ReservationService', () => {
                 user: baseReservation.user,
                 exam: { ...baseReservation.enrolment.exam, implementation: 'CLIENT_AUTH', duration: 60 },
                 examinationEventConfiguration: {
-                    examinationEvent: { start: '2025-06-01T09:30:00Z' }, // shown at 09:30
+                    examinationEvent: { start: '2025-06-01T09:30:00Z' },
                 },
             } as unknown as ExamEnrolment;
 
@@ -286,7 +296,7 @@ describe('ReservationService', () => {
             httpMock.expectOne((r) => r.url === '/app/events').flush([event]);
             const result = await resultPromise;
 
-            expect([...result].sort((a, b) => a.startOrd - b.startOrd).map((r) => r.id)).toEqual([1, -2]);
+            expect([...result].sort((a, b) => a.startOrd - b.startOrd).map((r) => r.id)).toEqual([-2, 1]);
         });
 
         it('should filter out reservations without enrolment.exam', async () => {

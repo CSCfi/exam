@@ -57,7 +57,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_answer_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <div [hidden]="sectionQuestion().essayAnswer?.attachment">N/A</div>
+            <div [hidden]="$safeNavigationMigration(sectionQuestion().essayAnswer?.attachment)">N/A</div>
             @if (sectionQuestion().essayAnswer?.attachment) {
                 <span class="d-block">
                     {{ sectionQuestion().essayAnswer?.attachment?.fileName }}

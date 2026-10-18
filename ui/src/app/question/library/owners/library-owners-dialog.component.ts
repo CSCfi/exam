@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import { QuestionService } from 'src/app/question/question.service';
 import type { User } from 'src/app/session/session.model';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { UserService } from 'src/app/shared/user/user.service';
 
 @Component({
@@ -41,7 +41,6 @@ import { UserService } from 'src/app/shared/user/user.service';
     `,
     selector: 'xm-library-owners-dialog',
     imports: [NgbTypeahead, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryOwnersDialogComponent {
     readonly selections = signal<number[]>([]); // Set by modal opening component
@@ -51,7 +50,7 @@ export class LibraryOwnersDialogComponent {
 
     private readonly activeModal = inject(NgbActiveModal);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Question = inject(QuestionService);
     private readonly User = inject(UserService);
 

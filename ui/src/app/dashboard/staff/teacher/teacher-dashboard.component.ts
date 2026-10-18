@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbNavChangeEvent, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,7 +17,6 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
 
 @Component({
     selector: 'xm-teacher-dashboard',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './teacher-dashboard.component.html',
     imports: [
         RouterLink,

@@ -5,13 +5,13 @@
 import type { HttpClient } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from 'src/app/exam/exam.model';
 import { isRealGrade } from 'src/app/exam/exam.model';
 import type { ExamService } from 'src/app/exam/exam.service';
 import type { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import type { LanguageService } from 'src/app/shared/language/language.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 export abstract class GradingBaseComponent {
     readonly grades = signal<SelectableGrade[]>([]);
@@ -26,7 +26,7 @@ export abstract class GradingBaseComponent {
 
     constructor(
         protected http: HttpClient,
-        protected toast: ToastrService,
+        protected toast: ToastService,
         protected Assessment: AssessmentService,
         protected Exam: ExamService,
         protected CommonExam: CommonExamService,

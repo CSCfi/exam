@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination } from 'src/app/examination/examination.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
@@ -51,7 +51,6 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
     `,
     imports: [CourseCodeComponent, RichTextDirective, TranslateModule],
     styleUrls: ['../examination.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnswerInstructionsComponent {
     readonly exam = input.required<Examination>();

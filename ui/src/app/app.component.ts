@@ -16,6 +16,7 @@ import { NavigationComponent } from './navigation/navigation.component';
 import { DevLoginComponent } from './session/dev/dev-login.component';
 import type { User } from './session/session.model';
 import { SessionService } from './session/session.service';
+import { ToastContainerComponent } from './shared/toast/toast-container.component';
 
 @Component({
     selector: 'xm-app',
@@ -32,6 +33,7 @@ import { SessionService } from './session/session.service';
                 <router-outlet></router-outlet>
             </main>
         }
+        <xm-toast-container></xm-toast-container>
     `,
     styles: [
         `
@@ -63,7 +65,7 @@ import { SessionService } from './session/session.service';
             }
         `,
     ],
-    imports: [DevLoginComponent, NavigationComponent, RouterOutlet, TranslateModule],
+    imports: [DevLoginComponent, NavigationComponent, RouterOutlet, ToastContainerComponent, TranslateModule],
 })
 export class AppComponent implements OnInit {
     readonly hideNavBar = computed(() => {

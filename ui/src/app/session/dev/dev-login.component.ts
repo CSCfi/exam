@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.model';
@@ -48,7 +48,6 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
         </ng-template>
     `,
     imports: [FormField, TranslateModule, PageHeaderComponent, PageContentComponent],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DevLoginComponent {
     readonly loggedIn = output<User>();

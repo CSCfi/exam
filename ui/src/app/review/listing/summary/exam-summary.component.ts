@@ -3,15 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, DecimalPipe, KeyValuePipe } from '@angular/common';
-import {
-    afterNextRender,
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    DestroyRef,
-    inject,
-    signal,
-} from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -32,7 +24,6 @@ import { ExamSummaryService } from './exam-summary.service';
 @Component({
     selector: 'xm-exam-summary',
     templateUrl: './exam-summary.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [NgbPopover, DecimalPipe, DatePipe, KeyValuePipe, TranslateModule],
 })
 export class ExamSummaryComponent {

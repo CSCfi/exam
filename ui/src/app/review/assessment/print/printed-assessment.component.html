@@ -10,7 +10,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-12">
                 <h3>
                     @if (exam()?.course) {
-                        <xm-course-code [course]="exam()?.course!"></xm-course-code>
+                        <xm-course-code [course]="$safeNavigationMigration(exam()?.course)!"></xm-course-code>
                     }
                     - {{ exam()?.name }},
                     <small>{{ exam()?.course?.credits }} op</small>
@@ -40,13 +40,13 @@ SPDX-License-Identifier: EUPL-1.2
                 <strong>{{ 'i18n_time_of_exam_participation' | translate }}:</strong>
             </div>
             <div class="col-md-4">
-                {{ participation()?.started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
-                {{ participation()?.ended | applyDst | date: 'dd.MM.yyyy HH:mm' }}
+                {{ $safeNavigationMigration(participation()?.started) | date: 'dd.MM.yyyy HH:mm' }} -
+                {{ $safeNavigationMigration(participation()?.ended) | date: 'dd.MM.yyyy HH:mm' }}
             </div>
             <div class="col-md-2">
                 <strong>{{ 'i18n_exam_duration' | translate }}:</strong>
             </div>
-            <div class="col-md-4">{{ participation()?.duration | date: 'HH:mm' }}</div>
+            <div class="col-md-4">{{ $safeNavigationMigration(participation()?.duration) | date: 'HH:mm' }}</div>
         </div>
         @if (enrolment()?.information) {
             <div class="row">
@@ -87,7 +87,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         @for (participation of previousParticipations(); track participation) {
             <div class="row">
-                <div class="col-md-2">{{ participation.started | applyDst | date: 'dd.MM.yyyy' }}</div>
+                <div class="col-md-2">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
                 <div class="col-md-4">
                     <strong>{{ 'i18n_exam_state' | translate }}:</strong>&nbsp;&nbsp;&nbsp;
                     {{ translateState(participation) | lowercase | translate }}
@@ -108,7 +108,7 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12" [hidden]="exam()?.instruction">N/A</div>
+            <div class="col-md-12" [hidden]="$safeNavigationMigration(exam()?.instruction)">N/A</div>
             @if (exam()?.instruction) {
                 <div class="col-md-12">
                     <div [xmRichText]="exam()!.instruction"></div>
@@ -123,7 +123,7 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12" [hidden]="exam()?.attachment">N/A</div>
+            <div class="col-md-12" [hidden]="$safeNavigationMigration(exam()?.attachment)">N/A</div>
             @if (exam()?.attachment) {
                 <div class="col-md-12">
                     {{ exam()?.attachment?.fileName }}
@@ -180,7 +180,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-3">
                 <strong>{{ 'i18n_teachers_comment' | translate }}:</strong>
             </div>
-            <div class="col-md-9" [xmRichText]="exam()?.examFeedback?.comment"></div>
+            <div class="col-md-9" [xmRichText]="$safeNavigationMigration(exam()?.examFeedback?.comment)"></div>
         </div>
         @if (exam()?.examFeedback?.attachment) {
             <div class="row firefox-print-fix">

@@ -3,11 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Examination } from 'src/app/examination/examination.model';
@@ -20,6 +19,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborative-assessment.service';
 import { FeedbackComponent } from './feedback/feedback.component';
@@ -31,7 +31,6 @@ import { ExamSectionComponent } from './sections/section.component';
 
 @Component({
     selector: 'xm-assessment',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './assessment.component.html',
     imports: [
         CourseCodeComponent,
@@ -64,7 +63,7 @@ export class AssessmentComponent {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly http = inject(HttpClient);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Assessment = inject(AssessmentService);
     private readonly CollaborativeAssessment = inject(CollaborativeAssesmentService);
     private readonly QuestionScore = inject(QuestionScoringService);

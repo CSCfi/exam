@@ -4,7 +4,6 @@
 
 import {
     afterNextRender,
-    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
@@ -42,7 +41,6 @@ const MIN_SCALED_DURATION = 10;
 
 @Component({
     selector: 'xm-booking-calendar',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     host: { '[style.--xm-fc-slot-height]': 'slotHeight()' },
     template: `
         @if (visible()) {

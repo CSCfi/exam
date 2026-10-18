@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,7 +12,6 @@ import { switchMap } from 'rxjs/operators';
 import type { CollaborativeParticipation, ParticipationLike, ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
@@ -27,17 +26,8 @@ type Scores = {
 };
 @Component({
     selector: 'xm-exam-participation',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participation.component.html',
-    imports: [
-        CourseCodeComponent,
-        TeacherListComponent,
-        NgbCollapse,
-        ExamFeedbackComponent,
-        DatePipe,
-        TranslateModule,
-        ApplyDstPipe,
-    ],
+    imports: [CourseCodeComponent, TeacherListComponent, NgbCollapse, ExamFeedbackComponent, DatePipe, TranslateModule],
     styleUrl: './exam-participations.component.scss',
 })
 export class ExamParticipationComponent {

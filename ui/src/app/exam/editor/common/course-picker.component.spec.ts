@@ -5,9 +5,9 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { CoursePickerComponent } from './course-picker.component';
 import { CoursePickerService } from './course-picker.service';
@@ -40,7 +40,7 @@ describe('CoursePickerComponent', () => {
                 provideZonelessChangeDetection(),
                 { provide: CoursePickerService, useValue: { getCourses$: vi.fn() } },
                 { provide: CourseCodeService, useValue: mockCourseCodeService },
-                { provide: ToastrService, useValue: { error: vi.fn() } },
+                { provide: ToastService, useValue: { error: vi.fn() } },
             ],
         }).compileComponents();
 

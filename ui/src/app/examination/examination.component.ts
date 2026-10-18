@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -29,7 +29,6 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
         ExaminationToolbarComponent,
         TranslateModule,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationComponent implements OnDestroy {
     readonly isCollaborative = signal(false);

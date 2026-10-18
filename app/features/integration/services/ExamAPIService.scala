@@ -9,9 +9,9 @@ import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.exam.ExamState
 import models.exam.{Exam, ExamExecutionType}
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
+import services.datetime.TimeUtils
 
+import java.time.Instant
 import javax.inject.Inject
 
 class ExamAPIService @Inject() () extends EbeanQueryExtensions:
@@ -29,10 +29,7 @@ class ExamAPIService @Inject() () extends EbeanQueryExtensions:
         |examType(type)
         |)""".stripMargin
     )
-    val dateTime = date
-      .map(ISODateTimeFormat.dateTimeParser().parseDateTime)
-      .getOrElse(DateTime.now())
-
+    val dateTime = date.map(TimeUtils.parseInstant).getOrElse(Instant.now())
     DB.find(classOf[Exam])
       .apply(pp)
       .where()

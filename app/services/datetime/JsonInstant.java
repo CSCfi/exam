@@ -14,5 +14,5 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @JacksonAnnotationsInside
-@JsonSerialize(using = DateTimeAdapter.class)
-public @interface JsonDateTime {}
+@JsonSerialize(using = InstantAdapter.class)
+public @interface JsonInstant {}

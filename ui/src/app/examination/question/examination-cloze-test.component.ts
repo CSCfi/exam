@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -37,7 +37,6 @@ import { ExaminationService } from 'src/app/examination/examination.service';
         </div>`,
     imports: [DatePipe, TranslateModule],
     styleUrls: ['./question.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationClozeTestComponent {
     readonly sq = input.required<ExaminationQuestion>();
