@@ -7,6 +7,8 @@ package database
 import com.fasterxml.jackson.databind.JsonNode
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Model}
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.util.ByteString
 import play.api.libs.json.{JsValue, Json}
 
 import scala.jdk.CollectionConverters.*
@@ -26,6 +28,29 @@ trait EbeanJsonExtensions:
       Json.parse(DB.json().toJson(model.toSeq.asJava))
     def asJson(pp: PathProperties): JsValue =
       Json.parse(DB.json().toJson(model.toSeq.asJava, pp))
+
+    // Ebean's JSON as is, for responses that only send it on. Skipping the JsValue round trip
+    // matters for large lists, where the parsed tree is several times the size of the text.
+    def asJsonText: String                     = DB.json().toJson(model.toSeq.asJava)
+    def asJsonText(pp: PathProperties): String = DB.json().toJson(model.toSeq.asJava, pp)
+
+  extension [T <: Model](pages: Source[Seq[T], ?])
+    /** One JSON array streamed page by page, so only one page is serialized at a time. */
+    def asJsonArray: Source[ByteString, ?] = jsonArray(pages)(page => DB.json().toJson(page))
+    def asJsonArray(pp: PathProperties): Source[ByteString, ?] =
+      jsonArray(pages)(page => DB.json().toJson(page, pp))
+
+  private def jsonArray[T](pages: Source[Seq[T], ?])(
+      toJson: java.util.List[T] => String
+  ): Source[ByteString, ?] =
+    pages
+      .filter(_.nonEmpty)
+      .map { page =>
+        val json = toJson(page.asJava)
+        // Drop the page's own brackets; intersperse adds the enclosing ones
+        ByteString(json.substring(1, json.length - 1))
+      }
+      .intersperse(ByteString("["), ByteString(","), ByteString("]"))
 
   /** Convert Play JSON (JsValue) to Jackson JSON (JsonNode)
     *

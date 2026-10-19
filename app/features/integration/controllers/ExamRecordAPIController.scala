@@ -22,5 +22,5 @@ class ExamRecordAPIController @Inject() (
   def getNewRecords(startDate: String): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
       val scores = examRecordAPIService.getNewRecords(startDate)
-      Ok(scores.asJson)
+      Ok.chunked(scores.asJsonArray).as(JSON)
     }
