@@ -631,10 +631,10 @@ public class ExamSectionController extends BaseController implements SectionQues
             query = query.in("exam.course.id", courseIds.get());
         }
         if (tagIds.isPresent() && !tagIds.get().isEmpty()) {
-            query = query.in("examSectionQuestions.question.tags.id", tagIds.get());
+            query = query.in("sectionQuestions.question.tags.id", tagIds.get());
         }
         if (ownerIds.isPresent() && !ownerIds.get().isEmpty()) {
-            query = query.in("questionOwners.id", ownerIds.get());
+            query = query.in("sectionQuestions.question.questionOwners.id", ownerIds.get());
         }
         Set<ExamSection> sections = query.findSet();
         return ok(sections, PathProperties.parse("(*, creator(id))"));
