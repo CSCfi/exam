@@ -4,6 +4,7 @@
 
 package features.enrolment.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -57,8 +58,9 @@ class ExaminationEventService @Inject() (
       case Some(config) => ee.start.plus(Duration.ofMinutes(config.exam.duration.toLong))
 
   private def getParticipantUpperBound(start: Instant, end: Instant, id: Option[Long]): Int =
-    val baseQuery = DB.find(classOf[ExaminationEvent]).where().le("start", end)
-    val query     = id.fold(baseQuery) { i => baseQuery.ne("id", i) }
+    val baseQuery =
+      DB.find(classOf[ExaminationEvent]).where().le(path[ExaminationEvent]("start"), end)
+    val query = id.fold(baseQuery) { i => baseQuery.ne(path[ExaminationEvent]("id"), i) }
 
     query.distinct
       .filter(ee => !getEventEnding(ee).isBefore(start))
@@ -141,7 +143,7 @@ class ExaminationEventService @Inject() (
       .find(classOf[ExaminationEventConfiguration])
       .where()
       .idEq(configId)
-      .eq("exam.id", examId)
+      .eq(path[ExaminationEventConfiguration]("exam.id"), examId)
       .find
 
     (examOpt, eecOpt) match
@@ -214,7 +216,7 @@ class ExaminationEventService @Inject() (
 
   def removeExaminationEvent(examId: Long, configId: Long): Either[ExaminationEventError, Unit] =
     val eecOpt = DB.find(classOf[ExaminationEventConfiguration]).where().idEq(configId).eq(
-      "exam.id",
+      path[ExaminationEventConfiguration]("exam.id"),
       examId
     ).find
     val examOpt = Option(DB.find(classOf[Exam], examId))
@@ -228,7 +230,7 @@ class ExaminationEventService @Inject() (
           val configs = DB
             .find(classOf[ExaminationEventConfiguration])
             .where()
-            .eq("examinationEvent", eec.examinationEvent)
+            .eq(path[ExaminationEventConfiguration]("examinationEvent"), eec.examinationEvent)
             .distinct
 
           if configs.isEmpty then eec.examinationEvent.delete()
@@ -282,29 +284,38 @@ class ExaminationEventService @Inject() (
       start: Option[String],
       end: Option[String]
   ): List[ExaminationEventConfiguration] =
-    val pp = PathProperties.parse(
+    val pp = props[ExaminationEventConfiguration](
       "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
     )
     val baseQuery = DB.find(classOf[ExaminationEventConfiguration]).apply(pp).where()
 
     val withStartFilter = start.fold(baseQuery) { s =>
-      baseQuery.ge("examinationEvent.start", TimeUtils.parseInstant(s))
+      baseQuery.ge(
+        path[ExaminationEventConfiguration]("examinationEvent.start"),
+        TimeUtils.parseInstant(s)
+      )
     }
 
     val withEndFilter = end.fold(withStartFilter) { e =>
-      withStartFilter.lt("examinationEvent.start", TimeUtils.parseInstant(e))
+      withStartFilter.lt(
+        path[ExaminationEventConfiguration]("examinationEvent.start"),
+        TimeUtils.parseInstant(e)
+      )
     }
 
-    withEndFilter.eq("exam.state", ExamState.PUBLISHED).distinct.toList
+    withEndFilter.eq(
+      path[ExaminationEventConfiguration]("exam.state"),
+      ExamState.PUBLISHED
+    ).distinct.toList
 
   def listOverlappingExaminationEvents(start: String, duration: Int): List[ExaminationEvent] =
     val startDate = TimeUtils.parseInstant(start)
     val endDate   = startDate.plus(Duration.ofMinutes(duration.toLong))
-    val pp        = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))")
+    val pp = props[ExaminationEvent]("(*, examinationEventConfiguration(exam(id, duration)))")
 
     DB.find(classOf[ExaminationEvent])
       .where()
-      .le("start", endDate)
+      .le(path[ExaminationEvent]("start"), endDate)
       .distinct
       .filter(ee => !getEventEnding(ee).isBefore(startDate))
       .toList

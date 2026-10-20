@@ -4,6 +4,7 @@
 
 package features.enrolment.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import features.iop.transfer.services.ExternalReservationHandlerService
@@ -43,32 +44,33 @@ class ReservationService @Inject() (
     with Logging:
 
   def getExams(filter: Option[String], user: User): List[Exam] =
-    val props = PathProperties.parse("(id, name)")
+    val pp = props[Exam]("(id, name)")
     val baseQuery = DB.find(classOf[Exam])
-      .apply(props)
+      .apply(pp)
       .where()
-      .isNull("parent") // only Exam prototypes
-      .eq("state", ExamState.PUBLISHED)
+      .isNull(path[Exam]("parent")) // only Exam prototypes
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
 
     val withFilter = filter.fold(baseQuery) { f =>
-      baseQuery.ilike("name", s"%$f%")
+      baseQuery.ilike(path[Exam]("name"), s"%$f%")
     }
 
     val el =
       if user.hasRole(Role.Name.TEACHER) then
         withFilter
-          .gt("periodEnd", new Date())
+          .gt(path[Exam]("periodEnd"), new Date())
           .disjunction()
-          .eq("creator", user)
-          .eq("examOwners", user)
-          .eq("examInspections.user", user)
-          .eq("shared", true)
+          .eq(path[Exam]("creator"), user)
+          .eq(path[Exam]("examOwners"), user)
+          .eq(path[Exam]("examInspections.user"), user)
+          .eq(path[Exam]("shared"), true)
           .endJunction()
       else withFilter
 
     el.list
 
-  def getExamRooms: List[ExamRoom] = DB.find(classOf[ExamRoom]).where().isNotNull("name").list
+  def getExamRooms: List[ExamRoom] =
+    DB.find(classOf[ExamRoom]).where().isNotNull(path[ExamRoom]("name")).list
 
   private def asJsonUsers(users: Seq[User]): JsArray =
     JsArray(users.map { u =>
@@ -87,15 +89,15 @@ class ReservationService @Inject() (
     })
 
   def getStudents(filter: Option[String]): JsArray =
-    val baseQuery = DB.find(classOf[User]).where().eq("roles.name", "STUDENT")
+    val baseQuery = DB.find(classOf[User]).where().eq(path[User]("roles.name"), "STUDENT")
     val el = filter.fold(baseQuery) { f =>
-      val withOr = baseQuery.or().ilike("userIdentifier", s"%$f%")
+      val withOr = baseQuery.or().ilike(path[User]("userIdentifier"), s"%$f%")
       userHandler.applyNameSearch(null, withOr, f).endOr()
     }
     asJsonUsers(el.list)
 
   def getTeachers(filter: Option[String]): JsArray =
-    val baseQuery = DB.find(classOf[User]).where().eq("roles.name", "TEACHER")
+    val baseQuery = DB.find(classOf[User]).where().eq(path[User]("roles.name"), "TEACHER")
     val el = filter.fold(baseQuery) { f =>
       userHandler.applyNameSearch(null, baseQuery.or(), f).endOr()
     }
@@ -107,7 +109,7 @@ class ReservationService @Inject() (
   ): Future[Either[ReservationError, Unit]] =
     DB.find(classOf[ExamEnrolment])
       .where()
-      .eq("reservation.id", reservationId)
+      .eq(path[ExamEnrolment]("reservation.id"), reservationId)
       .find match
       case None =>
         Option(DB.find(classOf[Reservation], reservationId)) match
@@ -119,7 +121,10 @@ class ReservationService @Inject() (
           Future.successful(Left(ReservationError.ParticipationExists))
         else removeVisitorReservation(enrolment.reservation, message)
       case Some(enrolment) =>
-        DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.exam).find match
+        DB.find(classOf[ExamParticipation]).where().eq(
+          path[ExamParticipation]("exam"),
+          enrolment.exam
+        ).find match
           case Some(participation) =>
             Future.successful(Left(ReservationError.ParticipationExists))
           case None =>
@@ -208,14 +213,14 @@ class ReservationService @Inject() (
       case (Some(reservation), _) if isExternalReservation(reservation) =>
         Future.successful(Left(ReservationError.MachineChangeNotAllowed))
       case (Some(reservation), Some(room)) =>
-        val props = PathProperties.parse("(id, name)")
+        val pp = props[ExamMachine]("(id, name)")
         val candidates = DB.find(classOf[ExamMachine])
-          .apply(props)
+          .apply(pp)
           .where()
-          .eq("room.id", roomId)
-          .ne("outOfService", true)
-          .ne("archived", true)
-          .ne("id", reservation.machine.id)
+          .eq(path[ExamMachine]("room.id"), roomId)
+          .ne(path[ExamMachine]("outOfService"), true)
+          .ne(path[ExamMachine]("archived"), true)
+          .ne(path[ExamMachine]("id"), reservation.machine.id)
           .list
 
         getReservationExam(reservation).flatMap {
@@ -355,72 +360,84 @@ class ReservationService @Inject() (
   ): List[ExamEnrolment] =
     val baseQuery = DB
       .find(classOf[ExamEnrolment])
-      .fetch("user", "id, firstName, lastName, email, userIdentifier")
+      .fetch(path[ExamEnrolment]("user"), "id, firstName, lastName, email, userIdentifier")
       // duration is what the UI adds to the event start to show when the examination ends
-      .fetch("exam", "id, name, state, trialCount, implementation, duration")
-      .fetch("exam.course", "code")
-      .fetch("exam", "id, name, state, trialCount, implementation, gradeScale")
-      .fetch("exam.examLanguages", "name")
-      .fetch("exam.gradeScale", "description, displayName")
-      .fetch("exam.parent", "gradeScale")
-      .fetch("exam.parent.gradeScale", "description, displayName")
-      .fetch("exam.course", "code, name, gradeScale")
-      .fetch("exam.course.gradeScale", "description, displayName")
-      .fetch("exam.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
-      .fetch("exam.parent.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
-      .fetch("exam.examInspections.user", "id, firstName, lastName")
-      .fetch("exam.executionType", "type")
-      .fetch("examinationEventConfiguration.examinationEvent")
-      .fetch("reservation")
-      .fetch("reservation.participation", "started, ended, duration")
+      .fetch(path[ExamEnrolment]("exam"), "id, name, state, trialCount, implementation, duration")
+      .fetch(path[ExamEnrolment]("exam.course"), "code")
+      .fetch(path[ExamEnrolment]("exam"), "id, name, state, trialCount, implementation, gradeScale")
+      .fetch(path[ExamEnrolment]("exam.examLanguages"), "name")
+      .fetch(path[ExamEnrolment]("exam.gradeScale"), "description, displayName")
+      .fetch(path[ExamEnrolment]("exam.parent"), "gradeScale")
+      .fetch(path[ExamEnrolment]("exam.parent.gradeScale"), "description, displayName")
+      .fetch(path[ExamEnrolment]("exam.course"), "code, name, gradeScale")
+      .fetch(path[ExamEnrolment]("exam.course.gradeScale"), "description, displayName")
+      .fetch(
+        path[ExamEnrolment]("exam.examOwners"),
+        "id, firstName, lastName",
+        FetchConfig.ofQuery()
+      )
+      .fetch(
+        path[ExamEnrolment]("exam.parent.examOwners"),
+        "id, firstName, lastName",
+        FetchConfig.ofQuery()
+      )
+      .fetch(path[ExamEnrolment]("exam.examInspections.user"), "id, firstName, lastName")
+      .fetch(path[ExamEnrolment]("exam.executionType"), "type")
+      .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"))
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("reservation.participation"), "started, ended, duration")
       .where()
-      .isNotNull("examinationEventConfiguration")
-      .isNotNull("exam")
+      .isNotNull(path[ExamEnrolment]("examinationEventConfiguration"))
+      .isNotNull(path[ExamEnrolment]("exam"))
 
     val withTeacherFilter =
       if user.hasRole(Role.Name.TEACHER) then
         baseQuery
           .disjunction()
-          .eq("exam.parent.examOwners", user)
-          .eq("exam.examOwners", user)
+          .eq(path[ExamEnrolment]("exam.parent.examOwners"), user)
+          .eq(path[ExamEnrolment]("exam.examOwners"), user)
           .endJunction()
           // A student copy stripped by retention stays listed as deleted until its booking goes
           .or()
-          .ne("exam.state", ExamState.DELETED)
-          .isNotNull("exam.parent")
+          .ne(path[ExamEnrolment]("exam.state"), ExamState.DELETED)
+          .isNotNull(path[ExamEnrolment]("exam.parent"))
           .endOr()
       else baseQuery
 
     val withStartFilter = start.fold(withTeacherFilter) { s =>
       withTeacherFilter.ge(
-        "examinationEventConfiguration.examinationEvent.start",
+        path[ExamEnrolment]("examinationEventConfiguration.examinationEvent.start"),
         TimeUtils.parseInstant(s)
       )
     }
 
     val withStateFilter = state.fold(withStartFilter) {
-      case "NO_SHOW" => withStartFilter.eq("noShow", true)
+      case "NO_SHOW" => withStartFilter.eq(path[ExamEnrolment]("noShow"), true)
       case "EXTERNAL_UNFINISHED" | "EXTERNAL_FINISHED" =>
-        withStartFilter.isNull("id") // Force empty result set
-      case st => withStartFilter.eq("exam.state", ExamState.valueOf(st)).eq("noShow", false)
+        withStartFilter.isNull(path[ExamEnrolment]("id")) // Force empty result set
+      case st => withStartFilter.eq(path[ExamEnrolment]("exam.state"), ExamState.valueOf(st)).eq(
+          path[ExamEnrolment]("noShow"),
+          false
+        )
     }
 
     val withStudentFilter = studentId.fold(withStateFilter) { sid =>
-      val queryWithStudent = withStateFilter.eq("user.id", sid)
+      val queryWithStudent = withStateFilter.eq(path[ExamEnrolment]("user.id"), sid)
       // Hide reservations for anonymous exams.
-      if user.hasRole(Role.Name.TEACHER) then queryWithStudent.eq("exam.anonymous", false)
+      if user.hasRole(Role.Name.TEACHER) then
+        queryWithStudent.eq(path[ExamEnrolment]("exam.anonymous"), false)
       else queryWithStudent
     }
 
     val withExamFilter = examId.fold(withStudentFilter) { eid =>
       withStudentFilter
         .or()
-        .ne("exam.state", ExamState.DELETED)
-        .isNotNull("exam.parent")
+        .ne(path[ExamEnrolment]("exam.state"), ExamState.DELETED)
+        .isNotNull(path[ExamEnrolment]("exam.parent"))
         .endOr()
         .disjunction()
-        .eq("exam.parent.id", eid)
-        .eq("exam.id", eid)
+        .eq(path[ExamEnrolment]("exam.parent.id"), eid)
+        .eq(path[ExamEnrolment]("exam.id"), eid)
         .endJunction()
     }
 
@@ -428,13 +445,13 @@ class ReservationService @Inject() (
       val userId = ownerId.get
       withExamFilter
         .disjunction()
-        .eq("exam.examOwners.id", userId)
-        .eq("exam.parent.examOwners.id", userId)
+        .eq(path[ExamEnrolment]("exam.examOwners.id"), userId)
+        .eq(path[ExamEnrolment]("exam.parent.examOwners.id"), userId)
         .endJunction()
     else withExamFilter
 
     query
-      .orderBy("examinationEventConfiguration.examinationEvent.start")
+      .orderBy(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent.start"))
       .list
       .filter { ee =>
         end.forall { e =>
@@ -459,98 +476,111 @@ class ReservationService @Inject() (
   ): List[Reservation] =
     val baseQuery = DB
       .find(classOf[Reservation])
-      .fetch("enrolment", "noShow, retrialPermitted, enrolledOn")
-      .fetch("user", "id, firstName, lastName, email, userIdentifier, eppn")
-      .fetch("participation", "started, ended, duration")
+      .fetch(path[Reservation]("enrolment"), "noShow, retrialPermitted, enrolledOn")
+      .fetch(path[Reservation]("user"), "id, firstName, lastName, email, userIdentifier, eppn")
+      .fetch(path[Reservation]("participation"), "started, ended, duration")
       .fetch(
-        "enrolment.exam",
+        path[Reservation]("enrolment.exam"),
         "id, name, state, trialCount, implementation, gradeScale, grade, gradedTime, totalScore, maxScore, examLanguages"
       )
-      .fetch("enrolment.exam.examLanguages", "name")
-      .fetch("enrolment.exam.examRecord", "timeStamp")
-      .fetch("enrolment.exam.grade", "name")
-      .fetch("enrolment.exam.gradeScale", "description, displayName")
-      .fetch("enrolment.exam.parent", "gradeScale")
-      .fetch("enrolment.exam.parent.gradeScale", "description, displayName")
-      .fetch("enrolment.exam.course", "code, name, gradeScale")
-      .fetch("enrolment.exam.course.gradeScale", "description, displayName")
-      .fetch("enrolment.exam.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
-      .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
-      .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
-      .fetch("enrolment.exam.executionType", "type")
-      .fetch("enrolment.collaborativeExam", "*")
-      .fetch("externalReservation")
-      .fetch("machine", "id, name, ipAddress, otherIdentifier")
-      .fetch("machine.room", "id, name, roomCode")
+      .fetch(path[Reservation]("enrolment.exam.examLanguages"), "name")
+      .fetch(path[Reservation]("enrolment.exam.examRecord"), "timeStamp")
+      .fetch(path[Reservation]("enrolment.exam.grade"), "name")
+      .fetch(path[Reservation]("enrolment.exam.gradeScale"), "description, displayName")
+      .fetch(path[Reservation]("enrolment.exam.parent"), "gradeScale")
+      .fetch(path[Reservation]("enrolment.exam.parent.gradeScale"), "description, displayName")
+      .fetch(path[Reservation]("enrolment.exam.course"), "code, name, gradeScale")
+      .fetch(path[Reservation]("enrolment.exam.course.gradeScale"), "description, displayName")
+      .fetch(
+        path[Reservation]("enrolment.exam.examOwners"),
+        "id, firstName, lastName",
+        FetchConfig.ofQuery()
+      )
+      .fetch(
+        path[Reservation]("enrolment.exam.parent.examOwners"),
+        "id, firstName, lastName",
+        FetchConfig.ofQuery()
+      )
+      .fetch(path[Reservation]("enrolment.exam.examInspections.user"), "id, firstName, lastName")
+      .fetch(path[Reservation]("enrolment.exam.executionType"), "type")
+      .fetch(path[Reservation]("enrolment.collaborativeExam"), "*")
+      .fetch(path[Reservation]("externalReservation"))
+      .fetch(path[Reservation]("machine"), "id, name, ipAddress, otherIdentifier")
+      .fetch(path[Reservation]("machine.room"), "id, name, roomCode")
       .where()
 
     val withTeacherFilter =
       if user.hasRole(Role.Name.TEACHER) then
         baseQuery
-          .isNull("enrolment.externalExam")
-          .isNull("enrolment.collaborativeExam")
+          .isNull(path[Reservation]("enrolment.externalExam"))
+          .isNull(path[Reservation]("enrolment.collaborativeExam"))
           // A student copy stripped by retention stays listed as deleted until its booking goes
           .or()
-          .ne("enrolment.exam.state", ExamState.DELETED)
-          .isNotNull("enrolment.exam.parent")
+          .ne(path[Reservation]("enrolment.exam.state"), ExamState.DELETED)
+          .isNotNull(path[Reservation]("enrolment.exam.parent"))
           .endOr()
           .or()
-          .eq("enrolment.exam.parent.examOwners", user)
-          .eq("enrolment.exam.examOwners", user)
+          .eq(path[Reservation]("enrolment.exam.parent.examOwners"), user)
+          .eq(path[Reservation]("enrolment.exam.examOwners"), user)
           .endOr()
       else baseQuery
 
     val withStartFilter = start.fold(withTeacherFilter) { s =>
-      withTeacherFilter.ge("startAt", TimeUtils.parseInstant(s))
+      withTeacherFilter.ge(path[Reservation]("startAt"), TimeUtils.parseInstant(s))
     }
 
     val withEndFilter = end.fold(withStartFilter) { e =>
-      withStartFilter.lt("endAt", TimeUtils.parseInstant(e))
+      withStartFilter.lt(path[Reservation]("endAt"), TimeUtils.parseInstant(e))
     }
 
     val withStateFilter = state.fold(withEndFilter) {
-      case "NO_SHOW" => withEndFilter.eq("enrolment.noShow", true)
+      case "NO_SHOW" => withEndFilter.eq(path[Reservation]("enrolment.noShow"), true)
       case "EXTERNAL_UNFINISHED" =>
-        withEndFilter.isNotNull("externalUserRef").isNull("enrolment.externalExam.finished")
+        withEndFilter.isNotNull(path[Reservation]("externalUserRef")).isNull(
+          path[Reservation]("enrolment.externalExam.finished")
+        )
       case "EXTERNAL_FINISHED" =>
-        withEndFilter.isNotNull("externalUserRef").isNotNull("enrolment.externalExam.finished")
+        withEndFilter.isNotNull(path[Reservation]("externalUserRef")).isNotNull(
+          path[Reservation]("enrolment.externalExam.finished")
+        )
       case st =>
-        withEndFilter.eq("enrolment.exam.state", ExamState.valueOf(st)).eq(
-          "enrolment.noShow",
+        withEndFilter.eq(path[Reservation]("enrolment.exam.state"), ExamState.valueOf(st)).eq(
+          path[Reservation]("enrolment.noShow"),
           false
         )
     }
 
     val withStudentFilter = studentId.fold(withStateFilter) { sid =>
-      val queryWithStudent = withStateFilter.eq("user.id", sid)
+      val queryWithStudent = withStateFilter.eq(path[Reservation]("user.id"), sid)
       // Hide reservations for anonymous exams.
       if user.hasRole(Role.Name.TEACHER) then
         queryWithStudent
           .or()
-          .eq("enrolment.exam.anonymous", false)
-          .eq("enrolment.collaborativeExam.anonymous", false)
+          .eq(path[Reservation]("enrolment.exam.anonymous"), false)
+          .eq(path[Reservation]("enrolment.collaborativeExam.anonymous"), false)
           .endOr()
       else queryWithStudent
     }
 
     val withRoomFilter = roomId.fold(withStudentFilter) { rid =>
-      withStudentFilter.eq("machine.room.id", rid)
+      withStudentFilter.eq(path[Reservation]("machine.room.id"), rid)
     }
 
     val withMachineFilter = machineId.fold(withRoomFilter) { mid =>
-      withRoomFilter.eq("machine.id", mid)
+      withRoomFilter.eq(path[Reservation]("machine.id"), mid)
     }
 
     val withExamFilter = examId.fold(withMachineFilter) { eid =>
       withMachineFilter
         .disjunction()
-        .eq("enrolment.exam.parent.id", eid)
-        .eq("enrolment.exam.id", eid)
+        .eq(path[Reservation]("enrolment.exam.parent.id"), eid)
+        .eq(path[Reservation]("enrolment.exam.id"), eid)
         .endJunction()
     }
 
     val withExternalRefFilter = externalRef.fold(withExamFilter) { ref =>
-      if examId.isEmpty then withExamFilter.eq("enrolment.collaborativeExam.externalRef", ref)
+      if examId.isEmpty then
+        withExamFilter.eq(path[Reservation]("enrolment.collaborativeExam.externalRef"), ref)
       else withExamFilter
     }
 
@@ -558,9 +588,9 @@ class ReservationService @Inject() (
       val userId = ownerId.get
       withExternalRefFilter
         .disjunction()
-        .eq("enrolment.exam.examOwners.id", userId)
-        .eq("enrolment.exam.parent.examOwners.id", userId)
+        .eq(path[Reservation]("enrolment.exam.examOwners.id"), userId)
+        .eq(path[Reservation]("enrolment.exam.parent.examOwners.id"), userId)
         .endJunction()
     else withExternalRefFilter
 
-    query.orderBy("startAt").distinct.toList
+    query.orderBy(path[Reservation]("startAt")).distinct.toList
