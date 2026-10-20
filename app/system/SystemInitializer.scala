@@ -7,6 +7,7 @@ package system
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
+import database.QueryPathValidator
 import features.retention.services.RetentionPolicy
 import play.api.inject.ApplicationLifecycle
 import play.api.{Environment, Logging, Mode}
@@ -30,6 +31,9 @@ class SystemInitializer @Inject() (
     private val studentDataRetentionJob: StudentDataRetentionJob,
     private val retentionPolicy: RetentionPolicy
 ) extends Logging:
+  // Unknown query paths fail loudly outside production, see QueryPathValidator
+  QueryPathValidator.strict = env.mode != Mode.Prod
+
   // The retention job takes over from the old expiration jobs once a deployment switches its dry
   // run off. Until then, they keep running, so today's expiry continues during the review period.
   private val legacyExpiryJobs: List[ScheduledJob] =
