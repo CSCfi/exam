@@ -4,6 +4,7 @@
 
 package features.exam.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.exam.copy.ExamCopyContext
 import io.ebean.*
@@ -37,18 +38,18 @@ class ExamService @Inject() (
 
   private def createPrototypeQuery(): ExpressionList[Exam] =
     DB.find(classOf[Exam])
-      .fetch("course")
-      .fetch("creator")
-      .fetch("examOwners")
-      .fetch("examInspections.user")
-      .fetch("examSections")
-      .fetch("executionType")
-      .fetch("parent")
+      .fetch(path[Exam]("course"))
+      .fetch(path[Exam]("creator"))
+      .fetch(path[Exam]("examOwners"))
+      .fetch(path[Exam]("examInspections.user"))
+      .fetch(path[Exam]("examSections"))
+      .fetch(path[Exam]("executionType"))
+      .fetch(path[Exam]("parent"))
       .where()
       .or()
-      .eq("state", ExamState.PUBLISHED)
-      .eq("state", ExamState.SAVED)
-      .eq("state", ExamState.DRAFT)
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
+      .eq(path[Exam]("state"), ExamState.SAVED)
+      .eq(path[Exam]("state"), ExamState.DRAFT)
       .endOr()
 
   def searchExams(filter: Option[String], user: User): List[Exam] =
@@ -62,19 +63,22 @@ class ExamService @Inject() (
         val withOr         = baseQuery.or()
         val withNameSearch = userHandler.applyNameSearch("examOwners", withOr, f)
         val condition      = s"%$f%"
-        withNameSearch.ilike("name", condition).ilike("course.code", condition).endOr()
+        withNameSearch.ilike(path[Exam]("name"), condition).ilike(
+          path[Exam]("course.code"),
+          condition
+        ).endOr()
       case None => baseQuery
     query.list
 
   private def getAllExamsOfTeacher(user: User): List[Exam] =
-    createPrototypeQuery().eq("examOwners", user).orderBy("created").list
+    createPrototypeQuery().eq(path[Exam]("examOwners"), user).orderBy(path[Exam]("created")).list
 
   def listPrintouts(): List[Exam] =
     DB.find(classOf[Exam])
       .where()
-      .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString)
-      .eq("state", ExamState.PUBLISHED)
-      .ge("examinationDates.date", LocalDate.now())
+      .eq(path[Exam]("executionType.type"), ExamExecutionType.Type.PRINTOUT.toString)
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
+      .ge(path[Exam]("examinationDates.date"), LocalDate.now())
       .list
 
   def listExams(
@@ -89,27 +93,33 @@ class ExamService @Inject() (
     val tags     = tagIds.getOrElse(Nil)
     val owners   = ownerIds.getOrElse(Nil)
     val baseQuery =
-      DB.find(classOf[Exam]).where().isNotNull("name").isNotNull("course").isNull("parent")
+      DB.find(classOf[Exam]).where().isNotNull(path[Exam]("name")).isNotNull(
+        path[Exam]("course")
+      ).isNull(path[Exam]("parent"))
     val withOwnerFilter =
-      if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then baseQuery.eq("examOwners", user)
+      if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+        baseQuery.eq(path[Exam]("examOwners"), user)
       else baseQuery
     val withCourseFilter =
-      if courses.nonEmpty then withOwnerFilter.in("course.id", courses.asJava)
+      if courses.nonEmpty then withOwnerFilter.in(path[Exam]("course.id"), courses.asJava)
       else withOwnerFilter
     val withSectionFilter =
-      if sections.nonEmpty then withCourseFilter.in("examSections.id", sections.asJava)
+      if sections.nonEmpty then withCourseFilter.in(path[Exam]("examSections.id"), sections.asJava)
       else withCourseFilter
     val withTagFilter =
       if tags.nonEmpty then
-        withSectionFilter.in("examSections.sectionQuestions.question.parent.tags.id", tags.asJava)
+        withSectionFilter.in(
+          path[Exam]("examSections.sectionQuestions.question.parent.tags.id"),
+          tags.asJava
+        )
       else withSectionFilter
     val el =
-      if owners.nonEmpty then withTagFilter.in("questionOwners.id", user)
+      if owners.nonEmpty then withTagFilter.in(path[Exam]("examOwners.id"), owners.asJava)
       else withTagFilter
     el.list
 
   def getTeachersExams(user: User): List[Exam] =
-    val props = PathProperties.parse(
+    val pp = props[Exam](
       "(*, course(id, code), " +
         "children(id, state, examInspections(user(id, firstName, lastName))), " +
         "examinationDates(*), " +
@@ -118,15 +128,15 @@ class ExamService @Inject() (
         "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
     )
     DB.find(classOf[Exam])
-      .apply(props)
+      .apply(pp)
       .where()
-      .in("state", ExamState.PUBLISHED, ExamState.SAVED, ExamState.DRAFT)
+      .in(path[Exam]("state"), ExamState.PUBLISHED, ExamState.SAVED, ExamState.DRAFT)
       .disjunction()
-      .eq("examInspections.user", user)
-      .eq("examOwners", user)
+      .eq(path[Exam]("examInspections.user"), user)
+      .eq(path[Exam]("examOwners"), user)
       .endJunction()
-      .isNull("parent")
-      .orderBy("created")
+      .isNull(path[Exam]("parent"))
+      .orderBy(path[Exam]("created"))
       .list
 
   def deleteExam(id: Long, user: User): Either[ExamError, Unit] =
@@ -147,9 +157,9 @@ class ExamService @Inject() (
       .where()
       .idEq(id)
       .disjunction()
-      .eq("state", ExamState.DRAFT)
-      .eq("state", ExamState.SAVED)
-      .eq("state", ExamState.PUBLISHED)
+      .eq(path[Exam]("state"), ExamState.DRAFT)
+      .eq(path[Exam]("state"), ExamState.SAVED)
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
       .endJunction()
       .find
 
@@ -185,31 +195,31 @@ class ExamService @Inject() (
         else Left(ExamError.AccessForbidden)
 
   def getExamTypes: List[ExamType] =
-    DB.find(classOf[ExamType]).where().ne("deprecated", true).list
+    DB.find(classOf[ExamType]).where().ne(path[ExamType]("deprecated"), true).list
 
   def getExamGradeScales: List[GradeScale] =
-    DB.find(classOf[GradeScale]).fetch("grades").list
+    DB.find(classOf[GradeScale]).fetch(path[GradeScale]("grades")).list
 
   def getExamExecutionTypes: List[ExamExecutionType] =
-    DB.find(classOf[ExamExecutionType]).where().ne("active", false).list
+    DB.find(classOf[ExamExecutionType]).where().ne(path[ExamExecutionType]("active"), false).list
 
   def getExamPreview(id: Long, user: User): Either[ExamError, Exam] =
     DB.find(classOf[Exam])
-      .fetch("course")
-      .fetch("executionType")
-      .fetch("examinationDates")
-      .fetch("examLanguages")
-      .fetch("examSections")
-      .fetch("examSections.examMaterials")
-      .fetch("examSections.sectionQuestions", FetchConfig.ofQuery())
-      .fetch("examSections.sectionQuestions.question")
-      .fetch("examSections.sectionQuestions.question.attachment")
-      .fetch("examSections.sectionQuestions.options")
-      .fetch("examSections.sectionQuestions.options.option")
-      .fetch("examSections.sectionQuestions.clozeTestAnswer")
-      .fetch("attachment")
-      .fetch("creator")
-      .fetch("examOwners")
+      .fetch(path[Exam]("course"))
+      .fetch(path[Exam]("executionType"))
+      .fetch(path[Exam]("examinationDates"))
+      .fetch(path[Exam]("examLanguages"))
+      .fetch(path[Exam]("examSections"))
+      .fetch(path[Exam]("examSections.examMaterials"))
+      .fetch(path[Exam]("examSections.sectionQuestions"), FetchConfig.ofQuery())
+      .fetch(path[Exam]("examSections.sectionQuestions.question"))
+      .fetch(path[Exam]("examSections.sectionQuestions.question.attachment"))
+      .fetch(path[Exam]("examSections.sectionQuestions.options"))
+      .fetch(path[Exam]("examSections.sectionQuestions.options.option"))
+      .fetch(path[Exam]("examSections.sectionQuestions.clozeTestAnswer"))
+      .fetch(path[Exam]("attachment"))
+      .fetch(path[Exam]("creator"))
+      .fetch(path[Exam]("examOwners"))
       .where()
       .idEq(id)
       .find match
@@ -269,7 +279,9 @@ class ExamService @Inject() (
   private def didGradeChange(exam: Exam, grading: Int): Boolean =
     val canOverrideGrading = configReader.isCourseGradeScaleOverridable
     if canOverrideGrading || Option(exam.course).flatMap(c => Option(c.gradeScale)).isEmpty then
-      DB.find(classOf[GradeScale]).fetch("grades").where().idEq(grading).find match
+      DB.find(classOf[GradeScale]).fetch(path[GradeScale]("grades")).where().idEq(
+        grading
+      ).find match
         case None => false
         case Some(scale) =>
           Option(exam.gradeScale).isEmpty || !exam.gradeScale.equals(scale)
@@ -296,7 +308,8 @@ class ExamService @Inject() (
                   Right(())
 
   private def softwareRequirementDoable(exam: Exam): Boolean =
-    val machines = DB.find(classOf[ExamMachine]).where().eq("archived", false).list
+    val machines =
+      DB.find(classOf[ExamMachine]).where().eq(path[ExamMachine]("archived"), false).list
     machines.exists { m =>
       val machineSoftware = m.softwareInfo.asScala.toSet
       val examSoftware    = exam.softwares.asScala.toSet
@@ -325,7 +338,7 @@ class ExamService @Inject() (
           !user.hasPermission(PermissionType.CAN_CREATE_BYOD_EXAM)
         then Left(ExamError.NoPermissionToCreateByodExam)
         else
-          val pp = PathProperties.parse(
+          val pp = props[Exam](
             "(" +
               "*, " +
               "examType(id, type), " +
@@ -343,7 +356,10 @@ class ExamService @Inject() (
           DB.find(classOf[Exam]).apply(pp).where().idEq(id).find match
             case None => Left(ExamError.NotFound)
             case Some(prototype) =>
-              DB.find(classOf[ExamExecutionType]).where().eq("type", execType).find match
+              DB.find(classOf[ExamExecutionType]).where().eq(
+                path[ExamExecutionType]("type"),
+                execType
+              ).find match
                 case None                => Left(ExamError.ExecutionTypeNotFound)
                 case Some(executionType) =>
                   // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
@@ -381,7 +397,7 @@ class ExamService @Inject() (
         val implementation = validatedPayload.implementation.toString
         DB.find(classOf[ExamExecutionType])
           .where()
-          .eq("type", executionType)
+          .eq(path[ExamExecutionType]("type"), executionType)
           .find match
           case None => Left(ExamError.UnsupportedExecutionType)
           case Some(examExecutionType) =>
@@ -474,45 +490,51 @@ class ExamService @Inject() (
 
   private def prototypeQuery(): Query[Exam] =
     DB.find(classOf[Exam])
-      .fetch("course")
-      .fetch("course.organisation")
-      .fetch("course.gradeScale")
-      .fetch("course.gradeScale.grades", FetchConfig.ofQuery())
-      .fetch("examType")
-      .fetch("autoEvaluationConfig")
-      .fetch("autoEvaluationConfig.gradeEvaluations", FetchConfig.ofQuery())
-      .fetch("examFeedbackConfig")
-      .fetch("executionType")
-      .fetch("examinationDates")
-      .fetch("examinationEventConfigurations")
-      .fetch("examinationEventConfigurations.examEnrolments")
-      .fetch("examinationEventConfigurations.examinationEvent")
-      .fetch("examSections")
+      .fetch(path[Exam]("course"))
+      .fetch(path[Exam]("course.organisation"))
+      .fetch(path[Exam]("course.gradeScale"))
+      .fetch(path[Exam]("course.gradeScale.grades"), FetchConfig.ofQuery())
+      .fetch(path[Exam]("examType"))
+      .fetch(path[Exam]("autoEvaluationConfig"))
+      .fetch(path[Exam]("autoEvaluationConfig.gradeEvaluations"), FetchConfig.ofQuery())
+      .fetch(path[Exam]("examFeedbackConfig"))
+      .fetch(path[Exam]("executionType"))
+      .fetch(path[Exam]("examinationDates"))
+      .fetch(path[Exam]("examinationEventConfigurations"))
+      .fetch(path[Exam]("examinationEventConfigurations.examEnrolments"))
+      .fetch(path[Exam]("examinationEventConfigurations.examinationEvent"))
+      .fetch(path[Exam]("examSections"))
       .fetch(
-        "examSections.sectionQuestions",
+        path[Exam]("examSections.sectionQuestions"),
         "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType"
       )
-      .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
-      .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-      .fetch("examSections.sectionQuestions.options", FetchConfig.ofQuery())
+      .fetch(path[Exam]("examSections.sectionQuestions.question"), "id, type, question, shared")
+      .fetch(path[Exam]("examSections.sectionQuestions.question.attachment"), "fileName")
+      .fetch(path[Exam]("examSections.sectionQuestions.options"), FetchConfig.ofQuery())
       .fetch(
-        "examSections.sectionQuestions.options.option",
+        path[Exam]("examSections.sectionQuestions.options.option"),
         "id, option, correctOption, defaultScore, claimChoiceType"
       )
-      .fetch("examSections.examMaterials")
-      .fetch("gradeScale")
-      .fetch("gradeScale.grades")
-      .fetch("grade")
-      .fetch("examEnrolments", "preEnrolledUserEmail")
-      .fetch("examEnrolments.user")
-      .fetch("examEnrolments.reservation", "endAt")
-      .fetch("children", "id")
-      .fetch("children.examEnrolments", "id")
-      .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier, email")
-      .fetch("children.examParticipation", "id")
-      .fetch("children.examParticipation.user", "firstName, lastName, userIdentifier, email")
-      .fetch("creditType")
-      .fetch("attachment")
-      .fetch("softwares")
-      .fetch("examLanguages")
-      .fetch("examOwners")
+      .fetch(path[Exam]("examSections.examMaterials"))
+      .fetch(path[Exam]("gradeScale"))
+      .fetch(path[Exam]("gradeScale.grades"))
+      .fetch(path[Exam]("grade"))
+      .fetch(path[Exam]("examEnrolments"), "preEnrolledUserEmail")
+      .fetch(path[Exam]("examEnrolments.user"))
+      .fetch(path[Exam]("examEnrolments.reservation"), "endAt")
+      .fetch(path[Exam]("children"), "id")
+      .fetch(path[Exam]("children.examEnrolments"), "id")
+      .fetch(
+        path[Exam]("children.examEnrolments.user"),
+        "firstName, lastName, userIdentifier, email"
+      )
+      .fetch(path[Exam]("children.examParticipation"), "id")
+      .fetch(
+        path[Exam]("children.examParticipation.user"),
+        "firstName, lastName, userIdentifier, email"
+      )
+      .fetch(path[Exam]("creditType"))
+      .fetch(path[Exam]("attachment"))
+      .fetch(path[Exam]("softwares"))
+      .fetch(path[Exam]("examLanguages"))
+      .fetch(path[Exam]("examOwners"))

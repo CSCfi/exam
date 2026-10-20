@@ -5,9 +5,12 @@
 package features.exam.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.exam.services.ExamSectionError.*
 import features.exam.services.{ExamSectionError, ExamSectionService}
 import io.ebean.text.PathProperties
+import models.sections.ExamSection
+import models.sections.ExamSectionQuestion
 import models.user.Role
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
@@ -57,7 +60,7 @@ class ExamSectionController @Inject() (
         examSectionService.insertSection(eid, user) match
           case Left(error) => toResult(error)
           case Right(section) =>
-            Ok(section.asJson(PathProperties.parse("(*, examMaterials(*), sectionQuestions(*))")))
+            Ok(section.asJson(props[ExamSection]("(*, examMaterials(*), sectionQuestions(*))")))
     }
 
   def removeSection(eid: Long, sid: Long): Action[AnyContent] =
@@ -202,7 +205,8 @@ class ExamSectionController @Inject() (
         examSectionService.updateDistributedExamQuestion(eid, sid, qid, user, body) match
           case Left(error) => Future.successful(toResult(error))
           case Right(examSectionQuestion) =>
-            val pp = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))")
+            val pp =
+              props[ExamSectionQuestion]("(*, question(*, options(*)), options(*, option(*)))")
             Future.successful(Ok(examSectionQuestion.asJson(pp)))
       }
 
@@ -217,7 +221,7 @@ class ExamSectionController @Inject() (
         examSectionService.updateUndistributedExamQuestion(eid, sid, qid, user) match
           case Left(error) => toResult(error)
           case Right(examSectionQuestion) =>
-            val pp = PathProperties.parse(
+            val pp = props[ExamSectionQuestion](
               "(*, question(*, attachment(*), options(*)), options(*, option(*)))"
             )
             Ok(examSectionQuestion.asJson(pp))
@@ -243,5 +247,5 @@ class ExamSectionController @Inject() (
         val user = request.attrs(Auth.ATTR_USER)
         val sections =
           examSectionService.listSections(user, filter, courseIds, examIds, tagIds, ownerIds)
-        Ok(sections.asJson(PathProperties.parse("(*, creator(id))")))
+        Ok(sections.asJson(props[ExamSection]("(*, creator(id))")))
     }
