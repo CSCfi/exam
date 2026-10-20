@@ -4,6 +4,7 @@
 
 package features.enrolment.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.{DB, Transaction}
@@ -44,47 +45,47 @@ class EnrolmentService @Inject() (
 
   def listEnrolledExams(code: String): List[Exam] =
     DB.find(classOf[Exam])
-      .fetch("creator", "firstName, lastName")
-      .fetch("examLanguages")
-      .fetch("examOwners", "firstName, lastName")
-      .fetch("examInspections.user", "firstName, lastName")
-      .fetch("course", "code, name")
+      .fetch(path[Exam]("creator"), "firstName, lastName")
+      .fetch(path[Exam]("examLanguages"))
+      .fetch(path[Exam]("examOwners"), "firstName, lastName")
+      .fetch(path[Exam]("examInspections.user"), "firstName, lastName")
+      .fetch(path[Exam]("course"), "code, name")
       .where()
-      .eq("course.code", code)
-      .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
-      .eq("state", ExamState.PUBLISHED)
-      .ge("periodEnd", Instant.now())
+      .eq(path[Exam]("course.code"), code)
+      .eq(path[Exam]("executionType.type"), ExamExecutionType.Type.PUBLIC.toString)
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
+      .ge(path[Exam]("periodEnd"), Instant.now())
       .list
 
   def enrolmentsByReservation(reservationId: Long): List[ExamEnrolment] =
     DB.find(classOf[ExamEnrolment])
-      .fetch("user", "firstName, lastName, email")
-      .fetch("exam")
-      .fetch("exam.course", "code, name")
-      .fetch("exam.examOwners", "firstName, lastName")
-      .fetch("reservation", "id, startAt, endAt")
+      .fetch(path[ExamEnrolment]("user"), "firstName, lastName, email")
+      .fetch(path[ExamEnrolment]("exam"))
+      .fetch(path[ExamEnrolment]("exam.course"), "code, name")
+      .fetch(path[ExamEnrolment]("exam.examOwners"), "firstName, lastName")
+      .fetch(path[ExamEnrolment]("reservation"), "id, startAt, endAt")
       .where()
-      .eq("reservation.id", reservationId)
+      .eq(path[ExamEnrolment]("reservation.id"), reservationId)
       .list
 
   def getEnrolledExamInfo(code: String, examId: Long): Option[Exam] =
     DB.find(classOf[Exam])
-      .fetch("course")
-      .fetch("course.organisation")
-      .fetch("course.gradeScale")
-      .fetch("gradeScale")
-      .fetch("creator", "firstName, lastName, email")
-      .fetch("examLanguages")
-      .fetch("examOwners", "firstName, lastName")
-      .fetch("examInspections")
-      .fetch("examInspections.user")
-      .fetch("examType")
-      .fetch("executionType")
-      .fetch("examinationEventConfigurations")
-      .fetch("examinationEventConfigurations.examinationEvent")
+      .fetch(path[Exam]("course"))
+      .fetch(path[Exam]("course.organisation"))
+      .fetch(path[Exam]("course.gradeScale"))
+      .fetch(path[Exam]("gradeScale"))
+      .fetch(path[Exam]("creator"), "firstName, lastName, email")
+      .fetch(path[Exam]("examLanguages"))
+      .fetch(path[Exam]("examOwners"), "firstName, lastName")
+      .fetch(path[Exam]("examInspections"))
+      .fetch(path[Exam]("examInspections.user"))
+      .fetch(path[Exam]("examType"))
+      .fetch(path[Exam]("executionType"))
+      .fetch(path[Exam]("examinationEventConfigurations"))
+      .fetch(path[Exam]("examinationEventConfigurations.examinationEvent"))
       .where()
-      .eq("state", ExamState.PUBLISHED)
-      .eq("course.code", code)
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
+      .eq(path[Exam]("course.code"), code)
       .idEq(examId)
       .find
 
@@ -96,12 +97,12 @@ class EnrolmentService @Inject() (
           val enrolments = DB
             .find(classOf[ExamEnrolment])
             .where()
-            .eq("user", user)
-            .eq("exam.id", examId)
-            .gt("exam.periodEnd", clock.now())
+            .eq(path[ExamEnrolment]("user"), user)
+            .eq(path[ExamEnrolment]("exam.id"), examId)
+            .gt(path[ExamEnrolment]("exam.periodEnd"), clock.now())
             .disjunction()
-            .eq("exam.state", ExamState.PUBLISHED)
-            .eq("exam.state", ExamState.STUDENT_STARTED)
+            .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
+            .eq(path[ExamEnrolment]("exam.state"), ExamState.STUDENT_STARTED)
             .endJunction()
             .list
             .filter(isActive)
@@ -124,11 +125,16 @@ class EnrolmentService @Inject() (
   def removeEnrolment(enrolmentId: Long, user: User): Either[EnrolmentError, Unit] =
     val enrolmentOpt =
       if user.hasRole(Role.Name.STUDENT) then
-        DB.find(classOf[ExamEnrolment]).fetch("exam").where().idEq(enrolmentId).eq(
-          "user",
+        DB.find(classOf[ExamEnrolment]).fetch(path[ExamEnrolment]("exam")).where().idEq(
+          enrolmentId
+        ).eq(
+          path[ExamEnrolment]("user"),
           user
         ).find
-      else DB.find(classOf[ExamEnrolment]).fetch("exam").where().idEq(enrolmentId).find
+      else
+        DB.find(classOf[ExamEnrolment]).fetch(path[ExamEnrolment]("exam")).where().idEq(
+          enrolmentId
+        ).find
 
     enrolmentOpt match
       case None            => Left(EnrolmentError.EnrolmentNotFound)
@@ -148,7 +154,10 @@ class EnrolmentService @Inject() (
       user: User,
       information: Option[String]
   ): Either[EnrolmentError, Unit] =
-    DB.find(classOf[ExamEnrolment]).where().idEq(enrolmentId).eq("user", user).find match
+    DB.find(classOf[ExamEnrolment]).where().idEq(enrolmentId).eq(
+      path[ExamEnrolment]("user"),
+      user
+    ).find match
       case None => Left(EnrolmentError.EnrolmentNotFound)
       case Some(enrolment) =>
         enrolment.information = information.orNull
@@ -168,12 +177,12 @@ class EnrolmentService @Inject() (
   private def getExam(eid: Long, execType: ExamExecutionType.Type): Option[Exam] =
     DB.find(classOf[Exam])
       .where()
-      .eq("id", eid)
+      .eq(path[Exam]("id"), eid)
       .disjunction()
-      .eq("state", ExamState.PUBLISHED)
-      .ne("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
+      .ne(path[Exam]("executionType.type"), ExamExecutionType.Type.PUBLIC.toString)
       .endJunction()
-      .eq("executionType.type", execType.toString)
+      .eq(path[Exam]("executionType.type"), execType.toString)
       .find
 
   private def withTransaction[T](f: Transaction => T): Try[T] =
@@ -215,7 +224,7 @@ class EnrolmentService @Inject() (
   ): Future[Either[EnrolmentError, ExamEnrolment]] =
     withTransaction { tx =>
       // Take pessimistic lock for user to prevent multiple enrolments creating
-      DB.find(classOf[User]).forUpdate().where().eq("id", user.id).findOne()
+      DB.find(classOf[User]).forUpdate().where().eq(path[User]("id"), user.id).findOne()
 
       getExam(eid, execType) match
         case None =>
@@ -225,13 +234,13 @@ class EnrolmentService @Inject() (
           // Find existing enrolments for exam and user
           val enrolments = DB
             .find(classOf[ExamEnrolment])
-            .fetch("reservation")
-            .fetch("examinationEventConfiguration")
-            .fetch("examinationEventConfiguration.examinationEvent")
+            .fetch(path[ExamEnrolment]("reservation"))
+            .fetch(path[ExamEnrolment]("examinationEventConfiguration"))
+            .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"))
             .where()
             .or()
-            .eq("exam.id", exam.id)
-            .eq("exam.parent.id", exam.id)
+            .eq(path[ExamEnrolment]("exam.id"), exam.id)
+            .eq(path[ExamEnrolment]("exam.parent.id"), exam.id)
             .endOr()
             .list
             .filter { ee =>
@@ -367,8 +376,8 @@ class EnrolmentService @Inject() (
                 .find(classOf[User])
                 .where()
                 .or()
-                .ieq("email", e)
-                .ieq("eppn", e) // CSCEXAM-34
+                .ieq(path[User]("email"), e)
+                .ieq(path[User]("eppn"), e) // CSCEXAM-34
                 .endOr()
                 .list
 
@@ -377,8 +386,8 @@ class EnrolmentService @Inject() (
                 val enrolments = DB
                   .find(classOf[ExamEnrolment])
                   .where()
-                  .eq("exam.id", examId)
-                  .ieq("preEnrolledUserEmail", e)
+                  .eq(path[ExamEnrolment]("exam.id"), examId)
+                  .ieq(path[ExamEnrolment]("preEnrolledUserEmail"), e)
                   .list
 
                 if enrolments.isEmpty then
@@ -409,11 +418,11 @@ class EnrolmentService @Inject() (
     DB.find(classOf[ExamEnrolment])
       .where()
       .idEq(enrolmentId)
-      .ne("exam.executionType.type", ExamExecutionType.Type.PUBLIC.toString)
-      .isNull("reservation")
+      .ne(path[ExamEnrolment]("exam.executionType.type"), ExamExecutionType.Type.PUBLIC.toString)
+      .isNull(path[ExamEnrolment]("reservation"))
       .disjunction()
-      .eq("exam.state", ExamState.DRAFT)
-      .eq("exam.state", ExamState.SAVED)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.DRAFT)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.SAVED)
       .endJunction()
       .find match
       case None => Left(EnrolmentError.NotPossibleToRemoveParticipant)
@@ -436,8 +445,8 @@ class EnrolmentService @Inject() (
       .find(classOf[ExamEnrolment])
       .where()
       .idEq(enrolmentId)
-      .eq("user", user)
-      .eq("exam.state", ExamState.PUBLISHED)
+      .eq(path[ExamEnrolment]("user"), user)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
       .find
 
     enrolmentOpt match
@@ -445,11 +454,11 @@ class EnrolmentService @Inject() (
       case Some(enrolment) =>
         val configOpt = DB
           .find(classOf[ExaminationEventConfiguration])
-          .fetch("examEnrolments")
+          .fetch(path[ExaminationEventConfiguration]("examEnrolments"))
           .where()
           .idEq(configId)
-          .gt("examinationEvent.start", clock.now())
-          .eq("exam", enrolment.exam)
+          .gt(path[ExaminationEventConfiguration]("examinationEvent.start"), clock.now())
+          .eq(path[ExaminationEventConfiguration]("exam"), enrolment.exam)
           .find
 
         configOpt match
@@ -469,8 +478,8 @@ class EnrolmentService @Inject() (
       .find(classOf[ExamEnrolment])
       .where()
       .idEq(enrolmentId)
-      .eq("user", user)
-      .eq("exam.state", ExamState.PUBLISHED)
+      .eq(path[ExamEnrolment]("user"), user)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
       .find
 
     enrolmentOpt match
@@ -478,11 +487,11 @@ class EnrolmentService @Inject() (
       case Some(enrolment) =>
         val configOpt = DB
           .find(classOf[ExaminationEventConfiguration])
-          .fetch("examEnrolments")
+          .fetch(path[ExaminationEventConfiguration]("examEnrolments"))
           .where()
           .idEq(configId)
-          .gt("examinationEvent.start", clock.now())
-          .eq("exam", enrolment.exam)
+          .gt(path[ExaminationEventConfiguration]("examinationEvent.start"), clock.now())
+          .eq(path[ExaminationEventConfiguration]("exam"), enrolment.exam)
           .find
 
         configOpt match
@@ -504,9 +513,9 @@ class EnrolmentService @Inject() (
     DB.find(classOf[ExamEnrolment])
       .where()
       .idEq(enrolmentId)
-      .eq("user", user)
-      .eq("exam.state", ExamState.PUBLISHED)
-      .isNotNull("examinationEventConfiguration")
+      .eq(path[ExamEnrolment]("user"), user)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
+      .isNotNull(path[ExamEnrolment]("examinationEventConfiguration"))
       .find match
       case None => Left(EnrolmentError.EnrolmentNotFound)
       case Some(enrolment) =>
@@ -534,10 +543,10 @@ class EnrolmentService @Inject() (
           val exam  = config.exam
           val enrolments = DB
             .find(classOf[ExamEnrolment])
-            .fetch("user")
+            .fetch(path[ExamEnrolment]("user"))
             .where()
-            .eq("examinationEventConfiguration.id", configId)
-            .eq("exam.state", ExamState.PUBLISHED)
+            .eq(path[ExamEnrolment]("examinationEventConfiguration.id"), configId)
+            .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
             .distinct
 
           enrolments.foreach { e =>
