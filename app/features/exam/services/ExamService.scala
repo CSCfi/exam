@@ -104,7 +104,7 @@ class ExamService @Inject() (
         withSectionFilter.in("examSections.sectionQuestions.question.parent.tags.id", tags.asJava)
       else withSectionFilter
     val el =
-      if owners.nonEmpty then withTagFilter.in("questionOwners.id", user)
+      if owners.nonEmpty then withTagFilter.in("examOwners.id", owners.asJava)
       else withTagFilter
     el.list
 
