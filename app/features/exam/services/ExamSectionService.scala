@@ -415,10 +415,10 @@ class ExamSectionService @Inject() (
       withExamFilter.in("exam.course.id", ids.asJava)
     }
     val withTagFilter = tagIds.filter(_.nonEmpty).fold(withCourseFilter) { ids =>
-      withCourseFilter.in("examSectionQuestions.question.tags.id", ids.asJava)
+      withCourseFilter.in("sectionQuestions.question.tags.id", ids.asJava)
     }
     val query = ownerIds.filter(_.nonEmpty).fold(withTagFilter) { ids =>
-      withTagFilter.in("questionOwners.id", ids.asJava)
+      withTagFilter.in("sectionQuestions.question.questionOwners.id", ids.asJava)
     }
     query.distinct.toList
 
