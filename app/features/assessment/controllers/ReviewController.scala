@@ -5,8 +5,10 @@
 package features.assessment.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.assessment.services.{ReviewError, ReviewService}
 import io.ebean.text.PathProperties
+import models.assessment.Comment
 import models.user.Role
 import play.api.libs.json.*
 import play.api.mvc.*
@@ -187,7 +189,7 @@ class ReviewController @Inject() (
         reviewService.addComment(id, commentText, user) match
           case Right(comment) =>
             Ok(comment.asJson(
-              PathProperties.parse("(creator(firstName, lastName, email), created, comment)")
+              props[Comment]("(creator(firstName, lastName, email), created, comment)")
             ))
           case Left(ReviewError.ExamNotFound) => NotFound(ReviewError.ExamNotFound.message)
           case Left(_)                        => NotFound(ReviewError.ExamNotFound.message)
