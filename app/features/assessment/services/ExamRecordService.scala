@@ -4,6 +4,7 @@
 
 package features.assessment.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.annotation.Transactional
@@ -40,9 +41,9 @@ class ExamRecordService @Inject() (
   @Transactional
   def addExamRecord(examId: Long, user: User): Either[ExamRecordError, Unit] =
     DB.find(classOf[Exam])
-      .fetch("parent")
-      .fetch("parent.creator")
-      .fetch("examSections.sectionQuestions.question")
+      .fetch(path[Exam]("parent"))
+      .fetch(path[Exam]("parent.creator"))
+      .fetch(path[Exam]("examSections.sectionQuestions.question"))
       .where()
       .idEq(examId)
       .find match
@@ -55,8 +56,8 @@ class ExamRecordService @Inject() (
             exam.state = ExamState.GRADED_LOGGED
             exam.markLocked(now)
             exam.update()
-            DB.find(classOf[ExamParticipation]).fetch("user").where.eq(
-              "exam.id",
+            DB.find(classOf[ExamParticipation]).fetch(path[ExamParticipation]("user")).where.eq(
+              path[ExamParticipation]("exam.id"),
               exam.id
             ).find match
               case Some(participation) =>
@@ -75,9 +76,9 @@ class ExamRecordService @Inject() (
 
   def registerExamWithoutRecord(examId: Long, user: User): Either[ExamRecordError, Unit] =
     DB.find(classOf[Exam])
-      .fetch("languageInspection")
-      .fetch("parent")
-      .fetch("parent.creator")
+      .fetch(path[Exam]("languageInspection"))
+      .fetch(path[Exam]("parent"))
+      .fetch(path[Exam]("parent.creator"))
       .where()
       .idEq(examId)
       .find match
@@ -107,10 +108,10 @@ class ExamRecordService @Inject() (
   def streamSelectedExamRecordsAsExcel(examId: Long, ids: List[Long])(os: OutputStream): Unit =
     val records = DB
       .find(classOf[ExamRecord])
-      .fetch("examScore")
+      .fetch(path[ExamRecord]("examScore"))
       .where()
-      .eq("exam.parent.id", examId)
-      .in("exam.id", ids.asJava)
+      .eq(path[ExamRecord]("exam.parent.id"), examId)
+      .in(path[ExamRecord]("exam.id"), ids.asJava)
       .list
     excelBuilder.streamExamRecords(records)(os)
 
