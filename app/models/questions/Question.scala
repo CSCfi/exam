@@ -112,6 +112,8 @@ class Question extends OwnedModel with AttachmentContainer:
     q.defaultExpectedWordCount = defaultExpectedWordCount
     q.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed
     q.defaultOptionShufflingOn = defaultOptionShufflingOn
+    // The launch reads ltiId from the student's copy, so dropping it leaves the iframe blank.
+    q.ltiId = ltiId
     if setParent then
       q.parent = this
       q.questionOwners = questionOwners

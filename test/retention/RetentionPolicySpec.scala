@@ -18,6 +18,7 @@ class RetentionPolicySpec extends AnyWordSpec with Matchers:
     ConfigFactory
       .parseString(overrides)
       .withFallback(ConfigFactory.parseResources("application.conf"))
+      .withFallback(ConfigFactory.defaultReference())
       .resolve()
 
   "fromConfig" should {

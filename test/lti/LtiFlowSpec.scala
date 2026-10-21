@@ -365,6 +365,18 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       val origin = s"${tool.getScheme}://${tool.getAuthority}"
       csp must include(s"form-action $origin")
 
+    // The auto-submit is an inline script, which script-src only lets through by nonce.
+    "carry the CSP nonce on the auto-submit script" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
+      val result                  = callback(ltiSession, toolParams(ltiSession("lti_login_hint")))
+      val csp = headerOf(result, "Content-Security-Policy").getOrElse(fail("No CSP header"))
+      val nonce = """<script nonce="([^"]+)">""".r
+        .findFirstMatchIn(contentAsStringOf(result))
+        .map(_.group(1))
+        .getOrElse(fail("No nonce on the launch script"))
+      csp must include(s"'nonce-$nonce'")
+
     // The controller sets its own no-store, but SystemFilter overwrites Cache-Control on every
     // /integration response - so assert the property, not the exact value the controller asked for.
     "not be cached" in:

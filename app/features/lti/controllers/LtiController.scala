@@ -8,6 +8,7 @@ import features.lti.services.{LtiError, LtiService}
 import models.user.Role
 import play.api.libs.json.Json
 import play.api.mvc.*
+import play.api.mvc.request.RequestAttrKey
 import security.Auth
 import security.Auth.{AuthenticatedAction, authorized}
 import security.BlockingIOExecutionContext
@@ -23,9 +24,10 @@ class LtiController @Inject() (
 
   private def toResult(error: LtiError): Result =
     error match
-      case LtiError.KeyUnavailable => InternalServerError(error.message)
-      case LtiError.LaunchNotFound => NotFound(error.message)
-      case _                       => BadRequest(error.message)
+      case LtiError.KeyUnavailable      => InternalServerError(error.message)
+      case LtiError.CspNonceUnavailable => InternalServerError(error.message)
+      case LtiError.LaunchNotFound      => NotFound(error.message)
+      case _                            => BadRequest(error.message)
 
   /** Hands the UI the absolute URL its LTI iframe should point at. */
   def getStartLoginUrl: Action[AnyContent] =
@@ -103,9 +105,13 @@ class LtiController @Inject() (
             .toRight(LtiError.NoLaunchInSession)
           examHash <- request.session.get("lti_exam_hash").toRight(LtiError.NoLaunchInSession)
           user = request.attrs(Auth.ATTR_USER)
+          // Set by the CSP filter; the auto-submit script is inline, so it needs the nonce to run.
+          cspNonce <- request.attrs
+            .get(RequestAttrKey.CSPNonce)
+            .toRight(LtiError.CspNonceUnavailable)
           launch  <- ltiService.findLaunch(sectionQuestionId, examHash, user)
           idToken <- ltiService.buildIdToken(user, launch, toolNonce, validatedUri)
-        yield ltiService.buildAutoPostHtml(validatedUri, idToken, toolState)
+        yield ltiService.buildAutoPostHtml(validatedUri, idToken, toolState, cspNonce)
 
       result match
         case Left(error) => toResult(error)

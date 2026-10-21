@@ -231,8 +231,15 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       JWKSet(jwk).toString
     }
 
-  /** Self-submitting form; the launch has to reach the tool as a POST inside the same frame. */
-  def buildAutoPostHtml(postUrl: String, idToken: String, state: String): String =
+  /** Self-submitting form; the launch has to reach the tool as a POST inside the same frame.
+    * `cspNonce` is the request's CSP nonce - without it `script-src` blocks the inline submit.
+    */
+  def buildAutoPostHtml(
+      postUrl: String,
+      idToken: String,
+      state: String,
+      cspNonce: String
+  ): String =
     s"""<!DOCTYPE html>
        |<html>
        |<head>
@@ -248,7 +255,9 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
        |    <p>JavaScript is required to continue. Click the button below to launch.</p>
        |    <button form="ltiLaunch" type="submit">Continue</button>
        |  </noscript>
-       |  <script>document.getElementById('ltiLaunch').submit();</script>
+       |  <script nonce="${escapeHtml(
+        cspNonce
+      )}">document.getElementById('ltiLaunch').submit();</script>
        |</body>
        |</html>
        |""".stripMargin

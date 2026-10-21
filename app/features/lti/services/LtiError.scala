@@ -18,3 +18,5 @@ enum LtiError(val message: String):
   case LoginHintMismatch
       extends LtiError("login_hint does not match the session that started this login")
   case KeyUnavailable extends LtiError("LTI signing key could not be read")
+  case CspNonceUnavailable
+      extends LtiError("No CSP nonce for the launch script; check play.filters.csp.nonce")
