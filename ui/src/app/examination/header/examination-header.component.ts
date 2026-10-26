@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { ExaminationClockComponent } from 'src/app/examination/clock/examination-clock.component';
 import type { Examination } from 'src/app/examination/examination.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -36,7 +36,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
     </div>`,
     imports: [CourseCodeComponent, ExaminationClockComponent],
     styleUrls: ['../examination.shared.scss', './examination-header.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationPageHeaderComponent {
     readonly exam = input.required<Examination>();

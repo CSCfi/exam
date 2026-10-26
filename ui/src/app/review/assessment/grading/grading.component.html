@@ -144,7 +144,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div
             class="col-md-10"
             [class.text-danger]="!isCommentRead()"
-            [xmRichText]="exam()?.examFeedback?.comment"
+            [xmRichText]="$safeNavigationMigration(exam()?.examFeedback?.comment)"
         ></div>
     }
     @if (exam()?.examFeedback?.attachment) {

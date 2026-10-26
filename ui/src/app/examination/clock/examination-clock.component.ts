@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, Signal, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, Signal, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
@@ -45,7 +45,6 @@ import { Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs
     </div>`,
     imports: [TranslateModule],
     styleUrl: './examination-clock.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationClockComponent {
     readonly examHash = input('');

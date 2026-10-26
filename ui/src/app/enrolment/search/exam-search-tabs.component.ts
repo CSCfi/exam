@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
@@ -26,7 +26,6 @@ const EXAM_TABS: ExamTab[] = [
 
 @Component({
     selector: 'xm-exam-search-tabs',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <xm-page-header text="i18n_exams" />
         <xm-page-content [content]="content" />

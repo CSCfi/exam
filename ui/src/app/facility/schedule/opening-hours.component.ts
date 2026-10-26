@@ -2,16 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 const ZERO_TIME = { hour: 0, minute: 0, second: 0, millisecond: 0 };
 const DEFAULT_NEW_TIME: DefaultWorkingHoursWithEditing = {
@@ -34,7 +33,6 @@ interface RoomWithAddressVisibility extends ExamRoom {
     selector: 'xm-opening-hours',
     templateUrl: './opening-hours.component.html',
     imports: [NgbTimepicker, FormsModule, NgbDropdownModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpenHoursComponent {
     readonly room = input.required<ExamRoom>();
@@ -48,7 +46,7 @@ export class OpenHoursComponent {
     private readonly dateTime = inject(DateTimeService);
     private readonly roomService = inject(RoomService);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
 
     orderByWeekday(dwhs: DefaultWorkingHoursWithEditing[]) {
         const ordinal = (dwh: DefaultWorkingHours) => this.WEEKDAYS.indexOf(dwh.weekday);
@@ -63,27 +61,13 @@ export class OpenHoursComponent {
             this.toast.error(this.translate.instant('i18n_time_overlaps_error'));
             return;
         }
-        const start = DateTime.now()
-            .set({
-                month: 1,
-                day: 1,
-                hour: wh.pickStartingTime.hour,
-                minute: wh.pickStartingTime.minute,
-                second: 0,
-                millisecond: 0,
-            })
-            .toISO();
-        const end = DateTime.now()
-            .set({
-                month: 1,
-                day: 1,
-                hour: wh.pickEndingTime.hour,
-                minute: wh.pickEndingTime.minute,
-                second: 0,
-                millisecond: 0,
-            })
-            .toISO();
-        if (DateTime.fromISO(start || '') > DateTime.fromISO(end || '')) {
+        const toHmm = (t: { hour: number; minute: number }) => `${t.hour}:${t.minute.toString().padStart(2, '0')}`;
+        const start = toHmm(wh.pickStartingTime);
+        const end = toHmm(wh.pickEndingTime);
+        if (
+            wh.pickStartingTime.hour * 60 + wh.pickStartingTime.minute >
+            wh.pickEndingTime.hour * 60 + wh.pickEndingTime.minute
+        ) {
             this.toast.error(this.translate.instant('i18n_starting_cannot_be_after_ending'));
             return;
         }
@@ -175,17 +159,19 @@ export class OpenHoursComponent {
             addressVisible: false,
             availabilityVisible: false,
             extendedDwh: room.defaultWorkingHours.map((wh) => {
-                const hour = new Date(wh.startTime).getHours();
-                const startMinute = new Date(wh.startTime).getMinutes();
-                const endHour = new Date(wh.endTime).getHours();
-                const endMinute = new Date(wh.endTime).getMinutes();
+                const parseHmm = (s: string) => {
+                    const [h, m] = s.split(':').map(Number);
+                    return { hour: h, minute: m };
+                };
+                const start = parseHmm(wh.startTime);
+                const end = parseHmm(wh.endTime);
                 return {
                     ...wh,
                     editing: false,
-                    pickStartingTime: this.createTimeObject(hour, startMinute),
-                    pickEndingTime: this.createTimeObject(endHour, endMinute),
-                    displayStartingTime: this.createTimeObject(hour, startMinute),
-                    displayEndingTime: this.createTimeObject(endHour, endMinute),
+                    pickStartingTime: this.createTimeObject(start.hour, start.minute),
+                    pickEndingTime: this.createTimeObject(end.hour, end.minute),
+                    displayStartingTime: this.createTimeObject(start.hour, start.minute),
+                    displayEndingTime: this.createTimeObject(end.hour, end.minute),
                 };
             }),
         };
@@ -199,21 +185,19 @@ export class OpenHoursComponent {
         return time.hour * 100 + time.minute;
     }
 
-    private toDate(time: { hour: number; minute: number }) {
-        return DateTime.now()
-            .set({ month: 1, day: 1, hour: time.hour, minute: time.minute, second: 0, millisecond: 0 })
-            .toJSDate();
+    private toMinutes(time: { hour: number; minute: number }) {
+        return time.hour * 60 + time.minute;
     }
 
     private overlaps(wh: DefaultWorkingHoursWithEditing, room: RoomWithAddressVisibility) {
-        const newInterval = { start: this.toDate(wh.pickStartingTime), end: this.toDate(wh.pickEndingTime) };
-        const intervals = room.extendedDwh
+        const newStart = this.toMinutes(wh.pickStartingTime);
+        const newEnd = this.toMinutes(wh.pickEndingTime);
+        return room.extendedDwh
             .filter((dwh) => dwh.weekday === wh.weekday && dwh !== wh)
-            .map((dwh) => ({ start: this.toDate(dwh.pickStartingTime), end: this.toDate(dwh.pickEndingTime) }));
-        return intervals.some((i) => this.intervalsOverlap(i, newInterval));
-    }
-
-    private intervalsOverlap(interval1: { start: Date; end: Date }, interval2: { start: Date; end: Date }): boolean {
-        return interval1.start <= interval2.end && interval2.start <= interval1.end;
+            .some((dwh) => {
+                const s = this.toMinutes(dwh.pickStartingTime);
+                const e = this.toMinutes(dwh.pickEndingTime);
+                return s <= newEnd && newStart <= e;
+            });
     }
 }

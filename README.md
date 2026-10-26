@@ -8,7 +8,7 @@ SPDX-License-Identifier: EUPL-1.2
 
 # EXAM Quickstart for developers
 
-1.  Prerequisites: install SBT, Java (25), Node (>= 22) and PostgreSQL (>= 9.4).
+1.  Prerequisites: install SBT, Java (25), Node (^22.22.3, ^24.15.0 or >= 26, as required by the Angular CLI) and PostgreSQL (>= 9.4).
 
 2.  Create PostgreSQL database
 
@@ -65,6 +65,22 @@ SPDX-License-Identifier: EUPL-1.2
 5.  Open http://localhost:4200 in your browser. App should be accessible from browser shortly (backend compilation might take some seconds)
 
 6.  Instead of steps 3 to 5 you can also use Docker if you prefer. See [DOCKER.md](DOCKER.md).
+
+## Dependency scanning
+
+Dependabot alerts cover both npm and sbt dependencies (Security and quality → Dependabot). The sbt dependency tree is
+submitted to GitHub by the `dependency-submission` CI job on pushes to `master`. Alerts that don't apply are dismissed
+with a reason and comment rather than left open.
+
+To check a branch locally before merging, scan the runtime jars and the frontend lockfile with [Trivy](https://trivy.dev):
+
+    $ sbt stage
+    $ trivy rootfs --scanners vuln target/universal/stage/lib
+    $ trivy fs --scanners vuln pnpm-lock.yaml
+
+Use `rootfs` for the jars; `fs` mode reads only lockfiles and silently finds nothing there. For the frontend,
+`pnpm audit --prod` gives the same results as the Trivy lockfile scan. To see why a library is
+on the classpath, use `sbt "dependencyTree"` or `sbt "whatDependsOn <org> <artifact>"`.
 
 ## More information
 

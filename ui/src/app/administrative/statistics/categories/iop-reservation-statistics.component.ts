@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs/operators';
@@ -13,7 +13,6 @@ import { Reservation } from 'src/app/reservation/reservation.model';
 import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         @if (queryParams()) {
             @if (grouped()) {

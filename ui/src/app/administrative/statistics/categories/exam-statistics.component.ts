@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs/operators';
@@ -10,7 +10,6 @@ import { ExamInfo, QueryParams } from 'src/app/administrative/administrative.mod
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         @if (queryParams()) {
             <div class="row">

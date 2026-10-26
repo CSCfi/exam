@@ -3,20 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    DestroyRef,
-    computed,
-    inject,
-    input,
-    linkedSignal,
-    signal,
-} from '@angular/core';
+import { Component, DestroyRef, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { EssayAnswer } from 'src/app/question/question.model';
@@ -24,13 +14,13 @@ import type { AnsweredQuestion, Attachment } from 'src/app/shared/attachment/att
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-examination-essay-question',
     templateUrl: './examination-essay-question.component.html',
     imports: [FormsModule, TranslateModule, UpperCasePipe, DatePipe, CKEditorComponent],
     styleUrls: ['../examination.shared.scss', './question.shared.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEssayQuestionComponent {
     readonly sq = input.required<Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }>();
@@ -51,7 +41,7 @@ export class ExaminationEssayQuestionComponent {
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
     private readonly destroyRef = inject(DestroyRef);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly translate = inject(TranslateService);
 
     constructor() {

@@ -203,10 +203,51 @@ SPDX-License-Identifier: EUPL-1.2
                         MB
                     </li>
                     <li>
-                        <strong>{{ 'i18n_exam_expiration_period' | translate }}:</strong>&nbsp;{{
-                            config()!.expirationPeriod
-                        }}
+                        <strong>{{ 'i18n_retention' | translate }}:</strong>&nbsp;
+                        @if (config()!.retention.dryRun) {
+                            <span>{{ 'i18n_retention_dry_run' | translate }}</span>
+                        } @else {
+                            <span>{{ 'i18n_retention_active' | translate }}</span>
+                        }
                     </li>
+                    <ul>
+                        <li>
+                            <strong>{{ 'i18n_retention_student_inactivity' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.studentInactivity }}
+                        </li>
+                        <li>
+                            <strong>{{ 'i18n_retention_booking' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.booking }}
+                        </li>
+                        <li>
+                            <strong>{{ 'i18n_retention_assessed_attempt' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.assessedAttempt }}
+                        </li>
+                        <li>
+                            <strong>{{ 'i18n_retention_maturity_attempt' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.maturityAttempt }}
+                        </li>
+                        <li>
+                            <strong>{{ 'i18n_retention_aborted_attempt' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.abortedAttempt }}
+                        </li>
+                        <li>
+                            <strong>{{ 'i18n_retention_auto_lock' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.autoLock }}
+                        </li>
+                        <li>
+                            <strong>{{ 'i18n_retention_record' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.record }}
+                        </li>
+                        <li>
+                            <strong>{{ 'i18n_retention_host_copy' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.hostCopy }}
+                        </li>
+                        <li>
+                            <strong>{{ 'i18n_retention_batch_size' | translate }}:</strong>&nbsp;
+                            {{ config()!.retention.batchSize }}
+                        </li>
+                    </ul>
                     <li>
                         <strong>{{ 'i18n_default_timezone' | translate }}:</strong>&nbsp;{{ config()!.defaultTimeZone }}
                     </li>

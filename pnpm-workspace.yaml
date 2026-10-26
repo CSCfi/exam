@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+# Refuse package versions published less than 3 days ago (in minutes).
+# Hijacked npm releases are usually caught and pulled within hours.
+minimumReleaseAge: 4320

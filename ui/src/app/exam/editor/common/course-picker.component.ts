@@ -2,16 +2,16 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
 import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { CoursePickerService } from './course-picker.service';
 
 @Component({
@@ -19,7 +19,6 @@ import { CoursePickerService } from './course-picker.service';
     templateUrl: './course-picker.component.html',
     styleUrls: ['../../exam.shared.scss'],
     imports: [FormField, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CoursePickerComponent {
     readonly course = input<Course | undefined>();
@@ -37,7 +36,7 @@ export class CoursePickerComponent {
     readonly courseFilterForm = form(this.courseFilterModel);
 
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Course = inject(CoursePickerService);
     private readonly CourseCode = inject(CourseCodeService);
 

@@ -5,7 +5,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { catchError, EMPTY, map, Observable, switchMap, tap } from 'rxjs';
 import type { ExamParticipation, ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -15,6 +14,7 @@ import type { ReviewQuestion } from 'src/app/review/review.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { AnsweredQuestion, FileResult } from './attachment.model';
 import { AttachmentSelectorComponent } from './dialogs/attachment-picker.component';
 
@@ -24,7 +24,7 @@ export class AttachmentService {
     private readonly http = inject(HttpClient);
     private readonly modal = inject(ModalService);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Files = inject(FileService);
 
     eraseQuestionAttachment$ = (question: Question) => this.http.delete<void>(this.questionAttachmentApi(question.id));

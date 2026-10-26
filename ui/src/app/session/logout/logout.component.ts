@@ -2,13 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-logout',
     template: '<div></div>',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LogoutComponent {
     private readonly Session = inject(SessionService);

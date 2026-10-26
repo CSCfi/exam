@@ -2,11 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { ToastrService } from 'ngx-toastr';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -15,6 +14,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ExamInfo, Organisation } from './calendar.model';
 import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
@@ -27,7 +27,6 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
     selector: 'xm-calendar',
     templateUrl: './calendar.component.html',
     styleUrls: ['./calendar.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CalendarExamInfoComponent,
         OptionalSectionsComponent,
@@ -96,7 +95,7 @@ export class CalendarComponent {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly DateTimeService = inject(DateTimeService);
     private readonly Dialog = inject(ConfirmationDialogService);
     private readonly Calendar = inject(CalendarService);

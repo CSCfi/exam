@@ -3,21 +3,20 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { AppConfig } from 'src/app/administrative/administrative.model';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { SettingsService } from './settings.service';
 
 @Component({
     templateUrl: './settings.component.html',
     selector: 'xm-settings',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CKEditorComponent,
         FormsModule,
@@ -34,7 +33,7 @@ export class SettingsComponent {
     private readonly _minorAgreementUpdate = signal(false);
 
     private readonly Settings = inject(SettingsService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly translate = inject(TranslateService);
 
     constructor() {

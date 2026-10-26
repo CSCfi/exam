@@ -6,24 +6,22 @@ package models.base
 
 import jakarta.persistence.*
 import models.user.User
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 
+import java.time.Instant
 import scala.compiletime.uninitialized
 
 @MappedSuperclass
 class OwnedModel extends GeneratedIdentityModel:
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var created: DateTime = uninitialized
+  @JsonInstant
+  var created: Instant = uninitialized
 
   @ManyToOne
   @JoinColumn(name = "creator_id")
   var creator: User = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var modified: DateTime = uninitialized
+  @JsonInstant
+  var modified: Instant = uninitialized
 
   @ManyToOne
   @JoinColumn(name = "modifier_id")
@@ -31,8 +29,8 @@ class OwnedModel extends GeneratedIdentityModel:
 
   def setCreatorWithDate(user: User): Unit =
     creator = user
-    created = DateTime.now()
+    created = Instant.now()
 
   def setModifierWithDate(user: User): Unit =
     modifier = user
-    modified = DateTime.now()
+    modified = Instant.now()

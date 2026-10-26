@@ -3,11 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
@@ -23,11 +22,11 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
     selector: 'xm-exam-list-category',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-list-category.component.html',
     styleUrls: ['./exam-list-category.component.scss'],
     imports: [
@@ -57,7 +56,7 @@ export class ExamListCategoryComponent implements OnInit {
     private readonly destroyRef = inject(DestroyRef);
     private readonly translate = inject(TranslateService);
     private readonly ModalService = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Dashboard = inject(TeacherDashboardService);
     private readonly Dialog = inject(ConfirmationDialogService);
     private readonly Exam = inject(ExamService);

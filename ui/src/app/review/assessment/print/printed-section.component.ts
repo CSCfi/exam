@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import type { ExamSection } from 'src/app/exam/exam.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { PrintedClozeTestComponent } from './printed-cloze-test.component';
@@ -11,7 +11,6 @@ import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';
 
 @Component({
     selector: 'xm-printed-section',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <blockquote>
             <h4>{{ index() + 1 }}.&nbsp; &nbsp;{{ section().name }}</h4>

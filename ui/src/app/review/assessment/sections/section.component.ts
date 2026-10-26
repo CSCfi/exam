@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam, ExamSection } from 'src/app/exam/exam.model';
@@ -17,7 +17,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-section',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './section.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [MultiChoiceQuestionComponent, EssayQuestionComponent, ClozeTestComponent, TranslateModule, OrderByPipe],

@@ -6,7 +6,6 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { tap } from 'rxjs';
 import { LibraryQuestion, Tag } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
@@ -15,6 +14,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { LibraryTransferDialogComponent } from './export/library-transfer-dialog.component';
 import { LibraryOwnersDialogComponent } from './owners/library-owners-dialog.component';
 import { LibraryResultsComponent } from './results/library-results.component';
@@ -156,7 +156,7 @@ export class LibraryComponent {
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
     private readonly modal = inject(ModalService);
-    private readonly toast = inject(ToastrService);
+    private readonly toast = inject(ToastService);
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
 

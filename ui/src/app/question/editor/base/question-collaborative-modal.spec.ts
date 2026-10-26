@@ -6,12 +6,12 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import type { Question, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import { QuestionComponent } from './question.component';
 
@@ -40,7 +40,7 @@ describe('QuestionComponent collaborative modal save', () => {
                         },
                     },
                 },
-                { provide: ToastrService, useValue: { error: vi.fn() } },
+                { provide: ToastService, useValue: { error: vi.fn() } },
                 {
                     provide: QuestionService,
                     useValue: {

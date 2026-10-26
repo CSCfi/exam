@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -18,7 +18,6 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
@@ -30,7 +29,6 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
 
 @Component({
     selector: 'xm-printed-assessment',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './printed-assessment.component.html',
     imports: [
         CourseCodeComponent,
@@ -39,7 +37,6 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
         LowerCasePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         OrderByPipe,
     ],
     styleUrls: ['./print.shared.scss'],

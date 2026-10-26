@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
+import { Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,7 +13,6 @@ import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import type { Review } from 'src/app/review/review.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
-import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -34,13 +33,11 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         SlicePipe,
         DatePipe,
         TranslateModule,
-        ApplyDstPipe,
         PageFillPipe,
         DiffInDaysPipe,
         OrderByPipe,
         NgbCollapse,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InProgressReviewsComponent {
     readonly exam = input.required<Exam>();

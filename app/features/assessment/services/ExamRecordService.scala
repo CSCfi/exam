@@ -13,8 +13,6 @@ import models.exam.Exam
 import models.exam.ExamState
 import models.exam.GradeType
 import models.user.{PermissionType, Role, User}
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import play.api.Logging
 import services.csv.CsvBuilder
 import services.excel.ExcelBuilder
@@ -22,6 +20,9 @@ import services.file.FileHandler
 import services.mail.EmailComposer
 
 import java.io.OutputStream
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
@@ -50,14 +51,16 @@ class ExamRecordService @Inject() (
         validateExamState(exam, gradeRequired, user) match
           case Some(error) => Left(error)
           case None =>
+            val now = Instant.now()
             exam.state = ExamState.GRADED_LOGGED
+            exam.markLocked(now)
             exam.update()
             DB.find(classOf[ExamParticipation]).fetch("user").where.eq(
               "exam.id",
               exam.id
             ).find match
               case Some(participation) =>
-                val record = createRecord(exam, participation, gradeRequired)
+                val record = createRecord(exam, participation, gradeRequired, now)
                 val score  = createScore(record, participation.ended)
                 score.save()
                 record.examScore = score
@@ -83,6 +86,7 @@ class ExamRecordService @Inject() (
           case Some(error) => Left(error)
           case None =>
             exam.state = ExamState.GRADED_LOGGED
+            exam.markLocked(Instant.now())
             exam.grade = null
             exam.gradingType = GradeType.NOT_GRADED
             exam.update()
@@ -148,18 +152,23 @@ class ExamRecordService @Inject() (
       user.hasPermission(PermissionType.CAN_INSPECT_LANGUAGE)
     }
 
-  private def createRecord(exam: Exam, participation: ExamParticipation, releasable: Boolean) =
+  private def createRecord(
+      exam: Exam,
+      participation: ExamParticipation,
+      releasable: Boolean,
+      timeStamp: Instant
+  ) =
     val student = participation.user
     val teacher = exam.gradedByUser
     val record  = new ExamRecord
     record.exam = exam
     record.student = student
     record.teacher = teacher
-    record.timeStamp = DateTime.now
+    record.timeStamp = timeStamp
     record.releasable = releasable
     record
 
-  private def createScore(record: ExamRecord, examDate: DateTime) =
+  private def createScore(record: ExamRecord, examDate: Instant) =
     val exam  = record.exam
     val score = new ExamScore
     score.additionalInfo = exam.additionalInfo
@@ -174,10 +183,9 @@ class ExamRecordService @Inject() (
     score.lecturerEmployeeNumber = record.teacher.employeeNumber
     score.lecturerFirstName = record.teacher.firstName
     score.lecturerLastName = record.teacher.lastName
-    val dtf = DateTimeFormat.forPattern("yyyy-MM-dd")
-    // Record transfer timestamp (date)
-    score.registrationDate = dtf.print(DateTime.now)
-    score.examDate = dtf.print(examDate)
+    val dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    score.registrationDate = dtf.format(Instant.now().atZone(ZoneOffset.UTC).toLocalDate)
+    score.examDate = dtf.format(examDate.atZone(ZoneOffset.UTC).toLocalDate)
     score.courseImplementation = exam.course.courseImplementation
     score.courseUnitCode = exam.course.code
     score.courseUnitLevel = exam.course.level

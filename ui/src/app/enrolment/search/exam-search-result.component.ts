@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs/operators';
@@ -15,7 +15,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 
 @Component({
     selector: 'xm-exam-search-result',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div
         [class]="
             exam().alreadyEnrolled && exam().reservationMade
@@ -30,7 +29,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                         <a
                             class="exam-title-link"
                             [routerLink]="['/enrolments', exam().id]"
-                            [queryParams]="{ code: exam().course?.code }"
+                            [queryParams]="{ code: $safeNavigationMigration(exam().course?.code) }"
                         >
                             {{ exam().name }}
                         </a>

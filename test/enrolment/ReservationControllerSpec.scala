@@ -12,8 +12,6 @@ import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.{Exam, ExamState}
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.User
-import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
-import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.BeforeAndAfterEach
 import play.api.Application
 import play.api.http.Status
@@ -21,8 +19,10 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
 import play.api.mvc.Session
-import services.datetime.{AppClock, DateTimeHandler, FixedAppClock}
+import services.datetime.{AppClock, FixedAppClock, TimeUtils}
 
+import java.time.*
+import java.time.format.DateTimeFormatter
 import scala.jdk.CollectionConverters.*
 
 class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
@@ -30,14 +30,12 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
 
   // Anchored to today at 12:15, so that a reservation can have started a moment ago and the room
   // still has later slots to offer. Off the hour, so that "the next slot" is never ambiguous.
-  val fixedNow: DateTime = DateTime.now().withTimeAtStartOfDay().withTime(12, 15, 0, 0)
+  val fixedNow: Instant = LocalDate.now().atTime(12, 15).atZone(ZoneOffset.UTC).toInstant
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .overrides(bind[AppClock].toInstance(FixedAppClock(fixedNow)))
       .build()
-
-  private lazy val dateTimeHandler = app.injector.instanceOf(classOf[DateTimeHandler])
 
   private def setWorkingHours(room: ExamRoom): Unit =
     val days = Array("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
@@ -45,9 +43,8 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
       val dwh = new DefaultWorkingHours()
       dwh.weekday = day
       dwh.room = room
-      dwh.startTime = fixedNow.withTimeAtStartOfDay()
-      dwh.endTime = dwh.startTime.withTime(20, 59, 59, 999)
-      dwh.timezoneOffset = 7200000
+      dwh.startTime = LocalTime.MIDNIGHT
+      dwh.endTime = LocalTime.of(20, 59, 59, 999_000_000)
       dwh.save()
     }
 
@@ -80,8 +77,8 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
     val reservation = new Reservation()
     reservation.user = user
     reservation.machine = machines.head
-    reservation.startAt = fixedNow.minusMinutes(30)
-    reservation.endAt = reservation.startAt.plusMinutes(exam.duration)
+    reservation.startAt = fixedNow.minus(Duration.ofMinutes(30))
+    reservation.endAt = reservation.startAt.plus(Duration.ofMinutes(exam.duration.toLong))
     reservation.save()
 
     val enrolment = new ExamEnrolment()
@@ -92,10 +89,10 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
 
     (reservation, room, machines(1))
 
-  private def asLocalTime(dateTime: DateTime, room: ExamRoom): String =
-    val dtz = DateTimeZone.forID(room.localTimezone)
-    DateTimeFormat.forPattern("HH:mm").withZone(dtz)
-      .print(dateTimeHandler.normalize(dateTime, dtz))
+  private def asLocalTime(instant: Instant, room: ExamRoom): String =
+    DateTimeFormatter.ofPattern("HH:mm")
+      .withZone(TimeUtils.zoneIdOf(room.localTimezone))
+      .format(instant)
 
   private def availableMachines(
       reservation: Reservation,
@@ -118,8 +115,8 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
     }
     runIO(put(s"/app/reservations/${reservation.id}/machine", body, session))
 
-  private def parse(slot: JsValue, field: String): DateTime =
-    ISODateTimeFormat.dateTimeParser.parseDateTime((slot \ field).as[String])
+  private def parse(slot: JsValue, field: String): Instant =
+    TimeUtils.parseInstant((slot \ field).as[String])
 
   "ReservationController" when:
     "changing the machine of a reservation that has already started" should:
@@ -134,8 +131,8 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
 
         // The ongoing time comes first
         val ongoing = slots.head
-        parse(ongoing, "start").getMillis must be(reservation.startAt.getMillis)
-        parse(ongoing, "end").getMillis must be(reservation.endAt.getMillis)
+        parse(ongoing, "start") must be(reservation.startAt)
+        parse(ongoing, "end") must be(reservation.endAt)
         (ongoing \ "startAt").as[String] must be(asLocalTime(reservation.startAt, room))
         (ongoing \ "endAt").as[String] must be(asLocalTime(reservation.endAt, room))
 
@@ -161,8 +158,8 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
         Option(DB.find(classOf[Reservation], reservation.id)) match
           case Some(updated) =>
             updated.machine.id must be(anotherMachine.id)
-            updated.startAt.getMillis must be(originalStart.getMillis)
-            updated.endAt.getMillis must be(originalEnd.getMillis)
+            updated.startAt must be(originalStart)
+            updated.endAt must be(originalEnd)
           case None => fail("Reservation not found")
 
       "move the reservation when the next slot is picked" in:
@@ -177,18 +174,19 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
         Option(DB.find(classOf[Reservation], reservation.id)) match
           case Some(updated) =>
             updated.machine.id must be(anotherMachine.id)
-            updated.startAt.getMillis must be(parse(next, "start").getMillis)
-            updated.endAt.getMillis must be(parse(next, "end").getMillis)
+            updated.startAt must be(parse(next, "start"))
+            updated.endAt must be(parse(next, "end"))
           case None => fail("Reservation not found")
 
       "refuse a slot that was not offered" in:
         val (_, session)                     = runIO(loginAsAdmin())
         val (reservation, _, anotherMachine) = setupOngoingReservation()
         val originalMachine                  = reservation.machine
-        val printer                          = ISODateTimeFormat.dateTime
+        val printer                          = DateTimeFormatter.ISO_INSTANT
+        val threeDaysOn                      = fixedNow.plus(Duration.ofDays(3))
         val slot = Json.obj(
-          "start" -> printer.print(fixedNow.plusDays(3)),
-          "end"   -> printer.print(fixedNow.plusDays(3).plusHours(1))
+          "start" -> printer.format(threeDaysOn),
+          "end"   -> printer.format(threeDaysOn.plus(Duration.ofHours(1)))
         )
 
         val result = changeMachine(reservation, anotherMachine, Some(slot), session)
@@ -209,5 +207,5 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
         Option(DB.find(classOf[Reservation], reservation.id)) match
           case Some(updated) =>
             updated.machine.id must be(anotherMachine.id)
-            updated.startAt.getMillis must be(originalStart.getMillis)
+            updated.startAt must be(originalStart)
           case None => fail("Reservation not found")

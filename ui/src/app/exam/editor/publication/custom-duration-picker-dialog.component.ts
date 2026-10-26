@@ -3,14 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 
 @Component({
     imports: [TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
             <div class="xm-modal-title">

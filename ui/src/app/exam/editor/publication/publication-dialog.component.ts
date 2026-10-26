@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -10,7 +10,6 @@ import type { Exam } from 'src/app/exam/exam.model';
 @Component({
     selector: 'xm-publication-dialog',
     imports: [TranslateModule],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
             <div class="xm-modal-title">{{ getTitle() | translate }}</div>

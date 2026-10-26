@@ -16,10 +16,10 @@ import models.questions.QuestionType
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.{Language, PermissionType, User}
 import org.apache.commons.codec.digest.DigestUtils
-import org.joda.time.DateTime
-import services.datetime.JsonDateTime
+import services.datetime.JsonInstant
 
 import java.text.{DecimalFormat, DecimalFormatSymbols}
+import java.time.Instant
 import java.util.*
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
@@ -86,23 +86,21 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   @OneToOne(mappedBy = "exam") var examRecord: ExamRecord                     = uninitialized
   @OneToOne(mappedBy = "exam") var languageInspection: LanguageInspection     = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
+  @JsonInstant
   @Column(name = "exam_active_start_date")
-  var periodStart: DateTime = uninitialized
+  var periodStart: Instant = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
+  @JsonInstant
   @Column(name = "exam_active_end_date")
-  var periodEnd: DateTime = uninitialized
+  var periodEnd: Instant = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var gradedTime: DateTime = uninitialized
+  @JsonInstant var gradedTime: Instant             = uninitialized
+  @JsonInstant var autoEvaluationNotified: Instant = uninitialized
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonDateTime
-  var autoEvaluationNotified: DateTime = uninitialized
+  // When the assessment was first locked (registered, rejected or auto-archived). Retention
+  // periods for the student's exam copy count from this moment.
+  @JsonInstant
+  var lockedAt: Instant = uninitialized
 
   var instruction: String                            = uninitialized
   var enrollInstruction: String                      = uninitialized
@@ -169,6 +167,12 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
     executionType != null &&
       executionType.`type` != ExamExecutionType.Type.PUBLIC.toString &&
       !isPrintout
+
+  /** Sets the lock time unless already set, so a later transition such as archiving a registered
+    * exam keeps the original time.
+    */
+  def markLocked(at: Instant): Unit =
+    if lockedAt == null then lockedAt = at
 
   def isPrintout: Boolean =
     executionType != null && executionType.`type` == ExamExecutionType.Type.PRINTOUT.toString
@@ -272,6 +276,7 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
     dest.executionType = executionType
     dest.inspectionComments = inspectionComments
     dest.autoEvaluationNotified = autoEvaluationNotified
+    dest.lockedAt = lockedAt
     dest.gradingType = gradingType
     dest.subjectToLanguageInspection = subjectToLanguageInspection
     dest.internalRef = internalRef

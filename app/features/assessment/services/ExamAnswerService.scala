@@ -14,10 +14,10 @@ import models.exam.GradeType
 import models.questions.ClozeTestAnswer
 import models.questions.QuestionType
 import models.user.User
-import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.i18n.Lang
 
+import java.time.{Instant, ZoneOffset}
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -104,4 +104,6 @@ class ExamAnswerService @Inject() (
     config.releaseType match
       case ONCE_LOCKED => true
       case GIVEN_DATE =>
-        DateTime.now.isAfter(config.releaseDate.withTimeAtStartOfDay.plusDays(1))
+        Instant.now().isAfter(config.releaseDate.atZone(ZoneOffset.UTC).toLocalDate.plusDays(
+          1
+        ).atStartOfDay(ZoneOffset.UTC).toInstant)

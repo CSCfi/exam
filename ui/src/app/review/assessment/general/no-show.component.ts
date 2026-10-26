@@ -3,13 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-r-no-show',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: ` <div class="col-md-2 ">{{ started() | date: 'dd.MM.yyyy' }}</div>
         <div class="col-md-10 text-danger">
             {{ 'i18n_exam_status_no_show' | translate }}

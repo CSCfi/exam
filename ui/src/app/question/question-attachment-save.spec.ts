@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import type { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
 import type { ExamSectionQuestion, Question, QuestionDraft } from './question.model';
 import { QuestionService } from './question.service';
@@ -56,9 +56,9 @@ describe('QuestionService attachment save', () => {
             imports: [TranslateModule.forRoot()],
             providers: [
                 QuestionService,
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
-                { provide: ToastrService, useValue: { info: vi.fn(), error: vi.fn() } },
+                { provide: ToastService, useValue: { info: vi.fn(), error: vi.fn() } },
                 { provide: FileService, useValue: { upload$ } },
                 { provide: AttachmentService, useValue: { eraseQuestionAttachment$ } },
             ],

@@ -123,6 +123,15 @@ describe('AutoEvaluationComponent', () => {
             // Grade array should be populated from default (one row per grade)
             expect(component.gradeArray.length).toBe(mockGrades.length);
         });
+
+        it('should not fail when grade scale has no grades loaded', async () => {
+            const gradeScale = { ...mockGradeScale, grades: undefined } as unknown as GradeScale;
+            fixture.componentRef.setInput('exam', makeExam({ autoEvaluationConfig: undefined, gradeScale }));
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(component.gradeArray.length).toBe(0);
+        });
     });
 
     describe('form enabled/disabled state', () => {

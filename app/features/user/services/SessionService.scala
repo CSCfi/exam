@@ -11,18 +11,18 @@ import models.enrolment.{ExamEnrolment, Reservation}
 import models.facility.Organisation
 import models.user.*
 import org.apache.commons.codec.digest.DigestUtils
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, Minutes}
 import play.api.libs.json.{JsValue, Json}
 import play.api.{Environment, Logger}
 import repository.EnrolmentRepository
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.datetime.{AppClock, DateTimeHandler}
+import services.datetime.AppClock
 import services.exam.ExternalExamHandler
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.time.*
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import javax.inject.Inject
 import javax.mail.internet.InternetAddress
@@ -35,7 +35,6 @@ class SessionService @Inject() (
     externalExamHandler: ExternalExamHandler,
     configReader: ConfigReader,
     enrolmentRepository: EnrolmentRepository,
-    dateTimeHandler: DateTimeHandler,
     clock: AppClock
 )(implicit ec: BlockingIOExecutionContext)
     extends EbeanQueryExtensions
@@ -186,10 +185,13 @@ class SessionService @Inject() (
       eppn: String,
       remoteAddress: String
   ): Option[Reservation] =
-    val now = dateTimeHandler.adjustDST(clock.now())
+    val now = clock.now()
     val lookAheadMinutes =
-      Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
-    val future = now.plusMinutes(lookAheadMinutes)
+      Duration.between(
+        now,
+        LocalDate.now(ZoneOffset.UTC).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant
+      ).toMinutes
+    val future = now.plus(Duration.ofMinutes(lookAheadMinutes))
     DB
       .find(classOf[Reservation])
       .where()
@@ -369,7 +371,7 @@ class SessionService @Inject() (
     )
 
     val basePayload = Map(
-      "since" -> ISODateTimeFormat.dateTime().print(DateTime.now()),
+      "since" -> DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
       "id"    -> user.id.toString,
       "email" -> user.email,
       "eppn"  -> user.eppn
@@ -464,7 +466,7 @@ class SessionService @Inject() (
             else Future.successful(Right(role))
 
   def extendSession: SessionData =
-    Map("since" -> ISODateTimeFormat.dateTime().print(DateTime.now()))
+    Map("since" -> DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
 
   def checkSession(
       since: Option[String],
@@ -477,16 +479,19 @@ class SessionService @Inject() (
         Future.successful(Right(CheckSessionStatus.NoSession))
       case Some(s) =>
         val expirationTime =
-          ISODateTimeFormat.dateTimeParser().parseDateTime(s).plusMinutes(SESSION_TIMEOUT_MINUTES)
-        val alarmTime = expirationTime.minusMinutes(2)
+          Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(s)).plus(
+            Duration.ofMinutes(SESSION_TIMEOUT_MINUTES)
+          )
+        val alarmTime = expirationTime.minus(Duration.ofMinutes(2))
         logger.debug(s"Session expiration due at $expirationTime")
 
-        if expirationTime.isBeforeNow then
+        if expirationTime.isBefore(Instant.now()) then
           logger.info("Session has expired")
           Future.successful(Right(CheckSessionStatus.NoSession))
         else
           val status =
-            if alarmTime.isBeforeNow then CheckSessionStatus.Alarm else CheckSessionStatus.Valid
+            if alarmTime.isBefore(Instant.now()) then CheckSessionStatus.Alarm
+            else CheckSessionStatus.Valid
           Future.successful(Right(status))
 
   def updateSessionWithReservationHeaders(

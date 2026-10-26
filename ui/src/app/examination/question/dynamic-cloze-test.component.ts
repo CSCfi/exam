@@ -6,7 +6,6 @@ import type { OnDestroy } from '@angular/core';
 import {
     afterNextRender,
     AfterViewInit,
-    ChangeDetectionStrategy,
     Component,
     effect,
     ElementRef,
@@ -26,7 +25,6 @@ type ClozeTestAnswer = Record<string, string>;
     selector: 'xm-dynamic-cloze-test',
     template: `<div #clozeContainer [xmRichText]="content()"></div>`,
     imports: [RichTextDirective],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
     readonly container = viewChild<ElementRef<HTMLDivElement>>('clozeContainer');

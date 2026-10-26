@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -21,7 +21,6 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-feedback',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './feedback.template.html',
     imports: [CdkDrag, NgbPopover, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
