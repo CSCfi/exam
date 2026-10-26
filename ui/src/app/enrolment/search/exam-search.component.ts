@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap, tap } from 'rxjs/operators';
-import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
+import type { EnrolmentInfo, ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
@@ -114,7 +114,7 @@ interface LoadingState {
                 @for (exam of exams() | orderBy: filter().ordering : filter().reverse; track exam.id) {
                     <div class="row mb-3">
                         <div class="col-12">
-                            <xm-exam-search-result [exam]="exam" />
+                            <xm-exam-search-result [exam]="exam" (enrolmentChanged)="refreshEnrolment(exam)" />
                         </div>
                     </div>
                 }
@@ -159,6 +159,14 @@ export class ExamSearchComponent {
         this.filter.update((f) => ({ ...f, text }));
         this.storeFilters();
         this.filterChanged.next(text);
+    }
+
+    refreshEnrolment(exam: EnrolmentInfo) {
+        this.checkEnrolmentStatus(exam)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((updated) =>
+                this.exams.update((exams) => exams.map((e) => (e.id === updated.id ? updated : e))),
+            );
     }
 
     updateSorting(ordering: string, reverse: boolean) {
@@ -261,23 +269,16 @@ export class ExamSearchComponent {
         return forkJoin(enrolmentChecks);
     }
 
+    // Returns a copy, the result is bound to an OnPush card that only reacts to a new reference
     private checkEnrolmentStatus(exam: EnrolmentInfo): Observable<EnrolmentInfo> {
+        const withStatus = (enrolments: ExamEnrolment[]): EnrolmentInfo => ({
+            ...exam,
+            alreadyEnrolled: enrolments.length > 0,
+            reservationMade: enrolments.some((e) => e.reservation || e.examinationEventConfiguration),
+        });
         return this.Search.checkEnrolmentStatus$(exam.id).pipe(
-            map((enrolments) => {
-                if (enrolments.length > 0) {
-                    exam.alreadyEnrolled = true;
-                    exam.reservationMade = enrolments.some((e) => e.reservation || e.examinationEventConfiguration);
-                } else {
-                    exam.alreadyEnrolled = false;
-                    exam.reservationMade = false;
-                }
-                return exam;
-            }),
-            catchError(() => {
-                exam.alreadyEnrolled = false;
-                exam.reservationMade = false;
-                return of(exam);
-            }),
+            map(withStatus),
+            catchError(() => of(withStatus([]))),
         );
     }
 }

@@ -13,12 +13,18 @@ import { DateTimeService } from './date.service';
 export class ApplyDstPipe implements PipeTransform {
     private readonly DateTimeService = inject(DateTimeService);
 
-    transform = (input?: string): string => {
+    // Timestamps arrive either as ISO strings (Ebean JSON) or as epoch millis (endpoints that build
+    // their JSON by hand, e.g. /app/reviews/:id), so accept both instead of silently passing through.
+    transform = (input?: string | number | Date): string => {
         if (!input) return '';
-        const date = DateTime.fromISO(input);
-        if (this.DateTimeService.isDST(date.toJSDate())) {
-            return date.minus({ hours: 1 }).toISO() as string;
-        }
-        return input;
+        const date = this.parse(input);
+        if (!date.isValid) return '';
+        return this.DateTimeService.applyDst(date).toISO() as string;
+    };
+
+    private parse = (input: string | number | Date): DateTime => {
+        if (typeof input === 'number') return DateTime.fromMillis(input);
+        if (input instanceof Date) return DateTime.fromJSDate(input);
+        return DateTime.fromISO(input);
     };
 }

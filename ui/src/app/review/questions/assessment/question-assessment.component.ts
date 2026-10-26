@@ -18,8 +18,8 @@ import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { EssayAnswerListComponent } from './essay-answers.component';
 
 @Component({
@@ -28,7 +28,7 @@ import { EssayAnswerListComponent } from './essay-answers.component';
     styleUrls: ['./question-assessment.component.scss'],
     imports: [
         NgbNavModule,
-        MathDirective,
+        RichTextDirective,
         EssayAnswerListComponent,
         QuestionFlowComponent,
         LowerCasePipe,

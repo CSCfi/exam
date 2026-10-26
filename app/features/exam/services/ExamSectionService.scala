@@ -443,6 +443,9 @@ class ExamSectionService @Inject() (
       case (Some(exam), Some(section)) =>
         if !exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
           Left(AccessForbidden)
+        // The section has to be one of this exam's, otherwise the exam is not the one the section's
+        // rules are checked against
+        else if !Option(section.exam).exists(_.id == exam.id) then Left(SectionNotFound)
         else Right((exam, section))
 
   private def insertQuestionInternal(

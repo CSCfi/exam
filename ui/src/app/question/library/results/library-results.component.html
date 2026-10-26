@@ -19,7 +19,7 @@ SPDX-License-Identifier: EUPL-1.2
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                         />
                     </th>
-                    <th>
+                    <th class="question-column">
                         <xm-table-sort
                             by="id"
                             text="i18n_question"
@@ -107,7 +107,8 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td>
                             @if (question.question) {
-                                <span [xmMath]="question.question | slice: 0 : 360"> </span>
+                                <!-- Clamped in CSS; slicing the raw HTML cut markup mid-tag -->
+                                <span class="question-text-clamped" [xmRichText]="question.question"></span>
                             }
                             @if (!question.question) {
                                 <span class="text-danger">
@@ -227,7 +228,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 }
                 <!--Fill if page not full-->
-                @for (r of [] | pageFill: questions().length : currentPage() : pageSize; track r) {
+                @for (r of [] | pageFill: fixedQuestions().length : currentPage() : pageSize; track r) {
                     <tr>
                         <td colspan="12">&nbsp;</td>
                         @if (user.isAdmin) {
@@ -235,7 +236,7 @@ SPDX-License-Identifier: EUPL-1.2
                         }
                     </tr>
                 }
-                @if (questions().length === 0) {
+                @if (fixedQuestions().length === 0) {
                     <tr>
                         <td colspan="12">{{ 'i18n_exam_library_no_results' | translate }}</td>
                         @if (user.isAdmin) {
@@ -246,10 +247,10 @@ SPDX-License-Identifier: EUPL-1.2
             </tbody>
         </table>
     </div>
-    @if (questions().length > pageSize) {
+    @if (fixedQuestions().length > pageSize) {
         <div class="col-md-12">
             <xm-paginator
-                [items]="questions()"
+                [items]="fixedQuestions()"
                 (pageSelected)="pageSelected($event)"
                 [pageSize]="pageSize"
                 [currentPage]="currentPage()"

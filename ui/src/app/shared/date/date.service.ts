@@ -48,8 +48,8 @@ export class DateTimeService {
         const lang = this.translate.getCurrentLang();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options: Intl.DateTimeFormatOptions = { weekday: length };
-        return range(1, 7)
-            .concat(0)
+        return range(1, 6) // range is inclusive: Monday-Saturday
+            .concat(0) // Sunday last
             .map(this.getDateForWeekday)
             .map((d) => d.toLocaleDateString(locale, options));
     };
@@ -76,10 +76,12 @@ export class DateTimeService {
     getMonthNames = (): string[] => {
         const lang = this.translate.getCurrentLang();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
-        return range(1, 12)
-            .concat(0)
-            .map((m) => this.getLocalizedDateForMonth(m, locale).monthLong as string);
+        return range(1, 12).map((m) => this.getLocalizedDateForMonth(m, locale).monthLong as string);
     };
+
+    // The wall clock EXAM shows for a reservation is one hour ahead of the stored instant during
+    // DST, so displayed times (and anything ordered by them) have to be corrected the same way.
+    applyDst = (date: DateTime): DateTime => (this.isDST(date.toJSDate()) ? date.minus({ hours: 1 }) : date);
 
     isDST = (date: Date | string | number): boolean => {
         const d = new Date(date);

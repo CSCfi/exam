@@ -9,6 +9,7 @@ import { debounceTime, distinctUntilChanged, EMPTY, exhaustMap, forkJoin, map, O
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
 import { User } from 'src/app/session/session.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { Option } from 'src/app/shared/select/select.model';
 import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.component';
@@ -27,6 +28,19 @@ import {
 export interface Selection {
     [data: string]: string;
 }
+
+// States a student's copy can only be in because they actually sat the exam. A no-show flag left
+// behind by the sweep (the copy was still INITIALIZED when it ran) must not mask any of these.
+const ATTENDED_STATES = [
+    'STUDENT_STARTED',
+    'ABORTED',
+    'REVIEW',
+    'REVIEW_STARTED',
+    'GRADED',
+    'GRADED_LOGGED',
+    'REJECTED',
+    'ARCHIVED',
+];
 
 const STATE_ORDER = [
     'PUBLISHED',
@@ -47,15 +61,16 @@ const STATE_ORDER = [
 export class ReservationService {
     private readonly http = inject(HttpClient);
     private readonly modal = inject(ModalService);
+    private readonly DateTimeService = inject(DateTimeService);
 
     printExamState = (reservation: {
         enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
-    }) =>
-        reservation.enrolment.noShow
-            ? 'NO_SHOW'
-            : reservation.enrolment.exam
-              ? reservation.enrolment.exam.state
-              : reservation.enrolment.collaborativeExam.state;
+    }) => {
+        const state = reservation.enrolment.exam
+            ? reservation.enrolment.exam.state
+            : reservation.enrolment.collaborativeExam.state;
+        return reservation.enrolment.noShow && !ATTENDED_STATES.includes(state) ? 'NO_SHOW' : state;
+    };
 
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(
@@ -136,6 +151,7 @@ export class ReservationService {
                             : (r.externalUserRef ?? r.enrolment?.exam?.id?.toString() ?? ''),
                         org: '',
                         stateOrd: 0,
+                        startOrd: 0,
                         enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
                     })) as AnyReservation[],
             ),
@@ -150,6 +166,7 @@ export class ReservationService {
                             teacherAggregate: exam.examOwners.map((o) => o.lastName + o.firstName).join(),
                         };
                         r.stateOrd = STATE_ORDER.indexOf(this.printExamState(r));
+                        r.startOrd = this.displayedStartMillis(r);
                         return r;
                     });
             }),
@@ -206,6 +223,20 @@ export class ReservationService {
                 .toISO() || '',
     });
 
+    // Machine reservations and examination events end up in the same table but are rendered with
+    // different date pipes: only the former gets the DST correction. Ordering has to go by the
+    // instant actually on screen, or the two kinds interleave wrongly during DST. A number also
+    // keeps the order independent of how each endpoint happens to serialize its timestamps.
+    private displayedStartMillis = (r: AnyReservation): number => {
+        const start = DateTime.fromISO(r.startAt);
+        if (!start.isValid) return 0;
+        // Transfer exams get the correction too, and normalizeVariant has already given the
+        // collaborative ones an AQUARIUM implementation by the time this runs.
+        const isDstCorrected =
+            isLocalTransfer(r) || (r.enrolment?.exam as Exam | undefined)?.implementation === 'AQUARIUM';
+        return (isDstCorrected ? this.DateTimeService.applyDst(start) : start).toMillis();
+    };
+
     private normalizeVariant = (r: AnyReservation): void => {
         if (isLocalTransfer(r)) {
             // Transfer exams taken here
@@ -220,11 +251,15 @@ export class ReservationService {
                     parent: null,
                 },
             } as LocalTransferExamEnrolment;
-        } else if (isRemoteTransfer(r) && r.externalReservation) {
+            return;
+        }
+        if (isRemoteTransfer(r) && r.externalReservation) {
             // Transfer exams taken elsewhere
             r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
             r.machine = { name: r.externalReservation.machineName, room: { name: r.externalReservation.roomName } };
-        } else if (isCollaborative(r)) {
+        }
+        // Not exclusive with the above: a collaborative exam taken elsewhere is both
+        if (isCollaborative(r)) {
             if (!r.enrolment.exam) {
                 r.enrolment.exam = {
                     ...r.enrolment.collaborativeExam,

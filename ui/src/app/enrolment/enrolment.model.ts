@@ -110,3 +110,8 @@ export interface CollaborativeExamInfo extends CollaborativeExam {
     examInspections: ExamInspection[];
     parent: null;
 }
+
+export interface ExaminationEventAvailability {
+    full: boolean;
+    message: string;
+}

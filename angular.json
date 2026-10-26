@@ -43,7 +43,12 @@
             ],
             "styles": [
               "ui/src/styles.scss",
-              "node_modules/mathlive/mathlive-fonts.css"
+              "node_modules/mathlive/mathlive-fonts.css",
+              {
+                "input": "node_modules/ckeditor5/dist/ckeditor5-editor.css",
+                "bundleName": "ckeditor5-editor",
+                "inject": false
+              }
             ],
             "scripts": [],
             "browser": "ui/src/main.ts",

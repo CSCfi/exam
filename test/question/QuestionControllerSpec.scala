@@ -12,7 +12,7 @@ import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import play.api.http.Status
 import play.api.libs.json.*
-import play.api.mvc.Result
+import play.api.mvc.{Result, Session}
 import play.api.test.Helpers.*
 
 import scala.jdk.CollectionConverters.*
@@ -161,15 +161,50 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         assertExamSectionQuestion(finalQuestion, 4.0, Seq(2.0, 2.0, -2.0), -2.0)
 
     "exporting questions" should:
+      def exportableQuestionIds: Seq[java.lang.Long] =
+        DB.find(classOf[Question])
+          .findList()
+          .asScala
+          .filter(q =>
+            q.`type` != QuestionType.ClaimChoiceQuestion && q.`type` != QuestionType.ClozeTestQuestion
+          )
+          .map(_.id)
+          .toSeq
+
+      def exportRequest(ids: JsArray, session: Session): Result =
+        runIO(
+          makeRequest(
+            POST,
+            "/app/questions/export",
+            Some(Json.obj("params" -> Json.obj("ids" -> ids))),
+            session = session
+          )
+        )
+
       "export questions to Moodle format" in:
-        val (user, session) = runIO(loginAsTeacher())
-        val questionIds     = DB.find(classOf[Question]).findList().asScala.map(_.id)
-        val idsArray        = JsArray(questionIds.map(id => JsNumber(BigDecimal(id))).toSeq)
-        val params          = Json.obj("params" -> Json.obj("ids" -> idsArray))
+        val (_, session) = runIO(loginAsTeacher())
+        val questionIds  = exportableQuestionIds
+        questionIds must not be empty
 
         val result =
-          runIO(makeRequest(POST, "/app/questions/export", Some(params), session = session))
+          exportRequest(JsArray(questionIds.map(id => JsNumber(BigDecimal(id)))), session)
         statusOf(result).must(be(Status.OK))
+
+        val content = contentAsStringOf(result)
+        content must include("<quiz>")
+        content.split("<question ").length - 1 must be(questionIds.size)
+
+      // The response is chunked, so a failed export still returns OK with an empty body
+      "export questions when ids are given as strings" in:
+        val (_, session) = runIO(loginAsTeacher())
+        val questionIds  = exportableQuestionIds
+
+        val result = exportRequest(JsArray(questionIds.map(id => JsString(id.toString))), session)
+        statusOf(result).must(be(Status.OK))
+
+        val content = contentAsStringOf(result)
+        content must include("<quiz>")
+        content.split("<question ").length - 1 must be(questionIds.size)
 
     "working with claim choice questions" should:
       "create and update claim choice question" in:
@@ -273,6 +308,30 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
           val result = runIO(makeRequest(POST, "/app/questions", Some(draft), session = session))
           statusOf(result).must(be(Status.BAD_REQUEST))
         }
+
+    "copying questions" should:
+      "copy an owned question" in:
+        val q            = getQuestionWithOwnership
+        val (_, session) = runIO(loginAsTeacher())
+        val result       = runIO(makeRequest(POST, s"/app/question/${q.id}", session = session))
+        statusOf(result).must(be(Status.OK))
+        val copyId = (contentAsJsonOf(result) \ "id").as[Long]
+        copyId must not be q.id
+        DB.find(classOf[Question], copyId).question must startWith("<p>**COPY**</p>")
+
+      "return not found for a nonexistent question" in:
+        val (_, session) = runIO(loginAsTeacher())
+        val result       = runIO(makeRequest(POST, "/app/question/987654321", session = session))
+        statusOf(result).must(be(Status.NOT_FOUND))
+
+      "return forbidden for an unshared question the teacher does not own" in:
+        val q               = getQuestionWithOwnership
+        val (user, session) = runIO(loginAsTeacher())
+        q.questionOwners.removeIf(_.id == user.id)
+        q.shared = false
+        q.update()
+        val result = runIO(makeRequest(POST, s"/app/question/${q.id}", session = session))
+        statusOf(result).must(be(Status.FORBIDDEN))
 
   // Helper methods
   /** Fetch the test question fresh from DB and ensure teacher ownership is set up. This avoids test

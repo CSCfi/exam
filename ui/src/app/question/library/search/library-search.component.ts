@@ -325,11 +325,7 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
         const tags = this.tags().filter((t) => t.filtered);
         const owners = this.owners().filter((o) => o.filtered);
         const res: (
-            | Filterable<Course>
-            | Filterable<Exam>
-            | Filterable<ExamSection>
-            | Filterable<Tag>
-            | Filterable<User>
+            Filterable<Course> | Filterable<Exam> | Filterable<ExamSection> | Filterable<Tag> | Filterable<User>
         )[] = [];
         return res.concat(courses).concat(exams).concat(sections).concat(tags).concat(owners);
     };

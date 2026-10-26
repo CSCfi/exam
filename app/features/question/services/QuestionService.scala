@@ -161,7 +161,9 @@ class QuestionService @Inject() (
       val withSectionFilter =
         withTagFilter.inOrEmpty("examSectionQuestions.examSection.id", sectionIds.asJava)
 
-      val baseQuestions = withSectionFilter.orderBy("created desc").distinct
+      // No ordering here: distinct returns a Set, which discards it. The client sorts the
+      // library listing itself, see ui/.../library/results/library-results.component.ts
+      val baseQuestions = withSectionFilter.distinct
       val questions =
         if user.hasRole(Role.Name.TEACHER) && ownerIds.nonEmpty then
           baseQuestions.filter(_.questionOwners.contains(user))
@@ -205,13 +207,14 @@ class QuestionService @Inject() (
       case None => Left(AccessForbidden)
 
   def copyQuestion(id: Long, user: User): Either[QuestionError, Question] =
-    val baseQuery = DB.find(classOf[Question]).fetch("questionOwners").where().idEq(id)
-    val query =
-      if user.hasRole(Role.Name.TEACHER) then
-        baseQuery.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
-      else baseQuery
-    query.find match
-      case None => Left(AccessForbidden)
+    // Look the question up without the access filter so that a missing question is reported as such
+    // rather than as a permission problem
+    DB.find(classOf[Question]).fetch("questionOwners").where().idEq(id).find match
+      case None => Left(QuestionNotFound)
+      case Some(question)
+          if user.hasRole(Role.Name.TEACHER) && !question.shared &&
+            !question.questionOwners.asScala.exists(_.id == user.id) =>
+        Left(AccessForbidden)
       case Some(question) =>
         val sortedOptions = question.options.asScala.toSeq.sorted
         question.options.clear()
@@ -292,18 +295,18 @@ class QuestionService @Inject() (
             case Some(tagId) =>
               DB.find(classOf[Tag]).where().idEq(tagId).find
             case None =>
-              val tagName = (tagNode \ "name").asOpt[String].getOrElse("")
+              val tagName = (tagNode \ "name").asOpt[String].getOrElse("").toLowerCase
               DB
                 .find(classOf[Tag])
                 .where()
-                .eq("name", tagName)
+                .ieq("name", tagName)
                 .eq("creator", user)
                 .list
                 .headOption match
                 case t @ Some(_) => t
                 case None =>
                   val newTag = new Tag()
-                  newTag.name = tagName.toLowerCase
+                  newTag.name = tagName
                   newTag.setCreatorWithDate(user)
                   newTag.modifier = user
                   newTag.save()
@@ -476,12 +479,19 @@ class QuestionService @Inject() (
     xmlExporter.writeToStream(questionsForExport(body))(os)
 
   private def questionsForExport(body: JsValue): Seq[Question] =
-    val ids = (body \ "params" \ "ids")
-      .asOpt[JsArray]
-      .getOrElse(Json.arr())
-      .value
-      .map(_.as[Long])
-      .toSet
+    // Ids arrive as numbers, but tolerate strings so a stringified id does not fail the whole export
+    def toId(value: JsValue): Option[Long] = value match
+      case JsNumber(n) => Try(n.toLongExact).toOption
+      case JsString(s) => s.toLongOption
+      case _           => None
+
+    val values = (body \ "params" \ "ids").asOpt[JsArray].getOrElse(Json.arr()).value
+    val parsed = values.flatMap(toId)
+    if parsed.size < values.size then
+      logger.warn(
+        s"Ignoring ${values.size - parsed.size} unparseable question id(s) in export request"
+      )
+    val ids = parsed.toSet
     DB
       .find(classOf[Question])
       .where()

@@ -8,6 +8,8 @@ import database.EbeanJsonExtensions
 import features.enrolment.services.{ReservationError, ReservationService}
 import io.ebean.text.PathProperties
 import models.user.Role
+import org.joda.time.Interval
+import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
@@ -82,15 +84,26 @@ class ReservationController @Inject() (
     ))).async {
       request =>
         val machineId = (request.body \ "machineId").as[Long]
-        reservationService.updateMachine(reservationId, machineId).map {
+        // The client picks one of the slots offered by findAvailableMachines
+        val parser = ISODateTimeFormat.dateTimeParser
+        val chosenSlot =
+          for
+            start <- (request.body \ "start").asOpt[String]
+            end   <- (request.body \ "end").asOpt[String]
+          yield Interval(parser.parseDateTime(start), parser.parseDateTime(end))
+        reservationService.updateMachine(reservationId, machineId, chosenSlot).map {
           case Right(reservation)                         => Ok(reservation.asJson)
           case Left(ReservationError.ReservationNotFound) => NotFound("Reservation not found")
           case Left(ReservationError.MachineNotFound)     => NotFound("Machine not found")
           case Left(ReservationError.ExamNotFound)        => NotFound("Exam not found")
           case Left(ReservationError.MachineNotEligible) =>
             Forbidden(ReservationError.MachineNotEligible.message)
+          case Left(ReservationError.MachineChangeNotAllowed) =>
+            Forbidden(ReservationError.MachineChangeNotAllowed.message)
           case Left(ReservationError.SuitableSlotNotFound) =>
             InternalServerError(ReservationError.SuitableSlotNotFound.message)
+          case Left(ReservationError.SlotNotAvailable) =>
+            Forbidden(ReservationError.SlotNotAvailable.message)
           case Left(_) => Forbidden
         }
     }

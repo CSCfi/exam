@@ -22,6 +22,7 @@ import type {
     CollaborativeParticipation,
     EnrolmentInfo,
     ExamEnrolment,
+    ExaminationEventAvailability,
     ParticipationLike,
     ReviewedExam,
 } from './enrolment.model';
@@ -94,14 +95,18 @@ export class EnrolmentService {
 
     checkAndEnroll$ = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
         this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
-            switchMap((resp) =>
-                resp.length == 0
-                    ? this.enroll$(exam, collaborative)
-                    : throwError(() => new Error(this.translate.instant('i18n_already_enrolled'))),
-            ),
+            switchMap((enrolments) => {
+                if (enrolments.length === 0) return this.enroll$(exam, collaborative);
+                // Enrolled but without a time: pick one instead of dead-ending on "already enrolled",
+                // this is where a student is left when the examination event they picked was full
+                const withoutTime = enrolments.find((e) => !e.reservation && !e.examinationEventConfiguration);
+                return withoutTime
+                    ? this.makeReservation$({ ...withoutTime, exam }).pipe(map(() => withoutTime))
+                    : throwError(() => this.translate.instant('i18n_already_enrolled'));
+            }),
             catchError((err) => {
                 this.toast.error(err);
-                return throwError(() => new Error(err));
+                return EMPTY;
             }),
         );
 
@@ -255,10 +260,16 @@ export class EnrolmentService {
     loadParticipations$ = (filter: string) =>
         this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: filter } });
 
-    checkExaminationEventConfig$ = (enrolmentId: number, configId: number): Observable<string | null> =>
+    checkExaminationEventConfig$ = (
+        enrolmentId: number,
+        configId: number,
+    ): Observable<ExaminationEventAvailability | null> =>
         this.http.get(`/app/enrolments/${enrolmentId}/examination/${configId}`, { responseType: 'text' }).pipe(
             map(() => null),
-            catchError((err) => of(err as string)),
+            // error interceptor hands us only the translated message, so compare against that
+            catchError((err: string) =>
+                of({ full: err === this.translate.instant('i18n_error_max_enrolments_reached'), message: err }),
+            ),
         );
 
     selectExaminationEvent$ = (

@@ -11,9 +11,9 @@ import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
@@ -23,7 +23,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     imports: [
         CourseCodeComponent,
         TeacherListComponent,
-        MathDirective,
+        RichTextDirective,
         DatePipe,
         TranslateModule,
         PageHeaderComponent,

@@ -14,15 +14,15 @@ import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
+import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-r-cloze-test',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './cloze-test.component.html',
-    imports: [MathDirective, ReactiveFormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
+    imports: [RichTextDirective, ReactiveFormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
     styleUrls: ['../assessment.shared.scss'],
 })
 export class ClozeTestComponent {
@@ -111,9 +111,12 @@ export class ClozeTestComponent {
                 this.id,
                 this.ref,
                 participationValue._rev as string,
-            ).subscribe((resp) => {
-                this.toast.info(this.translate.instant('i18n_graded'));
-                this.scored.emit(resp.rev);
+            ).subscribe({
+                next: (resp) => {
+                    this.toast.info(this.translate.instant('i18n_graded'));
+                    this.scored.emit(resp.rev);
+                },
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.Assessment.saveForcedScore(sq).subscribe(() => {

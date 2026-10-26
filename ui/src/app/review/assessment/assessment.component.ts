@@ -145,7 +145,7 @@ export class AssessmentComponent {
 
     onExamUpdated = () => {
         const examValue = this.exam();
-        if (examValue) this.exam.set({ ...examValue });
+        if (examValue) this.setExam({ ...examValue });
     };
 
     isOwnerOrAdmin = () => {
@@ -176,23 +176,32 @@ export class AssessmentComponent {
         if (!examValue || examValue.state !== 'REVIEW') return;
 
         const state = 'REVIEW_STARTED';
+        // Apply the state to whatever exam is current when the response arrives, the one captured
+        // here may have been replaced (and further edited) in the meantime
+        const markStarted = () => {
+            const current = this.exam();
+            if (current) this.setExam({ ...current, state });
+        };
         if (!this.collaborative) {
             const review = this.Assessment.getPayload(examValue, state);
-            this.http.put(`/app/review/${review.id}`, review).subscribe(() => {
-                examValue.state = state;
-                this.exam.set(examValue); // Update signal to trigger change detection
-            });
+            this.http.put(`/app/review/${review.id}`, review).subscribe(markStarted);
         } else {
             if (!participationValue) return;
             const review = this.CollaborativeAssessment.getPayload(examValue, state, participationValue._rev as string);
             const url = `/app/iop/reviews/${this.examId}/${this.ref}`;
             this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
-                participationValue._rev = resp.rev;
-                examValue.state = state;
-                this.participation.set(participationValue); // Update signal
-                this.exam.set(examValue); // Update signal to trigger change detection
+                const current = this.participation();
+                if (current) current._rev = resp.rev;
+                markStarted();
             });
         }
+    };
+
+    // Grading and feedback edit exam() in place while collaborative saves read participation().exam,
+    // so both must always point at the same object
+    private setExam = (exam: Examination) => {
+        this.exam.set(exam);
+        this.participation.update((p) => (p ? { ...p, exam } : p));
     };
 
     private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);

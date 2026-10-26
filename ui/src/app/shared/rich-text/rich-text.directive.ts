@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Directive, ElementRef, OnDestroy, effect, inject, input, model } from '@angular/core';
+import { highlightCodeBlocks } from 'src/app/shared/code/syntax-highlight';
 
 interface MathFieldElement extends HTMLElement {
     readOnly: boolean;
@@ -17,20 +18,24 @@ interface MathfieldElementConstructor {
 export type MathMode = 'static' | 'interactive';
 
 /**
- * Math Directive
+ * Rich Text Directive
  *
- * Renders HTML content and activates any embedded `<math-field>` or `[xmMathLive]`
- * elements via MathLive. Plain text content (no HTML tags) is rendered as-is.
+ * Renders editor-authored HTML and activates the widgets it can carry: `<math-field>` /
+ * `[xmMathLive]` elements via MathLive, and CKEditor code blocks via the syntax highlighter.
+ * Plain text content (no HTML tags) is rendered as-is.
+ *
+ * This is the app's only path for rendering stored HTML, so anything that has to run against
+ * rendered content belongs in `enhanceRenderedContent`.
  *
  * @example
- * <div [xmMath]="'Some text with <math-field>x^2</math-field> embedded'"></div>
- * <div [xmMath]="plainTextWithNoMath"></div>
+ * <div [xmRichText]="'Some text with <math-field>x^2</math-field> embedded'"></div>
+ * <div [xmRichText]="plainTextWithNoMath"></div>
  */
 @Directive({
-    selector: '[xmMath]',
+    selector: '[xmRichText]',
 })
-export class MathDirective implements OnDestroy {
-    readonly htmlContent = model<string | undefined>(undefined, { alias: 'xmMath' });
+export class RichTextDirective implements OnDestroy {
+    readonly htmlContent = model<string | undefined>(undefined, { alias: 'xmRichText' });
     readonly mode = input<MathMode>('static');
     readonly editable = input(false);
 
@@ -77,7 +82,7 @@ export class MathDirective implements OnDestroy {
         try {
             if (/<[^>]+>/.test(content)) {
                 this.el.nativeElement.innerHTML = content;
-                await this.processMathLiveElements();
+                await this.enhanceRenderedContent();
             } else {
                 this.el.nativeElement.textContent = content;
             }
@@ -85,6 +90,13 @@ export class MathDirective implements OnDestroy {
             console.error('Failed to process math content:', error);
             this.el.nativeElement.innerHTML = `<code>${content}</code>`;
         }
+    }
+
+    /** Activates the widgets embedded in freshly rendered content. Math and code blocks are
+     *  unrelated to each other; they share this seam because they share a render path. */
+    private async enhanceRenderedContent() {
+        await this.processMathLiveElements();
+        await highlightCodeBlocks(this.el.nativeElement);
     }
 
     private async processMathLiveElements() {

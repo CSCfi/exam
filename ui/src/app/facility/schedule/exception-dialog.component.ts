@@ -110,7 +110,7 @@ export class ExceptionDialogComponent {
 
         const result = this.parseExceptionDays(matches);
         const translations = this.dateTime.getWeekdayNames(true).map((d, i) => {
-            return { name: d, number: i === 6 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
+            return { name: d, number: i + 1 }; // 1-7 mo-su, as in Luxon
         });
         const message = translations.filter((d) => weekdays.includes(d.number)).map((d) => ' ' + d.name) + '.';
         this.endDialogue(message, result);

@@ -43,8 +43,9 @@ export class ReservationDetailsComponent {
     readonly isAdminView = input(false);
     readonly isSupportView = input(false);
 
-    readonly predicate = signal('reservation.startAt');
-    readonly reverse = signal(false);
+    readonly predicate = signal('startOrd');
+    // Most recent examinations first: the near end of the range is the one people act on
+    readonly reverse = signal(true);
     readonly fixedReservations = linkedSignal<ReservationDetail[]>(() => this.reservations() as ReservationDetail[]);
 
     private readonly http = inject(HttpClient);
@@ -57,10 +58,11 @@ export class ReservationDetailsComponent {
     }
 
     getStateClass(reservation: Reservation) {
-        if (reservation.enrolment.noShow) {
+        const state = this.printExamState(reservation);
+        if (state === 'NO_SHOW') {
             return 'text-danger';
         }
-        return reservation.enrolment.exam.state === 'REVIEW' ? 'text-success' : '';
+        return state === 'REVIEW' ? 'text-success' : '';
     }
 
     removeReservation(reservation: ReservationDetail) {
@@ -118,11 +120,17 @@ export class ReservationDetailsComponent {
         return r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.executionType.type === 'PUBLIC';
     }
 
+    // Machines of IOP reservations are not ours to reassign, no matter when they take place
     canChangeMachine(r: ReservationDetail): boolean {
-        const isExternalUnfinished = r.enrolment.exam.state === 'EXTERNAL_UNFINISHED';
         const isPublishedAquarium =
             r.enrolment.exam.state === 'PUBLISHED' && r.enrolment.exam.implementation === 'AQUARIUM';
-        return !r.enrolment.noShow && ((isPublishedAquarium && !r.externalReservation) || isExternalUnfinished);
+        return (
+            isPublishedAquarium &&
+            !r.externalReservation &&
+            !r.externalUserRef &&
+            !r.enrolment.noShow &&
+            !this.reservationIsInPast(r)
+        );
     }
 
     hasAvailableActions(r: ReservationDetail): boolean {
@@ -132,7 +140,10 @@ export class ReservationDetailsComponent {
     setPredicate(predicate: string) {
         if (this.predicate() === predicate) {
             this.reverse.update((v) => !v);
+        } else {
+            // Another column starts over from ascending rather than inheriting this one's direction
+            this.predicate.set(predicate);
+            this.reverse.set(false);
         }
-        this.predicate.set(predicate);
     }
 }
