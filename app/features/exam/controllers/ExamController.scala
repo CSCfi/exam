@@ -89,7 +89,9 @@ class ExamController @Inject() (
           "examSections(id, optional), " +
           "examOwners(id, firstName, lastName), executionType(type), " +
           "examInspections(id, user(id, firstName, lastName)), " +
-          "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
+          "examEnrolments(id, user(id), " +
+          "reservation(id, endAt, machine(room(localTimezone)), externalReservation(roomTz)), " +
+          "examinationEventConfiguration(examinationEvent(start))))"
       )
       Future.successful(Ok(exams.asJson(props)))
     }
