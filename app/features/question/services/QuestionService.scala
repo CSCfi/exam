@@ -4,6 +4,7 @@
 
 package features.question.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.question.services.QuestionError.*
 import io.ebean.text.PathProperties
@@ -126,9 +127,9 @@ class QuestionService @Inject() (
   ): (List[Question], PathProperties) =
     if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) &&
       Seq(examIds, courseIds, tagIds, sectionIds, ownerIds).forall(_.isEmpty)
-    then (List.empty[Question], PathProperties.parse("(*)"))
+    then (List.empty[Question], props[Question]("(*)"))
     else
-      val pp = PathProperties.parse(
+      val pp = props[Question](
         """(*,
           |questionOwners(id, firstName, lastName, email),
           |attachment(*),
@@ -142,25 +143,33 @@ class QuestionService @Inject() (
           |)""".stripMargin
       )
       val baseQuery =
-        DB.find(classOf[Question]).apply(pp).where().isNull("parent").endJunction().ne(
-          "state",
+        DB.find(classOf[Question]).apply(pp).where().isNull(
+          path[Question]("parent")
+        ).endJunction().ne(
+          path[Question]("state"),
           QuestionState.DELETED.toString
         )
       val withOwnerFilter =
         if user.hasRole(Role.Name.TEACHER) then
-          if ownerIds.isEmpty then baseQuery.eq("questionOwners", user)
-          else baseQuery.in("questionOwners.id", ownerIds.asJava)
-        else baseQuery.inOrEmpty("questionOwners.id", ownerIds.asJava)
+          if ownerIds.isEmpty then baseQuery.eq(path[Question]("questionOwners"), user)
+          else baseQuery.in(path[Question]("questionOwners.id"), ownerIds.asJava)
+        else baseQuery.inOrEmpty(path[Question]("questionOwners.id"), ownerIds.asJava)
       val withExamFilter =
-        withOwnerFilter.inOrEmpty("examSectionQuestions.examSection.exam.id", examIds.asJava)
+        withOwnerFilter.inOrEmpty(
+          path[Question]("examSectionQuestions.examSection.exam.id"),
+          examIds.asJava
+        )
       val withCourseFilter =
         withExamFilter.inOrEmpty(
-          "examSectionQuestions.examSection.exam.course.id",
+          path[Question]("examSectionQuestions.examSection.exam.course.id"),
           courseIds.asJava
         )
-      val withTagFilter = withCourseFilter.inOrEmpty("tags.id", tagIds.asJava)
+      val withTagFilter = withCourseFilter.inOrEmpty(path[Question]("tags.id"), tagIds.asJava)
       val withSectionFilter =
-        withTagFilter.inOrEmpty("examSectionQuestions.examSection.id", sectionIds.asJava)
+        withTagFilter.inOrEmpty(
+          path[Question]("examSectionQuestions.examSection.id"),
+          sectionIds.asJava
+        )
 
       // No ordering here: distinct returns a Set, which discards it. The client sorts the
       // library listing itself, see ui/.../library/results/library-results.component.ts
@@ -176,16 +185,16 @@ class QuestionService @Inject() (
     if user.hasRole(Role.Name.TEACHER) then
       expr
         .disjunction()
-        .eq("shared", true)
-        .eq("questionOwners", user)
-        .eq("examSectionQuestions.examSection.exam.examOwners", user)
+        .eq(path[Question]("shared"), true)
+        .eq(path[Question]("questionOwners"), user)
+        .eq(path[Question]("examSectionQuestions.examSection.exam.examOwners"), user)
         .endJunction()
         .find
     else expr.find
 
   def getQuestion(id: Long, user: User): Either[QuestionError, (Question, PathProperties)] =
     val query = DB.find(classOf[Question])
-    val pp = PathProperties.parse(
+    val pp = props[Question](
       """(*,
         |questionOwners(id, firstName, lastName, email),
         |attachment(*),
@@ -210,7 +219,7 @@ class QuestionService @Inject() (
   def copyQuestion(id: Long, user: User): Either[QuestionError, Question] =
     // Look the question up without the access filter so that a missing question is reported as such
     // rather than as a permission problem
-    DB.find(classOf[Question]).fetch("questionOwners").where().idEq(id).find match
+    DB.find(classOf[Question]).fetch(path[Question]("questionOwners")).where().idEq(id).find match
       case None => Left(QuestionNotFound)
       case Some(question)
           if user.hasRole(Role.Name.TEACHER) && !question.shared &&
@@ -300,8 +309,8 @@ class QuestionService @Inject() (
               DB
                 .find(classOf[Tag])
                 .where()
-                .ieq("name", tagName)
-                .eq("creator", user)
+                .ieq(path[Tag]("name"), tagName)
+                .eq(path[Tag]("creator"), user)
                 .list
                 .headOption match
                 case t @ Some(_) => t
@@ -385,9 +394,9 @@ class QuestionService @Inject() (
       if user.hasRole(Role.Name.TEACHER) then
         baseQuery
           .or()
-          .eq("shared", true)
-          .eq("questionOwners", user)
-          .eq("examSectionQuestions.examSection.exam.examOwners", user)
+          .eq(path[Question]("shared"), true)
+          .eq(path[Question]("questionOwners"), user)
+          .eq(path[Question]("examSectionQuestions.examSection.exam.examOwners"), user)
           .endOr()
       else baseQuery
     query.find match
@@ -410,7 +419,10 @@ class QuestionService @Inject() (
     val baseExpr = DB.find(classOf[Question]).where().idEq(id)
     val expr =
       if user.hasRole(Role.Name.TEACHER) then
-        baseExpr.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
+        baseExpr.disjunction().eq(path[Question]("shared"), true).eq(
+          path[Question]("questionOwners"),
+          user
+        ).endJunction()
       else baseExpr
     expr.find match
       case None           => Left(QuestionNotFound)
@@ -454,8 +466,8 @@ class QuestionService @Inject() (
             val baseExpr = DB.find(classOf[Question]).where().idIn(ids.asJava)
             val expr =
               if modifier.hasRole(Role.Name.TEACHER) then
-                baseExpr.disjunction().eq("shared", true).eq(
-                  "questionOwners",
+                baseExpr.disjunction().eq(path[Question]("shared"), true).eq(
+                  path[Question]("questionOwners"),
                   modifier
                 ).endJunction()
               else baseExpr
@@ -520,9 +532,12 @@ class QuestionService @Inject() (
 
   def getQuestionPreview(qid: Long, user: User): Either[QuestionError, JsValue] =
     val baseQuery =
-      DB.find(classOf[Question]).fetch("attachment", "fileName").fetch("options").where().idEq(qid)
+      DB.find(classOf[Question]).fetch(path[Question]("attachment"), "fileName").fetch(
+        path[Question]("options")
+      ).where().idEq(qid)
     val el =
-      if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("questionOwners", user) else baseQuery
+      if user.hasRole(Role.Name.TEACHER) then baseQuery.eq(path[Question]("questionOwners"), user)
+      else baseQuery
     el.find match
       case None           => Left(QuestionNotFound)
       case Some(question) =>
@@ -546,16 +561,16 @@ class QuestionService @Inject() (
   def getExamSectionQuestionPreview(esqId: Long, user: User): Either[QuestionError, JsValue] =
     val baseQuery = DB
       .find(classOf[ExamSectionQuestion])
-      .fetch("question", "id, type, question")
-      .fetch("question.attachment", "fileName")
-      .fetch("options")
-      .fetch("options.option", "id, option")
+      .fetch(path[ExamSectionQuestion]("question"), "id, type, question")
+      .fetch(path[ExamSectionQuestion]("question.attachment"), "fileName")
+      .fetch(path[ExamSectionQuestion]("options"))
+      .fetch(path[ExamSectionQuestion]("options.option"), "id, option")
       .where()
       .idEq(esqId)
     val el =
       if user.hasRole(Role.Name.TEACHER) then
-        baseQuery.or().in("question.questionOwners", user).in(
-          "examSection.exam.examOwners",
+        baseQuery.or().in(path[ExamSectionQuestion]("question.questionOwners"), user).in(
+          path[ExamSectionQuestion]("examSection.exam.examOwners"),
           user
         ).endOr()
       else baseQuery
