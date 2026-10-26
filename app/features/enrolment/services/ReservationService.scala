@@ -8,12 +8,14 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.text.PathProperties
-import io.ebean.{DB, FetchConfig}
+import io.ebean.{DB, ExpressionList, FetchConfig}
 import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.Exam
 import models.exam.ExamState
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.{Role, User}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Source
 import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 import org.joda.time.{DateTime, DateTimeZone, Interval}
 import play.api.Logging
@@ -28,6 +30,11 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
+object ReservationService:
+  private val PageSize = 1000
+  // States of the reservation search that are not exam states
+  private val SpecialStates = Set("NO_SHOW", "EXTERNAL_UNFINISHED", "EXTERNAL_FINISHED")
+
 class ReservationService @Inject() (
     private val emailComposer: EmailComposer,
     private val collaborativeExamLoader: CollaborativeExamLoaderService,
@@ -40,6 +47,7 @@ class ReservationService @Inject() (
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:
+  import ReservationService.{PageSize, SpecialStates}
 
   def getExams(filter: Option[String], user: User): List[Exam] =
     val props = PathProperties.parse("(id, name)")
@@ -439,6 +447,10 @@ class ReservationService @Inject() (
         }
       }
 
+  /** Reservations matching the filters, ordered by start time and streamed in keyset pages so that
+    * an unfiltered search does not load the whole history. Dates and state are parsed up front so
+    * that invalid input fails before the response starts.
+    */
   def listReservations(
       state: Option[String],
       ownerId: Option[Long],
@@ -450,7 +462,41 @@ class ReservationService @Inject() (
       end: Option[String],
       externalRef: Option[String],
       user: User
-  ): List[Reservation] =
+  ): Source[List[Reservation], NotUsed] =
+    def parse(date: String) =
+      val dt = DateTime.parse(date, ISODateTimeFormat.dateTimeParser())
+      dt.plusMillis(dateTimeHandler.getTimezoneOffset(dt.withDayOfYear(1)))
+    val startDate = start.map(parse)
+    val endDate   = end.map(parse)
+    state.filterNot(SpecialStates.contains).foreach(ExamState.valueOf)
+
+    keysetPages(PageSize, (r: Reservation) => (r.startAt, r.id.longValue)) { after =>
+      reservationQuery(
+        state,
+        ownerId,
+        studentId,
+        roomId,
+        machineId,
+        examId,
+        startDate,
+        endDate,
+        externalRef,
+        user
+      ).after("startAt", after).orderBy("startAt, id").setMaxRows(PageSize).list
+    }(_.distinctBy(_.id)) // Joins through exam owners can repeat a reservation
+
+  private def reservationQuery(
+      state: Option[String],
+      ownerId: Option[Long],
+      studentId: Option[Long],
+      roomId: Option[Long],
+      machineId: Option[Long],
+      examId: Option[Long],
+      startDate: Option[DateTime],
+      endDate: Option[DateTime],
+      externalRef: Option[String],
+      user: User
+  ): ExpressionList[Reservation] =
     val baseQuery = DB
       .find(classOf[Reservation])
       .fetch("enrolment", "noShow, retrialPermitted")
@@ -480,17 +526,8 @@ class ReservationService @Inject() (
           .endOr()
       else baseQuery
 
-    val withStartFilter = start.fold(withTeacherFilter) { s =>
-      val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
-      val offset    = dateTimeHandler.getTimezoneOffset(startDate.withDayOfYear(1))
-      withTeacherFilter.ge("startAt", startDate.plusMillis(offset))
-    }
-
-    val withEndFilter = end.fold(withStartFilter) { e =>
-      val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
-      val offset  = dateTimeHandler.getTimezoneOffset(endDate.withDayOfYear(1))
-      withStartFilter.lt("endAt", endDate.plusMillis(offset))
-    }
+    val withStartFilter = startDate.fold(withTeacherFilter)(withTeacherFilter.ge("startAt", _))
+    val withEndFilter   = endDate.fold(withStartFilter)(withStartFilter.lt("endAt", _))
 
     val withStateFilter = state.fold(withEndFilter) {
       case "NO_SHOW" => withEndFilter.eq("enrolment.noShow", true)
@@ -538,7 +575,7 @@ class ReservationService @Inject() (
       else withExamFilter
     }
 
-    val query = if ownerId.isDefined && user.isAdminOrSupport then
+    if ownerId.isDefined && user.isAdminOrSupport then
       val userId = ownerId.get
       withExternalRefFilter
         .disjunction()
@@ -546,5 +583,3 @@ class ReservationService @Inject() (
         .eq("enrolment.exam.parent.examOwners.id", userId)
         .endJunction()
     else withExternalRefFilter
-
-    query.orderBy("startAt").distinct.toList

@@ -10,15 +10,22 @@ import io.ebean.text.PathProperties
 import models.enrolment.Reservation
 import models.exam.ExamState
 import models.facility.ExamRoom
-import org.joda.time.LocalDate
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Source
 import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.{DateTime, LocalDate}
 import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
+
+object ReservationAPIService:
+  private val PageSize = 1000
 
 class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
     extends EbeanQueryExtensions:
+  import ReservationAPIService.PageSize
 
   private val reservationProperties =
     """(startAt, endAt, externalUserRef,
@@ -55,11 +62,35 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
   private val openingHoursProperties =
     PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
 
+  /** Reservations ordered by start time, fetched in keyset pages so that memory use does not grow
+    * with the requested period. Pages are fetched lazily on `ec` as the stream is pulled. Dates are
+    * parsed up front so that invalid input fails before the response starts.
+    */
   def getReservations(
       start: Option[String],
       end: Option[String],
       roomId: Option[Long]
-  ): (List[Reservation], PathProperties) =
+  )(using ec: ExecutionContext): (Source[List[Reservation], NotUsed], PathProperties) =
+    val startDate = start.map(ISODateTimeFormat.dateTimeParser().parseDateTime)
+    val endDate   = end.map(ISODateTimeFormat.dateTimeParser().parseDateTime)
+    // The key is taken from the stored start time, before normalizing changes it
+    val pages = keysetPages(PageSize, (r: Reservation) => (r.startAt, r.id.longValue))(
+      fetchPage(startDate, endDate, roomId, _)
+    ) { rows =>
+      rows.foreach { r =>
+        r.startAt = dateTimeHandler.normalize(r.startAt, r)
+        r.endAt = dateTimeHandler.normalize(r.endAt, r)
+      }
+      rows
+    }
+    (pages, reservationJsonProperties)
+
+  private def fetchPage(
+      startDate: Option[DateTime],
+      endDate: Option[DateTime],
+      roomId: Option[Long],
+      after: Option[(DateTime, Long)]
+  ): List[Reservation] =
     val query = DB.find(classOf[Reservation]).apply(reservationFetchProperties)
     val baseQuery = query
       .where()
@@ -74,28 +105,11 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
       .isNotNull("externalUserRef")
       .endOr() // *
 
-    val withStart = start.fold(baseQuery) { s =>
-      val startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(s)
-      baseQuery.ge("startAt", startDate.toDate)
-    }
+    val withStart = startDate.fold(baseQuery)(s => baseQuery.ge("startAt", s.toDate))
+    val withEnd   = endDate.fold(withStart)(e => withStart.lt("endAt", e.toDate))
+    val withRoom  = roomId.fold(withEnd)(id => withEnd.eq("machine.room.id", id))
 
-    val withEnd = end.fold(withStart) { e =>
-      val endDate = ISODateTimeFormat.dateTimeParser().parseDateTime(e)
-      withStart.lt("endAt", endDate.toDate)
-    }
-
-    val finalQuery = roomId.fold(withEnd) { id =>
-      withEnd.eq("machine.room.id", id)
-    }
-
-    val reservations = finalQuery.distinct.toList
-      .map { r =>
-        r.startAt = dateTimeHandler.normalize(r.startAt, r)
-        r.endAt = dateTimeHandler.normalize(r.endAt, r)
-        r
-      }
-      .sortBy(r => r.startAt.getMillis)
-    (reservations, reservationJsonProperties)
+    withRoom.after("startAt", after).orderBy("startAt, id").setMaxRows(PageSize).list
 
   def getRooms: (List[ExamRoom], PathProperties) =
     (DB.find(classOf[ExamRoom]).apply(roomProperties).orderBy("name").list, roomProperties)

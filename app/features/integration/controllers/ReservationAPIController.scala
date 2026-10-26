@@ -30,8 +30,8 @@ class ReservationAPIController @Inject() (
       roomId: Option[Long]
   ): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
-      val (reservations, pp) = reservationAPIService.getReservations(start, end, roomId)
-      Ok(reservations.asJson(pp))
+      val (pages, pp) = reservationAPIService.getReservations(start, end, roomId)
+      Ok.chunked(pages.asJsonArray(pp)).as(JSON)
     }
 
   def getRooms: Action[AnyContent] =
