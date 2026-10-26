@@ -52,7 +52,7 @@ export class LibraryService {
 
     listTags$ = (courseIds: number[], examIds: number[], sectionIds: number[], ownerIds: number[]): Observable<Tag[]> =>
         this.http.get<Tag[]>('/app/tags', {
-            params: this.getQueryParams(courseIds, sectionIds, examIds, [], ownerIds),
+            params: this.getQueryParams(courseIds, examIds, sectionIds, [], ownerIds),
         });
 
     listAllTags$ = (): Observable<Tag[]> => this.http.get<Tag[]>('/app/tags');
