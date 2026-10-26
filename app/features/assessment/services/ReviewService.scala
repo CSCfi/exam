@@ -4,6 +4,7 @@
 
 package features.assessment.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Query}
@@ -39,31 +40,31 @@ class ReviewService @Inject() (
   def listParticipationsForExamAndUser(exam: Exam): List[ExamParticipation] =
     DB
       .find(classOf[ExamParticipation])
-      .fetch("exam", "id, state, anonymous")
-      .fetch("exam.grade", "id, name")
-      .fetch("reservation")
-      .fetch("examinationEvent")
+      .fetch(path[ExamParticipation]("exam"), "id, state, anonymous")
+      .fetch(path[ExamParticipation]("exam.grade"), "id, name")
+      .fetch(path[ExamParticipation]("reservation"))
+      .fetch(path[ExamParticipation]("examinationEvent"))
       .where()
-      .eq("user", exam.creator)
-      .eq("exam.parent", exam.parent)
+      .eq(path[ExamParticipation]("user"), exam.creator)
+      .eq(path[ExamParticipation]("exam.parent"), exam.parent)
       .or()
-      .eq("exam.state", ExamState.ABORTED)
-      .eq("exam.state", ExamState.GRADED)
-      .eq("exam.state", ExamState.GRADED_LOGGED)
-      .eq("exam.state", ExamState.ARCHIVED)
+      .eq(path[ExamParticipation]("exam.state"), ExamState.ABORTED)
+      .eq(path[ExamParticipation]("exam.state"), ExamState.GRADED)
+      .eq(path[ExamParticipation]("exam.state"), ExamState.GRADED_LOGGED)
+      .eq(path[ExamParticipation]("exam.state"), ExamState.ARCHIVED)
       .endOr()
       .list
 
   def listNoShowsForExamAndUser(exam: Exam): List[ExamEnrolment] =
     DB
       .find(classOf[ExamEnrolment])
-      .fetch("reservation", "startAt, endAt")
-      .fetch("examinationEventConfiguration.examinationEvent", "start")
+      .fetch(path[ExamEnrolment]("reservation"), "startAt, endAt")
+      .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"), "start")
       .where()
-      .eq("user", exam.creator)
-      .eq("exam", exam.parent)
-      .eq("noShow", true)
-      .orderBy("reservation.endAt")
+      .eq(path[ExamEnrolment]("user"), exam.creator)
+      .eq(path[ExamEnrolment]("exam"), exam.parent)
+      .eq(path[ExamEnrolment]("noShow"), true)
+      .orderBy(path[ExamEnrolment]("reservation.endAt"))
       .distinct
       .toList
 
@@ -83,8 +84,11 @@ class ReviewService @Inject() (
     )
     createQuery()
       .where()
-      .eq("exam.id", examId)
-      .in("exam.state", if isAdmin then (states + ExamState.ABORTED).asJava else states.asJava)
+      .eq(path[ExamParticipation]("exam.id"), examId)
+      .in(
+        path[ExamParticipation]("exam.state"),
+        if isAdmin then (states + ExamState.ABORTED).asJava else states.asJava
+      )
       .find match
       case Some(participation) =>
         val exam = participation.exam
@@ -108,7 +112,7 @@ class ReviewService @Inject() (
       case None => Left(ReviewError.ParticipationNotFound)
 
   def listReviews(parentExamId: Long, user: User): (List[Exam], List[Long]) =
-    val pp = PathProperties.parse(
+    val pp = props[Exam](
       """(*,
         |gradingType(*),
         |gradeScale(*, grades(*)),
@@ -141,9 +145,9 @@ class ReviewService @Inject() (
       .find(classOf[Exam])
       .apply(pp)
       .where
-      .eq("parent.id", parentExamId)
+      .eq(path[Exam]("parent.id"), parentExamId)
       .in(
-        "state",
+        path[Exam]("state"),
         ExamState.ABORTED,
         ExamState.REVIEW,
         ExamState.REVIEW_STARTED,
@@ -154,7 +158,10 @@ class ReviewService @Inject() (
       )
     val finalQuery =
       if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-        baseQuery.or.eq("parent.examOwners", user).eq("examInspections.user", user).endOr
+        baseQuery.or.eq(path[Exam]("parent.examOwners"), user).eq(
+          path[Exam]("examInspections.user"),
+          user
+        ).endOr
       else baseQuery
     val exams   = finalQuery.distinct.toList
     val anonIds = exams.filter(_.anonymous).map(_.examParticipation.id.longValue)
@@ -206,10 +213,10 @@ class ReviewService @Inject() (
       user: User
   ): Either[ReviewError, Unit] =
     DB.find(classOf[ExamSectionQuestion])
-      .fetch("examSection.exam.parent.examOwners")
+      .fetch(path[ExamSectionQuestion]("examSection.exam.parent.examOwners"))
       .where()
       .idEq(id)
-      .ne("question.type", QuestionType.EssayQuestion)
+      .ne(path[ExamSectionQuestion]("question.type"), QuestionType.EssayQuestion)
       .find match
       case Some(esq) =>
         val exam = esq.examSection.exam
@@ -232,10 +239,10 @@ class ReviewService @Inject() (
 
   def updateAssessmentInfo(id: Long, info: Option[String], user: User): Either[ReviewError, Unit] =
     DB.find(classOf[Exam])
-      .fetch("parent.creator")
+      .fetch(path[Exam]("parent.creator"))
       .where()
       .idEq(id)
-      .in("state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
+      .in(path[Exam]("state"), ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
       .find match
       case Some(exam) =>
         if isDisallowedToModify(exam, user, exam.state) then
@@ -247,8 +254,10 @@ class ReviewService @Inject() (
       case None => Left(ReviewError.ExamNotFound)
 
   def reviewExam(id: Long, body: JsValue, user: User): Either[ReviewError, Unit] =
-    DB.find(classOf[Exam]).fetch("parent").fetch("parent.creator").fetch("parent.gradeScale").fetch(
-      "parent.gradeScale.grades"
+    DB.find(classOf[Exam]).fetch(path[Exam]("parent")).fetch(path[Exam]("parent.creator")).fetch(
+      path[Exam]("parent.gradeScale")
+    ).fetch(
+      path[Exam]("parent.gradeScale.grades")
     ).where.idEq(id).find match
       case Some(exam) =>
         val newState = ExamState.valueOf((body \ "state").asOpt[String].orNull)
@@ -272,7 +281,7 @@ class ReviewService @Inject() (
             val additionalInfo = (body \ "additionalInfo").asOpt[String].orNull
             val gradingType    = GradeType.valueOf((body \ "gradingType").asOpt[String].orNull)
             val examType = (body \ "creditType").asOpt[String].flatMap { creditType =>
-              DB.find(classOf[ExamType]).where().eq("type", creditType).find
+              DB.find(classOf[ExamType]).where().eq(path[ExamType]("type"), creditType).find
             }
             exam.creditType = examType.orNull
             val gradeError = grade match
@@ -295,7 +304,7 @@ class ReviewService @Inject() (
                   exam.gradingType = GradeType.POINT_GRADED
                   // Forced partial credit type
                   exam.creditType = DB.find(classOf[ExamType]).where().eq(
-                    "type",
+                    path[ExamType]("type"),
                     "PARTIAL"
                   ).find.orNull
                 else
@@ -322,11 +331,11 @@ class ReviewService @Inject() (
       case Some(exam) =>
         val inspections = DB
           .find(classOf[ExamInspection])
-          .fetch("user")
-          .fetch("exam")
+          .fetch(path[ExamInspection]("user"))
+          .fetch(path[ExamInspection]("exam"))
           .where()
-          .eq("exam.id", exam.id)
-          .ne("user", loggedInUser)
+          .eq(path[ExamInspection]("exam.id"), exam.id)
+          .ne(path[ExamInspection]("user"), loggedInUser)
           .distinct
           .map(_.user)
         val recipients =
@@ -345,19 +354,26 @@ class ReviewService @Inject() (
   def listNoShows(eid: Long, collaborative: Option[Boolean]): (List[ExamEnrolment], Set[Long]) =
     val el = DB
       .find(classOf[ExamEnrolment])
-      .fetch("exam", "id, name, state, duration, gradedTime, customCredit, trialCount, anonymous")
-      .fetch("collaborativeExam")
-      .fetch("exam.executionType")
-      .fetch("reservation")
-      .fetch("examinationEventConfiguration.examinationEvent")
-      .fetch("user", "id, firstName, lastName, email, userIdentifier")
-      .fetch("exam.course", "code, credits")
-      .fetch("exam.grade", "id, name")
+      .fetch(
+        path[ExamEnrolment]("exam"),
+        "id, name, state, duration, gradedTime, customCredit, trialCount, anonymous"
+      )
+      .fetch(path[ExamEnrolment]("collaborativeExam"))
+      .fetch(path[ExamEnrolment]("exam.executionType"))
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"))
+      .fetch(path[ExamEnrolment]("user"), "id, firstName, lastName, email, userIdentifier")
+      .fetch(path[ExamEnrolment]("exam.course"), "code, credits")
+      .fetch(path[ExamEnrolment]("exam.grade"), "id, name")
       .where
-      .eq("noShow", true)
+      .eq(path[ExamEnrolment]("noShow"), true)
     val query =
-      if collaborative.getOrElse(false) then el.eq("collaborativeExam.id", eid)
-      else el.or.eq("exam.id", eid).eq("exam.parent.id", eid).endOr
+      if collaborative.getOrElse(false) then el.eq(path[ExamEnrolment]("collaborativeExam.id"), eid)
+      else
+        el.or.eq(path[ExamEnrolment]("exam.id"), eid).eq(
+          path[ExamEnrolment]("exam.parent.id"),
+          eid
+        ).endOr
     val enrolments = query.distinct.toList
     val anonIds = enrolments
       .filter(ee => Option(ee.collaborativeExam).isDefined || ee.exam.anonymous)
@@ -414,7 +430,9 @@ class ReviewService @Inject() (
 
   def archiveExams(ids: List[Long]): Unit =
     val exams =
-      DB.find(classOf[Exam]).where().eq("state", ExamState.GRADED_LOGGED).idIn(ids.asJava).distinct
+      DB.find(classOf[Exam]).where().eq(path[Exam]("state"), ExamState.GRADED_LOGGED).idIn(
+        ids.asJava
+      ).distinct
     exams.foreach(e =>
       e.state = ExamState.ARCHIVED
       e.update()
@@ -424,8 +442,8 @@ class ReviewService @Inject() (
     val assessments = DB
       .find(classOf[Exam])
       .where()
-      .eq("parent.id", eid)
-      .in("state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
+      .eq(path[Exam]("parent.id"), eid)
+      .in(path[Exam]("state"), ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
       .distinct
     if assessments.nonEmpty then
       Option(DB.find(classOf[Exam], eid)) match
@@ -460,7 +478,7 @@ class ReviewService @Inject() (
   def getBlankAnswerText(user: User): String =
     messaging("clozeTest.blank.answer")(using Lang.get(user.language.code).get)
 
-  private val reviewQueryPP = PathProperties.parse(
+  private val reviewQueryPP = props[ExamParticipation](
     """(
       |  started, ended, duration, deadline,
       |  user(firstName, lastName, email, userIdentifier),
