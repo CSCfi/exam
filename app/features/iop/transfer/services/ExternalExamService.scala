@@ -13,7 +13,6 @@ import models.enrolment.ExamEnrolment
 import models.iop.ExternalExam
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
-import play.db.ebean.Transactional
 import play.libs.Json as JavaJson
 import security.BlockingIOExecutionContext
 import services.enrolment.NoShowHandler
@@ -23,6 +22,7 @@ import services.json.JsonDeserializer
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
+import scala.util.Using
 
 class ExternalExamService @Inject() (
     externalExamHandler: ExternalExamHandler,
@@ -58,7 +58,6 @@ class ExternalExamService @Inject() (
                   |)""".stripMargin
     PathProperties.parse(path)
 
-  @Transactional
   def addExamForAssessment(ref: String, body: JsValue): Future[Either[ExternalExamError, Unit]] =
     getPrototype(ref) match
       case None            => Future.successful(Left(ExternalExamError.EnrolmentNotFound))
@@ -73,10 +72,15 @@ class ExternalExamService @Inject() (
             if parent.isEmpty && Option(enrolment.collaborativeExam).isEmpty then
               Future.successful(Left(ExternalExamError.ParentExamNotFound))
             else
-              val participation = externalExamHandler.createCopyForAssessment(enrolment, ee)
-              val clone         = participation.exam
-              enrolment.exam = clone
-              enrolment.update()
+              // The sender retries until it gets a 201, so a failed copy must leave nothing behind
+              val participation = Using.resource(DB.beginTransaction()) { tx =>
+                val ep = externalExamHandler.createCopyForAssessment(enrolment, ee)
+                enrolment.exam = ep.exam
+                enrolment.update()
+                tx.commit()
+                ep
+              }
+              val clone = participation.exam
 
               Option(enrolment.collaborativeExam) match
                 case Some(_) =>
