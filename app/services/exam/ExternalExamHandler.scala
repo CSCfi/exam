@@ -190,6 +190,7 @@ class ExternalExamHandlerImpl @Inject() (
     clone.setModifierWithDate(user)
     clone.generateHash()
     clone.gradingType = GradeType.GRADED
+    // Feedback release is configured on the parent exam only
     clone.examFeedbackConfig = null
     clone.save()
 
@@ -198,12 +199,6 @@ class ExternalExamHandlerImpl @Inject() (
       configClone.exam = clone
       configClone.save()
       clone.autoEvaluationConfig = configClone
-
-    if Option(src.examFeedbackConfig).isDefined then
-      val configClone = src.examFeedbackConfig.copy()
-      configClone.exam = clone
-      configClone.save()
-      clone.examFeedbackConfig = configClone
 
     src.examInspections.asScala.foreach { ei =>
       val inspection = new ExamInspection()
