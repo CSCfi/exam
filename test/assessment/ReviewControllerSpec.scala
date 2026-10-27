@@ -9,6 +9,7 @@ import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.{ExamInspection, ExamRecord}
+import models.enrolment.ExamParticipation
 import models.exam.*
 import models.user.User
 import play.api.http.Status
@@ -205,6 +206,30 @@ class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions
         val after = reload()
         after.state must be(ExamState.ARCHIVED)
         after.lockedAt must be(locked.lockedAt)
+
+      "leave the exam unlocked if registering fails" in:
+        val (_, session) = loginAsAdminWithExamInspection()
+        val grade        = gradeNamed("APPROVED")
+        runIO(
+          put(
+            s"/app/review/${exam.get.id}",
+            reviewBody("GRADED", Some(grade.id.intValue), "GRADED"),
+            session = session
+          )
+        )
+        DB.find(classOf[ExamParticipation]).where().eq("exam.id", exam.get.id).delete()
+        val registered = runIO(
+          makeRequest(
+            "POST",
+            "/app/exam/record",
+            Some(Json.obj("id" -> JsNumber(BigDecimal(exam.get.id)))),
+            session = session
+          )
+        )
+        statusOf(registered) must be(Status.NOT_FOUND)
+        val after = reload()
+        after.state must be(ExamState.GRADED)
+        Option(after.lockedAt) must be(None)
 
       "set the lock time on registering without a record" in:
         val (_, session) = loginAsAdminWithExamInspection()
