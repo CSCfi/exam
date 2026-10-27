@@ -414,7 +414,7 @@ GET           /app/availability/:roomId/:date                                   
 GET           /app/languages                                                     features.user.controllers.LanguageController.listSupportedLanguages()
 
 ################# Tag interface ##################
-GET           /app/tags                                                          features.question.controllers.TagController.listTags(filter: Option[String], courseIds: Option[List[Long]], examIds: Option[List[Long]], sectionIds: Option[List[Long]], owner: Option[List[Long]])
+GET           /app/tags                                                          features.question.controllers.TagController.listTags(filter: Option[String], courseIds: Option[List[Long]], examIds: Option[List[Long]], sectionIds: Option[List[Long]], ownerIds: Option[List[Long]])
 POST          /app/tags/questions                                                features.question.controllers.TagController.addTagToQuestions()
 
 ################# General Settings interface ##################

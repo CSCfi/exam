@@ -28,12 +28,12 @@ class ReportController @Inject() (
 
   def getStudents: Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
-      Ok(reportService.getStudents.asJson)
+      Ok(reportService.getStudents.asJsonText).as(JSON)
     }
 
   def getExamNames: Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
-      Ok(reportService.examNames.asJson)
+      Ok(reportService.examNames.asJsonText).as(JSON)
     }
 
   def getExam(id: Long, reportType: String): Action[AnyContent] =

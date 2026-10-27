@@ -66,7 +66,7 @@ class StatisticsController @Inject() (
   ): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       val reservations = statisticsService.listIopReservations(dept, start, end)
-      Ok(reservations.asJson)
+      Ok(reservations.asJsonText).as(JSON)
     }
 
   def listPublishedExams(

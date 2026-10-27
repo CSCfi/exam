@@ -3,49 +3,48 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { filter, switchMap } from 'rxjs/operators';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div class="row my-2">
-            <div class="col-12">
-                <button class="btn btn-sm btn-primary" (click)="listReservations()">
-                    {{ 'i18n_search' | translate }}
-                </button>
+        @if (queryParams()) {
+            <div class="row">
+                <div class="col-3">
+                    <strong>{{ 'i18n_total_reservations' | translate }}:</strong>
+                </div>
+                <div class="col-9">{{ data().appearances }}</div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-3">
-                <strong>{{ 'i18n_total_reservations' | translate }}:</strong>
+            <div class="row">
+                <div class="col-3">
+                    <strong>{{ 'i18n_total_no_shows' | translate }}:</strong>
+                </div>
+                <div class="col-9">{{ data().noShows }}</div>
             </div>
-            <div class="col-9">{{ data().appearances }}</div>
-        </div>
-        <div class="row">
-            <div class="col-3">
-                <strong>{{ 'i18n_total_no_shows' | translate }}:</strong>
-            </div>
-            <div class="col-9">{{ data().noShows }}</div>
-        </div>
+        }
     `,
     selector: 'xm-reservation-statistics',
     imports: [TranslateModule],
 })
 export class ReservationStatisticsComponent {
-    readonly queryParams = input<QueryParams>({});
+    readonly queryParams = input<QueryParams | null>(null);
     readonly data = signal({ noShows: 0, appearances: 0 });
 
     private readonly Statistics = inject(StatisticsService);
 
     constructor() {
-        this.listReservations();
-    }
-
-    listReservations() {
-        this.Statistics.listReservations$(this.queryParams()).subscribe((resp) => {
-            this.data.set(resp);
-        });
+        toObservable(this.queryParams)
+            .pipe(
+                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                switchMap((params) => this.Statistics.listReservations$(params)),
+                takeUntilDestroyed(),
+            )
+            .subscribe((resp) => {
+                this.data.set(resp);
+            });
     }
 }

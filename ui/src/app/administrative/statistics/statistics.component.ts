@@ -52,6 +52,9 @@ export class StatisticsComponent {
     readonly startDate = signal<Date | null>(null);
     readonly endDate = signal<Date | null>(null);
 
+    readonly confirmedQueryParams = signal<QueryParams | null>(null);
+    readonly canSearch = computed(() => !!this.startDate() && !!this.endDate());
+
     readonly filteredDepartments = computed(() => {
         const filter = this._departmentFilter().toLowerCase();
         if (filter === '') {
@@ -98,6 +101,7 @@ export class StatisticsComponent {
 
     set view(value: Tab) {
         this._view.set(value);
+        this.confirmedQueryParams.set(null);
     }
 
     set departmentFilter(value: string) {
@@ -122,4 +126,10 @@ export class StatisticsComponent {
     onDepartmentFilterInput = (event: Event) => {
         this.departmentFilter = (event.target as HTMLInputElement).value;
     };
+
+    search() {
+        if (this.canSearch()) {
+            this.confirmedQueryParams.set(this.queryParams());
+        }
+    }
 }
