@@ -4,6 +4,7 @@
 
 package features.assessment.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.{DB, ExpressionList, FetchConfig}
 import models.assessment.{Comment, LanguageInspection}
@@ -36,16 +37,19 @@ class LanguageInspectionService @Inject() (
   ): List[LanguageInspection] =
     val query = DB
       .find(classOf[LanguageInspection])
-      .fetch("exam")
-      .fetch("exam.course")
-      .fetch("exam.creator", "firstName, lastName, email, userIdentifier")
-      .fetch("exam.parent.examOwners", "firstName, lastName, email, userIdentifier")
-      .fetch("exam.examLanguages", FetchConfig.ofQuery)
-      .fetch("statement")
-      .fetch("creator", "firstName, lastName, email, userIdentifier")
-      .fetch("assignee", "firstName, lastName, email, userIdentifier")
+      .fetch(path[LanguageInspection]("exam"))
+      .fetch(path[LanguageInspection]("exam.course"))
+      .fetch(path[LanguageInspection]("exam.creator"), "firstName, lastName, email, userIdentifier")
+      .fetch(
+        path[LanguageInspection]("exam.parent.examOwners"),
+        "firstName, lastName, email, userIdentifier"
+      )
+      .fetch(path[LanguageInspection]("exam.examLanguages"), FetchConfig.ofQuery)
+      .fetch(path[LanguageInspection]("statement"))
+      .fetch(path[LanguageInspection]("creator"), "firstName, lastName, email, userIdentifier")
+      .fetch(path[LanguageInspection]("assignee"), "firstName, lastName, email, userIdentifier")
       .where
-      .ne("exam.state", ExamState.DELETED)
+      .ne(path[LanguageInspection]("exam.state"), ExamState.DELETED)
     applyDateFilters(query, month, start, end).distinct.toList
 
   def createInspection(
@@ -146,7 +150,7 @@ class LanguageInspectionService @Inject() (
       case (Some(_), _, _) | (_, Some(_), _) =>
         val withStart = start.fold(query) { s =>
           query.ge(
-            "finishedAt",
+            path[LanguageInspection]("finishedAt"),
             Instant.ofEpochMilli(s).plus(java.time.Duration.ofDays(1)).truncatedTo(
               java.time.temporal.ChronoUnit.DAYS
             )
@@ -154,7 +158,7 @@ class LanguageInspectionService @Inject() (
         }
         end.fold(withStart) { e =>
           withStart.lt(
-            "finishedAt",
+            path[LanguageInspection]("finishedAt"),
             Instant.ofEpochMilli(e).plus(java.time.Duration.ofDays(1)).truncatedTo(
               java.time.temporal.ChronoUnit.DAYS
             )
@@ -170,7 +174,7 @@ class LanguageInspectionService @Inject() (
         val endOfMonth = startOfMonth.atZone(ZoneOffset.UTC).toLocalDate.plusMonths(1).atStartOfDay(
           ZoneOffset.UTC
         ).toInstant
-        query.between("finishedAt", startOfMonth, endOfMonth)
+        query.between(path[LanguageInspection]("finishedAt"), startOfMonth, endOfMonth)
 
       // Case 3: No filter
       case _ => query
