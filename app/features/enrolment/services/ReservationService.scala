@@ -355,10 +355,12 @@ class ReservationService @Inject() (
     val baseQuery = DB
       .find(classOf[ExamEnrolment])
       .fetch(path[ExamEnrolment]("user"), "id, firstName, lastName, email, userIdentifier")
-      // duration is what the UI adds to the event start to show when the examination ends
-      .fetch(path[ExamEnrolment]("exam"), "id, name, state, trialCount, implementation, duration")
-      .fetch(path[ExamEnrolment]("exam.course"), "code")
-      .fetch(path[ExamEnrolment]("exam"), "id, name, state, trialCount, implementation, gradeScale")
+      // duration is what the UI adds to the event start to show when the examination ends.
+      // Ebean keeps only the last fetch per path, so all exam props must be listed here.
+      .fetch(
+        path[ExamEnrolment]("exam"),
+        "id, name, state, trialCount, implementation, duration, gradeScale"
+      )
       .fetch(path[ExamEnrolment]("exam.examLanguages"), "name")
       .fetch(path[ExamEnrolment]("exam.gradeScale"), "description, displayName")
       .fetch(path[ExamEnrolment]("exam.parent"), "gradeScale")
