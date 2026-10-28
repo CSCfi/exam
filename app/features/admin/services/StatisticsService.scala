@@ -62,7 +62,7 @@ class StatisticsService @Inject() (
         |)
         |)""".stripMargin
     )
-    val enrolments = DB
+    val query = DB
       .find(classOf[ExamEnrolment])
       .apply(pp)
       .where()
@@ -72,26 +72,30 @@ class StatisticsService @Inject() (
       .endOr()
       .isNotNull("reservation.machine")
       .ne("noShow", true)
-      .distinct
+    // External exams carry no local course, hence no department to match against
+    val withDept = dept.fold(query) { d =>
+      query.isNull("externalExam").in("exam.course.department", d.split(",").toList*)
+    }
+    // The participation date lives on the external exam if there is one, otherwise on the local
+    // exam, so the date range is applied to whichever of the two the enrolment has
+    val from  = start.map(TimeUtils.parseInstant)
+    val until = end.map(e => TimeUtils.parseInstant(e).plus(Duration.ofDays(1)))
+    def inRange(el: ExpressionList[ExamEnrolment], field: String) =
+      val withFrom = from.fold(el)(el.ge(field, _))
+      until.fold(withFrom)(withFrom.lt(field, _))
+    val enrolments =
+      if from.isEmpty && until.isEmpty then withDept.distinct
+      else
+        val local = inRange(withDept.or().and().isNull("externalExam"), "exam.created").endAnd()
+        inRange(local.and().isNotNull("externalExam"), "externalExam.started")
+          .endAnd()
+          .endOr()
+          .distinct
 
-    // The participation date lives on either the local or the external exam, so the department and
-    // date filters cannot be pushed into the query - apply them in memory instead.
     def participationDate(enrolment: ExamEnrolment) =
       Option(enrolment.externalExam).map(_.started).getOrElse(enrolment.exam.created)
 
-    def matchesFilters(enrolment: ExamEnrolment) =
-      val date = participationDate(enrolment)
-      val deptMatches = dept.forall { d =>
-        // External exams carry no local course, hence no department to match against
-        Option(enrolment.externalExam).isEmpty &&
-        Option(enrolment.exam.course).exists(c => d.split(",").contains(c.department))
-      }
-      deptMatches &&
-      start.forall(s => TimeUtils.parseInstant(s).isBefore(date)) &&
-      end.forall(e => TimeUtils.parseInstant(e).plus(Duration.ofDays(1)).isAfter(date))
-
     val roomMap = enrolments
-      .filter(matchesFilters)
       .groupBy { enrolment =>
         val room = enrolment.reservation.machine.room
         s"${room.id}___${room.name}"
