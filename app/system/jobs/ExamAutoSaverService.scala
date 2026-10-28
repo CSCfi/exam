@@ -9,11 +9,12 @@ import cats.syntax.all.*
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExamParticipation}
-import models.exam.ExamState
+import models.exam.{Exam, ExamState}
 import org.joda.time.DateTime
 import play.api.Logging
 import services.config.ConfigReader
 import services.datetime.DateTimeHandler
+import services.exam.AutoEvaluationHandler
 import services.mail.EmailComposer
 
 import java.io.IOException
@@ -25,7 +26,8 @@ import scala.util.control.Exception.catching
 class ExamAutoSaverService @Inject() (
     private val composer: EmailComposer,
     private val configReader: ConfigReader,
-    private val dateTimeHandler: DateTimeHandler
+    private val dateTimeHandler: DateTimeHandler,
+    private val autoEvaluationHandler: AutoEvaluationHandler
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:
@@ -68,8 +70,16 @@ class ExamAutoSaverService @Inject() (
             composer.composePrivateExamEnded(r, exam)
             logger.info(s"Email sent to ${r.email}")
           )
+        autoEvaluate(exam)
       else logger.info(s"Exam ${exam.id} is ongoing until $participationTimeLimit")
     )
+
+  // Same as when the student turns the exam in. On failure the exam stays in REVIEW for the
+  // teacher to grade by hand, and the participations after it still get ended
+  private def autoEvaluate(exam: Exam): Unit =
+    catching(classOf[RuntimeException]).either(autoEvaluationHandler.autoEvaluate(exam)) match
+      case Left(e)  => logger.error(s"Failed to auto-evaluate exam ${exam.id}", e)
+      case Right(_) => ()
 
   private def checkLocalExams(): IO[Unit] =
     IO.blocking {
@@ -124,7 +134,8 @@ class ExamAutoSaverService @Inject() (
         )
     }
 
-  private def runCheck(): IO[Unit] =
+  // Visible for tests
+  def runCheck(): IO[Unit] =
     IO(logger.info("Starting check for ongoing exams ->")) *>
       checkLocalExams() *>
       checkExternalExams() *>
