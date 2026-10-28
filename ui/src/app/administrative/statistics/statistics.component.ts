@@ -53,7 +53,6 @@ export class StatisticsComponent {
     readonly endDate = signal<Date | null>(null);
 
     readonly confirmedQueryParams = signal<QueryParams | null>(null);
-    readonly canSearch = computed(() => !!this.startDate() && !!this.endDate());
 
     readonly filteredDepartments = computed(() => {
         const filter = this._departmentFilter().toLowerCase();
@@ -128,8 +127,6 @@ export class StatisticsComponent {
     };
 
     search() {
-        if (this.canSearch()) {
-            this.confirmedQueryParams.set(this.queryParams());
-        }
+        this.confirmedQueryParams.set(this.queryParams());
     }
 }
