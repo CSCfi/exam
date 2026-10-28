@@ -222,7 +222,7 @@
     "i18n_exam_graded_logged": "Registrerade prestationer",
     "i18n_are_you_sure": "Är du säker?",
     "i18n_confirm_turn_exam": "Du håller på att avsluta tentamen. Efter det kan du inte återgå till den. Vill du fortsätta?",
-    "i18n_confirm_abort_exam": "Du håller på att avbryta tentamen. Det innebär att du lämnar in ett \"tomt papper\". Vill du fortsätta?",
+    "i18n_confirm_abort_exam": "Du håller på att avbryta tentamen. Ett avbrutet tentförsök kan inte bedömas.",
     "i18n_unit_points": "poäng",
     "i18n_state_started": "Påbörjad",
     "i18n_state_ready": "Öppen för studerandena",
