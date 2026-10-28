@@ -44,7 +44,7 @@ class StatisticsService @Inject() (
       .toList
 
   def listParticipations(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): Map[String, Set[Participation]] =
@@ -72,9 +72,9 @@ class StatisticsService @Inject() (
       .isNotNull("reservation.machine")
       .ne("noShow", true)
     // External exams carry no local course, hence no department to match against
-    val withDept = dept.fold(query) { d =>
-      query.isNull("externalExam").in("exam.course.department", d.split(",").toList*)
-    }
+    val withDept =
+      if dept.isEmpty then query
+      else query.isNull("externalExam").in("exam.course.department", dept*)
     // The participation date lives on the external exam if there is one, otherwise on the local
     // exam, so the date range is applied to whichever of the two the enrolment has
     val from = start.map(s => DateTime.parse(s, ISODateTimeFormat.dateTimeParser()).toDate)
@@ -112,7 +112,7 @@ class StatisticsService @Inject() (
     }
 
   def listReservations(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): (Int, Int) =
@@ -141,7 +141,7 @@ class StatisticsService @Inject() (
       case (a, b) => (a.size, b.size)
 
   def listIopReservations(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): List[Reservation] =
@@ -176,7 +176,7 @@ class StatisticsService @Inject() (
   )
 
   def listPublishedExams(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): List[ExamInfo] =
@@ -206,7 +206,7 @@ class StatisticsService @Inject() (
       .toList
 
   def listResponses(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): (Int, Int, Int) =
@@ -280,14 +280,12 @@ class StatisticsService @Inject() (
       query: ExpressionList[T],
       deptFieldPrefix: String,
       dateField: String,
-      depts: Option[String],
+      depts: List[String],
       start: Option[String],
       end: Option[String]
   ): ExpressionList[T] =
-    val withDept = depts.fold(query) { d =>
-      val deptList = d.split(",").toList
-      query.in(s"$deptFieldPrefix.department", deptList*)
-    }
+    val withDept =
+      if depts.isEmpty then query else query.in(s"$deptFieldPrefix.department", depts*)
     val withStart = start.fold(withDept) { s =>
       val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
       withDept.ge(dateField, startDate.toDate)

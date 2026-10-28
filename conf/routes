@@ -459,12 +459,12 @@ GET           /app/reports/student/:id/:from/:to                                
 
 ################# Statistics interface ##################
 
-GET           /app/statistics/participations                                      features.admin.controllers.StatisticsController.listParticipations(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/statistics/participations                                      features.admin.controllers.StatisticsController.listParticipations(dept: List[String], start: Option[String], end: Option[String])
 GET           /app/statistics/departments                                         features.admin.controllers.StatisticsController.listDepartments
-GET           /app/statistics/exams                                               features.admin.controllers.StatisticsController.listPublishedExams(dept: Option[String], start: Option[String], end: Option[String])
-GET           /app/statistics/reservations                                        features.admin.controllers.StatisticsController.listReservations(dept: Option[String], start: Option[String], end: Option[String])
-GET           /app/statistics/reservations/iop                                    features.admin.controllers.StatisticsController.listIopReservations(dept: Option[String], start: Option[String], end: Option[String])
-GET           /app/statistics/responses                                           features.admin.controllers.StatisticsController.listResponses(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/statistics/exams                                               features.admin.controllers.StatisticsController.listPublishedExams(dept: List[String], start: Option[String], end: Option[String])
+GET           /app/statistics/reservations                                        features.admin.controllers.StatisticsController.listReservations(dept: List[String], start: Option[String], end: Option[String])
+GET           /app/statistics/reservations/iop                                    features.admin.controllers.StatisticsController.listIopReservations(dept: List[String], start: Option[String], end: Option[String])
+GET           /app/statistics/responses                                           features.admin.controllers.StatisticsController.listResponses(dept: List[String], start: Option[String], end: Option[String])
 POST          /app/statistics/questionreport/:id                                  features.admin.controllers.StatisticsController.exportExamQuestionScoresAsExcel(id: Long)
 
 ################# Maintenance period interface ##################

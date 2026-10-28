@@ -63,7 +63,7 @@ export class StatisticsComponent {
     });
 
     readonly queryParams = computed<QueryParams>(() => {
-        const params: { start?: string; end?: string; dept?: string } = {};
+        const params: QueryParams = {};
         const currentStartDate = this.startDate();
         const currentEndDate = this.endDate();
         if (currentStartDate) {
@@ -74,7 +74,7 @@ export class StatisticsComponent {
         }
         const filteredDepts = this.departments().filter((d) => d.filtered);
         if (filteredDepts.length > 0) {
-            params.dept = filteredDepts.map((d) => d.name).join();
+            params.dept = filteredDepts.map((d) => d.name);
         }
         return params;
     });
