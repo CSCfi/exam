@@ -83,7 +83,7 @@ export class IopReservationStatisticsComponent {
     constructor() {
         toObservable(this.queryParams)
             .pipe(
-                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                filter((params): params is QueryParams => !!params),
                 switchMap((params) => this.Statistics.listIopReservations$(params)),
                 takeUntilDestroyed(),
             )
