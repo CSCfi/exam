@@ -222,7 +222,7 @@
     "i18n_exam_graded_logged": "Locked study attainments",
     "i18n_are_you_sure": "Are you sure?",
     "i18n_confirm_turn_exam": "You are about to submit your exam response. After that, the exam ends and you cannot return to the exam. Are you sure?",
-    "i18n_confirm_abort_exam": "You are about to abort this exam. This means returning an empty paper. Are you sure?",
+    "i18n_confirm_abort_exam": "You are about to abort this exam. An aborted exam attempt cannot be assessed.",
     "i18n_unit_points": "points",
     "i18n_state_started": "Started",
     "i18n_state_ready": "Available for students",
