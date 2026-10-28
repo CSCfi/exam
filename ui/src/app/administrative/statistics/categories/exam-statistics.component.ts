@@ -66,7 +66,7 @@ export class ExamStatisticsComponent {
     constructor() {
         toObservable(this.queryParams)
             .pipe(
-                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                filter((params): params is QueryParams => !!params),
                 switchMap((params) => this.Statistics.listExams$(params)),
                 takeUntilDestroyed(),
             )
