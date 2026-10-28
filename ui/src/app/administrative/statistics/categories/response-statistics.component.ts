@@ -44,7 +44,7 @@ export class ResponseStatisticsComponent {
     constructor() {
         toObservable(this.queryParams)
             .pipe(
-                filter((params): params is QueryParams => !!params?.start && !!params?.end),
+                filter((params): params is QueryParams => !!params),
                 switchMap((params) => this.Statistics.listResponses$(params)),
                 takeUntilDestroyed(),
             )
