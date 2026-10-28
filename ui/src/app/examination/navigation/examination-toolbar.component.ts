@@ -101,7 +101,7 @@ export class ExaminationToolbarComponent implements OnInit {
                         finalize(() =>
                             this.Examination.logout('i18n_exam_returned', currentExam.hash, {
                                 quitLinkEnabled: currentExam.implementation === 'CLIENT_AUTH',
-                                canFail: false,
+                                leaveOnError: false,
                                 external: currentExam.external,
                             }),
                         ),

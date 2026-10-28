@@ -2,12 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { errorInterceptor } from 'src/app/interceptors/error.interceptor';
 import type { ClozeTestAnswer, EssayAnswer } from 'src/app/question/question.model';
 import { vi } from 'vitest';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
@@ -102,7 +103,7 @@ describe('ExaminationService', () => {
     describe('saveTextualAnswer$', () => {
         it('posts essay answer to correct URL', () => {
             const q = makeEssayQuestion('hello');
-            service.saveTextualAnswer$(q, 'abc', { autosave: false, canFail: false, external: false }).subscribe();
+            service.saveTextualAnswer$(q, 'abc', { mode: 'manual', external: false }).subscribe();
             const req = httpTesting.expectOne('/app/student/exam/abc/question/1');
             expect(req.request.method).toBe('POST');
             expect(req.request.body).toEqual({ answer: 'hello', objectVersion: 1 });
@@ -111,7 +112,7 @@ describe('ExaminationService', () => {
 
         it('posts cloze answer to correct URL', () => {
             const q = makeClozeQuestion('{"f1":"v1"}');
-            service.saveTextualAnswer$(q, 'abc', { autosave: false, canFail: false, external: false }).subscribe();
+            service.saveTextualAnswer$(q, 'abc', { mode: 'manual', external: false }).subscribe();
             const req = httpTesting.expectOne('/app/student/exam/abc/clozetest/1');
             expect(req.request.body).toEqual({ answer: '{"f1":"v1"}', objectVersion: 1 });
             req.flush({ objectVersion: 2 });
@@ -119,14 +120,14 @@ describe('ExaminationService', () => {
 
         it('uses iop URL for external exams', () => {
             const q = makeEssayQuestion('hi');
-            service.saveTextualAnswer$(q, 'abc', { autosave: false, canFail: false, external: true }).subscribe();
+            service.saveTextualAnswer$(q, 'abc', { mode: 'manual', external: true }).subscribe();
             const req = httpTesting.expectOne('/app/iop/student/exam/abc/question/1');
             req.flush({ objectVersion: 2 });
         });
 
         it('updates objectVersion on the answer object after save', () => {
             const q = makeEssayQuestion('hi');
-            service.saveTextualAnswer$(q, 'abc', { autosave: false, canFail: false, external: false }).subscribe();
+            service.saveTextualAnswer$(q, 'abc', { mode: 'manual', external: false }).subscribe();
             httpTesting.expectOne('/app/student/exam/abc/question/1').flush({ objectVersion: 99 });
             expect(q.essayAnswer!.objectVersion).toBe(99);
         });
@@ -134,37 +135,43 @@ describe('ExaminationService', () => {
         it('shows info toast on manual save', () => {
             const spy = vi.spyOn(toastr, 'info');
             const q = makeEssayQuestion('hi');
-            service.saveTextualAnswer$(q, 'abc', { autosave: false, canFail: false, external: false }).subscribe();
+            service.saveTextualAnswer$(q, 'abc', { mode: 'manual', external: false }).subscribe();
             httpTesting.expectOne('/app/student/exam/abc/question/1').flush({ objectVersion: 2 });
             expect(spy).toHaveBeenCalled();
         });
 
-        it('does not show toast when autosave=true', () => {
+        it('does not show info toast on auto save but records the autosave time', () => {
             const spy = vi.spyOn(toastr, 'info');
             const q = makeEssayQuestion('hi');
-            service.saveTextualAnswer$(q, 'abc', { autosave: true, canFail: true, external: false }).subscribe();
+            service.saveTextualAnswer$(q, 'abc', { mode: 'auto', external: false }).subscribe();
             httpTesting.expectOne('/app/student/exam/abc/question/1').flush({ objectVersion: 2 });
             expect(spy).not.toHaveBeenCalled();
+            expect(q.autosaved).toBeInstanceOf(Date);
         });
 
-        it('shows error toast on failure when canFail=false', () => {
+        it('does not show info toast or record autosave time on submit save', () => {
+            const spy = vi.spyOn(toastr, 'info');
+            const q = makeEssayQuestion('hi');
+            service.saveTextualAnswer$(q, 'abc', { mode: 'submit', external: false }).subscribe();
+            httpTesting.expectOne('/app/student/exam/abc/question/1').flush({ objectVersion: 2 });
+            expect(spy).not.toHaveBeenCalled();
+            expect(q.autosaved).toBeUndefined();
+        });
+
+        it.each(['manual', 'auto'] as const)('shows error toast on failure in %s mode', (mode) => {
             const spy = vi.spyOn(toastr, 'error');
             const q = makeEssayQuestion('hi');
-            service
-                .saveTextualAnswer$(q, 'abc', { autosave: false, canFail: false, external: false })
-                .subscribe({ error: () => {} });
+            service.saveTextualAnswer$(q, 'abc', { mode, external: false }).subscribe({ error: () => {} });
             httpTesting
                 .expectOne('/app/student/exam/abc/question/1')
                 .flush('error', { status: 500, statusText: 'error' });
             expect(spy).toHaveBeenCalled();
         });
 
-        it('suppresses error toast when canFail=true', () => {
+        it('suppresses error toast on failure in submit mode', () => {
             const spy = vi.spyOn(toastr, 'error');
             const q = makeEssayQuestion('hi');
-            service
-                .saveTextualAnswer$(q, 'abc', { autosave: true, canFail: true, external: false })
-                .subscribe({ error: () => {} });
+            service.saveTextualAnswer$(q, 'abc', { mode: 'submit', external: false }).subscribe({ error: () => {} });
             httpTesting
                 .expectOne('/app/student/exam/abc/question/1')
                 .flush('error', { status: 500, statusText: 'error' });
@@ -173,9 +180,9 @@ describe('ExaminationService', () => {
 
         it('throws synchronously when answer object is missing', () => {
             const q = makeEssayQuestion();
-            expect(() =>
-                service.saveTextualAnswer$(q, 'abc', { autosave: false, canFail: false, external: false }),
-            ).toThrow('no answer object in question');
+            expect(() => service.saveTextualAnswer$(q, 'abc', { mode: 'manual', external: false })).toThrow(
+                'no answer object in question',
+            );
         });
     });
 
@@ -188,9 +195,8 @@ describe('ExaminationService', () => {
 
             service
                 .saveAllTextualAnswersOfSection$(section, 'h', {
-                    autosave: false,
+                    mode: 'submit',
                     allowEmpty: true,
-                    canFail: true,
                     external: false,
                 })
                 .subscribe((q) => results.push(q));
@@ -207,9 +213,8 @@ describe('ExaminationService', () => {
 
             service
                 .saveAllTextualAnswersOfSection$(section, 'h', {
-                    autosave: false,
+                    mode: 'submit',
                     allowEmpty: false,
-                    canFail: true,
                     external: false,
                 })
                 .subscribe();
@@ -224,9 +229,8 @@ describe('ExaminationService', () => {
 
             service
                 .saveAllTextualAnswersOfSection$(section, 'h', {
-                    autosave: false,
+                    mode: 'submit',
                     allowEmpty: false,
-                    canFail: true,
                     external: false,
                 })
                 .subscribe((q) => results.push(q));
@@ -241,9 +245,8 @@ describe('ExaminationService', () => {
 
             service
                 .saveAllTextualAnswersOfSection$(section, 'h', {
-                    autosave: false,
+                    mode: 'submit',
                     allowEmpty: true,
-                    canFail: true,
                     external: false,
                 })
                 .subscribe((q) => results.push(q));
@@ -261,9 +264,8 @@ describe('ExaminationService', () => {
 
             service
                 .saveAllClozeTestAnswersOfSection$(section, 'h', {
-                    autosave: true,
+                    mode: 'auto',
                     allowEmpty: true,
-                    canFail: true,
                     external: false,
                 })
                 .subscribe();
@@ -277,9 +279,8 @@ describe('ExaminationService', () => {
 
             service
                 .saveAllClozeTestAnswersOfSection$(section, 'h', {
-                    autosave: true,
+                    mode: 'auto',
                     allowEmpty: false,
-                    canFail: true,
                     external: false,
                 })
                 .subscribe();
@@ -339,5 +340,69 @@ describe('ExaminationService', () => {
 
             httpTesting.expectOne('/app/student/exam/exam-hash/question/1').flush({ objectVersion: 2 });
         });
+    });
+
+    describe('logout', () => {
+        it('navigates to logout page when the exam is returned', () => {
+            const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+            service.logout('i18n_exam_returned', 'h', { quitLinkEnabled: false, leaveOnError: false, external: false });
+            httpTesting.expectOne({ method: 'PUT', url: '/app/student/exam/h' }).flush(null);
+            expect(navigate).toHaveBeenCalledWith(['/examination/logout'], expect.anything());
+        });
+
+        it('navigates to logout page even when returning fails and leaveOnError=true', () => {
+            const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+            const error = vi.spyOn(toastr, 'error');
+            service.logout('i18n_exam_time_is_up', 'h', {
+                quitLinkEnabled: false,
+                leaveOnError: true,
+                external: false,
+            });
+            httpTesting.expectOne('/app/student/exam/h').flush('error', { status: 500, statusText: 'error' });
+            expect(error).not.toHaveBeenCalled();
+            expect(navigate).toHaveBeenCalledWith(['/examination/logout'], expect.anything());
+        });
+    });
+});
+
+describe('ExaminationService with network outage', () => {
+    let service: ExaminationService;
+    let httpTesting: HttpTestingController;
+    let toastr: ToastrService;
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
+            providers: [
+                ExaminationService,
+                provideHttpClient(withInterceptors([errorInterceptor])),
+                provideHttpClientTesting(),
+                provideRouter([]),
+            ],
+        });
+        service = TestBed.inject(ExaminationService);
+        httpTesting = TestBed.inject(HttpTestingController);
+        toastr = TestBed.inject(ToastrService);
+    });
+
+    afterEach(() => httpTesting.verify());
+
+    it('warns the student about the lost connection when an autosave fails', () => {
+        const spy = vi.spyOn(toastr, 'error');
+        const q = makeEssayQuestion('hi');
+        service.saveTextualAnswer$(q, 'abc', { mode: 'auto', external: false }).subscribe({ error: () => {} });
+        // status 0, as when the request never reaches the server
+        httpTesting.expectOne('/app/student/exam/abc/question/1').error(new ProgressEvent('error'));
+        expect(spy).toHaveBeenCalledWith('i18n_connection_refused');
+        expect(q.autosaved).toBeUndefined();
+    });
+
+    it('keeps the student in the exam when returning it fails', () => {
+        const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+        const spy = vi.spyOn(toastr, 'error');
+        service.logout('i18n_exam_returned', 'h', { quitLinkEnabled: false, leaveOnError: false, external: false });
+        httpTesting.expectOne('/app/student/exam/h').error(new ProgressEvent('error'));
+        expect(spy).toHaveBeenCalledWith('i18n_connection_refused');
+        expect(navigate).not.toHaveBeenCalled();
     });
 });

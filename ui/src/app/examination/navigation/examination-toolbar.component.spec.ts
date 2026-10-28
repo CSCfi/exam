@@ -148,7 +148,7 @@ describe('ExaminationToolbarComponent – turnExam()', () => {
         expect(mockExamination.logout).toHaveBeenCalledWith(
             'i18n_exam_returned',
             'exam-hash',
-            expect.objectContaining({ canFail: false }),
+            expect.objectContaining({ leaveOnError: false }),
         );
     });
 
