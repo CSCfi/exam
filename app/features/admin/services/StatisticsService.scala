@@ -6,6 +6,7 @@ package features.admin.services
 
 import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import io.ebean.annotation.EnumValue
 import io.ebean.text.PathProperties
 import io.ebean.{DB, ExpressionList}
 import models.enrolment.{ExamEnrolment, Reservation}
@@ -16,6 +17,7 @@ import play.api.libs.json.{Json, Writes}
 import services.datetime.TimeUtils
 import services.excel.ExcelBuilder
 
+import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, Instant}
 import javax.inject.Inject
@@ -83,21 +85,20 @@ class StatisticsService @Inject() (
         )
     // The participation date lives on the external exam if there is one, otherwise on the local
     // exam, so the date range is applied to whichever of the two the enrolment has
-    val from  = start.map(TimeUtils.parseInstant)
-    val until = end.map(e => TimeUtils.parseInstant(e).plus(Duration.ofDays(1)))
-    def inRange(el: ExpressionList[ExamEnrolment], field: String) =
-      val withFrom = from.fold(el)(el.ge(field, _))
-      until.fold(withFrom)(withFrom.lt(field, _))
     val enrolments =
-      if from.isEmpty && until.isEmpty then withDept.distinct
+      if start.isEmpty && end.isEmpty then withDept.distinct
       else
         val local = inRange(
           withDept.or().and().isNull(path[ExamEnrolment]("externalExam")),
-          path[ExamEnrolment]("exam.created")
+          path[ExamEnrolment]("exam.created"),
+          start,
+          end
         ).endAnd()
         inRange(
           local.and().isNotNull(path[ExamEnrolment]("externalExam")),
-          path[ExamEnrolment]("externalExam.started")
+          path[ExamEnrolment]("externalExam.started"),
+          start,
+          end
         )
           .endAnd()
           .endOr()
@@ -131,27 +132,27 @@ class StatisticsService @Inject() (
     // BYOD examination events alike. The no-show sweep flags both kinds, so they belong on the same
     // denominator - without them, an unbounded search would count every enrolment ever made against
     // a no-show total that only ever includes due ones. The two carry their scheduled time on
-    // different paths, hence the separate queries.
-    val reserved = withFilters(
-      DB.find(classOf[ExamEnrolment]).where().isNotNull(path[ExamEnrolment]("reservation")),
-      path[ExamEnrolment]("exam.course.department"),
-      path[ExamEnrolment]("reservation.startAt"),
-      dept,
-      start,
-      end
-    ).distinct
-    val byod = withFilters(
-      DB.find(classOf[ExamEnrolment]).where().isNotNull(
-        path[ExamEnrolment]("examinationEventConfiguration")
-      ),
-      path[ExamEnrolment]("exam.course.department"),
-      path[ExamEnrolment]("examinationEventConfiguration.examinationEvent.start"),
-      dept,
-      start,
-      end
-    ).distinct
-    (reserved ++ byod).toList.distinctBy(_.id).partition(_.noShow) match
-      case (a, b) => (a.size, b.size)
+    // different paths, hence the disjunction.
+    def due() =
+      val query = DB.find(classOf[ExamEnrolment]).where()
+      val withDept =
+        if dept.isEmpty then query
+        else query.in(path[ExamEnrolment]("exam.course.department"), dept*)
+      val reserved = inRange(
+        withDept.or().and().isNotNull(path[ExamEnrolment]("reservation")),
+        path[ExamEnrolment]("reservation.startAt"),
+        start,
+        end
+      ).endAnd()
+      inRange(
+        reserved.and().isNotNull(path[ExamEnrolment]("examinationEventConfiguration")),
+        path[ExamEnrolment]("examinationEventConfiguration.examinationEvent.start"),
+        start,
+        end
+      ).endAnd().endOr()
+    val total   = due().findCount()
+    val noShows = due().eq(path[ExamEnrolment]("noShow"), true).findCount()
+    (noShows, total - noShows)
 
   def listIopReservations(
       dept: List[String],
@@ -201,36 +202,39 @@ class StatisticsService @Inject() (
       start: Option[String],
       end: Option[String]
   ): List[ExamInfo] =
-    val pp = props[Exam]("(id, course(code), parent(id, name, course(code)))")
-    val query = DB
-      .find(classOf[Exam])
-      .apply(pp)
-      .where()
-      .isNotNull(path[Exam]("parent"))
-      .in(path[Exam]("state"), AttemptStates.asJava)
     // Both filters target the student's copy rather than the template it was made from - an exam
     // published last year can still be taken this year, and the template's own state is irrelevant.
-    val attempts = withFilters(
-      query,
-      path[Exam]("course.department"),
-      path[Exam]("created"),
-      dept,
-      start,
-      end
-    ).distinct
-
-    // Missing course data must not drop an attempt from the count, so fall back to the student's
-    // copy and finally to an empty code rather than filtering these rows out.
-    def courseCode(exam: Exam) = Option(exam.course).flatMap(c => Option(c.code))
-
-    attempts
-      .groupBy(_.parent.id)
-      .values
-      .map { children =>
-        val parent = children.head.parent
-        val code   = courseCode(parent).orElse(courseCode(children.head)).getOrElse("")
-        ExamInfo(s"[$code] ${parent.name}", children.size)
-      }
+    // Missing course data must not drop an attempt from the count, so the code falls back to the
+    // students' copies and finally to an empty string rather than filtering these rows out.
+    val conditions = List(
+      Option.when(dept.nonEmpty)("cc.department IN (:depts)"),
+      start.map(_ => "c.created >= :start"),
+      end.map(_ => "c.created < :end")
+    ).flatten.map(cond => s"AND $cond").mkString("\n")
+    val sql =
+      s"""SELECT p.name, COALESCE(pc.code, MIN(cc.code), '') AS code, COUNT(*) AS participations
+         |FROM exam c
+         |JOIN exam p ON p.id = c.parent_id
+         |LEFT JOIN course pc ON pc.id = p.course_id
+         |LEFT JOIN course cc ON cc.id = c.course_id
+         |WHERE c.state IN (${AttemptStates.map(dbValue).mkString(", ")})
+         |$conditions
+         |GROUP BY p.id, p.name, pc.code""".stripMargin
+    val query = DB.sqlQuery(sql)
+    if dept.nonEmpty then query.setParameter("depts", dept.asJava)
+    start.foreach(s => query.setParameter("start", Timestamp.from(TimeUtils.parseInstant(s))))
+    end.foreach(e =>
+      query.setParameter("end", Timestamp.from(TimeUtils.parseInstant(e).plus(Duration.ofDays(1))))
+    )
+    query
+      .findList()
+      .asScala
+      .map(row =>
+        ExamInfo(
+          s"[${row.getString("code")}] ${row.getString("name")}",
+          row.getInteger("participations")
+        )
+      )
       .toList
 
   def listResponses(
@@ -238,33 +242,30 @@ class StatisticsService @Inject() (
       start: Option[String],
       end: Option[String]
   ): (Int, Int, Int) =
-    val query = DB
-      .find(classOf[Exam])
-      .where()
-      .isNotNull(path[Exam]("parent"))
-      .isNotNull(path[Exam]("course"))
-      .in(path[Exam]("state"), AttemptStates.asJava)
-    val exams = withFilters(
-      query,
-      path[Exam]("course.department"),
-      path[Exam]("created"),
-      dept,
-      start,
-      end
-    ).distinct
-    val aborted = exams.count(_.state == ExamState.ABORTED)
-    val assessed = exams.count(_.hasState(
+    def count(states: ExamState*) =
+      val query = DB
+        .find(classOf[Exam])
+        .where()
+        .isNotNull(path[Exam]("parent"))
+        .isNotNull(path[Exam]("course"))
+        .in(path[Exam]("state"), states.asJava)
+      withFilters(
+        query,
+        path[Exam]("course.department"),
+        path[Exam]("created"),
+        dept,
+        start,
+        end
+      ).findCount()
+    val aborted = count(ExamState.ABORTED)
+    val assessed = count(
       ExamState.GRADED,
       ExamState.GRADED_LOGGED,
       ExamState.ARCHIVED,
       ExamState.REJECTED,
       ExamState.DELETED
-    ))
-    val unassessed = exams.count(_.hasState(
-      ExamState.STUDENT_STARTED,
-      ExamState.REVIEW,
-      ExamState.REVIEW_STARTED
-    ))
+    )
+    val unassessed = count(ExamState.STUDENT_STARTED, ExamState.REVIEW, ExamState.REVIEW_STARTED)
     (aborted, assessed, unassessed)
 
   def findExamForQuestionScores(examId: Long): Option[Exam] =
@@ -321,12 +322,20 @@ class StatisticsService @Inject() (
   ): ExpressionList[T] =
     val withDept =
       if depts.isEmpty then query else query.in(deptField, depts*)
-    val withStart = start.fold(withDept) { s =>
-      withDept.ge(dateField, TimeUtils.parseInstant(s))
-    }
-    end.fold(withStart) { e =>
-      withStart.lt(
-        dateField,
-        TimeUtils.parseInstant(e).plus(Duration.ofDays(1))
-      )
-    }
+    inRange(withDept, dateField, start, end)
+
+  /** Restricts `field` to the searched period. The end date is inclusive, hence the extra day. */
+  private def inRange[T](
+      el: ExpressionList[T],
+      field: String,
+      start: Option[String],
+      end: Option[String]
+  ): ExpressionList[T] =
+    val withStart = start.fold(el)(s => el.ge(field, TimeUtils.parseInstant(s)))
+    end.fold(withStart)(e =>
+      withStart.lt(field, TimeUtils.parseInstant(e).plus(Duration.ofDays(1)))
+    )
+
+  // The value Ebean stores for a state, for use in raw SQL
+  private def dbValue(state: ExamState): String =
+    classOf[ExamState].getField(state.name).getAnnotation(classOf[EnumValue]).value
