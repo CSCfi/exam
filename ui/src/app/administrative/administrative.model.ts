@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-export type QueryParams = { start?: string; end?: string; dept?: string };
+export type QueryParams = { start?: string; end?: string; dept?: string[] };
 
 export type ExamInfo = {
     name: string;
