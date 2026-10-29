@@ -12,6 +12,7 @@ import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.{Exam, ExamState}
 import play.api.Logging
 import services.config.ConfigReader
+import services.exam.AutoEvaluationHandler
 import services.mail.EmailComposer
 
 import java.io.IOException
@@ -23,7 +24,8 @@ import scala.util.control.Exception.catching
 
 class ExamAutoSaverService @Inject() (
     private val composer: EmailComposer,
-    private val configReader: ConfigReader
+    private val configReader: ConfigReader,
+    private val autoEvaluationHandler: AutoEvaluationHandler
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:
@@ -49,6 +51,7 @@ class ExamAutoSaverService @Inject() (
       exam.state = ExamState.REVIEW
       exam.save()
       if exam.isPrivate then notifyTeachers(exam)
+      autoEvaluate(exam)
     else logger.info(s"Exam ${exam.id} is ongoing until $participationTimeLimit")
 
   // The exam has already ended, so a failed email only skips that teacher
@@ -59,6 +62,13 @@ class ExamAutoSaverService @Inject() (
         case Left(e)  => logger.error(s"Failed to notify ${r.email} of exam ${exam.id} ending", e)
         case Right(_) => logger.info(s"Email sent to ${r.email}")
     )
+
+  // Same as when the student turns the exam in. On failure the exam stays in REVIEW for the
+  // teacher to grade by hand
+  private def autoEvaluate(exam: Exam): Unit =
+    catching(classOf[RuntimeException]).either(autoEvaluationHandler.autoEvaluate(exam)) match
+      case Left(e)  => logger.error(s"Failed to auto-evaluate exam ${exam.id}", e)
+      case Right(_) => ()
 
   // Each participation is handled on its own, so one that fails cannot keep the ones after it
   // from ending
