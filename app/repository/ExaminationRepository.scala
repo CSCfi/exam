@@ -4,6 +4,7 @@
 
 package repository
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import features.exam.copy.ExamCopyContext
 import features.iop.collaboration.services.CollaborativeExamLoaderService
@@ -125,10 +126,13 @@ class ExaminationRepository @Inject() (
 
   def getCollaborativeExam(hash: String): Future[Option[CollaborativeExam]] =
     Future {
-      db.find(classOf[CollaborativeExam]).where().eq("hash", hash).find match
+      db.find(classOf[CollaborativeExam]).where().eq(
+        path[CollaborativeExam]("hash"),
+        hash
+      ).find match
         case Some(ce) => Some(ce)
         case None =>
-          db.find(classOf[Exam]).where().eq("hash", hash).find match
+          db.find(classOf[Exam]).where().eq(path[Exam]("hash"), hash).find match
             case Some(exam) if !exam.examEnrolments.isEmpty =>
               Option(exam.examEnrolments.getFirst.collaborativeExam)
             case _ => None
@@ -141,8 +145,10 @@ class ExaminationRepository @Inject() (
       pp: PathProperties
   ): Future[Option[Exam]] =
     Future {
-      val baseQuery = createQuery(pp).where().eq("hash", hash).eq("creator", user)
-      val query     = if Option(ce).isEmpty then baseQuery.isNotNull("parent") else baseQuery
+      val baseQuery =
+        createQuery(pp).where().eq(path[Exam]("hash"), hash).eq(path[Exam]("creator"), user)
+      val query =
+        if Option(ce).isEmpty then baseQuery.isNotNull(path[Exam]("parent")) else baseQuery
       query.find
     }
 
@@ -150,7 +156,7 @@ class ExaminationRepository @Inject() (
     if Option(ce).isDefined then cel.downloadExam(ce)
     else
       Future {
-        createQuery(pp).where().eq("hash", hash).isNull("parent").find
+        createQuery(pp).where().eq(path[Exam]("hash"), hash).isNull(path[Exam]("parent")).find
       }
 
   private def createQuery(pp: PathProperties): Query[Exam] = db.find(classOf[Exam]).apply(pp)
@@ -177,18 +183,18 @@ class ExaminationRepository @Inject() (
     Future {
       val enrolments = db
         .find(classOf[ExamEnrolment])
-        .fetch("reservation")
-        .fetch("reservation.machine")
-        .fetch("reservation.machine.room")
-        .fetch("examinationEventConfiguration")
-        .fetch("examinationEventConfiguration.examinationEvent")
+        .fetch(path[ExamEnrolment]("reservation"))
+        .fetch(path[ExamEnrolment]("reservation.machine"))
+        .fetch(path[ExamEnrolment]("reservation.machine.room"))
+        .fetch(path[ExamEnrolment]("examinationEventConfiguration"))
+        .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"))
         .where()
-        .eq("user.id", user.id)
+        .eq(path[ExamEnrolment]("user.id"), user.id)
         .or()
-        .eq("exam.id", prototype.id)
+        .eq(path[ExamEnrolment]("exam.id"), prototype.id)
         .and()
-        .eq("collaborativeExam.id", Option(ce).map(_.id).getOrElse(-1L))
-        .isNull("exam.id")
+        .eq(path[ExamEnrolment]("collaborativeExam.id"), Option(ce).map(_.id).getOrElse(-1L))
+        .isNull(path[ExamEnrolment]("exam.id"))
         .endAnd()
         .endOr()
         .list
@@ -202,9 +208,9 @@ class ExaminationRepository @Inject() (
   def findRoom(enrolment: ExamEnrolment): Future[Option[ExamRoom]] =
     Future {
       db.find(classOf[ExamRoom])
-        .fetch("mailAddress")
+        .fetch(path[ExamRoom]("mailAddress"))
         .where()
-        .eq("id", enrolment.reservation.machine.room.id)
+        .eq(path[ExamRoom]("id"), enrolment.reservation.machine.room.id)
         .find
     }
 

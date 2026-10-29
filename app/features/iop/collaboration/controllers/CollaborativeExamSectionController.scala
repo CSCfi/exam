@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.controllers
 
+import database.EbeanPaths.props
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
 import features.question.services.QuestionService
@@ -12,7 +13,7 @@ import io.ebean.text.PathProperties
 import models.exam.Exam
 import models.questions.Question
 import models.questions.QuestionType
-import models.sections.ExamSectionQuestion
+import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.{Role, User}
 import play.api.Logging
 import play.api.libs.json.JsValue
@@ -28,6 +29,8 @@ import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
+
+import CollaborativeExamSectionController.*
 
 class CollaborativeExamSectionController @Inject() (
     wsClient: play.api.libs.ws.WSClient,
@@ -64,7 +67,7 @@ class CollaborativeExamSectionController @Inject() (
       request: play.api.mvc.Request[?],
       examId: Long,
       updater: (Exam, User) => Option[Result],
-      resultProvider: Exam => Option[? <: Model]
+      result: Exam => Option[(Model, PathProperties)]
   ): Future[Result] =
     collaborativeExamAuthorizationService.findCollaborativeExam(examId).flatMap {
       case Left(errorResult) => Future.successful(errorResult)
@@ -80,10 +83,9 @@ class CollaborativeExamSectionController @Inject() (
             updater(exam, user) match
               case Some(err) => Future.successful(err)
               case None =>
-                val pp = PathProperties.parse(
-                  "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                )
-                examLoader.uploadExam(ce, exam, user, resultProvider(exam).orNull, pp)
+                result(exam) match
+                  case Some((model, pp)) => examLoader.uploadExam(ce, exam, user, model, pp)
+                  case None              => examLoader.uploadExam(ce, exam, user)
         }
     }
 
@@ -127,7 +129,7 @@ class CollaborativeExamSectionController @Inject() (
         request,
         examId,
         updater,
-        exam => exam.examSections.asScala.find(_.id == sectionId)
+        exam => exam.examSections.asScala.find(_.id == sectionId).map(_ -> SectionProps)
       )
     }
 
@@ -253,6 +255,7 @@ class CollaborativeExamSectionController @Inject() (
           exam.examSections.asScala
             .flatMap(_.sectionQuestions.asScala)
             .find(_.id == sectionQuestionId)
+            .map(_ -> QuestionProps)
       )
     }
 
@@ -284,7 +287,7 @@ class CollaborativeExamSectionController @Inject() (
         request,
         examId,
         updater,
-        exam => exam.examSections.asScala.find(_.id == sectionId)
+        exam => exam.examSections.asScala.find(_.id == sectionId).map(_ -> SectionProps)
       )
     }
 
@@ -301,7 +304,7 @@ class CollaborativeExamSectionController @Inject() (
         request,
         examId,
         updater,
-        exam => exam.examSections.asScala.find(_.id == sectionId)
+        exam => exam.examSections.asScala.find(_.id == sectionId).map(_ -> SectionProps)
       )
     }
 
@@ -342,12 +345,16 @@ class CollaborativeExamSectionController @Inject() (
                             o.id = CollaborativeExamProcessingService.newId()
                           )
 
-                          val pp = PathProperties.parse(
-                            "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                          )
-                          examLoader.uploadExam(ce, exam, user, esq, pp)
+                          examLoader.uploadExam(ce, exam, user, esq, QuestionProps)
           }
       }
     }
 
-  // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)
+object CollaborativeExamSectionController:
+  // An inline val so that the section spec below can embed it and still be checked as a literal
+  private inline val QuestionSpec =
+    "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+
+  private val QuestionProps = props[ExamSectionQuestion](QuestionSpec)
+  private val SectionProps =
+    props[ExamSection]("(*, examMaterials(*), sectionQuestions" + QuestionSpec + ")")
