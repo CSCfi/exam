@@ -5,8 +5,9 @@
 package features.iop.collaboration.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.iop.collaboration.services.*
-import io.ebean.text.PathProperties
+import models.exam.Exam
 import models.user.Role
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
@@ -47,7 +48,7 @@ class CollaborativeEnrolmentController @Inject() (
               .filter(e => collaborativeEnrolmentService.isEnrollable(e, homeOrg))
               .toSeq
 
-            val pp = PathProperties.parse(
+            val pp = props[Exam](
               """(examOwners(firstName, lastName),
                 |examInspections(user(firstName, lastName)),
                 |examLanguages(code, name),

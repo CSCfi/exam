@@ -4,6 +4,7 @@
 
 package features.iop.transfer.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import models.attachment.Attachment
@@ -40,8 +41,10 @@ class ExternalAttachmentService @Inject() (
     with Logging:
 
   def getExternalExam(id: String, user: User): Option[ExternalExam] =
-    val query      = DB.find(classOf[ExternalExam]).where().eq("hash", id)
-    val finalQuery = if user.hasRole(Role.Name.STUDENT) then query.eq("creator", user) else query
+    val query = DB.find(classOf[ExternalExam]).where().eq(path[ExternalExam]("hash"), id)
+    val finalQuery = if user.hasRole(Role.Name.STUDENT) then
+      query.eq(path[ExternalExam]("creator"), user)
+    else query
     finalQuery.find
 
   def getExam(externalExam: ExternalExam): Either[ExternalAttachmentError, Exam] =

@@ -4,12 +4,14 @@
 
 package features.iop.transfer.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.examination.services.ExaminationService
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.ExamEnrolment
+import models.exam.Exam
 import models.iop.ExternalExam
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
@@ -35,7 +37,7 @@ class ExternalExamService @Inject() (
     with Logging:
 
   private def getPath: PathProperties =
-    val path = """(*,
+    props[Exam]("""(*,
                   |course(*, gradeScale(*, grades(*))),
                   |executionType(*),
                   |autoEvaluationConfig(*, gradeEvaluations(*, grade(*, gradeScale(*)))),
@@ -55,8 +57,7 @@ class ExternalExamService @Inject() (
                   |    clozeTestAnswer(*)
                   |  )
                   |)
-                  |)""".stripMargin
-    PathProperties.parse(path)
+                  |)""".stripMargin)
 
   def addExamForAssessment(ref: String, body: JsValue): Future[Either[ExternalExamError, Unit]] =
     getPrototype(ref) match
@@ -68,7 +69,10 @@ class ExternalExamService @Inject() (
           case None => Future.successful(Left(ExternalExamError.InvalidExternalExamData))
           case Some(ee) =>
             val parent =
-              DB.find(classOf[models.exam.Exam]).where().eq("hash", ee.externalRef).find
+              DB.find(classOf[Exam]).where().eq(
+                path[Exam]("hash"),
+                ee.externalRef
+              ).find
             if parent.isEmpty && Option(enrolment.collaborativeExam).isEmpty then
               Future.successful(Left(ExternalExamError.ParentExamNotFound))
             else
@@ -150,10 +154,13 @@ class ExternalExamService @Inject() (
   private def getPrototype(ref: String): Option[ExamEnrolment] =
     createQuery
       .where()
-      .eq("reservation.externalRef", ref)
+      .eq(path[ExamEnrolment]("reservation.externalRef"), ref)
       .or()
-      .isNull("exam.parent")
-      .isNotNull("collaborativeExam")
+      .isNull(path[ExamEnrolment]("exam.parent"))
+      .isNotNull(path[ExamEnrolment]("collaborativeExam"))
       .endOr()
-      .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
+      .orderBy()
+      .asc(path[ExamEnrolment]("exam.examSections.id"))
+      .orderBy()
+      .asc(path[ExamEnrolment]("exam.examSections.sectionQuestions.sequenceNumber"))
       .find
