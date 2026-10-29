@@ -5,8 +5,11 @@
 package features.enrolment.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.enrolment.services.{ExaminationEventError, ExaminationEventService}
 import io.ebean.text.PathProperties
+import models.enrolment.ExaminationEvent
+import models.enrolment.ExaminationEventConfiguration
 import models.user.Role
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
@@ -95,7 +98,7 @@ class ExaminationEventController @Inject() (
 
   def listExaminationEvents(start: Option[String], end: Option[String]): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
-      val pp = PathProperties.parse(
+      val pp = props[ExaminationEventConfiguration](
         "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
       )
       val configs = examinationEventService.listExaminationEvents(start, end)
@@ -105,7 +108,7 @@ class ExaminationEventController @Inject() (
   def listOverlappingExaminationEvents(start: String, duration: Int): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
       _ =>
-        val pp     = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))")
+        val pp = props[ExaminationEvent]("(*, examinationEventConfiguration(exam(id, duration)))")
         val events = examinationEventService.listOverlappingExaminationEvents(start, duration)
         Ok(events.asJson(pp))
     }

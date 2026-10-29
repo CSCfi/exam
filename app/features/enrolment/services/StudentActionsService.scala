@@ -4,6 +4,7 @@
 
 package features.enrolment.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.text.PathProperties
@@ -45,48 +46,48 @@ class StudentActionsService @Inject() (
 
   def getExamFeedback(examId: Long, user: User): Option[Exam] =
     DB.find(classOf[Exam])
-      .fetch("creator", "firstName, lastName, email")
-      .fetch("course", "code, name, credits")
-      .fetch("grade")
-      .fetch("creditType", "id, type, deprecated")
-      .fetch("gradeScale")
-      .fetch("executionType")
-      .fetch("examFeedback")
-      .fetch("examFeedback.attachment")
-      .fetch("gradedByUser", "firstName, lastName")
-      .fetch("examInspections.user", "firstName, lastName")
-      .fetch("parent.examOwners", "firstName, lastName")
-      .fetch("languageInspection", "approved, finishedAt")
-      .fetch("languageInspection.statement")
-      .fetch("languageInspection.statement.attachment")
+      .fetch(path[Exam]("creator"), "firstName, lastName, email")
+      .fetch(path[Exam]("course"), "code, name, credits")
+      .fetch(path[Exam]("grade"))
+      .fetch(path[Exam]("creditType"), "id, type, deprecated")
+      .fetch(path[Exam]("gradeScale"))
+      .fetch(path[Exam]("executionType"))
+      .fetch(path[Exam]("examFeedback"))
+      .fetch(path[Exam]("examFeedback.attachment"))
+      .fetch(path[Exam]("gradedByUser"), "firstName, lastName")
+      .fetch(path[Exam]("examInspections.user"), "firstName, lastName")
+      .fetch(path[Exam]("parent.examOwners"), "firstName, lastName")
+      .fetch(path[Exam]("languageInspection"), "approved, finishedAt")
+      .fetch(path[Exam]("languageInspection.statement"))
+      .fetch(path[Exam]("languageInspection.statement.attachment"))
       .where()
-      .eq("id", examId)
-      .eq("creator", user)
+      .eq(path[Exam]("id"), examId)
+      .eq(path[Exam]("creator"), user)
       .disjunction()
-      .eq("state", ExamState.REJECTED)
-      .eq("state", ExamState.GRADED_LOGGED)
-      .eq("state", ExamState.ARCHIVED)
+      .eq(path[Exam]("state"), ExamState.REJECTED)
+      .eq(path[Exam]("state"), ExamState.GRADED_LOGGED)
+      .eq(path[Exam]("state"), ExamState.ARCHIVED)
       .conjunction()
-      .eq("state", ExamState.GRADED)
-      .isNotNull("autoEvaluationConfig")
-      .isNotNull("autoEvaluationNotified")
+      .eq(path[Exam]("state"), ExamState.GRADED)
+      .isNotNull(path[Exam]("autoEvaluationConfig"))
+      .isNotNull(path[Exam]("autoEvaluationNotified"))
       .endJunction()
       .endJunction()
       .find
 
   def getExamScore(examId: Long, user: User): Option[Exam] =
     DB.find(classOf[Exam])
-      .fetch("examSections.sectionQuestions.question")
+      .fetch(path[Exam]("examSections.sectionQuestions.question"))
       .where()
-      .eq("id", examId)
-      .eq("creator", user)
+      .eq(path[Exam]("id"), examId)
+      .eq(path[Exam]("creator"), user)
       .disjunction()
-      .eq("state", ExamState.GRADED_LOGGED)
-      .eq("state", ExamState.ARCHIVED)
+      .eq(path[Exam]("state"), ExamState.GRADED_LOGGED)
+      .eq(path[Exam]("state"), ExamState.ARCHIVED)
       .conjunction()
-      .eq("state", ExamState.GRADED)
-      .isNotNull("autoEvaluationConfig")
-      .isNotNull("autoEvaluationNotified")
+      .eq(path[Exam]("state"), ExamState.GRADED)
+      .isNotNull(path[Exam]("autoEvaluationConfig"))
+      .isNotNull(path[Exam]("autoEvaluationNotified"))
       .endJunction()
       .endJunction()
       .find
@@ -106,19 +107,19 @@ class StudentActionsService @Inject() (
       user: User
   ): Either[StudentActionsError.ExamNotFound.type, java.io.OutputStream => Unit] =
     DB.find(classOf[Exam])
-      .fetch("examParticipation.user")
-      .fetch("examSections.sectionQuestions.question")
-      .fetch("examSections.sectionQuestions.clozeTestAnswer")
+      .fetch(path[Exam]("examParticipation.user"))
+      .fetch(path[Exam]("examSections.sectionQuestions.question"))
+      .fetch(path[Exam]("examSections.sectionQuestions.clozeTestAnswer"))
       .where()
-      .eq("id", examId)
-      .eq("creator", user)
+      .eq(path[Exam]("id"), examId)
+      .eq(path[Exam]("creator"), user)
       .disjunction()
-      .eq("state", ExamState.GRADED_LOGGED)
-      .eq("state", ExamState.ARCHIVED)
+      .eq(path[Exam]("state"), ExamState.GRADED_LOGGED)
+      .eq(path[Exam]("state"), ExamState.ARCHIVED)
       .conjunction()
-      .eq("state", ExamState.GRADED)
-      .isNotNull("autoEvaluationConfig")
-      .isNotNull("autoEvaluationNotified")
+      .eq(path[Exam]("state"), ExamState.GRADED)
+      .isNotNull(path[Exam]("autoEvaluationConfig"))
+      .isNotNull(path[Exam]("autoEvaluationNotified"))
       .endJunction()
       .endJunction()
       .find match
@@ -131,26 +132,26 @@ class StudentActionsService @Inject() (
   private def getNoShows(user: User, filter: Option[String]): Set[ExamEnrolment] =
     val baseQuery = DB
       .find(classOf[ExamEnrolment])
-      .fetch("exam", "id, state, name")
-      .fetch("exam.course", "code, name")
-      .fetch("exam.examOwners", "firstName, lastName, id")
-      .fetch("exam.examInspections.user", "firstName, lastName, id")
-      .fetch("reservation")
+      .fetch(path[ExamEnrolment]("exam"), "id, state, name")
+      .fetch(path[ExamEnrolment]("exam.course"), "code, name")
+      .fetch(path[ExamEnrolment]("exam.examOwners"), "firstName, lastName, id")
+      .fetch(path[ExamEnrolment]("exam.examInspections.user"), "firstName, lastName, id")
+      .fetch(path[ExamEnrolment]("reservation"))
       .where()
-      .eq("user", user)
-      .isNull("exam.parent")
-      .eq("noShow", true)
+      .eq(path[ExamEnrolment]("user"), user)
+      .isNull(path[ExamEnrolment]("exam.parent"))
+      .eq(path[ExamEnrolment]("noShow"), true)
 
     val query = filter.fold(baseQuery) { f =>
       val condition = s"%$f%"
       baseQuery
         .disjunction()
-        .ilike("exam.name", condition)
-        .ilike("exam.course.code", condition)
-        .ilike("exam.examOwners.firstName", condition)
-        .ilike("exam.examOwners.lastName", condition)
-        .ilike("exam.examInspections.user.firstName", condition)
-        .ilike("exam.examInspections.user.lastName", condition)
+        .ilike(path[ExamEnrolment]("exam.name"), condition)
+        .ilike(path[ExamEnrolment]("exam.course.code"), condition)
+        .ilike(path[ExamEnrolment]("exam.examOwners.firstName"), condition)
+        .ilike(path[ExamEnrolment]("exam.examOwners.lastName"), condition)
+        .ilike(path[ExamEnrolment]("exam.examInspections.user.firstName"), condition)
+        .ilike(path[ExamEnrolment]("exam.examInspections.user.lastName"), condition)
         .endJunction()
     }
     query.distinct
@@ -158,28 +159,31 @@ class StudentActionsService @Inject() (
   def getFinishedExams(filter: Option[String], user: User): List[Model] =
     val baseQuery = DB
       .find(classOf[ExamParticipation])
-      .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradingType")
-      .fetch("exam.creator", "id")
-      .fetch("exam.course", "code, name")
-      .fetch("exam.parent.examOwners", "firstName, lastName, id")
-      .fetch("exam.examInspections.user", "firstName, lastName, id")
+      .fetch(
+        path[ExamParticipation]("exam"),
+        "id, state, name, autoEvaluationNotified, anonymous, gradingType"
+      )
+      .fetch(path[ExamParticipation]("exam.creator"), "id")
+      .fetch(path[ExamParticipation]("exam.course"), "code, name")
+      .fetch(path[ExamParticipation]("exam.parent.examOwners"), "firstName, lastName, id")
+      .fetch(path[ExamParticipation]("exam.examInspections.user"), "firstName, lastName, id")
       .where()
-      .isNotNull("exam.parent")
-      .ne("exam.state", ExamState.STUDENT_STARTED)
-      .ne("exam.state", ExamState.ABORTED)
-      .ne("exam.state", ExamState.DELETED)
-      .eq("exam.creator", user)
+      .isNotNull(path[ExamParticipation]("exam.parent"))
+      .ne(path[ExamParticipation]("exam.state"), ExamState.STUDENT_STARTED)
+      .ne(path[ExamParticipation]("exam.state"), ExamState.ABORTED)
+      .ne(path[ExamParticipation]("exam.state"), ExamState.DELETED)
+      .eq(path[ExamParticipation]("exam.creator"), user)
 
     val query = filter.fold(baseQuery) { f =>
       val condition = s"%$f%"
       baseQuery
         .disjunction()
-        .ilike("exam.name", condition)
-        .ilike("exam.course.code", condition)
-        .ilike("exam.parent.examOwners.firstName", condition)
-        .ilike("exam.parent.examOwners.lastName", condition)
-        .ilike("exam.examInspections.user.firstName", condition)
-        .ilike("exam.examInspections.user.lastName", condition)
+        .ilike(path[ExamParticipation]("exam.name"), condition)
+        .ilike(path[ExamParticipation]("exam.course.code"), condition)
+        .ilike(path[ExamParticipation]("exam.parent.examOwners.firstName"), condition)
+        .ilike(path[ExamParticipation]("exam.parent.examOwners.lastName"), condition)
+        .ilike(path[ExamParticipation]("exam.examInspections.user.firstName"), condition)
+        .ilike(path[ExamParticipation]("exam.examInspections.user.lastName"), condition)
         .endJunction()
     }
 
@@ -188,7 +192,7 @@ class StudentActionsService @Inject() (
     (participations.asInstanceOf[Set[Model]] ++ noShows.asInstanceOf[Set[Model]]).toList
 
   def getEnrolment(enrolmentId: Long, user: User): Future[Either[StudentActionsError, JsValue]] =
-    val pp = PathProperties.parse(
+    val pp = props[ExamEnrolment](
       """(*,
         |exam(*,
         |  course(*),
@@ -213,7 +217,7 @@ class StudentActionsService @Inject() (
         .apply(pp)
         .where()
         .idEq(enrolmentId)
-        .eq("user", user)
+        .eq(path[ExamEnrolment]("user"), user)
         .find
 
     enrolmentOpt match
@@ -248,10 +252,10 @@ class StudentActionsService @Inject() (
     DB.find(classOf[ExamEnrolment])
       .where()
       .idEq(enrolmentId)
-      .eq("user", user)
-      .eq("exam.implementation", ExamImplementation.CLIENT_AUTH)
-      .in("exam.state", ExamState.PUBLISHED, ExamState.STUDENT_STARTED)
-      .isNotNull("examinationEventConfiguration")
+      .eq(path[ExamEnrolment]("user"), user)
+      .eq(path[ExamEnrolment]("exam.implementation"), ExamImplementation.CLIENT_AUTH)
+      .in(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED, ExamState.STUDENT_STARTED)
+      .isNotNull(path[ExamEnrolment]("examinationEventConfiguration"))
       .find match
       case None => Left(StudentActionsError.ExamConfigNotAvailable)
       case Some(enrolment) =>
@@ -280,13 +284,13 @@ class StudentActionsService @Inject() (
 
   def getExamInfo(examId: Long, user: User): Option[Exam] =
     DB.find(classOf[Exam])
-      .fetch("course", "code, name")
-      .fetch("examSections")
-      .fetch("examSections.examMaterials")
+      .fetch(path[Exam]("course"), "code, name")
+      .fetch(path[Exam]("examSections"))
+      .fetch(path[Exam]("examSections.examMaterials"))
       .where()
       .idEq(examId)
-      .eq("state", ExamState.PUBLISHED)
-      .eq("examEnrolments.user", user)
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
+      .eq(path[Exam]("examEnrolments.user"), user)
       .find
 
   def listAvailableExams(filter: Option[String], user: User): Future[JsValue] =
@@ -307,19 +311,19 @@ class StudentActionsService @Inject() (
     val baseQuery = DB
       .find(classOf[Exam])
       .select("id, name, duration, periodStart, periodEnd, enrollInstruction, implementation")
-      .fetch("course", "code, name")
-      .fetch("examOwners", "firstName, lastName")
-      .fetch("examInspections.user", "firstName, lastName")
-      .fetch("examLanguages", "code, name", FetchConfig.ofQuery())
-      .fetch("creator", "firstName, lastName")
-      .fetch("examinationEventConfigurations.examinationEvent")
+      .fetch(path[Exam]("course"), "code, name")
+      .fetch(path[Exam]("examOwners"), "firstName, lastName")
+      .fetch(path[Exam]("examInspections.user"), "firstName, lastName")
+      .fetch(path[Exam]("examLanguages"), "code, name", FetchConfig.ofQuery())
+      .fetch(path[Exam]("creator"), "firstName, lastName")
+      .fetch(path[Exam]("examinationEventConfigurations.examinationEvent"))
       .where()
-      .eq("state", ExamState.PUBLISHED)
-      .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
-      .gt("periodEnd", Instant.now())
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
+      .eq(path[Exam]("executionType.type"), ExamExecutionType.Type.PUBLIC.toString)
+      .gt(path[Exam]("periodEnd"), Instant.now())
 
     val withCourseFilter =
-      if courseCodes.nonEmpty then baseQuery.in("course.code", courseCodes.asJava)
+      if courseCodes.nonEmpty then baseQuery.in(path[Exam]("course.code"), courseCodes.asJava)
       else baseQuery
 
     val query = filter.fold(withCourseFilter) { f =>
@@ -329,14 +333,14 @@ class StudentActionsService @Inject() (
       val withInspectorSearch =
         userHandler.applyNameSearch("examInspections.user", withOwnerSearch, f)
       withInspectorSearch
-        .ilike("name", condition)
-        .ilike("course.code", condition)
-        .ilike("course.name", condition)
+        .ilike(path[Exam]("name"), condition)
+        .ilike(path[Exam]("course.code"), condition)
+        .ilike(path[Exam]("course.name"), condition)
         .endJunction()
     }
 
     val exams = query
-      .orderBy("course.code")
+      .orderBy(path[Exam]("course.code"))
       .distinct
       .filter { e =>
         e.implementation == ExamImplementation.AQUARIUM ||

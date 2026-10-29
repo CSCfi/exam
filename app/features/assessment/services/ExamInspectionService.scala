@@ -4,6 +4,7 @@
 
 package features.assessment.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import models.assessment.{Comment, ExamInspection}
@@ -86,9 +87,9 @@ class ExamInspectionService @Inject() (
   def listInspections(examId: Long): List[ExamInspection] =
     DB
       .find(classOf[ExamInspection])
-      .fetch("user", "id, email, firstName, lastName")
+      .fetch(path[ExamInspection]("user"), "id, email, firstName, lastName")
       .where()
-      .eq("exam.id", examId)
+      .eq(path[ExamInspection]("exam.id"), examId)
       .distinct
       .toList
 
