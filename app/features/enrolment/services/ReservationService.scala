@@ -92,14 +92,24 @@ class ReservationService @Inject() (
     val baseQuery = DB.find(classOf[User]).where().eq(path[User]("roles.name"), "STUDENT")
     val el = filter.fold(baseQuery) { f =>
       val withOr = baseQuery.or().ilike(path[User]("userIdentifier"), s"%$f%")
-      userHandler.applyNameSearch(null, withOr, f).endOr()
+      userHandler.applyNameSearch(
+        path[User]("firstName"),
+        path[User]("lastName"),
+        withOr,
+        f
+      ).endOr()
     }
     asJsonUsers(el.list)
 
   def getTeachers(filter: Option[String]): JsArray =
     val baseQuery = DB.find(classOf[User]).where().eq(path[User]("roles.name"), "TEACHER")
     val el = filter.fold(baseQuery) { f =>
-      userHandler.applyNameSearch(null, baseQuery.or(), f).endOr()
+      userHandler.applyNameSearch(
+        path[User]("firstName"),
+        path[User]("lastName"),
+        baseQuery.or(),
+        f
+      ).endOr()
     }
     asJsonUsers(el.list)
 
