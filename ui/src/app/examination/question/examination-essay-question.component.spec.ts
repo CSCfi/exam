@@ -101,7 +101,7 @@ describe('ExaminationEssayQuestionComponent', () => {
             expect(mockExamination.saveTextualAnswer$).toHaveBeenCalledWith(
                 expect.objectContaining({ id: 1 }),
                 'exam-hash',
-                { autosave: true, canFail: true, external: false },
+                { mode: 'auto', external: false },
             );
         });
 

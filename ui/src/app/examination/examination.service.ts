@@ -12,17 +12,22 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { ClozeTestAnswer, EssayAnswer } from 'src/app/question/question.model';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
+/**
+ * How a textual answer save reports back to the student:
+ * - manual: student pressed save, toast on success and on failure
+ * - auto: background save, updates the autosave time and toasts only on failure
+ * - submit: final save before the exam is returned, silent as the caller handles what follows
+ */
+export type SaveMode = 'manual' | 'auto' | 'submit';
+
 export interface SaveAnswerOptions {
-    autosave: boolean;
-    canFail: boolean;
+    mode: SaveMode;
     external: boolean;
 }
 
-export interface SaveSectionOptions {
-    autosave: boolean;
+export interface SaveSectionOptions extends SaveAnswerOptions {
+    // also save questions whose answer is empty, e.g. to clear a previously saved answer
     allowEmpty: boolean;
-    canFail: boolean;
-    external: boolean;
 }
 
 export interface SaveOptionOptions {
@@ -32,7 +37,8 @@ export interface SaveOptionOptions {
 
 export interface LogoutOptions {
     quitLinkEnabled: boolean;
-    canFail: boolean;
+    // navigate to the logout page even if returning the exam fails (e.g. time is up)
+    leaveOnError: boolean;
     external: boolean;
 }
 
@@ -68,7 +74,7 @@ export class ExaminationService {
     saveTextualAnswer$ = (
         esq: ExaminationQuestion,
         hash: string,
-        { autosave, canFail, external }: SaveAnswerOptions,
+        { mode, external }: SaveAnswerOptions,
     ): Observable<ExaminationQuestion> => {
         const type = esq.question.type;
         const answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
@@ -89,19 +95,17 @@ export class ExaminationService {
 
         return this.http.post<ClozeTestAnswer | EssayAnswer>(url, msg).pipe(
             map((a) => {
-                if (autosave) {
+                if (mode === 'auto') {
                     esq.autosaved = new Date();
-                } else {
-                    if (!canFail) {
-                        this.toast.info(this.translate.instant('i18n_answer_saved'));
-                    }
+                } else if (mode === 'manual') {
+                    this.toast.info(this.translate.instant('i18n_answer_saved'));
                 }
                 answerObj.objectVersion = a.objectVersion;
                 this.setAnswerStatus(esq);
                 return esq;
             }),
             catchError((err) => {
-                if (!canFail) {
+                if (mode !== 'submit') {
                     this.toast.error(err);
                 }
                 return throwError(() => new Error(err));
@@ -112,10 +116,10 @@ export class ExaminationService {
     saveAllTextualAnswersOfSection$ = (
         section: ExaminationSection,
         hash: string,
-        { autosave, allowEmpty, canFail, external }: SaveSectionOptions,
+        { mode, allowEmpty, external }: SaveSectionOptions,
     ) => {
         const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
-        const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, { autosave, canFail, external }));
+        const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, { mode, external }));
         return concat(...tasks);
     };
 
@@ -124,11 +128,7 @@ export class ExaminationService {
             (esq) => esq.question.type === 'ClozeTestQuestion' && this.isTextualAnswer(esq, options.allowEmpty),
         );
         const tasks = questions.map((q) =>
-            this.saveTextualAnswer$(q, hash, {
-                autosave: options.autosave,
-                canFail: options.canFail,
-                external: options.external,
-            }),
+            this.saveTextualAnswer$(q, hash, { mode: options.mode, external: options.external }),
         );
         return concat(...tasks);
     };
@@ -137,9 +137,8 @@ export class ExaminationService {
         concat(
             ...exam.examSections.map((es) =>
                 this.saveAllTextualAnswersOfSection$(es, exam.hash, {
-                    autosave: false,
+                    mode: 'submit',
                     allowEmpty: true,
-                    canFail: true,
                     external,
                 }),
             ),
@@ -224,7 +223,7 @@ export class ExaminationService {
         return this.http.put<void>(url, {});
     };
 
-    logout = (msg: string, hash: string, { quitLinkEnabled, canFail, external }: LogoutOptions) => {
+    logout = (msg: string, hash: string, { quitLinkEnabled, leaveOnError, external }: LogoutOptions) => {
         const ok = () => {
             this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             this.router.navigate(['/examination/logout'], {
@@ -235,8 +234,8 @@ export class ExaminationService {
         this.http.put<void>(url, {}).subscribe({
             next: ok,
             error: (resp) => {
-                if (!canFail) this.toast.error(this.translate.instant(resp));
-                else ok();
+                if (leaveOnError) ok();
+                else this.toast.error(this.translate.instant(resp));
             },
         });
     };
