@@ -161,7 +161,7 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       .endOr()
 
     val query =
-      if role == Role.Name.ADMIN then baseQuery.eq(path[Exam]("parent.examOwners"), user)
+      if role != Role.Name.ADMIN then baseQuery.eq(path[Exam]("parent.examOwners"), user)
       else baseQuery
     Option(query.findOne())
 
