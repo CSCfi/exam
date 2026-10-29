@@ -10,9 +10,9 @@ import com.icegreen.greenmail.util.{GreenMail, GreenMailUtil, ServerSetupTest}
 import database.EbeanQueryExtensions
 import helpers.InstantArithmetic.*
 import io.ebean.DB
-import models.assessment.ExamInspection
+import models.assessment.*
 import models.enrolment.{ExamParticipation, Reservation}
-import models.exam.{Exam, ExamExecutionType, ExamState}
+import models.exam.*
 import models.user.{Language, User}
 import org.scalatest.BeforeAndAfterAll
 import services.mail.EmailComposer
@@ -109,6 +109,34 @@ class ScheduledJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions
       DB.find(classOf[ExamParticipation], ended.id).ended must not be null
       DB.find(classOf[ExamParticipation], before.id).ended mustBe null
       DB.find(classOf[ExamParticipation], after.id).ended mustBe null
+
+    "auto-evaluate the exams it ends" in:
+      setup()
+      val student = user("auto-eval-student@test.org")
+      val overdue = exam("Auto-evaluated", ExamState.STUDENT_STARTED)
+      overdue.gradeScale = DB.find(classOf[GradeScale]).list.find(!_.grades.isEmpty).get
+      overdue.creator = student
+      overdue.examLanguages = new java.util.ArrayList(List(student.language).asJava)
+      overdue.update()
+      val config = new AutoEvaluationConfig
+      config.releaseType = AutoEvaluationReleaseType.IMMEDIATE
+      config.gradeEvaluations = new java.util.HashSet()
+      overdue.gradeScale.grades.asScala.foreach { grade =>
+        val ge = new GradeEvaluation
+        ge.grade = grade
+        ge.percentage = 0
+        config.gradeEvaluations.add(ge)
+      }
+      config.exam = overdue
+      config.save()
+      participation(overdue, student, Some(pastReservation(student)))
+
+      runIO(app.injector.instanceOf(classOf[ExamAutoSaverService]).runCheck())
+
+      val graded = DB.find(classOf[Exam], overdue.id)
+      graded.state mustBe ExamState.GRADED
+      graded.grade must not be null
+      graded.autoEvaluationNotified must not be null
 
   "The weekly report" should:
     "list reviews of exams the teacher owns and of attempts they inspect" in:
