@@ -4,9 +4,7 @@
 
 package features.iop.collaboration.services
 
-import database.EbeanPaths.props
 import database.EbeanQueryExtensions
-import io.ebean.Model
 import models.exam.Exam
 import models.exam.ExamState
 import models.sections.ExamSection
@@ -111,38 +109,4 @@ class CollaborativeExamSectionService @Inject() (
             Right(section)
           else Left("Failed to upload exam")
         }
-    }
-
-  /** Update exam sections with a custom updater function
-    *
-    * @param examId
-    *   the collaborative exam ID
-    * @param user
-    *   the authenticated user (must carry its login role)
-    * @param updater
-    *   function to update the exam, returns Some(error) or None
-    * @param resultProvider
-    *   function to get the result model from the exam
-    * @return
-    *   Future containing Either[error message, Unit]
-    */
-  def updateSections(
-      examId: Long,
-      user: User,
-      updater: (Exam, User) => Option[String],
-      resultProvider: Exam => Option[? <: Model]
-  ): Future[Either[String, Unit]] =
-    getExamForSectionOperation(examId, user).flatMap {
-      case Left(error) => Future.successful(Left(error))
-      case Right((ce, exam)) =>
-        updater(exam, user) match
-          case Some(error) => Future.successful(Left(error))
-          case None =>
-            val pp = props[ExamSectionQuestion](
-              "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-            )
-            examLoader.uploadExam(ce, exam, user, resultProvider(exam).orNull, pp).map { result =>
-              if result.header.status == play.api.mvc.Results.Ok.header.status then Right(())
-              else Left("Failed to upload exam")
-            }
     }
