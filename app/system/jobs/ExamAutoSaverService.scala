@@ -6,6 +6,7 @@ package system.jobs
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExamParticipation}
@@ -76,15 +77,15 @@ class ExamAutoSaverService @Inject() (
     IO.blocking {
       val participants = DB
         .find(classOf[ExamParticipation])
-        .fetch("exam")
-        .fetch("reservation")
-        .fetch("reservation.machine.room")
-        .fetch("examinationEvent")
+        .fetch(path[ExamParticipation]("exam"))
+        .fetch(path[ExamParticipation]("reservation"))
+        .fetch(path[ExamParticipation]("reservation.machine.room"))
+        .fetch(path[ExamParticipation]("examinationEvent"))
         .where
-        .isNull("ended")
+        .isNull(path[ExamParticipation]("ended"))
         .or
-        .isNotNull("reservation")
-        .isNotNull("examinationEvent")
+        .isNotNull(path[ExamParticipation]("reservation"))
+        .isNotNull(path[ExamParticipation]("examinationEvent"))
         .endOr
         .list
       (participants, if participants.isEmpty then 0 else reviewDeadlineDays)
@@ -102,14 +103,14 @@ class ExamAutoSaverService @Inject() (
     IO.blocking {
       DB
         .find(classOf[ExamEnrolment])
-        .fetch("externalExam")
-        .fetch("reservation")
-        .fetch("reservation.machine.room")
+        .fetch(path[ExamEnrolment]("externalExam"))
+        .fetch(path[ExamEnrolment]("reservation"))
+        .fetch(path[ExamEnrolment]("reservation.machine.room"))
         .where
-        .isNotNull("externalExam")
-        .isNotNull("externalExam.started")
-        .isNull("externalExam.finished")
-        .isNotNull("reservation.externalRef")
+        .isNotNull(path[ExamEnrolment]("externalExam"))
+        .isNotNull(path[ExamEnrolment]("externalExam.started"))
+        .isNull(path[ExamEnrolment]("externalExam.finished"))
+        .isNotNull(path[ExamEnrolment]("reservation.externalRef"))
         .list
     }.flatMap(_.traverse_(enrolment =>
       IO.blocking(markExternalEnded(enrolment)).handleErrorWith(e =>
