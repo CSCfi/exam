@@ -12,6 +12,10 @@
     white-space: nowrap;
     font-size: 0.875rem;
 
+  thead.sticky-top {
+    z-index: 1;
+  }
+
     th {
         background-color: #f8f9fa;
         border-bottom: 2px solid #dee2e6;
