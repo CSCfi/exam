@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.controllers
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.{
   CollaborativeExamLoaderService,
@@ -75,8 +76,8 @@ class CollaborativeAttachmentController @Inject() (
     !user.hasRole(Role.Name.STUDENT) ||
       DB.find(classOf[ExamEnrolment])
         .where()
-        .eq("user", user)
-        .eq("collaborativeExam.id", ceId)
+        .eq(path[ExamEnrolment]("user"), user)
+        .eq(path[ExamEnrolment]("collaborativeExam.id"), ceId)
         .list
         .nonEmpty
 

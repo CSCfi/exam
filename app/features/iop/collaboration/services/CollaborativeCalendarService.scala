@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
@@ -68,13 +69,13 @@ class CollaborativeCalendarService @Inject() (
   def findEnrolment(examId: Long, userId: Long, now: Instant): Future[Option[ExamEnrolment]] =
     Future(
       DB.find(classOf[ExamEnrolment])
-        .fetch("reservation")
+        .fetch(path[ExamEnrolment]("reservation"))
         .where()
-        .eq("user.id", userId)
-        .eq("collaborativeExam.id", examId)
+        .eq(path[ExamEnrolment]("user.id"), userId)
+        .eq(path[ExamEnrolment]("collaborativeExam.id"), examId)
         .disjunction()
-        .isNull("reservation")
-        .gt("reservation.startAt", now)
+        .isNull(path[ExamEnrolment]("reservation"))
+        .gt(path[ExamEnrolment]("reservation.startAt"), now)
         .endJunction()
         .find
     )(using ec)
@@ -113,7 +114,7 @@ class CollaborativeCalendarService @Inject() (
               // Start transaction
               Using(DB.beginTransaction()) { tx =>
                 // Take pessimistic lock for user
-                DB.find(classOf[User]).forUpdate().where().eq("id", userId).findOne()
+                DB.find(classOf[User]).forUpdate().where().eq(path[User]("id"), userId).findOne()
 
                 val oldReservation = enrolment.reservation
                 val reservation =
