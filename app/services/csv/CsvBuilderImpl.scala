@@ -5,6 +5,7 @@
 package services.csv
 
 import com.opencsv.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.{Comment, ExamRecord, ExamScore}
@@ -36,9 +37,9 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       val end   = new Date(endDate)
       val examRecords = DB
         .find(classOf[ExamRecord])
-        .fetch("examScore")
+        .fetch(path[ExamRecord]("examScore"))
         .where()
-        .between("timeStamp", start, end)
+        .between(path[ExamRecord]("timeStamp"), start, end)
         .list
       writeRecords(writer, examRecords, ExamScore.getHeaders)
     }
@@ -47,10 +48,10 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
     streamTo(os) { writer =>
       val examRecords = DB
         .find(classOf[ExamRecord])
-        .fetch("examScore")
+        .fetch(path[ExamRecord]("examScore"))
         .where()
-        .eq("exam.parent.id", examId)
-        .in("exam.id", childIds.asJava)
+        .eq(path[ExamRecord]("exam.parent.id"), examId)
+        .in(path[ExamRecord]("exam.id"), childIds.asJava)
         .list
       writeRecords(writer, examRecords, ExamScore.getHeaders)
     }
@@ -153,22 +154,23 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       .find(classOf[Exam])
       .where()
       .idEq(examId)
-      .isNotNull("parent")
+      .isNotNull(path[Exam]("parent"))
       .or()
-      .eq("state", ExamState.REVIEW)
-      .eq("state", ExamState.REVIEW_STARTED)
+      .eq(path[Exam]("state"), ExamState.REVIEW)
+      .eq(path[Exam]("state"), ExamState.REVIEW_STARTED)
       .endOr()
 
     val query =
-      if role == Role.Name.ADMIN then baseQuery.eq("parent.examOwners", user) else baseQuery
+      if role == Role.Name.ADMIN then baseQuery.eq(path[Exam]("parent.examOwners"), user)
+      else baseQuery
     Option(query.findOne())
 
   private def findGrade(gradeName: String, scale: GradeScale): Option[Grade] =
     val grades = DB
       .find(classOf[Grade])
       .where()
-      .eq("name", gradeName)
-      .eq("gradeScale", scale)
+      .eq(path[Grade]("name"), gradeName)
+      .eq(path[Grade]("gradeScale"), scale)
       .list
 
     grades match

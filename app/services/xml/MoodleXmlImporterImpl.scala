@@ -4,6 +4,7 @@
 
 package services.xml
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.attachment.Attachment
@@ -38,8 +39,8 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
         DB
           .find(classOf[Tag])
           .where
-          .eq("name", node.text)
-          .eq("creator", user)
+          .eq(path[Tag]("name"), node.text)
+          .eq(path[Tag]("creator"), user)
           .list match
           case h :: _ => h
           case _ =>

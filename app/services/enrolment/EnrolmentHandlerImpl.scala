@@ -4,6 +4,7 @@
 
 package services.enrolment
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
@@ -26,13 +27,13 @@ class EnrolmentHandlerImpl @Inject() (noShowHandler: NoShowHandler) extends Enro
       case Some(trialCount) =>
         val trials = DB
           .find(classOf[ExamEnrolment])
-          .fetch("exam")
+          .fetch(path[ExamEnrolment]("exam"))
           .where()
-          .eq("user", user)
-          .eq("exam.parent.id", exam.id)
-          .ne("exam.state", ExamState.DELETED)
-          .ne("exam.state", ExamState.INITIALIZED)
-          .ne("retrialPermitted", true)
+          .eq(path[ExamEnrolment]("user"), user)
+          .eq(path[ExamEnrolment]("exam.parent.id"), exam.id)
+          .ne(path[ExamEnrolment]("exam.state"), ExamState.DELETED)
+          .ne(path[ExamEnrolment]("exam.state"), ExamState.INITIALIZED)
+          .ne(path[ExamEnrolment]("retrialPermitted"), true)
           .list
           .sortBy(-_.id) // Descending order
 
@@ -42,31 +43,31 @@ class EnrolmentHandlerImpl @Inject() (noShowHandler: NoShowHandler) extends Enro
   private def handleNoShow(user: User, examId: Long): Unit =
     val enrolments = DB
       .find(classOf[ExamEnrolment])
-      .fetch("reservation")
-      .fetch("exam")
-      .fetch("examinationEventConfiguration.examinationEvent")
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("exam"))
+      .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"))
       .where()
-      .eq("user", user)
-      .eq("noShow", false)
+      .eq(path[ExamEnrolment]("user"), user)
+      .eq(path[ExamEnrolment]("noShow"), false)
       .or()
-      .lt("reservation.endAt", new Date())
+      .lt(path[ExamEnrolment]("reservation.endAt"), new Date())
       // An event that has merely started is not over yet; the exam's duration still has to elapse.
       // The query cannot express that, so this only narrows the candidates - isElapsed decides.
-      .lt("examinationEventConfiguration.examinationEvent.start", new Date())
+      .lt(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent.start"), new Date())
       .endOr()
       // Either (a) exam id matches and exam state is published OR
       //        (b) collaborative exam id matches and exam is NULL
       .or()
       .and()
-      .eq("exam.id", examId)
-      .eq("exam.state", ExamState.PUBLISHED)
+      .eq(path[ExamEnrolment]("exam.id"), examId)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
       .endAnd()
       .and()
-      .eq("collaborativeExam.id", examId)
-      .isNull("exam")
+      .eq(path[ExamEnrolment]("collaborativeExam.id"), examId)
+      .isNull(path[ExamEnrolment]("exam"))
       .endAnd()
       .endOr()
-      .isNull("reservation.externalReservation")
+      .isNull(path[ExamEnrolment]("reservation.externalReservation"))
       .list
       .filter(isElapsed)
 

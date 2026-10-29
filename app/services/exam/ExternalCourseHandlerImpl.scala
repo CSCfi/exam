@@ -4,6 +4,7 @@
 
 package services.exam
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.exam.{Course, Grade, GradeScale}
@@ -43,12 +44,12 @@ class ExternalCourseHandlerImpl @Inject (
   private def getLocalCourses(code: String) = DB
     .find(classOf[Course])
     .where
-    .ilike("code", code + "%")
+    .ilike(path[Course]("code"), code + "%")
     .disjunction
-    .isNull("endDate")
-    .gt("endDate", Instant.now())
+    .isNull(path[Course]("endDate"))
+    .gt(path[Course]("endDate"), Instant.now())
     .endJunction
-    .orderBy("code")
+    .orderBy(path[Course]("code"))
     .distinct
     .filter(c =>
       Option(c.startDate).isEmpty || configReader.getCourseValidityDate(
@@ -98,7 +99,7 @@ class ExternalCourseHandlerImpl @Inject (
   private def saveOrUpdate(external: Course): Unit =
     DB.find(classOf[Course])
       .where
-      .eq("code", external.code)
+      .eq(path[Course]("code"), external.code)
       .find match
       case Some(local) =>
         // Existing course
@@ -193,7 +194,10 @@ class ExternalCourseHandlerImpl @Inject (
         model.courseUnitType = cui.`type`.orNull
         // This is interesting having to pass an Option[Double] to Java's Double
         model.credits = cui.credits.map(d => java.lang.Double.valueOf(d)).orNull
-        val org = DB.find(classOf[Organisation]).where.ieq("name", cui.institutionName).find match
+        val org = DB.find(classOf[Organisation]).where.ieq(
+          path[Organisation]("name"),
+          cui.institutionName
+        ).find match
           case None =>
             val org2 = new Organisation
             org2.name = cui.institutionName
@@ -216,12 +220,12 @@ class ExternalCourseHandlerImpl @Inject (
     val (ext, loc) =
       cui.gradeScales.map(_.partition(_.`type` == "OTHER")).getOrElse((Seq.empty, Seq.empty))
     ext.flatMap(importScale) ++ loc.flatMap(gs =>
-      DB.find(classOf[GradeScale]).where.eq("description", gs.`type`).find
+      DB.find(classOf[GradeScale]).where.eq(path[GradeScale]("description"), gs.`type`).find
     )
 
   private def importScale(gs: ExtGradeScale) = gs match
     case ExtGradeScale(Some(name), "OTHER", Some(code), Some(grades)) =>
-      DB.find(classOf[GradeScale]).where.eq("externalRef", code).find.orElse {
+      DB.find(classOf[GradeScale]).where.eq(path[GradeScale]("externalRef"), code).find.orElse {
         val model = new GradeScale
         model.description = GradeScale.Type.OTHER.toString
         model.externalRef = code

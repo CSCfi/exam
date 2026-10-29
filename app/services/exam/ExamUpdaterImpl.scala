@@ -4,6 +4,7 @@
 
 package services.exam
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.AutoEvaluationReleaseType
@@ -206,7 +207,9 @@ class ExamUpdaterImpl @Inject() (
           exam.organisations = null
 
     examType.foreach { typeStr =>
-      Option(DB.find(classOf[ExamType]).where().eq("type", typeStr).findOne()).foreach(t =>
+      Option(
+        DB.find(classOf[ExamType]).where().eq(path[ExamType]("type"), typeStr).findOne()
+      ).foreach(t =>
         exam.examType = t
       )
     }
@@ -413,7 +416,9 @@ class ExamUpdaterImpl @Inject() (
         .flatMap(c => Option(c.gradeScale))
         .isEmpty
     then
-      Option(DB.find(classOf[GradeScale]).fetch("grades").where().idEq(grading).findOne()) match
+      Option(DB.find(classOf[GradeScale]).fetch(path[GradeScale]("grades")).where().idEq(
+        grading
+      ).findOne()) match
         case Some(scale) =>
           exam.gradeScale = scale
         case None =>

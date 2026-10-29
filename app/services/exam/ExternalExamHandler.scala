@@ -5,6 +5,7 @@
 package services.exam
 
 import com.google.inject.ImplementedBy
+import database.EbeanPaths.path
 import features.exam.copy.ExamCopyContext
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import features.iop.transfer.services.ExternalAttachmentLoaderService
@@ -153,9 +154,10 @@ class ExternalExamHandlerImpl @Inject() (
       enrolment: ExamEnrolment,
       externalExam: ExternalExam
   ): ExamParticipation =
-    val parent = DB.find(classOf[Exam]).where().eq("hash", externalExam.externalRef).findOne()
-    val src    = externalExam.deserialize
-    val clone  = createCopy(src, parent, enrolment.user)
+    val parent =
+      DB.find(classOf[Exam]).where().eq(path[Exam]("hash"), externalExam.externalRef).findOne()
+    val src   = externalExam.deserialize
+    val clone = createCopy(src, parent, enrolment.user)
 
     val ep = new ExamParticipation()
     ep.exam = clone
