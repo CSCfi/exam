@@ -4,6 +4,7 @@
 
 package features.calendar.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
@@ -37,12 +38,12 @@ class CalendarService @Inject() (
   def removeReservation(reservationId: Long, user: User): Either[CalendarError, Unit] =
     val enrolmentOpt = DB
       .find(classOf[ExamEnrolment])
-      .fetch("reservation")
-      .fetch("reservation.machine")
-      .fetch("reservation.machine.room")
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("reservation.machine"))
+      .fetch(path[ExamEnrolment]("reservation.machine.room"))
       .where()
-      .eq("user.id", user.id)
-      .eq("reservation.id", reservationId)
+      .eq(path[ExamEnrolment]("user.id"), user.id)
+      .eq(path[ExamEnrolment]("reservation.id"), reservationId)
       .find
 
     enrolmentOpt match
@@ -79,12 +80,12 @@ class CalendarService @Inject() (
   def getCurrentEnrolment(examId: Long, user: User): Option[ExamEnrolment] =
     val now = clock.now()
     DB.find(classOf[ExamEnrolment])
-      .fetch("optionalSections")
+      .fetch(path[ExamEnrolment]("optionalSections"))
       .where()
-      .eq("user.id", user.id)
-      .eq("exam.id", examId)
-      .eq("exam.state", ExamState.PUBLISHED)
-      .gt("reservation.startAt", now)
+      .eq(path[ExamEnrolment]("user.id"), user.id)
+      .eq(path[ExamEnrolment]("exam.id"), examId)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
+      .gt(path[ExamEnrolment]("reservation.startAt"), now)
       .find
 
   def createReservation(dto: ReservationDTO, user: User): Future[Either[CalendarError, Unit]] =
@@ -101,20 +102,20 @@ class CalendarService @Inject() (
     // Start manual transaction
     Using(DB.beginTransaction()) { tx =>
       // Take pessimistic lock for user to prevent multiple reservations creating
-      DB.find(classOf[User]).forUpdate().where().eq("id", user.id).findOne()
+      DB.find(classOf[User]).forUpdate().where().eq(path[User]("id"), user.id).findOne()
 
       val optionalEnrolment =
         DB.find(classOf[ExamEnrolment])
-          .fetch("reservation")
-          .fetch("exam.examSections")
-          .fetch("exam.examSections.examMaterials")
+          .fetch(path[ExamEnrolment]("reservation"))
+          .fetch(path[ExamEnrolment]("exam.examSections"))
+          .fetch(path[ExamEnrolment]("exam.examSections.examMaterials"))
           .where()
-          .eq("user.id", user.id)
-          .eq("exam.id", examId)
-          .eq("exam.state", ExamState.PUBLISHED)
+          .eq(path[ExamEnrolment]("user.id"), user.id)
+          .eq(path[ExamEnrolment]("exam.id"), examId)
+          .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
           .disjunction()
-          .isNull("reservation")
-          .gt("reservation.startAt", now)
+          .isNull(path[ExamEnrolment]("reservation"))
+          .gt(path[ExamEnrolment]("reservation.startAt"), now)
           .endJunction()
           .find
 
@@ -151,7 +152,7 @@ class CalendarService @Inject() (
                             // Re-fetch enrolment
                             val updatedEnrolmentOpt =
                               DB.find(classOf[ExamEnrolment])
-                                .fetch("exam.executionType")
+                                .fetch(path[ExamEnrolment]("exam.executionType"))
                                 .where()
                                 .idEq(enrolment.id)
                                 .find
