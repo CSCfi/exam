@@ -60,9 +60,10 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
 
     val results = filter match
       case Some(f) =>
-        val baseQuery      = query.where().disjunction()
-        val withNameSearch = userHandler.applyNameSearch(null, baseQuery, f)
-        val condition      = s"%$f%"
+        val baseQuery = query.where().disjunction()
+        val withNameSearch =
+          userHandler.applyNameSearch(path[User]("firstName"), path[User]("lastName"), baseQuery, f)
+        val condition = s"%$f%"
         withNameSearch
           .ilike(path[User]("email"), condition)
           .ilike(path[User]("userIdentifier"), condition)
@@ -164,5 +165,10 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
 
   private def listUsersByRoleAndName(role: String, nameFilter: String): Seq[User] =
     val baseQuery = DB.find(classOf[User]).where().eq(path[User]("roles.name"), role).disjunction()
-    val withNameSearch = userHandler.applyNameSearch(null, baseQuery, nameFilter)
+    val withNameSearch = userHandler.applyNameSearch(
+      path[User]("firstName"),
+      path[User]("lastName"),
+      baseQuery,
+      nameFilter
+    )
     withNameSearch.endJunction().list

@@ -329,9 +329,19 @@ class StudentActionsService @Inject() (
     val query = filter.fold(withCourseFilter) { f =>
       val condition       = s"%$f%"
       val withDisjunction = withCourseFilter.disjunction()
-      val withOwnerSearch = userHandler.applyNameSearch("examOwners", withDisjunction, f)
+      val withOwnerSearch = userHandler.applyNameSearch(
+        path[Exam]("examOwners.firstName"),
+        path[Exam]("examOwners.lastName"),
+        withDisjunction,
+        f
+      )
       val withInspectorSearch =
-        userHandler.applyNameSearch("examInspections.user", withOwnerSearch, f)
+        userHandler.applyNameSearch(
+          path[Exam]("examInspections.user.firstName"),
+          path[Exam]("examInspections.user.lastName"),
+          withOwnerSearch,
+          f
+        )
       withInspectorSearch
         .ilike(path[Exam]("name"), condition)
         .ilike(path[Exam]("course.code"), condition)
