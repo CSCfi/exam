@@ -4,6 +4,7 @@
 
 package features.integration.services
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -19,7 +20,7 @@ import scala.jdk.CollectionConverters.*
 class ReservationAPIService @Inject() ()
     extends EbeanQueryExtensions:
 
-  private val reservationProperties =
+  private val reservationJsonProperties = props[Reservation](
     """(startAt, endAt, externalUserRef,
       |user(firstName, lastName, email, userIdentifier),
       |enrolment(noShow,
@@ -37,14 +38,13 @@ class ReservationAPIService @Inject() ()
       |  room(name, roomCode)
       |)
       |)""".stripMargin
-
-  private val reservationJsonProperties = PathProperties.parse(reservationProperties)
+  )
 
   private val roomProperties =
-    PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
+    props[ExamRoom]("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
 
   private val openingHoursProperties =
-    PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
+    props[ExamRoom]("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
 
   def getReservations(
       start: Option[String],
@@ -56,26 +56,32 @@ class ReservationAPIService @Inject() ()
       .where()
       .or()  // *
       .and() // **
-      .isNotNull("enrolment")
+      .isNotNull(path[Reservation]("enrolment"))
       .or() // ***
-      .isNotNull("enrolment.collaborativeExam")
-      .ne("enrolment.exam.state", ExamState.DELETED)
+      .isNotNull(path[Reservation]("enrolment.collaborativeExam"))
+      .ne(path[Reservation]("enrolment.exam.state"), ExamState.DELETED)
       .endOr()  // ***
       .endAnd() // **
-      .isNotNull("externalUserRef")
+      .isNotNull(path[Reservation]("externalUserRef"))
       .endOr() // *
 
-    val withStart = start.fold(baseQuery)(s => baseQuery.ge("startAt", TimeUtils.parseInstant(s)))
-    val withEnd   = end.fold(withStart)(e => withStart.lt("endAt", TimeUtils.parseInstant(e)))
+    val withStart = start.fold(baseQuery)(s =>
+      baseQuery.ge(path[Reservation]("startAt"), TimeUtils.parseInstant(s))
+    )
+    val withEnd =
+      end.fold(withStart)(e => withStart.lt(path[Reservation]("endAt"), TimeUtils.parseInstant(e)))
 
     val finalQuery = roomId.fold(withEnd) { id =>
-      withEnd.eq("machine.room.id", id)
+      withEnd.eq(path[Reservation]("machine.room.id"), id)
     }
 
     (finalQuery.distinct.toList.sortBy(_.startAt.toEpochMilli), reservationJsonProperties)
 
   def getRooms: (List[ExamRoom], PathProperties) =
-    (DB.find(classOf[ExamRoom]).apply(roomProperties).orderBy("name").list, roomProperties)
+    (
+      DB.find(classOf[ExamRoom]).apply(roomProperties).orderBy(path[ExamRoom]("name")).list,
+      roomProperties
+    )
 
   def getRoomOpeningHours(roomId: Long, date: String): Option[(ExamRoom, PathProperties)] =
     DB.find(classOf[ExamRoom]).apply(openingHoursProperties).where().idEq(roomId).find match
