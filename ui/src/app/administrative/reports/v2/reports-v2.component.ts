@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
@@ -65,6 +65,7 @@ interface ReportRow {
         PageHeaderComponent,
         PageContentComponent,
     ],
+    providers: [DatePipe],
     templateUrl: './reports-v2.component.html',
     styleUrl: './reports-v2.component.scss',
 })
@@ -216,7 +217,7 @@ export class ReportsV2Component {
                     };
 
                     if (currentStartDate) {
-                        params.start = DateTime.fromJSDate(currentStartDate).toISO() || '';
+                        params.start = DateTime.fromJSDate(currentStartDate).startOf('day').toISO() || '';
                     }
                     if (currentEndDate) {
                         params.end = DateTime.fromJSDate(currentEndDate).endOf('day').toISO() || '';
