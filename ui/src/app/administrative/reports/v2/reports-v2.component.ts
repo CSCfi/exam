@@ -8,9 +8,10 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbDropdownModule, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { combineLatest, Observable, of } from 'rxjs';
-import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
-import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
+import { type CollaborativeExam, type Course, type Exam } from 'src/app/exam/exam.model';
+import { CoursePickerService } from 'src/app/exam/editor/common/course-picker.service';
 import { ExamService } from 'src/app/exam/exam.service';
 import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
 import type { User } from 'src/app/session/session.model';
@@ -74,13 +75,14 @@ export class ReportsV2Component {
     readonly studentInput = viewChild.required<ElementRef>('studentInput');
     readonly examInput = viewChild.required<ElementRef>('examInput');
     readonly teacherInput = viewChild.required<ElementRef>('teacherInput');
+    readonly courseInput = viewChild.required<ElementRef>('courseInput');
 
     readonly student = signal<User | undefined>(undefined);
     readonly exam = signal<Exam | CollaborativeExam | undefined>(undefined);
     readonly teacher = signal<User | undefined>(undefined);
+    readonly course = signal<Course | undefined>(undefined);
     readonly startDate = signal<Date | null>(null);
     readonly endDate = signal<Date | null>(null);
-    readonly implementation = signal('');
     readonly status = signal('');
     readonly examType = signal('');
     readonly eppn = signal('');
@@ -120,6 +122,7 @@ export class ReportsV2Component {
     private readonly Reservation = inject(ReservationService);
     private readonly CommonExam = inject(CommonExamService);
     private readonly Exam = inject(ExamService);
+    private readonly CoursePicker = inject(CoursePickerService);
     private readonly Files = inject(FileService);
     private readonly translate = inject(TranslateService);
 
@@ -182,9 +185,9 @@ export class ReportsV2Component {
             toObservable(this.student),
             toObservable(this.exam),
             toObservable(this.teacher),
+            toObservable(this.course),
             toObservable(this.startDate),
             toObservable(this.endDate),
-            toObservable(this.implementation),
             toObservable(this.status),
             toObservable(this.examType),
             toObservable(this.eppn),
@@ -202,6 +205,7 @@ export class ReportsV2Component {
                     const currentStudent = this.student();
                     const currentExam = this.exam();
                     const currentTeacher = this.teacher();
+                    const currentCourse = this.course();
                     const currentStartDate = this.startDate();
                     const currentEndDate = this.endDate();
                     const currentStatus = this.status();
@@ -225,16 +229,13 @@ export class ReportsV2Component {
 
                     return this.Reservation.listReservations$(params).pipe(
                         map((reservations) => {
-                            const implementationFilter = this.implementation().toLowerCase();
                             const examTypeFilter = this.examType().toLowerCase();
 
                             return reservations
                                 .filter((r) => {
                                     const exam = (r.enrolment?.exam.parent || r.enrolment?.exam) as Exam;
                                     if (!exam) return false;
-                                    const matchImplementation =
-                                        !implementationFilter ||
-                                        exam.implementation?.toLowerCase().includes(implementationFilter);
+                                    const matchCourse = !currentCourse || exam.course?.id === currentCourse.id;
                                     const matchExamType =
                                         !examTypeFilter ||
                                         exam.examType?.type?.toLowerCase().includes(examTypeFilter) ||
@@ -248,7 +249,7 @@ export class ReportsV2Component {
                                         !currentEmail || r.user?.email?.toLowerCase().includes(currentEmail);
 
                                     return (
-                                        matchImplementation &&
+                                        matchCourse &&
                                         matchExamType &&
                                         matchEppn &&
                                         matchStudentNumber &&
@@ -364,6 +365,15 @@ export class ReportsV2Component {
         this.teacherInput().nativeElement.value = '';
     }
 
+    courseSelected(event: NgbTypeaheadSelectItemEvent<Course>) {
+        this.course.set(event.item);
+    }
+
+    clearCourse() {
+        this.course.set(undefined);
+        this.courseInput().nativeElement.value = '';
+    }
+
     startDateChanged(event: { date: Date | null }) {
         this.startDate.set(event.date);
     }
@@ -408,12 +418,14 @@ export class ReportsV2Component {
         return item.name;
     }
 
+    protected courseFormatter = (item: Course) => (item ? `${item.name} (${item.code})` : '');
+
     protected isAnyFilterActive(): boolean {
         return (
             !!this.student() ||
             !!this.exam() ||
             !!this.teacher() ||
-            !!this.implementation() ||
+            !!this.course() ||
             !!this.status() ||
             !!this.examType() ||
             !!this.startDate() ||
@@ -452,4 +464,23 @@ export class ReportsV2Component {
     protected searchExams$ = (text$: Observable<string>) => this.Reservation.searchExams$(text$, false);
 
     protected searchTeachers$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
+
+    protected searchCourses$ = (text$: Observable<string>) =>
+        text$.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            switchMap((term) =>
+                term.length < 2
+                    ? of([])
+                    : forkJoin([
+                          this.CoursePicker.getCourses$('name', term).pipe(catchError(() => of([]))),
+                          this.CoursePicker.getCourses$('code', term).pipe(catchError(() => of([]))),
+                      ]).pipe(
+                          map(([names, codes]) => {
+                              const combined = [...names, ...codes];
+                              return Array.from(new Map(combined.map((c) => [c.id, c])).values());
+                          }),
+                      ),
+            ),
+        );
 }

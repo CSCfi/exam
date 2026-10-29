@@ -97,16 +97,26 @@ SPDX-License-Identifier: EUPL-1.2
             />
         </div>
         <div class="col-md-3">
-            <label for="implementation" class="form-label">{{
+            <label for="course-search" class="form-label">{{
                 'i18n_exam_reports_v2_implementation' | translate
             }}</label>
-            <input
-                id="implementation"
-                type="text"
-                class="form-control"
-                [value]="implementation()"
-                (input)="implementation.set($any($event.target).value)"
-            />
+            <div class="input-group">
+                <input
+                    #courseInput
+                    id="course-search"
+                    type="text"
+                    class="form-control"
+                    [ngbTypeahead]="searchCourses$"
+                    [resultFormatter]="courseFormatter"
+                    [inputFormatter]="courseFormatter"
+                    (selectItem)="courseSelected($event)"
+                    [disabled]="course()"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                />
+                <button class="btn btn-outline-secondary" type="reset" (click)="clearCourse()">
+                    {{ 'i18n_remove' | translate }}
+                </button>
+            </div>
         </div>
     </div>
 
