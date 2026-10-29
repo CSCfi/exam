@@ -4,12 +4,13 @@
 
 package features.iop.collaboration.services
 
+import database.EbeanPaths.props
 import database.EbeanQueryExtensions
 import io.ebean.Model
-import io.ebean.text.PathProperties
 import models.exam.Exam
 import models.exam.ExamState
 import models.sections.ExamSection
+import models.sections.ExamSectionQuestion
 import models.user.User
 import play.api.Logging
 import security.BlockingIOExecutionContext
@@ -137,7 +138,7 @@ class CollaborativeExamSectionService @Inject() (
         updater(exam, user) match
           case Some(error) => Future.successful(Left(error))
           case None =>
-            val pp = PathProperties.parse(
+            val pp = props[ExamSectionQuestion](
               "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
             )
             examLoader.uploadExam(ce, exam, user, resultProvider(exam).orNull, pp).map { result =>

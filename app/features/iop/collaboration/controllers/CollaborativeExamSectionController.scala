@@ -4,11 +4,11 @@
 
 package features.iop.collaboration.controllers
 
+import database.EbeanPaths.props
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
 import features.question.services.QuestionService
 import io.ebean.Model
-import io.ebean.text.PathProperties
 import models.exam.Exam
 import models.questions.Question
 import models.questions.QuestionType
@@ -80,7 +80,7 @@ class CollaborativeExamSectionController @Inject() (
             updater(exam, user) match
               case Some(err) => Future.successful(err)
               case None =>
-                val pp = PathProperties.parse(
+                val pp = props[ExamSectionQuestion](
                   "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
                 )
                 examLoader.uploadExam(ce, exam, user, resultProvider(exam).orNull, pp)
@@ -342,7 +342,7 @@ class CollaborativeExamSectionController @Inject() (
                             o.id = CollaborativeExamProcessingService.newId()
                           )
 
-                          val pp = PathProperties.parse(
+                          val pp = props[ExamSectionQuestion](
                             "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
                           )
                           examLoader.uploadExam(ce, exam, user, esq, pp)
