@@ -311,7 +311,7 @@ class AttachmentService @Inject() (
   private def getExamSectionQuestion(questionId: Long, user: User): Option[ExamSectionQuestion] =
     if user.hasRole(Role.Name.STUDENT) then
       DB.find(classOf[ExamSectionQuestion]).where().idEq(questionId).eq(
-        "examSection.exam.creator",
+        path[ExamSectionQuestion]("examSection.exam.creator"),
         user
       ).find
     else Option(DB.find(classOf[ExamSectionQuestion], questionId))
