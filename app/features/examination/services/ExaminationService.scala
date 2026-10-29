@@ -4,6 +4,7 @@
 
 package features.examination.services
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import features.examination.services.ExaminationError.*
 import features.iop.transfer.services.ExternalAttachmentLoaderService
@@ -107,10 +108,10 @@ class ExaminationService @Inject() (
       requestData: RequestData
   ): Either[ExaminationError, (Exam, ExamParticipation)] =
     DB.find(classOf[Exam])
-      .fetch("examSections.sectionQuestions.question")
+      .fetch(path[Exam]("examSections.sectionQuestions.question"))
       .where()
-      .eq("creator", user)
-      .eq("hash", hash)
+      .eq(path[Exam]("creator"), user)
+      .eq(path[Exam]("hash"), hash)
       .find match
       case None => Left(ExamNotFound)
       case Some(exam) =>
@@ -141,8 +142,8 @@ class ExaminationService @Inject() (
   ): Either[ExaminationError, (Exam, ExamParticipation)] =
     DB.find(classOf[Exam])
       .where()
-      .eq("creator", user)
-      .eq("hash", hash)
+      .eq(path[Exam]("creator"), user)
+      .eq(path[Exam]("hash"), hash)
       .find match
       case None => Left(ExamNotFound)
       case Some(exam) =>
@@ -316,16 +317,16 @@ class ExaminationService @Inject() (
     DB.find(classOf[ExamSectionQuestion])
       .where()
       .idEq(questionId)
-      .eq("examSection.exam.hash", hash)
-      .eq("examSection.exam.creator", user)
+      .eq(path[ExamSectionQuestion]("examSection.exam.hash"), hash)
+      .eq(path[ExamSectionQuestion]("examSection.exam.creator"), user)
       .find
 
   private def findParticipation(exam: Exam, user: User): Option[ExamParticipation] =
     DB.find(classOf[ExamParticipation])
       .where()
-      .eq("exam.id", exam.id)
-      .eq("user", user)
-      .isNull("ended")
+      .eq(path[ExamParticipation]("exam.id"), exam.id)
+      .eq(path[ExamParticipation]("user"), user)
+      .isNull(path[ExamParticipation]("ended"))
       .find
 
   private def setDurations(ep: ExamParticipation): Unit =
@@ -340,9 +341,9 @@ class ExaminationService @Inject() (
     val enrolment = DB
       .find(classOf[ExamEnrolment])
       .where()
-      .eq("exam.hash", hash)
-      .eq("exam.creator", user)
-      .eq("exam.state", ExamState.STUDENT_STARTED)
+      .eq(path[ExamEnrolment]("exam.hash"), hash)
+      .eq(path[ExamEnrolment]("exam.creator"), user)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.STUDENT_STARTED)
       .findOne()
     validateEnrolment(enrolment, requestData)
 
@@ -417,24 +418,28 @@ class ExaminationService @Inject() (
     }
 
 object ExaminationService:
+  // An inline val rather than a stripMargin string, so that both getPath variants reach the props
+  // macro as literals and get checked
+  private inline val ExamSpec = "(*, " +
+    "course(*), " +
+    "examType(*), " +
+    "executionType(*), " +
+    "examParticipation(*), " +
+    "examLanguages(*), " +
+    "attachment(*), " +
+    "examOwners(*), " +
+    "examInspections(*, user(*)), " +
+    "examSections(*, " +
+    "  examMaterials(*), " +
+    "  sectionQuestions(*, " +
+    "    question(*, attachment(*)), " +
+    "    options(*, option(*)), " +
+    "    essayAnswer(*, attachment(*)), " +
+    "    clozeTestAnswer(*)" +
+    "  )" +
+    ")" +
+    ")"
+
   def getPath(includeEnrolment: Boolean): PathProperties =
-    val path = """(*,
-                  |course(*),
-                  |examType(*),
-                  |executionType(*),
-                  |examParticipation(*),
-                  |examLanguages(*),
-                  |attachment(*),
-                  |examOwners(*),
-                  |examInspections(*, user(*)),
-                  |examSections(*,
-                  |  examMaterials(*),
-                  |  sectionQuestions(*,
-                  |    question(*, attachment(*)),
-                  |    options(*, option(*)),
-                  |    essayAnswer(*, attachment(*)),
-                  |    clozeTestAnswer(*)
-                  |  )
-                  |)
-                  |)""".stripMargin
-    PathProperties.parse(if includeEnrolment then s"(exam$path)" else path)
+    if includeEnrolment then props[ExamEnrolment]("(exam" + ExamSpec + ")")
+    else props[Exam](ExamSpec)
