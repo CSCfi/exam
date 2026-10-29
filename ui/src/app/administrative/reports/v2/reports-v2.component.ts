@@ -50,8 +50,6 @@ interface ReportRow {
     organisation: string;
     examType: string;
     examMethod: string;
-    noShow: string;
-    aborted: string;
 }
 
 @Component({
@@ -71,6 +69,7 @@ interface ReportRow {
     styleUrl: './reports-v2.component.scss',
 })
 export class ReportsV2Component {
+    readonly dateTodayAsString = new Date().toISOString();
     readonly studentInput = viewChild.required<ElementRef>('studentInput');
     readonly examInput = viewChild.required<ElementRef>('examInput');
     readonly teacherInput = viewChild.required<ElementRef>('teacherInput');
@@ -173,8 +172,6 @@ export class ReportsV2Component {
             { id: 'additionalInfo', label: 'i18n_additional_info' },
             { id: 'examType', label: 'i18n_exam_type' },
             { id: 'examMethod', label: 'i18n_exam_method' },
-            { id: 'noShow', label: 'i18n_report_no_show' },
-            { id: 'aborted', label: 'i18n_aborted' },
         ];
 
         this.columnOptions.set(columns);
@@ -323,8 +320,6 @@ export class ReportsV2Component {
                                                       ),
                                                   )
                                                 : '',
-                                        noShow: enrolment?.noShow ? 'Yes' : 'No',
-                                        aborted: r.participation?.ended && r.status === 'ABORTED' ? 'Yes' : 'No',
                                     };
                                 });
                         }),

@@ -11,7 +11,13 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="col-md-2 pt-1">
             <label for="start-date-picker" class="form-label">{{ 'i18n_begin' | translate }}</label>
-            <xm-date-picker id="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
+            <xm-date-picker
+                id="start-date-picker"
+                [maxDate]="dateTodayAsString"
+                [initiallyEmpty]="true"
+                (updated)="startDateChanged($event)"
+            >
+            </xm-date-picker>
         </div>
         <div class="col-md-2 pt-1">
             <label for="end-date-picker" class="form-label">{{ 'i18n_end' | translate }}</label>
@@ -607,30 +613,6 @@ SPDX-License-Identifier: EUPL-1.2
                                 }
                             </th>
                         }
-                        @if (visibleColumns().includes('noShow')) {
-                            <th class="sortable" (click)="sort('noShow')" [class.sorted]="sortColumn() === 'noShow'">
-                                {{ 'i18n_report_no_show' | translate }}
-                                @if (sortColumn() === 'noShow') {
-                                    <i
-                                        class="bi"
-                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
-                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
-                                    ></i>
-                                }
-                            </th>
-                        }
-                        @if (visibleColumns().includes('aborted')) {
-                            <th class="sortable" (click)="sort('aborted')" [class.sorted]="sortColumn() === 'aborted'">
-                                {{ 'i18n_aborted' | translate }}
-                                @if (sortColumn() === 'aborted') {
-                                    <i
-                                        class="bi"
-                                        [class.bi-caret-up-fill]="sortDirection() === 'asc'"
-                                        [class.bi-caret-down-fill]="sortDirection() === 'desc'"
-                                    ></i>
-                                }
-                            </th>
-                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -740,12 +722,6 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                             @if (visibleColumns().includes('examMethod')) {
                                 <td>{{ row.examMethod }}</td>
-                            }
-                            @if (visibleColumns().includes('noShow')) {
-                                <td>{{ row.noShow }}</td>
-                            }
-                            @if (visibleColumns().includes('aborted')) {
-                                <td>{{ row.aborted }}</td>
                             }
                         </tr>
                     }
