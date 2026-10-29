@@ -181,7 +181,7 @@
     "i18n_performance_status": "Performance status",
     "i18n_eppn": "EPPN",
     "i18n_student_number": "Student number",
-    "i18n_exam_implementation": "Implementation",
+    "i18n_exam_reports_v2_implementation": "Course",
     "i18n_exam_stage": "Performance stage",
     "i18n_reports": "Reports",
     "i18n_reports_no_data": "No data found with the selected filters.",
