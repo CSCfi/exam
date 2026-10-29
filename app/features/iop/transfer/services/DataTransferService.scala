@@ -4,6 +4,7 @@
 
 package features.iop.transfer.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -87,14 +88,14 @@ class DataTransferService @Inject() (
         val ids    = (body \ "ids").as[Seq[Long]].toSet
         val orgRef = (body \ "orgRef").as[String]
 
-        val pp = PathProperties.parse("(*, options(*), tags(name))")
+        val pp = props[Question]("(*, options(*), tags(name))")
         val questions = DB.find(classOf[Question])
           .apply(pp)
           .where()
           .idIn(ids.map(Long.box).asJava)
           .or()
-          .eq("questionOwners", user)
-          .eq("creator", user)
+          .eq(path[Question]("questionOwners"), user)
+          .eq(path[Question]("creator"), user)
           .endOr()
           .distinct
           .toList
@@ -186,7 +187,7 @@ class DataTransferService @Inject() (
 
   private def importQuestions(body: JsValue): Either[DataTransferError, JsValue] =
     val eppn = (body \ "owner").as[String]
-    DB.find(classOf[User]).where().eq("eppn", eppn).find match
+    DB.find(classOf[User]).where().eq(path[User]("eppn"), eppn).find match
       case None => Left(DataTransferError.UserNotRecognized)
       case Some(user) =>
         val questions = (body \ "questions").as[Seq[JsValue]]
@@ -203,7 +204,9 @@ class DataTransferService @Inject() (
           copy.save()
 
           val userTags = mutable.Map.from(
-            DB.find(classOf[Tag]).where().eq("creator", user).list.map(t => t.name.toLowerCase -> t)
+            DB.find(classOf[Tag]).where().eq(path[Tag]("creator"), user).list.map(t =>
+              t.name.toLowerCase -> t
+            )
           )
           val resolvedTags = question.tags.asScala.map(_.name.toLowerCase).distinct.map { name =>
             userTags.getOrElseUpdate(

@@ -4,6 +4,7 @@
 
 package features.iop.transfer.controllers
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
@@ -99,7 +100,7 @@ class ExternalCalendarController @Inject() (
       if start.isBefore(clock.now()) || end.isBefore(start) then
         BadRequest("invalid dates")
       else
-        DB.find(classOf[ExamRoom]).where().eq("externalRef", roomRef).find match
+        DB.find(classOf[ExamRoom]).where().eq(path[ExamRoom]("externalRef"), roomRef).find match
           case None => NotFound("room not found")
           case Some(room) =>
             calendarHandler.getRandomMachine(room, null, start, end, Seq.empty) match
@@ -123,11 +124,11 @@ class ExternalCalendarController @Inject() (
   // Initiated by originator of reservation (the student)
   def acknowledgeReservationRemoval(ref: String): Action[AnyContent] = Action { _ =>
     DB.find(classOf[Reservation])
-      .fetch("machine")
-      .fetch("machine.room")
-      .fetch("enrolment")
+      .fetch(path[Reservation]("machine"))
+      .fetch(path[Reservation]("machine.room"))
+      .fetch(path[Reservation]("enrolment"))
       .where()
-      .eq("externalRef", ref)
+      .eq(path[Reservation]("externalRef"), ref)
       .find match
       case None => NotFound("reservation not found")
       case Some(reservation) =>
@@ -144,12 +145,12 @@ class ExternalCalendarController @Inject() (
   // Initiated by administrator of organization where reservation takes place
   def acknowledgeReservationRevocation(ref: String): Action[AnyContent] = Action { _ =>
     DB.find(classOf[ExamEnrolment])
-      .fetch("reservation")
-      .fetch("reservation.externalReservation")
-      .fetch("reservation.machine")
-      .fetch("reservation.machine.room")
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("reservation.externalReservation"))
+      .fetch(path[ExamEnrolment]("reservation.machine"))
+      .fetch(path[ExamEnrolment]("reservation.machine.room"))
       .where()
-      .eq("reservation.externalRef", ref)
+      .eq(path[ExamEnrolment]("reservation.externalRef"), ref)
       .find match
       case None => NotFound(f"No reservation with ref $ref.")
       case Some(enrolment) =>
@@ -173,7 +174,7 @@ class ExternalCalendarController @Inject() (
   ): Action[AnyContent] = Action { _ =>
     (roomId, date, start, end, duration) match
       case (Some(rid), Some(d), Some(s), Some(e), Some(dur)) =>
-        DB.find(classOf[ExamRoom]).where().eq("externalRef", rid).find match
+        DB.find(classOf[ExamRoom]).where().eq(path[ExamRoom]("externalRef"), rid).find match
           case None => Forbidden(f"No room with ref: ($rid)")
           case Some(room) =>
             val slots =
@@ -184,16 +185,19 @@ class ExternalCalendarController @Inject() (
                     val machines = DB
                       .find(classOf[ExamMachine])
                       .where()
-                      .eq("room.id", room.id)
-                      .ne("outOfService", true)
-                      .ne("archived", true)
+                      .eq(path[ExamMachine]("room.id"), room.id)
+                      .ne(path[ExamMachine]("outOfService"), true)
+                      .ne(path[ExamMachine]("archived"), true)
                       .list
 
                     // Maintenance periods
                     val periods = DB
                       .find(classOf[MaintenancePeriod])
                       .where()
-                      .gt("endsAt", searchDate.atStartOfDay(ZoneOffset.UTC).toInstant)
+                      .gt(
+                        path[MaintenancePeriod]("endsAt"),
+                        searchDate.atStartOfDay(ZoneOffset.UTC).toInstant
+                      )
                       .list
                       .map(p => p.startsAt to p.endsAt)
 
@@ -242,16 +246,16 @@ class ExternalCalendarController @Inject() (
 
         val enrolmentOpt =
           DB.find(classOf[ExamEnrolment])
-            .fetch("reservation")
-            .fetch("exam.examSections")
-            .fetch("exam.examSections.examMaterials")
+            .fetch(path[ExamEnrolment]("reservation"))
+            .fetch(path[ExamEnrolment]("exam.examSections"))
+            .fetch(path[ExamEnrolment]("exam.examSections.examMaterials"))
             .where()
-            .eq("user.id", user.id)
-            .eq("exam.id", examId)
-            .eq("exam.state", ExamState.PUBLISHED)
+            .eq(path[ExamEnrolment]("user.id"), user.id)
+            .eq(path[ExamEnrolment]("exam.id"), examId)
+            .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
             .disjunction()
-            .isNull("reservation")
-            .gt("reservation.startAt", clock.now())
+            .isNull(path[ExamEnrolment]("reservation"))
+            .gt(path[ExamEnrolment]("reservation.startAt"), clock.now())
             .endJunction()
             .find
 
@@ -313,7 +317,7 @@ class ExternalCalendarController @Inject() (
   def requestReservationRemoval(ref: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      DB.find(classOf[Reservation]).where().eq("externalRef", ref).find match
+      DB.find(classOf[Reservation]).where().eq(path[Reservation]("externalRef"), ref).find match
         case None => Future.successful(NotFound(f"No reservation with ref $ref."))
         case Some(reservation) =>
           externalReservationHandler.removeReservation(reservation, user, "").map(_ => Ok)
@@ -324,9 +328,9 @@ class ExternalCalendarController @Inject() (
       val reservationOpt =
         DB.find(classOf[Reservation])
           .where()
-          .isNotNull("machine")
-          .eq("externalRef", ref)
-          .isNull("enrolment")
+          .isNotNull(path[Reservation]("machine"))
+          .eq(path[Reservation]("externalRef"), ref)
+          .isNull(path[Reservation]("enrolment"))
           .find
 
       reservationOpt match
