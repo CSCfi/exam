@@ -4,6 +4,7 @@
 
 package features.facility.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.facility.services.MaintenancePeriodError.*
 import io.ebean.DB
@@ -30,7 +31,7 @@ class MaintenancePeriodService @Inject() (
   def listMaintenancePeriods: List[MaintenancePeriod] =
     DB.find(classOf[MaintenancePeriod])
       .where()
-      .gt("endsAt", Instant.now())
+      .gt(path[MaintenancePeriod]("endsAt"), Instant.now())
       .list
 
   def createMaintenancePeriod(body: JsValue)
