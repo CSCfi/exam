@@ -41,3 +41,25 @@ class ExamMachineControllerSpec extends BaseIntegrationSpec:
         softwareNames(session).must(not(contain("Probe")))
         statusOf(runIO(post("/app/softwares/Probe", session))).must(be(Status.OK))
         softwareNames(session).must(contain("Probe"))
+
+    "naming software" should:
+      "reject a name already in use regardless of case" in:
+        val (_, session) = runIO(loginAsAdmin())
+        val software     = createSoftware("Probe")
+        createSoftware("Other probe")
+
+        statusOf(runIO(post("/app/softwares/PROBE", session))).must(be(Status.BAD_REQUEST))
+        statusOf(runIO(put(
+          s"/app/softwares/${software.id}/OTHER%20PROBE",
+          JsObject.empty,
+          session
+        )))
+          .must(be(Status.BAD_REQUEST))
+
+      "allow changing the case of its own name" in:
+        val (_, session) = runIO(loginAsAdmin())
+        val software     = createSoftware("probe")
+
+        statusOf(runIO(put(s"/app/softwares/${software.id}/Probe", JsObject.empty, session)))
+          .must(be(Status.OK))
+        softwareNames(session).must(contain("Probe"))
