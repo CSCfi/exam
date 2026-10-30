@@ -6,6 +6,7 @@ package system.jobs
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.Reservation
@@ -35,15 +36,15 @@ class ReservationReminderService @Inject() (
       val now      = Instant.now()
       val tomorrow = now.plus(Duration.ofDays(1))
       DB.find(classOf[Reservation])
-        .fetch("enrolment.optionalSections")
-        .fetch("enrolment.optionalSections.examMaterials")
-        .fetch("enrolment")
-        .fetch("enrolment.exam.examSections")
-        .fetch("enrolment.exam.examSections.examMaterials")
+        .fetch(path[Reservation]("enrolment.optionalSections"))
+        .fetch(path[Reservation]("enrolment.optionalSections.examMaterials"))
+        .fetch(path[Reservation]("enrolment"))
+        .fetch(path[Reservation]("enrolment.exam.examSections"))
+        .fetch(path[Reservation]("enrolment.exam.examSections.examMaterials"))
         .where
-        .isNotNull("enrolment.exam")
-        .between("startAt", now, tomorrow)
-        .ne("reminderSent", true)
+        .isNotNull(path[Reservation]("enrolment.exam"))
+        .between(path[Reservation]("startAt"), now, tomorrow)
+        .ne(path[Reservation]("reminderSent"), true)
         .list
     }.flatMap(_.traverse(remind)) *> IO(logger.info("<- done"))
 
