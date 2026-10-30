@@ -23,9 +23,6 @@ class Software extends GeneratedIdentityModel:
 
   var name: String = uninitialized
 
-  // Software is deleted outright these days, but rows disabled before that still carry DISABLED
-  var status: String = uninitialized
-
   override def equals(o: Any): Boolean = o match
     case s: Software => this.name == s.name
     case _           => false
