@@ -4,6 +4,7 @@
 
 package features.facility.services
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import features.facility.services.ExamMachineError.*
 import io.ebean.DB
@@ -18,10 +19,12 @@ import javax.inject.Inject
 class ExamMachineService @Inject() () extends EbeanQueryExtensions:
 
   private val defaultPathProperties =
-    PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))")
+    props[ExamMachine]("(*, softwareInfo(*), room(name, buildingName))")
 
   def getExamMachines: List[ExamMachine] =
-    DB.find(classOf[ExamMachine]).where().eq("archived", false).isNotNull("name").list
+    DB.find(classOf[ExamMachine]).where().eq(path[ExamMachine]("archived"), false).isNotNull(
+      path[ExamMachine]("name")
+    ).list
 
   def getExamMachine(id: Long): Either[ExamMachineError, (ExamMachine, PathProperties)] =
     DB.find(classOf[ExamMachine]).apply(defaultPathProperties).where().idEq(id).find match
@@ -31,8 +34,8 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
   def getExamMachineReservationsFromNow(id: Long): List[Reservation] =
     DB.find(classOf[Reservation])
       .where()
-      .eq("machine.id", id)
-      .gt("endAt", Instant.now())
+      .eq(path[Reservation]("machine.id"), id)
+      .gt(path[Reservation]("endAt"), Instant.now())
       .list
 
   def updateExamMachine(
@@ -114,8 +117,8 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
     DB.find(classOf[Software])
       .where()
       .or()
-      .isNull("status")
-      .eq("status", "ACTIVE")
+      .isNull(path[Software]("status"))
+      .eq(path[Software]("status"), "ACTIVE")
       .endOr()
       .list
 
@@ -152,6 +155,6 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
         Right(())
 
   private def checkSoftwareName(name: String): Option[ExamMachineError] =
-    val existing = DB.find(classOf[Software]).where().ieq("name", name).list
+    val existing = DB.find(classOf[Software]).where().ieq(path[Software]("name"), name).list
     if existing.isEmpty then None
     else Some(SoftwareNameConflict("Software with that name already exists"))

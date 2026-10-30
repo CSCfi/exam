@@ -4,6 +4,7 @@
 
 package features.integration.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.{ExamRecord, ExamScore}
@@ -16,9 +17,9 @@ class ExamRecordAPIService @Inject() () extends EbeanQueryExtensions:
   def getNewRecords(startDate: String): List[ExamScore] =
     val start = TimeUtils.parseInstant(startDate)
     DB.find(classOf[ExamRecord])
-      .fetch("examScore")
+      .fetch(path[ExamRecord]("examScore"))
       .where()
-      .eq("releasable", true)
-      .gt("timeStamp", start)
+      .eq(path[ExamRecord]("releasable"), true)
+      .gt(path[ExamRecord]("timeStamp"), start)
       .list
       .flatMap(record => Option(record.examScore))
