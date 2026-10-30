@@ -114,13 +114,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
     Left(ExamMachineError.IpAddressConflict("Machine removal is not allowed"))
 
   def listSoftware: List[Software] =
-    DB.find(classOf[Software])
-      .where()
-      .or()
-      .isNull(path[Software]("status"))
-      .eq(path[Software]("status"), "ACTIVE")
-      .endOr()
-      .list
+    DB.find(classOf[Software]).list
 
   def getSoftware(id: Long): Either[ExamMachineError, Software] =
     Option(DB.find(classOf[Software], id)) match
