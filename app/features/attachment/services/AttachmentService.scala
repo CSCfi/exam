@@ -4,6 +4,7 @@
 
 package features.attachment.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import models.assessment.{Comment, LanguageInspection}
@@ -40,10 +41,10 @@ class AttachmentService @Inject() (
       user: User
   ): Future[Either[String, EssayAnswer]] =
     DB.find(classOf[ExamSectionQuestion])
-      .fetch("essayAnswer")
+      .fetch(path[ExamSectionQuestion]("essayAnswer"))
       .where()
       .idEq(questionId)
-      .eq("examSection.exam.creator", user)
+      .eq(path[ExamSectionQuestion]("examSection.exam.creator"), user)
       .find match
       case None           => Future.successful(Left("Forbidden"))
       case Some(question) =>
@@ -82,7 +83,7 @@ class AttachmentService @Inject() (
       filePart: FilePart[TemporaryFile]
   ): Future[Either[String, Question]] =
     DB.find(classOf[Question])
-      .fetch("examSectionQuestions.examSection.exam.parent")
+      .fetch(path[Question]("examSectionQuestions.examSection.exam.parent"))
       .where()
       .idEq(questionId)
       .find match
@@ -112,7 +113,7 @@ class AttachmentService @Inject() (
         DB.find(classOf[ExamSectionQuestion])
           .where()
           .idEq(questionId)
-          .eq("examSection.exam.creator", user)
+          .eq(path[ExamSectionQuestion]("examSection.exam.creator"), user)
           .find
       else Option(DB.find(classOf[ExamSectionQuestion], questionId))
 
@@ -151,7 +152,10 @@ class AttachmentService @Inject() (
         }
 
   def deleteStatementAttachment(examId: Long): Future[Either[String, Unit]] =
-    DB.find(classOf[LanguageInspection]).where().eq("exam.id", examId).find match
+    DB.find(classOf[LanguageInspection]).where().eq(
+      path[LanguageInspection]("exam.id"),
+      examId
+    ).find match
       case None => Future.successful(Left("NotFound"))
       case Some(inspection) =>
         Future {
@@ -202,7 +206,10 @@ class AttachmentService @Inject() (
       filePart: FilePart[TemporaryFile],
       user: User
   ): Future[Either[String, Comment]] =
-    DB.find(classOf[LanguageInspection]).where().eq("exam.id", examId).find match
+    DB.find(classOf[LanguageInspection]).where().eq(
+      path[LanguageInspection]("exam.id"),
+      examId
+    ).find match
       case None => Future.successful(Left("NotFound"))
       case Some(inspection) =>
         if Option(inspection.statement).isEmpty then
@@ -225,7 +232,7 @@ class AttachmentService @Inject() (
         DB.find(classOf[Question])
           .where()
           .idEq(questionId)
-          .eq("examSectionQuestions.examSection.exam.creator", user)
+          .eq(path[Question]("examSectionQuestions.examSection.exam.creator"), user)
           .find
       else Option(DB.find(classOf[Question], questionId))
 
@@ -245,7 +252,7 @@ class AttachmentService @Inject() (
   def downloadExamAttachment(examId: Long, user: User): Future[Either[String, Attachment]] =
     val exam =
       if user.hasRole(Role.Name.STUDENT) then
-        DB.find(classOf[Exam]).where().idEq(examId).eq("creator", user).find
+        DB.find(classOf[Exam]).where().idEq(examId).eq(path[Exam]("creator"), user).find
       else Option(DB.find(classOf[Exam], examId))
 
     exam match
@@ -256,7 +263,7 @@ class AttachmentService @Inject() (
   def downloadFeedbackAttachment(examId: Long, user: User): Future[Either[String, Attachment]] =
     val exam =
       if user.hasRole(Role.Name.STUDENT) then
-        DB.find(classOf[Exam]).where().idEq(examId).eq("creator", user).find
+        DB.find(classOf[Exam]).where().idEq(examId).eq(path[Exam]("creator"), user).find
       else Option(DB.find(classOf[Exam], examId))
 
     exam match
@@ -266,10 +273,10 @@ class AttachmentService @Inject() (
 
   def downloadStatementAttachment(examId: Long, user: User): Future[Either[String, Attachment]] =
     val query = DB.find(classOf[Exam]).where().idEq(examId).isNotNull(
-      "languageInspection.statement.attachment"
+      path[Exam]("languageInspection.statement.attachment")
     )
     val exam =
-      if user.hasRole(Role.Name.STUDENT) then query.eq("creator", user).find
+      if user.hasRole(Role.Name.STUDENT) then query.eq(path[Exam]("creator"), user).find
       else query.find
 
     exam match
@@ -304,7 +311,7 @@ class AttachmentService @Inject() (
   private def getExamSectionQuestion(questionId: Long, user: User): Option[ExamSectionQuestion] =
     if user.hasRole(Role.Name.STUDENT) then
       DB.find(classOf[ExamSectionQuestion]).where().idEq(questionId).eq(
-        "examSection.exam.creator",
+        path[ExamSectionQuestion]("examSection.exam.creator"),
         user
       ).find
     else Option(DB.find(classOf[ExamSectionQuestion], questionId))

@@ -6,6 +6,7 @@ package features.facility.impl
 
 import com.google.inject.ImplementedBy
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.facility.ExamRoom
@@ -41,7 +42,7 @@ class FacilityHandlerImpl @Inject() (
     facilityRef.fold(base)(ref => s"$base/$ref")
 
   private def toJson(room: ExamRoom): String =
-    val pp = PathProperties.parse(
+    val pp = props[ExamRoom](
       "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
         "examStartingHours(*), accessibilities(*))"
     )

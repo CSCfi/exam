@@ -4,6 +4,7 @@
 
 package features.retention.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.annotation.EnumValue
@@ -119,14 +120,14 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
 
   private def participations =
     DB.find(classOf[ExamParticipation])
-      .select("ended")
-      .fetch("user", "id")
-      .fetch("exam", "name, state, lockedAt, gradedTime")
-      .fetch("exam.executionType", "type")
-      .fetch("exam.course", "code, endDate")
-      .fetch("exam.parent", "periodEnd")
+      .select(path[ExamParticipation]("ended"))
+      .fetch(path[ExamParticipation]("user"), "id")
+      .fetch(path[ExamParticipation]("exam"), "name, state, lockedAt, gradedTime")
+      .fetch(path[ExamParticipation]("exam.executionType"), "type")
+      .fetch(path[ExamParticipation]("exam.course"), "code, endDate")
+      .fetch(path[ExamParticipation]("exam.parent"), "periodEnd")
       .where()
-      .isNotNull("exam")
+      .isNotNull(path[ExamParticipation]("exam"))
 
   private def attemptReport(p: ExamParticipation, facts: AttemptFacts, dueAt: Option[Instant]) =
     ReportItem(
@@ -150,10 +151,15 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   ): Selection[Long] =
     collectDue(limit)((after, size) =>
       participations
-        .in("exam.state", ExamState.REVIEW, ExamState.REVIEW_STARTED, ExamState.GRADED)
-        .le("ended", minusPeriod(now, policy.autoLock))
-        .gt("id", after)
-        .orderBy("id")
+        .in(
+          path[ExamParticipation]("exam.state"),
+          ExamState.REVIEW,
+          ExamState.REVIEW_STARTED,
+          ExamState.GRADED
+        )
+        .le(path[ExamParticipation]("ended"), minusPeriod(now, policy.autoLock))
+        .gt(path[ExamParticipation]("id"), after)
+        .orderBy(path[ExamParticipation]("id"))
         .setMaxRows(size)
         .list
     )(_.id.longValue) { p =>
@@ -180,20 +186,25 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
     collectDue(limit)((after, size) =>
       participations
         .or()
-        .in("exam.state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
-        .eq("exam.state", ExamState.ABORTED)
+        .in(
+          path[ExamParticipation]("exam.state"),
+          ExamState.GRADED_LOGGED,
+          ExamState.ARCHIVED,
+          ExamState.REJECTED
+        )
+        .eq(path[ExamParticipation]("exam.state"), ExamState.ABORTED)
         .and()
-        .eq("exam.state", ExamState.DELETED)
+        .eq(path[ExamParticipation]("exam.state"), ExamState.DELETED)
         .isNotEmpty("exam.examSections")
         .endAnd()
         .endOr()
         .or()
-        .le("exam.lockedAt", cutoff)
-        .le("exam.gradedTime", cutoff)
-        .le("ended", cutoff)
+        .le(path[ExamParticipation]("exam.lockedAt"), cutoff)
+        .le(path[ExamParticipation]("exam.gradedTime"), cutoff)
+        .le(path[ExamParticipation]("ended"), cutoff)
         .endOr()
-        .gt("id", after)
-        .orderBy("id")
+        .gt(path[ExamParticipation]("id"), after)
+        .orderBy(path[ExamParticipation]("id"))
         .setMaxRows(size)
         .list
     )(_.id.longValue) { p =>
@@ -227,27 +238,36 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
     def collect(a: Attachment): Unit =
       Option(a).flatMap(a => Option(a.filePath)).foreach(paths += _)
 
-    DB.find(classOf[LanguageInspection]).where().eq("exam.id", examId).list.foreach { li =>
+    DB.find(classOf[LanguageInspection]).where().eq(
+      path[LanguageInspection]("exam.id"),
+      examId
+    ).list.foreach { li =>
       val statement = li.statement
       li.delete()
       Option(statement).foreach { c =>
         collect(c.attachment); c.delete()
       }
     }
-    DB.find(classOf[ExamInspection]).where().eq("exam.id", examId).list.foreach { ei =>
+    DB.find(classOf[ExamInspection]).where().eq(
+      path[ExamInspection]("exam.id"),
+      examId
+    ).list.foreach { ei =>
       val comment = ei.comment
       ei.delete()
       Option(comment).foreach { c =>
         collect(c.attachment); c.delete()
       }
     }
-    DB.find(classOf[InspectionComment]).where().eq("exam.id", examId).list.foreach(_.delete())
+    DB.find(classOf[InspectionComment]).where().eq(
+      path[InspectionComment]("exam.id"),
+      examId
+    ).list.foreach(_.delete())
     val sections = DB.find(classOf[ExamSection])
-      .fetch("sectionQuestions.essayAnswer.attachment")
-      .fetch("sectionQuestions.question", "id")
-      .fetch("sectionQuestions.question.parent", "id")
+      .fetch(path[ExamSection]("sectionQuestions.essayAnswer.attachment"))
+      .fetch(path[ExamSection]("sectionQuestions.question"), "id")
+      .fetch(path[ExamSection]("sectionQuestions.question.parent"), "id")
       .where()
-      .eq("exam.id", examId)
+      .eq(path[ExamSection]("exam.id"), examId)
       .list
     val sectionQuestions = sections.flatMap(_.sectionQuestions.asScala)
     sectionQuestions.flatMap(q => Option(q.essayAnswer)).foreach(a => collect(a.attachment))
@@ -282,8 +302,14 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
     */
   private def deleteQuestionCopy(questionId: Long): Option[String] =
     val inUse =
-      DB.find(classOf[ExamSectionQuestion]).where().eq("question.id", questionId).findCount() > 0 ||
-        DB.find(classOf[Question]).where().eq("parent.id", questionId).findCount() > 0
+      DB.find(classOf[ExamSectionQuestion]).where().eq(
+        path[ExamSectionQuestion]("question.id"),
+        questionId
+      ).findCount() > 0 ||
+        DB.find(classOf[Question]).where().eq(
+          path[Question]("parent.id"),
+          questionId
+        ).findCount() > 0
     if inUse then None
     else
       val attachment = Option(DB.find(classOf[Question], questionId).attachment)
@@ -302,7 +328,9 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   // refers to it anymore
   private def removeUnreferencedFiles(paths: List[String]): Unit =
     paths
-      .filter(p => DB.find(classOf[Attachment]).where().eq("filePath", p).findCount() == 0)
+      .filter(p =>
+        DB.find(classOf[Attachment]).where().eq(path[Attachment]("filePath"), p).findCount() == 0
+      )
       .foreach(fileHandler.removeAttachmentFile)
 
   // Pass C
@@ -310,14 +338,14 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   def recordCandidates(policy: RetentionPolicy, now: Instant, limit: Limit): Selection[Long] =
     collectDue(limit)((after, size) =>
       DB.find(classOf[ExamRecord])
-        .select("timeStamp")
-        .fetch("student", "id")
-        .fetch("exam", "name")
-        .fetch("examScore", "courseUnitCode")
+        .select(path[ExamRecord]("timeStamp"))
+        .fetch(path[ExamRecord]("student"), "id")
+        .fetch(path[ExamRecord]("exam"), "name")
+        .fetch(path[ExamRecord]("examScore"), "courseUnitCode")
         .where()
-        .le("timeStamp", minusPeriod(now, policy.record))
-        .gt("id", after)
-        .orderBy("id")
+        .le(path[ExamRecord]("timeStamp"), minusPeriod(now, policy.record))
+        .gt(path[ExamRecord]("id"), after)
+        .orderBy(path[ExamRecord]("id"))
         .setMaxRows(size)
         .list
     )(_.id.longValue) { r =>
@@ -422,8 +450,8 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   /** The reservation of an enrolment, with the external data XM needs to find it. */
   def reservationOf(enrolmentId: Long): Option[Reservation] =
     DB.find(classOf[ExamEnrolment])
-      .fetch("reservation")
-      .fetch("reservation.externalReservation")
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("reservation.externalReservation"))
       .where()
       .idEq(enrolmentId)
       .find
@@ -437,8 +465,8 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
       val reservation = Option(enrolment.reservation)
       val participations =
         DB.find(classOf[ExamParticipation]).where().or()
-          .in("exam.id", copy.map(_.id).toList.asJava)
-          .in("reservation.id", reservation.map(_.id).toList.asJava)
+          .in(path[ExamParticipation]("exam.id"), copy.map(_.id).toList.asJava)
+          .in(path[ExamParticipation]("reservation.id"), reservation.map(_.id).toList.asJava)
           .endOr()
           .list
       // Participation and enrolment share the reservation and both cascade its removal, so only
@@ -450,9 +478,10 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         p.delete()
       }
       copy.foreach { c =>
-        DB.find(classOf[ExamRecord]).where().eq("exam.id", c.id).list.foreach { r =>
-          r.exam = null
-          r.update()
+        DB.find(classOf[ExamRecord]).where().eq(path[ExamRecord]("exam.id"), c.id).list.foreach {
+          r =>
+            r.exam = null
+            r.update()
         }
       }
       // A copy that was never stripped, such as an abandoned one, still has content
@@ -521,7 +550,9 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   def hostAttachmentCandidates(limit: Limit): Selection[(Long, String)] =
     // Each row carries a whole exam as JSON, so the pages are small
     collectDue(limit, rowsPerPage = math.min(pageSize, 50))((after, size) =>
-      sentHostCopies.gt("id", after).orderBy("id").setMaxRows(size).list
+      sentHostCopies.gt(path[ExternalExam]("id"), after).orderBy(
+        path[ExternalExam]("id")
+      ).setMaxRows(size).list
     )(_.id.longValue) { ee =>
       attachmentIds(ee).map(attachmentId =>
         Candidate(
@@ -551,12 +582,12 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
   ): Selection[Long] =
     collectDue(limit)((after, size) =>
       DB.find(classOf[ExternalExam])
-        .select("sent")
+        .select(path[ExternalExam]("sent"))
         .where()
-        .le("sent", minusPeriod(now, policy.hostCopy))
-        .jsonExists("content", "id")
-        .gt("id", after)
-        .orderBy("id")
+        .le(path[ExternalExam]("sent"), minusPeriod(now, policy.hostCopy))
+        .jsonExists(path[ExternalExam]("content"), "id")
+        .gt(path[ExternalExam]("id"), after)
+        .orderBy(path[ExternalExam]("id"))
         .setMaxRows(size)
         .list
     )(_.id.longValue) { ee =>
@@ -580,7 +611,10 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
     ee.update()
 
   private def sentHostCopies =
-    DB.find(classOf[ExternalExam]).where().isNotNull("sent").jsonExists("content", "id")
+    DB.find(classOf[ExternalExam]).where().isNotNull(path[ExternalExam]("sent")).jsonExists(
+      path[ExternalExam]("content"),
+      "id"
+    )
 
   // Pass E
 

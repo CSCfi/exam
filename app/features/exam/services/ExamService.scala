@@ -60,9 +60,14 @@ class ExamService @Inject() (
     val baseQuery = createPrototypeQuery()
     val query = filter match
       case Some(f) =>
-        val withOr         = baseQuery.or()
-        val withNameSearch = userHandler.applyNameSearch("examOwners", withOr, f)
-        val condition      = s"%$f%"
+        val withOr = baseQuery.or()
+        val withNameSearch = userHandler.applyNameSearch(
+          path[Exam]("examOwners.firstName"),
+          path[Exam]("examOwners.lastName"),
+          withOr,
+          f
+        )
+        val condition = s"%$f%"
         withNameSearch.ilike(path[Exam]("name"), condition).ilike(
           path[Exam]("course.code"),
           condition
