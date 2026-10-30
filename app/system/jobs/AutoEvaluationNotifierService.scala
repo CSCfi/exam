@@ -6,6 +6,7 @@ package system.jobs
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.AutoEvaluationReleaseType
@@ -67,18 +68,18 @@ class AutoEvaluationNotifierService @Inject() (
     IO.blocking {
       logger.info("Auto evaluation notification check started ->")
       DB.find(classOf[Exam])
-        .fetch("autoEvaluationConfig")
+        .fetch(path[Exam]("autoEvaluationConfig"))
         .where
         // The release types this job handles. IMMEDIATE is notified at grading and NEVER not at
         // all; left in, they would be loaded again on every run for as long as they stay GRADED
-        .in("autoEvaluationConfig.releaseType", ScheduledReleaseTypes.asJava)
-        .eq("state", ExamState.GRADED)
-        .isNotNull("gradedTime")
-        .isNotNull("autoEvaluationConfig")
-        .isNotNull("grade")
-        .isNotNull("creditType")
-        .isNotNull("answerLanguage")
-        .isNull("autoEvaluationNotified")
+        .in(path[Exam]("autoEvaluationConfig.releaseType"), ScheduledReleaseTypes.asJava)
+        .eq(path[Exam]("state"), ExamState.GRADED)
+        .isNotNull(path[Exam]("gradedTime"))
+        .isNotNull(path[Exam]("autoEvaluationConfig"))
+        .isNotNull(path[Exam]("grade"))
+        .isNotNull(path[Exam]("creditType"))
+        .isNotNull(path[Exam]("answerLanguage"))
+        .isNull(path[Exam]("autoEvaluationNotified"))
         .list
         .filter(isPastReleaseDate)
         .foreach(notifyStudent)

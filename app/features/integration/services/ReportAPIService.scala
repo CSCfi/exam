@@ -4,6 +4,7 @@
 
 package features.integration.services
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -19,7 +20,7 @@ import scala.jdk.CollectionConverters.*
 
 class ReportAPIService @Inject() () extends EbeanQueryExtensions:
 
-  private val pathProperties = PathProperties.parse(
+  private val pathProperties = props[ExamEnrolment](
     """(id, enrolledOn, noShow,
       |reservation(id,
       |  machine(id, name,
@@ -59,13 +60,13 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
       .apply(pathProperties)
       .where()
       .or()
-      .ne("exam.state", ExamState.PUBLISHED)
-      .eq("noShow", true)
+      .ne(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
+      .eq(path[ExamEnrolment]("noShow"), true)
       .endOr()
       .or()
-      .isNotNull("reservation.machine")
-      .isNotNull("reservation.externalReservation")
-      .isNotNull("examinationEventConfiguration")
+      .isNotNull(path[ExamEnrolment]("reservation.machine"))
+      .isNotNull(path[ExamEnrolment]("reservation.externalReservation"))
+      .isNotNull(path[ExamEnrolment]("examinationEventConfiguration"))
       .endOr()
       .list
       .filter(ee => filterByDate(ee, start, end))
@@ -79,7 +80,7 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
 
     val softwareByExam = DB
       .find(classOf[Exam])
-      .fetch("softwares", "name")
+      .fetch(path[Exam]("softwares"), "name")
       .where()
       .idIn(parentExamIds.map(id => Long.box(id)).asJava)
       .list
