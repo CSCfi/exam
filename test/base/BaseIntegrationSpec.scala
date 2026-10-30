@@ -9,8 +9,8 @@ import io.ebean.DB
 import models.user.User
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.util.Timeout
-import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{BeforeAndAfterEach, TestData}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.*
 import play.api.Application
@@ -67,6 +67,12 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
         StandardCharsets.UTF_8
       )
   )
+
+  // Each test gets a new app and an empty database
+  override def newAppForTest(testData: TestData): Application =
+    val newApp = super.newAppForTest(testData)
+    TestDatabase.prepare()
+    newApp
 
   // Test data setup - equivalent to Java @Before setUp()
   override def beforeEach(): Unit =
