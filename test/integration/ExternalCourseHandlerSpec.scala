@@ -5,6 +5,7 @@
 package integration
 
 import base.BaseIntegrationSpec
+import com.typesafe.config.ConfigFactory
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
@@ -17,6 +18,10 @@ import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
 import play.api.libs.json.JsArray
+import play.api.libs.ws.WSClient
+import security.BlockingIOExecutionContext
+import services.config.ConfigReaderImpl
+import services.exam.{ExternalCourseHandler, ExternalCourseHandlerImpl}
 
 import java.io.{File, FileInputStream, IOException}
 import scala.compiletime.uninitialized
@@ -331,3 +336,64 @@ class ExternalCourseHandlerSpec
 
         val coursesJson = contentAsJsonOf(result).as[JsArray]
         coursesJson.value must be(empty)
+
+    "configured with an unusable course url" should:
+      "fall back to local courses without calling the remote end" in:
+        val user = teacherWithoutOrg()
+        saveLocalCourse("CSCEXAM1715")
+
+        Seq("", "http://base.uni.org?courseCode=", "not a url ${course_code}").foreach { url =>
+          val handler = handlerWith(s"""exam.integration.courseUnitInfo.url.default = "$url"""")
+          val courses = handler.getCoursesByCode(user, "CSCEXAM1715").futureValue
+          courses.map(_.code) must be(Set("CSCEXAM1715"))
+        }
+        courseInfoServlet.lastReceivedApiKey must be(None)
+
+      "fall back to local courses when no url matches the organisation" in:
+        val user = teacherWithoutOrg()
+        saveLocalCourse("CSCEXAM1715")
+
+        val handler = handlerWith("exam.integration.courseUnitInfo.url = {}", replace = true)
+        handler.getCoursesByCode(user, "CSCEXAM1715").futureValue.map(_.code) must be(
+          Set("CSCEXAM1715")
+        )
+
+      "not touch the url at all when the integration is off" in:
+        val user = teacherWithoutOrg()
+        saveLocalCourse("CSCEXAM1715")
+
+        val handler = handlerWith(
+          """exam.integration.courseUnitInfo.active = false
+            |exam.integration.courseUnitInfo.url.default = ""
+            |""".stripMargin
+        )
+        handler.getCoursesByCode(user, "CSCEXAM1715").futureValue.map(_.code) must be(
+          Set("CSCEXAM1715")
+        )
+        courseInfoServlet.lastReceivedApiKey must be(None)
+
+  // Login sets the teacher's home organisation (oulu.fi), which has a url of its own
+  private def teacherWithoutOrg(): User =
+    val (user, _) = runIO(loginAsTeacher())
+    user.organisation = null
+    user
+
+  private def saveLocalCourse(code: String): Unit =
+    val course = new Course
+    course.code = code
+    course.name = s"Local course $code"
+    course.save()
+
+  private def handlerWith(overrides: String, replace: Boolean = false): ExternalCourseHandler =
+    val base = app.configuration.underlying
+    val config =
+      if replace then
+        ConfigFactory.parseString(overrides).withFallback(
+          base.withoutPath("exam.integration.courseUnitInfo.url")
+        )
+      else ConfigFactory.parseString(overrides).withFallback(base)
+    new ExternalCourseHandlerImpl(
+      app.injector.instanceOf[WSClient],
+      new ConfigReaderImpl(config),
+      app.injector.instanceOf[BlockingIOExecutionContext]
+    )
