@@ -6,6 +6,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { Subject, of, throwError } from 'rxjs';
 import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import { vi } from 'vitest';
@@ -122,6 +123,42 @@ describe('CoursePickerComponent', () => {
             component.onCourseSelect({ item: mockCourse, preventDefault: vi.fn() } as never);
 
             expect(mockCourseCodeService.formatCode).toHaveBeenCalledWith('TC-001');
+        });
+    });
+
+    describe('course search', () => {
+        let getCourses$: ReturnType<typeof vi.fn>;
+        let toastError: ReturnType<typeof vi.fn>;
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            getCourses$ = TestBed.inject(CoursePickerService).getCourses$ as unknown as ReturnType<typeof vi.fn>;
+            toastError = TestBed.inject(ToastrService).error as unknown as ReturnType<typeof vi.fn>;
+            fixture.detectChanges();
+        });
+
+        afterEach(() => vi.useRealTimers());
+
+        it('should stop loading and keep searching after a failed request', () => {
+            const terms$ = new Subject<string>();
+            const results: Course[][] = [];
+            component.getCoursesByCode$(terms$).subscribe({ next: (cs) => results.push(cs) });
+
+            getCourses$.mockReturnValueOnce(throwError(() => new Error('500')));
+            terms$.next('TC-0');
+            expect(component.loaderCode()).toBe(true);
+            vi.advanceTimersByTime(200);
+
+            expect(component.loaderCode()).toBe(false);
+            expect(results).toEqual([[]]);
+            expect(toastError).toHaveBeenCalledTimes(1);
+
+            getCourses$.mockReturnValueOnce(of([mockCourse]));
+            terms$.next('TC-00');
+            vi.advanceTimersByTime(200);
+
+            expect(results).toEqual([[], [mockCourse]]);
+            expect(component.loaderCode()).toBe(false);
         });
     });
 });

@@ -61,13 +61,16 @@ class ExternalCourseHandlerImpl @Inject (
     // Hit the remote end for possible matches. Update local records with matching remote records.
     // Finally, return all matches (local and remote)
     else
-      val url = parseUrl(user.organisation, code)
-      downloadCourses(url).map(externals =>
-        externals.foreach(saveOrUpdate)
-        TreeSet.empty[Course](
-          using (a, b) => a.code.compareTo(b.code)
-        ) ++ externals ++ getLocalCourses(code)
-      )
+      parseUrl(user.organisation, code) match
+        // Misconfigured integration, fall back to local courses like on a network failure
+        case None => Future(getLocalCourses(code))
+        case Some(url) =>
+          downloadCourses(url).map(externals =>
+            externals.foreach(saveOrUpdate)
+            TreeSet.empty[Course](
+              using (a, b) => a.code.compareTo(b.code)
+            ) ++ externals ++ getLocalCourses(code)
+          )
 
   override def getPermittedCourses(user: User): Future[Set[String]] =
     val url = parseUrl(user)
@@ -281,22 +284,29 @@ class ExternalCourseHandlerImpl @Inject (
       request.addHttpHeaders(header)
     else request
 
-  private def parseUrl(organisation: Organisation, courseCode: String) =
+  private def parseUrl(organisation: Organisation, courseCode: String): Option[URL] =
     val urlConfigPrefix = "exam.integration.courseUnitInfo.url"
     val configPathForOrg =
       Option(organisation)
         .flatMap(o => Option(o.code))
         .flatMap(c => Option(s"$urlConfigPrefix.$c").filter(configReader.hasPath))
     val configPath = configPathForOrg.orElse {
-      val path = String.format("%s.%s", urlConfigPrefix, "default")
-      Some(path).filter(configReader.hasPath)
+      Some(s"$urlConfigPrefix.default").filter(configReader.hasPath)
     }
-    val path = configReader.getString(configPath.getOrElse(""))
-    if (!path.contains(COURSE_CODE_PLACEHOLDER))
-      throw new RuntimeException("exam.integration.courseUnitInfo.url is malformed")
-    val url =
-      path.replace(COURSE_CODE_PLACEHOLDER, URLEncoder.encode(courseCode, StandardCharsets.UTF_8))
-    URI.create(url).toURL
+    configPath.map(p => p -> configReader.getString(p)) match
+      case None =>
+        logger.error(s"$urlConfigPrefix has no entry for this organisation and no default")
+        None
+      case Some((p, template)) if !template.contains(COURSE_CODE_PLACEHOLDER) =>
+        logger.error(s"$p is malformed: no $COURSE_CODE_PLACEHOLDER in '$template'")
+        None
+      case Some((p, template)) =>
+        val encoded = URLEncoder.encode(courseCode, StandardCharsets.UTF_8)
+        Try(URI.create(template.replace(COURSE_CODE_PLACEHOLDER, encoded)).toURL) match
+          case Success(url) => Some(url)
+          case Failure(e) =>
+            logger.error(s"$p is malformed: '$template'", e)
+            None
 
   private def parseUrl(user: User) =
     if configReader.getPermissionCheckUserIdentifier == "userIdentifier" && Option(
