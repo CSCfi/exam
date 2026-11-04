@@ -106,14 +106,14 @@ export class ExaminationComponent implements OnDestroy {
         return window.location.href.split('#')[0] + skipTarget;
     }
 
-    private logout(msg: string, canFail: boolean) {
+    private logout(msg: string, leaveOnError: boolean) {
         const currentExam = this.exam();
         if (!currentExam) {
             return;
         }
         this.Examination.logout(msg, currentExam.hash, {
             quitLinkEnabled: currentExam.implementation === 'CLIENT_AUTH',
-            canFail,
+            leaveOnError,
             external: currentExam.external,
         });
     }
@@ -123,9 +123,8 @@ export class ExaminationComponent implements OnDestroy {
         const currentExam = this.exam();
         if (currentActiveSection && currentExam && !this.isPreview()) {
             this.Examination.saveAllTextualAnswersOfSection$(currentActiveSection, currentExam.hash, {
-                autosave: true,
+                mode: 'auto',
                 allowEmpty: false,
-                canFail: false,
                 external: currentExam.external,
             }).subscribe();
         }

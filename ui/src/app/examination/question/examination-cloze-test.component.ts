@@ -55,8 +55,7 @@ export class ExaminationClozeTestComponent {
             const sq = this.sq();
             if (this.isPreview() || !sq.clozeTestAnswer?.answer) return;
             this.Examination.saveTextualAnswer$(sq, this.examHash(), {
-                autosave: true,
-                canFail: true,
+                mode: 'auto',
                 external: this.isExternal(),
             }).subscribe({ next: () => this.autosaved.set(new Date()) });
         }, 60 * 1000);
@@ -65,8 +64,7 @@ export class ExaminationClozeTestComponent {
 
     saveAnswer() {
         this.Examination.saveTextualAnswer$(this.sq(), this.examHash(), {
-            autosave: false,
-            canFail: false,
+            mode: 'manual',
             external: this.isExternal(),
         }).subscribe();
     }
