@@ -9,4 +9,7 @@ import models.exam.Exam
 
 @ImplementedBy(classOf[AutoEvaluationHandlerImpl])
 trait AutoEvaluationHandler:
-  def autoEvaluate(exam: Exam): Unit
+  /** Grades the exam per its auto-evaluation config, if it has one. Left carries the reason it
+    * could not be graded; the exam then stays in REVIEW for the teacher to grade by hand.
+    */
+  def autoEvaluate(exam: Exam): Either[String, Unit]

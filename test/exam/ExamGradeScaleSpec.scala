@@ -5,6 +5,7 @@
 package exam
 
 import base.BaseIntegrationSpec
+import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.exam.{Exam, GradeScale}
 import play.api.Application
@@ -12,7 +13,7 @@ import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
 
-class ExamGradeScaleSpec extends BaseIntegrationSpec:
+class ExamGradeScaleSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -26,8 +27,7 @@ class ExamGradeScaleSpec extends BaseIntegrationSpec:
         val exam         = DB.find(classOf[Exam], 1L)
         exam.course = null
         exam.save()
-        val scale = DB.find(classOf[GradeScale]).setMaxRows(1).findList().get(0)
-
+        val scale = DB.find(classOf[GradeScale]).list.head
         val updateData = Json.obj(
           "name"     -> "renamed copy",
           "duration" -> JsNumber(BigDecimal(exam.duration)),

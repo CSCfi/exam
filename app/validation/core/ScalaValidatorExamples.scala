@@ -119,12 +119,13 @@ object ScalaValidatorExamples:
       .withRule(validateEmail)
       .withRule(validateAge)
 
-    private def parseUser(json: JsValue): UserRegistration =
-      UserRegistration(
+    // A parser returns Left for input it cannot read at all, rules handle the rest
+    private def parseUser(json: JsValue): Either[FieldError, UserRegistration] =
+      Right(UserRegistration(
         name = (json \ "name").asOpt[String].orNull,
         email = (json \ "email").asOpt[String].orNull,
         age = (json \ "age").asOpt[Int].getOrElse(0)
-      )
+      ))
 
     override def sanitize(
         request: Request[AnyContent],

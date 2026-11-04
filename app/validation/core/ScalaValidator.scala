@@ -10,6 +10,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.*
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 /** Base trait for Scala validators that can be used with ActionFilter
   */
@@ -76,10 +77,7 @@ trait PlayJsonValidator:
       case Some(json) =>
         try sanitize(request, json)
         catch
-          case e: SanitizingException =>
-            logger.error("Sanitizing error: {}", e.getMessage, e)
-            Left(Results.BadRequest(e.getMessage))
-          case e: Exception =>
+          case NonFatal(e) =>
             logger.error("Validation error: {}", e.getMessage, e)
             Left(Results.BadRequest(s"Validation failed: ${e.getMessage}"))
       case None =>
@@ -98,10 +96,7 @@ trait PlayJsonValidator:
           // and the actual body (JsValue) is preserved, only attributes are added
           Right(enriched.asInstanceOf[Request[JsValue]])
     catch
-      case e: SanitizingException =>
-        logger.error("Sanitizing error: {}", e.getMessage, e)
-        Left(Results.BadRequest(e.getMessage))
-      case e: Exception =>
+      case NonFatal(e) =>
         logger.error("Validation error: {}", e.getMessage, e)
         Left(Results.BadRequest(s"Validation failed: ${e.getMessage}"))
 

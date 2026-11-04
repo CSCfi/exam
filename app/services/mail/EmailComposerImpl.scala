@@ -76,7 +76,7 @@ class EmailComposerImpl @Inject() (
       case Right(template) =>
         val lang          = getLang(student)
         val subject       = messaging("email.inspection.ready.subject")(using lang)
-        val examInfo      = s"${exam.name}, ${exam.course.code.split("_").head}"
+        val examInfo      = s"${exam.name}, ${exam.course.code.takeWhile(_ != '_')}"
         val reviewLink    = s"$hostName/participations"
         val autoEvaluated = reviewer.isEmpty && Option(exam.autoEvaluationConfig).nonEmpty
         val stringValues = Map(
@@ -203,7 +203,7 @@ class EmailComposerImpl @Inject() (
         val subject = s"$subjectTemplate: \"${exam.name}\""
         val courseCode =
           Option(exam.course).flatMap(c => Option(c.code)).map(c =>
-            s"(${c.split("_").head})"
+            s"(${c.takeWhile(_ != '_')})"
           ).getOrElse("")
         val examInfo    = s"${exam.name} $courseCode"
         val teacherName = getTeachers(exam)
@@ -283,7 +283,7 @@ class EmailComposerImpl @Inject() (
         val teacherName = getTeachers(exam)
         val courseCode =
           Option(exam.course).flatMap(c => Option(c.code)).map(c =>
-            s"(${c.split("_").head})"
+            s"(${c.takeWhile(_ != '_')})"
           ).getOrElse("")
         val examInfo = s"${exam.name} $courseCode"
         val msg =
@@ -342,7 +342,7 @@ class EmailComposerImpl @Inject() (
         val subject = s"${messaging(subjectTemplate)(using lang)} \"${exam.name}\""
         val courseCode =
           Option(exam.course).flatMap(c => Option(c.code)).map(c =>
-            s"(${c.split("_").head})"
+            s"(${c.takeWhile(_ != '_')})"
           ).getOrElse("")
         val examInfo = s"${exam.name} $courseCode"
         val teacherName =
@@ -409,14 +409,15 @@ class EmailComposerImpl @Inject() (
               addressString,
               List(buildingInfo, roomName, machineName)
             )
-          val file = File.createTempFile(exam.name.replace(" ", "-"), ".ics")
           catching(classOf[IOException]).either {
+            val file = File.createTempFile(exam.name.replace(" ", "-"), ".ics")
             Biweekly.write(iCal).go(file)
+            file
           } match
             case Left(e) =>
-              logger.error("Failed to create a temporary iCal file on disk!")
-              throw new RuntimeException(e)
-            case _ => // OK
+              logger.error("Failed to create a temporary iCal file, sending the mail without it", e)
+              emailSender.send(mail)
+            case Right(file) =>
               val attachment = new EmailAttachment
               attachment.setPath(file.getAbsolutePath)
               attachment.setDisposition(EmailAttachment.ATTACHMENT)
@@ -994,7 +995,7 @@ class EmailComposerImpl @Inject() (
             val commonValues = Map(
               "exam_link"   -> s"$hostName/staff/reservations/${exam.id}",
               "exam_name"   -> exam.name,
-              "course_code" -> exam.course.code.split("_").head
+              "course_code" -> exam.course.code.takeWhile(_ != '_')
             )
             val subTemplate = if enrolments.isEmpty then
               val noEnrolments = messaging("email.enrolment.no.enrolments")(using lang)
@@ -1072,7 +1073,7 @@ class EmailComposerImpl @Inject() (
                 "exam_name" -> exam.name,
                 "course_code" -> Option(exam.course)
                   .flatMap(c => Option(c.code))
-                  .map(_.split("_").head)
+                  .map(_.takeWhile(_ != '_'))
                   .getOrElse(""),
                 "review_summary" -> summary
               )

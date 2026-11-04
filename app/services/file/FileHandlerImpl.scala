@@ -17,6 +17,7 @@ import java.nio.charset.Charset
 import java.nio.file.*
 import java.util.{Base64, UUID}
 import javax.inject.Inject
+import scala.util.control.NonFatal
 import scala.util.{Try, Using}
 
 class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigReader)
@@ -89,7 +90,7 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
     try
       if !Files.deleteIfExists(path) then
         logger.error(s"Could not delete $path because it does not exist.")
-    catch case ex: Exception => logger.error("IO Exception occurred", ex)
+    catch case NonFatal(ex) => logger.error("IO Exception occurred", ex)
 
   override def removePrevious(container: AttachmentContainer): Unit =
     Option(container.attachment).foreach { attachment =>

@@ -7,7 +7,6 @@ package validation.calendar
 import cats.data.ValidatedNel
 import play.api.libs.json.*
 import validation.core.*
-import validation.core.SanitizingException
 
 import java.time.Instant
 import scala.jdk.CollectionConverters.*
@@ -100,50 +99,31 @@ object ReservationValidator:
   private def requireOrgRef(reservation: ExternalReservationDTO): ValidatedNel[FieldError, String] =
     PlayValidator.requireField("orgId", reservation.orgRef)
 
+private def required[A](field: String, value: Option[A]): Either[FieldError, A] =
+  value.toRight(FieldError(field, "missing or invalid"))
+
 private object ReservationParser:
 
-  def parseFromJson(body: JsValue): ReservationDTO =
-    val roomId = PlayJsonHelper
-      .parse[Long]("roomId", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: roomId"))
-    val examId = PlayJsonHelper
-      .parse[Long]("examId", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: examId"))
-    val start = PlayJsonHelper
-      .parseDateTime("start", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: start"))
-    val end = PlayJsonHelper
-      .parseDateTime("end", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: end"))
-
-    val aids       = PlayJsonHelper.parseLongArray("aids", body)
-    val sectionIds = PlayJsonHelper.parseLongArray("sectionIds", body)
-
-    ReservationDTO(roomId, examId, start, end, aids, sectionIds)
+  def parseFromJson(body: JsValue): Either[FieldError, ReservationDTO] =
+    for
+      roomId <- required("roomId", PlayJsonHelper.parse[Long]("roomId", body))
+      examId <- required("examId", PlayJsonHelper.parse[Long]("examId", body))
+      start  <- required("start", PlayJsonHelper.parseDateTime("start", body))
+      end    <- required("end", PlayJsonHelper.parseDateTime("end", body))
+    yield
+      val aids       = PlayJsonHelper.parseLongArray("aids", body)
+      val sectionIds = PlayJsonHelper.parseLongArray("sectionIds", body)
+      ReservationDTO(roomId, examId, start, end, aids, sectionIds)
 
 private object ExternalReservationParser:
 
-  def parseFromJson(body: JsValue): ExternalReservationDTO =
-    val roomRef = PlayJsonHelper
-      .parse[String]("roomId", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: roomId"))
-
-    val orgRef = PlayJsonHelper
-      .parse[String]("orgId", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: orgId"))
-
-    val examId = PlayJsonHelper
-      .parse[Long]("examId", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: examId"))
-
-    val start = PlayJsonHelper
-      .parseDateTime("start", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: start"))
-
-    val end = PlayJsonHelper
-      .parseDateTime("end", body)
-      .getOrElse(throw SanitizingException("Missing or invalid field: end"))
-
-    val sectionIds = PlayJsonHelper.parseLongArray("sectionIds", body)
-
-    ExternalReservationDTO(roomRef, orgRef, examId, start, end, sectionIds)
+  def parseFromJson(body: JsValue): Either[FieldError, ExternalReservationDTO] =
+    for
+      roomRef <- required("roomId", PlayJsonHelper.parse[String]("roomId", body))
+      orgRef  <- required("orgId", PlayJsonHelper.parse[String]("orgId", body))
+      examId  <- required("examId", PlayJsonHelper.parse[Long]("examId", body))
+      start   <- required("start", PlayJsonHelper.parseDateTime("start", body))
+      end     <- required("end", PlayJsonHelper.parseDateTime("end", body))
+    yield
+      val sectionIds = PlayJsonHelper.parseLongArray("sectionIds", body)
+      ExternalReservationDTO(roomRef, orgRef, examId, start, end, sectionIds)

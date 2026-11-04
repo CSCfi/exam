@@ -4,6 +4,7 @@
 
 package models.exam
 
+import cats.syntax.all.*
 import com.fasterxml.jackson.annotation.{JsonBackReference, JsonManagedReference}
 import features.exam.copy.ExamCopyContext
 import jakarta.persistence.*
@@ -205,7 +206,10 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
         esq.options.asScala.foreach(_.score = 0)
       }
 
-  def createCopy(context: ExamCopyContext): Exam =
+  /** Left as in ExamSectionQuestion.copy. The copy is saved as it goes, so callers that can get a
+    * Left copy inside a transaction and leave it uncommitted.
+    */
+  def createCopy(context: ExamCopyContext): Either[String, Exam] =
     val clone = scalarCopy()
     if !context.shouldExcludeExamOwners then clone.examOwners = examOwners
     if context.shouldSetParent then clone.parent = this
@@ -229,20 +233,22 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
       inspection.exam = clone
       inspection.save()
 
-    for es <- selectSectionsToCopy(context) do
-      val esCopy = es.copy(clone, context)
-      esCopy.setCreatorWithDate(context.getUser)
-      esCopy.setModifierWithDate(context.getUser)
-      if context.shouldShuffleOptions then
-        esCopy.sectionQuestions.asScala.foreach(shuffleQuestionOptions)
-      esCopy.save()
-      if context.isStudentExam then updateQuestionMetadata(esCopy, context.getUser)
-      clone.examSections.add(esCopy)
-
-    if attachment != null then
-      clone.attachment = attachment.copy()
-
-    clone
+    selectSectionsToCopy(context).toList
+      .traverse_ { es =>
+        es.copy(clone, context).map { esCopy =>
+          esCopy.setCreatorWithDate(context.getUser)
+          esCopy.setModifierWithDate(context.getUser)
+          if context.shouldShuffleOptions then
+            esCopy.sectionQuestions.asScala.foreach(shuffleQuestionOptions)
+          esCopy.save()
+          if context.isStudentExam then updateQuestionMetadata(esCopy, context.getUser)
+          clone.examSections.add(esCopy)
+        }
+      }
+      .map { _ =>
+        if attachment != null then clone.attachment = attachment.copy()
+        clone
+      }
 
   def scalarCopy(): Exam =
     val dest = new Exam

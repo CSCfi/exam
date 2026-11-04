@@ -132,7 +132,9 @@ class ExaminationService @Inject() (
             exam.state = ExamState.REVIEW
             exam.update()
             if exam.isPrivate then notifyTeachers(exam)
-            autoEvaluationHandler.autoEvaluate(exam)
+            autoEvaluationHandler.autoEvaluate(exam).left.foreach(msg =>
+              logger.warn(s"Exam ${exam.id} not auto-evaluated: $msg")
+            )
             Right((exam, ep))
 
   def abortExam(

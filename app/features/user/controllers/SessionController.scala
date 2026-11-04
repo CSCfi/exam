@@ -15,7 +15,6 @@ import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.util.Try
 
 class SessionController @Inject() (
     private val sessionService: SessionService,
@@ -71,7 +70,7 @@ class SessionController @Inject() (
   }
 
   def logout: Action[AnyContent] = Action { request =>
-    val userId = request.session.get("id").flatMap(id => scala.util.Try(id.toLong).toOption)
+    val userId = request.session.get("id").flatMap(_.toLongOption)
     val result = sessionService.logout(userId) match
       case Left(error) => toResult(error)
       case Right(LogoutResponse(logoutUrl)) =>
@@ -89,7 +88,7 @@ class SessionController @Inject() (
       request.session.get("id") match
         case None => Future.successful(toResult(SessionError.NoSession))
         case Some(id) =>
-          Try(id.toLong).toOption match
+          id.toLongOption match
             case None => Future.successful(toResult(SessionError.InvalidUserId))
             case Some(userId) =>
               sessionService

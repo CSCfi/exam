@@ -44,7 +44,8 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
   def findExam(examId: Long): Option[Exam] = Option(DB.find(classOf[Exam], examId))
 
   /** Streams the archived attachments tarball to the given output stream. Caller must close the
-    * stream. Throws on error.
+    * stream. A failure is logged and leaves the tarball truncated, the response has started by
+    * then.
     */
   def streamArchivedAttachments(
       exam: Exam,
@@ -52,26 +53,20 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
       end: Option[String]
   )(os: OutputStream): Unit =
     val df = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-    val startDate =
-      start.map(txt => java.time.LocalDate.parse(txt, df).atStartOfDay(ZoneOffset.UTC).toInstant)
-    val endDate =
-      end.map(txt => java.time.LocalDate.parse(txt, df).atStartOfDay(ZoneOffset.UTC).toInstant)
+    def parseDate(txt: String) =
+      java.time.LocalDate.parse(txt, df).atStartOfDay(ZoneOffset.UTC).toInstant
     Try {
-      val gzip = new GZIPOutputStream(os)
-      val tar  = new TarArchiveOutputStream(gzip)
+      val startDate = start.map(parseDate)
+      val endDate   = end.map(parseDate)
+      val gzip      = new GZIPOutputStream(os)
+      val tar       = new TarArchiveOutputStream(gzip)
       tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
       try
         createArchive(exam, tar, startDate, endDate)
       finally
         tar.finish()
         gzip.finish()
-    }.fold(
-      { e =>
-        logger.error("Error creating archive", e)
-        throw e
-      },
-      _ => ()
-    )
+    }.failed.foreach(e => logger.error("Error creating archive", e))
 
   private def isEligibleForArchiving(exam: Exam, start: Option[Instant], end: Option[Instant]) =
     exam.hasState(ExamState.ABORTED, ExamState.REVIEW, ExamState.REVIEW_STARTED) &&

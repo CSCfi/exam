@@ -268,18 +268,27 @@ class ExamService @Inject() (
     val grading           = Option(payload.grade).map(_.id)
     val gradeScaleChanged = grading.exists(didGradeChange(exam, _))
     val loginRole         = user.loginRole
-    examUpdater.update(exam, payload, loginRole)
-    if gradeScaleChanged then
-      Option(exam.autoEvaluationConfig).foreach { config =>
-        config.delete()
-        exam.autoEvaluationConfig = null
-      }
-    else if (rawBody \ "evaluationConfig").isDefined then
-      examUpdater.updateAutoEvaluationConfig(exam, payload.autoEvaluationConfig)
-    if (rawBody \ "feedbackConfig").isDefined then
-      examUpdater.updateExamFeedbackConfig(exam, payload.examFeedbackConfig)
-    exam.save()
-    play.api.mvc.Results.Ok(exam.asJson)
+    val updatesEvaluationConfig =
+      !gradeScaleChanged && (rawBody \ "evaluationConfig").isDefined
+    // Check before anything is written, so that a rejected config leaves the exam as it was
+    val configError =
+      if updatesEvaluationConfig then
+        examUpdater.validateAutoEvaluationConfig(exam, payload.autoEvaluationConfig)
+      else None
+    configError.getOrElse {
+      examUpdater.update(exam, payload, loginRole)
+      if gradeScaleChanged then
+        Option(exam.autoEvaluationConfig).foreach { config =>
+          config.delete()
+          exam.autoEvaluationConfig = null
+        }
+      else if updatesEvaluationConfig then
+        examUpdater.updateAutoEvaluationConfig(exam, payload.autoEvaluationConfig)
+      if (rawBody \ "feedbackConfig").isDefined then
+        examUpdater.updateExamFeedbackConfig(exam, payload.examFeedbackConfig)
+      exam.save()
+      play.api.mvc.Results.Ok(exam.asJson)
+    }
 
   private def didGradeChange(exam: Exam, grading: Int): Boolean =
     val canOverrideGrading = configReader.isCourseGradeScaleOverridable
@@ -373,25 +382,27 @@ class ExamService @Inject() (
                     ).isDefined && !configReader.isCourseGradeScaleOverridable
                   then prototype.autoEvaluationConfig = null
                   val context = ExamCopyContext.forTeacherCopy(user).build()
-                  val copy    = prototype.createCopy(context)
-                  copy.name = s"**COPY**${copy.name}"
-                  copy.state = ExamState.DRAFT
-                  copy.executionType = executionType
-                  copy.implementation = ExamImplementation.valueOf(examType)
-                  copy.setCreatorWithDate(user)
-                  copy.parent = null
-                  copy.course = null
-                  copy.examFeedbackConfig = null
-                  copy.subjectToLanguageInspection = null
-                  val now = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant
-                  copy.periodStart = now
-                  copy.periodEnd = now.plus(Duration.ofDays(1))
-                  // Force anonymous review if globally enabled for public examinations
-                  if !copy.isPrivate then copy.anonymous = false
-                  else if configReader.isAnonymousReviewEnabled then copy.anonymous = true
-                  copy.gradingType = GradeType.GRADED
-                  copy.save()
-                  Right(copy)
+                  prototype.createCopy(context) match
+                    case Left(msg) => Left(ExamError.CopyFailed(msg))
+                    case Right(copy) =>
+                      copy.name = s"**COPY**${copy.name}"
+                      copy.state = ExamState.DRAFT
+                      copy.executionType = executionType
+                      copy.implementation = ExamImplementation.valueOf(examType)
+                      copy.setCreatorWithDate(user)
+                      copy.parent = null
+                      copy.course = null
+                      copy.examFeedbackConfig = null
+                      copy.subjectToLanguageInspection = null
+                      val now = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant
+                      copy.periodStart = now
+                      copy.periodEnd = now.plus(Duration.ofDays(1))
+                      // Force anonymous review if globally enabled for public examinations
+                      if !copy.isPrivate then copy.anonymous = false
+                      else if configReader.isAnonymousReviewEnabled then copy.anonymous = true
+                      copy.gradingType = GradeType.GRADED
+                      copy.save()
+                      Right(copy)
       case _ => Left(ExamError.ValidationError("Missing examinationType or type"))
 
   def createExamDraft(user: User, payload: JsValue): Either[ExamError, Long] =

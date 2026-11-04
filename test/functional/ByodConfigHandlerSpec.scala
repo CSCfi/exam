@@ -18,7 +18,7 @@ class ByodConfigHandlerSpec extends BaseIntegrationSpec:
     "calculating config key" should:
       "generate correct hash for given inputs" in:
         val key = byodConfigHandler.calculateConfigKey("123456", "quit")
-        key must be("359c551f6a3881ab54e744a5edc3c0eacaa5444873a9f1342d512e2609574051")
+        key must be(Right("359c551f6a3881ab54e744a5edc3c0eacaa5444873a9f1342d512e2609574051"))
 
     "creating config file" should:
       "generate reasonably sized config data" in:

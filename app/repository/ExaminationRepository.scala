@@ -26,7 +26,7 @@ import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import scala.util.Using
+import scala.util.{Failure, Success, Using}
 
 class ExaminationRepository @Inject() (
     cel: CollaborativeExamLoaderService,
@@ -53,18 +53,26 @@ class ExaminationRepository @Inject() (
           ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids).build()
         else ExamCopyContext.forStudentExam(user).withSelectedSections(ids).build()
 
-      val studentExam = prototype.createCopy(context)
-      studentExam.state = ExamState.INITIALIZED
-      studentExam.creator = user
-      if !isCollaborative then studentExam.parent = prototype
+      prototype.createCopy(context).map { studentExam =>
+        studentExam.state = ExamState.INITIALIZED
+        studentExam.creator = user
+        if !isCollaborative then studentExam.parent = prototype
 
-      studentExam.generateHash()
-      db.save(studentExam)
-      enrolment.exam = studentExam
-      db.save(enrolment)
-      tx.commit()
-      studentExam
-    }.toOption
+        studentExam.generateHash()
+        db.save(studentExam)
+        enrolment.exam = studentExam
+        db.save(enrolment)
+        tx.commit()
+        studentExam
+      }
+    } match
+      case Success(Right(studentExam)) => Some(studentExam)
+      case Success(Left(msg)) =>
+        logger.error(s"Could not create exam for enrolment ${enrolment.id}: $msg")
+        None
+      case Failure(e) =>
+        logger.error(s"Could not create exam for enrolment ${enrolment.id}", e)
+        None
 
   def processClozeTestQuestions(exam: Exam): Unit =
     val questionsToHide = scala.collection.mutable.Set[Question]()

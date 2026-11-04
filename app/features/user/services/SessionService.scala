@@ -29,6 +29,7 @@ import javax.inject.Inject
 import javax.mail.internet.InternetAddress
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 class SessionService @Inject() (
@@ -157,12 +158,15 @@ class SessionService @Inject() (
       remoteAddress: String
   ): Future[Either[SessionError, LoginResponse]] = reservation match
     case Some(res) =>
+      // Updating the reservation is Ebean, which throws
       Try(handleExternalReservation(user, res)) match
         case Success(future) =>
-          future.flatMap { _ =>
-            createSession(user, isTemporaryVisitor = true, headers, remoteAddress)
+          future.flatMap {
+            case Right(_) => createSession(user, isTemporaryVisitor = true, headers, remoteAddress)
+            case Left(error) => Future.successful(Left(error))
           }
-        case Failure(_) =>
+        case Failure(e) =>
+          logger.error(s"Failed to handle external reservation ${res.id}", e)
           Future.successful(Left(FailedToHandleExternalReservation))
     case None => createSession(user, isTemporaryVisitor = false, headers, remoteAddress)
 
@@ -204,21 +208,31 @@ class SessionService @Inject() (
       .list
       .headOption
 
-  private def handleExternalReservation(user: User, reservation: Reservation): Future[Unit] =
+  private def handleExternalReservation(
+      user: User,
+      reservation: Reservation
+  ): Future[Either[SessionError, Unit]] =
     DB.find(classOf[ExamEnrolment]).where().eq(
       path[ExamEnrolment]("reservation"),
       reservation
     ).find match
       case Some(_) =>
         // already imported
-        Future.successful(())
+        Future.successful(Right(()))
       case None =>
         reservation.user = user
         reservation.update()
-        externalExamHandler.requestEnrolment(user, reservation).flatMap {
-          case Some(_) => Future.successful(())
-          case None    => Future.failed(new RuntimeException("Failed to request enrolment"))
-        }
+        // None means XM answered but the enrolment could not be created, which is logged there
+        externalExamHandler
+          .requestEnrolment(user, reservation)
+          .map {
+            case Some(_) => Right(())
+            case None    => Left(FailedToHandleExternalReservation)
+          }
+          .recover { case NonFatal(e) =>
+            logger.error(s"Could not request enrolment for reservation ${reservation.id}", e)
+            Left(FailedToHandleExternalReservation)
+          }
 
   private def getLanguage(code: String): Language =
     val language = Option(code).flatMap { c =>
@@ -386,48 +400,50 @@ class SessionService @Inject() (
         Map("permissions" -> user.permissions.asScala.map(_.value).mkString(","))
       else Map.empty[String, String]
 
-    val studentRole =
-      Option(DB.find(classOf[Role]).where().eq(
-        path[Role]("name"),
-        Role.Name.STUDENT.toString
-      ).findOne)
-        .getOrElse(throw new IllegalStateException("Student role not found"))
-    val isLocalAccount = configReader.isLocalUser(user.eppn)
-    val roles =
-      if isTemporaryVisitor || !isLocalAccount then Seq(studentRole)
-      else user.roles.asScala.toSeq
+    val studentRole = Option(
+      DB.find(classOf[Role]).where().eq(path[Role]("name"), Role.Name.STUDENT.toString).findOne
+    )
+    studentRole match
+      case None =>
+        logger.error("Student role is missing from the database")
+        Future.successful(Left(RoleNotFound))
+      case Some(studentRole) =>
+        val isLocalAccount = configReader.isLocalUser(user.eppn)
+        val roles =
+          if isTemporaryVisitor || !isLocalAccount then Seq(studentRole)
+          else user.roles.asScala.toSeq
 
-    val (rolePayload, responseData) =
-      if isTemporaryVisitor then
-        // External exam taker
-        (
-          Map("visitingStudent" -> "true", "role" -> studentRole.name),
-          Map.empty[String, JsValue]
-        )
-      else if !isLocalAccount then
-        // External account - may only login as students
-        val homeOrgs = configReader.getHomeOrganisations.mkString(", ")
-        (
-          Map("role" -> studentRole.name),
-          Map(
-            "externalUserOrg"   -> Json.toJson(user.eppn.split("@")(1)),
-            "homeOrganisations" -> Json.toJson(homeOrgs)
-          )
-        )
-      else if user.roles.size() == 1 then
-        // Local account with a single role - automatically set it
-        (Map("role" -> user.roles.asScala.head.name), Map.empty[String, JsValue])
-      else
-        // Local account with multiple roles: don't set role, let user choose via setLoginRole
-        (Map.empty[String, String], Map.empty[String, JsValue])
+        val (rolePayload, responseData) =
+          if isTemporaryVisitor then
+            // External exam taker
+            (
+              Map("visitingStudent" -> "true", "role" -> studentRole.name),
+              Map.empty[String, JsValue]
+            )
+          else if !isLocalAccount then
+            // External account - may only login as students
+            val homeOrgs = configReader.getHomeOrganisations.mkString(", ")
+            (
+              Map("role" -> studentRole.name),
+              Map(
+                "externalUserOrg"   -> Json.toJson(user.eppn.split("@")(1)),
+                "homeOrganisations" -> Json.toJson(homeOrgs)
+              )
+            )
+          else if user.roles.size() == 1 then
+            // Local account with a single role - automatically set it
+            (Map("role" -> user.roles.asScala.head.name), Map.empty[String, JsValue])
+          else
+            // Local account with multiple roles: don't set role, let user choose via setLoginRole
+            (Map.empty[String, String], Map.empty[String, JsValue])
 
-    val sessionData = basePayload ++ permissionsPayload ++ rolePayload
-    val finalUserData = responseData
-      .foldLeft(userData) { case (acc, (k, v)) => acc + (k -> v) } + ("roles" -> Json.toJson(
-      roles.map(_.asJson)
-    ))
+        val sessionData = basePayload ++ permissionsPayload ++ rolePayload
+        val finalUserData = responseData
+          .foldLeft(userData) { case (acc, (k, v)) => acc + (k -> v) } + ("roles" -> Json.toJson(
+          roles.map(_.asJson)
+        ))
 
-    Future.successful(Right(LoginResponse(finalUserData, sessionData)))
+        Future.successful(Right(LoginResponse(finalUserData, sessionData)))
 
   private def parseRoles(
       attribute: String,

@@ -38,37 +38,21 @@ object ExaminationEventValidator extends PlayJsonValidator:
       PlayValidator.requirePositive("capacity", event.capacity)
 
   private object EventParser:
-    def parseFromJson(body: JsValue): ExaminationEventDTO =
-      val configNode = (body \ "config")
-        .asOpt[JsValue]
-        .getOrElse(throw SanitizingException("missing required data"))
-
-      val settingsPassword = (configNode \ "settingsPassword")
-        .asOpt[String]
-        .filter(_.nonEmpty)
-
-      val quitPassword = (configNode \ "quitPassword")
-        .asOpt[String]
-        .filter(_.nonEmpty)
-
-      val eventNode = (configNode \ "examinationEvent")
-        .asOpt[JsValue]
-        .getOrElse(throw SanitizingException("missing examinationEvent"))
-
-      val start = PlayJsonHelper
-        .parseDateTime("start", eventNode)
-        .getOrElse(throw SanitizingException("missing or invalid start date"))
-
-      val description = (eventNode \ "description")
-        .asOpt[String]
-        .filter(_.nonEmpty)
-        .getOrElse(throw SanitizingException("missing description"))
-
-      val capacity = (eventNode \ "capacity")
-        .asOpt[Int]
-        .getOrElse(throw SanitizingException("missing or invalid capacity"))
-
-      ExaminationEventDTO(start, description, capacity, settingsPassword, quitPassword)
+    def parseFromJson(body: JsValue): Either[FieldError, ExaminationEventDTO] =
+      def required[A](field: String, value: Option[A]) =
+        value.toRight(FieldError(field, "missing or invalid"))
+      for
+        configNode <- required("config", (body \ "config").asOpt[JsValue])
+        eventNode <-
+          required("examinationEvent", (configNode \ "examinationEvent").asOpt[JsValue])
+        start <- required("start", PlayJsonHelper.parseDateTime("start", eventNode))
+        description <-
+          required("description", (eventNode \ "description").asOpt[String].filter(_.nonEmpty))
+        capacity <- required("capacity", (eventNode \ "capacity").asOpt[Int])
+      yield
+        val settingsPassword = (configNode \ "settingsPassword").asOpt[String].filter(_.nonEmpty)
+        val quitPassword     = (configNode \ "quitPassword").asOpt[String].filter(_.nonEmpty)
+        ExaminationEventDTO(start, description, capacity, settingsPassword, quitPassword)
 
   override def sanitize(
       request: Request[play.api.mvc.AnyContent],

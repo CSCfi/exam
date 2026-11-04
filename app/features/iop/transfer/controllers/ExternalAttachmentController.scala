@@ -80,15 +80,15 @@ class ExternalAttachmentController @Inject() (
       parse.multipartFormData
     ) {
       request =>
-        val user          = request.attrs(Auth.ATTR_USER)
-        val formData      = request.body.asFormUrlEncoded
-        val examHashOpt   = formData.get("examId").flatMap(_.headOption)
-        val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
+        val user        = request.attrs(Auth.ATTR_USER)
+        val formData    = request.body.asFormUrlEncoded
+        val examHashOpt = formData.get("examId").flatMap(_.headOption)
+        val questionIdOpt =
+          formData.get("questionId").flatMap(_.headOption).flatMap(_.toLongOption)
 
         (examHashOpt, questionIdOpt) match
-          case (Some(examHash), Some(questionIdStr)) =>
-            val questionId = questionIdStr.toLong
-            val filePart   = request.body.file("file")
+          case (Some(examHash), Some(questionId)) =>
+            val filePart = request.body.file("file")
             externalAttachmentService
               .addAttachmentToQuestionAnswer(examHash, questionId, filePart, user)
               .map {
@@ -96,7 +96,8 @@ class ExternalAttachmentController @Inject() (
                 case Left(error) =>
                   toResult(Left(error): Either[ExternalAttachmentError, Result])(identity)
               }
-          case _ => Future.successful(Results.BadRequest("Missing examId or questionId"))
+          case _ =>
+            Future.successful(Results.BadRequest("Missing or invalid examId or questionId"))
     }
 
   def deleteQuestionAnswerAttachment(qid: Long, hash: String): Action[AnyContent] =

@@ -163,8 +163,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
     "exporting questions" should:
       def exportableQuestionIds: Seq[java.lang.Long] =
         DB.find(classOf[Question])
-          .findList()
-          .asScala
+          .list
           .filter(q =>
             q.`type` != QuestionType.ClaimChoiceQuestion && q.`type` != QuestionType.ClozeTestQuestion
           )
@@ -205,6 +204,15 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         val content = contentAsStringOf(result)
         content must include("<quiz>")
         content.split("<question ").length - 1 must be(questionIds.size)
+
+    "adding question owners" should:
+      "reject question ids that are not numbers" in:
+        val (user, session) = runIO(loginAsTeacher())
+        val body            = Json.obj("questionIds" -> "1,abc")
+        val result = runIO(
+          makeRequest(POST, s"/app/questions/owner/${user.id}", Some(body), session = session)
+        )
+        statusOf(result).must(be(Status.BAD_REQUEST))
 
     "working with claim choice questions" should:
       "create and update claim choice question" in:

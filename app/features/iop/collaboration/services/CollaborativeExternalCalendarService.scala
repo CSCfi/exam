@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.services
 
+import cats.data.EitherT
 import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
@@ -43,6 +44,8 @@ class CollaborativeExternalCalendarService @Inject() (
     with Logging
     with JsonBodyWritables:
   implicit private val executionContext: BlockingIOExecutionContext = ec
+
+  private val NotFound = "i18n_error_exam_not_found"
 
   /** Check enrolment validity for external reservation
     *
@@ -205,19 +208,11 @@ class CollaborativeExternalCalendarService @Inject() (
     val now = Instant.now()
 
     (for
-      ceOpt <- collaborativeExamService.findById(examId)
-      ce <- ceOpt match
-        case None     => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(ce) => Future.successful(ce)
-      enrolmentOpt <- findEnrolmentForExternalReservation(examId, userId, now)
-      enrolment <- enrolmentOpt match
-        case None    => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(e) => Future.successful(e)
-      examOpt <- examLoader.downloadExam(ce)
-      exam <- examOpt match
-        case None    => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(e) => Future.successful(e)
-    yield (enrolment, exam)).flatMap { (enrolment, exam) =>
+      ce <- EitherT.fromOptionF(collaborativeExamService.findById(examId), NotFound)
+      enrolment <-
+        EitherT.fromOptionF(findEnrolmentForExternalReservation(examId, userId, now), NotFound)
+      exam <- EitherT.fromOptionF(examLoader.downloadExam(ce), NotFound)
+    yield (enrolment, exam)).flatMapF { (enrolment, exam) =>
       val user = enrolment.user
       handleReservationRequest(
         enrolment,
@@ -231,7 +226,7 @@ class CollaborativeExternalCalendarService @Inject() (
         roomRef,
         sectionIds
       )
-    }.recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }
+    }.value
 
   private def handleSlotsRequest(
       exam: Exam,
@@ -313,21 +308,13 @@ class CollaborativeExternalCalendarService @Inject() (
     val now = Instant.now()
 
     (for
-      ceOpt <- collaborativeExamService.findById(examId)
-      ce <- ceOpt match
-        case None     => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(ce) => Future.successful(ce)
-      enrolmentOpt <- findEnrolmentForExternalReservation(examId, userId, now)
-      _ <- enrolmentOpt match
-        case None => Future.failed(new IllegalArgumentException("i18n_error_enrolment_not_found"))
-        case Some(_) => Future.successful(())
-      examOpt <- examLoader.downloadExam(ce)
-      exam <- examOpt match
-        case None    => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(e) => Future.successful(e)
-    yield exam).flatMap { exam =>
-      handleSlotsRequest(exam, orgRef, roomRef, date, userId)
-    }.recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }
+      ce <- EitherT.fromOptionF(collaborativeExamService.findById(examId), NotFound)
+      _ <- EitherT.fromOptionF(
+        findEnrolmentForExternalReservation(examId, userId, now),
+        "i18n_error_enrolment_not_found"
+      )
+      exam <- EitherT.fromOptionF(examLoader.downloadExam(ce), NotFound)
+    yield exam).flatMapF(handleSlotsRequest(_, orgRef, roomRef, date, userId)).value
 
   /** Find enrolled exam for a user
     *

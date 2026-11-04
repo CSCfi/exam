@@ -32,13 +32,21 @@ class SettingsControllerSpec extends BaseIntegrationSpec:
         (response \ "name").as[String].must(be("review_deadline"))
         (response \ "value").as[String].must(be("15"))
 
+      "return BadRequest for a value that is not a whole number" in:
+        val (_, session) = runIO(loginAsAdmin())
+        Seq(Json.obj("value" -> "abc"), Json.obj("value" -> 1.5), Json.obj("value" -> -1)).foreach {
+          data =>
+            val result = runIO(put("/app/settings/deadline", data, session = session))
+            statusOf(result).must(be(Status.BAD_REQUEST))
+        }
+
       "return BadRequest if value is missing" in:
         val (_, session) = runIO(loginAsAdmin())
         val data         = Json.obj("wrong_key" -> "val")
         val result       = runIO(put("/app/settings/deadline", data, session = session))
 
         statusOf(result).must(be(Status.BAD_REQUEST))
-        contentAsStringOf(result).must(be("Missing value"))
+        contentAsStringOf(result).must(be("Missing or invalid value"))
 
       "deny access to non-admins" in:
         val (_, session) = runIO(loginAsTeacher())
@@ -68,13 +76,21 @@ class SettingsControllerSpec extends BaseIntegrationSpec:
         (response \ "name").as[String].must(be("reservation_window_size"))
         (response \ "value").as[String].must(be("60"))
 
+      "return BadRequest for a value that is not a whole number" in:
+        val (_, session) = runIO(loginAsAdmin())
+        Seq(Json.obj("value" -> "abc"), Json.obj("value" -> 1.5), Json.obj("value" -> -1)).foreach {
+          data =>
+            val result = runIO(put("/app/settings/reservationWindow", data, session = session))
+            statusOf(result).must(be(Status.BAD_REQUEST))
+        }
+
       "return BadRequest if value is missing" in:
         val (_, session) = runIO(loginAsAdmin())
         val data         = Json.obj("foo" -> "bar")
         val result       = runIO(put("/app/settings/reservationWindow", data, session = session))
 
         statusOf(result).must(be(Status.BAD_REQUEST))
-        contentAsStringOf(result).must(be("Missing value"))
+        contentAsStringOf(result).must(be("Missing or invalid value"))
 
       "deny access to non-admins" in:
         val (_, session) = runIO(loginAsStudent())

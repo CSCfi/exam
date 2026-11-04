@@ -17,4 +17,5 @@ object ExamError:
   case object UnsupportedExecutionType                extends ExamError
   case object NoPermissionToCreateByodExam            extends ExamError
   case class ValidationError(message: String)         extends ExamError
+  case class CopyFailed(message: String)              extends ExamError
   case class UpdateError(result: play.api.mvc.Result) extends ExamError

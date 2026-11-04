@@ -28,14 +28,14 @@ import scala.jdk.CollectionConverters.*
   * }}}
   *
   * @param parser
-  *   Function to parse JsValue into type T
+  *   Function to parse JsValue into type T, or the field that could not be parsed
   * @param rules
   *   List of validation rules to apply
   * @tparam T
   *   The type being validated
   */
 class PlayValidator[T] private (
-    parser: JsValue => T,
+    parser: JsValue => Either[FieldError, T],
     rules: List[T => ValidatedNel[FieldError, ?]]
 ):
 
@@ -48,19 +48,20 @@ class PlayValidator[T] private (
     * the valid object.
     */
   def validate(json: JsValue): Either[ValidationException, T] =
-    val target = parser(json)
+    parser(json).left.map(e => errorsToException(NonEmptyList.one(e))).flatMap { target =>
+      // Apply all rules and accumulate errors
+      val validations = rules.map(rule => rule(target))
 
-    // Apply all rules and accumulate errors
-    val validations = rules.map(rule => rule(target))
+      // Combine all validations - if any fail, we get all errors
+      val result = validations match
+        case h :: t =>
+          // Combine all validations using applicative - accumulates ALL errors
+          t.foldLeft(h)((acc, validation) => (acc, validation).mapN((_, _) => ()))
+            .map(_ => target)
+        case _ => target.validNel // No rules, valid by default
 
-    // Combine all validations - if any fail, we get all errors
-    val result = validations match
-      case h :: t =>
-        // Combine all validations using applicative - accumulates ALL errors
-        t.foldLeft(h)((acc, validation) => (acc, validation).mapN((_, _) => ())).map(_ => target)
-      case _ => target.validNel // No rules, valid by default
-
-    result.toEither.left.map(errorsToException)
+      result.toEither.left.map(errorsToException)
+    }
 
   private def errorsToException(errors: NonEmptyList[FieldError]): ValidationException =
     ValidationException(ValidationResult.withErrors(errors.toList.asJava))
@@ -70,13 +71,13 @@ object PlayValidator:
   /** Create a new validator with a parser function.
     *
     * @param parser
-    *   Function to parse JsValue into type T
+    *   Function to parse JsValue into type T, or the field that could not be parsed
     * @tparam T
     *   The type to validate
     * @return
     *   A new validator with no rules
     */
-  def apply[T](parser: JsValue => T): PlayValidator[T] =
+  def apply[T](parser: JsValue => Either[FieldError, T]): PlayValidator[T] =
     new PlayValidator(parser, List.empty)
 
   // ========== Common Validation Helpers ==========

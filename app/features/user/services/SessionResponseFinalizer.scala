@@ -10,7 +10,6 @@ import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.util.Try
 
 /** The single place where a `SessionController` action should attach a session to its `Result`.
   * Merges reservation headers (upcoming/ongoing exam, wrong machine, etc.) into the session
@@ -27,7 +26,7 @@ class SessionResponseFinalizer @Inject() (
       sessionData: SessionData
   ): Future[Result] =
     if sessionService.isStudent(sessionData) then
-      (sessionData.get("id").flatMap(id => Try(id.toLong).toOption), sessionData.get("eppn")) match
+      (sessionData.get("id").flatMap(_.toLongOption), sessionData.get("eppn")) match
         case (Some(userId), Some(eppn)) =>
           enrolmentRepository.getReservationHeaders(request, userId, eppn).map { headers =>
             val updatedSessionData =

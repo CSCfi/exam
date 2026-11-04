@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.services
 
+import cats.data.EitherT
 import database.EbeanQueryExtensions
 import models.exam.Exam
 import models.exam.ExamState
@@ -33,6 +34,8 @@ class CollaborativeExamSectionService @Inject() (
     with SectionQuestionHandler
     with Logging:
   implicit private val executionContext: BlockingIOExecutionContext = ec
+
+  private val NotFound = "i18n_error_exam_not_found"
 
   private def isAuthorizedToView(exam: Exam, user: User, homeOrg: String): Boolean =
     val hasAccess =
@@ -74,20 +77,14 @@ class CollaborativeExamSectionService @Inject() (
     val homeOrg = configReader.getHomeOrganisationRef
 
     (for
-      ceOpt <- collaborativeExamService.findById(examId)
-      ce <- ceOpt match
-        case None     => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(ce) => Future.successful(ce)
-      examOpt <- examLoader.downloadExam(ce)
-      exam <- examOpt match
-        case None    => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(e) => Future.successful(e)
-    yield
-      if !isAuthorizedToView(exam, user, homeOrg) then
-        Left("i18n_error_access_forbidden")
-      else Right((ce, exam))).recoverWith { case e: IllegalArgumentException =>
-      Future.successful(Left(e.getMessage))
-    }
+      ce   <- EitherT.fromOptionF(collaborativeExamService.findById(examId), NotFound)
+      exam <- EitherT.fromOptionF(examLoader.downloadExam(ce), NotFound)
+      _ <- EitherT.cond[Future](
+        isAuthorizedToView(exam, user, homeOrg),
+        (),
+        "i18n_error_access_forbidden"
+      )
+    yield (ce, exam)).value
 
   /** Add a section to a collaborative exam
     *

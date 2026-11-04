@@ -4,12 +4,12 @@
 
 package models.sections
 
+import cats.syntax.all.*
 import com.fasterxml.jackson.annotation.{JsonBackReference, JsonProperty}
 import features.exam.copy.ExamCopyContext
 import jakarta.persistence.*
 import models.base.OwnedModel
 import models.questions.*
-import play.api.Logging
 
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
@@ -17,7 +17,7 @@ import scala.util.Random
 
 @Entity
 class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] with Sortable
-    with Scorable with Logging:
+    with Scorable:
 
   @ManyToOne
   @JoinColumn(name = "exam_section_id")
@@ -138,28 +138,32 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
       evaluationType == QuestionEvaluationType.Selection &&
       essayAnswer != null && essayAnswer.evaluatedScore == 1
 
-  def copy(context: ExamCopyContext): ExamSectionQuestion =
+  /** Left when the options of this section question and of its question do not match. Questions may
+    * have been saved by then, so callers copy inside a transaction they leave uncommitted.
+    */
+  def copy(context: ExamCopyContext): Either[String, ExamSectionQuestion] =
     val esqCopy = new ExamSectionQuestion
+    copyScalarFields(esqCopy)
+    esqCopy.evaluationType = evaluationType
     if context.shouldCopyAnswers then
-      copyScalarFields(esqCopy)
       esqCopy.question = question
-      esqCopy.evaluationType = evaluationType
-      copyQuestionWithAnswers(esqCopy, context)
-      if essayAnswer != null then esqCopy.essayAnswer = essayAnswer.copy()
-      if clozeTestAnswer != null then esqCopy.clozeTestAnswer = clozeTestAnswer.copy()
-    else
-      copyScalarFields(esqCopy)
-      esqCopy.evaluationType = evaluationType
-      if context.isStudentExam then
-        copyQuestionWithOptions(esqCopy, context)
+      copyQuestionWithAnswers(esqCopy, context).map { _ =>
+        if essayAnswer != null then esqCopy.essayAnswer = essayAnswer.copy()
+        if clozeTestAnswer != null then esqCopy.clozeTestAnswer = clozeTestAnswer.copy()
+        esqCopy
+      }
+    else if context.isStudentExam then
+      copyQuestionWithOptions(esqCopy, context).map { _ =>
         if optionShufflingOn && question.`type` != QuestionType.ClaimChoiceQuestion then
           esqCopy.shuffleOptions()
-      else
-        esqCopy.question = question
-        esqCopy.creator = creator
-        esqCopy.created = created
-        distinctOptions.asScala.foreach(o => esqCopy.options.add(o.copy()))
-    esqCopy
+        esqCopy
+      }
+    else
+      esqCopy.question = question
+      esqCopy.creator = creator
+      esqCopy.created = created
+      distinctOptions.asScala.foreach(o => esqCopy.options.add(o.copy()))
+      Right(esqCopy)
 
   private def copyScalarFields(dest: ExamSectionQuestion): Unit =
     dest.sequenceNumber = sequenceNumber
@@ -174,53 +178,53 @@ class ExamSectionQuestion extends OwnedModel with Ordered[ExamSectionQuestion] w
   private def copyQuestionWithAnswers(
       esqCopy: ExamSectionQuestion,
       context: ExamCopyContext
-  ): Unit =
+  ): Either[String, Unit] =
     val (blueprint, optionMap) = question.copyWithOptions(context.shouldSetParent)
     // The question is deserialized from an external source, refer to it only if it exists locally
     if context.shouldSetParent then
       blueprint.parent = if context.isLocalQuestion(question.id) then question else null
     blueprint.save()
     persistQuestionOwners(blueprint, context)
-    distinctOptions.asScala.foreach { opt =>
-      Option(opt.option).filter(_.id != 0) match
-        case Some(parentOpt) =>
-          optionMap.get(parentOpt.id) match
-            case Some(optCopy) =>
-              optCopy.question = blueprint
-              optCopy.save()
-              val esqoCopy = opt.copyWithAnswer()
-              esqoCopy.option = optCopy
-              esqCopy.options.add(esqoCopy)
-            case None =>
-              logger.error("Failed to copy a multi-choice question option!")
-              throw new RuntimeException()
-        case None =>
-          logger.error("Failed to copy a multi-choice question option!")
-          throw new RuntimeException()
-    }
-    esqCopy.question = blueprint
+    distinctOptions.asScala.toList
+      .traverse_ { opt =>
+        for
+          parentOpt <- Option(opt.option)
+            .filter(_.id != 0)
+            .toRight(s"Exam section question option ${opt.id} has no question option")
+          optCopy <- optionMap
+            .get(parentOpt.id)
+            .toRight(s"No copy of option ${parentOpt.id} for exam section question $id")
+        yield
+          optCopy.question = blueprint
+          optCopy.save()
+          val esqoCopy = opt.copyWithAnswer()
+          esqoCopy.option = optCopy
+          esqCopy.options.add(esqoCopy)
+      }
+      .map(_ => esqCopy.question = blueprint)
 
   private def copyQuestionWithOptions(
       esqCopy: ExamSectionQuestion,
       context: ExamCopyContext
-  ): Unit =
+  ): Either[String, Unit] =
     val (blueprint, optionMap) = question.copyWithOptions(context.shouldSetParent)
     if context.shouldSetParent then blueprint.parent = question
     blueprint.save()
     persistQuestionOwners(blueprint, context)
-    optionMap.foreach { (k, optCopy) =>
-      optCopy.question = blueprint
-      optCopy.save()
-      options.asScala.find(_.option.id == k) match
-        case Some(esqo) =>
-          val esqoCopy = esqo.copy()
-          esqoCopy.option = optCopy
-          esqCopy.options.add(esqoCopy)
-        case None =>
-          logger.error("Failed to copy a multi-choice question option!")
-          throw new RuntimeException()
-    }
-    esqCopy.question = blueprint
+    optionMap.toList
+      .traverse_ { (k, optCopy) =>
+        optCopy.question = blueprint
+        optCopy.save()
+        options.asScala
+          .find(_.option.id == k)
+          .toRight(s"Exam section question $id has no option for question option $k")
+          .map { esqo =>
+            val esqoCopy = esqo.copy()
+            esqoCopy.option = optCopy
+            esqCopy.options.add(esqoCopy)
+          }
+      }
+      .map(_ => esqCopy.question = blueprint)
 
   private def persistQuestionOwners(blueprint: Question, context: ExamCopyContext): Unit =
     if context.shouldSetParent && !blueprint.questionOwners.isEmpty then

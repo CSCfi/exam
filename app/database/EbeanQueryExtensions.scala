@@ -4,7 +4,7 @@
 
 package database
 
-import io.ebean.{ExpressionList, Model, Query}
+import io.ebean.*
 
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
@@ -22,6 +22,11 @@ trait EbeanQueryExtensions:
     def find: Option[T]  = q.findOneOrEmpty().toScala
     def list: List[T]    = q.findList().asScala.toList
     def distinct: Set[T] = q.findSet().asScala.toSet
+
+  extension (query: SqlQuery)
+    def find: Option[SqlRow]  = query.findOneOrEmpty().toScala
+    def list: List[SqlRow]    = query.findList().asScala.toList
+    def distinct: Set[SqlRow] = query.findList().asScala.toSet
 
   /** Splits a known set of IDs into batches and issues one DB query per batch. Each batch is
     * fetched lazily, so only one batch is in memory at a time when consumed with foreach/map rather

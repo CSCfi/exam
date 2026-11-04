@@ -61,6 +61,8 @@ class ExamSectionQuestionSpec extends AnyWordSpec with Matchers:
       val (a, b) = (option(1), option(2))
       val esq    = withRows(row(10, a), row(11, b), row(20, a), row(21, b))
 
-      val copy = esq.copy(ExamCopyContext.forTeacherCopy(new User).build())
+      val copy = esq
+        .copy(ExamCopyContext.forTeacherCopy(new User).build())
+        .fold(msg => fail(s"Copy failed: $msg"), identity)
 
       copy.options.asScala.map(_.option) mustBe Seq(a, b)

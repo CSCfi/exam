@@ -19,6 +19,7 @@ import models.iop.ExternalExam
 import models.user.{Role, User}
 import org.eclipse.jetty.server.Server
 import services.datetime.FixedAppClock
+import services.iop.DeliveryResult
 
 import java.time.{Instant, Period}
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -125,7 +126,8 @@ class RetentionIopSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         setup()
         val xm = FakeXm(HttpServletResponse.SC_OK)
         withXm(xm) {
-          runIO(client.deleteReservation(visitingReservation("doc-1")))
+          runIO(client.deleteReservation(visitingReservation("doc-1"))) mustBe
+            DeliveryResult.Delivered
         }
         xm.requests.asScala.map(_._1).toList mustBe
           List("/api/organisations/host-org/facilities/host-room/reservations/doc-1")
@@ -133,22 +135,24 @@ class RetentionIopSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
       "treat a document XM no longer has as deleted" in:
         setup()
         withXm(FakeXm(HttpServletResponse.SC_NOT_FOUND)) {
-          runIO(client.deleteReservation(visitingReservation()))
+          runIO(client.deleteReservation(visitingReservation())) mustBe DeliveryResult.Delivered
         }
 
-      "fail on any other error" in:
+      "report any other answer as rejected" in:
         setup()
         withXm(FakeXm(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)) {
-          an[XmRequestFailed] must be thrownBy runIO(
-            client.deleteReservation(visitingReservation())
-          )
+          runIO(client.deleteReservation(visitingReservation())) must matchPattern {
+            case DeliveryResult.Rejected(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, _) =>
+          }
         }
 
-      "fail without the external reservation data" in:
+      "report a missing external reservation as a request it cannot build" in:
         setup()
         val reservation = visitingReservation()
         reservation.externalReservation = null
-        an[IllegalStateException] must be thrownBy runIO(client.deleteReservation(reservation))
+        runIO(client.deleteReservation(reservation)) must matchPattern {
+          case DeliveryResult.Invalid(_) =>
+        }
 
   "RetentionService with XM" when:
     "a visiting booking is due" should:

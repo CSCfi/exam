@@ -21,7 +21,7 @@ import java.time.{Duration, Instant}
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import scala.util.control.Exception.catching
+import scala.util.control.Exception.{catching, nonFatalCatch}
 
 class ExamAutoSaverService @Inject() (
     private val composer: EmailComposer,
@@ -59,7 +59,7 @@ class ExamAutoSaverService @Inject() (
   private def notifyTeachers(exam: Exam): Unit =
     val recipients = exam.parent.examOwners.asScala ++ exam.examInspections.asScala.map(_.user)
     recipients.foreach(r =>
-      catching(classOf[RuntimeException]).either(composer.composePrivateExamEnded(r, exam)) match
+      nonFatalCatch.either(composer.composePrivateExamEnded(r, exam)) match
         case Left(e)  => logger.error(s"Failed to notify ${r.email} of exam ${exam.id} ending", e)
         case Right(_) => logger.info(s"Email sent to ${r.email}")
     )
@@ -67,9 +67,10 @@ class ExamAutoSaverService @Inject() (
   // Same as when the student turns the exam in. On failure the exam stays in REVIEW for the
   // teacher to grade by hand
   private def autoEvaluate(exam: Exam): Unit =
-    catching(classOf[RuntimeException]).either(autoEvaluationHandler.autoEvaluate(exam)) match
-      case Left(e)  => logger.error(s"Failed to auto-evaluate exam ${exam.id}", e)
-      case Right(_) => ()
+    nonFatalCatch.either(autoEvaluationHandler.autoEvaluate(exam)) match
+      case Left(e)          => logger.error(s"Failed to auto-evaluate exam ${exam.id}", e)
+      case Right(Left(msg)) => logger.warn(s"Exam ${exam.id} not auto-evaluated: $msg")
+      case Right(Right(_))  => ()
 
   // Each participation is handled on its own, so one that fails cannot keep the ones after it
   // from ending

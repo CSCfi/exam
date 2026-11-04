@@ -20,6 +20,7 @@ import validation.core.{ScalaAttrs, Validators}
 import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 class ExamRecordController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -43,7 +44,7 @@ class ExamRecordController @Inject() (
     val pis = new PipedInputStream(pos)
     Future {
       try write(pos)
-      catch case e: Throwable => logger.error("File generation failed", e)
+      catch case NonFatal(e) => logger.error("File generation failed", e)
       finally pos.close()
     }(using ec)
     Future.successful(

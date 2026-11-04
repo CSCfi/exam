@@ -43,6 +43,7 @@ class ExamController @Inject() (
       case ExamError.UnsupportedExecutionType => BadRequest("Unsupported execution type")
       case ExamError.NoPermissionToCreateByodExam => Forbidden("i18n_access_forbidden")
       case ExamError.ValidationError(message)     => BadRequest(message)
+      case ExamError.CopyFailed(message)          => InternalServerError(message)
       case ExamError.UpdateError(result)          => result
 
   def searchExams(filter: Option[String]): Action[AnyContent] =

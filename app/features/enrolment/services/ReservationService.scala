@@ -29,6 +29,7 @@ import java.util.Date
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
+import scala.util.control.NonFatal
 
 class ReservationService @Inject() (
     private val emailComposer: EmailComposer,
@@ -348,7 +349,7 @@ class ReservationService @Inject() (
           case Some(collaborativeExam) =>
             collaborativeExamLoader
               .downloadExam(collaborativeExam)
-              .recover { case e: Throwable =>
+              .recover { case NonFatal(e) =>
                 logger.error(
                   s"Could not load collaborative exam for reservation ${reservation.id}",
                   e

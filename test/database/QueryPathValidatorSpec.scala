@@ -28,7 +28,7 @@ class QueryPathValidatorSpec extends BaseIntegrationSpec with EbeanQueryExtensio
       "reject an unknown orderBy path" in:
         started()
         val e = intercept[IllegalStateException] {
-          DB.find(classOf[ExamSection]).orderBy("nope desc").findList()
+          DB.find(classOf[ExamSection]).orderBy("nope desc").list
         }
         e.getMessage must include("[nope]")
 
