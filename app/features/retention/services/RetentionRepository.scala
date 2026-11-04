@@ -27,6 +27,7 @@ import java.util.Date
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 import scala.util.Using
+import scala.util.control.NonFatal
 
 /** A booking the retention job may delete: an enrolment with its reservation, participation and the
   * remains of the student's exam copy. `remote` is set when the reservation must also go at XM, and
@@ -413,9 +414,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         .setParameter("cutoff", Timestamp.from(minusPeriod(now, policy.booking)))
         .setParameter("after", after)
         .setMaxRows(size)
-        .findList()
-        .asScala
-        .toList
+        .list
     )(_.getLong("id").longValue) { row =>
       val facts = BookingFacts(
         reservationStart = dt(row.getTimestamp("start_at")),
@@ -514,9 +513,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         .setParameter("cutoff", Timestamp.from(minusPeriod(now, policy.booking)))
         .setParameter("after", after)
         .setMaxRows(size)
-        .findList()
-        .asScala
-        .toList
+        .list
     )(_.getLong("id").longValue) { row =>
       val start = dt(row.getTimestamp("start_at"))
       val dueAt = RetentionRules.hostReservationExpiresAt(start, policy)
@@ -570,7 +567,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         .flatMap(a => Option(a.attachment))
         .flatMap(a => Option(a.externalId))
     catch
-      case e: Exception =>
+      case NonFatal(e) =>
         logger.error(s"Failed to deserialize external exam ${ee.id}", e)
         Nil
 
@@ -638,9 +635,7 @@ class RetentionRepository @Inject() (fileHandler: FileHandler)
         .setParameter("student", models.user.Role.Name.STUDENT.toString)
         .setParameter("after", after)
         .setMaxRows(size)
-        .findList()
-        .asScala
-        .toList
+        .list
     )(_.getLong("id").longValue) { row =>
       val facts = AccountFacts(
         lastLogin = dt(row.getTimestamp("last_login")),

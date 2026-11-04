@@ -57,10 +57,12 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
       reserved: List[Interval],
       searchStart: Instant,
       searchEnd: Instant
-  ): Boolean =
-    val earliestStart = reserved.head.start
-    val latestStop    = reserved.last.end
-    !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop)
+  ): Boolean = reserved match
+    case Nil => true
+    case _ =>
+      val earliestStart = reserved.head.start
+      val latestStop    = reserved.last.end
+      !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop)
 
   override def getExceptionEvents(
       hours: List[ExceptionWorkingHours],

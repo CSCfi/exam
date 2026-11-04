@@ -22,36 +22,35 @@ class AutoEvaluationHandlerImpl @Inject (
     with EbeanQueryExtensions
     with Logging:
 
-  override def autoEvaluate(exam: Exam): Unit =
-    val config = exam.autoEvaluationConfig
-    if Option(config).nonEmpty then
-      // Grade automatically
-      process(exam)
-      if config.releaseType == AutoEvaluationReleaseType.IMMEDIATE then
-        // Notify student immediately
-        exam.autoEvaluationNotified = Instant.now()
-        exam.update()
-        val student = exam.creator
-        composer.scheduleEmail(5.seconds) { composer.composeInspectionReady(student, None, exam) }
-        logger.debug(s"Scheduled email about automatic evaluation to ${student.email}")
-
-  private def process(exam: Exam): Unit =
-    getGradeBasedOnScore(exam) match
-      case Left(msg) =>
-        logger.error(msg)
-        throw new RuntimeException()
-      case Right((grade, msg)) =>
-        // NOTE: do not set graded by person here, one who makes a record will get the honor
-        exam.grade = grade
-        exam.gradedTime = Instant.now()
-        exam.creditType = exam.examType
-        exam.examLanguages.asScala.headOption match
-          case Some(lang) =>
-            exam.answerLanguage = lang.code
-            exam.state = ExamState.GRADED
+  override def autoEvaluate(exam: Exam): Either[String, Unit] =
+    Option(exam.autoEvaluationConfig) match
+      case None => Right(())
+      case Some(config) =>
+        process(exam).map { _ =>
+          if config.releaseType == AutoEvaluationReleaseType.IMMEDIATE then
+            // Notify student immediately
+            exam.autoEvaluationNotified = Instant.now()
             exam.update()
-            logger.info(msg)
-          case _ => throw new RuntimeException("No exam language found!")
+            val student = exam.creator
+            composer.scheduleEmail(5.seconds) {
+              composer.composeInspectionReady(student, None, exam)
+            }
+            logger.debug(s"Scheduled email about automatic evaluation to ${student.email}")
+        }
+
+  private def process(exam: Exam): Either[String, Unit] =
+    for
+      (grade, msg) <- getGradeBasedOnScore(exam)
+      lang <- exam.examLanguages.asScala.headOption.toRight(s"Exam ${exam.id} has no language")
+    yield
+      // NOTE: do not set graded by person here, one who makes a record will get the honor
+      exam.grade = grade
+      exam.gradedTime = Instant.now()
+      exam.creditType = exam.examType
+      exam.answerLanguage = lang.code
+      exam.state = ExamState.GRADED
+      exam.update()
+      logger.info(msg)
 
   private def getGradeBasedOnScore(exam: Exam) =
     val (score, maxScore) = (exam.getTotalScore, exam.getMaxScore)
@@ -62,7 +61,7 @@ class AutoEvaluationHandlerImpl @Inject (
       .findLast(_.percentage <= percentage)
       .orElse(evaluations.headOption)
     evaluation match
-      case None => Left("Could not determine a grade")
+      case None => Left(s"Could not determine a grade for exam ${exam.id}")
       case Some(ge) =>
         resolveScale(exam) match
           case Some(s) if s.grades.contains(ge.grade) =>
@@ -71,7 +70,8 @@ class AutoEvaluationHandlerImpl @Inject (
               s"Automatically grading exam #${exam.id}, $score/$maxScore points ($percentage%) " +
                 s"graded as ${grade.name} using percentage threshold ${ge.percentage}"
             Right((grade, msg))
-          case _ => Left("Grade in auto evaluation configuration not found in exam grade scale!")
+          case _ =>
+            Left(s"Auto evaluation grade of exam ${exam.id} is not in its grade scale")
 
   private def resolveScale(exam: Exam): Option[GradeScale] = Option(exam.gradeScale) match
     case scale @ Some(_) => scale

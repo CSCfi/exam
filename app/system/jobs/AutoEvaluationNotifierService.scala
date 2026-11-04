@@ -20,7 +20,7 @@ import java.time.ZoneOffset
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import scala.util.control.Exception.catching
+import scala.util.control.Exception.nonFatalCatch
 
 class AutoEvaluationNotifierService @Inject() (
     private val composer: EmailComposer
@@ -55,7 +55,7 @@ class AutoEvaluationNotifierService @Inject() (
 
   private def notifyStudent(exam: Exam): Unit =
     val student = exam.creator
-    catching(classOf[RuntimeException]).either(
+    nonFatalCatch.either(
       composer.composeInspectionReady(student, None, exam)
     ) match
       case Left(e) => logger.error(s"Sending mail to ${student.email} failed", e)

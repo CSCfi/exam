@@ -27,6 +27,7 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
+import scala.util.control.NonFatal
 
 class StudentActionsService @Inject() (
     private val externalCourseHandler: ExternalCourseHandler,
@@ -302,7 +303,7 @@ class StudentActionsService @Inject() (
           if codes.isEmpty then Seq.empty[Exam].asJson
           else listExams(filter, codes.toSeq)
         }
-        .recover { case ex: Throwable =>
+        .recover { case NonFatal(ex) =>
           logger.error("Error getting permitted courses", ex)
           Seq.empty[Exam].asJson
         }

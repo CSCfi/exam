@@ -23,6 +23,7 @@ import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
+import scala.util.control.NonFatal
 
 object ExternalExamExpirationService:
   private val MONTHS_UNTIL_EXPIRATION = 4
@@ -65,7 +66,7 @@ class ExternalExamExpirationService @Inject() (
           .flatMap(ea => Option(ea).flatMap(e => Option(e.attachment)))
           .toList
       catch
-        case e: Exception =>
+        case NonFatal(e) =>
           logger.error(s"Failed to deserialize external exam ${ee.id}", e)
           List.empty[Attachment]
 

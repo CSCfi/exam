@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.services
 
+import cats.data.EitherT
 import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
@@ -93,26 +94,19 @@ class CollaborativeCalendarService @Inject() (
     val now  = clock.now()
 
     (for
-        ceOpt <- collaborativeExamService.findById(examId)
-        ce <- ceOpt match
-          case None     => Future.failed(new IllegalArgumentException("Exam not found"))
-          case Some(ce) => Future.successful(ce)
-        enrolmentOpt <- findEnrolment(examId, userId, now)
-        enrolment <- enrolmentOpt match
-          case None    => Future.failed(new IllegalArgumentException("Enrolment not found"))
-          case Some(e) => Future.successful(e)
-        examOpt <- examLoader.downloadExam(ce)
-        exam <- examOpt match
-          case None    => Future.failed(new IllegalArgumentException("Exam not found"))
-          case Some(e) => Future.successful(e)
-      yield checkEnrolmentValidity(enrolment, exam, enrolment.user) match
-        case Some(error) => Left(error)
+      ce <- EitherT.fromOptionF(collaborativeExamService.findById(examId), "Exam not found")
+      enrolment <-
+        EitherT.fromOptionF(findEnrolment(examId, userId, now), "Enrolment not found")
+      exam <- EitherT.fromOptionF(examLoader.downloadExam(ce), "Exam not found")
+    yield (enrolment, exam)).flatMapF { (enrolment, exam) =>
+      checkEnrolmentValidity(enrolment, exam, enrolment.user) match
+        case Some(error) => Future.successful(Left(error))
         case None =>
           calendarHandler.getRandomMachine(room, exam, start, end, aids) match
-            case None          => Left("i18n_no_machines_available")
+            case None          => Future.successful(Left("i18n_no_machines_available"))
             case Some(machine) =>
-              // Start transaction
-              Using(DB.beginTransaction()) { tx =>
+              // An Ebean failure fails the Future, which Play answers with a 500
+              Future.fromTry(Using(DB.beginTransaction()) { tx =>
                 // Take pessimistic lock for user
                 DB.find(classOf[User]).forUpdate().where().eq(path[User]("id"), userId).findOne()
 
@@ -159,8 +153,8 @@ class CollaborativeCalendarService @Inject() (
                 }
 
                 Right((enrolment, reservation))
-              }.get // Extract from Try
-    ).recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }
+              })
+    }.value
 
   def getSlots(
       examId: Long,
@@ -171,19 +165,13 @@ class CollaborativeCalendarService @Inject() (
   ): Future[Either[String, play.api.libs.json.JsValue]] =
     val now = clock.now()
     (for
-      ceOpt <- collaborativeExamService.findById(examId)
-      ce <- ceOpt match
-        case None     => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(ce) => Future.successful(ce)
-      enrolmentOpt <- findEnrolment(examId, userId, now)
-      _ <- enrolmentOpt match
-        case None => Future.failed(new IllegalArgumentException("i18n_error_enrolment_not_found"))
-        case Some(_) => Future.successful(())
-      examOpt <- examLoader.downloadExam(ce)
-      exam <- examOpt match
-        case None    => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(e) => Future.successful(e)
-    yield
+      ce <- EitherT.fromOptionF(
+        collaborativeExamService.findById(examId),
+        "i18n_error_exam_not_found"
+      )
+      _ <- EitherT.fromOptionF(findEnrolment(examId, userId, now), "i18n_error_enrolment_not_found")
+      exam <- EitherT.fromOptionF(examLoader.downloadExam(ce), "i18n_error_exam_not_found")
+    yield exam).subflatMap { exam =>
       if !exam.hasState(ExamState.PUBLISHED) then
         Left("i18n_error_exam_not_found")
       else
@@ -193,4 +181,4 @@ class CollaborativeCalendarService @Inject() (
           case Right(json) => Right(json)
           case Left(CalendarHandlerError.RoomNotFound(_)) =>
             Left("i18n_error_enrolment_not_found")
-    ).recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }
+    }.value

@@ -25,6 +25,10 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   private lazy val examService: ExamService = app.injector.instanceOf(classOf[ExamService])
 
+  extension (exam: Exam)
+    private def copied(context: ExamCopyContext): Exam =
+      exam.createCopy(context).fold(msg => fail(s"Copy failed: $msg"), identity)
+
   /** Initialises the app (forces the lazy `app` val, which registers the Ebean server) and loads
     * the YAML fixture data. Returns the requested DB user without making an HTTP request.
     */
@@ -84,7 +88,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
       "reuse the same question objects across all sections" in:
         val t      = teacher()
         val source = loadSourceExam()
-        val copy   = source.createCopy(ExamCopyContext.forTeacherCopy(t).build())
+        val copy   = source.copied(ExamCopyContext.forTeacherCopy(t).build())
 
         val sourceQids = allSectionQuestions(source).map(_.question.id).toSet
         val copyQids   = allSectionQuestions(copy).map(_.question.id).toSet
@@ -95,7 +99,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
       "copy all sections including optional ones" in:
         val t      = teacher()
         val source = loadSourceExam()
-        val copy   = source.createCopy(ExamCopyContext.forTeacherCopy(t).build())
+        val copy   = source.copied(ExamCopyContext.forTeacherCopy(t).build())
 
         copy.examSections.size mustEqual source.examSections.size
 
@@ -103,7 +107,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         val t = teacher()
         initSourceExamOptions(loadSourceExam())
         val fresh = loadSourceExam()
-        val copy  = fresh.createCopy(ExamCopyContext.forTeacherCopy(t).build())
+        val copy  = fresh.copied(ExamCopyContext.forTeacherCopy(t).build())
 
         val sourceOptionIds = allSectionQuestions(fresh).flatMap(_.options.asScala.map(_.id)).toSet
         val copyOptionIds   = allSectionQuestions(copy).flatMap(_.options.asScala.map(_.id)).toSet
@@ -129,7 +133,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         val s = student()
         initSourceExamOptions(loadSourceExam())
         val fresh = loadSourceExam()
-        val copy  = fresh.createCopy(ExamCopyContext.forStudentExam(s).build())
+        val copy  = fresh.copied(ExamCopyContext.forStudentExam(s).build())
 
         val sourceQids = allSectionQuestions(fresh).map(_.question.id).toSet
         allSectionQuestions(copy).foreach { esq =>
@@ -146,7 +150,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         optionalNames must not be empty
 
         val copiedNames = fresh
-          .createCopy(ExamCopyContext.forStudentExam(s).build())
+          .copied(ExamCopyContext.forStudentExam(s).build())
           .examSections.asScala.map(_.name).toSet
 
         optionalNames.foreach(n => copiedNames must not contain n)
@@ -159,7 +163,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
           .find(_.optional)
           .getOrElse(fail("No optional section in test data"))
 
-        val copy = fresh.createCopy(
+        val copy = fresh.copied(
           ExamCopyContext
             .forStudentExam(s)
             .withSelectedSections(Set(optSection.id))
@@ -171,7 +175,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
       "not copy exam owners" in:
         val s = student()
         initSourceExamOptions(loadSourceExam())
-        val copy = loadSourceExam().createCopy(ExamCopyContext.forStudentExam(s).build())
+        val copy = loadSourceExam().copied(ExamCopyContext.forStudentExam(s).build())
 
         copy.examOwners mustBe empty
 
@@ -180,7 +184,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         val s = student()
         initSourceExamOptions(loadSourceExam())
         val fresh = loadSourceExam()
-        val copy  = fresh.createCopy(ExamCopyContext.forCollaborativeExam(s).build())
+        val copy  = fresh.copied(ExamCopyContext.forCollaborativeExam(s).build())
 
         val sourceQids = allSectionQuestions(fresh).map(_.question.id).toSet
         allSectionQuestions(copy).foreach { esq =>
@@ -194,7 +198,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         initSourceExamOptions(loadSourceExam())
         val fresh            = loadSourceExam()
         val nonOptionalCount = fresh.examSections.asScala.count(!_.optional)
-        val copy             = fresh.createCopy(ExamCopyContext.forCollaborativeExam(s).build())
+        val copy             = fresh.copied(ExamCopyContext.forCollaborativeExam(s).build())
 
         copy.examSections.size mustEqual nonOptionalCount
 
@@ -218,7 +222,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         fresh.examSections.asScala.count(_.optional) must be > 0
 
         // No selected sections, just like an enrolment without a reservation
-        val copy = fresh.createCopy(ExamCopyContext.forStudentExam(s).build())
+        val copy = fresh.copied(ExamCopyContext.forStudentExam(s).build())
 
         copy.examSections.size mustEqual fresh.examSections.size
 
@@ -236,7 +240,7 @@ class ExamCopySpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         section.lotteryItemCount = lotteryCount
         section.update()
 
-        val copy = fresh.createCopy(ExamCopyContext.forStudentExam(s).build())
+        val copy = fresh.copied(ExamCopyContext.forStudentExam(s).build())
 
         val copiedSection = copy.examSections.asScala
           .find(_.name == section.name)

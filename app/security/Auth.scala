@@ -28,26 +28,30 @@ object Auth:
       val failure =
         Future.successful(Unauthorized(s"Blocked unauthorized access to ${request.path}"))
       val attrs = request.session.data
-      if attrs.contains("id") && attrs.contains("role") then
-        Future {
-          Option(DB.find(classOf[User], attrs("id").toLong))
-        }(using executionContext).flatMap {
-          case Some(user) =>
-            user.loginRole = Role.Name.valueOf(request.session("role"))
+      // The session is signed, but may predate a change in roles
+      val userId = attrs.get("id").flatMap(_.toLongOption)
+      val role   = attrs.get("role").flatMap(r => Role.Name.values.find(_.toString == r))
+      (userId, role) match
+        case (Some(id), Some(loginRole)) =>
+          Future {
+            Option(DB.find(classOf[User], id))
+          }(using executionContext).flatMap {
+            case Some(user) =>
+              user.loginRole = loginRole
 
-            // Parse permissions from the session (comma-separated string)
-            val permissions = request.session
-              .get("permissions")
-              .map(_.split(",").map(_.trim).filter(_.nonEmpty).toSet)
-              .getOrElse(Set.empty[String])
+              // Parse permissions from the session (comma-separated string)
+              val permissions = request.session
+                .get("permissions")
+                .map(_.split(",").map(_.trim).filter(_.nonEmpty).toSet)
+                .getOrElse(Set.empty[String])
 
-            val enrichedRequest =
-              request.addAttr(ATTR_USER, user).addAttr(ATTR_PERMISSIONS, permissions)
+              val enrichedRequest =
+                request.addAttr(ATTR_USER, user).addAttr(ATTR_PERMISSIONS, permissions)
 
-            block(enrichedRequest)
-          case None => failure
-        }(using executionContext)
-      else failure
+              block(enrichedRequest)
+            case None => failure
+          }(using executionContext)
+        case _ => failure
 
   def authorized(roles: Seq[Role.Name])(implicit ec: ExecutionContext): ActionFilter[Request] =
     new ActionFilter[Request] {

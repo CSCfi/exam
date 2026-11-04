@@ -9,13 +9,19 @@ import play.api.libs.json.*
 import play.api.libs.json.Reads.*
 
 object ExternalCourseValidator:
-  private val asInt: Reads[Int]       = implicitly[Reads[String]].map(_.toInt)
+  private val asInt: Reads[Int] =
+    implicitly[Reads[String]].collect(JsonValidationError("error.expected.int")) {
+      case s if s.toIntOption.isDefined => s.toInt
+    }
   private val asString: Reads[String] = implicitly[Reads[Int]].map(_.toString)
   private val readInt: Reads[String]  = implicitly[Reads[String]].orElse(asString)
   private val readString: Reads[Int]  = implicitly[Reads[Int]].orElse(asInt)
 
   object Grade:
-    val asBoolean: Reads[Boolean]  = implicitly[Reads[String]].map(_.toBoolean)
+    val asBoolean: Reads[Boolean] =
+      implicitly[Reads[String]].collect(JsonValidationError("error.expected.boolean")) {
+        case s if s.toBooleanOption.isDefined => s.toBoolean
+      }
     val readString: Reads[Boolean] = implicitly[Reads[Boolean]].orElse(asBoolean)
     implicit val gradeReads: Reads[Grade] = (
       (JsPath \ "grade").read[String](using readInt) and

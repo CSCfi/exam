@@ -269,6 +269,23 @@ class ExamUpdaterImpl @Inject() (
         finalConfig.save()
         exam.examFeedbackConfig = finalConfig
 
+  override def validateAutoEvaluationConfig(
+      exam: Exam,
+      newConfig: AutoEvaluationConfig
+  ): Option[Result] =
+    val isMaturity = exam.executionType.`type` == ExamExecutionType.Type.MATURITY.toString
+    Option(newConfig).filterNot(_ => isMaturity).flatMap { nc =>
+      val gs = Option(exam.gradeScale).getOrElse(exam.course.gradeScale)
+      val outsideScale = nc.gradeEvaluations.asScala.toList
+        .flatMap(src => Option(DB.find(classOf[Grade], src.grade.id)))
+        .filterNot(gs.grades.contains)
+      Option.when(outsideScale.nonEmpty)(
+        BadRequest(
+          s"Grades ${outsideScale.map(_.id).mkString(", ")} are not in the exam grade scale"
+        )
+      )
+    }
+
   override def updateAutoEvaluationConfig(exam: Exam, newConfig: AutoEvaluationConfig): Unit =
     val config = exam.autoEvaluationConfig
 
@@ -347,6 +364,7 @@ class ExamUpdaterImpl @Inject() (
     // Handle proposed entries, persist new ones where necessary
     newConfig.gradeEvaluations.asScala.foreach { src =>
       Option(DB.find(classOf[Grade], src.grade.id)).foreach { grade =>
+        // validateAutoEvaluationConfig has rejected grades outside the scale
         if gs.grades.contains(grade) then
           val ge = gradeMap.getOrElse(
             grade.id, {
@@ -360,7 +378,6 @@ class ExamUpdaterImpl @Inject() (
           ge.percentage = src.percentage
           ge.save()
           handledEvaluations += grade.id
-        else throw new IllegalArgumentException("unknown grade")
       }
     }
 

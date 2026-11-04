@@ -99,6 +99,16 @@ class EnrolmentInterfaceSpec
         val examsJson = contentAsJsonOf(result).as[JsArray]
         examsJson.value must be(empty)
 
+      "return empty list when the student has no identifier for the check" in:
+        val (user, session) = runIO(loginAsStudent())
+        setupExamData()
+        user.userIdentifier = null
+        user.update()
+
+        val result = runIO(get("/app/student/exams", session = session))
+        statusOf(result).must(be(Status.OK))
+        contentAsJsonOf(result).as[JsArray].value must be(empty)
+
       "include configured api key header in outbound requests" in:
         val (_, session) = runIO(loginAsStudent())
         setupExamData()

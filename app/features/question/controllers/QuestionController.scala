@@ -21,8 +21,8 @@ import validation.question.QuestionTextValidator
 import java.io.{PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.util.Using
 import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Using}
 
 class QuestionController @Inject() (
     private val questionService: QuestionService,
@@ -162,14 +162,17 @@ class QuestionController @Inject() (
           request.body.file("file") match
             case None => BadRequest(QuestionError.FileNotFound.message)
             case Some(filePart) =>
-              val content = Using(scala.io.Source.fromFile(filePart.ref.path.toFile))(_.mkString)
-                .getOrElse(throw new RuntimeException("Failed to read file"))
-              val user                = request.attrs(Auth.ATTR_USER)
-              val (successes, errors) = questionService.importQuestions(content, user)
-              Ok(play.api.libs.json.Json.obj(
-                "errorCount"   -> errors.length,
-                "successCount" -> successes.length
-              ))
+              Using(scala.io.Source.fromFile(filePart.ref.path.toFile))(_.mkString) match
+                case Failure(e) =>
+                  logger.error("Failed to read uploaded question file", e)
+                  InternalServerError
+                case Success(content) =>
+                  val user                = request.attrs(Auth.ATTR_USER)
+                  val (successes, errors) = questionService.importQuestions(content, user)
+                  Ok(play.api.libs.json.Json.obj(
+                    "errorCount"   -> errors.length,
+                    "successCount" -> successes.length
+                  ))
       }
 
   def getQuestionPreview(qid: Long): Action[AnyContent] =

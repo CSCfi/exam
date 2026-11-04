@@ -22,7 +22,7 @@ import validation.exam.ExaminationEventDTO
 import java.time.*
 import java.util.UUID
 import javax.inject.Inject
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class ExaminationEventService @Inject() (
     private val byodConfigHandler: ByodConfigHandler,
@@ -237,6 +237,16 @@ class ExaminationEventService @Inject() (
           Right(())
       case _ => Left(ExaminationEventError.EventNotFound)
 
+  private def setConfigKey(
+      eec: ExaminationEventConfiguration,
+      quitPassword: String
+  ): Either[ExaminationEventError, Unit] =
+    byodConfigHandler.calculateConfigKey(eec.hash, quitPassword) match
+      case Left(msg) =>
+        logger.error(s"Unable to calculate config key of examination event ${eec.id}: $msg")
+        Left(ExaminationEventError.PasswordEncryptionFailed)
+      case Right(key) => Right(eec.configKey = key)
+
   private def encryptSettingsPassword(
       eec: ExaminationEventConfiguration,
       password: String,
@@ -252,12 +262,13 @@ class ExaminationEventService @Inject() (
         eec.encryptedSettingsPassword = byodConfigHandler.getEncryptedPassword(password, newSalt)
         eec.settingsPasswordSalt = newSalt
         // Pre-calculate the config key
-        eec.configKey = byodConfigHandler.calculateConfigKey(eec.hash, quitPassword)
-      Right(())
-    }.recover { case e: Exception =>
-      logger.error("unable to set settings password", e)
-      Left(ExaminationEventError.PasswordEncryptionFailed)
-    }.get
+        setConfigKey(eec, quitPassword)
+      else Right(())
+    } match
+      case Success(result) => result
+      case Failure(e) =>
+        logger.error("unable to set settings password", e)
+        Left(ExaminationEventError.PasswordEncryptionFailed)
 
   private def encryptQuitPassword(
       eec: ExaminationEventConfiguration,
@@ -273,12 +284,13 @@ class ExaminationEventService @Inject() (
         eec.encryptedQuitPassword = byodConfigHandler.getEncryptedPassword(password, newSalt)
         eec.quitPasswordSalt = newSalt
         // Pre-calculate the config key
-        eec.configKey = byodConfigHandler.calculateConfigKey(eec.hash, password)
-      Right(())
-    }.recover { case e: Exception =>
-      logger.error("unable to set quit password", e)
-      Left(ExaminationEventError.PasswordEncryptionFailed)
-    }.get
+        setConfigKey(eec, password)
+      else Right(())
+    } match
+      case Success(result) => result
+      case Failure(e) =>
+        logger.error("unable to set quit password", e)
+        Left(ExaminationEventError.PasswordEncryptionFailed)
 
   def listExaminationEvents(
       start: Option[String],

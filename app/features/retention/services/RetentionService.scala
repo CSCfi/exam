@@ -83,18 +83,21 @@ class RetentionService @Inject() (
     // looks for one item more than a batch only to tell whether more remain.
     val limit =
       Limit(policy.batchSize, if dryRun then Int.MaxValue else policy.batchSize + 1)
-    def pass[A](p: RetentionPass)(select: Limit => Selection[A])(apply: A => IO[Unit]) =
-      runPass(p, dryRun)(IO.blocking(select(limit)))(apply)
+    def pass[A](p: RetentionPass)(select: Limit => Selection[A])(
+        apply: A => IO[Either[String, Unit]]
+    ) = runPass(p, dryRun)(IO.blocking(select(limit)))(apply)
+    // A local change either succeeds or throws from Ebean, which runPass reports
+    def local(change: => Unit): IO[Either[String, Unit]] = IO.blocking(change).as(Right(()))
     for
       start <- IO.monotonic
       a <- pass(RetentionPass.AutoLock)(repository.autoLockCandidates(policy, now, _))(id =>
-        IO.blocking(repository.autoLock(id, now))
+        local(repository.autoLock(id, now))
       )
       b <- pass(RetentionPass.AttemptContent)(repository.attemptCandidates(policy, now, _))(id =>
-        IO.blocking(repository.stripAttempt(id))
+        local(repository.stripAttempt(id))
       )
       c <- pass(RetentionPass.Records)(repository.recordCandidates(policy, now, _))(id =>
-        IO.blocking(repository.deleteRecord(id))
+        local(repository.deleteRecord(id))
       )
       d <- pass(RetentionPass.Bookings)(repository.bookingCandidates(policy, now, _))(
         deleteBooking(_)(now)
@@ -102,16 +105,19 @@ class RetentionService @Inject() (
       d2 <-
         pass(RetentionPass.HostReservations)(repository.hostReservationCandidates(policy, now, _))(
           id =>
-            IO.blocking(repository.deleteHostReservation(id))
+            local(repository.deleteHostReservation(id))
         )
       h1 <- pass(RetentionPass.HostAttachments)(repository.hostAttachmentCandidates)((_, id) =>
-        iop.deleteAttachment(id)
+        iop.deleteAttachment(id).map {
+          case DeliveryResult.Delivered => Right(())
+          case result                   => Left(s"XM: ${result.describe}")
+        }
       )
       h2 <- pass(RetentionPass.HostCopies)(repository.hostCopyCandidates(policy, now, _))(id =>
-        IO.blocking(repository.clearHostCopy(id))
+        local(repository.clearHostCopy(id))
       )
       e <- pass(RetentionPass.Accounts)(repository.accountCandidates(policy, now, _))(id =>
-        IO.blocking(repository.deleteUser(id))
+        local(repository.deleteUser(id))
       )
       end <- IO.monotonic
       results = List(a, b, c, d, d2, h1, h2, e)
@@ -139,30 +145,31 @@ class RetentionService @Inject() (
   // so the local rows normally stay until that call succeeds. If XM keeps failing, for example
   // because the host organization is gone, the booking is deleted locally anyway 30 days after it
   // became due, and XM's own expiry removes its copy.
-  private def deleteBooking(b: BookingCandidate)(now: Instant): IO[Unit] =
-    val remote =
+  private def deleteBooking(b: BookingCandidate)(now: Instant): IO[Either[String, Unit]] =
+    val remote: IO[Either[String, Unit]] =
       if b.remote then
         IO.blocking(repository.reservationOf(b.enrolmentId)).flatMap {
           case Some(r) =>
-            iop.deleteReservation(r).attempt.flatMap {
-              case Right(_) => IO.unit
-              case Left(e) =>
-                IopDelivery.decide(DeliveryResult.Failed(e), Some(b.dueAt), now) match
-                  case DeliveryDecision.GiveUp(reason) =>
-                    IO(
-                      logger.warn(
-                        s"Retention: deleting booking ${b.enrolmentId} without XM, $reason"
-                      )
-                    )
-                  case _ => IO.raiseError(e)
+            iop.deleteReservation(r).flatMap { result =>
+              IopDelivery.decide(result, Some(b.dueAt), now) match
+                case DeliveryDecision.Done => IO.pure(Right(()))
+                case DeliveryDecision.GiveUp(reason) =>
+                  IO(
+                    logger.warn(s"Retention: deleting booking ${b.enrolmentId} without XM, $reason")
+                  ).as(Right(()))
+                case _ => IO.pure(Left(s"XM: ${result.describe}"))
             }
-          case None => IO.unit
+          case None => IO.pure(Right(()))
         }
-      else IO.unit
-    remote *> IO.blocking(repository.deleteBooking(b.enrolmentId))
+      else IO.pure(Right(()))
+    remote.flatMap {
+      case Right(_) => IO.blocking(repository.deleteBooking(b.enrolmentId)).as(Right(()))
+      case failed   => IO.pure(failed)
+    }
 
+  // An item fails with a Left from apply, or with an exception from Ebean or the network
   private def runPass[A](pass: RetentionPass, dryRun: Boolean)(select: IO[Selection[A]])(
-      apply: A => IO[Unit]
+      apply: A => IO[Either[String, Unit]]
   ): IO[(PassResult, List[ReportRow])] =
     select.flatMap { selection =>
       val batch = selection.items
@@ -173,16 +180,20 @@ class RetentionService @Inject() (
         val more = selection.due > batch.size
         batch
           .parTraverseN(MaxConcurrency)(candidate =>
-            apply(candidate.item).attempt.flatTap {
+            apply(candidate.item).attempt.flatMap {
               case Left(e) =>
                 IO(logger.warn(s"Retention, ${pass.label}: skipping ${candidate.item}", e))
-              case _ => IO.unit
+                  .as(Left(e.getMessage))
+              case Right(Left(reason)) =>
+                IO(logger.warn(s"Retention, ${pass.label}: skipping ${candidate.item}, $reason"))
+                  .as(Left(reason))
+              case Right(Right(_)) => IO.pure(Right(()))
             }
           )
           .map { results =>
             val rows = batch.zip(results).map {
-              case (c, Right(_)) => ReportRow(pass, c.report, "done")
-              case (c, Left(e))  => ReportRow(pass, c.report, s"failed: ${e.getMessage}")
+              case (c, Right(_))     => ReportRow(pass, c.report, "done")
+              case (c, Left(reason)) => ReportRow(pass, c.report, s"failed: $reason")
             }
             val done   = results.count(_.isRight)
             val result = PassResult(pass, batch.size, done, results.size - done, more)

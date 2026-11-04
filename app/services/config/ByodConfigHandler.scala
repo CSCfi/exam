@@ -8,7 +8,11 @@ import play.api.mvc.Result
 
 trait ByodConfigHandler:
   def getExamConfig(hash: String, pwd: Array[Byte], salt: String, quitPwd: String): Array[Byte]
-  def calculateConfigKey(hash: String, quitPwd: String): String
+
+  /** SEB config key of the exam config. Left if the config template has content the digest has no
+    * rule for.
+    */
+  def calculateConfigKey(hash: String, quitPwd: String): Either[String, String]
   def getPlaintextPassword(pwd: Array[Byte], salt: String): String
   def getEncryptedPassword(pwd: String, salt: String): Array[Byte]
   def checkUserAgent(

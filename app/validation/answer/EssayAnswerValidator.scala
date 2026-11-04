@@ -25,13 +25,13 @@ object EssayAnswerValidator extends PlayJsonValidator:
       PlayValidator(EssayAnswerParser.parseFromJson).validate(body)
 
   private object EssayAnswerParser:
-    def parseFromJson(body: JsValue): EssayAnswerDTO =
+    def parseFromJson(body: JsValue): Either[FieldError, EssayAnswerDTO] =
       // Parse and sanitize HTML answer
       val answer = (body \ "answer").asOpt[String] match
         case Some(html) if html.nonEmpty => Jsoup.clean(html, HTML_SAFELIST)
         case _                           => ""
       val objectVersion = PlayJsonHelper.parse[Long]("objectVersion", body)
-      EssayAnswerDTO(answer, objectVersion)
+      Right(EssayAnswerDTO(answer, objectVersion))
 
   override def sanitize(
       request: Request[AnyContent],

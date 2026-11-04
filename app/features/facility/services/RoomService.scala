@@ -29,6 +29,7 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.util.control.NonFatal
 
 class RoomService @Inject() (
     private val facilityHandler: FacilityHandler,
@@ -48,7 +49,7 @@ class RoomService @Inject() (
       facilityHandler
         .updateFacility(room)
         .map(_ => ())
-        .recover { case ex: Throwable =>
+        .recover { case NonFatal(ex) =>
           logger.error(s"Failed to update remote facility for room [id=${room.id}]", ex)
           ()
         }
@@ -286,7 +287,7 @@ class RoomService @Inject() (
 
         if ids.nonEmpty && ids.head.nonEmpty then
           ids.foreach { aid =>
-            scala.util.Try(aid.toInt).foreach { accessibilityId =>
+            aid.toIntOption.foreach { accessibilityId =>
               Option(DB.find(classOf[Accessibility], accessibilityId)).foreach { accessibility =>
                 room.accessibilities.add(accessibility)
                 room.save()

@@ -4,6 +4,7 @@
 
 package services.exam
 
+import cats.syntax.all.*
 import com.google.inject.ImplementedBy
 import database.EbeanPaths.path
 import features.exam.copy.ExamCopyContext
@@ -43,10 +44,19 @@ import scala.util.{Random, Try}
 @ImplementedBy(classOf[ExternalExamHandlerImpl])
 trait ExternalExamHandler:
   def requestEnrolment(user: User, reservation: Reservation): Future[Option[ExamEnrolment]]
+
+  /** Left if the exam cannot be copied, see Exam.createCopy. Call inside a transaction, and
+    * notifyAndAutoEvaluate once it has been committed.
+    */
   def createCopyForAssessment(
       enrolment: ExamEnrolment,
       externalExam: ExternalExam
-  ): ExamParticipation
+  ): Either[String, ExamParticipation]
+
+  /** Emails the teachers of a returned private exam and auto-evaluates it. Both schedule emails, so
+    * this must not run before the copy is committed.
+    */
+  def notifyAndAutoEvaluate(exam: Exam): Unit
 
 class ExternalExamHandlerImpl @Inject() (
     wsClient: WSClient,
@@ -150,15 +160,27 @@ class ExternalExamHandlerImpl @Inject() (
         )
     }
 
+  override def notifyAndAutoEvaluate(exam: Exam): Unit =
+    if exam.state == ExamState.REVIEW then
+      if exam.isPrivate then notifyTeachers(exam)
+      autoEvaluationHandler.autoEvaluate(exam).left.foreach(msg =>
+        logger.warn(s"Exam ${exam.id} not auto-evaluated: $msg")
+      )
+
   override def createCopyForAssessment(
       enrolment: ExamEnrolment,
       externalExam: ExternalExam
-  ): ExamParticipation =
+  ): Either[String, ExamParticipation] =
     val parent =
       DB.find(classOf[Exam]).where().eq(path[Exam]("hash"), externalExam.externalRef).findOne()
-    val src   = externalExam.deserialize
-    val clone = createCopy(src, parent, enrolment.user)
+    val src = externalExam.deserialize
+    createCopy(src, parent, enrolment.user).map(createParticipation(enrolment, externalExam, _))
 
+  private def createParticipation(
+      enrolment: ExamEnrolment,
+      externalExam: ExternalExam,
+      clone: Exam
+  ): ExamParticipation =
     val ep = new ExamParticipation()
     ep.exam = clone
     ep.collaborativeExam = enrolment.collaborativeExam
@@ -174,13 +196,11 @@ class ExternalExamHandlerImpl @Inject() (
       val deadlineDays = settings.value.toInt
       val deadline     = externalExam.finished.plus(Duration.ofDays(deadlineDays))
       ep.deadline = deadline
-      if clone.isPrivate then notifyTeachers(clone)
-      autoEvaluationHandler.autoEvaluate(clone)
 
     ep.save()
     ep
 
-  private def createCopy(src: Exam, parent: Exam, user: User): Exam =
+  private def createCopy(src: Exam, parent: Exam, user: User): Either[String, Exam] =
     val clone = src.scalarCopy()
     clone.parent = parent
     if Option(src.attachment).isDefined then
@@ -221,22 +241,26 @@ class ExternalExamHandlerImpl @Inject() (
           .forCopyWithAnswers(Some(user))
           .withLocalQuestionIds(getLocalQuestionIds(sections.asScala.toSet))
           .build()
-    sections.asScala.foreach { es =>
-      val esCopy = es.copy(clone, context)
-      esCopy.setCreatorWithDate(user)
-      esCopy.setModifierWithDate(user)
-      esCopy.save()
-      esCopy.sectionQuestions.asScala.foreach { esq =>
-        val questionCopy = esq.question
-        questionCopy.setCreatorWithDate(user)
-        questionCopy.setModifierWithDate(user)
-        questionCopy.update()
-        esq.save()
+    sections.asScala.toList
+      .traverse_ { es =>
+        es.copy(clone, context).map { esCopy =>
+          esCopy.setCreatorWithDate(user)
+          esCopy.setModifierWithDate(user)
+          esCopy.save()
+          esCopy.sectionQuestions.asScala.foreach { esq =>
+            val questionCopy = esq.question
+            questionCopy.setCreatorWithDate(user)
+            questionCopy.setModifierWithDate(user)
+            questionCopy.update()
+            esq.save()
+          }
+          clone.examSections.add(esCopy)
+        }
       }
-      clone.examSections.add(esCopy)
-    }
-    clone.save()
-    clone
+      .map { _ =>
+        clone.save()
+        clone
+      }
 
   private def getLocalQuestionIds(sections: Set[ExamSection]): Set[Long] =
     val ids = sections.flatMap(_.sectionQuestions.asScala).map(_.question.id)

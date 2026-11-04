@@ -4,6 +4,7 @@
 
 package models.sections
 
+import cats.syntax.all.*
 import com.fasterxml.jackson.annotation.{JsonBackReference, JsonManagedReference}
 import features.exam.copy.ExamCopyContext
 import jakarta.persistence.*
@@ -53,22 +54,28 @@ final class ExamSection extends OwnedModel with Ordered[ExamSection] with Sortab
       new java.util.HashSet( // need to wrap with a java set for interop with ebean/gson
         Random.shuffle(sectionQuestions.asScala.toSeq).take(lotteryItemCount).asJava)
 
-  def copy(exam: Exam, context: ExamCopyContext): ExamSection =
+  /** Left as in ExamSectionQuestion.copy, with the same need for a transaction. */
+  def copy(exam: Exam, context: ExamCopyContext): Either[String, ExamSection] =
     val section = new ExamSection
     copyScalarFields(section)
     section.exam = exam
     if context.shouldCopyAnswers then
       section.examMaterials = examMaterials
-      for esq <- sectionQuestions.asScala do section.sectionQuestions.add(esq.copy(context))
+      sectionQuestions.asScala.toList.traverse(_.copy(context)).map { copies =>
+        copies.foreach(section.sectionQuestions.add)
+        section
+      }
     else
       copyMaterials(section, context)
-      for esq <- sectionQuestions.asScala do
-        val esqCopy = esq.copy(context)
-        esqCopy.setCreatorWithDate(context.getUser)
-        esqCopy.setModifierWithDate(context.getUser)
-        section.sectionQuestions.add(esqCopy)
-      if context.isStudentExam && lotteryOn then section.shuffleQuestions()
-    section
+      sectionQuestions.asScala.toList.traverse(_.copy(context)).map { copies =>
+        copies.foreach { esqCopy =>
+          esqCopy.setCreatorWithDate(context.getUser)
+          esqCopy.setModifierWithDate(context.getUser)
+          section.sectionQuestions.add(esqCopy)
+        }
+        if context.isStudentExam && lotteryOn then section.shuffleQuestions()
+        section
+      }
 
   private def copyScalarFields(dest: ExamSection): Unit =
     dest.name = name

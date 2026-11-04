@@ -23,6 +23,7 @@ import java.io.{BufferedOutputStream, File}
 import java.nio.file.{Files, Path}
 import java.util.Base64
 import javax.inject.Inject
+import scala.util.control.NonFatal
 import scala.xml.*
 
 class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
@@ -222,7 +223,7 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
           logger.warn(s"unknown question type: $t")
           ConversionResult(None, Some(s"Unknown question type: $t"), Some(t))
     catch
-      case e: Exception =>
+      case NonFatal(e) =>
         logger.error(s"Error converting question: ${e.getMessage}", e)
         ConversionResult(None, Some(e.getMessage), src.attribute("type").map(_.text))
 

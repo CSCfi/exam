@@ -81,6 +81,19 @@ class ExternalAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[E
               case None => fail("Question answer attachment not set")
           case None => fail("EssayAnswer not created")
 
+      "reject a question id that is not a number" in:
+        val (_, _, externalExam) = setupTestData()
+        val (user, session)      = runIO(loginAsStudent())
+        externalExam.creator = user
+        externalExam.save()
+
+        val result = uploadAttachment(
+          "/app/iop/attachment/question/answer",
+          Map("examId" -> EXAM_HASH, "questionId" -> "abc"),
+          session
+        )
+        statusOf(result) must be(Status.BAD_REQUEST)
+
       "delete question answer attachment as student" in:
         val (exam, examSectionQuestion, externalExam) = setupTestData()
         val (user, session)                           = runIO(loginAsStudent())

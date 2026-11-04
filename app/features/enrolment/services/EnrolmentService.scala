@@ -26,6 +26,7 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 class EnrolmentService @Inject() (
@@ -211,7 +212,7 @@ class EnrolmentService @Inject() (
             logger.warn(s"Attempt to enroll for a course without permission from $user")
             Future.successful(Left(EnrolmentError.AccessForbidden))
         }
-        .recover { case ex: Throwable =>
+        .recover { case NonFatal(ex) =>
           logger.error("Error checking permissions", ex)
           Left(EnrolmentError.AccessForbidden)
         }

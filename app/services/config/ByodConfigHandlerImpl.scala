@@ -4,6 +4,7 @@
 
 package services.config
 
+import cats.syntax.all.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.cryptonode.jncryptor.AES256JNCryptor
 import play.Environment
@@ -76,30 +77,36 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
     os.close()
     compress(os.toByteArray)
 
-  private def nodeToJson(node: Node): Option[JsValue] = node.label match
+  // The template is ours, so a Left here means it has gained content this has no rule for
+  private def nodeToJson(node: Node): Either[String, Option[JsValue]] = node.label match
     case "string" | "data" =>
       val text = if node.child.nonEmpty then node.child.head.text else ""
-      Some(JsString(text.trim.filterNot(_ == '\n')))
-    case "true"             => Some(JsBoolean(true))
-    case "false"            => Some(JsBoolean(false))
-    case "integer" | "real" => Some(JsNumber(node.child.head.text.toInt))
-    case "array"            => Some(JsArray(node.child.flatMap(nodeToJson)))
-    case "dict"             => dictToJson(node)
-    case _                  => throw new NoSuchElementException
+      Right(Some(JsString(text.trim.filterNot(_ == '\n'))))
+    case "true"  => Right(Some(JsBoolean(true)))
+    case "false" => Right(Some(JsBoolean(false)))
+    case "integer" | "real" =>
+      node.child.headOption
+        .flatMap(_.text.toIntOption)
+        .toRight(s"non-integer ${node.label} '${node.text}'")
+        .map(n => Some(JsNumber(n)))
+    case "array" =>
+      node.child.toList.traverse(nodeToJson).map(items => Some(JsArray(items.flatten)))
+    case "dict" => dictToJson(node)
+    case other  => Left(s"unsupported plist element '$other'")
 
-  private def dictToJson(dict: Node) = dict.child match
-    case Seq() => None
+  private def dictToJson(dict: Node): Either[String, Option[JsValue]] = dict.child match
+    case Seq() => Right(None)
     case children =>
-      val json: Seq[(String, JsValue)] = children
+      children
         .grouped(2)
         .map(c => (c.head.text, c.last))
         .filterNot(c => IgnoredKeys.contains(c._1))
-        .map(n => (n._1, nodeToJson(n._2)))
-        .filterNot(_._2.isEmpty)
-        .map(n => n._1 -> n._2.get)
-        .toSeq
-        .sortBy(_._1.toLowerCase)
-      Some(JsObject(json))
+        .toList
+        .traverse((key, node) => nodeToJson(node).map(key -> _))
+        .map { entries =>
+          val json = entries.collect { case (key, Some(value)) => key -> value }
+          Some(JsObject(json.sortBy(_._1.toLowerCase)))
+        }
 
   override def getExamConfig(
       hash: String,
@@ -170,7 +177,7 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
         )
         Some(Results.Unauthorized("Wrong configuration key digest"))
 
-  override def calculateConfigKey(hash: String, quitPwd: String): String =
+  override def calculateConfigKey(hash: String, quitPwd: String): Either[String, String] =
     // Override the DTD setting. We need it with PLIST format and to integrate with SBT
     val parser = XML.withSAXParser {
       val factory = SAXParserFactory.newInstance()
@@ -180,6 +187,8 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
     val plist: Node = parser.loadString(getTemplate(hash, quitPwd))
     // Construct a Json-like structure out of .plist and create a digest over it
     // See SEB documentation for details
-    dictToJson((plist \ "dict").head) match
-      case Some(json) => DigestUtils.sha256Hex(json.toString.replaceAll("\\\\\\\\", "\\\\"))
-      case None       => throw new NoSuchElementException
+    (plist \ "dict").headOption
+      .toRight("config template has no dict")
+      .flatMap(dictToJson)
+      .flatMap(_.toRight("config template has an empty dict"))
+      .map(json => DigestUtils.sha256Hex(json.toString.replaceAll("\\\\\\\\", "\\\\")))

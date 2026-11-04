@@ -28,11 +28,9 @@ class CourseController @Inject() (
       val user = request.attrs(Auth.ATTR_USER)
       courseService
         .listCourses(filterType, criteria, user)
-        .map { courses =>
-          Ok(courses.asJson)
-        }
-        .recover { case ex: IllegalArgumentException =>
-          BadRequest(ex.getMessage)
+        .map {
+          case Right(courses) => Ok(courses.asJson)
+          case Left(error)    => BadRequest(error)
         }
     }
 

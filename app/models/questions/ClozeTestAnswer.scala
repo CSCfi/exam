@@ -131,10 +131,13 @@ object ClozeTestAnswer:
       if !NumberUtils.isParsable(answerText) then false
       else
         val precisionAttr = blank.attr("precision")
-        val answer        = answerText.toDouble
-        val correctAnswer = blank.text().trim.replaceAll("(^\\h*)|(\\h*$)", "").toDouble
-        val precision     = if precisionAttr.isEmpty then 0.0 else precisionAttr.toDouble
-        correctAnswer - precision <= answer && answer <= correctAnswer + precision
+        val correctText   = blank.text().trim.replaceAll("(^\\h*)|(\\h*$)", "")
+        val precision = if precisionAttr.isEmpty then Some(0.0) else precisionAttr.toDoubleOption
+        // The blank is written by the teacher, so it may not be a number either
+        (answerText.toDoubleOption, correctText.toDoubleOption, precision) match
+          case (Some(answer), Some(correctAnswer), Some(p)) =>
+            correctAnswer - p <= answer && answer <= correctAnswer + p
+          case _ => false
 
   private def isCorrectAnswer(blank: Element, rawAnswer: String): Boolean =
     if isNumericBlank(blank) then isCorrectNumericAnswer(blank, rawAnswer)

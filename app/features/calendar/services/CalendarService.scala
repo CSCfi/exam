@@ -99,8 +99,8 @@ class CalendarService @Inject() (
     val room = DB.find(classOf[models.facility.ExamRoom], roomId)
     val now  = clock.now()
 
-    // Start manual transaction
-    Using(DB.beginTransaction()) { tx =>
+    // An Ebean failure fails the Future, which Play answers with a 500
+    Future.fromTry(Using(DB.beginTransaction()) { tx =>
       // Take pessimistic lock for user to prevent multiple reservations creating
       DB.find(classOf[User]).forUpdate().where().eq(path[User]("id"), user.id).findOne()
 
@@ -172,7 +172,7 @@ class CalendarService @Inject() (
 
                     tx.commit()
                     result
-    }.get // Extract from Try
+    }).flatten
 
   private def makeNewReservation(
       enrolment: ExamEnrolment,

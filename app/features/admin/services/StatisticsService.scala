@@ -267,11 +267,7 @@ class StatisticsService @Inject() (
     ))
     (aborted, assessed, unassessed)
 
-  /** Streams the score Excel to the given output stream. Caller must close the stream. */
-  def streamExamQuestionScoresAsExcel(
-      examId: Long,
-      childIds: List[Long]
-  )(os: java.io.OutputStream): Unit =
+  def findExamForQuestionScores(examId: Long): Option[Exam] =
     val parentProps = props[Exam](
       """(id,
         |examSections(name,
@@ -279,14 +275,18 @@ class StatisticsService @Inject() (
         |    question(id,
         |      parent(id)))))""".stripMargin
     )
-    val parentExam = DB
+    DB
       .find(classOf[Exam])
       .apply(parentProps)
       .where()
       .eq(path[Exam]("id"), examId)
       .find
-      .getOrElse(throw new RuntimeException(s"parent exam $examId not found"))
 
+  /** Streams the score Excel to the given output stream. Caller must close the stream. */
+  def streamExamQuestionScoresAsExcel(
+      parentExam: Exam,
+      childIds: List[Long]
+  )(os: java.io.OutputStream): Unit =
     val childProps = props[Exam](
       """(id, state,
         |examParticipation(
@@ -306,7 +306,7 @@ class StatisticsService @Inject() (
       .find(classOf[Exam])
       .apply(childProps)
       .where()
-      .eq(path[Exam]("parent.id"), examId)
+      .eq(path[Exam]("parent.id"), parentExam.id)
       .in(path[Exam]("id"), childIds.asJava)
       .list
     excelBuilder.streamScores(parentExam, childExams)(os)
