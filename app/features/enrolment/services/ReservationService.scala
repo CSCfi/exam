@@ -4,8 +4,10 @@
 
 package features.enrolment.services
 
+import cats.data.EitherT
 import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.enrolment.services.ReservationError.*
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.text.PathProperties
@@ -197,73 +199,62 @@ class ReservationService @Inject() (
 
   private def availableSlots(
       machine: ExamMachine,
-      reservation: Reservation
-  ): Future[Seq[Interval]] =
-    getReservationExam(reservation).map {
-      case None                                             => Seq.empty
-      case Some(exam) if !machine.hasRequiredSoftware(exam) => Seq.empty
-      case Some(exam)                                       =>
-        // Slots fit within opening hours by construction
-        // Note: Maintenance periods are system-wide, so they were already validated when the reservation was created
-        findSuitableSlots(machine, reservation, exam).filter { slot =>
-          // Check if a machine is available for the whole slot
-          // Exclude the current reservation if it's already assigned to this machine
-          machine.reservations.asScala
-            .forall(r => r == reservation || !slot.overlaps(r.toInterval))
-        }
-    }
+      reservation: Reservation,
+      exam: Exam
+  ): Seq[Interval] =
+    if !machine.hasRequiredSoftware(exam) then Seq.empty
+    else
+      // Slots fit within opening hours by construction
+      // Note: Maintenance periods are system-wide, so they were already validated when the reservation was created
+      findSuitableSlots(machine, reservation, exam).filter { slot =>
+        // Check if a machine is available for the whole slot
+        // Exclude the current reservation if it's already assigned to this machine
+        machine.reservations.asScala
+          .forall(r => r == reservation || !slot.overlaps(r.toInterval))
+      }
 
   def findAvailableMachines(
       reservationId: Long,
       roomId: Long
   ): Future[Either[ReservationError, List[play.api.libs.json.JsValue]]] =
-    val reservationOpt = Option(DB.find(classOf[Reservation], reservationId))
-    val roomOpt        = Option(DB.find(classOf[ExamRoom], roomId))
-
-    (reservationOpt, roomOpt) match
-      case (Some(reservation), _) if isExternalReservation(reservation) =>
-        Future.successful(Left(ReservationError.MachineChangeNotAllowed))
-      case (Some(reservation), Some(room)) =>
-        val pp = props[ExamMachine]("(id, name)")
-        val candidates = DB.find(classOf[ExamMachine])
-          .apply(pp)
-          .where()
-          .eq(path[ExamMachine]("room.id"), roomId)
-          .ne(path[ExamMachine]("outOfService"), true)
-          .ne(path[ExamMachine]("archived"), true)
-          .ne(path[ExamMachine]("id"), reservation.machine.id)
-          .list
-
-        getReservationExam(reservation).flatMap {
-          case None => Future.successful(Left(ReservationError.ExamNotFound))
-          case Some(_) =>
-            val zoneId    = TimeUtils.zoneIdOf(room.localTimezone)
-            val formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(zoneId)
-            Future
-              .traverse(candidates) { machine =>
-                availableSlots(machine, reservation).map(machine -> _)
-              }
-              .map(_.filter(_._2.nonEmpty))
-              .map { availableMachines =>
-                val result = availableMachines.map { (machine, slots) =>
-                  Json.obj(
-                    "machine" -> machine.asJson,
-                    "slots" -> JsArray(slots.map { slot =>
-                      Json.obj(
-                        // start and end identify the slot when it gets picked,
-                        // startAt and endAt are for display
-                        "start"   -> DateTimeFormatter.ISO_INSTANT.format(slot.start),
-                        "end"     -> DateTimeFormatter.ISO_INSTANT.format(slot.end),
-                        "startAt" -> formatter.format(slot.start),
-                        "endAt"   -> formatter.format(slot.end)
-                      )
-                    })
-                  )
-                }
-                Right(result)
-              }
-        }
-      case _ => Future.successful(Left(ReservationError.RoomNotFound))
+    (for
+      reservation <- EitherT.fromOption[Future](
+        Option(DB.find(classOf[Reservation], reservationId)),
+        ReservationNotFound
+      )
+      _    <- EitherT.cond[Future](!isExternalReservation(reservation), (), MachineChangeNotAllowed)
+      room <- EitherT.fromOption[Future](Option(DB.find(classOf[ExamRoom], roomId)), RoomNotFound)
+      exam <- EitherT.fromOptionF(getReservationExam(reservation), ExamNotFound)
+      candidates = DB
+        .find(classOf[ExamMachine])
+        .apply(props[ExamMachine]("(id, name)"))
+        .where()
+        .eq(path[ExamMachine]("room.id"), roomId)
+        .ne(path[ExamMachine]("outOfService"), true)
+        .ne(path[ExamMachine]("archived"), true)
+        .ne(path[ExamMachine]("id"), reservation.machine.id)
+        .list
+    yield
+      val available =
+        candidates.map(machine => machine -> availableSlots(machine, reservation, exam))
+      val zoneId    = TimeUtils.zoneIdOf(room.localTimezone)
+      val formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(zoneId)
+      available.filter(_._2.nonEmpty).map { (machine, slots) =>
+        Json.obj(
+          "machine" -> machine.asJson,
+          "slots" -> JsArray(slots.map { slot =>
+            Json.obj(
+              // start and end identify the slot when it gets picked,
+              // startAt and endAt are for display
+              "start"   -> DateTimeFormatter.ISO_INSTANT.format(slot.start),
+              "end"     -> DateTimeFormatter.ISO_INSTANT.format(slot.end),
+              "startAt" -> formatter.format(slot.start),
+              "endAt"   -> formatter.format(slot.end)
+            )
+          })
+        )
+      }
+    ).value
 
   // Reservation of a visiting student, made here by their home organisation
   private def removeVisitorReservation(
@@ -293,51 +284,43 @@ class ReservationService @Inject() (
       machineId: Long,
       chosenSlot: Option[Interval]
   ): Future[Either[ReservationError, Reservation]] =
-    Option(DB.find(classOf[Reservation], reservationId)) match
-      case None => Future.successful(Left(ReservationError.ReservationNotFound))
-      case Some(reservation) if isExternalReservation(reservation) =>
-        Future.successful(Left(ReservationError.MachineChangeNotAllowed))
-      case Some(reservation) =>
-        Option(DB.find(classOf[ExamMachine], machineId)) match
-          case None          => Future.successful(Left(ReservationError.MachineNotFound))
-          case Some(machine) =>
-            // Capture previous state for email notification (ugly because of java beans)
-            val previous = {
-              val p = new Reservation
-              p.machine = reservation.machine
-              p.startAt = reservation.startAt
-              p.endAt = reservation.endAt
-              p
-            }
-
-            getReservationExam(reservation).flatMap {
-              case None => Future.successful(Left(ReservationError.ExamNotFound))
-              case Some(_) =>
-                availableSlots(machine, reservation).flatMap { offered =>
-                  if offered.isEmpty then
-                    Future.successful(Left(ReservationError.MachineNotEligible))
-                  else
-                    // The client picks one of the slots offered by findAvailableMachines. A client
-                    // that sends no slot gets the first one offered, that is, the ongoing time
-                    // whenever there is one.
-                    val slot =
-                      chosenSlot.fold(offered.headOption)(chosen => offered.find(_ == chosen))
-                    slot match
-                      case Some(suitableSlot) =>
-                        // Update reservation times to match the slot that was picked
-                        reservation.startAt = suitableSlot.start
-                        reservation.endAt = suitableSlot.end
-                        reservation.machine = machine
-                        reservation.update()
-                        emailComposer.composeReservationChangeNotification(reservation, previous)
-                        Future.successful(Right(reservation))
-                      case None =>
-                        logger.warn(
-                          s"Slot $chosenSlot is not among the ones offered for reservation ${reservation.id} on machine ${machine.id}"
-                        )
-                        Future.successful(Left(ReservationError.SlotNotAvailable))
-                }
-            }
+    (for
+      reservation <- EitherT.fromOption[Future](
+        Option(DB.find(classOf[Reservation], reservationId)),
+        ReservationNotFound
+      )
+      _ <- EitherT.cond[Future](!isExternalReservation(reservation), (), MachineChangeNotAllowed)
+      machine <- EitherT.fromOption[Future](
+        Option(DB.find(classOf[ExamMachine], machineId)),
+        MachineNotFound
+      )
+      exam <- EitherT.fromOptionF(getReservationExam(reservation), ExamNotFound)
+      offered = availableSlots(machine, reservation, exam)
+      _ <- EitherT.cond[Future](offered.nonEmpty, (), MachineNotEligible)
+      // The client picks one of the slots offered by findAvailableMachines. A client that sends
+      // no slot gets the first one offered, that is, the ongoing time whenever there is one.
+      slot <- EitherT.fromOption[Future](
+        chosenSlot.fold(offered.headOption)(chosen => offered.find(_ == chosen)), {
+          logger.warn(
+            s"Slot $chosenSlot is not among the ones offered for reservation ${reservation.id} on machine ${machine.id}"
+          )
+          SlotNotAvailable
+        }
+      )
+    yield
+      // Capture previous state for email notification (ugly because of java beans)
+      val previous = new Reservation
+      previous.machine = reservation.machine
+      previous.startAt = reservation.startAt
+      previous.endAt = reservation.endAt
+      // Update reservation times to match the slot that was picked
+      reservation.startAt = slot.start
+      reservation.endAt = slot.end
+      reservation.machine = machine
+      reservation.update()
+      emailComposer.composeReservationChangeNotification(reservation, previous)
+      reservation
+    ).value
 
   private def getReservationExam(reservation: Reservation): Future[Option[Exam]] =
     // A visiting student's reservation has no enrolment on this end

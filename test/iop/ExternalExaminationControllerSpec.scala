@@ -151,6 +151,8 @@ class ExternalExaminationControllerSpec
         val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
         val result2          = runIO(get(redirectLocation, session = session))
         statusOf(result2) must be(Status.FORBIDDEN)
+        // The student is told why, not just "403"
+        contentAsStringOf(result2) must be("i18n_wrong_exam_machine")
 
       "handle already created student exam" in:
         val (_, _, enrolment, _) = setupTestData()
@@ -278,6 +280,7 @@ class ExternalExaminationControllerSpec
           )
         )
         statusOf(postResult) must be(Status.FORBIDDEN)
+        contentAsStringOf(postResult) must be("i18n_wrong_exam_machine")
 
       "complete full exam workflow" in:
         val (_, _, enrolment, _) = setupTestData()
