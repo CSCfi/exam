@@ -114,13 +114,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
     Left(ExamMachineError.IpAddressConflict("Machine removal is not allowed"))
 
   def listSoftware: List[Software] =
-    DB.find(classOf[Software])
-      .where()
-      .or()
-      .isNull(path[Software]("status"))
-      .eq(path[Software]("status"), "ACTIVE")
-      .endOr()
-      .list
+    DB.find(classOf[Software]).list
 
   def getSoftware(id: Long): Either[ExamMachineError, Software] =
     Option(DB.find(classOf[Software], id)) match
@@ -140,7 +134,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
     Option(DB.find(classOf[Software], id)) match
       case None => Left(SoftwareNotFound)
       case Some(software) =>
-        checkSoftwareName(name) match
+        checkSoftwareName(name, Some(id)) match
           case Some(error) => Left(error)
           case None =>
             software.name = name
@@ -154,7 +148,13 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
         software.delete()
         Right(())
 
-  private def checkSoftwareName(name: String): Option[ExamMachineError] =
-    val existing = DB.find(classOf[Software]).where().ieq(path[Software]("name"), name).list
+  // A rename only conflicts with other software, not with itself (e.g. a change of case)
+  private def checkSoftwareName(name: String, self: Option[Long] = None): Option[ExamMachineError] =
+    val existing = DB
+      .find(classOf[Software])
+      .where()
+      .ieq(path[Software]("name"), name)
+      .list
+      .filterNot(s => self.contains(s.id.longValue))
     if existing.isEmpty then None
     else Some(SoftwareNameConflict("Software with that name already exists"))

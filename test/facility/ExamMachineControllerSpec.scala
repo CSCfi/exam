@@ -8,25 +8,58 @@ import base.BaseIntegrationSpec
 import models.facility.Software
 import play.api.http.Status
 import play.api.libs.json.JsObject
+import play.api.mvc.Session
 
 class ExamMachineControllerSpec extends BaseIntegrationSpec:
 
-  private def createSoftware(name: String, status: Option[String]): Unit =
+  private def createSoftware(name: String): Software =
     val software = new Software
     software.name = name
-    software.status = status.orNull
     software.save()
+    software
+
+  private def softwareNames(session: Session): Set[String] =
+    val result = runIO(get("/app/softwares", session = session))
+    statusOf(result).must(be(Status.OK))
+    contentAsJsonOf(result).as[Seq[JsObject]].map(s => (s \ "name").as[String]).toSet
 
   "ExamMachineController" when:
     "listing software" should:
-      "leave out software disabled before removal became a delete" in:
+      "list all software" in:
         val (_, session) = runIO(loginAsAdmin())
-        createSoftware("Probe active", Some("ACTIVE"))
-        createSoftware("Probe disabled", Some("DISABLED"))
-        createSoftware("Probe new", None)
+        createSoftware("Probe one")
+        createSoftware("Probe two")
 
-        val result = runIO(get("/app/softwares", session = session))
-        statusOf(result).must(be(Status.OK))
+        softwareNames(session).filter(_.startsWith("Probe")).must(be(Set("Probe one", "Probe two")))
 
-        val names = contentAsJsonOf(result).as[Seq[JsObject]].map(s => (s \ "name").as[String])
-        names.filter(_.startsWith("Probe")).toSet.must(be(Set("Probe active", "Probe new")))
+    "removing software" should:
+      "free its name for reuse" in:
+        val (_, session) = runIO(loginAsAdmin())
+        val software     = createSoftware("Probe")
+
+        statusOf(runIO(delete(s"/app/softwares/${software.id}", session))).must(be(Status.OK))
+        softwareNames(session).must(not(contain("Probe")))
+        statusOf(runIO(post("/app/softwares/Probe", session))).must(be(Status.OK))
+        softwareNames(session).must(contain("Probe"))
+
+    "naming software" should:
+      "reject a name already in use regardless of case" in:
+        val (_, session) = runIO(loginAsAdmin())
+        val software     = createSoftware("Probe")
+        createSoftware("Other probe")
+
+        statusOf(runIO(post("/app/softwares/PROBE", session))).must(be(Status.BAD_REQUEST))
+        statusOf(runIO(put(
+          s"/app/softwares/${software.id}/OTHER%20PROBE",
+          JsObject.empty,
+          session
+        )))
+          .must(be(Status.BAD_REQUEST))
+
+      "allow changing the case of its own name" in:
+        val (_, session) = runIO(loginAsAdmin())
+        val software     = createSoftware("probe")
+
+        statusOf(runIO(put(s"/app/softwares/${software.id}/Probe", JsObject.empty, session)))
+          .must(be(Status.OK))
+        softwareNames(session).must(contain("Probe"))
