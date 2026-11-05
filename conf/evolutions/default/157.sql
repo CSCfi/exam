@@ -4,7 +4,8 @@
 
 # --- !Ups
 
-ALTER TABLE question ADD COLUMN lti_id TEXT;
+-- IF NOT EXISTS: earlier lti builds added this column under other evolution numbers (135-156)
+ALTER TABLE question ADD COLUMN IF NOT EXISTS lti_id TEXT;
 
 # --- !Downs
 
