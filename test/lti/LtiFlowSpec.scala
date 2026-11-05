@@ -134,9 +134,11 @@ class LtiFlowSpec extends BaseIntegrationSpec:
   private def initiateLogin(
       userSession: Session,
       sectionQuestionId: Long,
-      examHash: String = ExamHash
+      examHash: String = ExamHash,
+      asLearner: Boolean = false
   ): (Result, Session) =
-    val query  = s"sectionQuestionId=$sectionQuestionId&examHash=${encode(examHash)}"
+    val query = s"sectionQuestionId=$sectionQuestionId&examHash=${encode(examHash)}" +
+      (if asLearner then "&asLearner=true" else "")
     val result = runIO(get(s"/integration/lti/start-login?$query", session = userSession))
     (result, sessionOf(result))
 
@@ -145,8 +147,12 @@ class LtiFlowSpec extends BaseIntegrationSpec:
     val (teacher, session) = runIO(loginAsTeacher())
     (teacher, session, setUpLtiQuestion(teacher))
 
-  private def ltiSessionOf(userSession: Session, sectionQuestionId: Long): Session =
-    initiateLogin(userSession, sectionQuestionId)._2
+  private def ltiSessionOf(
+      userSession: Session,
+      sectionQuestionId: Long,
+      asLearner: Boolean = false
+  ): Session =
+    initiateLogin(userSession, sectionQuestionId, asLearner = asLearner)._2
 
   private def claimsOf(result: Result): JWTClaimsSet =
     statusOf(result) must be(Status.OK)
@@ -344,6 +350,25 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       val (_, claims) = launch()
       claims.getStringListClaim("https://purl.imsglobal.org/spec/lti/claim/roles").asScala must
         be(Seq("http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor"))
+
+    // Moodle keys users on iss + sub and only adds roles, so previewing as a student under the
+    // teacher's own sub would keep the Instructor role from earlier launches.
+    "assert a teacher previewing as a student as a Learner under a separate subject" in:
+      val (teacher, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession                    = ltiSessionOf(userSession, esqId, asLearner = true)
+      val claims = claimsOf(callback(ltiSession, toolParams(ltiSession("lti_login_hint"))))
+      claims.getStringListClaim("https://purl.imsglobal.org/spec/lti/claim/roles").asScala must
+        be(Seq("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"))
+      claims.getSubject must be(s"${teacher.eppn}#learner-preview")
+
+    "ignore the student view option for a student" in:
+      val (student, studentSession) = runIO(loginAsStudent())
+      val esqId                     = setUpLtiQuestion(student, Some(findExam(2L)))
+      val ltiSession                = ltiSessionOf(studentSession, esqId, asLearner = true)
+      val claims = claimsOf(callback(ltiSession, toolParams(ltiSession("lti_login_hint"))))
+      claims.getStringListClaim("https://purl.imsglobal.org/spec/lti/claim/roles").asScala must
+        be(Seq("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"))
+      claims.getSubject must be(student.eppn)
 
     "expire five minutes after issue" in:
       val (_, claims) = launch()

@@ -155,6 +155,8 @@
     "i18n_question_instruction": "Kysymykseen liittyvä ohjeistus",
     "i18n_question_lti_id": "LTI tehtävän tunniste (Id)",
     "i18n_question_lti_id_instruction": "LTI tehtävän tunniste (Id)",
+    "i18n_lti_view_as_student": "Näytä opiskelijana",
+    "i18n_lti_view_as_student_info": "Opettajanäkymässä näkyvät työkalun omat hallinta- ja arviointisivut. Opiskelijanäkymä käyttää työkalussa erillistä testitunnusta.",
     "i18n_question_mc": "Monivalinta (yksi oikein)",
     "i18n_question_type": "Vastaustyyppi",
     "i18n_question_unanswered": "Vastaamatta",

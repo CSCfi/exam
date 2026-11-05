@@ -67,7 +67,9 @@ class LtiController @Inject() (
               Redirect(url).addingToSession(
                 "lti_login_hint"          -> loginHint,
                 "lti_section_question_id" -> sectionQuestionId.toString,
-                "lti_exam_hash"           -> examHash
+                "lti_exam_hash"           -> examHash,
+                // Only honoured for teachers and admins, a student always launches as a Learner
+                "lti_as_learner" -> request.getQueryString("asLearner").contains("true").toString
               )(using request)
     }
 
@@ -109,8 +111,9 @@ class LtiController @Inject() (
           cspNonce <- request.attrs
             .get(RequestAttrKey.CSPNonce)
             .toRight(LtiError.CspNonceUnavailable)
-          launch  <- ltiService.findLaunch(sectionQuestionId, examHash, user)
-          idToken <- ltiService.buildIdToken(user, launch, toolNonce, validatedUri)
+          launch <- ltiService.findLaunch(sectionQuestionId, examHash, user)
+          asLearner = request.session.get("lti_as_learner").contains("true")
+          idToken <- ltiService.buildIdToken(user, launch, toolNonce, validatedUri, asLearner)
         yield ltiService.buildAutoPostHtml(validatedUri, idToken, toolState, cspNonce)
 
       result match

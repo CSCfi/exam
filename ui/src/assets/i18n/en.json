@@ -155,6 +155,8 @@
     "i18n_question_instruction": "Question instructions",
     "i18n_question_lti_id": "LTI resource identifier (Id)",
     "i18n_question_lti_id_instruction": "LTI resource identifier (Id)",
+    "i18n_lti_view_as_student": "View as student",
+    "i18n_lti_view_as_student_info": "The teacher view shows the tool's own management and grading pages. The student view uses a separate test account in the tool.",
     "i18n_question_mc": "Multiple choice question (one correct answer)",
     "i18n_question_type": "Question type",
     "i18n_question_unanswered": "Unanswered",

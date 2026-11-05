@@ -154,6 +154,8 @@
     "i18n_question_instruction": "Anvisning för uppgiften",
     "i18n_question_lti_id": "LTI-resursens identifierare (Id)",
     "i18n_question_lti_id_instruction": "LTI-resursens identifierare (Id)",
+    "i18n_lti_view_as_student": "Visa som student",
+    "i18n_lti_view_as_student_info": "Lärarvyn visar verktygets egna administrations- och bedömningssidor. Studentvyn använder ett separat testkonto i verktyget.",
     "i18n_question_mc": "Flervalsfråga (ett rätt alternativ)",
     "i18n_question_type": "Frågetyp",
     "i18n_question_unanswered": "Obesvarad",

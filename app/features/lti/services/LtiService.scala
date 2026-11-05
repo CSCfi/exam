@@ -45,6 +45,15 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
 
   private val TokenLifetime = 5 * 60 * 1000
 
+  private val Membership     = "http://purl.imsglobal.org/vocab/lis/v2/membership"
+  private val LearnerRole    = s"$Membership#Learner"
+  private val InstructorRole = s"$Membership#Instructor"
+  private val AdministratorRole =
+    "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator"
+
+  /** Appended to a teacher's `sub` when they preview as a student, see [[buildIdToken]]. */
+  private val LearnerPreviewSuffix = "#learner-preview"
+
   /** Path of `LtiController.startLogin` in conf/routes. */
   private val StartLoginPath = "/integration/lti/start-login"
 
@@ -166,10 +175,17 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       user: User,
       launch: LtiLaunch,
       nonce: String,
-      redirectUri: String
+      redirectUri: String,
+      asLearner: Boolean
   ): Either[LtiError, String] =
     val now = new Date()
-    val exp = new Date(now.getTime + TokenLifetime)
+    // A teacher previewing as a student launches as a separate tool user. Moodle keys its users
+    // on issuer + sub and only ever adds course roles on launch, so under the teacher's own sub
+    // the Instructor role from an earlier launch would stay and the view would not change.
+    val learnerPreview = asLearner && user.loginRole != Role.Name.STUDENT
+    val subject        = if learnerPreview then s"${user.eppn}$LearnerPreviewSuffix" else user.eppn
+    val roles          = if learnerPreview then List(LearnerRole) else rolesOf(user)
+    val exp            = new Date(now.getTime + TokenLifetime)
 
     val context = Map(
       "id"    -> launch.context.id,
@@ -184,7 +200,7 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
     val claims = JWTClaimsSet
       .Builder()
       .issuer(issuer)
-      .subject(user.eppn)
+      .subject(subject)
       .audience(clientId)
       .expirationTime(exp)
       .issueTime(now)
@@ -198,7 +214,7 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
       .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", deploymentId)
       .claim("https://purl.imsglobal.org/spec/lti/claim/target_link_uri", redirectUri)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/roles", rolesOf(user).asJava)
+      .claim("https://purl.imsglobal.org/spec/lti/claim/roles", roles.asJava)
       .claim("https://purl.imsglobal.org/spec/lti/claim/context", context)
       .claim("https://purl.imsglobal.org/spec/lti/claim/resource_link", resourceLink)
       .claim("https://purl.imsglobal.org/spec/lti/claim/custom", custom)
@@ -214,12 +230,10 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
 
   /** LTI roles for the user's current EXAM role. Teachers reach a launch by previewing an exam. */
   private def rolesOf(user: User): List[String] =
-    val membership  = "http://purl.imsglobal.org/vocab/lis/v2/membership"
-    val institution = "http://purl.imsglobal.org/vocab/lis/v2/institution/person"
     user.loginRole match
-      case Role.Name.STUDENT => List(s"$membership#Learner")
-      case Role.Name.TEACHER => List(s"$membership#Instructor")
-      case Role.Name.ADMIN   => List(s"$membership#Instructor", s"$institution#Administrator")
+      case Role.Name.STUDENT => List(LearnerRole)
+      case Role.Name.TEACHER => List(InstructorRole)
+      case Role.Name.ADMIN   => List(InstructorRole, AdministratorRole)
       case _                 => Nil
 
   /** JWK set the tool fetches to verify tokens signed by [[buildIdToken]]. */
