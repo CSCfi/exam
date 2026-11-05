@@ -4,6 +4,7 @@
 
 package features.assessment.services
 
+import database.EbeanPaths.props
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -28,7 +29,7 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
         answers: Seq[ExamSectionQuestion],
         evaluationCriteria: String
     ): QuestionEntry =
-      val answerPathProps = PathProperties.parse(
+      val answerPathProps = props[ExamSectionQuestion](
         """(*,
           |essayAnswer(attachment(*), *),
           |question(
@@ -45,7 +46,7 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
           |)
           |)""".stripMargin
       )
-      val questionPathProps = PathProperties.parse("(attachment(*), *)")
+      val questionPathProps = props[Question]("(attachment(*), *)")
       QuestionEntry(
         question = Json.parse(DB.json().toJson(question, questionPathProps)),
         answers = answers.map(a => Json.parse(DB.json().toJson(a, answerPathProps))),

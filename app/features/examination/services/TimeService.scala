@@ -4,6 +4,7 @@
 
 package features.examination.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
@@ -22,13 +23,13 @@ class TimeService @Inject() (
 
   def getRemainingExamTime(hash: String, user: User): Either[TimeError, Long] =
     DB.find(classOf[ExamEnrolment])
-      .fetch("externalExam")
+      .fetch(path[ExamEnrolment]("externalExam"))
       .where()
       .disjunction()
-      .eq("exam.hash", hash)
-      .eq("externalExam.hash", hash)
+      .eq(path[ExamEnrolment]("exam.hash"), hash)
+      .eq(path[ExamEnrolment]("externalExam.hash"), hash)
       .endJunction()
-      .eq("user.id", user.id)
+      .eq(path[ExamEnrolment]("user.id"), user.id)
       .find match
       case None => Left(EnrolmentNotFound)
       case Some(enrolment) =>

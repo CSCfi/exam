@@ -6,6 +6,7 @@ package system.jobs
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.ExamRecord
@@ -30,7 +31,7 @@ class ExamExpirationService @Inject() (private val configReader: ConfigReader)
     exam.state = ExamState.DELETED
     exam.creator = null
     exam.update()
-    DB.find(classOf[ExamRecord]).where.eq("exam", exam).list.foreach(_.delete)
+    DB.find(classOf[ExamRecord]).where.eq(path[ExamRecord]("exam"), exam).list.foreach(_.delete)
 
   private def runCheck(): IO[Unit] =
     IO.blocking {
@@ -39,10 +40,10 @@ class ExamExpirationService @Inject() (private val configReader: ConfigReader)
         .find(classOf[Exam])
         .where
         .disjunction
-        .eq("state", ExamState.GRADED_LOGGED)
-        .eq("state", ExamState.ARCHIVED)
-        .eq("state", ExamState.ABORTED)
-        .eq("state", ExamState.REJECTED)
+        .eq(path[Exam]("state"), ExamState.GRADED_LOGGED)
+        .eq(path[Exam]("state"), ExamState.ARCHIVED)
+        .eq(path[Exam]("state"), ExamState.ABORTED)
+        .eq(path[Exam]("state"), ExamState.REJECTED)
         .endJunction
         .list
       exams

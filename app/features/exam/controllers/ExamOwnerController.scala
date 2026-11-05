@@ -5,9 +5,11 @@
 package features.exam.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.exam.services.{ExamOwnerError, ExamOwnerService}
 import io.ebean.text.PathProperties
 import models.user.Role
+import models.user.User
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.{Auth, BlockingIOExecutionContext}
@@ -36,7 +38,7 @@ class ExamOwnerController @Inject() (
         examOwnerService.listOwners(id) match
           case Left(error) => toResult(error)
           case Right(owners) =>
-            Ok(owners.asJson(PathProperties.parse("(*)")))
+            Ok(owners.asJson(props[User]("(*)")))
     }
 
   def add(eid: Long, uid: Long): Action[AnyContent] =

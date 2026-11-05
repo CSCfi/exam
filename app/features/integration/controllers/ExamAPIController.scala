@@ -5,8 +5,9 @@
 package features.integration.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.integration.services.ExamAPIService
-import io.ebean.text.PathProperties
+import models.exam.Exam
 import play.api.mvc.*
 import security.Auth.subjectNotPresent
 import security.BlockingIOExecutionContext
@@ -22,7 +23,7 @@ class ExamAPIController @Inject() (
 
   def getActiveExams(date: Option[String]): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
-      val pp = PathProperties.parse(
+      val pp = props[Exam](
         """(course(name, code, credits,
           |  gradeScale(description, externalRef, displayName),
           |  organisation(code, name, nameAbbreviation)

@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.exam.ExamState
@@ -41,8 +42,10 @@ class CollaborativeExamService @Inject() (
     *   Future containing Some(CollaborativeExam) if found, None otherwise
     */
   def findByExternalRef(externalRef: String): Future[Option[CollaborativeExam]] =
-    Future(DB.find(classOf[CollaborativeExam]).where().eq("externalRef", externalRef).find)(using
-    ec)
+    Future(DB.find(classOf[CollaborativeExam]).where().eq(
+      path[CollaborativeExam]("externalRef"),
+      externalRef
+    ).find)(using ec)
 
   /** Find all CollaborativeExams and return them as a map keyed by external reference
     *

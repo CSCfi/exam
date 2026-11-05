@@ -6,6 +6,7 @@ package features.facility.services
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import features.facility.impl.FacilityHandler
 import features.facility.services.RoomError.*
@@ -65,16 +66,16 @@ class RoomService @Inject() (
   def getExamRooms(user: User): (List[ExamRoom], PathProperties) =
     val baseQuery = DB
       .find(classOf[ExamRoom])
-      .fetch("accessibilities")
-      .fetch("examMachines")
-      .fetch("defaultWorkingHours")
-      .fetch("calendarExceptionEvents")
-      .fetch("examStartingHours")
+      .fetch(path[ExamRoom]("accessibilities"))
+      .fetch(path[ExamRoom]("examMachines"))
+      .fetch(path[ExamRoom]("defaultWorkingHours"))
+      .fetch(path[ExamRoom]("calendarExceptionEvents"))
+      .fetch(path[ExamRoom]("examStartingHours"))
       .where()
 
     val query =
       if !user.hasRole(models.user.Role.Name.ADMIN) then
-        baseQuery.ne("state", ExamRoom.State.INACTIVE.toString)
+        baseQuery.ne(path[ExamRoom]("state"), ExamRoom.State.INACTIVE.toString)
       else baseQuery
 
     val rooms = query.list
@@ -84,7 +85,7 @@ class RoomService @Inject() (
       room.externalPasswordRequired = Option(room.externalPassword).isDefined
     }
 
-    val props = PathProperties.parse(
+    val pp = props[ExamRoom](
       """(*,
         |mailAddress(*),
         |accessibilities(*),
@@ -94,13 +95,13 @@ class RoomService @Inject() (
         |examMachines(*, softwareInfo(*))
         |)""".stripMargin
     )
-    (rooms, props)
+    (rooms, pp)
 
   def getExamRoom(id: Long): Either[RoomError, (ExamRoom, PathProperties)] =
     Option(DB.find(classOf[ExamRoom], id)) match
       case None => Left(RoomNotFound)
       case Some(examRoom) =>
-        val props = PathProperties.parse(
+        val pp = props[ExamRoom](
           """(*,
             |defaultWorkingHours(*),
             |calendarExceptionEvents(*),
@@ -110,7 +111,7 @@ class RoomService @Inject() (
             |examMachines(*)
             |)""".stripMargin
         )
-        Right((examRoom, props))
+        Right((examRoom, pp))
 
   def createExamRoomDraft: ExamRoom =
     val examRoom = new ExamRoom()
@@ -175,7 +176,7 @@ class RoomService @Inject() (
     Option(DB.find(classOf[MailAddress], id)) match
       case None => Future.successful(Left(AddressNotFound))
       case Some(existing) =>
-        DB.find(classOf[ExamRoom]).where().eq("mailAddress", existing).find match
+        DB.find(classOf[ExamRoom]).where().eq(path[ExamRoom]("mailAddress"), existing).find match
           case None => Future.successful(Left(RoomNotFound))
           case Some(room) =>
             (body \ "city").asOpt[String].foreach(v => existing.city = v)
@@ -202,8 +203,8 @@ class RoomService @Inject() (
       val existing = DB
         .find(classOf[DefaultWorkingHours])
         .where()
-        .eq("room", examRoom)
-        .eq("weekday", hours.weekday)
+        .eq(path[DefaultWorkingHours]("room"), examRoom)
+        .eq(path[DefaultWorkingHours]("weekday"), hours.weekday)
         .list
 
       val overlapping = existing.filter(_.overlaps(hours))
@@ -236,7 +237,10 @@ class RoomService @Inject() (
     val formatter = DateTimeFormatter.ofPattern("H:mm")
 
     rooms.foreach { examRoom =>
-      val previous = DB.find(classOf[ExamStartingHour]).where().eq("room.id", examRoom.id).list
+      val previous = DB.find(classOf[ExamStartingHour]).where().eq(
+        path[ExamStartingHour]("room.id"),
+        examRoom.id
+      ).list
       DB.deleteAll(previous.asJava)
 
       (body \ "hours").as[JsArray].value.foreach { hoursNode =>

@@ -4,6 +4,7 @@
 
 package features.iop.transfer.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
@@ -75,12 +76,12 @@ class ExternalReservationHandlerService @Inject() (
   ): Future[Result] =
     val enrolmentOpt =
       DB.find(classOf[ExamEnrolment])
-        .fetch("reservation")
-        .fetch("reservation.machine")
-        .fetch("reservation.machine.room")
+        .fetch(path[ExamEnrolment]("reservation"))
+        .fetch(path[ExamEnrolment]("reservation.machine"))
+        .fetch(path[ExamEnrolment]("reservation.machine.room"))
         .where()
-        .eq("user.id", user.id)
-        .eq("reservation.externalRef", ref)
+        .eq(path[ExamEnrolment]("user.id"), user.id)
+        .eq(path[ExamEnrolment]("reservation.externalRef"), ref)
         .find
 
     enrolmentOpt match

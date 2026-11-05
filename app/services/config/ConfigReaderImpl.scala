@@ -5,6 +5,7 @@
 package services.config
 
 import com.typesafe.config.Config
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.admin.GeneralSettings
@@ -23,7 +24,10 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
       value: Option[String],
       defaultValue: Option[String]
   ): GeneralSettings =
-    val gs = DB.find(classOf[GeneralSettings]).where().eq("name", name).find.getOrElse {
+    val gs = DB.find(classOf[GeneralSettings]).where().eq(
+      path[GeneralSettings]("name"),
+      name
+    ).find.getOrElse {
       val newGs = new GeneralSettings()
       newGs.name = name
       newGs.save()
@@ -51,9 +55,12 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
   override def getExamMaxDuration: Int = config.getInt("exam.exam.maxDuration")
   override def getExamMinDuration: Int = config.getInt("exam.exam.minDuration")
   override def getRoleMapping: Map[Role, List[String]] =
-    val student = DB.find(classOf[Role]).where.eq("name", Role.Name.STUDENT.toString).findOne
-    val teacher = DB.find(classOf[Role]).where.eq("name", Role.Name.TEACHER.toString).findOne
-    val admin   = DB.find(classOf[Role]).where.eq("name", Role.Name.ADMIN.toString).findOne
+    val student =
+      DB.find(classOf[Role]).where.eq(path[Role]("name"), Role.Name.STUDENT.toString).findOne
+    val teacher =
+      DB.find(classOf[Role]).where.eq(path[Role]("name"), Role.Name.TEACHER.toString).findOne
+    val admin =
+      DB.find(classOf[Role]).where.eq(path[Role]("name"), Role.Name.ADMIN.toString).findOne
     Map(
       student -> config.getStringList("exam.roles.student").asScala.toList,
       teacher -> config.getStringList("exam.roles.teacher").asScala.toList,
@@ -91,13 +98,13 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
   override def isMaturitySupported: Boolean = DB
     .find(classOf[ExamExecutionType])
     .where
-    .eq("type", ExamExecutionType.Type.MATURITY.toString)
+    .eq(path[ExamExecutionType]("type"), ExamExecutionType.Type.MATURITY.toString)
     .find
     .nonEmpty
   override def isPrintoutSupported: Boolean = DB
     .find(classOf[ExamExecutionType])
     .where
-    .eq("type", ExamExecutionType.Type.PRINTOUT.toString)
+    .eq(path[ExamExecutionType]("type"), ExamExecutionType.Type.PRINTOUT.toString)
     .find
     .nonEmpty
   override def getAppVersion: String             = config.getString("exam.release.version")

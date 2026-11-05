@@ -4,6 +4,7 @@
 
 package features.question.services
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -26,37 +27,44 @@ class TagService @Inject() () extends EbeanQueryExtensions:
     val baseQuery = DB.find(classOf[Tag]).where()
     val queryWithUser =
       if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then baseQuery
-      else baseQuery.eq("creator.id", user.id)
+      else baseQuery.eq(path[Tag]("creator.id"), user.id)
 
     val queryWithFilter = filter.fold(queryWithUser) { f =>
-      queryWithUser.ilike("name", s"%$f%")
+      queryWithUser.ilike(path[Tag]("name"), s"%$f%")
     }
 
     val queryWithExams = examIds.fold(queryWithFilter) { ids =>
       if ids.nonEmpty then
-        queryWithFilter.in("questions.examSectionQuestions.examSection.exam.id", ids.asJava)
+        queryWithFilter.in(
+          path[Tag]("questions.examSectionQuestions.examSection.exam.id"),
+          ids.asJava
+        )
       else queryWithFilter
     }
 
     val queryWithCourses = courseIds.fold(queryWithExams) { ids =>
       if ids.nonEmpty then
-        queryWithExams.in("questions.examSectionQuestions.examSection.exam.course.id", ids.asJava)
+        queryWithExams.in(
+          path[Tag]("questions.examSectionQuestions.examSection.exam.course.id"),
+          ids.asJava
+        )
       else queryWithExams
     }
 
     val queryWithSections = sectionIds.fold(queryWithCourses) { ids =>
       if ids.nonEmpty then
-        queryWithCourses.in("questions.examSectionQuestions.examSection.id", ids.asJava)
+        queryWithCourses.in(path[Tag]("questions.examSectionQuestions.examSection.id"), ids.asJava)
       else queryWithCourses
     }
 
     val finalQuery = ownerIds.fold(queryWithSections) { ids =>
-      if ids.nonEmpty then queryWithSections.in("questions.questionOwners.id", ids.asJava)
+      if ids.nonEmpty then
+        queryWithSections.in(path[Tag]("questions.questionOwners.id"), ids.asJava)
       else queryWithSections
     }
 
     val tags = finalQuery.distinct.toList
-    val pp   = PathProperties.parse("(*, creator(id), questions(id))")
+    val pp   = props[Tag]("(*, creator(id), questions(id))")
     (tags, pp)
 
   def addTagToQuestions(questionIds: List[Long], tagId: Long): Either[TagError, Unit] =

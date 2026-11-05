@@ -4,6 +4,7 @@
 
 package features.assessment.services
 
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -26,7 +27,7 @@ class ExamAnswerService @Inject() (
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions:
 
-  private val answerQueryPP = PathProperties.parse(
+  private val answerQueryPP = props[Exam](
     """(*,
       |  course(name, code, credits),
       |  grade(name),
@@ -54,10 +55,10 @@ class ExamAnswerService @Inject() (
       .apply(answerQueryPP)
       .where()
       .idEq(eid)
-      .eq("creator", user)
-      .isNotNull("parent.examFeedbackConfig")
-      .ne("gradingType", GradeType.NOT_GRADED)
-      .in("state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED)
+      .eq(path[Exam]("creator"), user)
+      .isNotNull(path[Exam]("parent.examFeedbackConfig"))
+      .ne(path[Exam]("gradingType"), GradeType.NOT_GRADED)
+      .in(path[Exam]("state"), ExamState.GRADED_LOGGED, ExamState.ARCHIVED)
       .find
 
   def prepareExamForAnswerRelease(exam: Exam, user: User): Exam =

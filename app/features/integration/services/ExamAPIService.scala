@@ -4,6 +4,7 @@
 
 package features.integration.services
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -17,7 +18,7 @@ import javax.inject.Inject
 class ExamAPIService @Inject() () extends EbeanQueryExtensions:
 
   def getActiveExams(date: Option[String]): List[Exam] =
-    val pp = PathProperties.parse(
+    val pp = props[Exam](
       """(course(name, code, credits,
         |  gradeScale(description, externalRef, displayName),
         |  organisation(code, name, nameAbbreviation)
@@ -33,7 +34,7 @@ class ExamAPIService @Inject() () extends EbeanQueryExtensions:
     DB.find(classOf[Exam])
       .apply(pp)
       .where()
-      .eq("state", ExamState.PUBLISHED)
-      .ge("periodEnd", dateTime)
-      .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
+      .eq(path[Exam]("state"), ExamState.PUBLISHED)
+      .ge(path[Exam]("periodEnd"), dateTime)
+      .eq(path[Exam]("executionType.type"), ExamExecutionType.Type.PUBLIC.toString)
       .list

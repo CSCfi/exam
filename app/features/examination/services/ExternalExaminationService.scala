@@ -4,6 +4,7 @@
 
 package features.examination.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.examination.EnrolmentValidator
 import features.examination.services.ExternalExaminationError.*
@@ -257,23 +258,23 @@ class ExternalExaminationService @Inject() (
   private def getExternalExam(hash: String, user: User): Option[ExternalExam] =
     DB.find(classOf[ExternalExam])
       .where()
-      .eq("hash", hash)
-      .eq("creator", user)
+      .eq(path[ExternalExam]("hash"), hash)
+      .eq(path[ExternalExam]("creator"), user)
       .forUpdate()
       .find
 
   private def getEnrolment(user: User, prototype: ExternalExam): Option[ExamEnrolment] =
     val now = clock.now()
     DB.find(classOf[ExamEnrolment])
-      .fetch("reservation")
-      .fetch("reservation.machine")
-      .fetch("reservation.machine.room")
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("reservation.machine"))
+      .fetch(path[ExamEnrolment]("reservation.machine.room"))
       .where()
-      .eq("user.id", user.id)
-      .eq("externalExam.hash", prototype.hash)
-      .le("reservation.startAt", now)
-      .gt("reservation.endAt", now)
-      .eq("reservation.externalUserRef", user.eppn)
+      .eq(path[ExamEnrolment]("user.id"), user.id)
+      .eq(path[ExamEnrolment]("externalExam.hash"), prototype.hash)
+      .le(path[ExamEnrolment]("reservation.startAt"), now)
+      .gt(path[ExamEnrolment]("reservation.endAt"), now)
+      .eq(path[ExamEnrolment]("reservation.externalUserRef"), user.eppn)
       .find
 
   private def validateEnrolment(
@@ -283,9 +284,13 @@ class ExternalExaminationService @Inject() (
   ): Future[Either[ExternalExaminationError, Unit]] =
     DB.find(classOf[ExamEnrolment])
       .where()
-      .eq("externalExam.hash", hash)
-      .eq("externalExam.creator", user)
-      .jsonEqualTo("externalExam.content", "state", ExamState.STUDENT_STARTED.toString)
+      .eq(path[ExamEnrolment]("externalExam.hash"), hash)
+      .eq(path[ExamEnrolment]("externalExam.creator"), user)
+      .jsonEqualTo(
+        path[ExamEnrolment]("externalExam.content"),
+        "state",
+        ExamState.STUDENT_STARTED.toString
+      )
       .find match
       case None => Future.successful(Left(EnrolmentNotFound))
       case Some(e) =>
@@ -301,8 +306,8 @@ class ExternalExaminationService @Inject() (
   ): Either[ExternalExaminationError, Unit] =
     DB.find(classOf[ExternalExam])
       .where()
-      .eq("hash", hash)
-      .eq("creator", user)
+      .eq(path[ExternalExam]("hash"), hash)
+      .eq(path[ExternalExam]("creator"), user)
       .find match
       case None => Left(ExternalExamNotFound)
       case Some(ee) =>

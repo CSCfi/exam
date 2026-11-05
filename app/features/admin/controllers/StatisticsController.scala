@@ -40,7 +40,7 @@ class StatisticsController @Inject() (
     }
 
   def listParticipations(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): Action[AnyContent] =
@@ -50,7 +50,7 @@ class StatisticsController @Inject() (
     }
 
   def listReservations(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): Action[AnyContent] =
@@ -60,7 +60,7 @@ class StatisticsController @Inject() (
     }
 
   def listIopReservations(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): Action[AnyContent] =
@@ -70,7 +70,7 @@ class StatisticsController @Inject() (
     }
 
   def listPublishedExams(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): Action[AnyContent] =
@@ -80,7 +80,7 @@ class StatisticsController @Inject() (
     }
 
   def listResponses(
-      dept: Option[String],
+      dept: List[String],
       start: Option[String],
       end: Option[String]
   ): Action[AnyContent] =

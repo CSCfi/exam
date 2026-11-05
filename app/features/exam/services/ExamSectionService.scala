@@ -4,6 +4,7 @@
 
 package features.exam.services
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import features.exam.services.ExamSectionError.*
 import features.question.services.QuestionService
@@ -36,8 +37,8 @@ class ExamSectionService @Inject() (
 
   def insertSection(examId: Long, user: User): Either[ExamSectionError, ExamSection] =
     DB.find(classOf[Exam])
-      .fetch("examOwners")
-      .fetch("examSections")
+      .fetch(path[Exam]("examOwners"))
+      .fetch(path[Exam]("examSections"))
       .where()
       .idEq(examId)
       .find match
@@ -115,7 +116,7 @@ class ExamSectionService @Inject() (
       to: Int,
       user: User
   ): Either[ExamSectionError, Unit] =
-    DB.find(classOf[Exam]).fetch("examSections").where().idEq(examId).find match
+    DB.find(classOf[Exam]).fetch(path[Exam]("examSections")).where().idEq(examId).find match
       case None => Left(ExamNotFound)
       case Some(exam) =>
         if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
@@ -219,12 +220,12 @@ class ExamSectionService @Inject() (
       user: User
   ): Either[ExamSectionError, ExamSection] =
     DB.find(classOf[ExamSectionQuestion])
-      .fetch("examSection.exam.examOwners")
-      .fetch("question")
+      .fetch(path[ExamSectionQuestion]("examSection.exam.examOwners"))
+      .fetch(path[ExamSectionQuestion]("question"))
       .where()
-      .eq("examSection.exam.id", examId)
-      .eq("examSection.id", sectionId)
-      .eq("question.id", questionId)
+      .eq(path[ExamSectionQuestion]("examSection.exam.id"), examId)
+      .eq(path[ExamSectionQuestion]("examSection.id"), sectionId)
+      .eq(path[ExamSectionQuestion]("question.id"), questionId)
       .find match
       case None => Left(SectionQuestionNotFound)
       case Some(sectionQuestion) =>
@@ -261,12 +262,12 @@ class ExamSectionService @Inject() (
       user: User
   ): Either[ExamSectionError, ExamSection] =
     DB.find(classOf[ExamSection])
-      .fetch("exam.creator")
-      .fetch("exam.examOwners")
-      .fetch("exam.parent.examOwners")
+      .fetch(path[ExamSection]("exam.creator"))
+      .fetch(path[ExamSection]("exam.examOwners"))
+      .fetch(path[ExamSection]("exam.parent.examOwners"))
       .where()
       .idEq(sectionId)
-      .eq("exam.id", examId)
+      .eq(path[ExamSection]("exam.id"), examId)
       .find match
       case None => Left(SectionNotFound)
       case Some(section) =>
@@ -303,17 +304,18 @@ class ExamSectionService @Inject() (
     }
     val dto = SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
 
-    val pp        = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))")
+    val pp = props[ExamSectionQuestion]("(*, question(*, options(*)), options(*, option(*)))")
     val baseQuery = DB.find(classOf[ExamSectionQuestion]).apply(pp).where().idEq(questionId)
     val query =
-      if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("examSection.exam.examOwners", user)
+      if user.hasRole(Role.Name.TEACHER) then
+        baseQuery.eq(path[ExamSectionQuestion]("examSection.exam.examOwners"), user)
       else baseQuery
     query.find match
       case None => Left(AccessForbidden)
       case Some(examSectionQuestion) =>
         DB.find(classOf[Question])
-          .fetch("examSectionQuestions")
-          .fetch("examSectionQuestions.options")
+          .fetch(path[Question]("examSectionQuestions"))
+          .fetch(path[Question]("examSectionQuestions.options"))
           .where()
           .idEq(examSectionQuestion.question.id)
           .find match
@@ -363,10 +365,13 @@ class ExamSectionService @Inject() (
       user: User
   ): Either[ExamSectionError, ExamSectionQuestion] =
     val pp =
-      PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
+      props[ExamSectionQuestion](
+        "(*, question(*, attachment(*), options(*)), options(*, option(*)))"
+      )
     val baseQuery = DB.find(classOf[ExamSectionQuestion]).apply(pp).where().idEq(questionId)
     val query =
-      if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("examSection.exam.examOwners", user)
+      if user.hasRole(Role.Name.TEACHER) then
+        baseQuery.eq(path[ExamSectionQuestion]("examSection.exam.examOwners"), user)
       else baseQuery
     query.find match
       case None => Left(AccessForbidden)
@@ -402,23 +407,23 @@ class ExamSectionService @Inject() (
     val baseQuery = DB.find(classOf[ExamSection]).where()
     val withCreatorFilter =
       if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-        baseQuery.where().eq("creator.id", user.id)
+        baseQuery.where().eq(path[ExamSection]("creator.id"), user.id)
       else baseQuery
     val withFilter = filter.fold(withCreatorFilter) { f =>
       val condition = s"%$f%"
-      withCreatorFilter.ilike("name", condition)
+      withCreatorFilter.ilike(path[ExamSection]("name"), condition)
     }
     val withExamFilter = examIds.filter(_.nonEmpty).fold(withFilter) { ids =>
-      withFilter.in("exam.id", ids.asJava)
+      withFilter.in(path[ExamSection]("exam.id"), ids.asJava)
     }
     val withCourseFilter = courseIds.filter(_.nonEmpty).fold(withExamFilter) { ids =>
-      withExamFilter.in("exam.course.id", ids.asJava)
+      withExamFilter.in(path[ExamSection]("exam.course.id"), ids.asJava)
     }
     val withTagFilter = tagIds.filter(_.nonEmpty).fold(withCourseFilter) { ids =>
-      withCourseFilter.in("examSectionQuestions.question.tags.id", ids.asJava)
+      withCourseFilter.in(path[ExamSection]("sectionQuestions.question.tags.id"), ids.asJava)
     }
     val query = ownerIds.filter(_.nonEmpty).fold(withTagFilter) { ids =>
-      withTagFilter.in("questionOwners.id", ids.asJava)
+      withTagFilter.in(path[ExamSection]("sectionQuestions.question.questionOwners.id"), ids.asJava)
     }
     query.distinct.toList
 
@@ -431,8 +436,8 @@ class ExamSectionService @Inject() (
   ): Either[ExamSectionError, (Exam, ExamSection)] =
     val examOpt =
       DB.find(classOf[Exam])
-        .fetch("examOwners")
-        .fetch("examSections")
+        .fetch(path[Exam]("examOwners"))
+        .fetch(path[Exam]("examSections"))
         .where()
         .idEq(examId)
         .find

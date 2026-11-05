@@ -8,6 +8,7 @@ import biweekly.component.VEvent
 import biweekly.{Biweekly, ICalVersion, ICalendar}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.LanguageInspection
@@ -460,8 +461,8 @@ class EmailComposerImpl @Inject() (
         val examInfo         = s"${exam.name} (${exam.course.code.split("_")(0)})"
         val linkToInspection = s"$hostName/staff/exams/${exam.id}/5"
         val exams =
-          DB.find(classOf[Exam]).where.eq("parent.id", exam.id).eq(
-            "state",
+          DB.find(classOf[Exam]).where.eq(path[Exam]("parent.id"), exam.id).eq(
+            path[Exam]("state"),
             ExamState.REVIEW
           ).list
         val values = Map(
@@ -975,17 +976,17 @@ class EmailComposerImpl @Inject() (
         // Owners and inspectors separately, for the same reason as in getReviews
         def exams(teacherPath: String) = DB
           .find(classOf[Exam])
-          .fetch("course")
-          .fetch("examEnrolments")
-          .fetch("examEnrolments.reservation")
-          .fetch("examEnrolments.examinationEventConfiguration.examinationEvent")
+          .fetch(path[Exam]("course"))
+          .fetch(path[Exam]("examEnrolments"))
+          .fetch(path[Exam]("examEnrolments.reservation"))
+          .fetch(path[Exam]("examEnrolments.examinationEventConfiguration.examinationEvent"))
           .where
           .eq(teacherPath, teacher)
-          .isNotNull("course")
-          .eq("state", ExamState.PUBLISHED)
-          .gt("periodEnd", new Date)
+          .isNotNull(path[Exam]("course"))
+          .eq(path[Exam]("state"), ExamState.PUBLISHED)
+          .gt(path[Exam]("periodEnd"), new Date)
           .list
-        (exams("examOwners") ++ exams("examInspections.user"))
+        (exams(path[Exam]("examOwners")) ++ exams(path[Exam]("examInspections.user")))
           .distinctBy(_.id)
           .map(e => (e, getEnrolments(e)))
           .filterNot((_, ees) => ees.isEmpty)
@@ -1027,16 +1028,17 @@ class EmailComposerImpl @Inject() (
   private def getReviews(teacher: User, states: Seq[Exam.State]): List[ExamParticipation] =
     def reviews(teacherPath: String) = DB
       .find(classOf[ExamParticipation])
-      .select("deadline")
-      .fetch("exam", "state")
-      .fetch("exam.parent", "name")
-      .fetch("exam.parent.course", "code")
+      .select(path[ExamParticipation]("deadline"))
+      .fetch(path[ExamParticipation]("exam"), "state")
+      .fetch(path[ExamParticipation]("exam.parent"), "name")
+      .fetch(path[ExamParticipation]("exam.parent.course"), "code")
       .where
       .eq(teacherPath, teacher)
-      .in("exam.state", states.asJava)
-      .isNotNull("exam.parent")
+      .in(path[ExamParticipation]("exam.state"), states.asJava)
+      .isNotNull(path[ExamParticipation]("exam.parent"))
       .list
-    (reviews("exam.parent.examOwners") ++ reviews("exam.examInspections.user"))
+    (reviews(path[ExamParticipation]("exam.parent.examOwners")) ++
+      reviews(path[ExamParticipation]("exam.examInspections.user")))
       .distinctBy(_.id)
 
   private def createAssessmentBlock(assessments: Seq[ExamParticipation], lang: Lang) =

@@ -4,6 +4,7 @@
 
 package features.facility.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.Reservation
@@ -42,8 +43,8 @@ class AvailabilityService @Inject() (
         val reservations = DB
           .find(classOf[Reservation])
           .where()
-          .eq("machine.room.id", roomId)
-          .between("startAt", searchStart, searchEnd)
+          .eq(path[Reservation]("machine.room.id"), roomId)
+          .between(path[Reservation]("startAt"), searchStart, searchEnd)
           .list
 
         val startDate = searchStart.atZone(ZoneOffset.UTC).toLocalDate

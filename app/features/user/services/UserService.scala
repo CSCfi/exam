@@ -4,6 +4,7 @@
 
 package features.user.services
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -28,7 +29,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
         if !user.permissions.asScala.exists(_.value == permissionString) then
           PermissionType.values().find(_.name() == permissionString) match
             case Some(permType) =>
-              DB.find(classOf[Permission]).where().eq("type", permType).find match
+              DB.find(classOf[Permission]).where().eq(path[Permission]("type"), permType).find match
                 case Some(permission) =>
                   user.permissions.add(permission)
                   user.update()
@@ -44,7 +45,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
         if user.permissions.asScala.exists(_.value == permissionString) then
           PermissionType.values().find(_.name() == permissionString) match
             case Some(permType) =>
-              DB.find(classOf[Permission]).where().eq("type", permType).find match
+              DB.find(classOf[Permission]).where().eq(path[Permission]("type"), permType).find match
                 case Some(permission) =>
                   user.permissions.remove(permission)
                   user.update()
@@ -54,23 +55,32 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
         else Right(())
 
   def listUsers(filter: Option[String]): (Seq[User], PathProperties) =
-    val pp    = PathProperties.parse("(*, roles(*), permissions(*))")
+    val pp    = props[User]("(*, roles(*), permissions(*))")
     val query = DB.find(classOf[User]).apply(pp)
 
     val results = filter match
       case Some(f) =>
-        val baseQuery      = query.where().disjunction()
-        val withNameSearch = userHandler.applyNameSearch(null, baseQuery, f)
-        val condition      = s"%$f%"
+        val baseQuery = query.where().disjunction()
+        val withNameSearch =
+          userHandler.applyNameSearch(path[User]("firstName"), path[User]("lastName"), baseQuery, f)
+        val condition = s"%$f%"
         withNameSearch
-          .ilike("email", condition)
-          .ilike("userIdentifier", condition)
-          .ilike("employeeNumber", condition)
+          .ilike(path[User]("email"), condition)
+          .ilike(path[User]("userIdentifier"), condition)
+          .ilike(path[User]("employeeNumber"), condition)
           .endJunction()
-          .orderBy("lastName, firstName")
+          .orderBy()
+          .asc(path[User]("lastName"))
+          .orderBy()
+          .asc(path[User]("firstName"))
           .list
       case None =>
-        query.orderBy("lastName, firstName").list
+        query
+          .orderBy()
+          .asc(path[User]("lastName"))
+          .orderBy()
+          .asc(path[User]("firstName"))
+          .list
 
     (results, pp)
 
@@ -79,7 +89,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
       case None => Left(UserNotFound)
       case Some(user) =>
         if !user.roles.asScala.exists(_.name == roleName) then
-          DB.find(classOf[Role]).where().eq("name", roleName).find match
+          DB.find(classOf[Role]).where().eq(path[Role]("name"), roleName).find match
             case None => Left(RoleNotFound)
             case Some(role) =>
               user.roles.add(role)
@@ -92,7 +102,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
       case None => Left(UserNotFound)
       case Some(user) =>
         if user.roles.asScala.exists(_.name == roleName) then
-          DB.find(classOf[Role]).where().eq("name", roleName).find match
+          DB.find(classOf[Role]).where().eq(path[Role]("name"), roleName).find match
             case None => Left(RoleNotFound)
             case Some(role) =>
               user.roles.remove(role)
@@ -101,8 +111,10 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
         else Right(())
 
   def listUsersByRole(role: String): (Seq[User], PathProperties) =
-    val pp    = PathProperties.parse("(*, roles(*), permissions(*))")
-    val users = DB.find(classOf[User]).where().eq("roles.name", role).orderBy("lastName").list
+    val pp = props[User]("(*, roles(*), permissions(*))")
+    val users = DB.find(classOf[User]).where().eq(path[User]("roles.name"), role).orderBy(
+      path[User]("lastName")
+    ).list
     (users, pp)
 
   def listQuestionOwners(
@@ -121,15 +133,16 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
     listUsersByRoleAndName(Role.Name.TEACHER.toString, criteria)
 
   def listUnenrolledStudents(eid: Long, criteria: String): Seq[User] =
-    val enrolments      = DB.find(classOf[ExamEnrolment]).where().eq("exam.id", eid).list
+    val enrolments =
+      DB.find(classOf[ExamEnrolment]).where().eq(path[ExamEnrolment]("exam.id"), eid).list
     val users           = listUsersByRoleAndName("STUDENT", criteria)
     val enrolledUserIds = enrolments.map(_.user.id).toSet
     users.filterNot(u => enrolledUserIds.contains(u.id))
 
   def updateUserAgreementAccepted(userId: Long): Either[UserError, Unit] =
     DB.find(classOf[User])
-      .fetch("roles", "name")
-      .fetch("language")
+      .fetch(path[User]("roles"), "name")
+      .fetch(path[User]("language"))
       .where()
       .idEq(userId)
       .find match
@@ -151,6 +164,11 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
             Right(())
 
   private def listUsersByRoleAndName(role: String, nameFilter: String): Seq[User] =
-    val baseQuery      = DB.find(classOf[User]).where().eq("roles.name", role).disjunction()
-    val withNameSearch = userHandler.applyNameSearch(null, baseQuery, nameFilter)
+    val baseQuery = DB.find(classOf[User]).where().eq(path[User]("roles.name"), role).disjunction()
+    val withNameSearch = userHandler.applyNameSearch(
+      path[User]("firstName"),
+      path[User]("lastName"),
+      baseQuery,
+      nameFilter
+    )
     withNameSearch.endJunction().list

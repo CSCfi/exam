@@ -6,6 +6,7 @@ package features.iop.collaboration.services
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.iop.transfer.services.ExternalAttachmentLoaderService
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Model}
@@ -87,7 +88,7 @@ class CollaborativeExamLoaderService @Inject() (
         throw new RuntimeException(e)
 
   def getAssessmentPath: PathProperties =
-    val path = """(*,
+    props[ExamParticipation]("""(*,
                   |user(*),
                   |exam(*,
                   |  executionType(*),
@@ -112,8 +113,7 @@ class CollaborativeExamLoaderService @Inject() (
                   |    )
                   |  )
                   |)
-                  |)""".stripMargin
-    PathProperties.parse(path)
+                  |)""".stripMargin)
 
   /** Uploads the attempt's attachments and then the attempt itself to XM. */
   def sendAssessmentWithAttachments(participation: ExamParticipation): Future[DeliveryResult] =

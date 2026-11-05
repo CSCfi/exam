@@ -5,8 +5,10 @@
 package features.enrolment.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.enrolment.services.{ReservationError, ReservationService}
 import io.ebean.text.PathProperties
+import models.facility.ExamRoom
 import models.user.Role
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
@@ -35,7 +37,7 @@ class ReservationController @Inject() (
 
   def getExamRooms: Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      val pp = PathProperties.parse("(id, name, examMachines(id))")
+      val pp = props[ExamRoom]("(id, name, examMachines(id))")
       Ok(reservationService.getExamRooms.asJson(pp))
     }
 

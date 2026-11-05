@@ -103,6 +103,23 @@ Global concerns:
 
 The Angular frontend calls Play REST endpoints defined in `conf/routes`. Controllers validate and delegate to services; Ebean models map to PostgreSQL via JPA-style annotations. JSON serialization uses Gson on the backend with custom serializers for complex types.
 
+### Transactions
+
+**Do not use `@Transactional` annotations — neither works in this codebase.** `play.db.ebean.Transactional` is Play action composition that only ever worked on the 6.x Java controller actions. `io.ebean.annotation.Transactional` needs Ebean bytecode enhancement, which only covers the entity packages. On a Scala method both compile and do nothing, so each `save()`/`update()` autocommits on its own. A failure halfway then leaves partial data. CSCEXAM-1599 is an example: duplicate exam copies on every retry.
+
+Use an explicit transaction instead:
+
+```scala
+Using.resource(DB.beginTransaction()) { tx =>
+  ...           // saves inside join tx (it is bound to the current thread)
+  tx.commit()   // close() without commit rolls back, also on exceptions
+}
+```
+
+- The transaction is **thread-bound**: work in a `Future`/`IO` continuation started inside the block runs outside it, and usually after the commit. Commit-then-call-remote is the intended pattern when an IOP/XM request is involved (`CalendarService`, `EnrolmentService`). Just don't expect the async tail to be atomic.
+- Schedule emails and other side effects only after the commit, so a rollback does not notify anyone.
+- Integration tests run with evolutions disabled on an Ebean-generated schema (`conf/integrationtest.conf`). NOT NULL constraints from evolutions may be missing there, so a spec can pass with data that fails in production.
+
 ### Session response headers (exam/machine redirect signaling)
 
 `SystemFilter` (`app/system/SystemFilter.scala`) mirrors specific Play **session** keys onto HTTP **response headers** for every `/app` and `/integration` request:

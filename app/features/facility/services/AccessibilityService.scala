@@ -4,6 +4,7 @@
 
 package features.facility.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import features.facility.services.AccessibilityError.*
 import io.ebean.DB
@@ -31,7 +32,7 @@ class AccessibilityService @Inject() () extends EbeanQueryExtensions:
       case Some(accessibility) =>
         DB.find(classOf[ExamRoom])
           .where()
-          .in("accessibilities", accessibility)
+          .in(path[ExamRoom]("accessibilities"), accessibility)
           .list
           .foreach { er =>
             er.accessibilities.remove(accessibility)

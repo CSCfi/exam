@@ -5,9 +5,10 @@
 package features.examination.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.examination.services.ExaminationService.getPath
 import features.examination.services.{ExaminationError, ExaminationService, RequestData}
-import io.ebean.text.PathProperties
+import models.questions.ClozeTestAnswer
 import models.user.Role
 import play.api.libs.json.JsValue
 import play.api.mvc.*
@@ -157,6 +158,6 @@ class ExaminationController @Inject() (
         ).map {
           case Left(error) => toResult(error)
           case Right(answer) =>
-            Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)")))
+            Ok(answer.asJson(props[ClozeTestAnswer]("(id, objectVersion, answer)")))
         }
       }

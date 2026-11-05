@@ -4,6 +4,7 @@
 
 package services.datetime
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
@@ -70,10 +71,13 @@ class CalendarHandlerImpl @Inject() (
                 val zoneId = TimeUtils.zoneIdOf(room.localTimezone)
                 val reservations = DB
                   .find(classOf[Reservation])
-                  .fetch("enrolment.exam")
+                  .fetch(path[Reservation]("enrolment.exam"))
                   .where()
-                  .eq("user", user)
-                  .gt("startAt", searchDate.minusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant)
+                  .eq(path[Reservation]("user"), user)
+                  .gt(
+                    path[Reservation]("startAt"),
+                    searchDate.minusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant
+                  )
                   .list
 
                 val machines = getEligibleMachines(room, exam)
@@ -81,7 +85,10 @@ class CalendarHandlerImpl @Inject() (
                 val periods = DB
                   .find(classOf[MaintenancePeriod])
                   .where()
-                  .gt("endsAt", searchDate.atStartOfDay(ZoneOffset.UTC).toInstant)
+                  .gt(
+                    path[MaintenancePeriod]("endsAt"),
+                    searchDate.atStartOfDay(ZoneOffset.UTC).toInstant
+                  )
                   .list
                   .map(p => p.startsAt to p.endsAt)
 
@@ -105,10 +112,10 @@ class CalendarHandlerImpl @Inject() (
 
     val reservations = DB
       .find(classOf[Reservation])
-      .fetch("enrolment.exam")
+      .fetch(path[Reservation]("enrolment.exam"))
       .where()
-      .eq("user", reservation.user)
-      .ge("startAt", searchDate.atStartOfDay(ZoneOffset.UTC).toInstant)
+      .eq(path[Reservation]("user"), reservation.user)
+      .ge(path[Reservation]("startAt"), searchDate.atStartOfDay(ZoneOffset.UTC).toInstant)
       .list
 
     val machines = getEligibleMachines(reservation.machine.room, reservation.enrolment.exam)
@@ -116,7 +123,7 @@ class CalendarHandlerImpl @Inject() (
     val periods = DB
       .find(classOf[MaintenancePeriod])
       .where()
-      .gt("endsAt", searchDate.atStartOfDay(ZoneOffset.UTC).toInstant)
+      .gt(path[MaintenancePeriod]("endsAt"), searchDate.atStartOfDay(ZoneOffset.UTC).toInstant)
       .list
       .map(p => p.startsAt to p.endsAt)
 
@@ -157,14 +164,14 @@ class CalendarHandlerImpl @Inject() (
   private def getEligibleMachines(room: ExamRoom, exam: Exam): List[ExamMachine] =
     val candidates = DB
       .find(classOf[ExamMachine])
-      .fetch("room")
-      .fetch("room.mailAddress")
+      .fetch(path[ExamMachine]("room"))
+      .fetch(path[ExamMachine]("room.mailAddress"))
       .where()
-      .eq("room.id", room.id)
-      .ne("outOfService", true)
-      .ne("archived", true)
-      .isNotNull("ipAddress")
-      .isNotNull("name")
+      .eq(path[ExamMachine]("room.id"), room.id)
+      .ne(path[ExamMachine]("outOfService"), true)
+      .ne(path[ExamMachine]("archived"), true)
+      .isNotNull(path[ExamMachine]("ipAddress"))
+      .isNotNull(path[ExamMachine]("name"))
       .list
 
     candidates.filter { em =>
@@ -344,10 +351,10 @@ class CalendarHandlerImpl @Inject() (
         // user's reservations starting from now
         val reservations = DB
           .find(classOf[Reservation])
-          .fetch("enrolment.exam")
+          .fetch(path[Reservation]("enrolment.exam"))
           .where()
-          .eq("user", user)
-          .gt("startAt", searchInstant)
+          .eq(path[Reservation]("user"), user)
+          .gt(path[Reservation]("startAt"), searchInstant)
           .list
 
         val map: Map[Interval, Option[Int]] = arr.map { slot =>
@@ -363,7 +370,10 @@ class CalendarHandlerImpl @Inject() (
         val periods = DB
           .find(classOf[MaintenancePeriod])
           .where()
-          .ge("endsAt", mondayOfWeek.atStartOfDay(ZoneOffset.UTC).toInstant)
+          .ge(
+            path[MaintenancePeriod]("endsAt"),
+            mondayOfWeek.atStartOfDay(ZoneOffset.UTC).toInstant
+          )
           .list
           .map(p => p.startsAt to p.endsAt)
 
@@ -500,14 +510,14 @@ class CalendarHandlerImpl @Inject() (
 
   override def getEnrolment(examId: Long, user: User): ExamEnrolment =
     DB.find(classOf[ExamEnrolment])
-      .fetch("exam")
+      .fetch(path[ExamEnrolment]("exam"))
       .where()
-      .eq("user", user)
-      .eq("exam.id", examId)
-      .eq("exam.state", ExamState.PUBLISHED)
+      .eq(path[ExamEnrolment]("user"), user)
+      .eq(path[ExamEnrolment]("exam.id"), examId)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
       .disjunction()
-      .isNull("reservation")
-      .gt("reservation.startAt", clock.now())
+      .isNull(path[ExamEnrolment]("reservation"))
+      .gt(path[ExamEnrolment]("reservation.startAt"), clock.now())
       .endJunction()
       .findOne()
 

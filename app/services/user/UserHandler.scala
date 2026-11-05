@@ -9,8 +9,10 @@ import io.ebean.ExpressionList
 
 @ImplementedBy(classOf[UserHandlerImpl])
 trait UserHandler:
+  /** Matches `filter` against the given first and last name paths, both checked with `path[T]`. */
   def applyNameSearch[T](
-      prefix: String,
+      firstName: String,
+      lastName: String,
       query: ExpressionList[T],
       filter: String
   ): ExpressionList[T]

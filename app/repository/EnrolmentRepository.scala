@@ -4,6 +4,7 @@
 
 package repository
 
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Database}
@@ -51,18 +52,21 @@ class EnrolmentRepository @Inject() (
     Future {
       val baseQuery = DB
         .find(classOf[ExamEnrolment])
-        .fetch("user", "id")
-        .fetch("user.language")
-        .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
+        .fetch(path[ExamEnrolment]("user"), "id")
+        .fetch(path[ExamEnrolment]("user.language"))
+        .fetch(
+          path[ExamEnrolment]("reservation.machine.room"),
+          "roomInstruction, roomInstructionEN, roomInstructionSV"
+        )
         .where()
         .disjunction()
-        .eq("exam.hash", hash)
-        .eq("externalExam.hash", hash)
+        .eq(path[ExamEnrolment]("exam.hash"), hash)
+        .eq(path[ExamEnrolment]("externalExam.hash"), hash)
         .endJunction()
-        .isNotNull("reservation.machine.room")
+        .isNotNull(path[ExamEnrolment]("reservation.machine.room"))
 
       val query =
-        if user.hasRole(Role.Name.STUDENT) then baseQuery.eq("user", user)
+        if user.hasRole(Role.Name.STUDENT) then baseQuery.eq(path[ExamEnrolment]("user"), user)
         else baseQuery
 
       Option(query.findOne()).map(_.reservation.machine.room)
@@ -70,7 +74,7 @@ class EnrolmentRepository @Inject() (
 
   private def doGetStudentEnrolments(user: User): List[ExamEnrolment] =
     val now = clock.now()
-    val pp = PathProperties.parse(
+    val pp = props[ExamEnrolment](
       """(*,
         |examinationEventConfiguration(
         |  examinationEvent(*)
@@ -103,10 +107,10 @@ class EnrolmentRepository @Inject() (
     val enrolments = db.find(classOf[ExamEnrolment])
       .apply(pp)
       .where()
-      .eq("user", user)
+      .eq(path[ExamEnrolment]("user"), user)
       .or()
-      .gt("reservation.endAt", now)
-      .isNull("reservation")
+      .gt(path[ExamEnrolment]("reservation.endAt"), now)
+      .isNull(path[ExamEnrolment]("reservation"))
       .endOr()
       .list
       .filter { ee =>
@@ -162,7 +166,10 @@ class EnrolmentRepository @Inject() (
     headers.toMap
 
   def isOnExamMachine(remoteAddress: String): Boolean =
-    db.find(classOf[ExamMachine]).where().eq("ipAddress", remoteAddress).find.isDefined
+    db.find(classOf[ExamMachine]).where().eq(
+      path[ExamMachine]("ipAddress"),
+      remoteAddress
+    ).find.isDefined
 
   private def isOnExamMachine(request: RequestHeader): Boolean =
     isOnExamMachine(request.remoteAddress)
@@ -216,7 +223,10 @@ class EnrolmentRepository @Inject() (
         if remoteIp != machineIp then
           val (header, message) =
             // Is this a known machine?
-            Option(db.find(classOf[ExamMachine]).where().eq("ipAddress", remoteIp).findOne()) match
+            Option(db.find(classOf[ExamMachine]).where().eq(
+              path[ExamMachine]("ipAddress"),
+              remoteIp
+            ).findOne()) match
               case None =>
                 // IP is not known
                 val local = configReader.isLocalUser(eppn)
@@ -321,30 +331,38 @@ class EnrolmentRepository @Inject() (
   private def getNextEnrolment(userId: Long, minutesToFuture: Int): Option[ExamEnrolment] =
     val results = db
       .find(classOf[ExamEnrolment])
-      .fetch("reservation")
-      .fetch("reservation.machine")
-      .fetch("reservation.machine.room")
-      .fetch("examinationEventConfiguration")
-      .fetch("examinationEventConfiguration.examinationEvent")
-      .fetch("exam")
-      .fetch("externalExam")
-      .fetch("collaborativeExam")
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("reservation.machine"))
+      .fetch(path[ExamEnrolment]("reservation.machine.room"))
+      .fetch(path[ExamEnrolment]("examinationEventConfiguration"))
+      .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"))
+      .fetch(path[ExamEnrolment]("exam"))
+      .fetch(path[ExamEnrolment]("externalExam"))
+      .fetch(path[ExamEnrolment]("collaborativeExam"))
       .where()
-      .eq("user.id", userId)
+      .eq(path[ExamEnrolment]("user.id"), userId)
       .or()
-      .eq("exam.state", ExamState.PUBLISHED)
-      .eq("exam.state", ExamState.STUDENT_STARTED)
-      .eq("exam.state", ExamState.INITIALIZED)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.STUDENT_STARTED)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.INITIALIZED)
       .and()
-      .isNull("exam")
-      .eq("collaborativeExam.state", ExamState.PUBLISHED)
+      .isNull(path[ExamEnrolment]("exam"))
+      .eq(path[ExamEnrolment]("collaborativeExam.state"), ExamState.PUBLISHED)
       .endAnd()
-      .jsonEqualTo("externalExam.content", "state", ExamState.PUBLISHED.toString)
-      .jsonEqualTo("externalExam.content", "state", ExamState.STUDENT_STARTED.toString)
+      .jsonEqualTo(
+        path[ExamEnrolment]("externalExam.content"),
+        "state",
+        ExamState.PUBLISHED.toString
+      )
+      .jsonEqualTo(
+        path[ExamEnrolment]("externalExam.content"),
+        "state",
+        ExamState.STUDENT_STARTED.toString
+      )
       .endOr()
       .or()
-      .isNotNull("reservation.machine")
-      .isNotNull("examinationEventConfiguration")
+      .isNotNull(path[ExamEnrolment]("reservation.machine"))
+      .isNotNull(path[ExamEnrolment]("examinationEventConfiguration"))
       .endOr()
       .distinct
 

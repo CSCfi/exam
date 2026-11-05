@@ -4,6 +4,7 @@
 
 package features.exam.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import models.exam.Course
@@ -36,11 +37,11 @@ class CourseService @Inject() (
           DB.find(classOf[Course])
             .where
             .disjunction()
-            .isNull("endDate")
-            .gt("endDate", java.time.Instant.now())
+            .isNull(path[Course]("endDate"))
+            .gt(path[Course]("endDate"), java.time.Instant.now())
             .endJunction()
-            .ilike("name", s"%$x%")
-            .orderBy("code")
+            .ilike(path[Course]("name"), s"%$x%")
+            .orderBy(path[Course]("code"))
             .list
             .filter(c =>
               Option(c.startDate).isEmpty || configReader
@@ -54,7 +55,9 @@ class CourseService @Inject() (
         )
       case _ =>
         Future {
-          DB.find(classOf[Course]).where.isNotNull("name").orderBy("code").list
+          DB.find(classOf[Course]).where.isNotNull(path[Course]("name")).orderBy(path[Course](
+            "code"
+          )).list
         }
 
   def getCourse(courseId: Long): Option[Course] =
@@ -67,23 +70,24 @@ class CourseService @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): List[Course] =
-    val baseQuery = DB.find(classOf[Course]).where.isNotNull("name")
+    val baseQuery = DB.find(classOf[Course]).where.isNotNull(path[Course]("name"))
     val withOwnerFilter =
-      if !user.hasRole(models.user.Role.Name.ADMIN) then baseQuery.eq("exams.examOwners", user)
+      if !user.hasRole(models.user.Role.Name.ADMIN) then
+        baseQuery.eq(path[Course]("exams.examOwners"), user)
       else baseQuery
     val withExamFilter = examIds.filter(_.nonEmpty).fold(withOwnerFilter) { ids =>
-      withOwnerFilter.in("exams.id", ids.asJava)
+      withOwnerFilter.in(path[Course]("exams.id"), ids.asJava)
     }
     val withSectionFilter = sectionIds.filter(_.nonEmpty).fold(withExamFilter) { ids =>
-      withExamFilter.in("exams.examSections.id", ids.asJava)
+      withExamFilter.in(path[Course]("exams.examSections.id"), ids.asJava)
     }
     val withTagFilter = tagIds.filter(_.nonEmpty).fold(withSectionFilter) { ids =>
       withSectionFilter.in(
-        "exams.examSections.sectionQuestions.question.parent.tags.id",
+        path[Course]("exams.examSections.sectionQuestions.question.parent.tags.id"),
         ids.asJava
       )
     }
     val query = ownerIds.filter(_.nonEmpty).fold(withTagFilter) { ids =>
-      withTagFilter.in("exams.examOwners.id", ids.asJava)
+      withTagFilter.in(path[Course]("exams.examOwners.id"), ids.asJava)
     }
-    query.orderBy("name desc").list
+    query.orderBy().desc(path[Course]("name")).list

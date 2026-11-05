@@ -15,7 +15,6 @@ trait FileHandler:
   def read(path: String): Either[String, String]
   def encodeAndDelete(file: File): Either[String, String]
   def getContentDisposition(file: File): String
-  @annotation.varargs
   def createFilePath(pathParams: String*): String
   def getAttachmentPath: String
   def removeAttachmentFile(filePath: String): Unit

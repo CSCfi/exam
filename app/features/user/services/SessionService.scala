@@ -4,6 +4,7 @@
 
 package features.user.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.user.services.SessionError.*
 import io.ebean.DB
@@ -87,7 +88,7 @@ class SessionService @Inject() (
         if blockExternal || blockTempVisitorWrongMachine then
           Future.successful(Left(DisallowedLogin(configReader.getHomeOrganisations)))
         else
-          val userResult = DB.find(classOf[User]).where().eq("eppn", eppn).find match
+          val userResult = DB.find(classOf[User]).where().eq(path[User]("eppn"), eppn).find match
             case Some(u) => updateUser(u, headers).map(_ => u)
             case None    => createNewUser(eppn, headers, isTemporaryVisitor)
 
@@ -131,8 +132,8 @@ class SessionService @Inject() (
             val pwd = DigestUtils.md5Hex(pass)
             DB.find(classOf[User])
               .where()
-              .eq("eppn", s"$user@funet.fi")
-              .eq("password", pwd)
+              .eq(path[User]("eppn"), s"$user@funet.fi")
+              .eq(path[User]("password"), pwd)
               .find match
               case Some(u) =>
                 u.lastLogin = new Date()
@@ -171,7 +172,7 @@ class SessionService @Inject() (
   private def associateWithPreEnrolments(user: User): Unit =
     DB.find(classOf[ExamEnrolment])
       .where()
-      .isNotNull("preEnrolledUserEmail")
+      .isNotNull(path[ExamEnrolment]("preEnrolledUserEmail"))
       .distinct
       .toList
       .filter(ee => isUserPreEnrolled(ee.preEnrolledUserEmail, user))
@@ -195,16 +196,19 @@ class SessionService @Inject() (
     DB
       .find(classOf[Reservation])
       .where()
-      .eq("externalUserRef", eppn)
-      .isNotNull("externalRef")
-      .le("startAt", future)
-      .gt("endAt", now)
-      .orderBy("startAt")
+      .eq(path[Reservation]("externalUserRef"), eppn)
+      .isNotNull(path[Reservation]("externalRef"))
+      .le(path[Reservation]("startAt"), future)
+      .gt(path[Reservation]("endAt"), now)
+      .orderBy(path[Reservation]("startAt"))
       .list
       .headOption
 
   private def handleExternalReservation(user: User, reservation: Reservation): Future[Unit] =
-    DB.find(classOf[ExamEnrolment]).where().eq("reservation", reservation).find match
+    DB.find(classOf[ExamEnrolment]).where().eq(
+      path[ExamEnrolment]("reservation"),
+      reservation
+    ).find match
       case Some(_) =>
         // already imported
         Future.successful(())
@@ -282,7 +286,7 @@ class SessionService @Inject() (
       .toRight(ValidationError("Missing given name"))
 
   private def findOrganisation(attribute: String): Option[Organisation] =
-    DB.find(classOf[Organisation]).where().eq("code", attribute).find
+    DB.find(classOf[Organisation]).where().eq(path[Organisation]("code"), attribute).find
 
   private def updateUser(
       user: User,
@@ -306,7 +310,7 @@ class SessionService @Inject() (
       val permission = DB
         .find(classOf[Permission])
         .where()
-        .eq("type", PermissionType.CAN_CREATE_BYOD_EXAM)
+        .eq(path[Permission]("type"), PermissionType.CAN_CREATE_BYOD_EXAM)
         .findOne()
       user.permissions.add(permission)
 
@@ -383,7 +387,10 @@ class SessionService @Inject() (
       else Map.empty[String, String]
 
     val studentRole =
-      Option(DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).findOne)
+      Option(DB.find(classOf[Role]).where().eq(
+        path[Role]("name"),
+        Role.Name.STUDENT.toString
+      ).findOne)
         .getOrElse(throw new IllegalStateException("Student role not found"))
     val isLocalAccount = configReader.isLocalUser(user.eppn)
     val roles =
@@ -459,7 +466,7 @@ class SessionService @Inject() (
     Option(DB.find(classOf[User], userId)) match
       case None => Future.successful(Left(UserNotFound))
       case Some(user) =>
-        DB.find(classOf[Role]).where().eq("name", roleName).find match
+        DB.find(classOf[Role]).where().eq(path[Role]("name"), roleName).find match
           case None => Future.successful(Left(RoleNotFound))
           case Some(role) =>
             if !user.roles.contains(role) then Future.successful(Left(UserDoesNotHaveRole))

@@ -6,6 +6,7 @@ package system.jobs
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
@@ -40,23 +41,26 @@ class ReservationPollerService @Inject() (
     */
   def findNoShowCandidates(): List[ExamEnrolment] =
     DB.find(classOf[ExamEnrolment])
-      .fetch("exam")
-      .fetch("collaborativeExam")
-      .fetch("externalExam")
-      .fetch("reservation")
-      .fetch("examinationEventConfiguration.examinationEvent")
+      .fetch(path[ExamEnrolment]("exam"))
+      .fetch(path[ExamEnrolment]("collaborativeExam"))
+      .fetch(path[ExamEnrolment]("externalExam"))
+      .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"))
       .where
-      .eq("noShow", false)
-      .isNull("reservation.externalReservation")
+      .eq(path[ExamEnrolment]("noShow"), false)
+      .isNull(path[ExamEnrolment]("reservation.externalReservation"))
       .or()
-      .eq("exam.state", ExamState.PUBLISHED)
-      .eq("exam.state", ExamState.INITIALIZED)
-      .isNull("exam")
-      .isNotNull("externalExam")
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.PUBLISHED)
+      .eq(path[ExamEnrolment]("exam.state"), ExamState.INITIALIZED)
+      .isNull(path[ExamEnrolment]("exam"))
+      .isNotNull(path[ExamEnrolment]("externalExam"))
       .endOr()
       .or()
-      .lt("reservation.endAt", Instant.now())
-      .lt("examinationEventConfiguration.examinationEvent.start", Instant.now())
+      .lt(path[ExamEnrolment]("reservation.endAt"), Instant.now())
+      .lt(
+        path[ExamEnrolment]("examinationEventConfiguration.examinationEvent.start"),
+        Instant.now()
+      )
       .endOr()
       .list
       .filter(isPast)
@@ -71,12 +75,12 @@ class ReservationPollerService @Inject() (
       val reservations = DB
         .find(classOf[Reservation])
         .where
-        .isNull("enrolment")
-        .isNotNull("externalRef")
-        .isNull("user")
-        .isNotNull("externalUserRef")
-        .eq("sentAsNoShow", false)
-        .lt("endAt", Instant.now())
+        .isNull(path[Reservation]("enrolment"))
+        .isNotNull(path[Reservation]("externalRef"))
+        .isNull(path[Reservation]("user"))
+        .isNotNull(path[Reservation]("externalUserRef"))
+        .eq(path[Reservation]("sentAsNoShow"), false)
+        .lt(path[Reservation]("endAt"), Instant.now())
         .list
 
       if enrolments.isEmpty && reservations.isEmpty then

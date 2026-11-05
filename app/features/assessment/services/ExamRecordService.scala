@@ -4,9 +4,9 @@
 
 package features.assessment.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import io.ebean.annotation.Transactional
 import models.assessment.{ExamRecord, ExamScore}
 import models.enrolment.ExamParticipation
 import models.exam.Exam
@@ -37,12 +37,25 @@ class ExamRecordService @Inject() (
     with EbeanJsonExtensions
     with Logging:
 
-  @Transactional
   def addExamRecord(examId: Long, user: User): Either[ExamRecordError, Unit] =
+    // The exam is locked only together with its record
+    val result = Using.resource(DB.beginTransaction()) { tx =>
+      val r = createExamRecord(examId, user)
+      if r.isRight then tx.commit()
+      r
+    }
+    result.map(exam =>
+      emailComposer.scheduleEmail(1.seconds) {
+        emailComposer.composeInspectionReady(exam.creator, Some(user), exam)
+        logger.info(s"Inspection ready notification email sent to ${user.email}")
+      }
+    )
+
+  private def createExamRecord(examId: Long, user: User): Either[ExamRecordError, Exam] =
     DB.find(classOf[Exam])
-      .fetch("parent")
-      .fetch("parent.creator")
-      .fetch("examSections.sectionQuestions.question")
+      .fetch(path[Exam]("parent"))
+      .fetch(path[Exam]("parent.creator"))
+      .fetch(path[Exam]("examSections.sectionQuestions.question"))
       .where()
       .idEq(examId)
       .find match
@@ -55,8 +68,8 @@ class ExamRecordService @Inject() (
             exam.state = ExamState.GRADED_LOGGED
             exam.markLocked(now)
             exam.update()
-            DB.find(classOf[ExamParticipation]).fetch("user").where.eq(
-              "exam.id",
+            DB.find(classOf[ExamParticipation]).fetch(path[ExamParticipation]("user")).where.eq(
+              path[ExamParticipation]("exam.id"),
               exam.id
             ).find match
               case Some(participation) =>
@@ -65,19 +78,15 @@ class ExamRecordService @Inject() (
                 score.save()
                 record.examScore = score
                 record.save()
-                emailComposer.scheduleEmail(1.seconds) {
-                  emailComposer.composeInspectionReady(exam.creator, Some(user), exam)
-                  logger.info(s"Inspection ready notification email sent to ${user.email}")
-                }
-                Right(())
+                Right(exam)
               case None => Left(ExamRecordError.ParticipationNotFound)
       case None => Left(ExamRecordError.ExamNotFound)
 
   def registerExamWithoutRecord(examId: Long, user: User): Either[ExamRecordError, Unit] =
     DB.find(classOf[Exam])
-      .fetch("languageInspection")
-      .fetch("parent")
-      .fetch("parent.creator")
+      .fetch(path[Exam]("languageInspection"))
+      .fetch(path[Exam]("parent"))
+      .fetch(path[Exam]("parent.creator"))
       .where()
       .idEq(examId)
       .find match
@@ -107,10 +116,10 @@ class ExamRecordService @Inject() (
   def streamSelectedExamRecordsAsExcel(examId: Long, ids: List[Long])(os: OutputStream): Unit =
     val records = DB
       .find(classOf[ExamRecord])
-      .fetch("examScore")
+      .fetch(path[ExamRecord]("examScore"))
       .where()
-      .eq("exam.parent.id", examId)
-      .in("exam.id", ids.asJava)
+      .eq(path[ExamRecord]("exam.parent.id"), examId)
+      .in(path[ExamRecord]("exam.id"), ids.asJava)
       .list
     excelBuilder.streamExamRecords(records)(os)
 

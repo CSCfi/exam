@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.controllers
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
 import io.ebean.DB
@@ -56,7 +57,7 @@ class CollaborativeExamController @Inject() (
     val examExecutionType = DB
       .find(classOf[ExamExecutionType])
       .where()
-      .eq("type", ExamExecutionType.Type.PUBLIC.toString)
+      .eq(path[ExamExecutionType]("type"), ExamExecutionType.Type.PUBLIC.toString)
       .findOne()
 
     val exam = new Exam()
@@ -162,9 +163,9 @@ class CollaborativeExamController @Inject() (
     controllerComponents.actionBuilder.andThen(subjectNotPresent) { _ =>
       val grades = DB
         .find(classOf[GradeScale])
-        .fetch("grades")
+        .fetch(path[GradeScale]("grades"))
         .where()
-        .isNull("externalRef")
+        .isNull(path[GradeScale]("externalRef"))
         .distinct
       Ok(grades.asJson)
     }

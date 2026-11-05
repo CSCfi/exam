@@ -7,6 +7,7 @@ package system.jobs
 import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.DB
@@ -78,12 +79,12 @@ class CollaborativeAssessmentSenderService @Inject() (
       DB.find(classOf[ExamParticipation])
         .apply(pp)
         .where
-        .isNotNull("collaborativeExam")
-        .in("exam.state", ExamState.ABORTED, ExamState.REVIEW)
-        .isNull("sentForReview")
-        .isNull("deliveryAbandonedAt")
-        .isNotNull("started")
-        .isNotNull("ended")
+        .isNotNull(path[ExamParticipation]("collaborativeExam"))
+        .in(path[ExamParticipation]("exam.state"), ExamState.ABORTED, ExamState.REVIEW)
+        .isNull(path[ExamParticipation]("sentForReview"))
+        .isNull(path[ExamParticipation]("deliveryAbandonedAt"))
+        .isNotNull(path[ExamParticipation]("started"))
+        .isNotNull(path[ExamParticipation]("ended"))
         .list
         // Attempts that have kept failing for long are tried only once a week
         .filter(p =>

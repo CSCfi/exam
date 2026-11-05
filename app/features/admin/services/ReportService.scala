@@ -4,6 +4,7 @@
 
 package features.admin.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExamParticipation}
@@ -28,22 +29,22 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
       .find(classOf[User])
       .select("id, firstName, lastName")
       .where()
-      .eq("roles.name", "STUDENT")
+      .eq(path[User]("roles.name"), "STUDENT")
       .list
 
   def examNames: List[Exam] =
     DB
       .find(classOf[Exam])
       .select("id, name")
-      .fetch("course", "id, name, code")
+      .fetch(path[Exam]("course"), "id, name, code")
       .where()
-      .isNotNull("name")
-      .isNotNull("course")
-      .isNull("parent") // only Exam prototypes
+      .isNotNull(path[Exam]("name"))
+      .isNotNull(path[Exam]("course"))
+      .isNull(path[Exam]("parent")) // only Exam prototypes
       .list
 
   def findExam(id: Long): Option[Exam] =
-    DB.find(classOf[Exam]).where().idEq(id).isNotNull("course").find
+    DB.find(classOf[Exam]).where().idEq(id).isNotNull(path[Exam]("course")).find
 
   /** Streams the exam metadata sheet to the given output stream. Caller must close the stream. */
   def streamExamAsExcel(exam: Exam)(os: OutputStream): Unit = excelBuilder.streamExam(exam)(os)
@@ -58,27 +59,27 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
     DB
       .find(classOf[Exam])
       .select("name, created, state, periodStart, periodEnd")
-      .fetch("examType", "type")
-      .fetch("course", "code, credits")
-      .fetch("children", "state")
+      .fetch(path[Exam]("examType"), "type")
+      .fetch(path[Exam]("course"), "code, credits")
+      .fetch(path[Exam]("children"), "state")
       .where()
-      .between("created", start, end)
-      .isNull("parent")
-      .isNotNull("course")
-      .eq("creator.id", uid)
-      .orderBy("created")
+      .between(path[Exam]("created"), start, end)
+      .isNull(path[Exam]("parent"))
+      .isNotNull(path[Exam]("course"))
+      .eq(path[Exam]("creator.id"), uid)
+      .orderBy(path[Exam]("created"))
       .list
 
   /** Returns a stream writer if the exam exists; caller must close the stream after writing. */
   def streamExamEnrolmentsAsExcel(id: Long): Option[OutputStream => Unit] =
     DB.find(classOf[Exam])
-      .select("id")
-      .fetch("examEnrolments", "enrolledOn")
-      .fetch("examEnrolments.user", "firstName, lastName, identifier, eppn")
-      .fetch("examEnrolments.reservation", "startAt")
+      .select(path[Exam]("id"))
+      .fetch(path[Exam]("examEnrolments"), "enrolledOn")
+      .fetch(path[Exam]("examEnrolments.user"), "firstName, lastName, identifier, eppn")
+      .fetch(path[Exam]("examEnrolments.reservation"), "startAt")
       .where()
-      .eq("id", id)
-      .isNull("parent")
+      .eq(path[Exam]("id"), id)
+      .isNull(path[Exam]("parent"))
       .find
       .map(proto => (os: OutputStream) => excelBuilder.streamEnrolments(proto)(os))
 
@@ -92,18 +93,18 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
     DB
       .find(classOf[Exam])
       .select("name, created, gradedTime, answerLanguage, state")
-      .fetch("creator", "firstName, lastName")
-      .fetch("gradedByUser", "firstName, lastName")
-      .fetch("course", "code, credits")
-      .fetch("grade", "name")
-      .fetch("creditType", "type")
+      .fetch(path[Exam]("creator"), "firstName, lastName")
+      .fetch(path[Exam]("gradedByUser"), "firstName, lastName")
+      .fetch(path[Exam]("course"), "code, credits")
+      .fetch(path[Exam]("grade"), "name")
+      .fetch(path[Exam]("creditType"), "type")
       .where()
-      .between("gradedTime", start, end)
+      .between(path[Exam]("gradedTime"), start, end)
       .disjunction()
-      .eq("state", ExamState.GRADED)
-      .eq("state", ExamState.GRADED_LOGGED)
+      .eq(path[Exam]("state"), ExamState.GRADED)
+      .eq(path[Exam]("state"), ExamState.GRADED_LOGGED)
       .endJunction()
-      .orderBy("creator.id")
+      .orderBy(path[Exam]("creator.id"))
       .list
 
   /** Streams the reservations report. Caller must close the stream. */
@@ -121,17 +122,17 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
     val end   = java.time.LocalDate.parse(to, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
     DB
       .find(classOf[ExamEnrolment])
-      .select("enrolledOn")
-      .fetch("user", "id, firstName, lastName")
-      .fetch("exam", "id, name")
-      .fetch("reservation", "id, startAt, endAt")
-      .fetch("reservation.machine", "id, name, ipAddress")
-      .fetch("reservation.machine.room", "id, name, roomCode")
+      .select(path[ExamEnrolment]("enrolledOn"))
+      .fetch(path[ExamEnrolment]("user"), "id, firstName, lastName")
+      .fetch(path[ExamEnrolment]("exam"), "id, name")
+      .fetch(path[ExamEnrolment]("reservation"), "id, startAt, endAt")
+      .fetch(path[ExamEnrolment]("reservation.machine"), "id, name, ipAddress")
+      .fetch(path[ExamEnrolment]("reservation.machine.room"), "id, name, roomCode")
       .where()
-      .gt("reservation.endAt", start)
-      .lt("reservation.startAt", end)
-      .eq("reservation.machine.room.id", roomId)
-      .isNotNull("exam")
+      .gt(path[ExamEnrolment]("reservation.endAt"), start)
+      .lt(path[ExamEnrolment]("reservation.startAt"), end)
+      .eq(path[ExamEnrolment]("reservation.machine.room.id"), roomId)
+      .isNotNull(path[ExamEnrolment]("exam"))
       .list
 
   /** Streams the all-exams report to the given output stream. Caller must close the stream. */
@@ -141,25 +142,28 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
     val participations = DB
       .find(classOf[ExamParticipation])
       .select("started, ended, duration")
-      .fetch("user", "id, firstName, lastName, email")
-      .fetch("exam", "id, name, duration, state, gradedTime")
-      .fetch("exam.gradedByUser", "id, firstName, lastName, email")
-      .fetch("exam.course", "name, code")
-      .fetch("exam.course.gradeScale", "description")
-      .fetch("exam.gradeScale", "description")
-      .fetch("exam.grade", "name")
-      .fetch("exam.creditType", "type")
-      .fetch("reservation", "id")
-      .fetch("reservation.machine", "id, name, ipAddress")
-      .fetch("reservation.machine.room", "id, name, roomCode")
-      .fetch("reservation.externalReservation", "roomName, roomCode, machineName")
+      .fetch(path[ExamParticipation]("user"), "id, firstName, lastName, email")
+      .fetch(path[ExamParticipation]("exam"), "id, name, duration, state, gradedTime")
+      .fetch(path[ExamParticipation]("exam.gradedByUser"), "id, firstName, lastName, email")
+      .fetch(path[ExamParticipation]("exam.course"), "name, code")
+      .fetch(path[ExamParticipation]("exam.course.gradeScale"), "description")
+      .fetch(path[ExamParticipation]("exam.gradeScale"), "description")
+      .fetch(path[ExamParticipation]("exam.grade"), "name")
+      .fetch(path[ExamParticipation]("exam.creditType"), "type")
+      .fetch(path[ExamParticipation]("reservation"), "id")
+      .fetch(path[ExamParticipation]("reservation.machine"), "id, name, ipAddress")
+      .fetch(path[ExamParticipation]("reservation.machine.room"), "id, name, roomCode")
+      .fetch(
+        path[ExamParticipation]("reservation.externalReservation"),
+        "roomName, roomCode, machineName"
+      )
       .where()
-      .gt("started", start)
-      .lt("ended", end)
+      .gt(path[ExamParticipation]("started"), start)
+      .lt(path[ExamParticipation]("ended"), end)
       .or()
-      .eq("exam.state", ExamState.GRADED)
-      .eq("exam.state", ExamState.GRADED_LOGGED)
-      .eq("exam.state", ExamState.ARCHIVED)
+      .eq(path[ExamParticipation]("exam.state"), ExamState.GRADED)
+      .eq(path[ExamParticipation]("exam.state"), ExamState.GRADED_LOGGED)
+      .eq(path[ExamParticipation]("exam.state"), ExamState.ARCHIVED)
       .endOr()
       .list
     excelBuilder.streamAllExams(participations)(os)
@@ -191,20 +195,23 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
     DB
       .find(classOf[ExamParticipation])
       .select("started, ended, duration")
-      .fetch("exam", "id, name, duration, state, gradedTime")
-      .fetch("exam.gradedByUser", "id, firstName, lastName, email")
-      .fetch("exam.course", "name, code")
-      .fetch("exam.course.gradeScale", "description")
-      .fetch("exam.gradeScale", "description")
-      .fetch("exam.grade", "name")
-      .fetch("exam.creditType", "type")
-      .fetch("reservation", "id")
-      .fetch("reservation.externalReservation", "roomName, roomCode, machineName")
-      .fetch("reservation.machine", "id, name, ipAddress")
-      .fetch("reservation.machine.room", "id, name, roomCode")
+      .fetch(path[ExamParticipation]("exam"), "id, name, duration, state, gradedTime")
+      .fetch(path[ExamParticipation]("exam.gradedByUser"), "id, firstName, lastName, email")
+      .fetch(path[ExamParticipation]("exam.course"), "name, code")
+      .fetch(path[ExamParticipation]("exam.course.gradeScale"), "description")
+      .fetch(path[ExamParticipation]("exam.gradeScale"), "description")
+      .fetch(path[ExamParticipation]("exam.grade"), "name")
+      .fetch(path[ExamParticipation]("exam.creditType"), "type")
+      .fetch(path[ExamParticipation]("reservation"), "id")
+      .fetch(
+        path[ExamParticipation]("reservation.externalReservation"),
+        "roomName, roomCode, machineName"
+      )
+      .fetch(path[ExamParticipation]("reservation.machine"), "id, name, ipAddress")
+      .fetch(path[ExamParticipation]("reservation.machine.room"), "id, name, roomCode")
       .where()
-      .gt("started", start)
-      .lt("ended", end)
-      .eq("user.id", studentId)
-      .isNotNull("reservation")
+      .gt(path[ExamParticipation]("started"), start)
+      .lt(path[ExamParticipation]("ended"), end)
+      .eq(path[ExamParticipation]("user.id"), studentId)
+      .isNotNull(path[ExamParticipation]("reservation"))
       .list

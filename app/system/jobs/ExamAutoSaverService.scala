@@ -6,12 +6,14 @@ package system.jobs
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.{Exam, ExamState}
 import play.api.Logging
 import services.config.ConfigReader
+import services.exam.AutoEvaluationHandler
 import services.mail.EmailComposer
 
 import java.io.IOException
@@ -23,7 +25,8 @@ import scala.util.control.Exception.catching
 
 class ExamAutoSaverService @Inject() (
     private val composer: EmailComposer,
-    private val configReader: ConfigReader
+    private val configReader: ConfigReader,
+    private val autoEvaluationHandler: AutoEvaluationHandler
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:
@@ -49,6 +52,7 @@ class ExamAutoSaverService @Inject() (
       exam.state = ExamState.REVIEW
       exam.save()
       if exam.isPrivate then notifyTeachers(exam)
+      autoEvaluate(exam)
     else logger.info(s"Exam ${exam.id} is ongoing until $participationTimeLimit")
 
   // The exam has already ended, so a failed email only skips that teacher
@@ -60,21 +64,28 @@ class ExamAutoSaverService @Inject() (
         case Right(_) => logger.info(s"Email sent to ${r.email}")
     )
 
+  // Same as when the student turns the exam in. On failure the exam stays in REVIEW for the
+  // teacher to grade by hand
+  private def autoEvaluate(exam: Exam): Unit =
+    catching(classOf[RuntimeException]).either(autoEvaluationHandler.autoEvaluate(exam)) match
+      case Left(e)  => logger.error(s"Failed to auto-evaluate exam ${exam.id}", e)
+      case Right(_) => ()
+
   // Each participation is handled on its own, so one that fails cannot keep the ones after it
   // from ending
   private def checkLocalExams(): IO[Unit] =
     IO.blocking {
       val participants = DB
         .find(classOf[ExamParticipation])
-        .fetch("exam")
-        .fetch("reservation")
-        .fetch("reservation.machine.room")
-        .fetch("examinationEvent")
+        .fetch(path[ExamParticipation]("exam"))
+        .fetch(path[ExamParticipation]("reservation"))
+        .fetch(path[ExamParticipation]("reservation.machine.room"))
+        .fetch(path[ExamParticipation]("examinationEvent"))
         .where
-        .isNull("ended")
+        .isNull(path[ExamParticipation]("ended"))
         .or
-        .isNotNull("reservation")
-        .isNotNull("examinationEvent")
+        .isNotNull(path[ExamParticipation]("reservation"))
+        .isNotNull(path[ExamParticipation]("examinationEvent"))
         .endOr
         .list
       (participants, if participants.isEmpty then 0 else reviewDeadlineDays)
@@ -92,14 +103,14 @@ class ExamAutoSaverService @Inject() (
     IO.blocking {
       DB
         .find(classOf[ExamEnrolment])
-        .fetch("externalExam")
-        .fetch("reservation")
-        .fetch("reservation.machine.room")
+        .fetch(path[ExamEnrolment]("externalExam"))
+        .fetch(path[ExamEnrolment]("reservation"))
+        .fetch(path[ExamEnrolment]("reservation.machine.room"))
         .where
-        .isNotNull("externalExam")
-        .isNotNull("externalExam.started")
-        .isNull("externalExam.finished")
-        .isNotNull("reservation.externalRef")
+        .isNotNull(path[ExamEnrolment]("externalExam"))
+        .isNotNull(path[ExamEnrolment]("externalExam.started"))
+        .isNull(path[ExamEnrolment]("externalExam.finished"))
+        .isNotNull(path[ExamEnrolment]("reservation.externalRef"))
         .list
     }.flatMap(_.traverse_(enrolment =>
       IO.blocking(markExternalEnded(enrolment)).handleErrorWith(e =>

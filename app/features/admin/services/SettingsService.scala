@@ -4,6 +4,7 @@
 
 package features.admin.services
 
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.retention.services.RetentionPolicy
 import io.ebean.DB
@@ -31,7 +32,7 @@ class SettingsService @Inject() (
   private def get(name: String): GeneralSettings =
     DB.find(classOf[GeneralSettings])
       .where()
-      .eq("name", name)
+      .eq(path[GeneralSettings]("name"), name)
       .find
       .getOrElse(new GeneralSettings())
 
@@ -55,7 +56,7 @@ class SettingsService @Inject() (
           case Some(h) =>
             DB.find(classOf[ExamEnrolment])
               .where()
-              .eq("externalExam.hash", h)
+              .eq(path[ExamEnrolment]("externalExam.hash"), h)
               .find match
               case None => Future.successful(Left("Enrolment not found"))
               case Some(enrolment) =>

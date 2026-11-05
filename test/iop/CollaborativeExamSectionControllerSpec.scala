@@ -20,7 +20,7 @@ import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsArray
+import play.api.libs.json.{JsArray, Json}
 
 import scala.jdk.CollectionConverters.*
 
@@ -111,6 +111,42 @@ class CollaborativeExamSectionControllerSpec
         val ce           = setupCollaborativeExam()
         val (_, session) = runIO(loginAsTeacher())
         addSection(session, ce)
+
+    "updating a section" should:
+      "return the section with its questions" in:
+        val ce           = setupCollaborativeExam()
+        val (_, session) = runIO(loginAsTeacher())
+        val section      = examServlet.getExam.examSections.asScala.minBy(_.sequenceNumber)
+
+        val body   = Json.obj("name" -> "Renamed")
+        val result = runIO(put(s"/app/iop/exams/${ce.id}/sections/${section.id}", body, session))
+        statusOf(result) must be(Status.OK)
+
+        val json = contentAsJsonOf(result)
+        (json \ "id").as[Long] must be(section.id)
+        (json \ "name").as[String] must be("Renamed")
+        val esq = (json \ "sectionQuestions").as[JsArray].value.toSeq match
+          case Seq(q) => q
+          case qs     => fail(s"Expected one section question, got ${qs.size}")
+        (esq \ "id").as[Long] must be(987654321L)
+        (esq \ "question" \ "id").asOpt[Long] mustBe defined
+
+    "removing a question" should:
+      "return the section without it" in:
+        val ce           = setupCollaborativeExam()
+        val (_, session) = runIO(loginAsTeacher())
+        val section      = examServlet.getExam.examSections.asScala.minBy(_.sequenceNumber)
+        val questionId   = section.sectionQuestions.asScala.head.question.id
+
+        val result = runIO(
+          delete(s"/app/iop/exams/${ce.id}/sections/${section.id}/questions/$questionId", session)
+        )
+        statusOf(result) must be(Status.OK)
+
+        val json = contentAsJsonOf(result)
+        (json \ "id").as[Long] must be(section.id)
+        (json \ "lotteryItemCount").asOpt[Int] mustBe defined
+        (json \ "sectionQuestions").as[JsArray].value mustBe empty
 
   "CollaborativeExamController" when:
     "previewing an exam" should:

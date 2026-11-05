@@ -8,6 +8,7 @@ import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import com.fasterxml.jackson.databind.ObjectMapper
+import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
@@ -51,7 +52,7 @@ class AssessmentTransferService @Inject() (
     logger.info(s"Transferring back assessment for reservation $ref")
     val url  = parseUrl(ref)
     val ee   = enrolment.externalExam
-    val json = DB.json.toJson(ee, PathProperties.parse("(*, creator(id))"))
+    val json = DB.json.toJson(ee, props[ExternalExam]("(*, creator(id))"))
     val node = objectMapper.readTree(json)
     IO.fromFuture(
       IO(
@@ -103,12 +104,12 @@ class AssessmentTransferService @Inject() (
       DB
         .find(classOf[ExamEnrolment])
         .where
-        .isNotNull("externalExam")
-        .isNull("externalExam.sent")
-        .isNull("externalExam.deliveryAbandonedAt")
-        .isNotNull("externalExam.started")
-        .isNotNull("externalExam.finished")
-        .isNotNull("reservation.externalRef")
+        .isNotNull(path[ExamEnrolment]("externalExam"))
+        .isNull(path[ExamEnrolment]("externalExam.sent"))
+        .isNull(path[ExamEnrolment]("externalExam.deliveryAbandonedAt"))
+        .isNotNull(path[ExamEnrolment]("externalExam.started"))
+        .isNotNull(path[ExamEnrolment]("externalExam.finished"))
+        .isNotNull(path[ExamEnrolment]("reservation.externalRef"))
         .list
         // Attempts that have kept failing for long are tried only once a week
         .filter(e =>

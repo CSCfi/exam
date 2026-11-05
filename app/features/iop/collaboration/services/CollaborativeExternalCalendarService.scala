@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.services
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
@@ -85,13 +86,13 @@ class CollaborativeExternalCalendarService @Inject() (
   ): Future[Option[ExamEnrolment]] =
     Future(
       DB.find(classOf[ExamEnrolment])
-        .fetch("reservation")
+        .fetch(path[ExamEnrolment]("reservation"))
         .where()
-        .eq("user.id", userId)
-        .eq("collaborativeExam.id", examId)
+        .eq(path[ExamEnrolment]("user.id"), userId)
+        .eq(path[ExamEnrolment]("collaborativeExam.id"), examId)
         .disjunction()
-        .isNull("reservation")
-        .gt("reservation.startAt", now)
+        .isNull(path[ExamEnrolment]("reservation"))
+        .gt(path[ExamEnrolment]("reservation.startAt"), now)
         .endJunction()
         .find
     )(using ec)
@@ -342,11 +343,11 @@ class CollaborativeExternalCalendarService @Inject() (
     Future(
       DB.find(classOf[ExamEnrolment])
         .where()
-        .eq("user", DB.find(classOf[User], userId))
-        .eq("collaborativeExam.id", examId)
+        .eq(path[ExamEnrolment]("user"), DB.find(classOf[User], userId))
+        .eq(path[ExamEnrolment]("collaborativeExam.id"), examId)
         .disjunction()
-        .isNull("reservation")
-        .gt("reservation.startAt", now)
+        .isNull(path[ExamEnrolment]("reservation"))
+        .gt(path[ExamEnrolment]("reservation.startAt"), now)
         .endJunction()
         .find
     )(using ec)

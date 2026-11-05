@@ -11,7 +11,7 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, ServerSetupTest}
 import database.EbeanQueryExtensions
 import helpers.{AttachmentServlet, RemoteServerHelper}
-import io.ebean.DB
+import io.ebean.{DB, DataIntegrityException}
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import models.attachment.Attachment
@@ -421,6 +421,37 @@ class ExternalExamControllerSpec
         attachmentServlet.foreach(
           _.getWaiter.tryAcquire(3, 10000, TimeUnit.MILLISECONDS) must be(true)
         )
+
+      "ignore feedback config of the attainment" in:
+        val (exam, enrolment, _) = setupTestData()
+        setReservation(enrolment)
+        val node =
+          new ObjectMapper().readTree(new File("test/resources/externalExamAttainment.json"))
+        // Sent without a release type by the examination site
+        node.at("/content").asInstanceOf[ObjectNode].putObject("examFeedbackConfig")
+          .putNull("releaseType")
+        statusOf(postAttainment(node)).must(be(Status.CREATED))
+
+        val attainments = DB.find(classOf[Exam]).where().eq("parent", exam).list
+        attainments must have size 1
+        DB.find(classOf[Exam], attainments.head.id).examFeedbackConfig.must(be(null))
+        attachmentServlet.foreach(
+          _.getWaiter.tryAcquire(3, 10000, TimeUnit.MILLISECONDS) must be(true)
+        )
+
+      "leave nothing behind if the attainment cannot be copied" in:
+        val (exam, enrolment, _) = setupTestData()
+        setReservation(enrolment)
+        val node =
+          new ObjectMapper().readTree(new File("test/resources/externalExamAttainment.json"))
+        // Fails on a foreign key after the exam copy has been saved
+        node.at("/content/examInspections/0/user").asInstanceOf[ObjectNode].put("id", 999999L)
+        a[DataIntegrityException] must be thrownBy postAttainment(node)
+
+        DB.find(classOf[Exam]).where().eq("parent", exam).list must be(empty)
+        DB.find(classOf[ExamParticipation]).where().eq("reservation", enrolment.reservation)
+          .list must be(empty)
+        DB.find(classOf[ExamEnrolment], enrolment.id).exam.id.must(be(exam.id))
 
     "receiving collaborative exam attainment" should:
       "create the participation and send it on for assessment" in:

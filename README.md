@@ -8,7 +8,7 @@ SPDX-License-Identifier: EUPL-1.2
 
 # EXAM Quickstart for developers
 
-1.  Prerequisites: install SBT, Java (25), Node (>= 22) and PostgreSQL (>= 9.4).
+1.  Prerequisites: install SBT, Java (25), Node (^22.22.3, ^24.15.0 or >= 26, as required by the Angular CLI) and PostgreSQL (>= 9.4).
 
 2.  Create PostgreSQL database
 

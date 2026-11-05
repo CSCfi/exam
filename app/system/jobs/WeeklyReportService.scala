@@ -6,6 +6,7 @@ package system.jobs
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.user.User
@@ -64,9 +65,9 @@ class WeeklyReportService @Inject() (
     IO.blocking {
       logger.info("Running weekly email report")
       DB.find(classOf[User])
-        .fetch("language")
+        .fetch(path[User]("language"))
         .where
-        .eq("roles.name", "TEACHER")
+        .eq(path[User]("roles.name"), "TEACHER")
         .list
         .foreach(u =>
           Try(composer.composeWeeklySummary(u)).fold(

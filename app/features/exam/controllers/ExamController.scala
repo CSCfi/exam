@@ -5,8 +5,10 @@
 package features.exam.controllers
 
 import database.EbeanJsonExtensions
+import database.EbeanPaths.props
 import features.exam.services.{ExamError, ExamService}
 import io.ebean.text.PathProperties
+import models.exam.Exam
 import models.user.Role
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import play.api.mvc.*
@@ -55,7 +57,7 @@ class ExamController @Inject() (
   def listPrintouts(): Action[AnyContent] =
     Action { _ =>
       val printouts = examService.listPrintouts()
-      val pp = PathProperties.parse(
+      val pp = props[Exam](
         "(id, name, course(code), examinationDates(date), examOwners(firstName, lastName))"
       )
       Ok(printouts.asJson(pp))
@@ -72,7 +74,7 @@ class ExamController @Inject() (
     ).async { request =>
       val user  = request.attrs(Auth.ATTR_USER)
       val exams = examService.listExams(user, courseIds, sectionIds, tagIds, ownerIds)
-      val pp = PathProperties.parse(
+      val pp = props[Exam](
         "(id, name, periodStart, periodEnd, course(id, code), examSections(id, name))"
       )
       Future.successful(Ok(exams.asJson(pp)))
@@ -82,7 +84,7 @@ class ExamController @Inject() (
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER))).async { request =>
       val user  = request.attrs(Auth.ATTR_USER)
       val exams = examService.getTeachersExams(user)
-      val props = PathProperties.parse(
+      val pp = props[Exam](
         "(*, course(id, code), " +
           "children(id, state, examInspections(user(id, firstName, lastName))), " +
           "examinationDates(*), " +
@@ -91,7 +93,7 @@ class ExamController @Inject() (
           "examInspections(id, user(id, firstName, lastName)), " +
           "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
       )
-      Future.successful(Ok(exams.asJson(props)))
+      Future.successful(Ok(exams.asJson(pp)))
     }
 
   def deleteExam(id: Long): Action[AnyContent] =

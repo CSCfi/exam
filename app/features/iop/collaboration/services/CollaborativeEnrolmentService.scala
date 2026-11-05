@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.services
 
+import database.EbeanPaths.path
 import database.{EbeanQueryExtensions, EbeanTransactions}
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
@@ -103,15 +104,15 @@ class CollaborativeEnrolmentService @Inject() (
           val enrolments = DB
             .find(classOf[ExamEnrolment])
             .where()
-            .eq("user", user)
-            .eq("collaborativeExam.id", examId)
+            .eq(path[ExamEnrolment]("user"), user)
+            .eq(path[ExamEnrolment]("collaborativeExam.id"), examId)
             .disjunction()
-            .gt("reservation.endAt", Instant.now())
-            .isNull("reservation")
+            .gt(path[ExamEnrolment]("reservation.endAt"), Instant.now())
+            .isNull(path[ExamEnrolment]("reservation"))
             .endJunction()
             .or()
-            .isNull("exam")
-            .eq("exam.state", ExamState.STUDENT_STARTED)
+            .isNull(path[ExamEnrolment]("exam"))
+            .eq(path[ExamEnrolment]("exam.state"), ExamState.STUDENT_STARTED)
             .endOr()
             .list
           Right(enrolments)
@@ -179,14 +180,14 @@ class CollaborativeEnrolmentService @Inject() (
   private def doCreateEnrolment(ce: CollaborativeExam, user: User): Either[String, ExamEnrolment] =
     EbeanTransactions.withTransaction { tx =>
       // Take pessimistic lock for user to prevent multiple enrolments creating
-      DB.find(classOf[User]).forUpdate().where().eq("id", user.id).findOne()
+      DB.find(classOf[User]).forUpdate().where().eq(path[User]("id"), user.id).findOne()
 
       val enrolments = DB
         .find(classOf[ExamEnrolment])
-        .fetch("reservation")
+        .fetch(path[ExamEnrolment]("reservation"))
         .where()
-        .eq("user.id", user.id)
-        .eq("collaborativeExam.id", ce.id)
+        .eq(path[ExamEnrolment]("user.id"), user.id)
+        .eq(path[ExamEnrolment]("collaborativeExam.id"), ce.id)
         .list
 
       // already enrolled

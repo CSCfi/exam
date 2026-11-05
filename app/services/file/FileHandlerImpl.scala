@@ -4,6 +4,7 @@
 
 package services.file
 
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.attachment.{Attachment, AttachmentContainer}
@@ -99,7 +100,7 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
 
       // Remove the file from the disk if no references to it are found
       val removeFromDisk =
-        DB.find(classOf[Attachment]).where().eq("filePath", filePath).list.isEmpty
+        DB.find(classOf[Attachment]).where().eq(path[Attachment]("filePath"), filePath).list.isEmpty
       if removeFromDisk then removeAttachmentFile(attachment.filePath)
     }
 

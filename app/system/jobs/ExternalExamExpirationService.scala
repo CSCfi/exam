@@ -7,6 +7,7 @@ package system.jobs
 import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import database.EbeanPaths.path
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.attachment.Attachment
@@ -107,8 +108,8 @@ class ExternalExamExpirationService @Inject() (
       DB
         .find(classOf[ExternalExam])
         .where
-        .isNotNull("sent")
-        .jsonExists("content", "id")
+        .isNotNull(path[ExternalExam]("sent"))
+        .jsonExists(path[ExternalExam]("content"), "id")
         .list
         .filter(ee => Option(ee.sent).nonEmpty)
         .distinct
