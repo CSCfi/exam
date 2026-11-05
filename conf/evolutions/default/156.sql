@@ -4,12 +4,14 @@
 
 # --- !Ups
 
+-- software_exam is a legacy join table that is no longer mapped. Some databases no longer have
+-- it, so it is dropped (if present) rather than kept in step with the cleanup below.
+DROP TABLE IF EXISTS software_exam;
+
 -- Software used to be disabled instead of deleted. Removal has been a delete for years, so the
--- disabled rows go the same way, along with their links (software_exam is a legacy join table
--- that is no longer mapped but still holds a foreign key).
+-- disabled rows go the same way, along with their links.
 DELETE FROM exam_software WHERE software_id IN (SELECT id FROM software WHERE status = 'DISABLED');
 DELETE FROM exam_machine_software WHERE software_id IN (SELECT id FROM software WHERE status = 'DISABLED');
-DELETE FROM software_exam WHERE software_id IN (SELECT id FROM software WHERE status = 'DISABLED');
 DELETE FROM software WHERE status = 'DISABLED';
 
 ALTER TABLE software DROP COLUMN status;
@@ -27,13 +29,9 @@ ON CONFLICT DO NOTHING;
 INSERT INTO exam_machine_software (exam_machine_id, software_id)
 SELECT DISTINCT l.exam_machine_id, m.keep_id FROM exam_machine_software l JOIN software_merge m ON m.id = l.software_id
 ON CONFLICT DO NOTHING;
-INSERT INTO software_exam (software_id, exam_id)
-SELECT DISTINCT m.keep_id, l.exam_id FROM software_exam l JOIN software_merge m ON m.id = l.software_id
-ON CONFLICT DO NOTHING;
 
 DELETE FROM exam_software WHERE software_id IN (SELECT id FROM software_merge);
 DELETE FROM exam_machine_software WHERE software_id IN (SELECT id FROM software_merge);
-DELETE FROM software_exam WHERE software_id IN (SELECT id FROM software_merge);
 DELETE FROM software WHERE id IN (SELECT id FROM software_merge);
 DROP TABLE software_merge;
 
