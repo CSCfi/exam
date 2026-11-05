@@ -7,38 +7,24 @@ package features.examination
 import features.examination.services.RequestData
 import models.enrolment.ExamEnrolment
 import play.api.Mode
-import play.api.mvc.Result
-import play.api.mvc.Results.Forbidden
-
-import scala.concurrent.Future
 
 trait EnrolmentValidator:
 
   protected def environment: play.api.Environment
 
-  /** Validates basic enrolment requirements (null checks, reservation, machine, IP address)
-    *
-    * @param enrolment
-    *   the enrolment to validate
-    * @param requestData
-    *   the request data (remote address, etc.)
-    * @param skipIpCheck
-    *   if true, skips IP address validation (useful for external exams without detailed room info)
-    * @return
-    *   Some(Result) if validation fails, None if validation passes
+  /** Left with an i18n key if the enrolment has no reservation or machine, or the request comes
+    * from another machine than the reserved one (not checked in dev mode).
     */
   protected def validateBasicEnrolment(
       enrolment: ExamEnrolment,
-      requestData: RequestData,
-      skipIpCheck: Boolean = false
-  ): Future[Option[Result]] =
-    if Option(enrolment).isEmpty then
-      Future.successful(Some(Forbidden("i18n_reservation_not_found")))
-    else if Option(enrolment.reservation).isEmpty then
-      Future.successful(Some(Forbidden("i18n_reservation_not_found")))
-    else if Option(enrolment.reservation.machine).isEmpty then
-      Future.successful(Some(Forbidden("i18n_reservation_machine_not_found")))
-    else if !skipIpCheck && environment.mode != Mode.Dev &&
-      !enrolment.reservation.machine.ipAddress.equals(requestData.remoteAddress)
-    then Future.successful(Some(Forbidden("i18n_wrong_exam_machine")))
-    else Future.successful(None)
+      requestData: RequestData
+  ): Either[String, Unit] =
+    for
+      reservation <- Option(enrolment.reservation).toRight("i18n_reservation_not_found")
+      machine     <- Option(reservation.machine).toRight("i18n_reservation_machine_not_found")
+      _ <- Either.cond(
+        environment.mode == Mode.Dev || machine.ipAddress == requestData.remoteAddress,
+        (),
+        "i18n_wrong_exam_machine"
+      )
+    yield ()

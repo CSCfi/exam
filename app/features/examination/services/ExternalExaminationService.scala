@@ -5,6 +5,7 @@
 package features.examination.services
 
 import database.EbeanPaths.path
+import database.EbeanTransactions.commitOnRight
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.examination.EnrolmentValidator
 import features.examination.services.ExternalExaminationError.*
@@ -43,36 +44,25 @@ class ExternalExaminationService @Inject() (
       user: User,
       requestData: RequestData
   ): Future[Either[ExternalExaminationError, Exam]] =
-    getExternalExam(hash, user)
-      .fold(Future.successful(Left(ExternalExamNotFound): Either[ExternalExaminationError, Exam])) {
-        externalExam =>
-          getEnrolment(user, externalExam)
-            .fold(Future.successful(Left(EnrolmentNotFound): Either[
-              ExternalExaminationError,
-              Exam
-            ])) { enrolment =>
-              Try(externalExam.deserialize)
-                .fold(
-                  _ => Future.successful(Left(DeserializationFailed)),
-                  newExam =>
-                    validateBasicEnrolment(enrolment, requestData).map {
-                      case Some(error) => Left(ValidationError(error.header.status.toString))
-                      case None =>
-                        if newExam.state == ExamState.PUBLISHED then
-                          startExternalExam(externalExam, newExam, enrolment)
-                        else
-                          processExamForResponse(newExam)
-                          Right(newExam)
-                    }
-                )
-            }
-      }
+    Future(commitOnRight {
+      for
+        externalExam <- lockExternalExam(hash, user).toRight(ExternalExamNotFound)
+        enrolment    <- getEnrolment(user, externalExam).toRight(EnrolmentNotFound)
+        _            <- validate(enrolment, requestData)
+        exam         <- deserialize(externalExam)
+        _ <-
+          if exam.state == ExamState.PUBLISHED then startExternalExam(externalExam, exam)
+          else Right(())
+      yield
+        processExamForResponse(exam)
+        exam
+    })
 
   def turnExam(hash: String, user: User): Either[ExternalExaminationError, Unit] =
-    terminateExam(hash, ExamState.REVIEW, user).map(_ => ())
+    terminateExam(hash, ExamState.REVIEW, user)
 
   def abortExam(hash: String, user: User): Either[ExternalExaminationError, Unit] =
-    terminateExam(hash, ExamState.ABORTED, user).map(_ => ())
+    terminateExam(hash, ExamState.ABORTED, user)
 
   def answerMultiChoice(
       hash: String,
@@ -81,19 +71,9 @@ class ExternalExaminationService @Inject() (
       optionIds: Seq[Long],
       requestData: RequestData
   ): Future[Either[ExternalExaminationError, Unit]] =
-    validateEnrolment(hash, user, requestData).flatMap {
-      case Left(error) => Future.successful(Left(error))
-      case Right(_) =>
-        getExternalExam(hash, user)
-          .fold(Future.successful(Left(ExternalExamNotFound): Either[
-            ExternalExaminationError,
-            Unit
-          ])) { ee =>
-            findSectionQuestion(ee, questionId) match
-              case Left(error) => Future.successful(Left(error))
-              case Right((content, esq)) =>
-                processOptions(optionIds.toList, esq, ee, content)
-          }
+    withQuestion(hash, user, questionId, requestData) { (ee, content, esq) =>
+      esq.options.asScala.foreach(o => o.answered = optionIds.contains(o.id))
+      serialize(ee, content)
     }
 
   def answerEssay(
@@ -103,44 +83,16 @@ class ExternalExaminationService @Inject() (
       answerDTO: EssayAnswerDTO,
       requestData: RequestData
   ): Future[Either[ExternalExaminationError, EssayAnswer]] =
-    validateEnrolment(hash, user, requestData).flatMap {
-      case Left(error) => Future.successful(Left(error))
-      case Right(_) =>
-        getExternalExam(hash, user)
-          .fold(Future.successful(Left(ExternalExamNotFound): Either[
-            ExternalExaminationError,
-            EssayAnswer
-          ])) { ee =>
-            Try(ee.deserialize)
-              .fold(
-                _ => Future.successful(Left(DeserializationFailed)),
-                content =>
-                  findQuestion(questionId, content)
-                    .fold(Future.successful(Left(QuestionNotFound): Either[
-                      ExternalExaminationError,
-                      EssayAnswer
-                    ])) {
-                      question =>
-                        val answer = Option(question.essayAnswer).getOrElse(new EssayAnswer())
-                        // Handle optimistic locking
-                        val hasVersionConflict = answerDTO.objectVersion match
-                          case Some(ov) if answer.objectVersion > ov => true
-                          case Some(ov) =>
-                            answer.objectVersion = ov + 1
-                            false
-                          case None => false
-                        if hasVersionConflict then Future.successful(Left(VersionConflict))
-                        else
-                          answer.answer = answerDTO.answer
-                          question.essayAnswer = answer
-                          Try(ee.serialize(content))
-                            .fold(
-                              _ => Future.successful(Left(SerializationFailed)),
-                              _ => Future.successful(Right(answer))
-                            )
-                    }
-              )
-          }
+    withQuestion(hash, user, questionId, requestData) { (ee, content, esq) =>
+      val answer = Option(esq.essayAnswer).getOrElse(new EssayAnswer())
+      // Handle optimistic locking
+      answerDTO.objectVersion match
+        case Some(ov) if answer.objectVersion > ov => Left(VersionConflict)
+        case ov =>
+          ov.foreach(v => answer.objectVersion = v + 1)
+          answer.answer = answerDTO.answer
+          esq.essayAnswer = answer
+          serialize(ee, content).map(_ => answer)
     }
 
   def answerClozeTest(
@@ -150,55 +102,31 @@ class ExternalExaminationService @Inject() (
       answerDTO: ClozeTestAnswerDTO,
       requestData: RequestData
   ): Future[Either[ExternalExaminationError, ClozeTestAnswer]] =
-    validateEnrolment(hash, user, requestData).flatMap {
-      case Left(error) => Future.successful(Left(error))
-      case Right(_) =>
-        val objectVersion = answerDTO.objectVersion.getOrElse(0L)
-        getExternalExam(hash, user)
-          .fold(Future.successful(Left(ExternalExamNotFound): Either[
-            ExternalExaminationError,
-            ClozeTestAnswer
-          ])) {
-            ee =>
-              findSectionQuestion(ee, questionId) match
-                case Left(error) => Future.successful(Left(error))
-                case Right((content, esq)) =>
-                  val answer = Option(esq.clozeTestAnswer).getOrElse {
-                    val newAnswer = new ClozeTestAnswer()
-                    esq.clozeTestAnswer = newAnswer
-                    newAnswer
-                  }
-                  // Handle optimistic locking
-                  if answer.objectVersion > objectVersion then
-                    Future.successful(Left(VersionConflict))
-                  else
-                    answer.objectVersion = objectVersion + 1
-                    answer.answer = answerDTO.answer
-                    Try(ee.serialize(content))
-                      .fold(
-                        _ => Future.successful(Left(SerializationFailed)),
-                        _ => Future.successful(Right(answer))
-                      )
-          }
+    val objectVersion = answerDTO.objectVersion.getOrElse(0L)
+    withQuestion(hash, user, questionId, requestData) { (ee, content, esq) =>
+      val answer = Option(esq.clozeTestAnswer).getOrElse {
+        val newAnswer = new ClozeTestAnswer()
+        esq.clozeTestAnswer = newAnswer
+        newAnswer
+      }
+      // Handle optimistic locking
+      if answer.objectVersion > objectVersion then Left(VersionConflict)
+      else
+        answer.objectVersion = objectVersion + 1
+        answer.answer = answerDTO.answer
+        serialize(ee, content).map(_ => answer)
     }
 
   // Private helper methods
 
+  // `started` is saved by the update in serialize
   private def startExternalExam(
       externalExam: ExternalExam,
-      newExam: Exam,
-      enrolment: ExamEnrolment
-  ): Either[ExternalExaminationError, Exam] =
-    newExam.state = ExamState.STUDENT_STARTED
-    Try(externalExam.serialize(newExam))
-      .fold(
-        _ => Left(SerializationFailed),
-        _ =>
-          externalExam.started = clock.now()
-          externalExam.update()
-          processExamForResponse(newExam)
-          Right(newExam)
-      )
+      exam: Exam
+  ): Either[ExternalExaminationError, Unit] =
+    exam.state = ExamState.STUDENT_STARTED
+    externalExam.started = clock.now()
+    serialize(externalExam, exam)
 
   private def processExamForResponse(exam: Exam): Unit =
     exam.cloned = false
@@ -220,42 +148,44 @@ class ExternalExaminationService @Inject() (
     }.toSet
     questionsToHide.foreach(_.question = null)
 
-  private def findSectionQuestion(
-      ee: ExternalExam,
-      qid: Long
-  ): Either[ExternalExaminationError, (Exam, ExamSectionQuestion)] =
-    Try(ee.deserialize)
-      .fold(
-        _ => Left(DeserializationFailed),
-        content =>
-          findQuestion(qid, content)
-            .fold(Left(QuestionNotFound): Either[
-              ExternalExaminationError,
-              (Exam, ExamSectionQuestion)
-            ]) { esq =>
-              Right((content, esq))
-            }
-      )
+  /** Validates the ongoing enrolment, then runs `f` on the question from the exam content. `f` must
+    * serialize the content back to `ee` if it changes it.
+    */
+  private def withQuestion[A](
+      hash: String,
+      user: User,
+      qid: Long,
+      requestData: RequestData
+  )(
+      f: (ExternalExam, Exam, ExamSectionQuestion) => Either[ExternalExaminationError, A]
+  ): Future[Either[ExternalExaminationError, A]] =
+    Future(commitOnRight {
+      for
+        ee      <- lockExternalExam(hash, user).toRight(ExternalExamNotFound)
+        _       <- validateEnrolment(ee, requestData)
+        content <- deserialize(ee)
+        esq     <- findQuestion(qid, content).toRight(QuestionNotFound)
+        result  <- f(ee, content, esq)
+      yield result
+    })
 
   private def findQuestion(qid: Long, content: Exam): Option[ExamSectionQuestion] =
     content.examSections.asScala
       .flatMap(_.sectionQuestions.asScala)
       .find(_.id == qid)
 
-  private def processOptions(
-      oids: List[Long],
-      esq: ExamSectionQuestion,
-      ee: ExternalExam,
-      content: Exam
-  ): Future[Either[ExternalExaminationError, Unit]] =
-    esq.options.asScala.foreach(o => o.answered = oids.contains(o.id))
-    Try(ee.serialize(content))
-      .fold(
-        _ => Future.successful(Left(SerializationFailed)),
-        _ => Future.successful(Right(()))
-      )
+  // The content is Jackson (de)serialized
+  private def deserialize(ee: ExternalExam): Either[ExternalExaminationError, Exam] =
+    Try(ee.deserialize).toEither.left.map(_ => DeserializationFailed)
 
-  private def getExternalExam(hash: String, user: User): Option[ExternalExam] =
+  private def serialize(ee: ExternalExam, content: Exam): Either[ExternalExaminationError, Unit] =
+    Try(ee.serialize(content)).toEither.left.map(_ => SerializationFailed).map(_ => ())
+
+  /** The content is read, changed and written back as a whole, so each request locks the row until
+    * its transaction ends. Otherwise two concurrent saves of the same student (e.g. autosaves of
+    * two questions) would each overwrite the answer the other one saved. Call in commitOnRight.
+    */
+  private def lockExternalExam(hash: String, user: User): Option[ExternalExam] =
     DB.find(classOf[ExternalExam])
       .where()
       .eq(path[ExternalExam]("hash"), hash)
@@ -278,51 +208,40 @@ class ExternalExaminationService @Inject() (
       .find
 
   private def validateEnrolment(
-      hash: String,
-      user: User,
+      ee: ExternalExam,
       requestData: RequestData
-  ): Future[Either[ExternalExaminationError, Unit]] =
+  ): Either[ExternalExaminationError, Unit] =
     DB.find(classOf[ExamEnrolment])
       .where()
-      .eq(path[ExamEnrolment]("externalExam.hash"), hash)
-      .eq(path[ExamEnrolment]("externalExam.creator"), user)
+      .eq(path[ExamEnrolment]("externalExam.id"), ee.id)
       .jsonEqualTo(
         path[ExamEnrolment]("externalExam.content"),
         "state",
         ExamState.STUDENT_STARTED.toString
       )
-      .find match
-      case None => Future.successful(Left(EnrolmentNotFound))
-      case Some(e) =>
-        validateBasicEnrolment(e, requestData).map {
-          case Some(error) => Left(ValidationError(error.header.status.toString))
-          case None        => Right(())
-        }
+      .find
+      .toRight(EnrolmentNotFound)
+      .flatMap(validate(_, requestData))
+
+  private def validate(
+      enrolment: ExamEnrolment,
+      requestData: RequestData
+  ): Either[ExternalExaminationError, Unit] =
+    validateBasicEnrolment(enrolment, requestData).left.map(ValidationError(_))
 
   private def terminateExam(
       hash: String,
       newState: Exam.State,
       user: User
   ): Either[ExternalExaminationError, Unit] =
-    DB.find(classOf[ExternalExam])
-      .where()
-      .eq(path[ExternalExam]("hash"), hash)
-      .eq(path[ExternalExam]("creator"), user)
-      .find match
-      case None => Left(ExternalExamNotFound)
-      case Some(ee) =>
-        getEnrolment(user, ee) match
-          case None => Left(EnrolmentNotFound)
-          case Some(enrolment) =>
-            ee.finished = clock.now()
-            Try(ee.deserialize)
-              .fold(
-                _ => Left(DeserializationFailed),
-                content =>
-                  if content.state == ExamState.STUDENT_STARTED then content.state = newState
-                  Try(ee.serialize(content))
-                    .fold(
-                      _ => Left(SerializationFailed),
-                      _ => Right(())
-                    )
-              )
+    commitOnRight {
+      for
+        ee      <- lockExternalExam(hash, user).toRight(ExternalExamNotFound)
+        _       <- getEnrolment(user, ee).toRight(EnrolmentNotFound)
+        content <- deserialize(ee)
+        _ = if content.state == ExamState.STUDENT_STARTED then content.state = newState
+        // `finished` is saved by the update in serialize
+        _ = ee.finished = clock.now()
+        _ <- serialize(ee, content)
+      yield ()
+    }

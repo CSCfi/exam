@@ -4,8 +4,10 @@
 
 package features.iop.transfer.services
 
+import cats.data.EitherT
 import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.iop.transfer.services.ExternalAttachmentError.*
 import io.ebean.DB
 import models.attachment.Attachment
 import models.exam.Exam
@@ -17,6 +19,7 @@ import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{FileIO, Source}
 import org.apache.pekko.util.ByteString
 import play.api.Logging
+import play.api.http.Status
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.JsValue
 import play.api.libs.ws.{WSBodyWritables, WSClient}
@@ -52,43 +55,28 @@ class ExternalAttachmentService @Inject() (
       case Some(exam) => Right(exam)
       case None =>
         logger.error("Can not deserialize external exam!")
-        Left(ExternalAttachmentError.CouldNotDeserializeExam)
+        Left(CouldNotDeserializeExam)
 
   def downloadExamAttachment(
       hash: String,
       user: User
   ): Future[Either[ExternalAttachmentError, DownloadResponse]] =
-    getExternalExam(hash, user) match
-      case None => Future.successful(Left(ExternalAttachmentError.ExternalExamNotFound))
-      case Some(externalExam) =>
-        getExam(externalExam) match
-          case Left(error) => Future.successful(Left(error))
-          case Right(exam) =>
-            Option(exam.attachment) match
-              case None => Future.successful(Left(ExternalAttachmentError.AttachmentNotFound))
-              case Some(attachment) =>
-                downloadExternalAttachment(attachment).map(Right.apply)
+    (for
+      (_, exam)  <- EitherT.fromEither[Future](loadExam(hash, user))
+      attachment <- EitherT.fromOption[Future](Option(exam.attachment), AttachmentNotFound)
+      response   <- EitherT.liftF(downloadExternalAttachment(attachment))
+    yield response).value
 
   def downloadQuestionAttachment(
       hash: String,
       qid: Long,
       user: User
   ): Future[Either[ExternalAttachmentError, DownloadResponse]] =
-    getExternalExam(hash, user) match
-      case None => Future.successful(Left(ExternalAttachmentError.ExternalExamNotFound))
-      case Some(externalExam) =>
-        getExam(externalExam) match
-          case Left(error) => Future.successful(Left(error))
-          case Right(exam) =>
-            exam.examSections.asScala
-              .flatMap(_.sectionQuestions.asScala)
-              .find(_.id == qid) match
-              case None => Future.successful(Left(ExternalAttachmentError.SectionQuestionNotFound))
-              case Some(sq) =>
-                Option(sq.question.attachment) match
-                  case None => Future.successful(Left(ExternalAttachmentError.AttachmentNotFound))
-                  case Some(attachment) =>
-                    downloadExternalAttachment(attachment).map(Right.apply)
+    (for
+      (_, _, sq) <- EitherT.fromEither[Future](loadQuestion(hash, qid, user))
+      attachment <- EitherT.fromOption[Future](Option(sq.question.attachment), AttachmentNotFound)
+      response   <- EitherT.liftF(downloadExternalAttachment(attachment))
+    yield response).value
 
   def addAttachmentToQuestionAnswer(
       hash: String,
@@ -96,80 +84,70 @@ class ExternalAttachmentService @Inject() (
       filePart: Option[MultipartFormData.FilePart[TemporaryFile]],
       user: User
   ): Future[Either[ExternalAttachmentError, (JsValue, ExternalExam)]] =
-    filePart match
-      case None => Future.successful(Left(ExternalAttachmentError.MissingFile))
-      case Some(file) =>
-        getExternalExam(hash, user) match
-          case None => Future.successful(Left(ExternalAttachmentError.ExternalExamNotFound))
-          case Some(externalExam) =>
-            getExam(externalExam) match
-              case Left(error) => Future.successful(Left(error))
-              case Right(exam) =>
-                findSectionQuestion(questionId, exam) match
-                  case None =>
-                    Future.successful(Left(ExternalAttachmentError.SectionQuestionNotFound))
-                  case Some(sq) =>
-                    if Option(sq.essayAnswer).isEmpty then sq.essayAnswer = new EssayAnswer()
-                    val existingExternalId =
-                      Option(sq.essayAnswer.attachment).map(_.externalId)
-                    uploadAttachmentToExternalService(file, existingExternalId).flatMap {
-                      case None =>
-                        Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
-                      case Some(attachment) =>
-                        sq.essayAnswer.attachment = attachment
-                        Try(externalExam.serialize(exam)) match
-                          case scala.util.Failure(e) =>
-                            logger.error("Failed to serialize exam", e)
-                            Future.successful(Left(ExternalAttachmentError.CouldNotDeserializeExam))
-                          case scala.util.Success(_) =>
-                            Future.successful(Right((attachment.asJson, externalExam)))
-                    }
+    (for
+      file                     <- EitherT.fromOption[Future](filePart, MissingFile)
+      (externalExam, exam, sq) <- EitherT.fromEither[Future](loadQuestion(hash, questionId, user))
+      _                  = if Option(sq.essayAnswer).isEmpty then sq.essayAnswer = new EssayAnswer()
+      existingExternalId = Option(sq.essayAnswer.attachment).map(_.externalId)
+      attachment <- EitherT.fromOptionF(
+        uploadAttachmentToExternalService(file, existingExternalId),
+        ExternalIdNotFound
+      )
+      _ = sq.essayAnswer.attachment = attachment
+      _ <- EitherT.fromEither[Future](serialize(externalExam, exam))
+    yield (attachment.asJson, externalExam)).value
 
   def deleteQuestionAnswerAttachment(
       hash: String,
       qid: Long,
       user: User
   ): Future[Either[ExternalAttachmentError, ExternalExam]] =
-    getExternalExam(hash, user) match
-      case None => Future.successful(Left(ExternalAttachmentError.ExternalExamNotFound))
-      case Some(externalExam) =>
-        getExam(externalExam) match
-          case Left(error) => Future.successful(Left(error))
-          case Right(exam) =>
-            findSectionQuestion(qid, exam) match
-              case None => Future.successful(Left(ExternalAttachmentError.SectionQuestionNotFound))
-              case Some(sq) =>
-                findEssayAnswerWithAttachment(sq) match
-                  case None =>
-                    Future.successful(Left(ExternalAttachmentError.QuestionAnswerNotFound))
-                  case Some(ea) =>
-                    val attachment = ea.attachment
-                    Option(attachment.externalId).filter(_.nonEmpty) match
-                      case None =>
-                        logger.warn(
-                          s"External id can not be found for attachment [id=${attachment.id}]"
-                        )
-                        Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
-                      case Some(externalId) =>
-                        parseAttachmentUrl("/api/attachments/%s", externalId) match
-                          case None =>
-                            Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
-                          case Some(url) =>
-                            wsClient.url(url.toString).delete().flatMap { response =>
-                              if response.status != play.api.http.Status.OK && response.status != play.api.http.Status.NOT_FOUND
-                              then
-                                Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
-                              else
-                                ea.attachment = null
-                                Try(externalExam.serialize(exam)) match
-                                  case scala.util.Failure(e) =>
-                                    logger.error("Failed to serialize exam", e)
-                                    Future.successful(
-                                      Left(ExternalAttachmentError.CouldNotDeserializeExam)
-                                    )
-                                  case scala.util.Success(_) =>
-                                    Future.successful(Right(externalExam))
-                            }
+    (for
+      (externalExam, exam, sq) <- EitherT.fromEither[Future](loadQuestion(hash, qid, user))
+      ea <- EitherT.fromOption[Future](findEssayAnswerWithAttachment(sq), QuestionAnswerNotFound)
+      url <- EitherT.fromOption[Future](
+        parseAttachmentUrl("/api/attachments/%s", ea.attachment.externalId),
+        ExternalIdNotFound
+      )
+      response <- EitherT.liftF(wsClient.url(url.toString).delete())
+      _ <- EitherT.cond[Future](
+        response.status == Status.OK || response.status == Status.NOT_FOUND,
+        (),
+        ExternalIdNotFound
+      )
+      _ = ea.attachment = null
+      _ <- EitherT.fromEither[Future](serialize(externalExam, exam))
+    yield externalExam).value
+
+  private def loadExam(
+      hash: String,
+      user: User
+  ): Either[ExternalAttachmentError, (ExternalExam, Exam)] =
+    for
+      externalExam <- getExternalExam(hash, user).toRight(ExternalExamNotFound)
+      exam         <- getExam(externalExam)
+    yield (externalExam, exam)
+
+  private def loadQuestion(
+      hash: String,
+      qid: Long,
+      user: User
+  ): Either[ExternalAttachmentError, (ExternalExam, Exam, ExamSectionQuestion)] =
+    for
+      (externalExam, exam) <- loadExam(hash, user)
+      sq                   <- findSectionQuestion(qid, exam).toRight(SectionQuestionNotFound)
+    yield (externalExam, exam, sq)
+
+  private def serialize(
+      externalExam: ExternalExam,
+      exam: Exam
+  ): Either[ExternalAttachmentError, Unit] =
+    Try(externalExam.serialize(exam)).toEither.left
+      .map { e =>
+        logger.error("Failed to serialize exam", e)
+        CouldNotDeserializeExam
+      }
+      .map(_ => ())
 
   private def downloadExternalAttachment(attachment: Attachment): Future[DownloadResponse] =
     Option(attachment) match
@@ -191,7 +169,7 @@ class ExternalAttachmentService @Inject() (
       case None => Future.successful(DownloadResponse.InternalServerError)
       case Some(attachmentUrl) =>
         wsClient.url(attachmentUrl.toString).stream().map { response =>
-          if response.status != play.api.http.Status.OK then DownloadResponse.Error(response.status)
+          if response.status != Status.OK then DownloadResponse.Error(response.status)
           else
             val escapedName =
               URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20")
@@ -239,49 +217,40 @@ class ExternalAttachmentService @Inject() (
       filePart: MultipartFormData.FilePart[TemporaryFile],
       existingExternalId: Option[String]
   ): Future[Option[Attachment]] =
-    existingExternalId match
-      case Some(id) if id.nonEmpty =>
+    val source = createMultipartSource(filePart)
+    existingExternalId.filter(_.nonEmpty) match
+      case Some(id) =>
         // Update existing attachment
-        parseAttachmentUrl("/api/attachments/%s", id) match
-          case None => Future.successful(None)
-          case Some(url) =>
-            val request = wsClient.url(url.toString)
-            val source  = createMultipartSource(filePart)
-            request.put(source).map { response =>
-              if response.status != play.api.http.Status.OK then
-                logger.error("Could not update external attachment to XM server!")
-                None
-              else
-                val json         = response.json
-                val attachmentId = (json \ "id").as[String]
-                val mimeType     = (json \ "mimeType").as[String]
-                val displayName  = (json \ "displayName").as[String]
-                val attachment   = new Attachment()
-                attachment.externalId = attachmentId
-                attachment.mimeType = mimeType
-                attachment.fileName = displayName
-                Some(attachment)
-            }
-      case _ =>
+        parseAttachmentUrl("/api/attachments/%s", id).fold(Future.successful(None)) { url =>
+          wsClient.url(url.toString).put(source).map { response =>
+            if response.status != Status.OK then
+              logger.error("Could not update external attachment to XM server!")
+              None
+            else parseAttachment(response.json)
+          }
+        }
+      case None =>
         // Create new attachment - POST directly with multipart data
-        parseAttachmentUrl("/api/attachments/") match
-          case None => Future.successful(None)
-          case Some(url) =>
-            val request = wsClient.url(url.toString)
-            val source  = createMultipartSource(filePart)
-            request.post(source).map { response =>
-              if response.status != play.api.http.Status.CREATED && response.status != play.api.http.Status.OK
-              then
-                logger.error("Could not create external attachment to XM server!")
-                None
-              else
-                val json        = response.json
-                val id          = (json \ "id").as[String]
-                val mimeType    = (json \ "mimeType").as[String]
-                val displayName = (json \ "displayName").as[String]
-                val attachment  = new Attachment()
-                attachment.externalId = id
-                attachment.mimeType = mimeType
-                attachment.fileName = displayName
-                Some(attachment)
-            }
+        parseAttachmentUrl("/api/attachments/").fold(Future.successful(None)) { url =>
+          wsClient.url(url.toString).post(source).map { response =>
+            if response.status != Status.CREATED && response.status != Status.OK then
+              logger.error("Could not create external attachment to XM server!")
+              None
+            else parseAttachment(response.json)
+          }
+        }
+
+  private def parseAttachment(json: JsValue): Option[Attachment] =
+    val attachment =
+      for
+        id          <- (json \ "id").asOpt[String]
+        mimeType    <- (json \ "mimeType").asOpt[String]
+        displayName <- (json \ "displayName").asOpt[String]
+      yield
+        val a = new Attachment()
+        a.externalId = id
+        a.mimeType = mimeType
+        a.fileName = displayName
+        a
+    if attachment.isEmpty then logger.error(s"Unexpected attachment response from XM: $json")
+    attachment
