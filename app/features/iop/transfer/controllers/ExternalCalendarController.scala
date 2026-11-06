@@ -23,6 +23,7 @@ import services.config.ConfigReader
 import services.datetime.Interval
 import services.datetime.IntervalExtensions.*
 import services.datetime.{AppClock, CalendarHandler, TimeUtils}
+import services.iop.IopPayloads
 import services.mail.EmailComposer
 import system.AuditedAction
 import validation.calendar.ExternalCalendarReservationValidator
@@ -273,13 +274,13 @@ class ExternalCalendarController @Inject() (
                 // Let's do this
                 parseUrl(orgRef, roomRef).fold(Future.successful(BadRequest("Invalid URL")))(url =>
                   val homeOrgRef = configReader.getHomeOrganisationRef
-                  val body = Json.obj(
-                    "requestingOrg"    -> homeOrgRef,
-                    "start"            -> DateTimeFormatter.ISO_INSTANT.format(start),
-                    "end"              -> DateTimeFormatter.ISO_INSTANT.format(end),
-                    "user"             -> user.eppn,
-                    "email"            -> user.email,
-                    "optionalSections" -> Json.toJson(sectionIdsSeq)
+                  val body = IopPayloads.reservationRequest(
+                    homeOrgRef,
+                    start,
+                    end,
+                    user.eppn,
+                    user.email,
+                    sectionIdsSeq
                   )
 
                   for

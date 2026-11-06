@@ -4,9 +4,7 @@
 
 package features.iop.collaboration.services
 
-import com.fasterxml.jackson.databind.node.ObjectNode
 import database.EbeanJsonExtensions
-import database.EbeanPaths.props
 import features.iop.transfer.services.ExternalAttachmentLoaderService
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Model}
@@ -21,8 +19,7 @@ import play.api.libs.ws.{WSBodyWritables, WSClient}
 import play.api.mvc.{Result, Results}
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.iop.{DeliveryResult, IopDelivery}
-import services.json.EbeanMapper
+import services.iop.{DeliveryResult, IopDelivery, IopPayloads}
 
 import java.net.{URI, URL}
 import java.time.Instant
@@ -71,49 +68,13 @@ class CollaborativeExamLoaderService @Inject() (
       case some => some
 
   private def serializeForUpdate(exam: Exam, revision: String): Option[JsValue] =
-    Try {
-      // Use jackson because it serializes the entire object.
-      // TODO: maybe some other mapper can do this too?
-      val mapper     = EbeanMapper.create()
-      val jsonString = mapper.writeValueAsString(exam)
-      val node       = mapper.readTree(jsonString)
-      // CouchDB expects "rev" (not "_rev") when uploading
-      val result = node.asInstanceOf[ObjectNode].put("rev", revision)
-      // Convert back to Play JsValue
-      Json.parse(mapper.writeValueAsString(result))
-    } match
+    Try(IopPayloads.collaborativeExam(exam, revision)) match
       case Success(value) => Some(value)
       case Failure(e) =>
         logger.error(s"Unable to serialize exam ${exam.id}", e)
         None
 
-  def getAssessmentPath: PathProperties =
-    props[ExamParticipation]("""(*,
-                  |user(*),
-                  |exam(*,
-                  |  executionType(*),
-                  |  examLanguages(*),
-                  |  attachment(*),
-                  |  autoEvaluationConfig(*, gradeEvaluations(*, grade(*))),
-                  |  creditType(*),
-                  |  examType(*),
-                  |  gradeScale(*, grades(*)),
-                  |  examSections(*,
-                  |    sectionQuestions(*,
-                  |      question(*, attachment(*), options(*)),
-                  |      options(*, option(*)),
-                  |      essayAnswer(*, attachment(*)),
-                  |      clozeTestAnswer(*)
-                  |    )
-                  |  ),
-                  |  examEnrolments(*,
-                  |    user(*),
-                  |    reservation(*,
-                  |      machine(*, room(*))
-                  |    )
-                  |  )
-                  |)
-                  |)""".stripMargin)
+  def getAssessmentPath: PathProperties = IopPayloads.collaborativeAssessmentPath
 
   /** Uploads the attempt's attachments and then the attempt itself to XM. */
   def sendAssessmentWithAttachments(participation: ExamParticipation): Future[DeliveryResult] =
@@ -145,7 +106,7 @@ class CollaborativeExamLoaderService @Inject() (
       case Some(url) =>
         val request =
           wsClient.url(url.toString).withHttpHeaders("Content-Type" -> "application/json")
-        val json = DB.json().toJson(participation, getAssessmentPath)
+        val json = IopPayloads.collaborativeAssessment(participation)
 
         request
           .post(json)
