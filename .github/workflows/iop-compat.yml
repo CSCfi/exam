@@ -13,6 +13,12 @@
 name: IOP compatibility
 
 on:
+  # pull_request compares the PR's whole diff with its base, so the check shows on every PR that
+  # changes the fixtures, whatever its latest commit is; push covers branches without a PR
+  pull_request:
+    paths:
+      - 'test/resources/iop-fixtures/**'
+      - '.github/workflows/iop-compat.yml'
   push:
     paths:
       - 'test/resources/iop-fixtures/**'
@@ -66,7 +72,7 @@ jobs:
           IOP_NEWER_FIXTURES: ${{ github.workspace }}/new/test/resources/iop-fixtures
         run: |
           sed -i 's/\/var\/log\/exam/logs/g' conf/logback.xml
-          sbt "testOnly iop.ReadsNewerIopSpec" | tee test.log
+          sbt -Dsbt.color=false "testOnly iop.ReadsNewerIopSpec" | tee test.log
           # testOnly succeeds when nothing runs (spec missing on the reader, or cancelled): don't
           # let that pass as green
           grep -q "Tests: succeeded 1, failed 0, canceled 0" test.log || {
