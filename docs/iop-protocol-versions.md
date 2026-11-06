@@ -44,6 +44,12 @@ ones send and rely on.
 
 You don't need to spot these yourself. `IopPayloadFixturesSpec` fails when one happens.
 
+**Except changes of meaning.** The fixtures catch changes in a payload's *shape*, not in what its
+values mean. If a field keeps its name and type but changes its unit or interpretation (a
+`duration` in seconds instead of minutes, a new meaning for a `state`, a new markup inside an HTML
+field), the spec stays green. Such changes have to be recognised in code review, and the protocol
+version bumped by hand.
+
 ## When `IopPayloadFixturesSpec` fails
 
 The failure says which payload no longer matches its fixture. First decide whether the change was
@@ -88,6 +94,38 @@ the code so the payload matches the fixture again. Nothing else to do.
 
 7. **Deploy XM before the EXAM release.** The translation must be live before any organisation
    upgrades to the new EXAM.
+
+## Changes that can't be translated
+
+Some changes can't be bridged by a translation step at all. They come in three degrees:
+
+1. **Untranslatable for some payloads only.** Example: a new grading type that an older version
+   has no equivalent for. The step's lossy check refuses *starting* such an interaction ("the
+   other organisation must upgrade"), while everything else between the two organisations keeps
+   working and interactions already under way are still delivered (CSCEXAM-1737).
+
+2. **A feature older versions don't have.** Example: a new question type in a collaborative exam.
+   Translating is pointless; the feature is offered only where every party can handle it. Since
+   XM records every organisation's protocol, EXAM can ask for the lowest protocol among the
+   participants and hide or refuse the feature when someone is too old. This switches on by
+   itself as organisations upgrade, unlike a hand-set feature flag. (Not built yet: it needs a
+   small XM endpoint returning the lowest protocol of given organisations.)
+
+3. **A change of meaning that older versions can't understand.** No translation or hiding helps;
+   this needs control outside the wire format:
+   - a cut-over date and upgrade deadline agreed in the consortium, aligned with the upgrade
+     windows
+   - the new behaviour shipped behind a feature flag, off by default (like `lti.active`), so it
+     can be installed everywhere first and switched on together
+   - if needed, a transition period with the old and new behaviour side by side
+
+   **Example: math markup in EXAM 7.0.** 7.0 writes math in HTML content (question texts and
+   answers) in a new syntax that installations before 7.0 cannot render. A collaborative exam or
+   an exam taken at another organisation can therefore show raw markup to a 6.x installation's
+   users. This is invisible to every safeguard described here: the payloads keep their shape, so
+   the fixtures stay green, and 7.0 predates the protocol headers, so XM cannot tell 6.x from 7.0
+   (both are protocol 0). It can only be handled by agreement: upgrading past 6.x by a deadline,
+   or not using the new math in exams shared with organisations still on 6.x.
 
 ## Write modes of the fixture spec
 
@@ -173,3 +211,5 @@ Then:
   not every field. The outbound comparison is what catches field-level changes.
 - Copying fixtures to XM is a manual step (`pnpm run sync-fixtures`), done when the version is
   bumped.
+- Changes of meaning (same shape, different interpretation) are not caught; see "What counts as a
+  wire format change" and "Changes that can't be translated".
