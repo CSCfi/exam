@@ -14,6 +14,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 import {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
+    LtiTool,
     MultipleChoiceOption,
     Question,
     QuestionDraft,
@@ -56,6 +57,9 @@ export class QuestionService {
     };
 
     getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
+
+    /** The LTI tools this installation is registered with, and the parameters each one takes. */
+    getLtiTools$ = (): Observable<LtiTool[]> => this.http.get<LtiTool[]>('/app/lti/tools');
 
     createQuestion$ = (question: QuestionDraft): Observable<Question> =>
         this.http.post<Question>(this.questionsApi(), this.getQuestionData(question)).pipe(
@@ -324,7 +328,8 @@ export class QuestionService {
             questionOwners: question.questionOwners,
             tags: question.tags,
             options: question.options,
-            ltiId: question.ltiId,
+            ltiTool: question.ltiTool,
+            ltiCustom: question.ltiCustom,
         };
         if (question.id) {
             questionToUpdate.id = question.id;

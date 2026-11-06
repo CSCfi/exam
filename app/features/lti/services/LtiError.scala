@@ -5,12 +5,12 @@
 package features.lti.services
 
 enum LtiError(val message: String):
-  case MissingLaunchTarget extends LtiError("Missing sectionQuestionId or examHash")
-  case LaunchNotFound      extends LtiError("No LTI question found for this launch")
-  case IncompleteConfiguration
-      extends LtiError(
-        "Missing required LTI settings (tool initiate url, issuer, target link uri, client id)."
-      )
+  case MissingLaunchTarget     extends LtiError("Missing sectionQuestionId or examHash")
+  case LaunchNotFound          extends LtiError("No LTI question found for this launch")
+  case IncompleteConfiguration extends LtiError("Missing required LTI setting lti.platform.issuer")
+  case ToolNotConfigured       extends LtiError("The LTI tool of this question is not configured")
+  case MissingToolParameters
+      extends LtiError("The question is missing parameters its LTI tool requires")
   case InvalidClientId    extends LtiError("Invalid client_id")
   case MissingParameters  extends LtiError("Missing required parameters")
   case NoLaunchInSession  extends LtiError("Missing launch target in session")

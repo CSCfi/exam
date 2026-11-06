@@ -5,41 +5,112 @@
 package lti
 
 import com.typesafe.config.ConfigFactory
-import features.lti.services.{LtiError, LtiService}
+import features.lti.services.*
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.filters.csp.{CSPConfig, CSPDirective}
+import system.modules.LtiCspConfigProvider
 
 class LtiServiceSpec extends AnyWordSpec with Matchers:
 
-  private val launchUri = "http://moodle.local:8888/moodle500/enrol/lti/launch.php"
+  private val launchUri = "http://moodle.local:8888/enrol/lti/launch.php"
 
-  private def service(extra: String = ""): LtiService =
-    val base =
-      s"""lti.platform.issuer = "https://exam.example.org"
-         |lti.tool.target-link-uri = "$launchUri"
-         |lti.platform.client-id = "client"
-         |lti.platform.deployment-id = "deployment"
-         |lti.platform.key-id = "kid"
-         |lti.platform.public-key = "public.pem"
-         |lti.platform.private-key = "private.pem"
-         |lti.tool.initiate-login-url = "http://moodle.local:8888/moodle500/enrol/lti/login.php"
-         |$extra
-         |""".stripMargin
-    LtiService(ConfigFactory.parseString(base))
+  private val moodle =
+    s"""moodle {
+       |  name = "Moodle"
+       |  origin = "http://moodle.local:8888"
+       |  client-id = "moodle-client"
+       |  deployment-id = "moodle-deployment"
+       |  initiate-login-url = "http://moodle.local:8888/enrol/lti/login.php?id=reg"
+       |  target-link-uri = "$launchUri"
+       |  parameters = [{ name = "id", required = true }]
+       |}""".stripMargin
 
-  "LtiService.validateRedirectUri" when:
+  private val aplus =
+    """aplus {
+      |  name = "A+"
+      |  origin = "https://plus.example.org"
+      |  client-id = "aplus-client"
+      |  deployment-id = "aplus-deployment"
+      |  initiate-login-url = "https://plus.example.org/lti/login/"
+      |  target-link-uri = "https://plus.example.org/lti/launch/"
+      |  parameters = [
+      |    { name = "course_slug", required = true },
+      |    { name = "instance_slug", required = true },
+      |    { name = "module_slug" },
+      |    { name = "exercise_path", requires = ["module_slug"] }
+      |  ]
+      |}""".stripMargin
+
+  private def tools(entries: String*): Map[String, LtiTool] =
+    LtiTools.fromConfig(ConfigFactory.parseString(s"lti.tools {\n${entries.mkString("\n")}\n}"))
+
+  private def tool(entry: String): LtiTool = tools(entry).values.head
+
+  private def service(issuer: String = "https://exam.example.org"): LtiService =
+    LtiService(ConfigFactory.parseString(s"""lti.platform.issuer = "$issuer"
+                                            |lti.tools { $moodle }
+                                            |""".stripMargin))
+
+  "LtiTools.fromConfig" should:
+    "read every configured tool under its key" in:
+      val all = tools(moodle, aplus)
+      all.keySet must be(Set("moodle", "aplus"))
+      all("aplus").clientId must be("aplus-client")
+      all("aplus").deploymentId must be("aplus-deployment")
+      all("aplus").parameters must be(
+        List(
+          LtiToolParameter("course_slug", required = true),
+          LtiToolParameter("instance_slug", required = true),
+          LtiToolParameter("module_slug", required = false),
+          LtiToolParameter("exercise_path", required = false, requires = List("module_slug"))
+        )
+      )
+
+    "have no tools when none are configured" in:
+      LtiTools.fromConfig(ConfigFactory.empty) must be(Map.empty)
+
+    "leave out a tool with a missing setting and keep the rest" in:
+      val broken = """broken { origin = "https://broken.example.org", client-id = "c" }"""
+      tools(moodle, broken).keySet must be(Set("moodle"))
+
+    "leave out a tool whose origin is not a bare origin" in:
+      Seq("https://plus.example.org/path", "plus.example.org", "https://a.org 'unsafe-inline'")
+        .foreach { origin =>
+          withClue(s"origin '$origin': ")(
+            tools(aplus.replace("https://plus.example.org\"", s"$origin\"")) must be(Map.empty)
+          )
+        }
+
+    "leave out a tool with a value of the wrong type" in:
+      tools(moodle, """bad { parameters = "id" }""").keySet must be(Set("moodle"))
+
+    "leave out a tool whose parameter requires an undeclared parameter" in:
+      tools(moodle.replace("required = true", "required = true, requires = [\"other\"]")) must be(
+        Map.empty
+      )
+
+    "use the key as the name when none is given" in:
+      tool(moodle.replace("name = \"Moodle\"", "")).name must be("moodle")
+
+  "LtiTool.validateRedirectUri" when:
     "no allow-list is configured" should:
       "fall back to the configured target link URI" in:
-        service().validateRedirectUri(launchUri) must be(Right(launchUri))
+        tool(moodle).validateRedirectUri(launchUri) must be(Right(launchUri))
 
       "reject any other URI" in:
-        service().validateRedirectUri("https://attacker.example/steal") must be(
+        tool(moodle).validateRedirectUri("https://attacker.example/steal") must be(
           Left(LtiError.InvalidRedirectUri)
         )
 
     "an allow-list is configured" should:
-      val withList =
-        service(s"""lti.tool.redirect-uris = ["$launchUri", "https://alt.example/l"]""")
+      val withList = tool(
+        moodle.replace(
+          "parameters",
+          s"""redirect-uris = ["$launchUri", "https://alt.example/l"]
+                                       |  parameters""".stripMargin
+        )
+      )
 
       "accept every listed URI" in:
         withList.validateRedirectUri(launchUri) must be(Right(launchUri))
@@ -52,26 +123,68 @@ class LtiServiceSpec extends AnyWordSpec with Matchers:
           Left(LtiError.InvalidRedirectUri)
         )
 
+  "LtiTool.customParameters" should:
+    "keep the declared parameters a question gives" in:
+      val exercise = Map(
+        "course_slug"   -> "cs-101",
+        "instance_slug" -> "2026",
+        "module_slug"   -> "w1",
+        "exercise_path" -> "e1"
+      )
+      tool(aplus).customParameters(exercise) must be(Right(exercise))
+
+    // A+ reads module_slug whenever exercise_path is given
+    "reject a parameter given without a parameter it requires" in:
+      tool(aplus).customParameters(
+        Map("course_slug" -> "cs-101", "instance_slug" -> "2026", "exercise_path" -> "e1")
+      ) must be(Left(LtiError.MissingToolParameters))
+
+    "allow an optional parameter to be left out" in:
+      tool(aplus).customParameters(Map("course_slug" -> "cs-101", "instance_slug" -> "2026")) must
+        be(Right(Map("course_slug" -> "cs-101", "instance_slug" -> "2026")))
+
+    "drop parameters the tool does not declare, and blank values" in:
+      tool(moodle).customParameters(Map("id" -> " r-1 ", "other" -> "x", "blank" -> " ")) must be(
+        Right(Map("id" -> "r-1"))
+      )
+
+    "reject a missing or blank required parameter" in:
+      tool(aplus).customParameters(Map("course_slug" -> "cs-101")) must be(
+        Left(LtiError.MissingToolParameters)
+      )
+      tool(moodle).customParameters(Map("id" -> "  ")) must be(Left(LtiError.MissingToolParameters))
+
+  "LtiService.tool" should:
+    "find a configured tool by key" in:
+      service().tool("moodle").map(_.clientId) must be(Right("moodle-client"))
+
+    "report a tool that is not configured, or no tool at all" in:
+      service().tool("aplus") must be(Left(LtiError.ToolNotConfigured))
+      service().tool(null) must be(Left(LtiError.ToolNotConfigured))
+
   "LtiService.buildLoginRedirect" should:
+    "send the browser to the tool's login URL with the tool's client id" in:
+      val svc = service()
+      val url = svc.buildLoginRedirect(tool(aplus), "hint-token", "nonce", "state")
+      url.map(_.startsWith("https://plus.example.org/lti/login/?")) must be(Right(true))
+      url.map(_.contains("client_id=aplus-client")) must be(Right(true))
+
     "carry the issued login_hint so the tool can echo it back" in:
-      val url = service().buildLoginRedirect("hint-token", "nonce", "state")
+      val url = service().buildLoginRedirect(tool(moodle), "hint-token", "nonce", "state")
       url.map(_.contains("login_hint=hint-token")) must be(Right(true))
 
+    "keep the query string of the tool's login URL" in:
+      val url = service().buildLoginRedirect(tool(moodle), "hint", "nonce", "state")
+      url.map(_.startsWith("http://moodle.local:8888/enrol/lti/login.php?id=reg&")) must be(
+        Right(true)
+      )
+
     "url-encode parameter values" in:
-      val url = service().buildLoginRedirect("a b", "nonce", "state")
+      val url = service().buildLoginRedirect(tool(moodle), "a b", "nonce", "state")
       url.map(_.contains("login_hint=a+b")) must be(Right(true))
 
     "report incomplete configuration rather than building a partial URL" in:
-      val incomplete = LtiService(
-        ConfigFactory.parseString(
-          """lti.platform.issuer = ""
-            |lti.tool.target-link-uri = ""
-            |lti.platform.client-id = ""
-            |lti.tool.initiate-login-url = ""
-            |""".stripMargin
-        )
-      )
-      incomplete.buildLoginRedirect("hint", "nonce", "state") must be(
+      service(issuer = "").buildLoginRedirect(tool(moodle), "hint", "nonce", "state") must be(
         Left(LtiError.IncompleteConfiguration)
       )
 
@@ -79,3 +192,32 @@ class LtiServiceSpec extends AnyWordSpec with Matchers:
     "produce a distinct value per call" in:
       val svc = service()
       svc.generateLoginHint must not be svc.generateLoginHint
+
+  "LtiCspConfigProvider.withToolOrigins" should:
+    def csp(directives: (String, String)*) =
+      CSPConfig(directives = directives.map((n, v) => CSPDirective(n, v)))
+    def directive(config: CSPConfig, name: String) =
+      config.directives.find(_.name == name).map(_.value)
+    val origins = Seq("https://moodle.example.org", "https://plus.example.org")
+
+    "append every tool origin to form-action and frame-src" in:
+      val merged = LtiCspConfigProvider.withToolOrigins(
+        csp("form-action" -> "'none'", "frame-src" -> "'self' https://exam.example.org"),
+        origins
+      )
+      directive(merged, "form-action") must be(
+        Some("https://moodle.example.org https://plus.example.org")
+      )
+      directive(merged, "frame-src") must be(
+        Some("'self' https://exam.example.org https://moodle.example.org https://plus.example.org")
+      )
+
+    "keep 'none' when there are no tools" in:
+      directive(
+        LtiCspConfigProvider.withToolOrigins(csp("form-action" -> "'none'"), Nil),
+        "form-action"
+      ) must be(Some("'none'"))
+
+    "leave other directives, and directives that are not configured, alone" in:
+      val merged = LtiCspConfigProvider.withToolOrigins(csp("default-src" -> "'self'"), origins)
+      merged.directives must be(Seq(CSPDirective("default-src", "'self'")))

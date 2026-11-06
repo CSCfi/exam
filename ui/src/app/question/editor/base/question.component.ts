@@ -160,7 +160,8 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
                     defaultEvaluationType?: string;
                 };
                 lti?: {
-                    ltiId?: string | null;
+                    ltiTool?: string | null;
+                    ltiCustom?: Record<string, string | null>;
                     defaultEvaluationType?: string;
                 };
                 multipleChoice?: {
@@ -307,8 +308,18 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
             defaultExpectedWordCount: essay.defaultExpectedWordCount ?? currentQuestion.defaultExpectedWordCount,
             defaultEvaluationType:
                 essay.defaultEvaluationType ?? lti.defaultEvaluationType ?? currentQuestion.defaultEvaluationType,
-            ltiId: lti.ltiId ?? currentQuestion.ltiId,
+            ltiTool: lti.ltiTool ?? currentQuestion.ltiTool,
+            ltiCustom: lti.ltiCustom ? this.ltiParameters(lti.ltiCustom) : currentQuestion.ltiCustom,
         };
+    }
+
+    /** The parameters the teacher filled in; blank inputs are left out rather than sent empty. */
+    private ltiParameters(values: Record<string, string | null>): Record<string, string> {
+        return Object.fromEntries(
+            Object.entries(values)
+                .map(([name, value]): [string, string] => [name, value?.trim() ?? ''])
+                .filter(([, value]) => value.length > 0),
+        );
     }
 
     private saveToServer(updatedQuestion: Question | QuestionDraft) {

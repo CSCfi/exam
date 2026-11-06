@@ -6,6 +6,7 @@ package features.question.services
 
 import database.EbeanPaths.{path, props}
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.lti.services.{LtiError, LtiService}
 import features.question.services.QuestionError.*
 import io.ebean.text.PathProperties
 import io.ebean.{DB, ExpressionList}
@@ -32,7 +33,8 @@ enum QuestionState:
 
 class QuestionService @Inject() (
     private val xmlExporter: MoodleXmlExporter,
-    private val xmlImporter: MoodleXmlImporter
+    private val xmlImporter: MoodleXmlImporter,
+    private val ltiService: LtiService
 ) extends SectionQuestionHandler
     with EbeanQueryExtensions
     with EbeanJsonExtensions
@@ -77,8 +79,24 @@ class QuestionService @Inject() (
               )
         case null => Some("unknown question type")
 
+    // An LTI question has to name a configured tool and give every parameter the tool requires,
+    // or it cannot be launched.
+    def ltiError: Option[String] =
+      Option.when(question.`type` == QuestionType.LtiQuestion) {
+        ltiService
+          .tool(question.ltiTool)
+          .flatMap(_.customParameters(question.ltiCustomParameters))
+          .left
+          .toOption
+          .map {
+            case LtiError.ToolNotConfigured => "i18n_lti_tool_not_configured"
+            case _                          => "i18n_lti_parameters_missing"
+          }
+      }.flatten
+
     val questionError =
-      if fieldExists("question") then typeError else Some("no question text defined")
+      if fieldExists("question") then typeError.orElse(ltiError)
+      else Some("no question text defined")
 
     val ownerError = Option.when((body \ "questionOwners").asOpt[JsArray].forall(_.value.isEmpty))(
       "no owners defined"
@@ -264,7 +282,13 @@ class QuestionService @Inject() (
       (body \ "defaultNegativeScoreAllowed").asOpt[Boolean].getOrElse(false)
     val defaultOptionShufflingOn =
       (body \ "defaultOptionShufflingOn").asOpt[Boolean].getOrElse(true)
-    val ltiId = (body \ "ltiId").asOpt[String].orNull
+    val ltiTool = (body \ "ltiTool").asOpt[String].map(_.trim).filter(_.nonEmpty)
+    // Only the parameters the tool declares are kept; the launch would ignore the rest anyway.
+    val ltiCustom = ltiTool.flatMap(ltiService.tools.get).map { tool =>
+      (body \ "ltiCustom").asOpt[JsObject].map(_.value.toMap).getOrElse(Map.empty).collect {
+        case (k, JsString(v)) if tool.parameterNames(k) && v.trim.nonEmpty => k -> v.trim
+      }
+    }
     val questionType = (body \ "type")
       .asOpt[String]
       .flatMap(s => Try(QuestionType.valueOf(s)).toOption)
@@ -280,7 +304,13 @@ class QuestionService @Inject() (
     question.defaultEvaluationCriteria = defaultCriteria
     question.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed
     question.defaultOptionShufflingOn = defaultOptionShufflingOn
-    question.ltiId = ltiId
+    val isLti = questionType == QuestionType.LtiQuestion
+    question.ltiTool = ltiTool.filter(_ => isLti).orNull
+    question.ltiCustom = ltiCustom.filter(_ => isLti).map { params =>
+      val map = new java.util.HashMap[String, Object]()
+      params.foreach((k, v) => map.put(k, v))
+      map
+    }.orNull
     if !Option(question.state).contains(QuestionState.DELETED.toString) then
       question.state = QuestionState.SAVED.toString
     if question.id == 0 then question.setCreatorWithDate(user)

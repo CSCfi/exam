@@ -120,7 +120,7 @@ class ExternalExamService @Inject() (
           case None if enrolment.exam.hasLtiQuestions =>
             // The LTI tool registration is this installation's config, never exam content, so the
             // visiting installation would have nothing to launch. Fail here rather than ship a
-            // dangling ltiId that surfaces as a blank iframe mid-exam.
+            // dangling LTI tool key that surfaces as a blank iframe mid-exam.
             logger.warn(
               s"Refusing to provide exam [id=${enrolment.exam.id}] for external examination: " +
                 "it contains LTI questions"

@@ -333,10 +333,71 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         val result = runIO(makeRequest(POST, s"/app/question/${q.id}", session = session))
         statusOf(result).must(be(Status.FORBIDDEN))
 
-  // Helper methods
-  /** Fetch the test question fresh from DB and ensure teacher ownership is set up. This avoids test
-    * isolation issues where question owners might be cleared between tests.
-    */
+    // Helper methods
+    /** Fetch the test question fresh from DB and ensure teacher ownership is set up. This avoids
+      * test isolation issues where question owners might be cleared between tests.
+      */
+    "working with LTI questions" should:
+      def ltiDraft(user: User, tool: Option[String], custom: JsObject): JsObject =
+        Json.obj(
+          "type"                  -> "LtiQuestion",
+          "question"              -> "Solve the exercise in Moodle",
+          "defaultMaxScore"       -> 5,
+          "defaultEvaluationType" -> "Points",
+          "ltiCustom"             -> custom,
+          "questionOwners"        -> Json.arr(Json.obj("id" -> JsNumber(BigDecimal(user.id))))
+        ) ++ tool.fold(Json.obj())(t => Json.obj("ltiTool" -> t))
+
+      def create(body: JsObject, session: Session): Result =
+        runIO(makeRequest(POST, "/app/questions", Some(body), session = session))
+
+      // The shipped configuration registers the `moodle` tool, requiring the parameter `id`.
+      "save the tool and only the parameters it declares" in:
+        val (user, session) = runIO(loginAsTeacher())
+        val result = create(
+          ltiDraft(user, Some("moodle"), Json.obj("id" -> " r-1 ", "course_slug" -> "x")),
+          session
+        )
+        statusOf(result).must(be(Status.OK))
+        val question = DB.find(classOf[Question], (contentAsJsonOf(result) \ "id").as[Long])
+        question.ltiTool must be("moodle")
+        question.ltiCustomParameters must be(Map("id" -> "r-1"))
+
+      "keep the tool and parameters through an update" in:
+        val (user, session) = runIO(loginAsTeacher())
+        val id = (contentAsJsonOf(
+          create(ltiDraft(user, Some("moodle"), Json.obj("id" -> "r-1")), session)
+        ) \ "id").as[Long]
+        val update = ltiDraft(user, Some("moodle"), Json.obj("id" -> "r-2"))
+        statusOf(runIO(put(s"/app/questions/$id", update, session = session))).must(
+          be(Status.OK)
+        )
+        DB.find(classOf[Question], id).ltiCustomParameters must be(Map("id" -> "r-2"))
+
+      "reject a tool that is not configured" in:
+        val (user, session) = runIO(loginAsTeacher())
+        Seq(Some("removed-tool"), None).foreach { tool =>
+          val result = create(ltiDraft(user, tool, Json.obj("id" -> "r-1")), session)
+          withClue(s"tool $tool: ")(statusOf(result).must(be(Status.BAD_REQUEST)))
+          contentAsStringOf(result) must include("i18n_lti_tool_not_configured")
+        }
+
+      "reject a question missing a parameter its tool requires" in:
+        val (user, session) = runIO(loginAsTeacher())
+        val result          = create(ltiDraft(user, Some("moodle"), Json.obj("id" -> " ")), session)
+        statusOf(result).must(be(Status.BAD_REQUEST))
+        contentAsStringOf(result) must include("i18n_lti_parameters_missing")
+
+      "not store LTI fields on other question types" in:
+        val (user, session) = runIO(loginAsTeacher())
+        val essay = ltiDraft(user, Some("moodle"), Json.obj("id" -> "r-1")) ++
+          Json.obj("type" -> "EssayQuestion")
+        val result = create(essay, session)
+        statusOf(result).must(be(Status.OK))
+        val question = DB.find(classOf[Question], (contentAsJsonOf(result) \ "id").as[Long])
+        question.ltiTool must be(null)
+        question.ltiCustom must be(null)
+
   private def getQuestionWithOwnership: Question =
     ensureTestDataLoaded()
     val q = DB

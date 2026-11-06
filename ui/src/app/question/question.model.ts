@@ -44,7 +44,20 @@ export interface Question {
     defaultEvaluationType?: string;
     defaultNegativeScoreAllowed: boolean;
     defaultOptionShufflingOn: boolean;
-    ltiId?: string;
+    ltiTool?: string;
+    ltiCustom?: Record<string, string>;
+}
+
+export interface LtiToolParameter {
+    name: string;
+    required: boolean;
+    requires: string[];
+}
+
+export interface LtiTool {
+    key: string;
+    name: string;
+    parameters: LtiToolParameter[];
 }
 
 // QuestionDraft is now just ReverseQuestion with id: undefined

@@ -5,29 +5,72 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <div [formGroup]="ltiForm">
-    <div class="row mt-3">
-        <div class="col-md-3">
-            {{ 'i18n_question_lti_id' | translate }}
-            <sup
-                ngbPopover="{{ 'i18n_question_lti_description' | translate }}"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <img src="/assets/images/icon_tooltip.svg" alt="" />
-            </sup>
+    @if (showToolSelect()) {
+        <div class="row mt-3">
+            <div class="col-md-3">
+                {{ 'i18n_question_lti_tool' | translate }}
+                <sup
+                    ngbPopover="{{ 'i18n_question_lti_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </div>
+            <div class="col-md-9 pe-0">
+                <select id="ltiTool" name="ltiTool" class="form-select w-75" formControlName="ltiTool">
+                    <option [ngValue]="null" disabled>{{ 'i18n_question_lti_tool_select' | translate }}</option>
+                    @for (tool of tools(); track tool.key) {
+                        <option [ngValue]="tool.key">{{ tool.name }}</option>
+                    }
+                </select>
+                @if (unknownTool()) {
+                    <div class="text-danger mt-1">{{ 'i18n_lti_tool_not_configured' | translate }}</div>
+                }
+            </div>
         </div>
-        <div class="col-md-9 pe-0">
-            <textarea
-                id="ltiId"
-                name="ltiId"
-                class="form-control"
-                rows="1"
-                formControlName="ltiId"
-                placeholder="{{ 'i18n_question_lti_id_instruction' | translate }}"
-            >
-            </textarea>
+    }
+    @if (selectedTool(); as tool) {
+        <div formGroupName="ltiCustom">
+            @for (parameter of tool.parameters; track parameter.name; let first = $first) {
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <label [for]="'ltiParameter-' + parameter.name">
+                            {{ parameterLabel(parameter.name) }}
+                            @if (parameter.required) {
+                                <span aria-hidden="true"> *</span>
+                            }
+                        </label>
+                        @if (first && !showToolSelect()) {
+                            <sup
+                                ngbPopover="{{ 'i18n_question_lti_description' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                            >
+                                <img src="/assets/images/icon_tooltip.svg" alt="" />
+                            </sup>
+                        }
+                    </div>
+                    <div class="col-md-9 pe-0">
+                        <input
+                            type="text"
+                            class="form-control"
+                            [id]="'ltiParameter-' + parameter.name"
+                            [formControlName]="parameter.name"
+                            [attr.aria-required]="parameter.required"
+                        />
+                    </div>
+                </div>
+            }
+            @if (customForm.errors?.['requires']) {
+                <div class="row">
+                    <div class="col-md-9 offset-md-3 text-danger mt-1">
+                        {{ 'i18n_lti_parameter_requires' | translate: { names: missingRequirements() } }}
+                    </div>
+                </div>
+            }
         </div>
-    </div>
+    }
     <div class="row mt-3">
         <div class="col-md-3">
             {{ 'i18n_evaluation_type' | translate }}

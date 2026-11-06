@@ -31,8 +31,9 @@ import scala.util.Try
 
 /** LTI 1.3 platform-side support.
   *
-  * EXAM acts as the *platform* here: it initiates an OIDC login against the tool (Moodle) and signs
-  * the id_token that the tool validates against the JWKS endpoint below.
+  * EXAM acts as the *platform* here: it initiates an OIDC login against a tool (Moodle, A+, see
+  * [[LtiTools]]) and signs the id_token that the tool validates against the JWKS endpoint below.
+  * Each question names its tool and the custom parameters that pick the content inside it.
   *
   * Note on `state` and `nonce`: in third-party initiated login the *tool* generates both for its
   * authorization request. The values arriving at the callback are therefore Moodle's, not ours —
@@ -48,14 +49,16 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
   /** Path of `LtiController.startLogin` in conf/routes. */
   private val StartLoginPath = "/integration/lti/start-login"
 
-  def initiateLoginUrl: String = config.getString("lti.tool.initiate-login-url")
-  def issuer: String           = config.getString("lti.platform.issuer")
-  def targetLinkUri: String    = config.getString("lti.tool.target-link-uri")
-  def clientId: String         = config.getString("lti.platform.client-id")
-  def deploymentId: String     = config.getString("lti.platform.deployment-id")
-  def keyId: String            = config.getString("lti.platform.key-id")
-  def publicKeyPath: String    = config.getString("lti.platform.public-key")
-  def privateKeyPath: String   = config.getString("lti.platform.private-key")
+  def issuer: String         = config.getString("lti.platform.issuer")
+  def keyId: String          = config.getString("lti.platform.key-id")
+  def publicKeyPath: String  = config.getString("lti.platform.public-key")
+  def privateKeyPath: String = config.getString("lti.platform.private-key")
+
+  /** Registered tools, keyed by the key questions refer to them with. */
+  val tools: Map[String, LtiTool] = LtiTools.fromConfig(config)
+
+  def tool(key: String): Either[LtiError, LtiTool] =
+    Option(key).flatMap(tools.get).toRight(LtiError.ToolNotConfigured)
 
   /** Absolute URL of the platform's login-initiation endpoint.
     *
@@ -65,37 +68,25 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
     */
   def startLoginUrl: String = s"${issuer.stripSuffix("/")}$StartLoginPath"
 
-  /** Redirect URIs the tool is allowed to receive the id_token on. Defaults to the configured
-    * target link URI when no explicit allow-list is given.
-    */
-  def redirectUris: List[String] =
-    if config.hasPath("lti.tool.redirect-uris") then
-      config.getStringList("lti.tool.redirect-uris").asScala.toList.filter(_.nonEmpty)
-    else List(targetLinkUri).filter(_.nonEmpty)
-
   /** Builds the OIDC third-party-initiated login URL the browser is redirected to. */
   def buildLoginRedirect(
+      tool: LtiTool,
       loginHint: String,
       nonce: String,
       state: String
   ): Either[LtiError, String] =
-    if initiateLoginUrl.isEmpty || issuer.isEmpty || targetLinkUri.isEmpty || clientId.isEmpty then
-      Left(LtiError.IncompleteConfiguration)
+    if issuer.trim.isEmpty then Left(LtiError.IncompleteConfiguration)
     else
-      val separator = if initiateLoginUrl.contains("?") then "&" else "?"
+      val separator = if tool.initiateLoginUrl.contains("?") then "&" else "?"
       val params = Seq(
         "iss"             -> issuer,
         "login_hint"      -> loginHint,
-        "target_link_uri" -> targetLinkUri,
-        "client_id"       -> clientId,
+        "target_link_uri" -> tool.targetLinkUri,
+        "client_id"       -> tool.clientId,
         "nonce"           -> nonce,
         "state"           -> state
       ).map((k, v) => s"$k=${urlEncode(v)}").mkString("&")
-      Right(s"$initiateLoginUrl$separator$params")
-
-  /** The tool must echo back a registered redirect URI; anything else would leak the id_token. */
-  def validateRedirectUri(uri: String): Either[LtiError, String] =
-    Either.cond(redirectUris.contains(uri), uri, LtiError.InvalidRedirectUri)
+      Right(s"${tool.initiateLoginUrl}$separator$params")
 
   /** Opaque per-login token, returned verbatim by the tool, tying the callback to the session. */
   def generateLoginHint: String = randomToken
@@ -127,13 +118,15 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       .find
       .filter(esq => Option(esq.question).exists(_.`type` == QuestionType.LtiQuestion))
       .filter(esq => canLaunch(esq.examSection.exam, user))
-      .flatMap { esq =>
-        Option(esq.question.ltiId).map(_.trim).filter(_.nonEmpty).map { resourceId =>
-          val (context, collaborative) = launchContext(esq.examSection.exam)
-          LtiLaunch(resourceId, resourceLinkId(esq, context, collaborative), context)
-        }
-      }
       .toRight(LtiError.LaunchNotFound)
+      .flatMap { esq =>
+        for
+          tool   <- tool(esq.question.ltiTool)
+          custom <- tool.customParameters(esq.question.ltiCustomParameters)
+        yield
+          val (context, collaborative) = launchContext(esq.examSection.exam)
+          LtiLaunch(tool, custom, resourceLinkId(esq, context, collaborative), context)
+      }
 
   /** Identifies where in the context the question is placed, so the tool can tell apart two exams,
     * or two questions in one exam, that use the same published resource. Like the context it must
@@ -205,17 +198,26 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       "title" -> launch.context.title,
       "type"  -> List("http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering").asJava
     ).asJava
-    // Moodle's published LTI resources are identified by the custom `id` parameter. The resource
-    // link is the question's placement in the exam, not the resource: one resource can be used
-    // in many exams, and grades sent back by the tool have to reach the right one.
+    // The tool picks the content to show from the custom parameters (Moodle: `id`, A+: the course
+    // and exercise slugs). The resource link is the question's placement in the exam, not the
+    // content: one resource can be used in many exams, and grades sent back by the tool have to
+    // reach the right one.
     val resourceLink = Map("id" -> launch.resourceLinkId).asJava
-    val custom       = Map("id" -> launch.resourceId).asJava
+    val custom       = launch.custom.asJava
+    // A+ reads both of these unconditionally when it creates a user, so they are always sent.
+    val presentation = Map(
+      "locale"          -> Option(user.language).flatMap(l => Option(l.code)).getOrElse("en"),
+      "document_target" -> "iframe"
+    ).asJava
+    val lis = Map("person_sourcedid" -> Option(user.userIdentifier).getOrElse("")).asJava
+    // Not an LTI claim but Moodle's extension, which A+ prefers over email as the username.
+    val ext = Map("user_username" -> user.eppn).asJava
 
     val claims = JWTClaimsSet
       .Builder()
       .issuer(issuer)
       .subject(user.eppn)
-      .audience(clientId)
+      .audience(launch.tool.clientId)
       .expirationTime(exp)
       .issueTime(now)
       .jwtID(UUID.randomUUID.toString)
@@ -226,12 +228,15 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       .claim("email", user.email)
       .claim("https://purl.imsglobal.org/spec/lti/claim/message_type", "LtiResourceLinkRequest")
       .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
-      .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", deploymentId)
+      .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", launch.tool.deploymentId)
       .claim("https://purl.imsglobal.org/spec/lti/claim/target_link_uri", redirectUri)
       .claim("https://purl.imsglobal.org/spec/lti/claim/roles", rolesOf(user).asJava)
       .claim("https://purl.imsglobal.org/spec/lti/claim/context", context)
       .claim("https://purl.imsglobal.org/spec/lti/claim/resource_link", resourceLink)
       .claim("https://purl.imsglobal.org/spec/lti/claim/custom", custom)
+      .claim("https://purl.imsglobal.org/spec/lti/claim/launch_presentation", presentation)
+      .claim("https://purl.imsglobal.org/spec/lti/claim/lis", lis)
+      .claim("https://purl.imsglobal.org/spec/lti/claim/ext", ext)
       .build()
 
     loadPrivateKey.map { key =>
@@ -332,9 +337,14 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
 
   private def urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8)
 
-/** The LTI question being launched: the tool's resource id, the question's placement (the LTI
-  * resource link) and the exam it is launched from.
+/** The LTI question being launched: the tool, the custom parameters naming the content in it, the
+  * question's placement (the LTI resource link) and the exam it is launched from.
   */
-final case class LtiLaunch(resourceId: String, resourceLinkId: String, context: LtiContext)
+final case class LtiLaunch(
+    tool: LtiTool,
+    custom: Map[String, String],
+    resourceLinkId: String,
+    context: LtiContext
+)
 
 final case class LtiContext(id: String, label: String, title: String)

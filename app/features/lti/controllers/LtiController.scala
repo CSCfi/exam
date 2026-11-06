@@ -37,7 +37,21 @@ class LtiController @Inject() (
       Ok(Json.obj("url" -> ltiService.startLoginUrl))
     }
 
-  /** Starts the OIDC third-party-initiated login against the tool. */
+  /** The configured tools and the parameters a question has to give each, for the editor. */
+  def getTools: Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
+      Ok(Json.toJson(ltiService.tools.values.toSeq.sortBy(_.name).map { tool =>
+        Json.obj(
+          "key"  -> tool.key,
+          "name" -> tool.name,
+          "parameters" -> tool.parameters.map(p =>
+            Json.obj("name" -> p.name, "required" -> p.required, "requires" -> p.requires)
+          )
+        )
+      }))
+    }
+
+  /** Starts the OIDC third-party-initiated login against the question's tool. */
   def startLogin: Action[AnyContent] =
     authenticated.andThen(
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
@@ -48,27 +62,27 @@ class LtiController @Inject() (
           examHash          <- request.getQueryString("examHash").map(_.trim).filter(_.nonEmpty)
         yield (sectionQuestionId, examHash)
       // Fail before redirecting to the tool rather than in the callback, the user sees it sooner.
-      target.toRight(LtiError.MissingLaunchTarget).flatMap { (sectionQuestionId, examHash) =>
-        ltiService
-          .findLaunch(sectionQuestionId, examHash, request.attrs(Auth.ATTR_USER))
-          .map(_ => (sectionQuestionId, examHash))
-      } match
-        case Left(error)                          => toResult(error)
-        case Right((sectionQuestionId, examHash)) =>
-          // state and nonce here are spurious: the tool generates its own for the authorization
-          // request. They are sent for parity with the original implementation; login_hint is
-          // what actually ties the callback back to this session.
-          val loginHint = ltiService.generateLoginHint
-          val state     = java.util.UUID.randomUUID.toString
-          val nonce     = ltiService.generateNonce
-          ltiService.buildLoginRedirect(loginHint, nonce, state) match
-            case Left(error) => toResult(error)
-            case Right(url) =>
-              Redirect(url).addingToSession(
-                "lti_login_hint"          -> loginHint,
-                "lti_section_question_id" -> sectionQuestionId.toString,
-                "lti_exam_hash"           -> examHash
-              )(using request)
+      // state and nonce here are spurious: the tool generates its own for the authorization
+      // request. They are sent for parity with the original implementation; login_hint is
+      // what actually ties the callback back to this session.
+      val loginHint = ltiService.generateLoginHint
+      val result =
+        for
+          (sectionQuestionId, examHash) <- target.toRight(LtiError.MissingLaunchTarget)
+          launch <-
+            ltiService.findLaunch(sectionQuestionId, examHash, request.attrs(Auth.ATTR_USER))
+          url <- ltiService.buildLoginRedirect(
+            launch.tool,
+            loginHint,
+            ltiService.generateNonce,
+            java.util.UUID.randomUUID.toString
+          )
+        yield Redirect(url).addingToSession(
+          "lti_login_hint"          -> loginHint,
+          "lti_section_question_id" -> sectionQuestionId.toString,
+          "lti_exam_hash"           -> examHash
+        )(using request)
+      result.fold(toResult, identity)
     }
 
   /** Tool calls back here; responds with a self-submitting form carrying the signed id_token. */
@@ -80,11 +94,6 @@ class LtiController @Inject() (
 
       val result =
         for
-          _ <- Either.cond(
-            request.getQueryString("client_id").contains(ltiService.clientId),
-            (),
-            LtiError.InvalidClientId
-          )
           params <- (redirectUri, state, nonce) match
             case (Some(uri), Some(s), Some(n)) => Right((uri, s, n))
             case _                             => Left(LtiError.MissingParameters)
@@ -98,18 +107,25 @@ class LtiController @Inject() (
             (),
             LtiError.LoginHintMismatch
           )
-          validatedUri <- ltiService.validateRedirectUri(uri)
           sectionQuestionId <- request.session
             .get("lti_section_question_id")
             .flatMap(_.toLongOption)
             .toRight(LtiError.NoLaunchInSession)
           examHash <- request.session.get("lti_exam_hash").toRight(LtiError.NoLaunchInSession)
           user = request.attrs(Auth.ATTR_USER)
+          // Resolved again rather than trusted from the session: the launch decides the tool, and
+          // the callback has to come from that tool and go back to one of its redirect URIs.
+          launch <- ltiService.findLaunch(sectionQuestionId, examHash, user)
+          _ <- Either.cond(
+            request.getQueryString("client_id").contains(launch.tool.clientId),
+            (),
+            LtiError.InvalidClientId
+          )
+          validatedUri <- launch.tool.validateRedirectUri(uri)
           // Set by the CSP filter; the auto-submit script is inline, so it needs the nonce to run.
           cspNonce <- request.attrs
             .get(RequestAttrKey.CSPNonce)
             .toRight(LtiError.CspNonceUnavailable)
-          launch  <- ltiService.findLaunch(sectionQuestionId, examHash, user)
           idToken <- ltiService.buildIdToken(user, launch, toolNonce, validatedUri)
         yield ltiService.buildAutoPostHtml(validatedUri, idToken, toolState, cspNonce)
 

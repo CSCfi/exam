@@ -617,11 +617,11 @@ class ExternalExamControllerSpec
       "refuse the transfer" in:
         val (exam, enrolment, reservation) = setupTestData()
 
-        // Only ltiId travels over IOP, never the tool registration it points into, so the visiting
+        // Only the tool key travels over IOP, never the tool registration it points into, so the visiting
         // installation would have nothing to launch. See docs/lti-and-exam-visits.md.
         val question = getExamSectionQuestion(exam).question
         question.`type` = QuestionType.LtiQuestion
-        question.ltiId = "resource-42"
+        question.ltiTool = "moodle"
         question.update()
 
         enrolment.reservation = reservation

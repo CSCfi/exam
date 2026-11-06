@@ -5,6 +5,7 @@
 package models.questions
 
 import com.fasterxml.jackson.annotation.{JsonBackReference, JsonManagedReference}
+import io.ebean.annotation.DbJsonB
 import jakarta.persistence.*
 import models.attachment.{Attachment, AttachmentContainer}
 import models.base.OwnedModel
@@ -59,7 +60,14 @@ class Question extends OwnedModel with AttachmentContainer:
   var defaultExpectedWordCount: Integer             = uninitialized
   var defaultNegativeScoreAllowed: Boolean          = false
   var defaultOptionShufflingOn: Boolean             = false
-  var ltiId: String                                 = uninitialized
+  // The LTI tool (a key of lti.tools) and the custom parameters picking the content inside it.
+  var ltiTool: String                                   = uninitialized
+  @DbJsonB var ltiCustom: java.util.Map[String, Object] = uninitialized
+
+  def ltiCustomParameters: Map[String, String] =
+    Option(ltiCustom).map(_.asScala.toMap).getOrElse(Map.empty).collect {
+      case (k, v) if v != null => k -> v.toString
+    }
 
   def getMaxDefaultScore: Double =
     `type` match
@@ -112,8 +120,9 @@ class Question extends OwnedModel with AttachmentContainer:
     q.defaultExpectedWordCount = defaultExpectedWordCount
     q.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed
     q.defaultOptionShufflingOn = defaultOptionShufflingOn
-    // The launch reads ltiId from the student's copy, so dropping it leaves the iframe blank.
-    q.ltiId = ltiId
+    // The launch reads these from the student's copy, so dropping them leaves the iframe blank.
+    q.ltiTool = ltiTool
+    q.ltiCustom = Option(ltiCustom).map(m => new java.util.HashMap[String, Object](m)).orNull
     if setParent then
       q.parent = this
       q.questionOwners = questionOwners

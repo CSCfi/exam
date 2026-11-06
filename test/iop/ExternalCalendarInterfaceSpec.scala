@@ -848,7 +848,7 @@ class ExternalCalendarInterfaceSpec
           .headOption
           .getOrElse(fail("No question found on test exam"))
         question.`type` = QuestionType.LtiQuestion
-        question.ltiId = "resource-42"
+        question.ltiTool = "moodle"
         question.update()
 
         val (_, session) = runIO(loginAsStudent())
