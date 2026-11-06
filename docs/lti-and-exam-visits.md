@@ -139,6 +139,14 @@ since Moodle's picker allows ticking several although the request asks for one. 
 The session holds one login in progress, so starting a deep linking request and a launch at the
 same time in one browser makes one of them fail.
 
+**Network.** Deep linking is the one place where EXAM's server calls the tool: it fetches the
+tool's keys from `jwks-url` (for Moodle `GET <moodle>/enrol/lti/jwks.php` over HTTPS) to check a
+pick. EXAM's server therefore needs outbound access to the tool on port 443, through the JVM's
+proxy settings (`-Dhttps.proxyHost`, `-Dhttps.proxyPort`) if outbound traffic goes through a proxy,
+and has to trust the tool's TLS certificate (add an internal CA to the JVM's truststore). If the
+fetch fails, picking fails with "keys could not be fetched" in the log; launches are unaffected,
+since they involve no call from EXAM to the tool.
+
 ## Launch flow
 
 The launch runs in an iframe in the examination view (`ExaminationLtiComponent`).
