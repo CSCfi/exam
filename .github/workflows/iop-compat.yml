@@ -4,7 +4,7 @@
 
 # Older EXAM versions reading what this branch sends to other installations (IOP).
 #
-# Runs whenever the IOP payload fixtures change, i.e. whenever the wire format changes: each
+# Runs on every PR that changes the IOP payload fixtures, i.e. the wire format: each
 # reader branch parses the fixtures with its own code (test/iop/ReadsNewerIopSpec.scala on that
 # branch). Not a required check; a red run means an older EXAM would misread the new payloads.
 # See docs/iop-protocol-versions.md. Add a release branch to the matrix when it is cut, and drop
@@ -14,12 +14,8 @@ name: IOP compatibility
 
 on:
   # pull_request compares the PR's whole diff with its base, so the check shows on every PR that
-  # changes the fixtures, whatever its latest commit is; push covers branches without a PR
+  # changes the fixtures, whatever its latest commit is
   pull_request:
-    paths:
-      - 'test/resources/iop-fixtures/**'
-      - '.github/workflows/iop-compat.yml'
-  push:
     paths:
       - 'test/resources/iop-fixtures/**'
       - '.github/workflows/iop-compat.yml'
