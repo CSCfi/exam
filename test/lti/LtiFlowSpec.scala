@@ -307,9 +307,35 @@ class LtiFlowSpec extends BaseIntegrationSpec:
       claims.getStringClaim(s"$lti/version") must be("1.3.0")
       claims.getStringClaim(s"$lti/deployment_id") must be(setting("lti.platform.deployment-id"))
       claims.getStringClaim(s"$lti/target_link_uri") must be(launchUri)
-      claims.getJSONObjectClaim(s"$lti/resource_link").get("id") must be(ResourceId)
       claims.getJSONObjectClaim(s"$lti/custom").get("id") must be(ResourceId)
       claims.getJWTID must not be empty
+
+    // One published resource can be used in many exams and many times in one exam. Grades the
+    // tool sends back are keyed by resource link, so it has to identify the placement.
+    "identify the question's placement in the exam as the resource link" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val ltiSession              = ltiSessionOf(userSession, esqId)
+      val claims   = claimsOf(callback(ltiSession, toolParams(ltiSession("lti_login_hint"))))
+      val question = DB.find(classOf[ExamSectionQuestion], esqId).question
+      claims.getJSONObjectClaim("https://purl.imsglobal.org/spec/lti/claim/resource_link")
+        .get("id") must be(s"exam-1-question-${question.id}")
+
+    "give a student's copy the resource link of the original exam's question" in:
+      val (student, studentSession) = runIO(loginAsStudent())
+      val prototype                 = findExam(2L)
+      val original = prototype.examSections.asScala
+        .flatMap(_.sectionQuestions.asScala)
+        .headOption
+        .getOrElse(fail("Prototype exam has no section questions"))
+        .question
+      val esqId    = setUpLtiQuestion(student, Some(prototype))
+      val question = DB.find(classOf[ExamSectionQuestion], esqId).question
+      question.parent = original
+      question.update()
+      val ltiSession = ltiSessionOf(studentSession, esqId)
+      val claims     = claimsOf(callback(ltiSession, toolParams(ltiSession("lti_login_hint"))))
+      claims.getJSONObjectClaim("https://purl.imsglobal.org/spec/lti/claim/resource_link")
+        .get("id") must be(s"exam-${prototype.id}-question-${original.id}")
 
     "describe the exam as the context when a teacher previews it" in:
       val (_, claims) = launch()

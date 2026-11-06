@@ -129,10 +129,34 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       .filter(esq => canLaunch(esq.examSection.exam, user))
       .flatMap { esq =>
         Option(esq.question.ltiId).map(_.trim).filter(_.nonEmpty).map { resourceId =>
-          LtiLaunch(resourceId, launchContext(esq.examSection.exam))
+          val (context, collaborative) = launchContext(esq.examSection.exam)
+          LtiLaunch(resourceId, resourceLinkId(esq, context, collaborative), context)
         }
       }
       .toRight(LtiError.LaunchNotFound)
+
+  /** Identifies where in the context the question is placed, so the tool can tell apart two exams,
+    * or two questions in one exam, that use the same published resource. Like the context it must
+    * be the same for every student taking the exam and for a teacher previewing it, so it is keyed
+    * by the original exam's question: a student copy's question has it as parent.
+    *
+    * A copy of a collaborative exam has no local original to point at, so there the question's
+    * position is used instead. Positions are copied verbatim from the collaborative exam.
+    */
+  private def resourceLinkId(
+      esq: ExamSectionQuestion,
+      context: LtiContext,
+      collaborative: Boolean
+  ): String =
+    val exam = esq.examSection.exam
+    val originalQuestionId =
+      if collaborative then None
+      else if Option(exam.parent).isEmpty then Some(esq.question.id)
+      else Option(esq.question.parent).map(_.id)
+    val placement = originalQuestionId match
+      case Some(id) => s"question-$id"
+      case None     => s"section-${esq.examSection.sequenceNumber}-question-${esq.sequenceNumber}"
+    s"${context.id}-$placement"
 
   private def canLaunch(exam: Exam, user: User): Boolean =
     user.loginRole match
@@ -143,23 +167,27 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
 
   /** The LTI context is the course the launch happens in, shared by everyone taking the exam. A
     * student's exam is a copy, so it is identified by the exam it was copied from: the parent exam,
-    * or the collaborative exam for copies that have no local parent.
+    * or the collaborative exam for copies that have no local parent. Also tells whether the exam is
+    * such a collaborative copy.
     */
-  private def launchContext(exam: Exam): LtiContext =
+  private def launchContext(exam: Exam): (LtiContext, Boolean) =
     val prototype = Option(exam.parent).getOrElse(exam)
-    val id = Option(exam.parent) match
-      case Some(parent) => s"exam-${parent.id}"
+    val collaborativeExamId = Option(exam.parent) match
+      case Some(_) => None
       case None =>
         DB.find(classOf[ExamEnrolment])
           .where()
           .eq("exam", exam)
           .isNotNull("collaborativeExam")
           .find
-          .map(e => s"collaborative-exam-${e.collaborativeExam.id}")
-          .getOrElse(s"exam-${exam.id}")
+          .map(_.collaborativeExam.id)
+    val id = (Option(exam.parent), collaborativeExamId) match
+      case (Some(parent), _)  => s"exam-${parent.id}"
+      case (None, Some(ceId)) => s"collaborative-exam-$ceId"
+      case (None, None)       => s"exam-${exam.id}"
     val title = Option(prototype.name).filter(_.nonEmpty).getOrElse(id)
     val label = Option(prototype.course).flatMap(c => Option(c.code)).filter(_.nonEmpty)
-    LtiContext(id, label.getOrElse(title), title)
+    (LtiContext(id, label.getOrElse(title), title), collaborativeExamId.isDefined)
 
   /** Signs the LTI 1.3 resource link id_token for the given user and launch. */
   def buildIdToken(
@@ -177,8 +205,10 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       "title" -> launch.context.title,
       "type"  -> List("http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering").asJava
     ).asJava
-    // Moodle's published LTI resources are identified by the custom `id` parameter.
-    val resourceLink = Map("id" -> launch.resourceId).asJava
+    // Moodle's published LTI resources are identified by the custom `id` parameter. The resource
+    // link is the question's placement in the exam, not the resource: one resource can be used
+    // in many exams, and grades sent back by the tool have to reach the right one.
+    val resourceLink = Map("id" -> launch.resourceLinkId).asJava
     val custom       = Map("id" -> launch.resourceId).asJava
 
     val claims = JWTClaimsSet
@@ -302,7 +332,9 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
 
   private def urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8)
 
-/** The LTI question being launched: the tool's resource id and the exam it is launched from. */
-final case class LtiLaunch(resourceId: String, context: LtiContext)
+/** The LTI question being launched: the tool's resource id, the question's placement (the LTI
+  * resource link) and the exam it is launched from.
+  */
+final case class LtiLaunch(resourceId: String, resourceLinkId: String, context: LtiContext)
 
 final case class LtiContext(id: String, label: String, title: String)

@@ -64,7 +64,7 @@ name and email), it carries these LTI claims:
 | `version`          | `1.3.0`                                                          |
 | `deployment_id`    | `lti.platform.deployment-id`                                     |
 | `target_link_uri`  | the validated redirect URI                                       |
-| `resource_link.id` | the question's `ltiId`                                           |
+| `resource_link.id` | the question's placement in the exam, see below                  |
 | `custom.id`        | the question's `ltiId` (how Moodle finds the published resource) |
 | `context`          | the exam, see below                                              |
 | `roles`            | from the user's current EXAM role, see below                     |
@@ -78,6 +78,15 @@ the exam the copy was made from:
 - `title`: the exam name
 - `label`: the course code, or the exam name if the exam has no course
 - `type`: `CourseOffering`
+
+**Resource link.** One published Moodle resource can be used in many exams, and more than once in
+one exam, so the resource link stands for the question's placement rather than the resource
+(that is `custom.id`). Like the context it is the same for every student and for a teacher
+previewing the exam: `<context id>-question-<id of the original exam's question>`. A copy of a
+collaborative exam has no local original, so there it is
+`<context id>-section-<section number>-question-<question number>`, positions being copied
+verbatim from the collaborative exam. Grades sent back by the tool (LTI AGS, not implemented yet)
+would be keyed by this.
 
 **Roles.**
 
