@@ -28,7 +28,8 @@ Epic: CSCEXAM-1733.
 | Translation steps | XM, `src/migration/` | Convert payloads between versions, so old and new installations understand each other. |
 | XM fixture tests | XM, `src/test/fixtures/`, `src/test/ut/fixtures.spec.ts` | The same fixtures run through XM's translations, with the results kept as snapshots. |
 
-An installation that sends no version header (anything older than EXAM 7.1) counts as protocol 0.
+An installation that sends no version header (anything older than EXAM 7.0) counts as protocol 0.
+EXAM 7.0 is protocol 1 and 7.1 is protocol 2; `IopProtocol.scala` keeps the history.
 
 ## What counts as a wire format change
 
@@ -122,10 +123,12 @@ Some changes can't be bridged by a translation step at all. They come in three d
    **Example: math markup in EXAM 7.0.** 7.0 writes math in HTML content (question texts and
    answers) in a new syntax that installations before 7.0 cannot render. A collaborative exam or
    an exam taken at another organisation can therefore show raw markup to a 6.x installation's
-   users. This is invisible to every safeguard described here: the payloads keep their shape, so
-   the fixtures stay green, and 7.0 predates the protocol headers, so XM cannot tell 6.x from 7.0
-   (both are protocol 0). It can only be handled by agreement: upgrading past 6.x by a deadline,
-   or not using the new math in exams shared with organisations still on 6.x.
+   users. The fixtures can't catch this: the payloads keep their shape. What does help is that 7.0
+   announces its protocol (1) while 6.x does not (0), so `pnpm run versions` in XM shows exactly
+   which organisations are still on 6.x. The change itself can only be handled by agreement: an
+   upgrade deadline past 6.x, or not using the new math in exams shared with organisations still
+   on 6.x. Hiding it automatically where a participant is on protocol 0 (degree 2 above) would
+   also be possible, but is not built.
 
 ## Write modes of the fixture spec
 
@@ -165,7 +168,7 @@ The window is typically two or three versions wide. The consortium's upgrade win
 wide: the faster everyone upgrades, the sooner old steps can go. The software does not rely on
 that, though: a step stays until the data shows it is unused, whatever the deadline says.
 
-Protocol 0 (EXAM older than 7.1) is the first version to leave the window. XM's current evolutions
+Protocol 0 (EXAM older than 7.0) is the first version to leave the window. XM's current evolutions
 are its step; they become the step 0 → 1 of the chain if version-aware translation (CSCEXAM-1736)
 is built before then, and are retired once protocol 0 is gone.
 
