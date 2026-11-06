@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 # IOP protocol versions
 
 EXAM installations exchange JSON with each other through XM: collaborative exams and their
