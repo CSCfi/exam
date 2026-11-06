@@ -88,7 +88,10 @@ abstract class LtiIntegrationSpec extends BaseIntegrationSpec:
          |lti.platform.public-key = "$publicKey"
          |""".stripMargin
     )
-    new GuiceApplicationBuilder().configure(Configuration(aplus)).build()
+    customise(new GuiceApplicationBuilder().configure(Configuration(aplus))).build()
+
+  /** For a spec to add its own configuration or bindings. */
+  protected def customise(builder: GuiceApplicationBuilder): GuiceApplicationBuilder = builder
 
   protected def setting(key: String): String = app.configuration.get[String](key)
   protected def clientId(tool: String = "moodle"): String =

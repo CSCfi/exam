@@ -17,9 +17,10 @@ import {
 } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { filter, skip, switchMap, tap } from 'rxjs';
-import type { LtiTool, QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
+import { filter, fromEvent, interval, race, skip, switchMap, take, tap } from 'rxjs';
+import type { LtiDeepLinkResult, LtiTool, QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 
 /** Parameters given without the ones they require, e.g. an A+ exercise without its module. */
 const requiresValidator =
@@ -50,11 +51,15 @@ export class LtiComponent implements OnInit, AfterViewInit {
     readonly unknownTool = signal(false);
     // LTI, an optional integration, is not in use on this installation.
     readonly inactive = signal(false);
+    // The tool's content picker is open (LTI Deep Linking), and the title of what was picked in it.
+    readonly picking = signal(false);
+    readonly pickedTitle = signal<string | undefined>(undefined);
 
     private readonly parentForm = inject(FormGroupDirective);
     private readonly questionService = inject(QuestionService);
     private readonly translate = inject(TranslateService);
     private readonly destroyRef = inject(DestroyRef);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         this.ltiForm = new FormGroup({
@@ -151,6 +156,72 @@ export class LtiComponent implements OnInit, AfterViewInit {
         return missing.map((name) => this.parameterLabel(name)).join(', ');
     }
 
+    /**
+     * Opens the tool's content picker in a popup window. The tool hands the pick to the platform,
+     * and the popup tells this editor when it is done; if it is closed instead, the editor asks the
+     * platform anyway, in case the message did not get through.
+     */
+    chooseFromTool() {
+        const tool = this.selectedTool();
+        if (!tool?.deepLinking || this.picking()) return;
+        // Opened right away, while the click still counts as the user's: a window opened after
+        // the request below would be blocked as a pop-up.
+        const popup = window.open('', 'exam-lti-deep-link', 'popup,width=1000,height=760');
+        if (!popup) {
+            this.toast.error(this.translate.instant('i18n_lti_popup_blocked'));
+            return;
+        }
+        this.picking.set(true);
+        this.questionService
+            .startLtiDeepLink$(tool.key)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: ({ id, url }) => {
+                    popup.location.href = url;
+                    this.awaitPick(id, new URL(url).origin, popup);
+                },
+                error: () => {
+                    popup.close();
+                    this.picking.set(false);
+                    this.toast.error(this.translate.instant('i18n_lti_choose_failed'));
+                },
+            });
+    }
+
+    private awaitPick(id: string, origin: string, popup: Window) {
+        const done$ = fromEvent<MessageEvent>(window, 'message').pipe(
+            filter((e) => e.origin === origin && e.data?.type === 'exam-lti-deep-link' && e.data?.id === id),
+        );
+        const closed$ = interval(500).pipe(filter(() => popup.closed));
+        race(done$, closed$)
+            .pipe(
+                take(1),
+                switchMap(() => this.questionService.getLtiDeepLink$(id)),
+                takeUntilDestroyed(this.destroyRef),
+            )
+            .subscribe({
+                next: (result) => {
+                    this.picking.set(false);
+                    this.applyPick(result);
+                },
+                error: () => {
+                    this.picking.set(false);
+                    this.toast.error(this.translate.instant('i18n_lti_choose_failed'));
+                },
+            });
+    }
+
+    /** Fills in the parameters the tool gave for the picked content. Nothing picked, nothing done. */
+    private applyPick(result: LtiDeepLinkResult) {
+        if (result.status !== 'done') return;
+        Object.keys(this.customForm.controls).forEach((name) =>
+            this.customForm.get(name)?.setValue(result.custom[name] ?? null),
+        );
+        this.pickedTitle.set(result.title);
+        this.ltiForm.markAsDirty();
+        this.ltiForm.updateValueAndValidity();
+    }
+
     private currentParameters(): Record<string, string> {
         return Object.fromEntries(
             Object.entries(this.customForm.getRawValue() as Record<string, string | null>).filter(
@@ -163,6 +234,7 @@ export class LtiComponent implements OnInit, AfterViewInit {
     private selectTool(key: string | null, values: Record<string, string>) {
         const tool = this.tools().find((t) => t.key === key);
         this.selectedTool.set(tool);
+        this.pickedTitle.set(undefined);
         const controls = Object.fromEntries(
             (tool?.parameters ?? []).map((p) => [
                 p.name,

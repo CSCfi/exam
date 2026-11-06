@@ -67,6 +67,24 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
             }
+            @if (tool.deepLinking) {
+                <div class="row mt-3">
+                    <div class="col-md-9 offset-md-3">
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            id="ltiChooseFromTool"
+                            [disabled]="picking()"
+                            (click)="chooseFromTool()"
+                        >
+                            {{ 'i18n_lti_choose_from_tool' | translate }}
+                        </button>
+                        @if (pickedTitle(); as title) {
+                            <span class="ms-2">{{ 'i18n_lti_chosen' | translate: { title } }}</span>
+                        }
+                    </div>
+                </div>
+            }
             @if (customForm.errors?.['requires']) {
                 <div class="row">
                     <div class="col-md-9 offset-md-3 text-danger mt-1">

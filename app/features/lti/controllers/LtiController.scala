@@ -4,9 +4,9 @@
 
 package features.lti.controllers
 
-import features.lti.services.{LtiError, LtiService}
+import features.lti.services.*
 import models.user.Role
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import play.api.mvc.request.RequestAttrKey
 import security.Auth
@@ -17,6 +17,7 @@ import javax.inject.Inject
 
 class LtiController @Inject() (
     private val ltiService: LtiService,
+    private val deepLinks: LtiDeepLinkService,
     ltiActive: LtiActive,
     authenticatedAction: AuthenticatedAction,
     val controllerComponents: ControllerComponents,
@@ -36,6 +37,8 @@ class LtiController @Inject() (
       case LtiError.KeyUnavailable      => InternalServerError(error.message)
       case LtiError.CspNonceUnavailable => InternalServerError(error.message)
       case LtiError.LaunchNotFound      => NotFound(error.message)
+      case LtiError.DeepLinkNotFound    => NotFound(error.message)
+      case LtiError.ToolKeysUnavailable => BadGateway(error.message)
       case _                            => BadRequest(error.message)
 
   /** Hands the UI the absolute URL its LTI iframe should point at. */
@@ -51,8 +54,9 @@ class LtiController @Inject() (
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
       Ok(Json.toJson(ltiService.tools.values.toSeq.sortBy(_.name).map { tool =>
         Json.obj(
-          "key"  -> tool.key,
-          "name" -> tool.name,
+          "key"         -> tool.key,
+          "name"        -> tool.name,
+          "deepLinking" -> tool.supportsDeepLinking,
           "parameters" -> tool.parameters.map(p =>
             Json.obj("name" -> p.name, "required" -> p.required, "requires" -> p.requires)
           )
@@ -86,12 +90,90 @@ class LtiController @Inject() (
             ltiService.generateNonce,
             java.util.UUID.randomUUID.toString
           )
-        yield Redirect(url).addingToSession(
-          "lti_login_hint"          -> loginHint,
-          "lti_section_question_id" -> sectionQuestionId.toString,
-          "lti_exam_hash"           -> examHash
-        )(using request)
+        yield Redirect(url)
+          .removingFromSession(DeepLinkKey)(using request)
+          .addingToSession(
+            "lti_login_hint"          -> loginHint,
+            "lti_section_question_id" -> sectionQuestionId.toString,
+            "lti_exam_hash"           -> examHash
+          )(using request)
       result.fold(toResult, identity)
+    }
+
+  // The session holds one login in progress: a launch, or a deep linking request under this key.
+  private val DeepLinkKey = "lti_deep_link_id"
+
+  /** Starts a deep linking request, for the question editor to pick content in the tool. Answers
+    * the URL of the popup window to open it in.
+    */
+  def createDeepLink: Action[JsValue] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(parse.json) {
+      request =>
+        (request.body \ "tool").asOpt[String].toRight(LtiError.ToolNotConfigured)
+          .flatMap(tool => deepLinks.create(request.attrs(Auth.ATTR_USER), tool))
+          .fold(
+            toResult,
+            id =>
+              Ok(Json.obj(
+                "id" -> id,
+                "url" -> s"${ltiService.issuer.stripSuffix("/")}/integration/lti/deep-link/$id/start"
+              ))
+          )
+    }
+
+  /** Starts the OIDC login of a deep linking request, in the popup window. */
+  def startDeepLink(id: String): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
+      val loginHint = ltiService.generateLoginHint
+      val result =
+        for
+          tool <- deepLinks.pending(id, request.attrs(Auth.ATTR_USER))
+          url <- ltiService.buildLoginRedirect(
+            tool,
+            loginHint,
+            ltiService.generateNonce,
+            java.util.UUID.randomUUID.toString,
+            tool.deepLinkingUrl
+          )
+        yield Redirect(url)
+          .removingFromSession("lti_section_question_id", "lti_exam_hash")(using request)
+          .addingToSession("lti_login_hint" -> loginHint, DeepLinkKey -> id)(using request)
+      result.fold(toResult, identity)
+    }
+
+  /** The tool posts the picked content here. Not bound to the session, see LtiDeepLinkService. The
+    * page tells the editor that opened the popup to fetch the result, and closes the popup.
+    */
+  def completeDeepLink: Action[Map[String, Seq[String]]] =
+    Action.andThen(ltiActive)(parse.formUrlEncoded) { request =>
+      val result =
+        for
+          jwt <- request.body.get("JWT").flatMap(_.headOption).toRight(LtiError.MissingParameters)
+          id  <- deepLinks.complete(jwt)
+          cspNonce <- request.attrs.get(RequestAttrKey.CSPNonce)
+            .toRight(LtiError.CspNonceUnavailable)
+        yield ltiService.buildDeepLinkDoneHtml(id, cspNonce)
+      result match
+        case Left(error) =>
+          // The teacher sees this in the popup, so a page rather than the bare message.
+          Status(toResult(error).header.status)(ltiService.buildDeepLinkFailedHtml(error))
+            .as("text/html")
+        case Right(html) => Ok(html).as("text/html").withHeaders("Cache-Control" -> "no-store")
+    }
+
+  /** The state of a deep linking request the user started; a finished one is answered once. */
+  def getDeepLink(id: String): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
+      deepLinks.result(id, request.attrs(Auth.ATTR_USER)) match
+        case Left(error)                           => toResult(error)
+        case Right(DeepLinkState.Pending(_, _))    => Ok(Json.obj("status" -> "pending"))
+        case Right(DeepLinkState.Done(_, _, None)) => Ok(Json.obj("status" -> "cancelled"))
+        case Right(DeepLinkState.Done(_, _, Some(selection))) =>
+          Ok(Json.obj(
+            "status" -> "done",
+            "title"  -> selection.title,
+            "custom" -> selection.custom
+          ))
     }
 
   /** Tool calls back here; responds with a self-submitting form carrying the signed id_token. */
@@ -116,26 +198,43 @@ class LtiController @Inject() (
             (),
             LtiError.LoginHintMismatch
           )
-          sectionQuestionId <- request.session
-            .get("lti_section_question_id")
-            .flatMap(_.toLongOption)
-            .toRight(LtiError.NoLaunchInSession)
-          examHash <- request.session.get("lti_exam_hash").toRight(LtiError.NoLaunchInSession)
           user = request.attrs(Auth.ATTR_USER)
-          // Resolved again rather than trusted from the session: the launch decides the tool, and
-          // the callback has to come from that tool and go back to one of its redirect URIs.
-          launch <- ltiService.findLaunch(sectionQuestionId, examHash, user)
+          // Resolved again rather than trusted from the session: the launch, or the deep linking
+          // request, decides the tool, and the callback has to come from that tool and go back to
+          // one of its redirect URIs.
+          message <- request.session.get(DeepLinkKey) match
+            case Some(id) =>
+              deepLinks.pending(id, user).map { tool =>
+                (
+                  tool,
+                  (to: String) => ltiService.buildDeepLinkingToken(user, tool, toolNonce, to, id)
+                )
+              }
+            case None =>
+              for
+                sectionQuestionId <- request.session
+                  .get("lti_section_question_id")
+                  .flatMap(_.toLongOption)
+                  .toRight(LtiError.NoLaunchInSession)
+                examHash <- request.session.get("lti_exam_hash")
+                  .toRight(LtiError.NoLaunchInSession)
+                launch <- ltiService.findLaunch(sectionQuestionId, examHash, user)
+              yield (
+                launch.tool,
+                (to: String) => ltiService.buildIdToken(user, launch, toolNonce, to)
+              )
+          (tool, signFor) = message
           _ <- Either.cond(
-            request.getQueryString("client_id").contains(launch.tool.clientId),
+            request.getQueryString("client_id").contains(tool.clientId),
             (),
             LtiError.InvalidClientId
           )
-          validatedUri <- launch.tool.validateRedirectUri(uri)
+          validatedUri <- tool.validateRedirectUri(uri)
           // Set by the CSP filter; the auto-submit script is inline, so it needs the nonce to run.
           cspNonce <- request.attrs
             .get(RequestAttrKey.CSPNonce)
             .toRight(LtiError.CspNonceUnavailable)
-          idToken <- ltiService.buildIdToken(user, launch, toolNonce, validatedUri)
+          idToken <- signFor(validatedUri)
         yield ltiService.buildAutoPostHtml(validatedUri, idToken, toolState, cspNonce)
 
       result match

@@ -78,7 +78,8 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       tool: LtiTool,
       loginHint: String,
       nonce: String,
-      state: String
+      state: String,
+      targetLinkUri: Option[String] = None
   ): Either[LtiError, String] =
     if issuer.trim.isEmpty then Left(LtiError.IncompleteConfiguration)
     else
@@ -86,7 +87,7 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       val params = Seq(
         "iss"             -> issuer,
         "login_hint"      -> loginHint,
-        "target_link_uri" -> tool.targetLinkUri,
+        "target_link_uri" -> targetLinkUri.getOrElse(tool.targetLinkUri),
         "client_id"       -> tool.clientId,
         "nonce"           -> nonce,
         "state"           -> state
@@ -194,9 +195,6 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       nonce: String,
       redirectUri: String
   ): Either[LtiError, String] =
-    val now = new Date()
-    val exp = new Date(now.getTime + TokenLifetime)
-
     val context = Map(
       "id"    -> launch.context.id,
       "label" -> launch.context.label,
@@ -209,6 +207,56 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
     // reach the right one.
     val resourceLink = Map("id" -> launch.resourceLinkId).asJava
     val custom       = launch.custom.asJava
+
+    sign(
+      messageClaims(user, launch.tool, nonce, redirectUri, "LtiResourceLinkRequest")
+        .claim(s"$LtiClaim/context", context)
+        .claim(s"$LtiClaim/resource_link", resourceLink)
+        .claim(s"$LtiClaim/custom", custom)
+        .build()
+    )
+
+  /** Signs the LTI Deep Linking request that opens the tool's own content picker. The tool posts
+    * the selection back to [[deepLinkReturnUrl]] with `data` as given here. There is no context or
+    * resource link: the teacher picks the content for a question, not for a place in an exam.
+    */
+  def buildDeepLinkingToken(
+      user: User,
+      tool: LtiTool,
+      nonce: String,
+      redirectUri: String,
+      data: String
+  ): Either[LtiError, String] =
+    val settings = Map(
+      "deep_link_return_url"                 -> deepLinkReturnUrl,
+      "accept_types"                         -> List("ltiResourceLink").asJava,
+      "accept_presentation_document_targets" -> List("iframe").asJava,
+      "accept_multiple"                      -> false,
+      "auto_create"                          -> false,
+      "title"                                -> "EXAM",
+      "data"                                 -> data
+    ).asJava
+    sign(
+      messageClaims(user, tool, nonce, redirectUri, "LtiDeepLinkingRequest")
+        .claim("https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings", settings)
+        .build()
+    )
+
+  /** Where tools post the content a teacher picked (`DeepLinkController.complete`). */
+  def deepLinkReturnUrl: String = s"${issuer.stripSuffix("/")}/integration/lti/deep-link/return"
+
+  private val LtiClaim = "https://purl.imsglobal.org/spec/lti/claim"
+
+  /** The claims every message to a tool carries: who the user is, and which tool it is for. */
+  private def messageClaims(
+      user: User,
+      tool: LtiTool,
+      nonce: String,
+      redirectUri: String,
+      messageType: String
+  ): JWTClaimsSet.Builder =
+    val now = new Date()
+    val exp = new Date(now.getTime + TokenLifetime)
     // A+ reads both of these unconditionally when it creates a user, so they are always sent.
     val presentation = Map(
       "locale"          -> Option(user.language).flatMap(l => Option(l.code)).getOrElse("en"),
@@ -217,12 +265,11 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
     val lis = Map("person_sourcedid" -> Option(user.userIdentifier).getOrElse("")).asJava
     // Not an LTI claim but Moodle's extension, which A+ prefers over email as the username.
     val ext = Map("user_username" -> user.eppn).asJava
-
-    val claims = JWTClaimsSet
+    JWTClaimsSet
       .Builder()
       .issuer(issuer)
       .subject(user.eppn)
-      .audience(launch.tool.clientId)
+      .audience(tool.clientId)
       .expirationTime(exp)
       .issueTime(now)
       .jwtID(UUID.randomUUID.toString)
@@ -231,19 +278,16 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       .claim("family_name", user.lastName)
       .claim("name", s"${user.firstName} ${user.lastName}")
       .claim("email", user.email)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/message_type", "LtiResourceLinkRequest")
-      .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
-      .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", launch.tool.deploymentId)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/target_link_uri", redirectUri)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/roles", rolesOf(user).asJava)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/context", context)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/resource_link", resourceLink)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/custom", custom)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/launch_presentation", presentation)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/lis", lis)
-      .claim("https://purl.imsglobal.org/spec/lti/claim/ext", ext)
-      .build()
+      .claim(s"$LtiClaim/message_type", messageType)
+      .claim(s"$LtiClaim/version", "1.3.0")
+      .claim(s"$LtiClaim/deployment_id", tool.deploymentId)
+      .claim(s"$LtiClaim/target_link_uri", redirectUri)
+      .claim(s"$LtiClaim/roles", rolesOf(user).asJava)
+      .claim(s"$LtiClaim/launch_presentation", presentation)
+      .claim(s"$LtiClaim/lis", lis)
+      .claim(s"$LtiClaim/ext", ext)
 
+  private def sign(claims: JWTClaimsSet): Either[LtiError, String] =
     loadPrivateKey.map { key =>
       val header = JWSHeader.Builder(JWSAlgorithm.RS256).keyID(keyId).`type`(JOSEObjectType.JWT)
         .build()
@@ -270,6 +314,66 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       // tool can parse as JSON.
       JWKSet(jwk).toString
     }
+
+  /** Origin of the UI, which opened the deep linking popup and is told when it is done. */
+  def uiOrigin: String = config.getString("exam.application.hostname").trim.stripSuffix("/")
+
+  /** The page a tool's deep linking response lands on, in the popup window: it tells the editor
+    * that opened it to fetch the result, then closes itself. The message names only the request;
+    * the selection itself is fetched from the platform by the user who started the request.
+    */
+  def buildDeepLinkDoneHtml(id: String, cspNonce: String): String =
+    val message = play.api.libs.json.Json.obj("type" -> "exam-lti-deep-link", "id" -> id)
+    val origin  = play.api.libs.json.JsString(uiOrigin)
+    s"""<!DOCTYPE html>
+       |<html>
+       |<head>
+       |  <meta charset="utf-8"/>
+       |  <title>EXAM</title>
+       |</head>
+       |<body>
+       |  <p lang="fi">Valinta on tehty. Voit sulkea tämän ikkunan.</p>
+       |  <p lang="sv">Valet är gjort. Du kan stänga det här fönstret.</p>
+       |  <p lang="en">The selection is done. You can close this window.</p>
+       |  <script nonce="${escapeHtml(cspNonce)}">
+       |    if (window.opener) window.opener.postMessage($message, $origin);
+       |    window.close();
+       |  </script>
+       |</body>
+       |</html>
+       |""".stripMargin
+
+  /** The page a deep linking response lands on, in the popup window, when it cannot be used. The
+    * request stays open; the teacher closes the popup and picks again.
+    */
+  def buildDeepLinkFailedHtml(error: LtiError): String =
+    val (fi, sv, en) = error match
+      case LtiError.DeepLinkTooManyPicks =>
+        (
+          "Valitse vain yksi. Sulje tämä ikkuna ja valitse uudelleen.",
+          "Välj bara en. Stäng det här fönstret och välj på nytt.",
+          "Pick only one. Close this window and choose again."
+        )
+      case _ =>
+        (
+          "Valintaa ei voitu tallentaa. Sulje tämä ikkuna ja yritä uudelleen.",
+          "Valet kunde inte sparas. Stäng det här fönstret och försök igen.",
+          "The selection could not be saved. Close this window and try again."
+        )
+    s"""<!DOCTYPE html>
+       |<html>
+       |<head>
+       |  <meta charset="utf-8"/>
+       |  <title>EXAM</title>
+       |</head>
+       |<body>
+       |  <p lang="fi">$fi</p>
+       |  <p lang="sv">$sv</p>
+       |  <p lang="en">$en</p>
+       |  <p><small>${escapeHtml(error.message)}</small></p>
+       |</body>
+       |</html>
+       |""".stripMargin
 
   /** Self-submitting form; the launch has to reach the tool as a POST inside the same frame.
     * `cspNonce` is the request's CSP nonce - without it `script-src` blocks the inline submit.

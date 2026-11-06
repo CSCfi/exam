@@ -31,8 +31,14 @@ final case class LtiTool(
     targetLinkUri: String,
     redirectUris: List[String],
     jwksUrl: Option[String],
-    parameters: List[LtiToolParameter]
+    parameters: List[LtiToolParameter],
+    deepLinkingUrl: Option[String] = None
 ):
+  /** Whether teachers can pick the content in the tool itself (LTI Deep Linking). Opt-in per tool:
+    * on when the tool has a deep linking URL, and its keys to verify the selection with.
+    */
+  def supportsDeepLinking: Boolean = deepLinkingUrl.isDefined && jwksUrl.isDefined
+
   def requiredParameters: List[String] = parameters.filter(_.required).map(_.name)
   def parameterNames: Set[String]      = parameters.map(_.name).toSet
 
@@ -87,10 +93,12 @@ object LtiTools extends Logging:
       targetLinkUri    <- string("target-link-uri")
       parameters       <- parseParameters(c)
     yield
+      val deepLinkingUrl = optString("deep-linking-url")
+      // The tool also receives the deep linking request on its deep linking URL.
       val redirectUris =
-        if c.hasPath("redirect-uris") then
-          c.getStringList("redirect-uris").asScala.toList.map(_.trim).filter(_.nonEmpty)
-        else List(targetLinkUri)
+        (if c.hasPath("redirect-uris") then
+           c.getStringList("redirect-uris").asScala.toList.map(_.trim).filter(_.nonEmpty)
+         else List(targetLinkUri)) ++ deepLinkingUrl
       LtiTool(
         key = key,
         name = optString("name").getOrElse(key),
@@ -99,9 +107,10 @@ object LtiTools extends Logging:
         deploymentId = deploymentId,
         initiateLoginUrl = initiateLoginUrl,
         targetLinkUri = targetLinkUri,
-        redirectUris = redirectUris,
+        redirectUris = redirectUris.distinct,
         jwksUrl = optString("jwks-url"),
-        parameters = parameters
+        parameters = parameters,
+        deepLinkingUrl = deepLinkingUrl
       )
 
   /** The origin goes into CSP directives verbatim, so it must be exactly scheme://host[:port]. */

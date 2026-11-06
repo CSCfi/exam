@@ -9,6 +9,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import type { LtiTool, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
+import { vi } from 'vitest';
 import { LtiComponent } from './lti.component';
 
 /**
@@ -23,6 +25,7 @@ describe('LtiComponent', () => {
         key: 'moodle',
         name: 'Moodle',
         parameters: [{ name: 'id', required: true, requires: [] }],
+        deepLinking: true,
     };
     const aplus: LtiTool = {
         key: 'aplus',
@@ -33,6 +36,7 @@ describe('LtiComponent', () => {
             { name: 'module_slug', required: false, requires: [] },
             { name: 'exercise_path', required: false, requires: ['module_slug'] },
         ],
+        deepLinking: false,
     };
 
     const makeQuestion = (ltiTool?: string, ltiCustom?: Record<string, string>): ReverseQuestion =>
@@ -52,6 +56,28 @@ describe('LtiComponent', () => {
             ltiCustom,
         }) as unknown as ReverseQuestion;
 
+    const PickUrl = 'https://exam.example.org/integration/lti/deep-link/dl-1/start';
+    let startLtiDeepLink$: ReturnType<typeof vi.fn>;
+    let getLtiDeepLink$: ReturnType<typeof vi.fn>;
+    let toastError: ReturnType<typeof vi.fn>;
+    let popup: { location: { href: string }; closed: boolean; close: ReturnType<typeof vi.fn> };
+
+    beforeEach(() => {
+        startLtiDeepLink$ = vi.fn(() => of({ id: 'dl-1', url: PickUrl }));
+        getLtiDeepLink$ = vi.fn(() => of({ status: 'done', title: 'Week 1 quiz', custom: { id: 'r-9' } }));
+        toastError = vi.fn();
+        popup = { location: { href: '' }, closed: false, close: vi.fn() };
+        vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        vi.useRealTimers();
+    });
+
+    const toolSays = (data: unknown, origin = 'https://exam.example.org') =>
+        window.dispatchEvent(new MessageEvent('message', { data, origin }));
+
     const init = async (tools: LtiTool[], question: ReverseQuestion, ltiActive = true) => {
         await TestBed.configureTestingModule({
             imports: [LtiComponent, TranslateModule.forRoot()],
@@ -60,8 +86,14 @@ describe('LtiComponent', () => {
                 { provide: FormGroupDirective, useValue: { form: new FormGroup({}) } },
                 {
                     provide: QuestionService,
-                    useValue: { isLtiActive$: () => of(ltiActive), getLtiTools$: () => of(tools) },
+                    useValue: {
+                        isLtiActive$: () => of(ltiActive),
+                        getLtiTools$: () => of(tools),
+                        startLtiDeepLink$,
+                        getLtiDeepLink$,
+                    },
                 },
+                { provide: ToastService, useValue: { error: toastError } },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(LtiComponent);
@@ -158,5 +190,79 @@ describe('LtiComponent', () => {
         expect(fixture.nativeElement.textContent).toContain('i18n_lti_not_active_kept');
         expect(component.ltiForm.valid).toBe(true);
         expect(component.ltiForm.value.ltiTool).toBeUndefined();
+    });
+
+    it('should offer choosing from the tool only for a tool that supports it', async () => {
+        await init([moodle, aplus], makeQuestion('moodle', {}));
+        expect(fixture.nativeElement.querySelector('#ltiChooseFromTool')).toBeTruthy();
+
+        component.ltiForm.get('ltiTool')?.setValue('aplus');
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('#ltiChooseFromTool')).toBeNull();
+    });
+
+    it('should fill in what was picked in the tool once the tool is done', async () => {
+        await init([moodle], makeQuestion('moodle', {}));
+
+        component.chooseFromTool();
+        expect(window.open).toHaveBeenCalledOnce();
+        expect(startLtiDeepLink$).toHaveBeenCalledWith('moodle');
+        expect(popup.location.href).toBe(PickUrl);
+        expect(component.picking()).toBe(true);
+
+        toolSays({ type: 'exam-lti-deep-link', id: 'dl-1' });
+        fixture.detectChanges();
+
+        expect(getLtiDeepLink$).toHaveBeenCalledWith('dl-1');
+        expect(component.customForm.get('id')?.value).toBe('r-9');
+        expect(component.ltiForm.valid).toBe(true);
+        expect(component.ltiForm.dirty).toBe(true);
+        expect(component.picking()).toBe(false);
+        expect(fixture.nativeElement.textContent).toContain('i18n_lti_chosen');
+    });
+
+    it('should not listen to messages from elsewhere', async () => {
+        await init([moodle], makeQuestion('moodle', {}));
+        component.chooseFromTool();
+
+        toolSays({ type: 'exam-lti-deep-link', id: 'dl-1' }, 'https://evil.example.org');
+        toolSays({ type: 'exam-lti-deep-link', id: 'another-request' });
+
+        expect(getLtiDeepLink$).not.toHaveBeenCalled();
+        expect(component.picking()).toBe(true);
+    });
+
+    // The popup may lose touch with the editor on its way through the tool.
+    it('should ask for the pick anyway when the popup is closed', async () => {
+        vi.useFakeTimers();
+        await init([moodle], makeQuestion('moodle', {}));
+        component.chooseFromTool();
+
+        popup.closed = true;
+        vi.advanceTimersByTime(500);
+
+        expect(getLtiDeepLink$).toHaveBeenCalledWith('dl-1');
+        expect(component.customForm.get('id')?.value).toBe('r-9');
+    });
+
+    it('should leave the parameters alone when nothing was picked', async () => {
+        getLtiDeepLink$.mockReturnValue(of({ status: 'pending' }));
+        await init([moodle], makeQuestion('moodle', { id: 'r-1' }));
+        component.chooseFromTool();
+
+        toolSays({ type: 'exam-lti-deep-link', id: 'dl-1' });
+
+        expect(component.customForm.get('id')?.value).toBe('r-1');
+        expect(component.picking()).toBe(false);
+    });
+
+    it('should say so when the browser blocks the popup', async () => {
+        vi.mocked(window.open).mockReturnValue(null);
+        await init([moodle], makeQuestion('moodle', {}));
+
+        component.chooseFromTool();
+
+        expect(toastError).toHaveBeenCalledWith('i18n_lti_popup_blocked');
+        expect(startLtiDeepLink$).not.toHaveBeenCalled();
     });
 });

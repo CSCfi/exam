@@ -13,6 +13,7 @@ import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
 import play.api.mvc.Result
+import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 
 import scala.jdk.CollectionConverters.*
@@ -51,10 +52,21 @@ class LtiInactiveSpec extends BaseIntegrationSpec:
         "/integration/lti/start-login?sectionQuestionId=1&examHash=x",
         "/integration/lti/oidc/login?client_id=c&login_hint=h&state=s&nonce=n&redirect_uri=u",
         "/app/lti/login-url",
-        "/app/lti/tools"
+        "/app/lti/tools",
+        "/app/lti/deep-link/some-id",
+        "/integration/lti/deep-link/some-id/start"
       ).foreach { path =>
         withClue(s"$path: ")(statusOf(runIO(get(path))) must be(Status.NOT_FOUND))
       }
+
+    "answer 404 to a tool posting a deep linking response" in:
+      val request = FakeRequest(POST, "/integration/lti/deep-link/return")
+        .withFormUrlEncodedBody("JWT" -> "x")
+      val result = scala.concurrent.Await.result(
+        route(app, request).getOrElse(fail("No route")),
+        scala.concurrent.duration.Duration(30, "s")
+      )
+      statusOf(result) must be(Status.NOT_FOUND)
 
     "answer 404 to a logged-in user" in:
       val (_, session) = runIO(loginAsTeacher())

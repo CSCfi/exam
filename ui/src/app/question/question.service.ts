@@ -14,6 +14,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 import {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
+    LtiDeepLinkRequest,
+    LtiDeepLinkResult,
     LtiTool,
     MultipleChoiceOption,
     Question,
@@ -68,6 +70,14 @@ export class QuestionService {
 
     /** The LTI tools this installation is registered with, and the parameters each one takes. */
     getLtiTools$ = (): Observable<LtiTool[]> => this.http.get<LtiTool[]>('/app/lti/tools');
+
+    /** Starts picking content in the tool; the answer names the URL to open the tool's picker at. */
+    startLtiDeepLink$ = (tool: string): Observable<LtiDeepLinkRequest> =>
+        this.http.post<LtiDeepLinkRequest>('/app/lti/deep-link', { tool });
+
+    /** What the teacher picked in the tool. A finished result is given out once. */
+    getLtiDeepLink$ = (id: string): Observable<LtiDeepLinkResult> =>
+        this.http.get<LtiDeepLinkResult>(`/app/lti/deep-link/${id}`);
 
     createQuestion$ = (question: QuestionDraft): Observable<Question> =>
         this.http.post<Question>(this.questionsApi(), this.getQuestionData(question)).pipe(
