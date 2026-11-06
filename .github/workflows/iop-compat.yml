@@ -1,0 +1,75 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+# Older EXAM versions reading what this branch sends to other installations (IOP).
+#
+# Runs whenever the IOP payload fixtures change, i.e. whenever the wire format changes: each
+# reader branch parses the fixtures with its own code (test/iop/ReadsNewerIopSpec.scala on that
+# branch). Not a required check; a red run means an older EXAM would misread the new payloads.
+# See docs/iop-protocol-versions.md. Add a release branch to the matrix when it is cut, and drop
+# one once its protocol has retired.
+
+name: IOP compatibility
+
+on:
+  push:
+    paths:
+      - 'test/resources/iop-fixtures/**'
+      - '.github/workflows/iop-compat.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  older-reads-newer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        reader: ['release/7.0']
+
+    steps:
+      - name: Checkout the new payload fixtures
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          path: new
+          sparse-checkout: test/resources/iop-fixtures
+          persist-credentials: false
+
+      - name: Checkout the reader (${{ matrix.reader }})
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          path: old
+          ref: ${{ matrix.reader }}
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          java-version: 25
+          distribution: temurin
+          cache: sbt
+
+      - name: Set up SBT
+        uses: sbt/setup-sbt@ecad189dd245444b9ae0a0cd5922fd938b88906f # v1.5.12
+
+      - name: Parse the new payloads with the reader's code
+        working-directory: old
+        env:
+          IOP_NEWER_FIXTURES: ${{ github.workspace }}/new/test/resources/iop-fixtures
+        run: |
+          sed -i 's/\/var\/log\/exam/logs/g' conf/logback.xml
+          sbt "testOnly iop.ReadsNewerIopSpec" | tee test.log
+          # testOnly succeeds when nothing runs (spec missing on the reader, or cancelled): don't
+          # let that pass as green
+          grep -q "Tests: succeeded 1, failed 0, canceled 0" test.log || {
+            echo "::error::ReadsNewerIopSpec did not run on ${{ matrix.reader }}"
+            exit 1
+          }
