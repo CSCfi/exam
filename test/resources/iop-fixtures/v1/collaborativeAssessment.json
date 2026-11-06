@@ -1,7 +1,7 @@
 {
   "collaborativeExam" : null,
   "deadline" : "2014-12-23T10:00:00.575Z",
-  "duration" : "1970-01-01T02:00:00Z",
+  "duration" : "1970-01-01T02:00:00.000Z",
   "ended" : "2014-05-23T10:00:00.575Z",
   "exam" : {
     "additionalInfo" : null,
@@ -36,7 +36,7 @@
       "objectVersion" : 1,
       "preEnrolledUserEmail" : null,
       "reservation" : {
-        "endAt" : "2014-06-10T10:00:00Z",
+        "endAt" : "2014-06-10T10:00:00.000Z",
         "externalOrgName" : null,
         "externalOrgRef" : null,
         "externalRef" : null,
@@ -87,7 +87,7 @@
         "participation" : null,
         "reminderSent" : false,
         "sentAsNoShow" : false,
-        "startAt" : "2014-06-10T08:00:00Z",
+        "startAt" : "2014-06-10T08:00:00.000Z",
         "user" : null
       },
       "reservationCanceled" : false,

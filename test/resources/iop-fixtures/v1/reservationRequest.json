@@ -1,8 +1,8 @@
 {
   "email" : "student@funet.fi",
-  "end" : "2026-01-15T10:00:00Z",
+  "end" : "2026-01-15T10:00:00.000Z",
   "optionalSections" : [ 1, 2 ],
   "requestingOrg" : "home-org-ref",
-  "start" : "2026-01-15T09:00:00Z",
+  "start" : "2026-01-15T09:00:00.000Z",
   "user" : "student@funet.fi"
 }
