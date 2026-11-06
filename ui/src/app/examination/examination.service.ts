@@ -16,6 +16,8 @@ import type { Examination, ExaminationQuestion, ExaminationSection } from './exa
 export class ExaminationService {
     isExternal = false; // TODO: sketchy use to have state in a service
 
+    private answerTextCache = new WeakMap<EssayAnswer, { answer: string; hasText: boolean }>();
+
     private router = inject(Router);
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
@@ -109,7 +111,7 @@ export class ExaminationService {
         switch (sq.question.type) {
             case 'EssayQuestion': {
                 const essayAnswer = sq.essayAnswer;
-                isAnswered = essayAnswer && essayAnswer.answer && this.stripHtml(essayAnswer.answer).length > 0;
+                isAnswered = essayAnswer && essayAnswer.answer && this.hasText(essayAnswer, essayAnswer.answer);
                 break;
             }
             case 'MultipleChoiceQuestion':
@@ -213,6 +215,19 @@ export class ExaminationService {
             default:
                 return false;
         }
+    };
+
+    // isAnswered is bound in templates (every question card and the section toolbar), so it runs on
+    // every change detection pass for every essay in the exam: the exam clock alone triggers one per
+    // second, the editor another per keystroke. Parsing each answer on each pass built dozens of
+    // throwaway HTML documents per second, which pinned the CPU and grew browser memory into gigabytes
+    // on exams with many answered essays. Parse only when the answer text has actually changed.
+    private hasText = (essayAnswer: EssayAnswer, answer: string) => {
+        const cached = this.answerTextCache.get(essayAnswer);
+        if (cached?.answer === answer) return cached.hasText;
+        const hasText = this.stripHtml(answer).length > 0;
+        this.answerTextCache.set(essayAnswer, { answer, hasText });
+        return hasText;
     };
 
     private stripHtml = (text: string) => {
