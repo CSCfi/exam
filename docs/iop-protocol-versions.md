@@ -24,6 +24,7 @@ Epic: CSCEXAM-1733.
 | Payload fixtures | `test/resources/iop-fixtures/v<N>/` | What installations running protocol N send. One directory per version. |
 | `IopPayloadFixturesSpec` | `test/iop/` | Compares the current payloads with the current version's fixtures, and parses every version's fixtures the way a receiving installation does. |
 | Version record | XM, `organisations/versions` CouchDB view | Which protocol and EXAM version each organisation last announced. |
+| Write stamp | XM, `iopProtocol` on stored exams and assessments | Which protocol last wrote each stored document, so it can be translated from the right version. Unstamped (older) documents count as 0. |
 | Translation steps | XM, `src/migration/` | Convert payloads between versions, so old and new installations understand each other. |
 | XM fixture tests | XM, `src/test/fixtures/`, `src/test/ut/fixtures.spec.ts` | The same fixtures run through XM's translations, with the results kept as snapshots. |
 
@@ -105,17 +106,66 @@ regenerated:
   older installations.
 - XM tests each translation step against real payloads from both ends of the step.
 
-A directory is removed together with its translation step in XM, once no organisation has
-announced that version for a long time and the consortium's upgrade deadline has passed
-(CSCEXAM-1738). Check the `organisations/versions` view in XM's CouchDB for which versions are
-still in use:
+A directory is removed together with its translation step in XM, as described below.
+
+## The sliding window
+
+XM carries one translation step per pair of adjacent protocol versions that are still in use:
 
 ```
-GET /<database>/_design/organisations/_view/versions
+0 ──(XM's current evolutions)──> 1 ──(step for the next change)──> 2 ──> …
 ```
 
-Rows are keyed by `[protocol, organisation id]`; organisations that never announced a version
-sort first as protocol 0.
+The set of steps is a window that slides upwards over time:
+
+- **New steps are added at the top** when the wire format changes (the steps under "When
+  `IopPayloadFixturesSpec` fails" above). This is event-driven: the failing spec tells you.
+- **Old steps drop off the bottom** once nobody uses the version below them any more. This does
+  not announce itself: someone has to look (see "Periodic review" below).
+
+The window is typically two or three versions wide. The consortium's upgrade windows decide how
+wide: the faster everyone upgrades, the sooner old steps can go. The software does not rely on
+that, though: a step stays until the data shows it is unused, whatever the deadline says.
+
+Protocol 0 (EXAM older than 7.1) is the first version to leave the window. XM's current evolutions
+are its step; they become the step 0 → 1 of the chain if version-aware translation (CSCEXAM-1736)
+is built before then, and are retired once protocol 0 is gone.
+
+A step N → N + 1 is removed when all of these hold (details in XM's README, "IOP protocol
+versions"):
+
+1. The consortium's upgrade deadline for leaving protocol N has passed.
+2. No active organisation has announced protocol N or older for a long while (for example two
+   terms). Organisations on protocol 0 announce nothing, so ask whether each is still active.
+3. No document stored in XM was last written with protocol N or older, or those have been
+   converted once.
+4. Everything belonging to the version goes with it: the XM step, its tests, the fixtures in XM
+   (`src/test/fixtures/v<N>/`) and in EXAM (`test/resources/iop-fixtures/v<N>/`).
+
+## Periodic review
+
+Dropping old steps needs someone to check now and then. A natural moment is each EXAM release, or
+the consortium's upgrade deadlines. In the XM repository, with an SSH tunnel to the production
+CouchDB:
+
+```bash
+pnpm run versions http://user:password@localhost:5986/xm
+```
+
+It shows:
+
+- every organisation with its protocol, EXAM version and when XM last heard from it, lowest
+  protocol first: who still holds the window open, and whom to remind before a deadline
+- how many stored exams and assessments were last written with each protocol: what a removal
+  would still need to convert
+
+Then:
+
+- **Can the lowest step go?** Check the four conditions above. If they hold, remove the step and
+  its fixtures; if not, note who or what is holding it.
+- **Is a new step pending?** If a wire format change has been merged to EXAM's dev (a new
+  `v<N>/` fixture directory), XM needs the matching step deployed before that EXAM release
+  reaches any organisation.
 
 ## Known limits
 
