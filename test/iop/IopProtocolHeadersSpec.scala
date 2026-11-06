@@ -77,11 +77,19 @@ class IopProtocolHeadersSpec extends BaseIntegrationSpec with BeforeAndAfterAll 
         Some(app.configuration.get[String]("exam.release.version"))
       header(IopProtocol.OrganisationHeader) mustBe Some("test-org")
 
+    "give each request to XM its own request id" in:
+      call(s"$XmHost/api/organisations")
+      val first = header(IopProtocol.RequestIdHeader)
+      first.exists(IopProtocol.isRequestId) mustBe true
+      call(s"$XmHost/api/organisations")
+      header(IopProtocol.RequestIdHeader) must not be first
+
     "leave requests to other hosts untouched" in:
       // Same server, but addressed by a host name that is not the configured XM host
       call(s"http://127.0.0.1:$Port/api/organisations")
       header(IopProtocol.ProtocolHeader) mustBe None
       header(IopProtocol.OrganisationHeader) mustBe None
+      header(IopProtocol.RequestIdHeader) mustBe None
 
   "Request bodies to XM" should:
     val body =
@@ -121,6 +129,26 @@ class IopProtocolHeadersSpec extends BaseIntegrationSpec with BeforeAndAfterAll 
       val result = runIO(get("/integration/iop/slots"))
       headerOf(result, IopProtocol.ProtocolHeader) mustBe Some(IopProtocol.Version.toString)
       headerOf(result, IopProtocol.ExamVersionHeader) must be(defined)
+
+    "echo the request id XM sent" in:
+      val result = runIO(
+        makeRequest(
+          "GET",
+          "/integration/iop/slots",
+          headers = Map(IopProtocol.RequestIdHeader -> "3f9a1c2e")
+        )
+      )
+      headerOf(result, IopProtocol.RequestIdHeader) mustBe Some("3f9a1c2e")
+
+    "ignore a malformed request id" in:
+      val result = runIO(
+        makeRequest(
+          "GET",
+          "/integration/iop/slots",
+          headers = Map(IopProtocol.RequestIdHeader -> "not-an-id")
+        )
+      )
+      headerOf(result, IopProtocol.RequestIdHeader) mustBe None
 
     "not add protocol headers to other responses" in:
       val result = runIO(get("/app/session"))

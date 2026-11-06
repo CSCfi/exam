@@ -27,6 +27,15 @@ object IopProtocol:
   val ExamVersionHeader  = "X-Exam-Version"
   val OrganisationHeader = "X-Exam-Org"
 
+  /** One ID per cross-organisation interaction, logged by the sending EXAM, XM and the receiving
+    * EXAM, so that `grep <id>` finds it in all three logs. 8 hex characters, as XM generates them.
+    */
+  val RequestIdHeader = "X-Iop-Request-Id"
+
+  def newRequestId(): String = java.util.UUID.randomUUID().toString.take(8)
+
+  def isRequestId(value: String): Boolean = value.matches("[0-9a-f]{8}")
+
   /** Headers identifying this installation, sent with every request to XM */
   def requestHeaders(config: Config): Seq[(String, String)] =
     responseHeaders(config) ++
