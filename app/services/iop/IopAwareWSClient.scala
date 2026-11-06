@@ -10,9 +10,12 @@ import play.api.libs.ws.*
 import play.api.libs.ws.ahc.AhcWSClientProvider
 
 import javax.inject.{Inject, Provider, Singleton}
+import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
-/** WSClient that adds the [[IopProtocol]] headers to every request addressed to XM, and writes the
-  * timestamps in its JSON body the way all EXAM versions can read ([[IopTimestamps]]).
+/** WSClient that adds the [[IopProtocol]] headers to every request addressed to XM, writes the
+  * timestamps in its JSON body the way all EXAM versions can read ([[IopTimestamps]]), and gives it
+  * a request ID that is logged here, by XM and by the receiving EXAM ([[IopLog]]).
   *
   * Bound as the application-wide WSClient (see `system.modules.WSClientModule`), so all XM calls
   * carry the headers without each call site having to remember them. Requests to any other host are
@@ -26,14 +29,14 @@ class IopAwareWSClient(delegate: WSClient, iopHost: String, headers: Seq[(String
   override def url(url: String): WSRequest =
     val request = delegate.url(url)
     if IopAwareWSClient.addressesXm(iopHost, url) then
-      request.addHttpHeaders(headers*).withRequestFilter(IopAwareWSClient.timestamps)
+      request.addHttpHeaders(headers*).withRequestFilter(IopAwareWSClient.outbound)
     else request
 
   override def close(): Unit = delegate.close()
 
 object IopAwareWSClient:
   // Runs when the request is executed, so it sees the final body whichever call site built it
-  private val timestamps = WSRequestFilter { next =>
+  private val outbound = WSRequestFilter { next =>
     WSRequestExecutor { request =>
       val normalised = request.body match
         case InMemoryBody(bytes) =>
@@ -44,7 +47,16 @@ object IopAwareWSClient:
             request.withBody(json)(using writable)
           }
         case _ => None // multipart uploads and streams carry no JSON
-      next(normalised.getOrElse(request))
+      val id    = IopProtocol.newRequestId()
+      val start = System.nanoTime()
+      val sent  = normalised.getOrElse(request).addHttpHeaders(IopProtocol.RequestIdHeader -> id)
+      next(sent).transform { result =>
+        result match
+          case Success(response) =>
+            IopLog.sent(sent.method, sent.url, id, response.status, start)
+          case Failure(error) => IopLog.notSent(sent.method, sent.url, id, error, start)
+        result
+      }(using ExecutionContext.parasitic)
     }
   }
 
