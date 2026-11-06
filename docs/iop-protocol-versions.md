@@ -79,9 +79,8 @@ the code so the payload matches the fixture again. Nothing else to do.
    shows exactly how the wire format changed. This is the protocol's change log.
 
 4. **Commit and rerun.** Commit `v2/` together with the code change and the version bump. A
-   normal run of the spec is green again. Pushing the new fixtures also starts the *IOP
-   compatibility* workflow (see "Older versions reading newer payloads" below); check that it
-   is green.
+   normal run of the spec is green again. The PR also runs the *IOP compatibility* check
+   (see "Older versions reading newer payloads" below); make sure it is green.
 
 5. **Copy the fixtures to XM.** Once the branch is pushed, in the XM repository:
 
@@ -139,8 +138,8 @@ EXAM versions can read it, and new code writing something old code cannot read i
 likely way cross-version IOP breaks: the 7.1 timestamp bug (7.0 read zero-millisecond times as
 null) was exactly that.
 
-The *IOP compatibility* workflow (`.github/workflows/iop-compat.yml`) covers this. Whenever the
-fixtures change on any branch, it checks out each older release branch and runs that branch's
+The *IOP compatibility* workflow (`.github/workflows/iop-compat.yml`) covers this. On every PR
+that changes the fixtures, it checks out each older release branch and runs that branch's
 `ReadsNewerIopSpec` against the new fixtures, using the older version's own deserializers. Any
 value the older version cannot parse fails it, with the value in the message.
 
