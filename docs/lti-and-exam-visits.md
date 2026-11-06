@@ -108,6 +108,12 @@ The launch runs in an iframe in the examination view (`ExaminationLtiComponent`)
 3. EXAM answers with a self-submitting form that POSTs the signed `id_token` and the tool's
    `state` to the `redirect_uri`.
 
+The session holds one launch in progress: a launch started before the previous one has reached
+its callback replaces it, and the previous one fails with `400`. An exam section shows all its
+questions at once, so the examination view starts LTI launches one at a time
+(`LtiLaunchQueueService`): a frame gets its URL when the frame before it has loaded its first
+document, which comes after the callback, or after 20 seconds at the latest.
+
 Everything the token asserts about the launch comes from the database, not from the browser: the
 browser only names a question in an exam, so it cannot make EXAM sign a launch into a resource the
 user has no exam for.

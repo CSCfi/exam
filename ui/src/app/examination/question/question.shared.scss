@@ -25,3 +25,8 @@
     color: #727272;
     margin-top: 1em;
 }
+
+// Keeps the place of an LTI frame while its launch waits for its turn
+.lti-frame-placeholder {
+    height: 500px;
+}

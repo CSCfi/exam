@@ -273,6 +273,16 @@ class LtiFlowSpec extends LtiIntegrationSpec:
       statusOf(result) must be(Status.BAD_REQUEST)
       contentAsStringOf(result) must not include "id_token"
 
+    // The session holds one launch in progress, so a newer launch replaces an older one that has
+    // not reached its callback yet. The examination view runs launches one at a time for this
+    // (ui/src/app/examination/question/lti-launch-queue.service.ts).
+    "be rejected when a newer launch in the same session has replaced it" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val first                   = ltiSessionOf(userSession, esqId)
+      val second                  = ltiSessionOf(first, esqId)
+      statusOf(callback(second, toolParams(first("lti_login_hint")))) must be(Status.BAD_REQUEST)
+      statusOf(callback(second, toolParams(second("lti_login_hint")))) must be(Status.OK)
+
     "be rejected when the session has no launch target" in:
       val (_, userSession, esqId) = teacherReadyToLaunch()
       val ltiSession              = ltiSessionOf(userSession, esqId)
