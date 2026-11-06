@@ -84,7 +84,6 @@
           "videoRecordings" : "www.utu.fi/examroom/1/recordings"
         },
         "objectVersion" : 1,
-        "participation" : null,
         "reminderSent" : false,
         "sentAsNoShow" : false,
         "startAt" : "2014-06-10T08:00:00.000Z",
@@ -975,7 +974,6 @@
     "instruction" : "Tentissä saa käyttää vain tilakoneita.",
     "internalRef" : null,
     "languageInspection" : null,
-    "lockedAt" : null,
     "maxScore" : 0,
     "modified" : null,
     "modifier" : null,
