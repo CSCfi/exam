@@ -13,7 +13,8 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.ws.WSClient
+import play.api.libs.json.Json
+import play.api.libs.ws.{WSClient, writeableOf_JsValue, writeableOf_String}
 import services.iop.{IopAwareWSClient, IopProtocol}
 
 import java.util.concurrent.ConcurrentHashMap
@@ -25,16 +26,22 @@ class IopProtocolHeadersSpec extends BaseIntegrationSpec with BeforeAndAfterAll 
   private val Port   = 31249
   private val XmHost = s"http://localhost:$Port"
 
-  // Last request headers seen by the stub, keyed by lower-case header name
-  private val received = new ConcurrentHashMap[String, String]()
+  // Last request headers seen by the stub, keyed by lower-case header name, and its body
+  private val received               = new ConcurrentHashMap[String, String]()
+  @volatile private var receivedBody = ""
 
   private class RecordingServlet extends HttpServlet:
-    override def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
+    private def record(request: HttpServletRequest, response: HttpServletResponse): Unit =
       received.clear()
       request.getHeaderNames.asIterator.forEachRemaining { name =>
         received.put(name.toLowerCase, request.getHeader(name))
       }
+      receivedBody = new String(request.getInputStream.readAllBytes(), "UTF-8")
       response.setStatus(HttpServletResponse.SC_OK)
+    override def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
+      record(request, response)
+    override def doPost(request: HttpServletRequest, response: HttpServletResponse): Unit =
+      record(request, response)
 
   private var server: Option[Server] = None
 
@@ -75,6 +82,39 @@ class IopProtocolHeadersSpec extends BaseIntegrationSpec with BeforeAndAfterAll 
       call(s"http://127.0.0.1:$Port/api/organisations")
       header(IopProtocol.ProtocolHeader) mustBe None
       header(IopProtocol.OrganisationHeader) mustBe None
+
+  "Request bodies to XM" should:
+    val body =
+      Json.obj("start" -> "2026-01-15T09:00:00Z", "created" -> "2026-01-15T09:00:00.123456Z")
+
+    "carry timestamps with exactly milliseconds" in:
+      Await.result(
+        app.injector.instanceOf[WSClient].url(s"$XmHost/api/exams").post(body),
+        10.seconds
+      )
+      val sent = Json.parse(receivedBody)
+      (sent \ "start").as[String] mustBe "2026-01-15T09:00:00.000Z"
+      (sent \ "created").as[String] mustBe "2026-01-15T09:00:00.123Z"
+      header("Content-Type").exists(_.startsWith("application/json")) mustBe true
+
+    "keep the content type of a JSON string body" in:
+      Await.result(
+        app.injector
+          .instanceOf[WSClient]
+          .url(s"$XmHost/api/enrolments/x/assessment")
+          .addHttpHeaders("Content-Type" -> "application/json")
+          .post(body.toString),
+        10.seconds
+      )
+      (Json.parse(receivedBody) \ "start").as[String] mustBe "2026-01-15T09:00:00.000Z"
+      header("Content-Type") mustBe Some("application/json")
+
+    "be left alone for other hosts" in:
+      Await.result(
+        app.injector.instanceOf[WSClient].url(s"http://127.0.0.1:$Port/api/exams").post(body),
+        10.seconds
+      )
+      (Json.parse(receivedBody) \ "start").as[String] mustBe "2026-01-15T09:00:00Z"
 
   "IOP endpoints" should:
     "tell XM which protocol version answered" in:

@@ -7,7 +7,7 @@ package system
 import com.typesafe.config.Config
 import org.apache.pekko.stream.Materializer
 import play.api.mvc.{Filter, RequestHeader, Result}
-import services.iop.IopProtocol
+import services.iop.{IopProtocol, IopTimestamps}
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -73,7 +73,9 @@ class SystemFilter @Inject() (config: Config)(implicit val mat: Materializer, ec
     rh.path match
       case "/app/logout" => next.apply(rh)
       case p if p.startsWith("/integration/iop/") =>
-        next.apply(rh).map(processResult(_)(using rh).withHeaders(iopHeaders*))
+        next
+          .apply(rh)
+          .map(r => IopTimestamps.normalise(processResult(r)(using rh)).withHeaders(iopHeaders*))
       // Disable caching for the index page so that CSRF cookie can be injected without worries
       case p if p.startsWith("/app") | p.startsWith("/integration") =>
         next.apply(rh).map(processResult(_)(using rh))

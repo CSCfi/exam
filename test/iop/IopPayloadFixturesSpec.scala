@@ -13,7 +13,7 @@ import models.iop.ExternalExam
 import models.user.User
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.*
-import services.iop.{IopPayloads, IopProtocol}
+import services.iop.{IopPayloads, IopProtocol, IopTimestamps}
 import services.json.JsonDeserializer
 
 import java.nio.charset.StandardCharsets
@@ -72,8 +72,9 @@ class IopPayloadFixturesSpec extends BaseIntegrationSpec with Matchers:
     case other          => other
 
   private def check(name: String, payload: JsValue): Unit =
-    val file   = fixtureDir.resolve(s"$name.json")
-    val actual = normalise(payload)
+    val file = fixtureDir.resolve(s"$name.json")
+    // As it goes on the wire: IopAwareWSClient and SystemFilter apply IopTimestamps to all IOP JSON
+    val actual = normalise(IopTimestamps.normalise(payload))
     if updating then
       Files.createDirectories(fixtureDir)
       Files.writeString(file, Json.prettyPrint(actual) + "\n", StandardCharsets.UTF_8)
