@@ -178,6 +178,23 @@ Everything the token asserts about the launch comes from the database, not from 
 browser only names a question in an exam, so it cannot make EXAM sign a launch into a resource the
 user has no exam for.
 
+## The iframe and cookies
+
+The tool runs in an iframe inside EXAM. LTI does not require that (the platform says how it
+presents the tool, `launch_presentation.document_target`), but it keeps the student inside the
+exam view and Safe Exam Browser. The catch is the tool's session cookie: inside EXAM's frame it is
+a third-party cookie, unless EXAM and the tool are on the **same site**, that is, share their
+registrable domain. `exam.uni.fi` and `moodle.uni.fi` are the same site; `exam.uni.fi` and
+`moodle.other.fi` are not.
+
+- Chromium-based browsers, including SEB on Windows, still allow third-party cookies set with
+  `SameSite=None`, as Moodle sets them.
+- WebKit-based browsers block them by default: Safari, and, as far as we know, SEB on macOS and
+  iOS. There the tool's login fails inside the frame. This is not verified with SEB yet.
+
+So deploy EXAM and its tools on the same site where possible, and test with SEB on macOS before
+relying on a cross-site setup. SEB's URL filter also has to allow the tool's domain.
+
 ## The id_token
 
 The token is signed with RS256 using `lti.platform.private-key` and is valid for five minutes.
