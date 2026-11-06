@@ -17,6 +17,12 @@ enum LtiError(val message: String):
   case InvalidRedirectUri extends LtiError("redirect_uri is not registered for this client")
   case LoginHintMismatch
       extends LtiError("login_hint does not match the session that started this login")
-  case KeyUnavailable extends LtiError("LTI signing key could not be read")
+  case KeyUnavailable          extends LtiError("LTI signing key could not be read")
+  case DeepLinkingNotSupported extends LtiError("The LTI tool does not support deep linking")
+  case DeepLinkNotFound        extends LtiError("No such deep linking request")
+  case DeepLinkTooManyPicks    extends LtiError("More than one resource was picked")
+  case ToolKeysUnavailable     extends LtiError("The LTI tool's keys could not be fetched")
+  case InvalidDeepLinkResponse(reason: String)
+      extends LtiError(s"Invalid deep linking response: $reason")
   case CspNonceUnavailable
       extends LtiError("No CSP nonce for the launch script; check play.filters.csp.nonce")

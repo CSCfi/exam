@@ -58,7 +58,18 @@ export interface LtiTool {
     key: string;
     name: string;
     parameters: LtiToolParameter[];
+    // Whether the teacher can pick the content in the tool itself (LTI Deep Linking)
+    deepLinking: boolean;
 }
+
+/** A content picking request started in the tool, and its state once the tool has answered. */
+export interface LtiDeepLinkRequest {
+    id: string;
+    url: string;
+}
+
+export type LtiDeepLinkResult =
+    { status: 'pending' | 'cancelled' } | { status: 'done'; title?: string; custom: Record<string, string> };
 
 // QuestionDraft is now just ReverseQuestion with id: undefined
 // Keeping the type alias for backward compatibility, but it's essentially the same

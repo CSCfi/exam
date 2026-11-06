@@ -59,7 +59,28 @@ resource id into the parameter `id`, so the key has to be `moodle`.
 _Site administration → Plugins → Enrolments → Publish as LTI tool → Tool registration._ The `id`
 in Moodle's login URL (`/enrol/lti/login.php?id=...`) identifies the registration of this
 platform, not a resource. A published resource is picked with the custom parameter `id`, which
-Moodle shows as a custom property of the published resource.
+Moodle shows as a custom property of the published resource. For teachers to pick it in Moodle
+instead (see [Deep Linking](#picking-content-in-the-tool-deep-linking)), set the tool's
+`deep-linking-url` to `/enrol/lti/launch_deeplink.php`; Moodle's registration needs no changes.
+
+**How users are linked.** Moodle links a launch to a Moodle account by the issuer and `sub` (the
+EXAM user's eppn), in its own table `auth_lti_linked_login`. Nothing is matched by username or
+email: a teacher whose Moodle account has the same eppn is still not linked until the link is
+made. With no link yet, the published resource's provisioning mode decides, separately for
+instructors and learners: _new accounts only_ creates an account (authentication method "LTI",
+username `enrol_lti_13_<hash>`), the _prompt_ modes ask the user to log in to an existing Moodle
+account (or create one) and link it. The link is kept from then on; deleting the Moodle user
+removes it.
+
+**Deep Linking and Moodle accounts.** Moodle's picker lists only the published resources in
+courses where the linked Moodle account has `enrol/lti:config` (editing teachers and managers by
+default). Deep Linking always runs in Moodle's "existing accounts only" mode, but uses an existing
+link as it is: a teacher who has launched a question as an instructor under _new accounts only_
+is linked to the account Moodle created then, which has published nothing, and the picker is
+empty. For teachers who pick content in Moodle, set the published resources' instructor
+provisioning to _prompt for existing accounts_, so they link their own Moodle accounts on first
+contact. To relink a teacher, delete the auto-created user in Moodle; the next deep linking
+request then asks them to log in. Learners can keep automatic provisioning.
 
 ### A+
 
@@ -86,6 +107,37 @@ parameter with the i18n key `i18n_lti_parameter_<name>`, or with its name.
 
 A+ opens the most specific of course instance, module and exercise given; the slugs are the
 names in its URLs, `https://<a+>/<course>/<instance>/<module>/<exercise>/`.
+
+## Picking content in the tool (Deep Linking)
+
+A tool with a `deep-linking-url` (and a `jwks-url`) lets teachers pick the content of a question in
+the tool itself: the editor shows _Choose from the tool_ next to the parameters, which can still be
+typed in by hand. It is opt-in per tool; Moodle supports it, A+ most likely needs AGS first.
+
+1. The editor asks `POST /app/lti/deep-link` for a request and opens its URL in a popup window,
+   `GET /integration/lti/deep-link/<id>/start`. That runs the same OIDC login as a launch, with the
+   tool's deep linking URL as `target_link_uri`, and the callback answers an
+   `LtiDeepLinkingRequest` instead of a resource link launch. It carries
+   `deep_linking_settings` (return URL, resource links only, one at a time) with the request's id
+   as `data`, and no context or resource link.
+2. The teacher picks a resource in the tool, which posts it as a signed JWT to
+   `POST /integration/lti/deep-link/return`. That post comes from the tool's page, so it is not
+   bound to the session (the browser may leave the session cookie out) and needs no CSRF token.
+   EXAM checks the signature against the tool's keys (`jwks-url`, fetched and kept; an unknown key
+   id makes it fetch them again, at most once a minute), and that the message is from the tool,
+   for this platform and deployment, not expired, and carries the id of a request still waiting.
+   Each request is completed once, and lives for 15 minutes.
+3. The return page tells the editor (`postMessage` to `exam.application.hostname`) and closes the
+   popup. The editor then fetches the pick with `GET /app/lti/deep-link/<id>`, which only the
+   teacher who started the request gets, once, and fills in the parameters. If the message never
+   arrives, the editor asks when the popup is closed.
+
+Only the parameters the tool declares are kept from the pick, and it has to give every required
+one. A pick of more than one resource is refused with a page asking the teacher to pick only one,
+since Moodle's picker allows ticking several although the request asks for one. The resource's URL is not stored: launches go to the tool's `target-link-uri`.
+
+The session holds one login in progress, so starting a deep linking request and a launch at the
+same time in one browser makes one of them fail.
 
 ## Launch flow
 

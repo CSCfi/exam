@@ -11,6 +11,12 @@ GET           /integration/lti/oidc/jwks                                      fe
 GET           /app/lti/login-url                                              features.lti.controllers.LtiController.getStartLoginUrl
 GET           /app/lti/tools                                                  features.lti.controllers.LtiController.getTools
 GET           /app/settings/lti                                               features.lti.controllers.LtiController.isActive
+POST          /app/lti/deep-link                                              features.lti.controllers.LtiController.createDeepLink
+GET           /app/lti/deep-link/:id                                          features.lti.controllers.LtiController.getDeepLink(id: String)
+GET           /integration/lti/deep-link/:id/start                            features.lti.controllers.LtiController.startDeepLink(id: String)
+# Posted by the tool from its own page, so there is no CSRF token; the signed message is the proof
++ nocsrf
+POST          /integration/lti/deep-link/return                               features.lti.controllers.LtiController.completeDeepLink
 
 
 ############### Session interface ############
