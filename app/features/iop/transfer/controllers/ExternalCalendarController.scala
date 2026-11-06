@@ -27,14 +27,14 @@ import services.mail.EmailComposer
 import system.AuditedAction
 import validation.calendar.ExternalCalendarReservationValidator
 
-import java.net.{MalformedURLException, URI, URL}
+import java.net.{URI, URL}
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import scala.util.Try
+import scala.util.control.Exception.nonFatalCatch
 
 class ExternalCalendarController @Inject() (
     authenticated: AuthenticatedAction,
@@ -60,27 +60,31 @@ class ExternalCalendarController @Inject() (
       start: String,
       end: String,
       duration: Int
-  ): URL =
-    val url = configReader.getIopHost +
-      s"/api/organisations/$orgRef/facilities/$facilityRef/slots" +
-      s"?date=$date&startAt=$start&endAt=$end&duration=$duration"
-    URI.create(url).toURL
+  ): Option[URL] =
+    toUrl(
+      configReader.getIopHost +
+        s"/api/organisations/$orgRef/facilities/$facilityRef/slots" +
+        s"?date=$date&startAt=$start&endAt=$end&duration=$duration"
+    )
 
-  private def parseUrl(orgRef: String, facilityRef: String): URL =
-    URI
-      .create(
-        configReader.getIopHost +
-          s"/api/organisations/$orgRef/facilities/$facilityRef/reservations"
-      )
-      .toURL
+  private def parseUrl(orgRef: String, facilityRef: String): Option[URL] =
+    toUrl(
+      configReader.getIopHost + s"/api/organisations/$orgRef/facilities/$facilityRef/reservations"
+    )
 
-  private def parseUrl(orgRef: String, facilityRef: String, reservationRef: String): URL =
-    URI
-      .create(
-        configReader.getIopHost +
-          s"/api/organisations/$orgRef/facilities/$facilityRef/reservations/$reservationRef/force"
-      )
-      .toURL
+  private def parseUrl(orgRef: String, facilityRef: String, reservationRef: String): Option[URL] =
+    toUrl(
+      configReader.getIopHost +
+        s"/api/organisations/$orgRef/facilities/$facilityRef/reservations/$reservationRef/force"
+    )
+
+  // URI.create and toURL throw on a malformed host config or refs
+  private def toUrl(url: String): Option[URL] =
+    nonFatalCatch.either(URI.create(url).toURL) match
+      case Left(e) =>
+        logger.error(s"Invalid URL $url", e)
+        None
+      case Right(u) => Some(u)
 
   // Actions invoked by central IOP server
 
@@ -273,50 +277,43 @@ class ExternalCalendarController @Inject() (
               case Some(errorResult) => Future.successful(errorResult)
               case None              =>
                 // Let's do this
-                Try(parseUrl(orgRef, roomRef)).fold(
-                  {
-                    case e: MalformedURLException =>
-                      logger.error("Invalid URL", e)
-                      Future.successful(BadRequest("Invalid URL"))
-                    case e => throw e
-                  },
-                  url =>
-                    val homeOrgRef = configReader.getHomeOrganisationRef
-                    val body = Json.obj(
-                      "requestingOrg"    -> homeOrgRef,
-                      "start"            -> DateTimeFormatter.ISO_INSTANT.format(start),
-                      "end"              -> DateTimeFormatter.ISO_INSTANT.format(end),
-                      "user"             -> user.eppn,
-                      "email"            -> user.email,
-                      "optionalSections" -> Json.toJson(sectionIdsSeq)
-                    )
+                parseUrl(orgRef, roomRef).fold(Future.successful(BadRequest("Invalid URL")))(url =>
+                  val homeOrgRef = configReader.getHomeOrganisationRef
+                  val body = Json.obj(
+                    "requestingOrg"    -> homeOrgRef,
+                    "start"            -> DateTimeFormatter.ISO_INSTANT.format(start),
+                    "end"              -> DateTimeFormatter.ISO_INSTANT.format(end),
+                    "user"             -> user.eppn,
+                    "email"            -> user.email,
+                    "optionalSections" -> Json.toJson(sectionIdsSeq)
+                  )
 
-                    for
-                      response <- wsClient.url(url.toString).post(body)
-                      result <-
-                        if response.status != CREATED then
-                          val root = response.json.as[play.api.libs.json.JsObject]
-                          val msg = (root \ "message").asOpt[String].getOrElse("Connection refused")
-                          Future.successful(InternalServerError(msg))
-                        else
-                          val root = response.json
-                          calendarHandler
-                            .handleExternalReservation(
-                              enrolment,
-                              enrolment.exam,
-                              root,
-                              start,
-                              end,
-                              user,
-                              orgRef,
-                              roomRef,
-                              sectionIdsSeq
-                            )
-                            .map {
-                              case Some(_) => InternalServerError("Internal server error")
-                              case None    => Created((root \ "id").get)
-                            }
-                    yield result
+                  for
+                    response <- wsClient.url(url.toString).post(body)
+                    result <-
+                      if response.status != CREATED then
+                        val root = response.json.as[play.api.libs.json.JsObject]
+                        val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
+                        Future.successful(InternalServerError(msg))
+                      else
+                        val root = response.json
+                        calendarHandler
+                          .handleExternalReservation(
+                            enrolment,
+                            enrolment.exam,
+                            root,
+                            start,
+                            end,
+                            user,
+                            orgRef,
+                            roomRef,
+                            sectionIdsSeq
+                          )
+                          .map {
+                            case Some(_) => InternalServerError("Internal server error")
+                            case None    => Created((root \ "id").get)
+                          }
+                  yield result
                 )
     }
 
@@ -347,34 +344,28 @@ class ExternalCalendarController @Inject() (
             Future.successful(Forbidden("i18n_reservation_in_effect"))
           else
             val roomRef = reservation.machine.room.externalRef
-            Try(parseUrl(configReader.getHomeOrganisationRef, roomRef, reservation.externalRef))
-              .fold(
-                {
-                  case e: MalformedURLException =>
-                    logger.error("Invalid URL", e)
-                    Future.successful(BadRequest("Invalid URL"))
-                  case e => throw e
-                },
-                url =>
-                  wsClient
-                    .url(url.toString)
-                    .delete()
-                    .map { response =>
-                      if response.status != OK then
-                        val root = response.json.as[play.api.libs.json.JsObject]
-                        val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
-                        InternalServerError(msg)
-                      else
-                        val msg =
-                          request.body.asJson.map(_ \ "msg").flatMap(_.asOpt[String]).getOrElse("")
-                        emailComposer.composeExternalReservationCancellationNotification(
-                          reservation,
-                          Some(msg)
-                        )
-                        reservation.delete()
-                        Ok
-                    }
-              )
+            parseUrl(configReader.getHomeOrganisationRef, roomRef, reservation.externalRef).fold(
+              Future.successful(BadRequest("Invalid URL"))
+            )(url =>
+              wsClient
+                .url(url.toString)
+                .delete()
+                .map { response =>
+                  if response.status != OK then
+                    val root = response.json.as[play.api.libs.json.JsObject]
+                    val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
+                    InternalServerError(msg)
+                  else
+                    val msg =
+                      request.body.asJson.map(_ \ "msg").flatMap(_.asOpt[String]).getOrElse("")
+                    emailComposer.composeExternalReservationCancellationNotification(
+                      reservation,
+                      Some(msg)
+                    )
+                    reservation.delete()
+                    Ok
+                }
+            )
     }
 
   def requestSlots(
@@ -402,32 +393,27 @@ class ExternalCalendarController @Inject() (
                   val start    = DateTimeFormatter.ISO_INSTANT.format(exam.periodStart)
                   val end      = DateTimeFormatter.ISO_INSTANT.format(exam.periodEnd)
                   val duration = exam.duration
-                  Try(parseUrl(orgRef, roomRef, d, start, end, duration)).fold(
-                    {
-                      case e: MalformedURLException =>
-                        logger.error("Invalid URL", e)
-                        Future.successful(BadRequest("Invalid URL"))
-                      case e => throw e
-                    },
-                    url =>
-                      wsClient
-                        .url(url.toString.split("\\?")(0))
-                        .withQueryStringParameters(url.getQuery.split("&").map { kv =>
-                          val parts = kv.split("=")
-                          parts(0) -> parts(1)
-                        }*)
-                        .get()
-                        .map { response =>
-                          if response.status != OK then
-                            val root = response.json.as[play.api.libs.json.JsObject]
-                            val msg =
-                              (root \ "message").asOpt[String].getOrElse("Connection refused")
-                            InternalServerError(msg)
-                          else
-                            val root  = response.json
-                            val slots = calendarHandler.postProcessSlots(root, d, exam, user)
-                            Ok(Json.toJson(slots))
-                        }
+                  parseUrl(orgRef, roomRef, d, start, end, duration).fold(
+                    Future.successful(BadRequest("Invalid URL"))
+                  )(url =>
+                    wsClient
+                      .url(url.toString.split("\\?")(0))
+                      .withQueryStringParameters(url.getQuery.split("&").map { kv =>
+                        val parts = kv.split("=")
+                        parts(0) -> parts(1)
+                      }*)
+                      .get()
+                      .map { response =>
+                        if response.status != OK then
+                          val root = response.json.as[play.api.libs.json.JsObject]
+                          val msg =
+                            (root \ "message").asOpt[String].getOrElse("Connection refused")
+                          InternalServerError(msg)
+                        else
+                          val root  = response.json
+                          val slots = calendarHandler.postProcessSlots(root, d, exam, user)
+                          Ok(Json.toJson(slots))
+                      }
                   )
         case _ => Future.successful(BadRequest("Missing required parameters"))
     }

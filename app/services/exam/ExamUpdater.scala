@@ -18,6 +18,7 @@ trait ExamUpdater:
   def isAllowedToUpdate(exam: Exam, user: User): Boolean
   def isAllowedToRemove(exam: Exam): Boolean
   def update(exam: Exam, payload: Exam, loginRole: Role.Name): Unit
+  def validateAutoEvaluationConfig(exam: Exam, newConfig: AutoEvaluationConfig): Option[Result]
   def updateAutoEvaluationConfig(exam: Exam, newConfig: AutoEvaluationConfig): Unit
   def updateLanguage(exam: Exam, code: String, user: User): Option[Result]
   def preparePreview(exam: Exam): Unit

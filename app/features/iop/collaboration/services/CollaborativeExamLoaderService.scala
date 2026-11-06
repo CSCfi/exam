@@ -70,7 +70,7 @@ class CollaborativeExamLoaderService @Inject() (
         None
       case some => some
 
-  private def serializeForUpdate(exam: Exam, revision: String): JsValue =
+  private def serializeForUpdate(exam: Exam, revision: String): Option[JsValue] =
     Try {
       // Use jackson because it serializes the entire object.
       // TODO: maybe some other mapper can do this too?
@@ -82,10 +82,10 @@ class CollaborativeExamLoaderService @Inject() (
       // Convert back to Play JsValue
       Json.parse(mapper.writeValueAsString(result))
     } match
-      case Success(value) => value
+      case Success(value) => Some(value)
       case Failure(e) =>
-        logger.error("Unable to serialize exam", e)
-        throw new RuntimeException(e)
+        logger.error(s"Unable to serialize exam ${exam.id}", e)
+        None
 
   def getAssessmentPath: PathProperties =
     props[ExamParticipation]("""(*,
@@ -125,7 +125,11 @@ class CollaborativeExamLoaderService @Inject() (
       case Some(_) =>
         externalAttachmentLoader
           .uploadAssessmentAttachments(participation.exam)
-          .flatMap(_ => sendAssessment(participation))
+          .flatMap {
+            // Built from the same IOP host as the assessment URL, so treated alike
+            case Left(reason) => Future.successful(DeliveryResult.Invalid(reason))
+            case Right(_)     => sendAssessment(participation)
+          }
           .recover { case t => DeliveryResult.Failed(t) }
 
   def createAssessment(participation: ExamParticipation): Future[Boolean] =
@@ -259,11 +263,10 @@ class CollaborativeExamLoaderService @Inject() (
       resultModel: Model,
       pp: PathProperties
   ): Future[Result] =
-    parseUrl(Some(ce.externalRef)) match
+    parseUrl(Some(ce.externalRef)).zip(serializeForUpdate(content, ce.revision)) match
       case None => Future.successful(Results.InternalServerError)
-      case Some(url) =>
+      case Some((url, payload)) =>
         val request = wsClient.url(url.toString)
-        val payload = serializeForUpdate(content, ce.revision)
         request.put(payload).map { response =>
           if response.status != OK then
             val root    = response.json

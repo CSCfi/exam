@@ -439,15 +439,13 @@ class CollaborativeAttachmentController @Inject() (
       .andThen(authenticated)
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
       .async(parse.multipartFormData) { request =>
-        val formData      = request.body.asFormUrlEncoded
-        val examIdOpt     = formData.get("examId").flatMap(_.headOption)
-        val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
+        val formData  = request.body.asFormUrlEncoded
+        val examIdOpt = formData.get("examId").flatMap(_.headOption).flatMap(_.toLongOption)
+        val questionIdOpt =
+          formData.get("questionId").flatMap(_.headOption).flatMap(_.toLongOption)
 
         (examIdOpt, questionIdOpt) match
-          case (Some(examIdStr), Some(questionIdStr)) =>
-            val examId     = examIdStr.toLong
-            val questionId = questionIdStr.toLong
-
+          case (Some(examId), Some(questionId)) =>
             getExternalExam(examId).flatMap {
               case None => Future.successful(NotFound)
               case Some(ce) =>
@@ -464,7 +462,7 @@ class CollaborativeAttachmentController @Inject() (
                             uploadAttachment(filePart, ce, exam, sq.question, user)
                 }
             }
-          case _ => Future.successful(BadRequest("Missing examId or questionId"))
+          case _ => Future.successful(BadRequest("Missing or invalid examId or questionId"))
       }
 
   def deleteQuestionAttachment(eid: Long, qid: Long): Action[AnyContent] =
@@ -512,15 +510,13 @@ class CollaborativeAttachmentController @Inject() (
       parse.multipartFormData
     ) {
       request =>
-        val formData      = request.body.asFormUrlEncoded
-        val examIdOpt     = formData.get("examId").flatMap(_.headOption)
-        val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
+        val formData  = request.body.asFormUrlEncoded
+        val examIdOpt = formData.get("examId").flatMap(_.headOption).flatMap(_.toLongOption)
+        val questionIdOpt =
+          formData.get("questionId").flatMap(_.headOption).flatMap(_.toLongOption)
 
         (examIdOpt, questionIdOpt) match
-          case (Some(examIdStr), Some(questionIdStr)) =>
-            val examId     = examIdStr.toLong
-            val questionId = questionIdStr.toLong
-
+          case (Some(examId), Some(questionId)) =>
             getExternalExam(examId).flatMap {
               case None => Future.successful(NotFound)
               case Some(ce) =>
@@ -538,7 +534,7 @@ class CollaborativeAttachmentController @Inject() (
                             uploadAttachment(filePart, ce, exam, sq.essayAnswer, user)
                 }
             }
-          case _ => Future.successful(BadRequest("Missing examId or questionId"))
+          case _ => Future.successful(BadRequest("Missing or invalid examId or questionId"))
     }
 
   def deleteQuestionAnswerAttachment(qid: Long, eid: Long): Action[AnyContent] =
@@ -591,10 +587,12 @@ class CollaborativeAttachmentController @Inject() (
       .andThen(authenticated)
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
       .async(parse.multipartFormData) { request =>
-        request.body.asFormUrlEncoded.get("examId").flatMap(_.headOption) match
-          case None => Future.successful(BadRequest("Missing examId"))
-          case Some(examIdStr) =>
-            getExternalExam(examIdStr.toLong).flatMap {
+        request.body.asFormUrlEncoded.get("examId").flatMap(_.headOption).flatMap(
+          _.toLongOption
+        ) match
+          case None => Future.successful(BadRequest("Missing or invalid examId"))
+          case Some(examId) =>
+            getExternalExam(examId).flatMap {
               case None => Future.successful(NotFound)
               case Some(ce) =>
                 examLoader.downloadExam(ce).flatMap {

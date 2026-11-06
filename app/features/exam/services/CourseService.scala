@@ -28,10 +28,10 @@ class CourseService @Inject() (
       filterType: Option[String],
       criteria: Option[String],
       user: User
-  ): Future[List[Course]] =
+  ): Future[Either[String, List[Course]]] =
     (filterType, criteria) match
       case (Some("code"), Some(c)) =>
-        externalApi.getCoursesByCode(user, c.trim).map(_.toList)
+        externalApi.getCoursesByCode(user, c.trim).map(cs => Right(cs.toList))
       case (Some("name"), Some(x)) if x.length >= 2 =>
         Future {
           DB.find(classOf[Course])
@@ -48,17 +48,15 @@ class CourseService @Inject() (
                 .getCourseValidityDate(c.startDate.toInstant)
                 .isBefore(java.time.Instant.now())
             )
-        }
+        }.map(Right(_))
       case (Some("name"), Some(_)) =>
-        Future.failed(
-          new IllegalArgumentException("Search criteria too short (minimum 2 characters)")
-        )
+        Future.successful(Left("Search criteria too short (minimum 2 characters)"))
       case _ =>
         Future {
           DB.find(classOf[Course]).where.isNotNull(path[Course]("name")).orderBy(path[Course](
             "code"
           )).list
-        }
+        }.map(Right(_))
 
   def getCourse(courseId: Long): Option[Course] =
     Option(DB.find(classOf[Course], courseId))

@@ -40,7 +40,7 @@ class AttachmentController @Inject() (
       parseMultipartForm(request) match
         case None => Future.successful(BadRequest("Invalid form data"))
         case Some((filePart, formData)) =>
-          formData.get("questionId").flatMap(_.headOption).map(_.toLong) match
+          formData.get("questionId").flatMap(_.headOption).flatMap(_.toLongOption) match
             case None => Future.successful(BadRequest("Missing questionId"))
             case Some(qid) =>
               val user = request.attrs(Auth.ATTR_USER)
@@ -58,7 +58,7 @@ class AttachmentController @Inject() (
       parseMultipartForm(request) match
         case None => Future.successful(BadRequest("Invalid form data"))
         case Some((filePart, formData)) =>
-          formData.get("questionId").flatMap(_.headOption).map(_.toLong) match
+          formData.get("questionId").flatMap(_.headOption).flatMap(_.toLongOption) match
             case None => Future.successful(BadRequest("Missing questionId"))
             case Some(qid) =>
               attachmentService.addAttachmentToQuestion(qid, filePart).map {
@@ -126,7 +126,7 @@ class AttachmentController @Inject() (
       parseMultipartForm(request) match
         case None => Future.successful(BadRequest("Invalid form data"))
         case Some((filePart, formData)) =>
-          formData.get("examId").flatMap(_.headOption).map(_.toLong) match
+          formData.get("examId").flatMap(_.headOption).flatMap(_.toLongOption) match
             case None => Future.successful(BadRequest("Missing examId"))
             case Some(eid) =>
               val user = request.attrs(Auth.ATTR_USER)

@@ -507,6 +507,28 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
 
         greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
 
+      "complete exam and leave it for review when auto-evaluation cannot grade it" in:
+        val (_, session) = runIO(loginAsStudent())
+        val (exam, _, _) = setupTestData()
+        // No grade evaluations, so no grade can be determined
+        val config = new AutoEvaluationConfig()
+        config.releaseType = AutoEvaluationReleaseType.IMMEDIATE
+        config.gradeEvaluations = new java.util.HashSet()
+        config.exam = exam
+        config.save()
+        val studentExam = prepareExamination(exam.hash, session)
+
+        val result =
+          runIO(put(s"/app/student/exam/${studentExam.hash}", Json.obj(), session = session))
+        statusOf(result) must be(Status.OK)
+
+        Option(DB.find(classOf[Exam], studentExam.id)) match
+          case Some(turnedExam) =>
+            turnedExam.state must be(ExamState.REVIEW)
+            turnedExam.grade must be(null)
+            turnedExam.autoEvaluationNotified must be(null)
+          case None => fail("Turned exam not found")
+
     "handling private exams" should:
       "complete private exam and send notification" in:
         val (user, session) = runIO(loginAsStudent())

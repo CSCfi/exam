@@ -4,6 +4,7 @@
 
 package retention
 
+import database.EbeanQueryExtensions
 import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.exam.{Exam, ExaminationDate}
@@ -18,7 +19,7 @@ import scala.jdk.CollectionConverters.*
 /** Guards against deleting too much. A real run must remove or change only rows that belong to the
   * one student whose retention has ended, whatever the table.
   */
-class RetentionSafetySpec extends RetentionSpecBase:
+class RetentionSafetySpec extends RetentionSpecBase with EbeanQueryExtensions:
 
   private type Row = (String, String) // table name, row as JSON
 
@@ -30,12 +31,12 @@ class RetentionSafetySpec extends RetentionSpecBase:
           |WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
           |AND table_name <> 'play_evolutions'""".stripMargin
       )
-      .findList()
-      .asScala
+      .list
       .map(_.getString("table_name"))
     tables.flatMap { t =>
-      DB.sqlQuery(s"""SELECT to_jsonb(x)::text AS r FROM "$t" x""").findList().asScala
-        .map(r => t -> r.getString("r"))
+      DB.sqlQuery(s"""SELECT to_jsonb(x)::text AS r FROM "$t" x""").list.map(r =>
+        t -> r.getString("r")
+      )
     }.toSet
 
   private def rowId(row: Row): Option[(String, Long)] =
@@ -53,7 +54,7 @@ class RetentionSafetySpec extends RetentionSpecBase:
     val t       = teacher()
     val source  = prototype()
     val present = source.softwares.asScala.map(_.id).toSet
-    DB.find(classOf[Software]).findList().asScala.filterNot(sw => present(sw.id)).take(2)
+    DB.find(classOf[Software]).list.filterNot(sw => present(sw.id)).take(2)
       .foreach(source.softwares.add)
     DB.find(classOf[Language]).where().eq("code", "fi").find
       .filterNot(l => source.examLanguages.asScala.exists(_.code == l.code))

@@ -72,9 +72,9 @@ class SettingsController @Inject() (
         case _                      => None
       }
 
-      value match
-        case Some(deadline) => Ok(settingsService.setDeadline(deadline).asJson)
-        case None           => BadRequest("Missing value")
+      value.flatMap(_.toIntOption).filter(_ >= 0) match
+        case Some(deadline) => Ok(settingsService.setDeadline(deadline.toString).asJson)
+        case None           => BadRequest("Missing or invalid value")
     }
 
   def setReservationWindowSize(): Action[JsValue] =
@@ -87,9 +87,9 @@ class SettingsController @Inject() (
         case _                      => None
       }
 
-      value match
-        case Some(size) => Ok(settingsService.setReservationWindowSize(size).asJson)
-        case None       => BadRequest("Missing value")
+      value.flatMap(_.toIntOption).filter(_ >= 0) match
+        case Some(size) => Ok(settingsService.setReservationWindowSize(size.toString).asJson)
+        case None       => BadRequest("Missing or invalid value")
     }
 
   def getHostname: Action[AnyContent] = authenticated { _ =>

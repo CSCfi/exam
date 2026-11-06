@@ -6,6 +6,8 @@ package database
 
 import io.ebean.{DB, Transaction}
 
+import scala.util.Using
+
 /** Helper for managing Ebean transactions in Scala
   */
 object EbeanTransactions:
@@ -42,3 +44,14 @@ object EbeanTransactions:
     val result = block(tx)
     tx.end()
     result
+
+  /** Runs `block` in a transaction that is committed if the block returns Right. A Left or an
+    * exception rolls it back. The transaction is bound to the current thread, so the block must not
+    * hand work to another thread (Future, IO).
+    */
+  def commitOnRight[E, T](block: => Either[E, T]): Either[E, T] =
+    Using.resource(DB.beginTransaction()) { tx =>
+      val result = block
+      if result.isRight then tx.commit()
+      result
+    }

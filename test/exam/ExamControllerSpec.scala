@@ -5,16 +5,16 @@
 package exam
 
 import base.BaseIntegrationSpec
+import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.exam.{Exam, ExamState, ExamType}
+import models.exam.*
 import play.api.http.Status
 import play.api.libs.json.*
 import play.api.test.Helpers.*
 
 import java.time.{Duration, Instant}
-import scala.jdk.CollectionConverters.*
 
-class ExamControllerSpec extends BaseIntegrationSpec:
+class ExamControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   "ExamController" when:
     "getting active exams" should:
@@ -32,14 +32,14 @@ class ExamControllerSpec extends BaseIntegrationSpec:
           .where()
           .eq("creator.id", user.id)
           .in("state", ExamState.PUBLISHED, ExamState.SAVED, ExamState.DRAFT)
-          .findList()
+          .list
 
-        activeExams.asScala.foreach { exam =>
+        activeExams.foreach { exam =>
           exam.examOwners.add(exam.creator)
           exam.update()
         }
 
-        val ids = activeExams.asScala.map { exam =>
+        val ids = activeExams.map { exam =>
           exam.periodStart = Instant.now()
           exam.periodEnd = Instant.now().plus(Duration.ofDays(7))
           exam.update()
@@ -160,3 +160,36 @@ class ExamControllerSpec extends BaseIntegrationSpec:
         val updatedJson  = contentAsJsonOf(putResult)
         val examTypeJson = updatedJson \ "examType"
         (examTypeJson \ "type").as[String].must(be("FINAL"))
+
+    "updating auto-evaluation config" should:
+      "reject a grade outside the exam grade scale and leave the exam as it was" in:
+        val (_, session) = runIO(loginAsTeacher())
+        val examId       = 1L
+        val exam         = DB.find(classOf[Exam], examId)
+        val scale        = Option(exam.gradeScale).getOrElse(exam.course.gradeScale)
+        val foreignGrade =
+          DB.find(classOf[Grade]).where().ne(
+            "gradeScale.id",
+            scale.id
+          ).list.headOption match
+            case Some(grade) => grade
+            case None        => fail("No grade outside the exam grade scale in test data")
+
+        val updateData = Json.obj(
+          "name"     -> "Renamed exam",
+          "duration" -> JsNumber(BigDecimal(exam.duration)),
+          "evaluationConfig" -> Json.obj(
+            "releaseType" -> "IMMEDIATE",
+            "gradeEvaluations" -> Json.arr(
+              Json.obj("grade" -> Json.obj("id" -> foreignGrade.id.intValue), "percentage" -> 50)
+            )
+          )
+        )
+        val result = runIO(put(s"/app/exams/$examId", updateData, session = session))
+
+        statusOf(result) must be(Status.BAD_REQUEST)
+        val unchanged = DB.find(classOf[Exam], examId)
+        unchanged.name must be(exam.name)
+        Option(unchanged.autoEvaluationConfig).map(_.id) must be(
+          Option(exam.autoEvaluationConfig).map(_.id)
+        )

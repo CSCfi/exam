@@ -11,7 +11,7 @@ import io.ebean.DB
 import models.assessment.{Comment, ExamRecord, ExamScore}
 import models.exam.ExamState
 import models.exam.{Exam, Grade, GradeScale}
-import models.user.{Role, User}
+import models.user.{Language, Role, User}
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import play.api.Logging
@@ -144,10 +144,12 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
               case None =>
                 logger.warn(s"No grade found with name $gradeName")
               case Some(grade) =>
-                updateExam(exam, grade, user, records)
+                exam.examLanguages.asScala.headOption match
+                  case None =>
+                    logger.warn(s"Exam $examId has no language, unable to grade it")
+                  case Some(language) => updateExam(exam, grade, language, user, records)
 
-  private def parseExamId(idStr: String): Option[Long] =
-    Try(idStr.toLong).toOption
+  private def parseExamId(idStr: String): Option[Long] = idStr.toLongOption
 
   private def findExam(examId: Long, user: User, role: Role.Name): Option[Exam] =
     val baseQuery = DB
@@ -182,12 +184,18 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
         logger.warn(s"Multiple grades found with name $gradeName")
         None
 
-  private def updateExam(exam: Exam, grade: Grade, user: User, records: Array[String]): Unit =
+  private def updateExam(
+      exam: Exam,
+      grade: Grade,
+      language: Language,
+      user: User,
+      records: Array[String]
+  ): Unit =
     exam.grade = grade
     exam.gradedByUser = user
     exam.gradedTime = Instant.now()
     exam.state = ExamState.GRADED
-    exam.answerLanguage = exam.examLanguages.asScala.head.code
+    exam.answerLanguage = language.code
     exam.creditType = exam.examType
 
     // Handle feedback if present

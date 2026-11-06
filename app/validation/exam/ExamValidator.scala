@@ -83,7 +83,7 @@ object ExamValidator:
   */
 private object ExamParser:
 
-  def parseFromJson(body: JsValue): Exam =
+  def parseFromJson(body: JsValue): Either[FieldError, Exam] =
     val exam = new Exam()
 
     // Parse basic fields using Play JSON
@@ -159,74 +159,68 @@ private object ExamParser:
         exam.executionType = executionType
       }
 
-    // Handle feedback config
-    (body \ "feedbackConfig").asOpt[JsValue] match
-      case Some(JsNull) =>
-        exam.examFeedbackConfig = null
-      case Some(obj: JsObject) =>
-        val config = new models.assessment.ExamFeedbackConfig()
-        config.releaseType =
-          PlayJsonHelper
-            .parseEnum(
-              "releaseType",
-              obj,
-              classOf[models.assessment.ExamFeedbackConfig.ReleaseType]
-            )
-            .getOrElse(throw SanitizingException("bad releaseType"))
+    // JSON null clears a config, an object replaces it and anything else leaves it unset
+    for
+      _ <- (body \ "feedbackConfig").asOpt[JsValue] match
+        case Some(JsNull)        => Right(exam.examFeedbackConfig = null)
+        case Some(obj: JsObject) => parseFeedbackConfig(obj).map(exam.examFeedbackConfig = _)
+        case _                   => Right(())
+      _ <- (body \ "evaluationConfig").asOpt[JsValue] match
+        case Some(JsNull) => Right(exam.autoEvaluationConfig = null)
+        case Some(obj: JsObject) =>
+          parseAutoEvaluationConfig(obj).map(exam.autoEvaluationConfig = _)
+        case _ => Right(())
+    yield exam
 
+  private def parseFeedbackConfig(
+      obj: JsObject
+  ): Either[FieldError, models.assessment.ExamFeedbackConfig] =
+    PlayJsonHelper
+      .parseEnum("releaseType", obj, classOf[models.assessment.ExamFeedbackConfig.ReleaseType])
+      .toRight(FieldError("feedbackConfig.releaseType", "missing or invalid"))
+      .map { releaseType =>
+        val config = new models.assessment.ExamFeedbackConfig()
+        config.releaseType = releaseType
         PlayJsonHelper
           .parse[Long]("releaseDate", obj)
           .foreach(rd => config.releaseDate = Instant.ofEpochMilli(rd))
-        exam.examFeedbackConfig = config
-      case _ => // None or other JsValue types
-    // Handle auto-evaluation config
-    (body \ "evaluationConfig").asOpt[JsValue] match
-      case Some(JsNull) =>
-        exam.autoEvaluationConfig = null
-      case Some(obj: JsObject) =>
-        val config = new models.assessment.AutoEvaluationConfig()
-        config.releaseType =
-          PlayJsonHelper
-            .parseEnum(
-              "releaseType",
-              obj,
-              classOf[models.assessment.AutoEvaluationConfig.ReleaseType]
-            )
-            .getOrElse(throw SanitizingException("bad releaseType"))
+        config
+      }
 
-        config.amountDays =
-          PlayJsonHelper.parse[Int]("amountDays", obj).map(Integer.valueOf).orNull
+  private def parseAutoEvaluationConfig(
+      obj: JsObject
+  ): Either[FieldError, models.assessment.AutoEvaluationConfig] =
+    val evaluations = (obj \ "gradeEvaluations").asOpt[List[JsValue]].getOrElse(Nil)
+    for
+      releaseType <- PlayJsonHelper
+        .parseEnum("releaseType", obj, classOf[models.assessment.AutoEvaluationConfig.ReleaseType])
+        .toRight(FieldError("evaluationConfig.releaseType", "missing or invalid"))
+      gradeEvaluations <- evaluations.traverse(parseGradeEvaluation)
+    yield
+      val config = new models.assessment.AutoEvaluationConfig()
+      config.releaseType = releaseType
+      config.amountDays = PlayJsonHelper.parse[Int]("amountDays", obj).map(Integer.valueOf).orNull
+      PlayJsonHelper
+        .parse[Long]("releaseDate", obj)
+        .foreach(rd => config.releaseDate = new Date(rd))
+      config.gradeEvaluations = new util.HashSet(gradeEvaluations.asJava)
+      config
 
-        PlayJsonHelper
-          .parse[Long]("releaseDate", obj)
-          .foreach(rd => config.releaseDate = new Date(rd))
-        config.gradeEvaluations = new util.HashSet()
-
-        (obj \ "gradeEvaluations").asOpt[List[JsValue]].foreach { gradeEvaluations =>
-          gradeEvaluations.foreach { evaluation =>
-            val ge = new models.assessment.GradeEvaluation()
-
-            val gradeObj = (evaluation \ "grade")
-              .asOpt[JsObject]
-              .filter(g => (g \ "id").isDefined)
-              .getOrElse(throw SanitizingException("invalid grade"))
-
-            val grade = new models.exam.Grade()
-            grade.id =
-              PlayJsonHelper
-                .parse[Int]("id", gradeObj)
-                .getOrElse(throw SanitizingException("invalid grade"))
-
-            ge.grade = grade
-            ge.percentage =
-              PlayJsonHelper
-                .parse[Int]("percentage", evaluation)
-                .getOrElse(throw SanitizingException("no percentage"))
-
-            config.gradeEvaluations.add(ge)
-          }
-        }
-
-        exam.autoEvaluationConfig = config
-      case _ => // None or other JsValue types
-    exam
+  private def parseGradeEvaluation(
+      evaluation: JsValue
+  ): Either[FieldError, models.assessment.GradeEvaluation] =
+    for
+      gradeId <- (evaluation \ "grade")
+        .asOpt[JsObject]
+        .flatMap(PlayJsonHelper.parse[Int]("id", _))
+        .toRight(FieldError("gradeEvaluations.grade", "missing or invalid"))
+      percentage <- PlayJsonHelper
+        .parse[Int]("percentage", evaluation)
+        .toRight(FieldError("gradeEvaluations.percentage", "missing or invalid"))
+    yield
+      val grade = new models.exam.Grade()
+      grade.id = gradeId
+      val ge = new models.assessment.GradeEvaluation()
+      ge.grade = grade
+      ge.percentage = percentage
+      ge

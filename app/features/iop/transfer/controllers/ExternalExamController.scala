@@ -31,6 +31,8 @@ class ExternalExamController @Inject() (
         Results.InternalServerError("Failed to create assessment")
       case Left(ExternalExamError.CouldNotDownloadCollaborativeExam) =>
         Results.InternalServerError("Could not download collaborative exam")
+      case Left(ExternalExamError.FailedToCopyExam) =>
+        Results.InternalServerError("Failed to copy exam")
       case Left(ExternalExamError.FailedToProvideEnrolment) =>
         Results.InternalServerError("Failed to provide enrolment")
       case Left(ExternalExamError.ExamNotTransferable) =>

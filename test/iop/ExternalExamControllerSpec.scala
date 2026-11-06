@@ -19,7 +19,7 @@ import models.enrolment.*
 import models.exam.{Exam, ExamState}
 import models.facility.ExamRoom
 import models.iop.CollaborativeExam
-import models.questions.QuestionType
+import models.questions.{Question, QuestionType}
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Language, User}
 import org.apache.commons.io.{FileUtils, IOUtils}
@@ -291,9 +291,7 @@ class ExternalExamControllerSpec
       .fetch("question.parent")
       .where()
       .eq("examSection.exam", attainment)
-      .findList()
-      .asScala
-      .toSeq
+      .list
       .map(esq => Option(esq.question.parent).map(_.id.longValue))
 
   private def postAttainment(node: JsonNode) =
@@ -447,6 +445,24 @@ class ExternalExamControllerSpec
         // Fails on a foreign key after the exam copy has been saved
         node.at("/content/examInspections/0/user").asInstanceOf[ObjectNode].put("id", 999999L)
         a[DataIntegrityException] must be thrownBy postAttainment(node)
+
+        DB.find(classOf[Exam]).where().eq("parent", exam).list must be(empty)
+        DB.find(classOf[ExamParticipation]).where().eq("reservation", enrolment.reservation)
+          .list must be(empty)
+        DB.find(classOf[ExamEnrolment], enrolment.id).exam.id.must(be(exam.id))
+
+      "answer 500 and leave nothing behind if an answer option has no question option" in:
+        val (exam, enrolment, _) = setupTestData()
+        setReservation(enrolment)
+        val node =
+          new ObjectMapper().readTree(new File("test/resources/externalExamAttainment.json"))
+        node.at("/content/examSections/0/sectionQuestions/0/options/0").asInstanceOf[ObjectNode]
+          .putNull("option")
+        val questionCount = DB.find(classOf[Question]).findCount()
+        statusOf(postAttainment(node)).must(be(Status.INTERNAL_SERVER_ERROR))
+
+        // Question copies are saved before the bad option is reached
+        DB.find(classOf[Question]).findCount().must(be(questionCount))
 
         DB.find(classOf[Exam]).where().eq("parent", exam).list must be(empty)
         DB.find(classOf[ExamParticipation]).where().eq("reservation", enrolment.reservation)

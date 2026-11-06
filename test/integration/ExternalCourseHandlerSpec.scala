@@ -294,6 +294,15 @@ class ExternalCourseHandlerSpec
             course7.organisation.name must be("Oamk")
           case None => fail("Course 7 not found")
 
+    "searching by name" should:
+      "reject a search term shorter than two characters" in:
+        val (_, session) = runIO(loginAsTeacher())
+        setUserOrg(None)
+
+        val result = runIO(get("/app/courses?filter=name&q=a", session = session))
+        statusOf(result).must(be(Status.BAD_REQUEST))
+        contentAsStringOf(result) must include("too short")
+
     "handling authorization" should:
       "deny access to students" in:
         val (user, session) = runIO(loginAsStudent())

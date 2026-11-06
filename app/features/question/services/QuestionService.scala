@@ -499,8 +499,10 @@ class QuestionService @Inject() (
         val questionIds = (body \ "questionIds").asOpt[String]
         questionIds match
           case None | Some("") => Left(InvalidRequest)
+          case Some(idsStr) if idsStr.split(",").exists(_.toLongOption.isEmpty) =>
+            Left(InvalidRequest)
           case Some(idsStr) =>
-            val ids      = idsStr.split(",").map(_.toLong).toSeq
+            val ids      = idsStr.split(",").flatMap(_.toLongOption).toSeq
             val baseExpr = DB.find(classOf[Question]).where().idIn(ids.asJava)
             val expr =
               if modifier.hasRole(Role.Name.TEACHER) then

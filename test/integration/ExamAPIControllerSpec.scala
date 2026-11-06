@@ -6,6 +6,7 @@
 package integration
 
 import base.BaseIntegrationSpec
+import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.exam.{Exam, ExamExecutionType, ExamState}
 import play.api.http.Status
@@ -13,9 +14,8 @@ import play.api.libs.json.JsArray
 
 import java.time.{Duration, Instant, LocalDate}
 import scala.compiletime.uninitialized
-import scala.jdk.CollectionConverters.*
 
-class ExamAPIControllerSpec extends BaseIntegrationSpec:
+class ExamAPIControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   private var exams: List[Exam]              = uninitialized
   private var publicType: ExamExecutionType  = uninitialized
@@ -23,13 +23,13 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
 
   private def setupExamData(): Unit =
     ensureTestDataLoaded() // Ensure test data is available before accessing database
-    val types = DB.find(classOf[ExamExecutionType]).findList().asScala.toList
+    val types = DB.find(classOf[ExamExecutionType]).list
     publicType = findType(types, ExamExecutionType.Type.PUBLIC).orNull
     privateType = findType(types, ExamExecutionType.Type.PRIVATE).orNull
 
     val startDate = Instant.now().plus(Duration.ofDays(1))
     val endDate   = Instant.now().plus(Duration.ofDays(10))
-    exams = DB.find(classOf[Exam]).findList().asScala.toList
+    exams = DB.find(classOf[Exam]).list
 
     // Set all exams to start in future
     exams.foreach { exam =>

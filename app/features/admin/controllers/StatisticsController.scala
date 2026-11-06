@@ -20,6 +20,7 @@ import validation.core.{ScalaAttrs, Validators}
 import java.io.{PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 class StatisticsController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -96,16 +97,19 @@ class StatisticsController @Inject() (
       .andThen(audited)
       .async { request =>
         val childIds = request.attrs(ScalaAttrs.ID_LIST)
-        val pos      = new PipedOutputStream()
-        val pis      = new PipedInputStream(pos)
-        Future {
-          try statisticsService.streamExamQuestionScoresAsExcel(examId, childIds)(pos)
-          catch case e: Exception => logger.error("Failed to stream question scores Excel", e)
-          finally pos.close()
-        }(using ec)
-        Future.successful(
-          Ok.chunked(StreamConverters.fromInputStream(() => pis))
-            .as(XLSX_MIME)
-            .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
-        )
+        statisticsService.findExamForQuestionScores(examId) match
+          case None => Future.successful(NotFound)
+          case Some(parentExam) =>
+            val pos = new PipedOutputStream()
+            val pis = new PipedInputStream(pos)
+            Future {
+              try statisticsService.streamExamQuestionScoresAsExcel(parentExam, childIds)(pos)
+              catch case NonFatal(e) => logger.error("Failed to stream question scores Excel", e)
+              finally pos.close()
+            }(using ec)
+            Future.successful(
+              Ok.chunked(StreamConverters.fromInputStream(() => pis))
+                .as(XLSX_MIME)
+                .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
+            )
       }

@@ -25,6 +25,7 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.util.Using
+import scala.util.control.NonFatal
 
 class ExternalExamService @Inject() (
     externalExamHandler: ExternalExamHandler,
@@ -77,27 +78,41 @@ class ExternalExamService @Inject() (
               Future.successful(Left(ExternalExamError.ParentExamNotFound))
             else
               // The sender retries until it gets a 201, so a failed copy must leave nothing behind
-              val participation = Using.resource(DB.beginTransaction()) { tx =>
-                val ep = externalExamHandler.createCopyForAssessment(enrolment, ee)
-                enrolment.exam = ep.exam
-                enrolment.update()
-                tx.commit()
-                ep
+              val copied = Using.resource(DB.beginTransaction()) { tx =>
+                externalExamHandler.createCopyForAssessment(enrolment, ee).map { ep =>
+                  enrolment.exam = ep.exam
+                  enrolment.update()
+                  tx.commit()
+                  ep
+                }
               }
-              val clone = participation.exam
+              copied match
+                case Left(msg) =>
+                  logger.error(
+                    s"Could not copy exam for assessment of enrolment ${enrolment.id}: $msg"
+                  )
+                  Future.successful(Left(ExternalExamError.FailedToCopyExam))
+                case Right(participation) =>
+                  val clone = participation.exam
+                  externalExamHandler.notifyAndAutoEvaluate(clone)
 
-              Option(enrolment.collaborativeExam) match
-                case Some(_) =>
-                  collaborativeExamLoader
-                    .createAssessment(participation)
-                    .map(success =>
-                      if success then Right(())
-                      else Left(ExternalExamError.FailedToCreateAssessment)
-                    )
-                case None =>
-                  // Fetch external attachments for the local exam
-                  externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone)
-                  Future.successful(Right(()))
+                  Option(enrolment.collaborativeExam) match
+                    case Some(_) =>
+                      collaborativeExamLoader
+                        .createAssessment(participation)
+                        .map(success =>
+                          if success then Right(())
+                          else Left(ExternalExamError.FailedToCreateAssessment)
+                        )
+                    case None =>
+                      // Fetch external attachments for the local exam, not waiting for them
+                      externalAttachmentLoader
+                        .fetchExternalAttachmentsAsLocal(clone)
+                        .failed
+                        .foreach(e =>
+                          logger.error(s"Could not fetch attachments of exam ${clone.id}", e)
+                        )
+                      Future.successful(Right(()))
 
   def provideEnrolment(ref: String): Future[Either[ExternalExamError, (JsValue, PathProperties)]] =
     getPrototype(ref) match
@@ -134,7 +149,7 @@ class ExternalExamService @Inject() (
               .foreach(esq => esq.options = esq.distinctOptions)
 
             val examAttachmentFuture = Option(exam.attachment)
-              .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
+              .map(externalAttachmentLoader.createExternalAttachment)
               .toSeq
 
             val questionAttachmentFutures = exam.examSections.asScala
@@ -142,7 +157,7 @@ class ExternalExamService @Inject() (
               .map(_.question)
               .flatMap(q => Option(q.attachment))
               .toSet
-              .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
+              .map(externalAttachmentLoader.createExternalAttachment)
               .toSeq
 
             val allFutures = examAttachmentFuture ++ questionAttachmentFutures
@@ -150,8 +165,13 @@ class ExternalExamService @Inject() (
 
             Future
               .sequence(allFutures)
-              .map(_ => Right((exam.asJson(pp), pp)))
-              .recover { case t: Throwable =>
+              .map(_.collectFirst { case Left(reason) => reason } match
+                case Some(reason) =>
+                  logger.error(s"Could not provide enrolment [id=${enrolment.id}]: $reason")
+                  Left(ExternalExamError.FailedToProvideEnrolment)
+                case None => Right((exam.asJson(pp), pp))
+              )
+              .recover { case NonFatal(t) =>
                 logger.error(s"Could not provide enrolment [id=${enrolment.id}]", t)
                 Left(ExternalExamError.FailedToProvideEnrolment)
               }

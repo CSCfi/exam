@@ -4,6 +4,7 @@
 
 package features.iop.collaboration.services
 
+import cats.data.EitherT
 import database.EbeanPaths.path
 import database.{EbeanQueryExtensions, EbeanTransactions}
 import io.ebean.DB
@@ -91,12 +92,12 @@ class CollaborativeEnrolmentService @Inject() (
     */
   def checkIfEnrolled(examId: Long, userId: Long): Future[Either[String, Seq[ExamEnrolment]]] =
     (for
-      ceOpt <- collaborativeExamService.findById(examId)
-      ce <- ceOpt match
-        case None     => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(ce) => Future.successful(ce)
-      examOpt <- examLoader.downloadExam(ce)
-    yield
+      ce <- EitherT.fromOptionF(
+        collaborativeExamService.findById(examId),
+        "i18n_error_exam_not_found"
+      )
+      examOpt <- EitherT.liftF(examLoader.downloadExam(ce))
+    yield examOpt).subflatMap { examOpt =>
       val user = DB.find(classOf[User], userId)
       checkExamEnrollability(examOpt, user, configReader.getHomeOrganisationRef) match
         case Left(error) => Left(error)
@@ -116,7 +117,7 @@ class CollaborativeEnrolmentService @Inject() (
             .endOr()
             .list
           Right(enrolments)
-    ).recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }
+    }.value
 
   /** Create an enrolment for a collaborative exam
     *
@@ -132,21 +133,19 @@ class CollaborativeEnrolmentService @Inject() (
     val homeOrg = configReader.getHomeOrganisationRef
 
     (for
-      ceOpt <- collaborativeExamService.findById(examId)
-      ce <- ceOpt match
-        case None     => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
-        case Some(ce) => Future.successful(ce)
-      examOpt <- examLoader.downloadExam(ce)
-    yield checkExamEnrollability(examOpt, user, homeOrg) match
-      case Left(error) => Left(error)
-      case Right(exam) =>
-        if !enrolmentHandler.isAllowedToParticipate(exam, user) then
-          Left("i18n_no_trials_left")
-        else
-          doCreateEnrolment(ce, user) match
-            case Left(error)      => Left(error)
-            case Right(enrolment) => Right(enrolment)
-    ).recoverWith { case e: IllegalArgumentException => Future.successful(Left(e.getMessage)) }
+      ce <- EitherT.fromOptionF(
+        collaborativeExamService.findById(examId),
+        "i18n_error_exam_not_found"
+      )
+      examOpt <- EitherT.liftF(examLoader.downloadExam(ce))
+      exam    <- EitherT.fromEither[Future](checkExamEnrollability(examOpt, user, homeOrg))
+      _ <- EitherT.cond[Future](
+        enrolmentHandler.isAllowedToParticipate(exam, user),
+        (),
+        "i18n_no_trials_left"
+      )
+      enrolment <- EitherT.fromEither[Future](doCreateEnrolment(ce, user))
+    yield enrolment).value
 
   private def makeEnrolment(exam: CollaborativeExam, user: User): ExamEnrolment =
     val enrolment = new ExamEnrolment()

@@ -37,8 +37,9 @@ class ExternalAttachmentLoaderService @Inject() (
     extends WSBodyWritables
     with Logging:
 
+  /** Attachments that cannot be fetched are logged and left out. */
   def fetchExternalAttachmentsAsLocal(exam: Exam): Future[Unit] =
-    val futures = scala.collection.mutable.ListBuffer[Future[Unit]]()
+    val futures = scala.collection.mutable.ListBuffer[Future[Either[String, Unit]]]()
 
     // Add exam attachment if present
     Option(exam.attachment).foreach { attachment =>
@@ -80,15 +81,20 @@ class ExternalAttachmentLoaderService @Inject() (
     }
 
     // Wait for all futures to complete
-    Future.sequence(futures.toSeq).map(_ => ())
+    Future.sequence(futures.toSeq).map { results =>
+      results.collect { case Left(reason) => reason }.foreach { reason =>
+        logger.error(s"Could not fetch external attachment of exam ${exam.id}: $reason")
+      }
+    }
 
-  def createExternalAttachment(attachment: Attachment): Future[Unit] =
+  /** Left if the request cannot be built. A missing local file is logged and skipped. */
+  def createExternalAttachment(attachment: Attachment): Future[Either[String, Unit]] =
     Option(attachment).flatMap(a => Option(a.filePath).filter(_.nonEmpty)) match
-      case None => Future.successful(())
+      case None => Future.successful(Right(()))
       case Some(_) =>
         parseUrl("/api/attachments/") match
           case None =>
-            Future.failed(new RuntimeException("Invalid URL"))
+            Future.successful(Left(s"invalid URL for creating attachment ${attachment.id}"))
           case Some(attachmentUrl) =>
             val request = wsClient.url(attachmentUrl.toString)
             request.post("").flatMap { response =>
@@ -101,12 +107,12 @@ class ExternalAttachmentLoaderService @Inject() (
                 logger.warn(
                   s"Could not find file ${file.getAbsoluteFile} for attachment id ${attachment.id}."
                 )
-                Future.successful(())
+                Future.successful(Right(()))
               else
                 parseUrl("/api/attachments/%s", externalId) match
                   case None =>
                     logger.error("Invalid URL!")
-                    Future.successful(())
+                    Future.successful(Right(()))
                   case Some(updateUrl) =>
                     val updateRequest = wsClient.url(updateUrl.toString)
                     val source        = FileIO.fromPath(file.toPath)
@@ -123,11 +129,13 @@ class ExternalAttachmentLoaderService @Inject() (
                       if wsResponse.status != play.api.http.Status.OK then
                         logger.warn(s"File upload ${file.getAbsoluteFile} failed!")
                       else logger.info(s"Uploaded file ${file.getAbsoluteFile} for external exam.")
+                      Right(())
                     }
             }
 
-  def uploadAssessmentAttachments(exam: Exam): Future[Unit] =
-    val futures = scala.collection.mutable.ListBuffer[Future[Unit]]()
+  /** Left if an attachment upload request cannot be built. */
+  def uploadAssessmentAttachments(exam: Exam): Future[Either[String, Unit]] =
+    val futures = scala.collection.mutable.ListBuffer[Future[Either[String, Unit]]]()
 
     // Create external attachments
     Option(exam.attachment).foreach { attachment =>
@@ -153,20 +161,18 @@ class ExternalAttachmentLoaderService @Inject() (
     futures ++= attachmentFutures
 
     // Wait for all futures to complete
-    Future.sequence(futures.toSeq).map(_ => ())
+    Future.sequence(futures.toSeq).map(_.collectFirst { case Left(reason) => reason }.toLeft(()))
 
   private def createFromExternalAttachment(
       attachment: Attachment,
       pathParams: String*
-  ): Future[Unit] =
+  ): Future[Either[String, Unit]] =
     Option(attachment.externalId).filter(_.nonEmpty) match
-      case None =>
-        logger.error("Could not find external ID for an attachment")
-        Future.failed(new RuntimeException("Could not find external ID for an attachment"))
+      case None => Future.successful(Left(s"attachment ${attachment.id} has no external ID"))
       case Some(externalId) =>
         parseUrl("/api/attachments/%s/download", externalId) match
           case None =>
-            Future.failed(new RuntimeException("Invalid URL!"))
+            Future.successful(Left(s"invalid URL for downloading attachment $externalId"))
           case Some(attachmentUrl) =>
             val request = wsClient.url(attachmentUrl.toString)
             request.stream().flatMap { response =>
@@ -179,6 +185,7 @@ class ExternalAttachmentLoaderService @Inject() (
                 logger.info(
                   s"Saved attachment ${attachment.externalId} locally as # ${attachment.id}"
                 )
+                Right(())
               }
             }
 

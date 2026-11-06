@@ -218,8 +218,11 @@ class CalendarHandlerImpl @Inject() (
       allSlots(openingHours, room, date)
         .filter { slot =>
           val beginning = slot.start.atZone(zoneId)
-          val openUntil = getEndOfOpeningHours(beginning, openingHours, zoneId)
-          !beginning.plusMinutes(examDuration.toLong).isAfter(openUntil)
+          getEndOfOpeningHours(beginning, openingHours, zoneId) match
+            case Some(openUntil) => !beginning.plusMinutes(examDuration.toLong).isAfter(openUntil)
+            case None =>
+              logger.warn(s"Slot ${slot.start} of room ${room.id} is outside its opening hours")
+              false
         }
         .map { slot =>
           slot.start to slot.start.atZone(zoneId).plusMinutes(examDuration.toLong).toInstant
@@ -606,10 +609,7 @@ class CalendarHandlerImpl @Inject() (
       instant: ZonedDateTime,
       openingHours: List[DateTimeHandler.OpeningHours],
       zoneId: ZoneId
-  ): ZonedDateTime =
+  ): Option[ZonedDateTime] =
     openingHours
       .find(oh => oh.hours.contains(instant.toInstant))
       .map(oh => oh.hours.end.atZone(zoneId))
-      .getOrElse(throw RuntimeException(
-        "slot not contained within opening hours, recheck logic!"
-      ))

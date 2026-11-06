@@ -19,6 +19,7 @@ import models.questions.EssayAnswer
 import models.sections.{ExamSection, ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Language, Role, User}
 import services.datetime.FixedAppClock
+import services.iop.DeliveryResult
 
 import java.nio.file.{Files, Path}
 import java.time.{Instant, Period}
@@ -45,11 +46,12 @@ abstract class RetentionSpecBase extends BaseIntegrationSpec with EbeanQueryExte
 
   /** Records XM calls and fails them on request. */
   protected class FakeIop(fail: Boolean = false) extends IopRetentionClient:
-    val calls                                          = new AtomicInteger(0)
-    def deleteAttachment(externalId: String): IO[Unit] = IO.unit
-    def deleteReservation(reservation: Reservation): IO[Unit] =
-      IO(calls.incrementAndGet()) *>
-        (if fail then IO.raiseError(new RuntimeException("XM unavailable")) else IO.unit)
+    val calls                                                    = new AtomicInteger(0)
+    def deleteAttachment(externalId: String): IO[DeliveryResult] = IO.pure(DeliveryResult.Delivered)
+    def deleteReservation(reservation: Reservation): IO[DeliveryResult] =
+      IO(calls.incrementAndGet()).as(
+        if fail then DeliveryResult.Rejected(503, "XM unavailable") else DeliveryResult.Delivered
+      )
 
   protected def service(
       now: Instant,
@@ -159,7 +161,9 @@ abstract class RetentionSpecBase extends BaseIntegrationSpec with EbeanQueryExte
   ): Attempt =
     val sharedFile = prepareSharedExam()
     val fresh      = DB.find(classOf[Exam], prototype().id)
-    val copy       = fresh.createCopy(ExamCopyContext.forStudentExam(student).build())
+    val copy = fresh
+      .createCopy(ExamCopyContext.forStudentExam(student).build())
+      .fold(msg => fail(s"Copy failed: $msg"), identity)
     copy.state = state
     copy.creator = student
     copy.parent = fresh

@@ -32,14 +32,14 @@ object ClozeTestAnswerValidator extends PlayJsonValidator:
       ))
 
   private object ClozeTestAnswerParser:
-    def parseFromJson(body: JsValue): ClozeTestAnswerDTO =
+    def parseFromJson(body: JsValue): Either[FieldError, ClozeTestAnswerDTO] =
       // Answer can be either a string or a JSON object - stringify it
       val answer = (body \ "answer").asOpt[JsValue] match
         case Some(JsString(str)) => str                     // Already a string
         case Some(jsValue)       => Json.stringify(jsValue) // Object/Array - stringify
         case None                => ""
       val objectVersion = PlayJsonHelper.parse[Long]("objectVersion", body)
-      ClozeTestAnswerDTO(answer, objectVersion)
+      Right(ClozeTestAnswerDTO(answer, objectVersion))
 
   override def sanitize(
       request: Request[AnyContent],

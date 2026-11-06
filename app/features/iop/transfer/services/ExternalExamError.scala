@@ -18,6 +18,8 @@ object ExternalExamError:
     val message = "Failed to create assessment"
   case object CouldNotDownloadCollaborativeExam extends ExternalExamError:
     val message = "Could not download collaborative exam"
+  case object FailedToCopyExam extends ExternalExamError:
+    val message = "Failed to copy exam"
   case object FailedToProvideEnrolment extends ExternalExamError:
     val message = "Failed to provide enrolment"
   case object ExamNotTransferable extends ExternalExamError:

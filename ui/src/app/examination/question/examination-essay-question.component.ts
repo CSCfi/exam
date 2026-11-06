@@ -58,8 +58,7 @@ export class ExaminationEssayQuestionComponent {
             const sq = this.sq();
             if (this.isPreview() || !sq.essayAnswer?.answer) return;
             this.Examination.saveTextualAnswer$(sq, this.exam()?.hash ?? '', {
-                autosave: true,
-                canFail: true,
+                mode: 'auto',
                 external: this.exam()?.external ?? false,
             }).subscribe({ next: () => this.autosaved.set(new Date()) });
         }, 60 * 1000);
@@ -74,8 +73,7 @@ export class ExaminationEssayQuestionComponent {
 
     saveAnswer() {
         this.Examination.saveTextualAnswer$(this.sq(), this.exam()?.hash || '', {
-            autosave: false,
-            canFail: false,
+            mode: 'manual',
             external: this.exam()?.external ?? false,
         }).subscribe();
     }
