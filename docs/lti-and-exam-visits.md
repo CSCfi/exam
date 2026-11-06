@@ -19,7 +19,8 @@ LTI is a mutual registration between one EXAM installation and one tool, and an 
 be registered with several tools. Both sides are set up by hand. On the EXAM side the platform's
 own settings are under `lti.platform`, shared by every tool, and each tool is an entry of
 `lti.tools`, keyed by an id that questions store. The LTI section of `conf/application.conf`
-describes every value and has an example for Moodle and for A+. For local development, see the
+describes every value and has an example for Moodle and for A+; no tool is configured by
+default. For local development, see the
 commented-out block in `conf/dev.conf`.
 
 Each tool needs this installation's issuer (`lti.platform.issuer`), the client id it issued, and
@@ -184,7 +185,7 @@ the exam. EXAM therefore refuses the visit up front, in two places:
 
 `test/lti/LtiFlowSpec.scala` runs the whole launch with the spec standing in for the tool, and
 verifies the token against the published JWKS, so no tool instance is needed. It registers the
-shipped `moodle` tool and an A+ tool, and covers a launch going to the question's own tool.
+test `moodle` tool of `conf/integrationtest.conf` and an A+ tool, and covers a launch going to the question's own tool.
 `test/lti/AplusContractSpec.scala` states what A+ needs from a launch, as read from A+'s source at
 a pinned commit; update it when a test A+ is available. `test/lti/LtiServiceSpec.scala` covers
 the tool configuration and the CSP. `test/iop/ExternalExamControllerSpec.scala` covers the refused

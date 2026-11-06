@@ -21,9 +21,9 @@ import scala.jdk.CollectionConverters.*
   * the key [[features.lti.services.LtiService.buildIdToken]] signs with and the key
   * [[features.lti.controllers.JwksController]] hands out.
   *
-  * All LTI settings other than the key paths and the extra A+ tool come from
-  * `conf/application.conf`, so a change there that breaks the flow (an unregistered redirect URI, a
-  * CSP that blocks the launch POST) fails here rather than at a real tool.
+  * The platform settings and the CSP come from `conf/application.conf`, so a change there that
+  * breaks the flow (a CSP that blocks the launch POST) fails here rather than at a real tool. The
+  * tools are the test ones of [[LtiIntegrationSpec]].
   */
 class LtiFlowSpec extends LtiIntegrationSpec:
 

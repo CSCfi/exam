@@ -32,9 +32,8 @@ import scala.jdk.CollectionConverters.*
   * `login_hint`, supply its own `state`/`nonce`, then verify the returned `id_token` against the
   * JWK set the platform publishes.
   *
-  * Two tools are registered: the `moodle` tool from `conf/application.conf` as shipped, so a change
-  * there that breaks the flow fails here rather than at a real Moodle, and an `aplus` tool shaped
-  * like an A+ registration (see [[AplusContractSpec]]).
+  * Two tools are registered: the `moodle` tool of `conf/integrationtest.conf`, shaped like a Moodle
+  * registration, and an `aplus` tool shaped like an A+ registration (see [[AplusContractSpec]]).
   */
 abstract class LtiIntegrationSpec extends BaseIntegrationSpec:
 

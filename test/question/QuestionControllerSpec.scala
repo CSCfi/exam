@@ -351,7 +351,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
       def create(body: JsObject, session: Session): Result =
         runIO(makeRequest(POST, "/app/questions", Some(body), session = session))
 
-      // The shipped configuration registers the `moodle` tool, requiring the parameter `id`.
+      // conf/integrationtest.conf registers the `moodle` tool, requiring the parameter `id`.
       "save the tool and only the parameters it declares" in:
         val (user, session) = runIO(loginAsTeacher())
         val result = create(
