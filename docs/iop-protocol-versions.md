@@ -79,7 +79,9 @@ the code so the payload matches the fixture again. Nothing else to do.
    shows exactly how the wire format changed. This is the protocol's change log.
 
 4. **Commit and rerun.** Commit `v2/` together with the code change and the version bump. A
-   normal run of the spec is green again.
+   normal run of the spec is green again. Pushing the new fixtures also starts the *IOP
+   compatibility* workflow (see "Older versions reading newer payloads" below); check that it
+   is green.
 
 5. **Copy the fixtures to XM.** Once the branch is pushed, in the XM repository:
 
@@ -129,6 +131,27 @@ Some changes can't be bridged by a translation step at all. They come in three d
    upgrade deadline past 6.x, or not using the new math in exams shared with organisations still
    on 6.x. Hiding it automatically where a participant is on protocol 0 (degree 2 above) would
    also be possible, but is not built.
+
+## Older versions reading newer payloads
+
+The fixture spec checks that this branch keeps its own wire format. It does not check that older
+EXAM versions can read it, and new code writing something old code cannot read is the most
+likely way cross-version IOP breaks: the 7.1 timestamp bug (7.0 read zero-millisecond times as
+null) was exactly that.
+
+The *IOP compatibility* workflow (`.github/workflows/iop-compat.yml`) covers this. Whenever the
+fixtures change on any branch, it checks out each older release branch and runs that branch's
+`ReadsNewerIopSpec` against the new fixtures, using the older version's own deserializers. Any
+value the older version cannot parse fails it, with the value in the message.
+
+- It is not a required check: a red run means an older EXAM would misread the new payloads, to be
+  fixed (or deliberately accepted) before the release.
+- Reader branches are listed in the workflow's matrix. Add a release branch when it is cut, and
+  drop one when its protocol has retired (see "The sliding window").
+- A reader branch needs `test/iop/ReadsNewerIopSpec.scala`; the workflow fails if the spec does
+  not run.
+- 6.x is not a reader: it has no such spec. It shares 7.0's strict date parsing, so the 7.0 check
+  covers the most likely 6.x breakage, but not everything 6.x-specific.
 
 ## Write modes of the fixture spec
 
@@ -214,5 +237,7 @@ Then:
   not every field. The outbound comparison is what catches field-level changes.
 - Copying fixtures to XM is a manual step (`pnpm run sync-fixtures`), done when the version is
   bumped.
+- Older versions reading newer payloads is checked for 7.0 (and later release branches), not
+  for 6.x.
 - Changes of meaning (same shape, different interpretation) are not caught; see "What counts as a
   wire format change" and "Changes that can't be translated".
