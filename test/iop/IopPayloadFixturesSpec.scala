@@ -20,22 +20,42 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import java.time.Instant
 import scala.jdk.CollectionConverters.*
+import scala.util.Using
 
 /** Locks the IOP wire format: what this installation sends to others through XM.
   *
   * Each payload built by [[IopPayloads]] from the shared test data is compared against a committed
   * fixture under `test/resources/iop-fixtures/v<IopProtocol.Version>`. A failure means the protocol
-  * changed. If that was intended, bump `IopProtocol.Version`, regenerate the fixtures with
-  * `IOP_FIXTURES_UPDATE=1 sbt "testOnly iop.IopPayloadFixturesSpec"` and add the matching
-  * translation step to XM. The fixtures are copied to XM's tests, so XM is checked against the same
-  * shapes.
+  * changed. If that was intended, bump `IopProtocol.Version`, generate the fixtures of the new
+  * version with `IOP_FIXTURES_UPDATE=1 sbt "testOnly iop.IopPayloadFixturesSpec"` and add the
+  * matching translation step to XM. The fixtures are copied to XM's tests, so XM is checked against
+  * the same shapes.
+  *
+  * The fixtures of earlier versions are never regenerated: they record what installations still
+  * running those versions send. `IOP_FIXTURES_UPDATE=1` therefore refuses to replace existing
+  * fixtures. `IOP_FIXTURES_UPDATE=overwrite` does replace them, which is only right for a version
+  * that has not been released yet.
   */
 class IopPayloadFixturesSpec extends BaseIntegrationSpec with Matchers:
 
   private val fixtureRoot: Path = Paths.get("test", "resources", "iop-fixtures")
   private val fixtureDir: Path  = fixtureRoot.resolve(s"v${IopProtocol.Version}")
 
-  private val updating = sys.env.get("IOP_FIXTURES_UPDATE").contains("1")
+  private val updateMode = sys.env.get("IOP_FIXTURES_UPDATE")
+  private val updating   = updateMode.exists(Set("1", "overwrite"))
+
+  private def hasFixtures(dir: Path): Boolean =
+    Files.isDirectory(dir) && Using.resource(Files.list(dir))(_.findAny().isPresent)
+
+  // Released fixtures are a record of what other installations send; replacing them by accident
+  // would erase the history the inbound checks and XM's tests rely on
+  private def guardReleasedFixtures(): Unit =
+    if updateMode.contains("1") && hasFixtures(fixtureDir) then
+      fail(
+        s"$fixtureDir already holds the fixtures of protocol ${IopProtocol.Version}. For a new " +
+          "wire format, bump IopProtocol.Version first. To replace the fixtures of a version " +
+          "that has not been released yet, use IOP_FIXTURES_UPDATE=overwrite."
+      )
 
   // Values that differ from run to run, replaced so the fixtures stay stable
   private val Volatile = Set("id", "hash", "created", "modified", "externalRef", "rev", "_rev")
@@ -57,7 +77,8 @@ class IopPayloadFixturesSpec extends BaseIntegrationSpec with Matchers:
       Files.writeString(file, Json.prettyPrint(actual) + "\n", StandardCharsets.UTF_8)
     else
       withClue(
-        s"$file is missing. Generate it with IOP_FIXTURES_UPDATE=1 (see the class comment)."
+        s"$file is missing. Generate the fixtures with IOP_FIXTURES_UPDATE=1 " +
+          "(see the class comment)."
       ) {
         Files.exists(file) mustBe true
       }
@@ -98,6 +119,7 @@ class IopPayloadFixturesSpec extends BaseIntegrationSpec with Matchers:
 
   "IOP payloads" should:
     "match the fixtures of the current protocol version" in:
+      guardReleasedFixtures()
       ensureTestDataLoaded()
       val exam = richExam
       check("enrolment", IopPayloads.enrolment(exam))
