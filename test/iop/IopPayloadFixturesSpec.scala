@@ -28,8 +28,8 @@ import scala.util.Using
   * fixture under `test/resources/iop-fixtures/v<IopProtocol.Version>`. A failure means the protocol
   * changed. If that was intended, bump `IopProtocol.Version`, generate the fixtures of the new
   * version with `IOP_FIXTURES_UPDATE=1 sbt "testOnly iop.IopPayloadFixturesSpec"` and add the
-  * matching translation step to XM. The fixtures are copied to XM's tests, so XM is checked against
-  * the same shapes.
+  * matching translation step to XM. Once pushed, copy the new fixtures to XM's tests with `pnpm run
+  * sync-fixtures <branch>` in the XM repository, so XM is checked against the same shapes.
   *
   * The fixtures of earlier versions are never regenerated: they record what installations still
   * running those versions send. `IOP_FIXTURES_UPDATE=1` therefore refuses to replace existing
@@ -85,7 +85,9 @@ class IopPayloadFixturesSpec extends BaseIntegrationSpec with Matchers:
       val expected = Json.parse(Files.readString(file, StandardCharsets.UTF_8))
       withClue(
         s"The IOP payload '$name' no longer matches $file. This changes the protocol " +
-          "between EXAM installations; see the class comment for what to do.\n"
+          "between EXAM installations. If intended: bump IopProtocol.Version, generate the new " +
+          "fixtures with IOP_FIXTURES_UPDATE=1, push, then run `pnpm run sync-fixtures <branch>` " +
+          "in XM and add the matching translation step there. See the class comment.\n"
       ) {
         actual mustBe expected
       }
@@ -141,7 +143,11 @@ class IopPayloadFixturesSpec extends BaseIntegrationSpec with Matchers:
           Seq(1L, 2L)
         )
       )
-      if updating then fail(s"Fixtures written to $fixtureDir; review and commit them, then rerun")
+      if updating then
+        fail(
+          s"Fixtures written to $fixtureDir; review and commit them, then rerun. Once pushed, " +
+            "copy them to XM with `pnpm run sync-fixtures <branch>` in the XM repository."
+        )
 
     "still be readable from every protocol version's fixtures" in:
       val versions = Files.list(fixtureRoot).iterator.asScala.filter(Files.isDirectory(_)).toSeq
