@@ -6,9 +6,7 @@ package features.facility.impl
 
 import com.google.inject.ImplementedBy
 import database.EbeanJsonExtensions
-import database.EbeanPaths.props
 import io.ebean.DB
-import io.ebean.text.PathProperties
 import models.facility.ExamRoom
 import play.api.http.Status.*
 import play.api.libs.json.{JsNull, Json}
@@ -17,6 +15,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.*
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
+import services.iop.IopPayloads
 
 import javax.inject.Inject
 import scala.concurrent.Future
@@ -41,12 +40,7 @@ class FacilityHandlerImpl @Inject() (
     val base   = s"${configReader.getIopHost}/api/organisations/$orgRef/facilities"
     facilityRef.fold(base)(ref => s"$base/$ref")
 
-  private def toJson(room: ExamRoom): String =
-    val pp = props[ExamRoom](
-      "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
-        "examStartingHours(*), accessibilities(*))"
-    )
-    DB.json().toJson(room, pp)
+  private def toJson(room: ExamRoom): String = IopPayloads.facility(room)
 
   override def updateFacility(room: ExamRoom): Future[Result] =
     val url = parseUrl(Option(room.externalRef))
