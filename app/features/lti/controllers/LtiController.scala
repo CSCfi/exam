@@ -17,10 +17,19 @@ import javax.inject.Inject
 
 class LtiController @Inject() (
     private val ltiService: LtiService,
-    authenticated: AuthenticatedAction,
+    ltiActive: LtiActive,
+    authenticatedAction: AuthenticatedAction,
     val controllerComponents: ControllerComponents,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController:
+
+  // Every LTI endpoint is checked for lti.active first, before authentication.
+  private val authenticated = Action.andThen(ltiActive).andThen(authenticatedAction)
+
+  /** Whether LTI is active, for the UI to offer LTI questions. Answers when it is not, too. */
+  def isActive: Action[AnyContent] = Action { _ =>
+    Ok(Json.obj("ltiActive" -> ltiService.active))
+  }
 
   private def toResult(error: LtiError): Result =
     error match

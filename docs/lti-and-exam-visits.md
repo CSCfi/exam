@@ -13,6 +13,20 @@ and it signs the token that tells the tool who the user is and where the launch 
 This document covers how a launch works, what EXAM asserts in it, and why an exam with LTI
 questions cannot be taken as a visit to another installation.
 
+## Turning LTI on
+
+LTI is an optional integration and off by default. Set `lti.active = true` to use it. While it is
+off:
+
+- the other `lti.*` settings are not read, and every LTI endpoint answers `404`
+- the CSP gets no LTI origins (see below)
+- teachers are not offered the LTI question type, and creating an LTI question fails with
+  `i18n_lti_not_active`
+- LTI questions created while it was on keep their tool and parameters, can still be edited and
+  reviewed, and show a notice instead of the tool in an exam
+
+The UI asks `GET /app/settings/lti` whether LTI is on.
+
 ## Registration
 
 LTI is a mutual registration between one EXAM installation and one tool, and an installation can
@@ -26,17 +40,19 @@ commented-out block in `conf/dev.conf`.
 Each tool needs this installation's issuer (`lti.platform.issuer`), the client id it issued, and
 the JWKS URL, `<lti.platform.issuer>/integration/lti/oidc/jwks`, to verify the tokens EXAM signs.
 
-A tool's origin is added to the `form-action` and `frame-src` directives of the CSP at startup
-(`system.modules.LtiCspModule`, which replaces Play's `CSPModule`), so adding a tool takes no CSP
-changes. A tool entry with a missing or malformed setting is logged at startup and left out.
+While LTI is on, `lti.platform.issuer` (where the launch iframe starts) is added to the
+`frame-src` directive of the CSP at startup, and every tool's origin to `form-action` and
+`frame-src` (`system.modules.LtiCspModule`, which replaces Play's `CSPModule`), so adding a tool
+takes no CSP changes. A tool entry with a missing or malformed setting is logged at startup and left out.
 
 ### Upgrading from a single tool
 
-Builds before multiple tools had one tool in `lti.tool.*`, with its client and deployment ids in
-`lti.platform.client-id` and `lti.platform.deployment-id`. Those settings are no longer read. Move
-them into a `lti.tools.moodle` entry (`lti.tool.origin` becomes `lti.tools.moodle.origin`, and so
-on, client and deployment id included). Evolution 158 assigns existing LTI questions to the tool
-`moodle` and moves their resource id into the parameter `id`, so the key has to be `moodle`.
+Builds before multiple tools had LTI always on, and one tool in `lti.tool.*`, with its client and
+deployment ids in `lti.platform.client-id` and `lti.platform.deployment-id`. Those settings are no
+longer read. Set `lti.active = true` and move them into a `lti.tools.moodle` entry
+(`lti.tool.origin` becomes `lti.tools.moodle.origin`, and so on, client and deployment id
+included). Evolution 158 assigns existing LTI questions to the tool `moodle` and moves their
+resource id into the parameter `id`, so the key has to be `moodle`.
 
 ### Moodle
 
@@ -187,7 +203,7 @@ the exam. EXAM therefore refuses the visit up front, in two places:
 verifies the token against the published JWKS, so no tool instance is needed. It registers the
 test `moodle` tool of `conf/integrationtest.conf` and an A+ tool, and covers a launch going to the question's own tool.
 `test/lti/AplusContractSpec.scala` states what A+ needs from a launch, as read from A+'s source at
-a pinned commit; update it when a test A+ is available. `test/lti/LtiServiceSpec.scala` covers
+a pinned commit; update it when a test A+ is available. `test/lti/LtiInactiveSpec.scala` covers LTI turned off. `test/lti/LtiServiceSpec.scala` covers
 the tool configuration and the CSP. `test/iop/ExternalExamControllerSpec.scala` covers the refused
 transfer. None of these replaces a launch against a real tool: what Moodle or A+ does with the
 context and roles is only verified there.

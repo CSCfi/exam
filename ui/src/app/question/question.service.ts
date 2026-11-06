@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import type { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -28,6 +28,11 @@ export class QuestionService {
     private readonly toast = inject(ToastService);
     private readonly Files = inject(FileService);
     private readonly Attachment = inject(AttachmentService);
+    private readonly ltiActive$ = this.http.get<{ ltiActive: boolean }>('/app/settings/lti').pipe(
+        map((data) => data.ltiActive),
+        catchError(() => of(false)),
+        shareReplay(1),
+    );
 
     getQuestionType = (type: string) => {
         let questionType;
@@ -57,6 +62,9 @@ export class QuestionService {
     };
 
     getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
+
+    /** Whether LTI, an optional integration, is in use on this installation. */
+    isLtiActive$ = (): Observable<boolean> => this.ltiActive$;
 
     /** The LTI tools this installation is registered with, and the parameters each one takes. */
     getLtiTools$ = (): Observable<LtiTool[]> => this.http.get<LtiTool[]>('/app/lti/tools');

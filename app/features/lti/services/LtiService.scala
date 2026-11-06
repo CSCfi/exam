@@ -54,8 +54,13 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
   def publicKeyPath: String  = config.getString("lti.platform.public-key")
   def privateKeyPath: String = config.getString("lti.platform.private-key")
 
-  /** Registered tools, keyed by the key questions refer to them with. */
-  val tools: Map[String, LtiTool] = LtiTools.fromConfig(config)
+  /** LTI is an optional integration, off unless `lti.active` is set. While it is off, its endpoints
+    * answer 404, no tool is read and LTI questions cannot be created.
+    */
+  val active: Boolean = LtiService.isActive(config)
+
+  /** Registered tools, keyed by the key questions refer to them with. None while not active. */
+  val tools: Map[String, LtiTool] = if active then LtiTools.fromConfig(config) else Map.empty
 
   def tool(key: String): Either[LtiError, LtiTool] =
     Option(key).flatMap(tools.get).toRight(LtiError.ToolNotConfigured)
@@ -336,6 +341,10 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
     input.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 
   private def urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8)
+
+object LtiService:
+  def isActive(config: Config): Boolean =
+    config.hasPath("lti.active") && config.getBoolean("lti.active")
 
 /** The LTI question being launched: the tool, the custom parameters naming the content in it, the
   * question's placement (the LTI resource link) and the exam it is launched from.

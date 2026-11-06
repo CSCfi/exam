@@ -52,13 +52,16 @@ describe('LtiComponent', () => {
             ltiCustom,
         }) as unknown as ReverseQuestion;
 
-    const init = async (tools: LtiTool[], question: ReverseQuestion) => {
+    const init = async (tools: LtiTool[], question: ReverseQuestion, ltiActive = true) => {
         await TestBed.configureTestingModule({
             imports: [LtiComponent, TranslateModule.forRoot()],
             providers: [
                 provideZonelessChangeDetection(),
                 { provide: FormGroupDirective, useValue: { form: new FormGroup({}) } },
-                { provide: QuestionService, useValue: { getLtiTools$: () => of(tools) } },
+                {
+                    provide: QuestionService,
+                    useValue: { isLtiActive$: () => of(ltiActive), getLtiTools$: () => of(tools) },
+                },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(LtiComponent);
@@ -143,5 +146,17 @@ describe('LtiComponent', () => {
         expect(fixture.nativeElement.querySelector('#ltiTool')).toBeTruthy();
         expect(fixture.nativeElement.textContent).toContain('i18n_lti_tool_not_configured');
         expect(component.ltiForm.valid).toBe(false);
+    });
+
+    // A question created while LTI was in use stays editable, keeping its tool as it is.
+    it('should leave the tool alone and say so when LTI is not in use', async () => {
+        await init([], makeQuestion('moodle', { id: 'r-1' }), false);
+
+        expect(component.inactive()).toBe(true);
+        expect(fixture.nativeElement.querySelector('#ltiTool')).toBeNull();
+        expect(parameterInputs()).toEqual([]);
+        expect(fixture.nativeElement.textContent).toContain('i18n_lti_not_active_kept');
+        expect(component.ltiForm.valid).toBe(true);
+        expect(component.ltiForm.value.ltiTool).toBeUndefined();
     });
 });

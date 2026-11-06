@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Component, computed, inject, input, OnDestroy, OnInit, output, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -81,20 +82,24 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
     readonly currentOwners = signal<User[]>([]);
     readonly currentTags = signal<Tag[]>([]);
 
-    readonly questionTypes = [
-        { type: 'EssayQuestion', name: 'i18n_toolbar_essay_question' },
-        { type: 'ClozeTestQuestion', name: 'i18n_toolbar_cloze_test_question' },
-        { type: 'MultipleChoiceQuestion', name: 'i18n_toolbar_multiplechoice_question' },
-        { type: 'WeightedMultipleChoiceQuestion', name: 'i18n_toolbar_weighted_multiplechoice_question' },
-        { type: 'ClaimChoiceQuestion', name: 'i18n_toolbar_claim_choice_question' },
-        { type: 'LtiQuestion', name: 'i18n_toolbar_lti' },
-    ];
+    // LTI questions are offered only where LTI, an optional integration, is in use.
+    readonly questionTypes = computed(() =>
+        [
+            { type: 'EssayQuestion', name: 'i18n_toolbar_essay_question' },
+            { type: 'ClozeTestQuestion', name: 'i18n_toolbar_cloze_test_question' },
+            { type: 'MultipleChoiceQuestion', name: 'i18n_toolbar_multiplechoice_question' },
+            { type: 'WeightedMultipleChoiceQuestion', name: 'i18n_toolbar_weighted_multiplechoice_question' },
+            { type: 'ClaimChoiceQuestion', name: 'i18n_toolbar_claim_choice_question' },
+            { type: 'LtiQuestion', name: 'i18n_toolbar_lti' },
+        ].filter((t) => t.type !== 'LtiQuestion' || this.ltiActive()),
+    );
 
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly toast = inject(ToastService);
     private readonly Question = inject(QuestionService);
     private readonly Session = inject(SessionService);
+    private readonly ltiActive = toSignal(this.Question.isLtiActive$(), { initialValue: false });
 
     ngOnInit() {
         this.loadQuestion();

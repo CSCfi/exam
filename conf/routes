@@ -10,6 +10,7 @@ GET           /integration/lti/oidc/login                                     fe
 GET           /integration/lti/oidc/jwks                                      features.lti.controllers.JwksController.jwks
 GET           /app/lti/login-url                                              features.lti.controllers.LtiController.getStartLoginUrl
 GET           /app/lti/tools                                                  features.lti.controllers.LtiController.getTools
+GET           /app/settings/lti                                               features.lti.controllers.LtiController.isActive
 
 
 ############### Session interface ############

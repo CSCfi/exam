@@ -17,7 +17,7 @@ import {
 } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { skip } from 'rxjs';
+import { filter, skip, switchMap, tap } from 'rxjs';
 import type { LtiTool, QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 
@@ -48,6 +48,8 @@ export class LtiComponent implements OnInit, AfterViewInit {
     readonly selectedTool = signal<LtiTool | undefined>(undefined);
     // The question's tool is not (or no longer) registered with this installation.
     readonly unknownTool = signal(false);
+    // LTI, an optional integration, is not in use on this installation.
+    readonly inactive = signal(false);
 
     private readonly parentForm = inject(FormGroupDirective);
     private readonly questionService = inject(QuestionService);
@@ -94,8 +96,20 @@ export class LtiComponent implements OnInit, AfterViewInit {
             this.ltiForm.get('defaultEvaluationType')?.disable({ emitEvent: false });
         }
         this.questionService
-            .getLtiTools$()
-            .pipe(takeUntilDestroyed(this.destroyRef))
+            .isLtiActive$()
+            .pipe(
+                tap((active) => {
+                    this.inactive.set(!active);
+                    if (!active) {
+                        // Nothing to check the tool against: the question keeps it as it is.
+                        this.ltiForm.get('ltiTool')?.disable({ emitEvent: false });
+                        this.customForm.disable({ emitEvent: false });
+                    }
+                }),
+                filter((active) => active),
+                switchMap(() => this.questionService.getLtiTools$()),
+                takeUntilDestroyed(this.destroyRef),
+            )
             .subscribe((tools) => {
                 this.tools.set(tools);
                 const saved = questionValue.ltiTool;
@@ -124,7 +138,7 @@ export class LtiComponent implements OnInit, AfterViewInit {
     }
 
     /** Shows the tool picker only when there is a choice to make, or the saved tool is gone. */
-    showToolSelect = () => this.tools().length !== 1 || this.unknownTool();
+    showToolSelect = () => !this.inactive() && (this.tools().length !== 1 || this.unknownTool());
 
     parameterLabel(name: string): string {
         const key = `i18n_lti_parameter_${name}`;

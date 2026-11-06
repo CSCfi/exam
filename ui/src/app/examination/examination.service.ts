@@ -46,13 +46,15 @@ export class ExaminationService {
     private readonly toast = inject(ToastService);
 
     // The LTI launch has to originate from the platform's own public origin, which is not
-    // necessarily where the UI is served from, so the backend hands us an absolute URL.
+    // necessarily where the UI is served from, so the backend hands us an absolute URL. None
+    // while LTI, an optional integration, is not in use (the endpoint answers 404 then).
     private readonly ltiLoginUrl$ = this.http.get<{ url: string }>('/app/lti/login-url').pipe(
-        map((data) => data.url),
+        map((data): string | null => data.url),
+        catchError(() => of(null)),
         shareReplay(1),
     );
 
-    getLtiLoginUrl$ = (): Observable<string> => this.ltiLoginUrl$;
+    getLtiLoginUrl$ = (): Observable<string | null> => this.ltiLoginUrl$;
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         console.log('startExam');

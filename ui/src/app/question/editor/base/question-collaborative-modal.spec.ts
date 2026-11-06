@@ -45,6 +45,7 @@ describe('QuestionComponent collaborative modal save', () => {
                     provide: QuestionService,
                     useValue: {
                         getQuestion: vi.fn(),
+                        isLtiActive$: () => of(false),
                         createQuestion$: createQuestion$,
                         updateQuestion$: updateQuestion$,
                     },

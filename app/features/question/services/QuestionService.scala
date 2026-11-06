@@ -80,18 +80,21 @@ class QuestionService @Inject() (
         case null => Some("unknown question type")
 
     // An LTI question has to name a configured tool and give every parameter the tool requires,
-    // or it cannot be launched.
+    // or it cannot be launched. While LTI is off no new one can be created, and an existing one
+    // keeps its tool as it is (see parseFromBody), since there are no tools to check it against.
     def ltiError: Option[String] =
       Option.when(question.`type` == QuestionType.LtiQuestion) {
-        ltiService
-          .tool(question.ltiTool)
-          .flatMap(_.customParameters(question.ltiCustomParameters))
-          .left
-          .toOption
-          .map {
-            case LtiError.ToolNotConfigured => "i18n_lti_tool_not_configured"
-            case _                          => "i18n_lti_parameters_missing"
-          }
+        if !ltiService.active then Option.when(question.id == 0)("i18n_lti_not_active")
+        else
+          ltiService
+            .tool(question.ltiTool)
+            .flatMap(_.customParameters(question.ltiCustomParameters))
+            .left
+            .toOption
+            .map {
+              case LtiError.ToolNotConfigured => "i18n_lti_tool_not_configured"
+              case _                          => "i18n_lti_parameters_missing"
+            }
       }.flatten
 
     val questionError =
@@ -305,12 +308,15 @@ class QuestionService @Inject() (
     question.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed
     question.defaultOptionShufflingOn = defaultOptionShufflingOn
     val isLti = questionType == QuestionType.LtiQuestion
-    question.ltiTool = ltiTool.filter(_ => isLti).orNull
-    question.ltiCustom = ltiCustom.filter(_ => isLti).map { params =>
-      val map = new java.util.HashMap[String, Object]()
-      params.foreach((k, v) => map.put(k, v))
-      map
-    }.orNull
+    // While LTI is off the tools are not known, so an LTI question keeps its tool and parameters
+    // as they are instead of losing them on save.
+    if ltiService.active || !isLti then
+      question.ltiTool = ltiTool.filter(_ => isLti).orNull
+      question.ltiCustom = ltiCustom.filter(_ => isLti).map { params =>
+        val map = new java.util.HashMap[String, Object]()
+        params.foreach((k, v) => map.put(k, v))
+        map
+      }.orNull
     if !Option(question.state).contains(QuestionState.DELETED.toString) then
       question.state = QuestionState.SAVED.toString
     if question.id == 0 then question.setCreatorWithDate(user)

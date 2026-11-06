@@ -11,12 +11,13 @@ import javax.inject.Inject
 
 class JwksController @Inject() (
     private val ltiService: LtiService,
+    ltiActive: LtiActive,
     val controllerComponents: ControllerComponents
 ) extends BaseController:
 
   /** Public JWK set the LTI tool fetches to verify id_tokens. Unauthenticated by design. */
   def jwks: Action[AnyContent] =
-    Action {
+    Action.andThen(ltiActive) {
       ltiService.jwkSet match
         case Left(error) => InternalServerError(error.message)
         case Right(json) => Ok(json).as("application/json")

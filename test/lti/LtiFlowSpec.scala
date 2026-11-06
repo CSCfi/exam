@@ -358,6 +358,14 @@ class LtiFlowSpec extends LtiIntegrationSpec:
         directives("frame-src") must contain(origin)
       }
       directives("form-action") must not contain "'none'"
+      // The launch iframe starts at the platform itself before it is redirected to the tool.
+      directives("frame-src") must contain(setting("lti.platform.issuer").stripSuffix("/"))
+
+  "The LTI setting" should:
+    "tell the UI that LTI is active" in:
+      val result = runIO(get("/app/settings/lti"))
+      statusOf(result) must be(Status.OK)
+      (contentAsJsonOf(result) \ "ltiActive").as[Boolean] must be(true)
 
   "The tools endpoint" should:
     "list the configured tools and the parameters a question gives them" in:

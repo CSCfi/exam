@@ -48,7 +48,8 @@ class LtiServiceSpec extends AnyWordSpec with Matchers:
   private def tool(entry: String): LtiTool = tools(entry).values.head
 
   private def service(issuer: String = "https://exam.example.org"): LtiService =
-    LtiService(ConfigFactory.parseString(s"""lti.platform.issuer = "$issuer"
+    LtiService(ConfigFactory.parseString(s"""lti.active = true
+                                            |lti.platform.issuer = "$issuer"
                                             |lti.tools { $moodle }
                                             |""".stripMargin))
 
@@ -193,31 +194,66 @@ class LtiServiceSpec extends AnyWordSpec with Matchers:
       val svc = service()
       svc.generateLoginHint must not be svc.generateLoginHint
 
-  "LtiCspConfigProvider.withToolOrigins" should:
+  "LtiService.active" should:
+    "be off unless lti.active is set" in:
+      LtiService(ConfigFactory.parseString(s"lti.tools { $moodle }")).active must be(false)
+
+    "read no tools while off" in:
+      val off = LtiService(ConfigFactory.parseString(s"lti.active = false\nlti.tools { $moodle }"))
+      off.tools must be(Map.empty)
+      off.tool("moodle") must be(Left(LtiError.ToolNotConfigured))
+
+  "LtiCspConfigProvider" when:
     def csp(directives: (String, String)*) =
       CSPConfig(directives = directives.map((n, v) => CSPDirective(n, v)))
     def directive(config: CSPConfig, name: String) =
       config.directives.find(_.name == name).map(_.value)
-    val origins = Seq("https://moodle.example.org", "https://plus.example.org")
+    val issuer     = "https://exam.example.org"
+    val origins    = Seq("https://moodle.example.org", "https://plus.example.org")
+    val configured = Seq("form-action" -> "'none'", "frame-src" -> "'self'")
 
-    "append every tool origin to form-action and frame-src" in:
-      val merged = LtiCspConfigProvider.withToolOrigins(
-        csp("form-action" -> "'none'", "frame-src" -> "'self' https://exam.example.org"),
-        origins
-      )
-      directive(merged, "form-action") must be(
-        Some("https://moodle.example.org https://plus.example.org")
-      )
-      directive(merged, "frame-src") must be(
-        Some("'self' https://exam.example.org https://moodle.example.org https://plus.example.org")
-      )
+    "LTI is active" should:
+      "let the launch iframe start at the issuer and post to and frame every tool" in:
+        val merged =
+          LtiCspConfigProvider.withLtiOrigins(csp(configured*), issuer +: origins, origins)
+        directive(merged, "form-action") must be(
+          Some("https://moodle.example.org https://plus.example.org")
+        )
+        directive(merged, "frame-src") must be(
+          Some(s"'self' $issuer https://moodle.example.org https://plus.example.org")
+        )
 
-    "keep 'none' when there are no tools" in:
-      directive(
-        LtiCspConfigProvider.withToolOrigins(csp("form-action" -> "'none'"), Nil),
-        "form-action"
-      ) must be(Some("'none'"))
+      "keep form-action 'none' when there are no tools" in:
+        val merged = LtiCspConfigProvider.withLtiOrigins(csp(configured*), Seq(issuer), Nil)
+        directive(merged, "form-action") must be(Some("'none'"))
 
-    "leave other directives, and directives that are not configured, alone" in:
-      val merged = LtiCspConfigProvider.withToolOrigins(csp("default-src" -> "'self'"), origins)
-      merged.directives must be(Seq(CSPDirective("default-src", "'self'")))
+      "leave other directives, and directives that are not configured, alone" in:
+        val merged = LtiCspConfigProvider.withLtiOrigins(
+          csp("default-src" -> "'self'"),
+          issuer +: origins,
+          origins
+        )
+        merged.directives must be(Seq(CSPDirective("default-src", "'self'")))
+
+    def provided(lti: String): CSPConfig =
+      val base = ConfigFactory.parseString(
+        s"""play.filters.csp.directives.form-action = "'none'"
+           |play.filters.csp.directives.frame-src = "'self'"
+           |lti.platform.issuer = "$issuer/"
+           |lti.tools { $moodle }
+           |$lti
+           |""".stripMargin
+      )
+      val reference = ConfigFactory.load(ConfigFactory.empty())
+      LtiCspConfigProvider(play.api.Configuration(base.withFallback(reference))).get
+
+    "reading the configuration" should:
+      "add the issuer and the tool origins while LTI is active" in:
+        val config = provided("lti.active = true")
+        directive(config, "frame-src") must be(Some(s"'self' $issuer http://moodle.local:8888"))
+        directive(config, "form-action") must be(Some("http://moodle.local:8888"))
+
+      "leave the CSP as configured while LTI is not active" in:
+        val config = provided("lti.active = false")
+        directive(config, "frame-src") must be(Some("'self'"))
+        directive(config, "form-action") must be(Some("'none'"))

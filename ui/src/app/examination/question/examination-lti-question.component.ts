@@ -24,7 +24,7 @@ import { ExaminationService } from 'src/app/examination/examination.service';
                 allow="clipboard-write *; camera *; microphone *"
             ></iframe>
         } @else {
-            <div>NO LTI Tool loaded</div>
+            <div class="text-muted">{{ 'i18n_lti_not_available' | translate }}</div>
         }
     `,
     imports: [FormsModule, TranslateModule],
