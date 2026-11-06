@@ -140,6 +140,10 @@ Frontend: `ui/src/app/interceptors/examination.interceptor.ts` inspects every HT
 
 The `iop/` feature on both ends supports collaborative and external exams between institutions. External exam state is synchronized via REST calls to partner institutions. Models for this are prefixed `External*` (e.g. `ExternalExam`, `ExternalReservation`).
 
+#### Protocol versions
+
+What EXAM sends to other installations is built in `app/services/iop/IopPayloads.scala` and locked by `IopPayloadFixturesSpec` against fixtures per protocol version (`test/resources/iop-fixtures/v<N>/`). If that spec fails, the wire format changed: see `docs/iop-protocol-versions.md` for the steps (bump `IopProtocol.Version`, generate fixtures, sync them to XM, add the translation step). Never regenerate a released version's fixtures.
+
 #### XM proxy service
 
 Between any two EXAM installations sits **XM** (`~/cooper/xm`), a Node.js/Express proxy that routes IOP traffic. EXAM instances never call each other directly — all cross-installation requests go through XM.

@@ -24,6 +24,8 @@ import scala.util.Using
 
 /** Locks the IOP wire format: what this installation sends to others through XM.
   *
+  * The whole workflow is described in docs/iop-protocol-versions.md.
+  *
   * Each payload built by [[IopPayloads]] from the shared test data is compared against a committed
   * fixture under `test/resources/iop-fixtures/v<IopProtocol.Version>`. A failure means the protocol
   * changed. If that was intended, bump `IopProtocol.Version`, generate the fixtures of the new
