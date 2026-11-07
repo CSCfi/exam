@@ -4,65 +4,51 @@ SPDX-FileCopyrightText: 2026 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-# GUI playbooks
+# Exam-day GUI test
 
-Scenario-level GUI regression tests, written so that either a human or a browser agent
-(Claude in Chrome) can execute them against a running EXAM instance. They replace the
-repeatable part of manual pre-release clicking. They do **not** cover IOP, SEB/BYOD or
-exploratory testing of new features — those stay manual.
+A Playwright test of the student's exam day, run against the docker compose stack before
+releases: [tests/student-exam-day.spec.ts](tests/student-exam-day.spec.ts).
 
-| Playbook | Role | Covers |
-|---|---|---|
-| [student-exam-day](playbooks/student-exam-day.md) | student | login redirect headers → exam / waiting room → submit → logout |
-| [student-booking](playbooks/student-booking.md) | student | enrolment → calendar → reservation on dashboard |
-| [teacher-create-publish](playbooks/teacher-create-publish.md) | teacher | new exam → editor tabs → publish |
-| [teacher-grade](playbooks/teacher-grade.md) | teacher | review a submitted exam → grade → lock |
+It covers what unit and integration tests cannot: the redirects driven by the session
+reservation headers (see "Session response headers" in CLAUDE.md). A student with an ongoing
+reservation must land in the exam without the dashboard ever showing, an early login to an
+Aquarium exam must stay on the early-login page, and an exam machine without an exam today must
+show the empty waiting room. Along the way it checks autosave, reloading during the exam, and
+submitting.
 
-## Setup
+Other flows (grading, booking, publishing) were tried as GUI tests too, but the integration
+tests cover them better and the GUI versions were costly to keep working, so only this one is
+kept. IOP, SEB/BYOD and exploratory testing stay manual.
 
-1. Start a fresh stack (the seed refuses to run twice; `down -v` wipes the database):
+## Running
 
-    ```bash
-    docker compose down -v && docker compose up -d --build
-    ```
+Once per machine: `pnpm install` and `pnpm exec playwright install chromium`. Docker Compose v2
+(`docker compose`) is needed.
 
-    If a local Postgres already listens on 5432 (e.g. your dev database), give the stack another
-    port, and use that port in every `psql` command below and in the playbooks:
+```bash
+scripts/e2e/run.sh
+```
 
-    ```bash
-    EXAM_DB_PORT=5433 docker compose up -d --build
-    ```
+This rebuilds the image from the current checkout, recreates the database, seeds it and runs the
+test (about two minutes, mostly waiting for autosave, which runs once a minute, plus the
+image build). `E2E_NO_BUILD=1 scripts/e2e/run.sh` reuses the existing image when only the test
+or the seed changed. Extra
+arguments go to Playwright, e.g. `scripts/e2e/run.sh --headed` to watch, or `--ui` to step
+through. On a failure, `pnpm exec playwright show-report scripts/e2e/playwright-report` shows the
+trace, screenshot and video.
 
-    Never run the seed against your dev database.
-
-    Wait until `exam-app` is healthy, so that evolutions have been applied.
-
-2. Find the IP address Play sees for browser requests. Behind nginx this is the nginx
-   container, not your browser, because Play only trusts forwarded headers from localhost:
-
-    ```bash
-    docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' exam-nginx
-    ```
-
-3. Seed (machine IP from step 2):
-
-    ```bash
-    psql -h localhost -p ${EXAM_DB_PORT:-5432} -U exam -d exam --single-transaction \
-        -v ON_ERROR_STOP=1 -v machine_ip=<ip> -f scripts/e2e/seed.sql
-    ```
-
-    Reservations are created relative to `now()`: the ongoing one started 5 minutes ago and
-    the upcoming one starts in 90 minutes. Run the exam-day playbook within ~50 minutes of
-    seeding and do not seed within ~2 hours of midnight.
-
-4. Open <http://localhost> — the DEBUG login form appears.
-
-After logging out, **reload the page before the next login.** The form left behind by a logout
-has no CSRF token, and a login from it fails silently (403 in the app log).
+- **Database port.** The stack's Postgres is published on `EXAM_DB_PORT` (default 5433 in
+  `run.sh`), so it can run next to a local Postgres on 5432. The seed and the tests reach the
+  database through the container (`docker exec exam-postgres psql`), never through a host port,
+  so a local development database cannot be touched.
+- **Timing.** Reservations are seeded relative to `now()` (the ongoing one started 5 minutes
+  ago, the upcoming one starts in 90 minutes). Don't run within ~2 hours of midnight.
+- **Machine IP.** The seeded exam machine has the nginx container's IP, which is what Play sees
+  for browser requests, so the browser counts as being on that machine.
 
 ## Seeded accounts
 
-All passwords are `e2e`. Log in with the username only (the app appends `@funet.fi`).
+All passwords are `e2e`. DEBUG login with the username only (the app appends `@funet.fi`).
 
 | Username | Role | State |
 |---|---|---|
@@ -72,34 +58,32 @@ All passwords are `e2e`. Log in with the username only (the app appends `@funet.
 | `e2e-upcoming` | student | reservation later today |
 | `e2e-booker` | student | enrolled, no reservation |
 
-## Running with Claude in Chrome
+## Changing the test
 
-Ask Claude to "run scripts/e2e/playbooks/<name>.md against http://localhost and record a GIF".
-For each step the agent should report PASS/FAIL against the **Expect** line and stop at the
-first FAIL with a screenshot and the browser console. Expected results are the contract: when
-the UI changes on purpose, update the playbook in the same commit.
-
-## Writing playbooks
-
-- One user journey per file, with numbered steps and an explicit **Expect** for each step
-  (URL, visible text or state). Without an Expect a step cannot fail.
-- Refer to buttons by their English label and say where on the page they are; don't rely on
-  CSS selectors.
-- State preconditions as seeded accounts, or as the playbook that must run first.
+- Select by role, label or visible English text (`getByRole('button', { name: 'Save changes' })`),
+  or by an element id where the form has one. Add a `data-testid` only when nothing else is
+  unambiguous.
+- Wait for what the user would wait for (a notice, a route, the autosave text), never a fixed
+  sleep, except where waiting itself is the point (the early-login page must not redirect).
+- After logging out, `login()` reloads the page: the form a logout leaves behind has no CSRF
+  token, and a login from it fails silently.
 
 ## Findings from the first full run (2026-11-07)
 
-All four playbooks pass after updating them to the current UI. Application issues seen on the
-way, not fixed by the playbooks:
+Application issues seen while writing the GUI tests (including the ones no longer kept):
 
 - **Settings creation fails on a fresh database.** Evolution 58 inserts `general_settings` rows
   1 and 2 with explicit ids without advancing `general_settings_seq`, so the first two settings
   the application creates collide (`pk_general_settings`); the calendar fails twice before
   working. Affects new installations only. Fix: an evolution advancing the sequence past
-  `max(id)`.
+  `max(id)`. Until then `seed.sql` does that itself.
 - **DEBUG login after logout fails silently** until the page is reloaded (no CSRF token on the
   left-behind form). Development login only; Haka login reloads the page anyway.
 - **Editor placeholder in Finnish** with an `EN` suffix (*Kirjoita tai lisää tekstisisältö
   tänne EN*) in the English UI: exam answer, assessment feedback and question editors.
+- **A room without a mail address breaks booking:** `selected-room.component.ts` reads
+  `room().mailAddress.street` without a null check; the template error stops the calendar from
+  rendering. Rooms created in admin get an address, so mostly a robustness issue.
+- **Typo in a notice:** *Results have been sent succesfully* (`i18n_results_send_ok`).
 - **"Your exam time has ended."** is the heading after submitting early; the text below
   (*Your exam paper has been submitted*) is right.

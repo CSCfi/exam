@@ -19,7 +19,8 @@
     "format": "prettier --write \"ui/src/app/**/*.{ts,html}\" --print-width=120 --tab-width=4; exit 0",
     "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --print-width=120 --tab-width=4",
     "check-lint": "ng lint",
-    "analyze": "ng build --configuration production && node scripts/internal/analyze-chunks.js"
+    "analyze": "ng build --configuration production && node scripts/internal/analyze-chunks.js",
+    "e2e": "playwright test -c scripts/e2e/playwright.config.ts"
   },
   "dependencies": {
     "@angular/cdk": "^22.2.0",
@@ -59,7 +60,9 @@
     "@angular/cli": "^22.1.8",
     "@angular/compiler-cli": "^22.1.7",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "@types/luxon": "^3.7.5",
+    "@types/node": "^24.19.2",
     "@typescript-eslint/eslint-plugin": "^8.70.1",
     "@typescript-eslint/parser": "^8.70.1",
     "angular-eslint": "^22.5.0",

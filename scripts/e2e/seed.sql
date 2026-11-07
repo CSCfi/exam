@@ -39,10 +39,14 @@ INSERT INTO app_user_role (app_user_id, role_id)
 VALUES (990001, 1), (990002, 3), (990003, 2), (990004, 2), (990005, 2);
 
 -- Room, machine and opening hours --------------------------------------------------------------
+-- Rooms created in admin always have an address; the booking page's room details need one
+INSERT INTO mail_address (id, street, zip, city, object_version)
+VALUES (990001, 'Testikatu 1', '00100', 'Helsinki', 1);
+
 INSERT INTO exam_room (id, name, room_code, building_name, campus, accessible,
-                       out_of_service, state, local_timezone, object_version)
+                       out_of_service, state, local_timezone, mail_address_id, object_version)
 VALUES (990001, 'E2E Aquarium', 'E2E-1', 'Test building', 'Test campus', true, false, 'SAVED',
-        'Europe/Helsinki', 1);
+        'Europe/Helsinki', 990001, 1);
 
 INSERT INTO exam_machine (id, name, ip_address, room_id, archived, out_of_service, object_version)
 VALUES (990001, 'E2E-PC-01', :'machine_ip', 990001, false, false, 1);
@@ -107,5 +111,11 @@ INSERT INTO exam_enrolment (id, user_id, exam_id, reservation_id, enrolled_on, o
 VALUES (990001, 990003, 990001, 990001, now(), 1, false, false, false, 0),
        (990002, 990004, 990001, 990002, now(), 1, false, false, false, 0),
        (990003, 990005, 990001, NULL, now(), 1, false, false, false, 0);
+
+-- Workaround, remove once fixed in an evolution (README, "Findings"): evolution 58 leaves
+-- general_settings_seq behind rows 1-2, so on a fresh database the first two settings the
+-- application creates fail with pk_general_settings.
+SELECT setval('general_settings_seq',
+              GREATEST((SELECT max(id) FROM general_settings), (SELECT last_value FROM general_settings_seq)));
 
 COMMIT;
