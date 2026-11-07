@@ -20,3 +20,6 @@ exam.iml
 sbt.json
 
 ui/src/assets/components/vendor/mathjax
+# Playwright GUI tests
+scripts/e2e/test-results/
+scripts/e2e/playwright-report/
