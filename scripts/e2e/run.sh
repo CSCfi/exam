@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 #
 # SPDX-License-Identifier: EUPL-1.2
@@ -8,10 +8,12 @@
 #   scripts/e2e/run.sh --headed
 # EXAM_DB_PORT (default 5433) only decides where the stack's Postgres is published on the host;
 # the seed and the tests reach the database through the container, never through that port.
-set -euo pipefail
+set -eu
 
 cd "$(dirname "$0")/../.."
 export EXAM_DB_PORT="${EXAM_DB_PORT:-5433}"
+# The test override (compose.yml) gives the app the tests' configuration, see app.conf
+export COMPOSE_FILE="docker-compose.yml:scripts/e2e/compose.yml"
 
 docker compose down -v
 # E2E_NO_BUILD=1 reuses the existing image, e.g. when only the tests or the seed changed

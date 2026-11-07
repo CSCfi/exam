@@ -32,24 +32,39 @@ VALUES (990001, 'e2e-admin@example.org', 'e2e-admin@funet.fi', 'Erkki', 'Admin',
        (990002, 'e2e-teacher@example.org', 'e2e-teacher@funet.fi', 'Tiina', 'Teacher', md5('e2e'), true, 1, 'en', 'e2e-0002'),
        (990003, 'e2e-ongoing@example.org', 'e2e-ongoing@funet.fi', 'Olli', 'Ongoing', md5('e2e'), true, 1, 'en', 'e2e-0003'),
        (990004, 'e2e-upcoming@example.org', 'e2e-upcoming@funet.fi', 'Ulla', 'Upcoming', md5('e2e'), true, 1, 'en', 'e2e-0004'),
-       (990005, 'e2e-booker@example.org', 'e2e-booker@funet.fi', 'Bertta', 'Booker', md5('e2e'), true, 1, 'en', 'e2e-0005');
+       (990005, 'e2e-booker@example.org', 'e2e-booker@funet.fi', 'Bertta', 'Booker', md5('e2e'), true, 1, 'en', 'e2e-0005'),
+       (990006, 'e2e-wrongmachine@example.org', 'e2e-wrongmachine@funet.fi', 'Kalle', 'Kone', md5('e2e'), true, 1, 'en', 'e2e-0006'),
+       (990007, 'e2e-wrongroom@example.org', 'e2e-wrongroom@funet.fi', 'Hilma', 'Huone', md5('e2e'), true, 1, 'en', 'e2e-0007'),
+       (990008, 'e2e-waiting@example.org', 'e2e-waiting@funet.fi', 'Veikko', 'Odottaja', md5('e2e'), true, 1, 'en', 'e2e-0008'),
+       (990009, 'e2e-seb@example.org', 'e2e-seb@funet.fi', 'Selma', 'Seb', md5('e2e'), true, 1, 'en', 'e2e-0009'),
+       (990010, 'e2e-elsewhere@example.org', 'e2e-elsewhere@funet.fi', 'Eino', 'Muualla', md5('e2e'), true, 1, 'en', 'e2e-0010'),
+       (990011, 'e2e-early-elsewhere@example.org', 'e2e-early-elsewhere@funet.fi', 'Elli', 'Etäällä', md5('e2e'), true, 1, 'en', 'e2e-0011');
 
 -- Role ids are inserted by evolutions: 1 ADMIN, 2 STUDENT, 3 TEACHER
 INSERT INTO app_user_role (app_user_id, role_id)
-VALUES (990001, 1), (990002, 3), (990003, 2), (990004, 2), (990005, 2);
+VALUES (990001, 1), (990002, 3), (990003, 2), (990004, 2), (990005, 2), (990006, 2), (990007, 2), (990008, 2),
+       (990009, 2), (990010, 2), (990011, 2);
 
 -- Room, machine and opening hours --------------------------------------------------------------
 -- Rooms created in admin always have an address; the booking page's room details need one
 INSERT INTO mail_address (id, street, zip, city, object_version)
-VALUES (990001, 'Testikatu 1', '00100', 'Helsinki', 1);
+VALUES (990001, 'Testikatu 1', '00100', 'Helsinki', 1),
+       (990002, 'Testikatu 2', '00100', 'Helsinki', 1);
 
 INSERT INTO exam_room (id, name, room_code, building_name, campus, accessible,
                        out_of_service, state, local_timezone, mail_address_id, object_version)
 VALUES (990001, 'E2E Aquarium', 'E2E-1', 'Test building', 'Test campus', true, false, 'SAVED',
-        'Europe/Helsinki', 990001, 1);
+        'Europe/Helsinki', 990001, 1),
+       (990002, 'E2E Other Room', 'E2E-2', 'Other building', 'Test campus', true, false, 'SAVED',
+        'Europe/Helsinki', 990002, 1);
 
+-- The browser always reaches Play through nginx, so every request comes from E2E-PC-01. The
+-- other machines only exist to be reserved: a reservation on PC-02 is the wrong machine in the
+-- right room, one on PC-03 the wrong room.
 INSERT INTO exam_machine (id, name, ip_address, room_id, archived, out_of_service, object_version)
-VALUES (990001, 'E2E-PC-01', :'machine_ip', 990001, false, false, 1);
+VALUES (990001, 'E2E-PC-01', :'machine_ip', 990001, false, false, 1),
+       (990002, 'E2E-PC-02', '192.0.2.2', 990001, false, false, 1),
+       (990003, 'E2E-PC-03', '192.0.2.3', 990002, false, false, 1);
 
 -- Open around the clock so booking works whenever the playbooks run. Times are wall-clock times
 -- in the room's own time zone (local_timezone above).
@@ -77,8 +92,23 @@ VALUES (990001, now(), 990002, now(), 990002, 'E2E Published Exam', 990001, 2,
         now() + interval '30 days', 60, 1, 1, 1, 1, 3, 1, false, 1,
         '<p>Book a slot in the E2E Aquarium.</p>', false);
 
-INSERT INTO exam_owner (exam_id, user_id) VALUES (990001, 990002);
-INSERT INTO exam_language (exam_id, language_code) VALUES (990001, 'en');
+-- A Safe Exam Browser exam (implementation 2 CLIENT_AUTH) with an exam event that started
+-- 5 minutes ago. A plain browser sends no SEB config key header, so login only shows a notice.
+INSERT INTO exam (id, created, creator_id, modified, modifier_id, name, course_id, exam_type_id,
+                  instruction, hash, exam_active_start_date, exam_active_end_date, duration,
+                  object_version, grade_scale_id, execution_type_id, trial_count, state,
+                  implementation, anonymous, grading_type, enroll_instruction, shared)
+VALUES (990002, now(), 990002, now(), 990002, 'E2E SEB Exam', 990001, 2,
+        '<p>Answer the essay question.</p>', md5('e2e-exam-990002'), now() - interval '1 day',
+        now() + interval '30 days', 60, 1, 1, 1, 1, 3, 2, false, 1, NULL, false);
+
+INSERT INTO exam_owner (exam_id, user_id) VALUES (990001, 990002), (990002, 990002);
+INSERT INTO exam_language (exam_id, language_code) VALUES (990001, 'en'), (990002, 'en');
+
+INSERT INTO examination_event (id, start, description, object_version)
+VALUES (990001, now() - interval '5 minutes', 'E2E SEB event', 1);
+INSERT INTO examination_event_configuration (id, examination_event_id, exam_id, config_key, object_version)
+VALUES (990001, 990001, 990002, repeat('0', 64), 1);
 
 INSERT INTO exam_section (id, created, creator_id, name, exam_id, object_version, sequence_number,
                           lottery_on, lottery_item_count, optional, expanded)
@@ -100,17 +130,35 @@ VALUES (990001, 990001, 990001, 0, 990002, now(), 10, 100, 1, 1, false, true);
 -- Enrolments and reservations ------------------------------------------------------------------
 -- Ongoing: started 5 minutes ago, so login should go straight into the exam.
 -- Upcoming: starts in 90 minutes, so login should land in the waiting room.
--- Both use the single machine; overlapping reservations are fine for testing purposes.
+-- Waiting: the test moves the start to just after its login, so the student lands in the
+-- waiting room, which moves on into the exam when the time comes.
+-- Wrong machine / wrong room: ongoing, but reserved on PC-02 / PC-03 (see the machines above).
+-- Elsewhere / early elsewhere: on PC-02, ongoing / in 90 minutes; the tests make the browser's
+-- IP unknown before logging in.
+-- Overlapping reservations on one machine are fine for testing purposes.
 INSERT INTO reservation (id, start_at, end_at, machine_id, user_id, object_version, reminder_sent,
                          sent_as_no_show)
 VALUES (990001, now() - interval '5 minutes', now() + interval '55 minutes', 990001, 990003, 1, false, false),
-       (990002, now() + interval '90 minutes', now() + interval '150 minutes', 990001, 990004, 1, false, false);
+       (990002, now() + interval '90 minutes', now() + interval '150 minutes', 990001, 990004, 1, false, false),
+       (990003, now() - interval '5 minutes', now() + interval '55 minutes', 990002, 990006, 1, false, false),
+       (990004, now() - interval '5 minutes', now() + interval '55 minutes', 990003, 990007, 1, false, false),
+       (990005, now() + interval '30 minutes', now() + interval '90 minutes', 990001, 990008, 1, false, false),
+       (990006, now() - interval '5 minutes', now() + interval '55 minutes', 990002, 990010, 1, false, false),
+       (990007, now() + interval '90 minutes', now() + interval '150 minutes', 990002, 990011, 1, false, false);
 
 INSERT INTO exam_enrolment (id, user_id, exam_id, reservation_id, enrolled_on, object_version,
                             reservation_canceled, retrial_permitted, no_show, delay)
 VALUES (990001, 990003, 990001, 990001, now(), 1, false, false, false, 0),
        (990002, 990004, 990001, 990002, now(), 1, false, false, false, 0),
-       (990003, 990005, 990001, NULL, now(), 1, false, false, false, 0);
+       (990003, 990005, 990001, NULL, now(), 1, false, false, false, 0),
+       (990004, 990006, 990001, 990003, now(), 1, false, false, false, 0),
+       (990005, 990007, 990001, 990004, now(), 1, false, false, false, 0),
+       (990006, 990008, 990001, 990005, now(), 1, false, false, false, 0),
+       (990007, 990009, 990002, NULL, now(), 1, false, false, false, 0),
+       (990008, 990010, 990001, 990006, now(), 1, false, false, false, 0),
+       (990009, 990011, 990001, 990007, now(), 1, false, false, false, 0);
+
+UPDATE exam_enrolment SET examination_event_configuration_id = 990001 WHERE id = 990007;
 
 -- Workaround, remove once fixed in an evolution (README, "Findings"): evolution 58 leaves
 -- general_settings_seq behind rows 1-2, so on a fresh database the first two settings the
