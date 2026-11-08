@@ -7,7 +7,7 @@ import { Component, DestroyRef, Signal, inject, input, output, signal } from '@a
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
-import { Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs';
+import { Subject, filter, interval, map, startWith, switchMap, take, timer } from 'rxjs';
 
 @Component({
     selector: 'xm-examination-clock',
@@ -78,8 +78,9 @@ export class ExaminationClockComponent {
                         startWith(0),
                         switchMap(() =>
                             sync$.pipe(
+                                // timer(0, …): show the synced time at once, not a second later
                                 switchMap((t) =>
-                                    interval(1000).pipe(
+                                    timer(0, 1000).pipe(
                                         map((n) => Math.max(0, t - n)),
                                         take(this.syncInterval),
                                     ),
