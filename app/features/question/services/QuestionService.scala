@@ -275,6 +275,11 @@ class QuestionService @Inject() (
     question.setModifierWithDate(user)
 
     question.questionOwners.clear()
+    processOwners(question, body)
+    processTags(question, user, body)
+    question
+
+  def processOwners(question: Question, body: JsValue): Unit =
     (body \ "questionOwners").asOpt[JsArray] match
       case Some(ownerArray) =>
         ownerArray.value.foreach { ownerNode =>
@@ -283,9 +288,6 @@ class QuestionService @Inject() (
             case None        => // Skip invalid owner
         }
       case None => // No owners specified
-    processTags(question, user, body)
-    question
-
   def processTags(question: Question, user: User, body: JsValue): Unit =
     question.tags.clear()
     (body \ "tags").asOpt[JsArray] match
