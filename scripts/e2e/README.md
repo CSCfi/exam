@@ -66,7 +66,7 @@ All passwords are `e2e`. DEBUG login with the username only (the app appends `@f
 | `e2e-admin` | admin | — |
 | `e2e-teacher` | teacher | owns *E2E Published Exam* and *E2E SEB Exam* |
 | `e2e-ongoing` | student | reservation in progress now |
-| `e2e-waiting` | student | reservation the test moves to start right after login |
+| `e2e-waiting` | student | reservation the test moves to start right after login, with a 5 s start delay |
 | `e2e-upcoming` | student | reservation later today |
 | `e2e-wrongmachine` | student | reservation in progress on E2E-PC-02 |
 | `e2e-wrongroom` | student | reservation in progress in *E2E Other Room* |

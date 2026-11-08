@@ -45,16 +45,24 @@ async function onNonExamComputer(run: () => Promise<void>): Promise<void> {
 
 test.describe.serial('Student exam day', () => {
     test('a login shortly before the start waits in the waiting room, then enters the exam', async ({ page }) => {
-        // Starts shortly after login, so the wait is about 15 seconds (login itself takes a few)
+        // Starts shortly after login, so the wait is about 15 seconds (login itself takes a few).
+        // Each enrolment gets a random start delay of up to 30 s to spread the load
+        // (ExamEnrolment.setRandomDelay); a fixed 5 s here.
         sql(`UPDATE reservation SET start_at = now() + interval '20 seconds' WHERE id = 990005`);
+        sql(`UPDATE exam_enrolment SET delay = 5000 WHERE id = 990006`);
         await login(page, 'e2e-waiting');
         await expect(page).toHaveURL(/\/waitingroom\/990006\/[0-9a-f]{32}$/);
         await expect(page.getByText('Your next exam is about to start')).toBeVisible();
         await expect(page.getByText('E2E Published Exam')).toBeVisible();
         await expect(page.getByText('You will be directed to the exam when the exam time starts')).toBeVisible();
-        // The page counts down to the reservation start and then checks the session, whose
+
+        // At the reservation start the page counts down the delay, then checks the session, whose
         // x-exam-start-exam header moves the student into the exam
-        await expect(page).toHaveURL(EXAM_URL, { timeout: 45_000 });
+        await expect(page.getByText(/\d+ seconds until exam starts/)).toBeVisible({ timeout: 30_000 });
+        const countdownShown = Date.now();
+        await expect(page).toHaveURL(/\/waitingroom\//);
+        await expect(page).toHaveURL(EXAM_URL, { timeout: 20_000 });
+        expect(Date.now() - countdownShown, 'entered the exam before the delay was over').toBeGreaterThan(3_500);
         await expect(page.getByText('Move to Exam section 1')).toBeVisible();
     });
 
