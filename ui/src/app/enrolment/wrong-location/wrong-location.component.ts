@@ -2,25 +2,38 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import { Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
-import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/reservation.model';
+import type { ExamMachine, Reservation } from 'src/app/reservation/reservation.model';
+import { SessionService } from 'src/app/session/session.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
+// Serves /wrongmachine, /wrongroom and /unknownlocation; the route data says which ('machine', 'room', 'unknown')
 @Component({
     selector: 'xm-wrong-location',
     templateUrl: './wrong-location.component.html',
-    imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
+    styleUrl: './wrong-location.component.scss',
+    imports: [
+        CourseCodeComponent,
+        TeacherListComponent,
+        PageHeaderComponent,
+        PageContentComponent,
+        NgTemplateOutlet,
+        DatePipe,
+        TranslateModule,
+    ],
 })
 export class WrongLocationComponent {
     readonly cause = computed<string>(() => this.data()?.cause ?? '');
@@ -28,10 +41,6 @@ export class WrongLocationComponent {
         this.enrolmentResource.hasValue() ? this.enrolmentResource.value() : undefined,
     );
     readonly reservation = computed(() => this.enrolment()?.reservation);
-    readonly roomInstructions = computed(() => {
-        const room = this.reservation()?.machine.room;
-        return room ? this.getRoomInstructions(this.translate.currentLang.toUpperCase(), room) : '';
-    });
     readonly currentMachine = computed(() =>
         this.machineResource.hasValue() ? this.machineResource.value() : undefined,
     );
@@ -41,10 +50,10 @@ export class WrongLocationComponent {
     });
 
     private readonly route = inject(ActivatedRoute);
-    private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastService);
     private readonly Enrolment = inject(EnrolmentService);
     private readonly DateTimeService = inject(DateTimeService);
+    private readonly Session = inject(SessionService);
 
     private readonly params = toSignal(this.route.paramMap);
     private readonly data = toSignal(this.route.data);
@@ -85,23 +94,16 @@ export class WrongLocationComponent {
         return this.DateTimeService.formatDuration(enrolment.exam.duration);
     }
 
+    logout() {
+        this.Session.logout();
+    }
+
     showInstructions() {
         const enrolment = this.enrolment();
         if (!enrolment) {
             return;
         }
         this.Enrolment.showInstructions(enrolment);
-    }
-
-    private getRoomInstructions(lang: string, room: ExamRoom) {
-        switch (lang) {
-            case 'FI':
-                return room.roomInstruction;
-            case 'SV':
-                return room.roomInstructionSV;
-            default:
-                return room.roomInstructionEN;
-        }
     }
 
     private getOccasion(reservation: Reservation) {

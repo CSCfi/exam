@@ -1,0 +1,29 @@
+// SPDX-FileCopyrightText: 2026 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+.location-table {
+    th,
+    td {
+        padding: 0.25rem 1.5rem 0.25rem 0;
+        vertical-align: top;
+    }
+    thead th {
+        font-weight: normal;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.03em;
+    }
+    .mismatch {
+        font-weight: bold;
+        .small {
+            font-weight: normal;
+        }
+    }
+    @media (max-width: 767.98px) {
+        th,
+        td {
+            padding-right: 0.75rem;
+        }
+    }
+}
