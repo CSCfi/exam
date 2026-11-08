@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { sql } from '../support/db';
 import { accept, login, logout } from '../support/session';
 import { restartAppWith } from '../support/stack';
@@ -18,6 +18,21 @@ const EXAM_URL = /\/exam\/[0-9a-f]{32}$/;
 
 // Every browser request comes from E2E-PC-01's IP; moving that machine elsewhere makes the browser
 // a computer that is not an exam machine
+// A row of the where-you-are / your-reservation table on the wrong-location page
+async function expectLocationRow(
+    page: Page,
+    label: 'Computer' | 'Exam room',
+    here: string,
+    reserved: string,
+    mismatch: boolean,
+): Promise<void> {
+    const cells = page.getByRole('row', { name: new RegExp(`^${label}`) }).getByRole('cell');
+    await expect(cells.nth(0)).toContainText(here);
+    await expect(cells.nth(1)).toContainText(reserved);
+    const marker = 'Does not match your reservation';
+    await (mismatch ? expect(cells.nth(0)).toContainText(marker) : expect(cells.nth(0)).not.toContainText(marker));
+}
+
 async function onNonExamComputer(run: () => Promise<void>): Promise<void> {
     const machineIp = sql(`SELECT ip_address FROM exam_machine WHERE id = 990001`);
     sql(`UPDATE exam_machine SET ip_address = '192.0.2.1' WHERE id = 990001`);
@@ -100,17 +115,17 @@ test.describe.serial('Student exam day', () => {
         await login(page, 'e2e-wrongmachine');
         await expect(page).toHaveURL(/\/wrongmachine\/990004\/990001$/);
         await expect(page.getByText('You have logged in to a wrong computer')).toBeVisible();
-        await expect(page.getByText('You are on a wrong computer: E2E-PC-01')).toBeVisible();
-        await expect(page.getByText('The computer you have reserved: E2E-PC-02')).toBeVisible();
-        await expect(page.getByText('You are in a wrong exam room')).toHaveCount(0);
+        await expectLocationRow(page, 'Computer', 'E2E-PC-01', 'E2E-PC-02', true);
+        await expectLocationRow(page, 'Exam room', 'E2E Aquarium (E2E-1)', 'E2E Aquarium (E2E-1)', false);
+        await expect(page.getByRole('alert').getByRole('button', { name: 'Log out' })).toBeVisible();
     });
 
     test('a login in the wrong room shows the reserved room', async ({ page }) => {
         await login(page, 'e2e-wrongroom');
         await expect(page).toHaveURL(/\/wrongroom\/990005\/990001$/);
         await expect(page.getByText('You have logged in to a wrong computer')).toBeVisible();
-        await expect(page.getByText('You are in a wrong exam room: E2E Aquarium')).toBeVisible();
-        await expect(page.getByText('The room you have reserved: E2E Other Room (E2E-2)')).toBeVisible();
+        await expectLocationRow(page, 'Computer', 'E2E-PC-01', 'E2E-PC-03', true);
+        await expectLocationRow(page, 'Exam room', 'E2E Aquarium (E2E-1)', 'E2E Other Room (E2E-2)', true);
     });
 
     test('a login on a computer that is not an exam machine shows where the exam is', async ({ page }) => {
@@ -171,9 +186,8 @@ test.describe.serial('Student exam day', () => {
             await accept(page);
             await expect(page).toHaveURL(/\/unknownlocation\/990008$/);
             await expect(page.getByText('You have logged in to a wrong computer')).toBeVisible();
-            await expect(page.getByText('You are on a wrong computer: Unknown machine')).toBeVisible();
-            await expect(page.getByText('The computer you have reserved: E2E-PC-02')).toBeVisible();
-            await expect(page.getByText('The room you have reserved: E2E Aquarium (E2E-1)')).toBeVisible();
+            await expectLocationRow(page, 'Computer', 'Unknown machine', 'E2E-PC-02', true);
+            await expectLocationRow(page, 'Exam room', '–', 'E2E Aquarium (E2E-1)', false);
         });
     });
 });

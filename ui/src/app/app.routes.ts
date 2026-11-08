@@ -66,9 +66,9 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'unknownlocation/:eid',
-        data: { hideNav: true },
+        data: { hideNav: true, cause: 'unknown' },
         loadComponent: () =>
-            import('./enrolment/wrong-location/unknown-location.component').then((mod) => mod.UnknownLocationComponent),
+            import('./enrolment/wrong-location/wrong-location.component').then((mod) => mod.WrongLocationComponent),
         title: () => buildTitle('i18n_wrong_machine_title'),
     },
     {
