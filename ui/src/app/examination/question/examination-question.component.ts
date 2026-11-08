@@ -54,8 +54,11 @@ export class ExaminationQuestionComponent {
     });
 
     readonly questionTitle = computed(() => {
-        // Extract plain text from HTML for aria-label (screen readers need plain text, not HTML)
-        const html = this.sq().question.question;
+        // Extract plain text from HTML for aria-label (screen readers need plain text, not HTML).
+        // A cloze question's text comes with the answer (blanks as inputs); question.question is null.
+        const sq = this.sq();
+        const html = sq.question.type === 'ClozeTestQuestion' ? sq.clozeTestAnswer?.question : sq.question.question;
+        if (!html) return '';
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         return doc.documentElement.innerText;
