@@ -29,11 +29,9 @@ class CollaborativeExam extends GeneratedIdentityModel:
   var examParticipations: List[ExamParticipation] = uninitialized
 
   @JsonInstant
-  @Column(name = "exam_active_start_date")
   var periodStart: Instant = uninitialized
 
   @JsonInstant
-  @Column(name = "exam_active_end_date")
   var periodEnd: Instant = uninitialized
 
   @JsonInstant

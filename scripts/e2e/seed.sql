@@ -84,7 +84,7 @@ VALUES (990001, 'E2E-101', 'Playbook Testing 101', 5, 1, 1);
 -- execution_type 1 PUBLIC, exam_type 2 FINAL, state 3 PUBLISHED, implementation 1 AQUARIUM,
 -- grade_scale 1 ZERO_TO_FIVE
 INSERT INTO exam (id, created, creator_id, modified, modifier_id, name, course_id, exam_type_id,
-                  instruction, hash, exam_active_start_date, exam_active_end_date, duration,
+                  instruction, hash, period_start, period_end, duration,
                   object_version, grade_scale_id, execution_type_id, trial_count, state,
                   implementation, anonymous, grading_type, enroll_instruction, shared)
 VALUES (990001, now(), 990002, now(), 990002, 'E2E Published Exam', 990001, 2,
@@ -95,7 +95,7 @@ VALUES (990001, now(), 990002, now(), 990002, 'E2E Published Exam', 990001, 2,
 -- A Safe Exam Browser exam (implementation 2 CLIENT_AUTH) with an exam event that started
 -- 5 minutes ago. A plain browser sends no SEB config key header, so login only shows a notice.
 INSERT INTO exam (id, created, creator_id, modified, modifier_id, name, course_id, exam_type_id,
-                  instruction, hash, exam_active_start_date, exam_active_end_date, duration,
+                  instruction, hash, period_start, period_end, duration,
                   object_version, grade_scale_id, execution_type_id, trial_count, state,
                   implementation, anonymous, grading_type, enroll_instruction, shared)
 VALUES (990002, now(), 990002, now(), 990002, 'E2E SEB Exam', 990001, 2,

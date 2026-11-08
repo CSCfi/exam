@@ -88,11 +88,9 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   @OneToOne(mappedBy = "exam") var languageInspection: LanguageInspection     = uninitialized
 
   @JsonInstant
-  @Column(name = "exam_active_start_date")
   var periodStart: Instant = uninitialized
 
   @JsonInstant
-  @Column(name = "exam_active_end_date")
   var periodEnd: Instant = uninitialized
 
   @JsonInstant var gradedTime: Instant             = uninitialized
