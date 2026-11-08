@@ -365,6 +365,49 @@ describe('ExaminationService', () => {
     });
 });
 
+describe('ExaminationService.isAnswered (essay)', () => {
+    let service: ExaminationService;
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
+            providers: [ExaminationService, provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+        });
+        service = TestBed.inject(ExaminationService);
+    });
+
+    afterEach(() => vi.restoreAllMocks());
+
+    it('treats missing, empty and markup-only answers as unanswered', () => {
+        expect(service.isAnswered(makeEssayQuestion())).toBeFalsy();
+        expect(service.isAnswered(makeEssayQuestion(''))).toBeFalsy();
+        expect(service.isAnswered(makeEssayQuestion('<p></p>'))).toBeFalsy();
+    });
+
+    it('treats answers with text or math as answered', () => {
+        expect(service.isAnswered(makeEssayQuestion('<p>Answer</p>'))).toBeTruthy();
+        expect(service.isAnswered(makeEssayQuestion('<span class="math-tex">\\(x\\)</span>'))).toBeTruthy();
+    });
+
+    it('parses an unchanged answer only once across repeated checks', () => {
+        const parse = vi.spyOn(DOMParser.prototype, 'parseFromString');
+        const sq = makeEssayQuestion('<p>Answer</p>');
+        for (let i = 0; i < 50; i++) service.isAnswered(sq);
+        expect(parse).toHaveBeenCalledTimes(1);
+    });
+
+    it('re-evaluates when the answer text changes', () => {
+        const parse = vi.spyOn(DOMParser.prototype, 'parseFromString');
+        const sq = makeEssayQuestion('<p>Answer</p>');
+        expect(service.isAnswered(sq)).toBeTruthy();
+        sq.essayAnswer!.answer = '<p></p>';
+        expect(service.isAnswered(sq)).toBeFalsy();
+        sq.essayAnswer!.answer = '<p>Again</p>';
+        expect(service.isAnswered(sq)).toBeTruthy();
+        expect(parse).toHaveBeenCalledTimes(3);
+    });
+});
+
 describe('ExaminationService with network outage', () => {
     let service: ExaminationService;
     let httpTesting: HttpTestingController;
