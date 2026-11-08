@@ -11,6 +11,7 @@ import { QuestionAdapterService } from 'src/app/question/editor/common/tools/que
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
 import type { ExamSectionQuestion, Question, ReverseQuestion, Tag } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
+import type { User } from 'src/app/session/session.model';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 
 // This component depicts a distributed exam question. Only used thru a modal.
@@ -29,6 +30,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
                             [questionTypes]="[]"
                             [newQuestion]="false"
                             (tagsChange)="onTagsChange($event)"
+                            (currentOwnersChange)="onOwnersChange($event)"
                         />
                     }
                 </form>
@@ -191,6 +193,13 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         const base = this.baseQuestion();
         if (base) {
             this.baseQuestion.set({ ...base, tags });
+        }
+    }
+
+    onOwnersChange(owners: User[]) {
+        const base = this.baseQuestion();
+        if (base) {
+            this.baseQuestion.set({ ...base, questionOwners: owners });
         }
     }
 

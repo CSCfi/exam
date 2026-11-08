@@ -170,6 +170,7 @@ export const buildHtmlSupportConfig = (allowExternalContent: boolean): GeneralHt
                 [config]="editorConfig"
                 tagName="textarea"
                 [ngModel]="data() ?? ''"
+                [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="onDataChange($event)"
                 (ready)="onReady($event)"
                 (change)="onChange($event)"
