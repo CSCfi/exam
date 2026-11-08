@@ -279,3 +279,8 @@ SELECT setval('general_settings_seq',
               GREATEST((SELECT max(id) FROM general_settings), (SELECT last_value FROM general_settings_seq)));
 
 COMMIT;
+
+-- Statistics, as a database in use has them. These tables are far too small for autoanalyze, and
+-- without statistics the planner guesses billions of rows for the exam queries' many joins, so
+-- Postgres JIT-compiles them: about a second per query, 1.5-2 s per exam load.
+ANALYZE;

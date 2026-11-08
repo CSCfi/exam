@@ -57,7 +57,9 @@ video.
   so a local development database cannot be touched.
 - **Timing.** Reservations are seeded relative to `now()` (the ongoing ones started 5 minutes
   ago, the upcoming ones start in 90 minutes, the home exam event in 30 minutes). Tests that
-  wait for a start or an end move it to a few seconds after their login themselves. Don't run within ~2 hours of midnight.
+  wait for a start or an end move it to a few seconds after their login themselves. The server's
+  "today" ends at midnight UTC, so the two tests with a reservation 90 minutes ahead fail from
+  22:30 to 00:00 UTC (00:30-02:00 in Finland in winter, 01:30-03:00 in summer).
 - **Machine IP.** The seeded exam machine E2E-PC-01 has the nginx container's IP, which is what
   Play sees for browser requests, so the browser counts as being on that machine. E2E-PC-02 (same
   room) and E2E-PC-03 (*E2E Other Room*) have unused documentation IPs and only carry
