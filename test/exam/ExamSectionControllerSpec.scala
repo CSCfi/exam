@@ -7,8 +7,8 @@ package exam
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.questions.Tag
-import models.sections.ExamSection
+import models.questions.{Question, QuestionType, Tag}
+import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import play.api.http.Status
 import play.api.libs.json.*
@@ -38,6 +38,44 @@ class ExamSectionControllerSpec extends BaseIntegrationSpec with EbeanQueryExten
     question.update()
     (section, tag)
 
+  /** Makes the teacher own the exam of an essay section question that is owned by someone else.
+    */
+  private def setupDistributed(user: User): (ExamSectionQuestion, User) =
+    val esq = DB
+      .find(classOf[ExamSectionQuestion])
+      .list
+      .find(_.question.`type` == QuestionType.EssayQuestion)
+      .getOrElse(fail("No essay section question in test data"))
+    val exam = esq.examSection.exam
+    exam.examOwners.add(user)
+    exam.update()
+    val other = DB
+      .find(classOf[User])
+      .list
+      .find(_.id != user.id)
+      .getOrElse(fail("No second user in test data"))
+    esq.question.questionOwners.clear()
+    esq.question.questionOwners.add(other)
+    esq.question.update()
+    (esq, other)
+
+  private def updateDistributed(esq: ExamSectionQuestion, owners: Seq[User], session: Session) =
+    val path =
+      s"/app/exams/${esq.examSection.exam.id}/sections/${esq.examSection.id}/questions/${esq.id}/distributed"
+    val body = Json.obj(
+      "maxScore" -> 1,
+      "options"  -> Json.arr(),
+      "question" -> Json.obj(
+        "question"       -> "<p>Essay</p>",
+        "questionOwners" -> owners.map(o => Json.obj("id" -> o.id.longValue))
+      )
+    )
+    val result = runIO(put(path, body, session))
+    statusOf(result) must be(Status.OK)
+
+  private def ownerIds(esq: ExamSectionQuestion): Set[Long] =
+    DB.find(classOf[Question], esq.question.id).questionOwners.asScala.map(_.id.longValue).toSet
+
   private def listSectionIds(query: String, session: Session): Set[Long] =
     val result = runIO(get(s"/app/sections?$query", session = session))
     statusOf(result) must be(Status.OK)
@@ -59,3 +97,16 @@ class ExamSectionControllerSpec extends BaseIntegrationSpec with EbeanQueryExten
         val (user, session) = runIO(loginAsTeacher())
         val (section, tag)  = setup(user)
         listSectionIds(s"tagIds=${tag.id}&ownerIds=${user.id}", session) must be(Set(section.id))
+
+    "updating a question used in several exams" should:
+      "save the question owners" in:
+        val (user, session) = runIO(loginAsTeacher())
+        val (esq, other)    = setupDistributed(user)
+        updateDistributed(esq, Seq(other, user), session)
+        ownerIds(esq) must be(Set(other.id, user.id))
+
+      "keep the owners when none are sent" in:
+        val (user, session) = runIO(loginAsTeacher())
+        val (esq, other)    = setupDistributed(user)
+        updateDistributed(esq, Seq.empty, session)
+        ownerIds(esq) must be(Set(other.id))
