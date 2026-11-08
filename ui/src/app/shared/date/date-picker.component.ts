@@ -121,6 +121,10 @@ export class DatePickerComponent {
     dateChange() {
         const now = new Date();
         const currentDate = this.dateForm.date().value();
+        if (currentDate && !this.isWithinRange(currentDate)) {
+            // Typed input bypasses min/max; don't let e.g. year 10000 through
+            return;
+        }
         this.startDate.set(currentDate || new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate()));
         this.updated.emit({ date: this.transform(currentDate) });
     }
@@ -137,5 +141,11 @@ export class DatePickerComponent {
 
     extraClicked() {
         this.extraActionHappened.emit({ date: this.transform(this.dateForm.date().value()) });
+    }
+
+    private isWithinRange(date: NgbDate): boolean {
+        const min = NgbDate.from(this.minDateStruct());
+        const max = NgbDate.from(this.maxDateStruct());
+        return (!min || !date.before(min)) && (!max || !date.after(max));
     }
 }

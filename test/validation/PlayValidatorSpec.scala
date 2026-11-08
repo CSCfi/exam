@@ -81,4 +81,24 @@ class PlayValidatorSpec extends AnyWordSpec with Matchers with EitherValues:
       val body = exam + ("evaluationConfig" -> JsNull)
       ExamValidator.forUpdate(body).value.autoEvaluationConfig mustBe null
     }
+
+    def millis(iso: String) = Instant.parse(iso).toEpochMilli
+
+    "accept a period ending in year 9999" in {
+      val body = exam ++ Json.obj(
+        "periodStart" -> millis("2026-02-08T22:00:00Z"),
+        "periodEnd"   -> millis("9999-12-31T23:59:59.999Z")
+      )
+      ExamValidator.forUpdate(body).value.periodEnd.toString mustBe "9999-12-31T23:59:59.999Z"
+    }
+
+    // Instants past 9999 serialize as "+10000-..." which the UI's DatePipe cannot parse
+    "return period dates past year 9999 as a Left" in {
+      val body = exam ++ Json.obj(
+        "periodStart" -> millis("+10000-02-08T22:00:00Z"),
+        "periodEnd"   -> millis("+10000-02-19T21:59:59.999Z")
+      )
+      val error = ExamValidator.forUpdate(body).left.value
+      error.validationResult.errors.map(_.field) mustBe List("periodStart", "periodEnd")
+    }
   }
