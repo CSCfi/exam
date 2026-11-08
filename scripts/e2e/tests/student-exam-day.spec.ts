@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { expect, type Page, test } from '@playwright/test';
-import { sql } from '../support/db';
+import { onNonExamComputer, sql } from '../support/db';
 import { accept, login, logout } from '../support/session';
-import { restartAppWith } from '../support/stack';
+import { restartAppWith, restoreAppConfig } from '../support/stack';
 
 // The redirects driven by the session reservation headers (x-exam-start-exam,
 // x-exam-upcoming-exam, x-exam-aquarium-login, x-exam-wrong-machine, x-exam-wrong-room,
@@ -16,8 +16,6 @@ import { restartAppWith } from '../support/stack';
 
 const EXAM_URL = /\/exam\/[0-9a-f]{32}$/;
 
-// Every browser request comes from E2E-PC-01's IP; moving that machine elsewhere makes the browser
-// a computer that is not an exam machine
 // A row of the where-you-are / your-reservation table on the wrong-location page
 async function expectLocationRow(
     page: Page,
@@ -31,16 +29,6 @@ async function expectLocationRow(
     await expect(cells.nth(1)).toContainText(reserved);
     const marker = 'Does not match your reservation';
     await (mismatch ? expect(cells.nth(0)).toContainText(marker) : expect(cells.nth(0)).not.toContainText(marker));
-}
-
-async function onNonExamComputer(run: () => Promise<void>): Promise<void> {
-    const machineIp = sql(`SELECT ip_address FROM exam_machine WHERE id = 990001`);
-    sql(`UPDATE exam_machine SET ip_address = '192.0.2.1' WHERE id = 990001`);
-    try {
-        await run();
-    } finally {
-        sql(`UPDATE exam_machine SET ip_address = '${machineIp}' WHERE id = 990001`);
-    }
 }
 
 test.describe.serial('Student exam day', () => {
@@ -183,19 +171,58 @@ test.describe.serial('Student exam day', () => {
         await logout(page);
     });
 
-    // Last: it restarts the app with a setting the other tests must not see
+    test('when the exam time runs out, the answer is saved and the exam is submitted', async ({ page }) => {
+        // The remaining time is the reservation start plus the exam duration (60 min) minus now
+        sql(
+            `UPDATE reservation SET start_at = now() - interval '60 minutes' + interval '25 seconds',
+                                    end_at = now() + interval '25 seconds' WHERE id = 990008`,
+        );
+        await login(page, 'e2e-timeout');
+        await expect(page).toHaveURL(EXAM_URL);
+        const clock = page.locator('.exam-clock:not(.skip)');
+        await expect(clock).toHaveText(/^00:00:[0-5]\d$/);
+        // Under five minutes left
+        await expect(clock).toHaveClass(/text-warning/);
+
+        // Typed but not saved: running out of time must save it
+        await page.getByText('Move to Exam section 1').click();
+        await page.locator('.ck-editor__editable').first().click();
+        await page.keyboard.type('Answer written in the last seconds');
+
+        await expect(page).toHaveURL(/\/examination\/logout/, { timeout: 45_000 });
+        await expect(
+            page.getByText('Your exam time has ended, your response has been automatically saved and submitted.'),
+        ).toBeVisible();
+        await expect(page.locator('p', { hasText: 'Your exam paper has been submitted' })).toBeVisible();
+        const answer = sql(
+            `SELECT ea.answer FROM exam_participation p
+               JOIN exam_section es ON es.exam_id = p.exam_id
+               JOIN exam_section_question esq ON esq.exam_section_id = es.id
+               JOIN essay_answer ea ON ea.id = esq.essay_answer_id
+              WHERE p.user_id = 990012`,
+        );
+        expect(answer).toContain('Answer written in the last seconds');
+        // The logout page moves on by itself after 8 seconds
+        await expect(page).not.toHaveURL(/\/examination\//, { timeout: 15_000 });
+    });
+
+    // Restarts the app with a setting the other tests must not see, and back afterwards
     test('a non-local user on a computer that is not an exam machine is sent to /unknownlocation', async ({ page }) => {
-        // Every user counts as a visitor from another organisation from here on (see visitor.conf)
+        // Every user counts as a visitor from another organisation until restored (see visitor.conf)
         await restartAppWith(page.request, 'visitor.conf');
-        await onNonExamComputer(async () => {
-            await login(page, 'e2e-elsewhere');
-            // A visitor first confirms logging in to another organisation's EXAM
-            await expect(page.getByText('You are logging into service: EXAM (e2e.invalid)')).toBeVisible();
-            await accept(page);
-            await expect(page).toHaveURL(/\/unknownlocation\/990008$/);
-            await expect(page.getByText('You have logged in to a wrong computer')).toBeVisible();
-            await expectLocationRow(page, 'Computer', 'Unknown machine', 'E2E-PC-02', true);
-            await expectLocationRow(page, 'Exam room', '–', 'E2E Aquarium (E2E-1)', false);
-        });
+        try {
+            await onNonExamComputer(async () => {
+                await login(page, 'e2e-elsewhere');
+                // A visitor first confirms logging in to another organisation's EXAM
+                await expect(page.getByText('You are logging into service: EXAM (e2e.invalid)')).toBeVisible();
+                await accept(page);
+                await expect(page).toHaveURL(/\/unknownlocation\/990008$/);
+                await expect(page.getByText('You have logged in to a wrong computer')).toBeVisible();
+                await expectLocationRow(page, 'Computer', 'Unknown machine', 'E2E-PC-02', true);
+                await expectLocationRow(page, 'Exam room', '–', 'E2E Aquarium (E2E-1)', false);
+            });
+        } finally {
+            await restoreAppConfig(page.request);
+        }
     });
 });
