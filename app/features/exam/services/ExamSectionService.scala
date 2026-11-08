@@ -331,11 +331,16 @@ class ExamSectionService @Inject() (
                   )
                 then Left(IncorrectClaimQuestionOptions)
                 else
-                  // Update question: text and tags
+                  // Update question: text, tags and owners
                   question.question = dto.getQuestionTextOrNull
-                  (body \ "question").asOpt[JsValue].foreach(questionNode =>
+                  (body \ "question").asOpt[JsValue].foreach { questionNode =>
                     questionService.processTags(question, user, questionNode)
-                  )
+                    // A question must keep at least one owner, so only a non-empty list replaces them
+                    if (questionNode \ "questionOwners").asOpt[JsArray].exists(_.value.nonEmpty)
+                    then
+                      question.questionOwners.clear()
+                      questionService.processOwners(question, questionNode)
+                  }
                   question.update()
                   updateExamQuestionFromJson(examSectionQuestion, body, dto)
                   examSectionQuestion.update()
