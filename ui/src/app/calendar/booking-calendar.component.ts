@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
+import { CalendarOptions, EventApi, EventClickArg, EventInput, ViewMountArg } from '@fullcalendar/core';
 import enLocale from '@fullcalendar/core/locales/en-gb';
 import fiLocale from '@fullcalendar/core/locales/fi';
 import svLocale from '@fullcalendar/core/locales/sv';
@@ -128,6 +128,7 @@ export class BookingCalendarComponent {
             slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
             // note: do not set eventMinHeight here, it will cause a mess in calendar grid
+            viewDidMount: (arg: ViewMountArg) => this.labelScrollRegion(arg.el),
             events: this.refetch.bind(this),
             eventClick: this.eventClicked.bind(this),
         });
@@ -151,21 +152,10 @@ export class BookingCalendarComponent {
             .subscribe((roomVal) => {
                 const searchStart = this.searchStart();
                 const searchEnd = this.searchEnd();
-                const earliestOpening = this.Calendar.getEarliestOpening(roomVal, searchStart, searchEnd);
-                const latestClosing = this.Calendar.getLatestClosing(roomVal, searchStart, searchEnd);
-                const minTime =
-                    earliestOpening.getHours() > 1
-                        ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
-                        : earliestOpening;
-                const maxTime =
-                    latestClosing.getHours() < 23
-                        ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
-                        : latestClosing;
                 this.calendarOptions.update((cos) => ({
                     ...cos,
                     hiddenDays: this.Calendar.getClosedWeekdays(roomVal, searchStart, searchEnd),
-                    slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
-                    slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
+                    ...this.visibleHours(roomVal, searchStart, searchEnd),
                     timeZone: roomVal.localTimezone,
                 }));
                 this.calendar()?.getApi().refetchEvents();
@@ -205,13 +195,10 @@ export class BookingCalendarComponent {
         this.searchStart.set(input.startStr);
         this.searchEnd.set(DateTime.fromISO(input.startStr).endOf('week').toISO() as string);
         const hidden = this.Calendar.getClosedWeekdays(this.room(), this.searchStart(), this.searchEnd());
-        const earliestOpening = this.Calendar.getEarliestOpening(this.room(), this.searchStart(), this.searchEnd());
-        const latestClosing = this.Calendar.getLatestClosing(this.room(), this.searchStart(), this.searchEnd());
         this.calendarOptions.update((cos) => ({
             ...cos,
             hiddenDays: hidden,
-            slotMinTime: DateTime.fromJSDate(earliestOpening).toFormat('HH:mm:ss'),
-            slotMaxTime: DateTime.fromJSDate(latestClosing).toFormat('HH:mm:ss'),
+            ...this.visibleHours(this.room(), this.searchStart(), this.searchEnd()),
         }));
 
         this.moreEventsNeeded.emit({ date: input.startStr, timeZone: input.timeZone, success: success });
@@ -220,6 +207,34 @@ export class BookingCalendarComponent {
     eventClicked(arg: EventClickArg): void {
         if (arg.event.extendedProps?.availableMachines > 0) {
             this.eventSelected.emit(arg.event);
+        }
+    }
+
+    /** The week's opening hours with an hour of padding on both sides, within the day. */
+    private visibleHours(room: ExamRoom, searchStart: string, searchEnd: string) {
+        const earliestOpening = this.Calendar.getEarliestOpening(room, searchStart, searchEnd);
+        const latestClosing = this.Calendar.getLatestClosing(room, searchStart, searchEnd);
+        const minTime =
+            earliestOpening.getHours() > 1
+                ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
+                : earliestOpening;
+        const maxTime =
+            latestClosing.getHours() < 23
+                ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
+                : latestClosing;
+        return {
+            slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
+            slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
+        };
+    }
+
+    /** The view scrolls inside a fixed-height box (see `styles.scss`); keyboard users must be able to scroll it. */
+    private labelScrollRegion(viewEl: HTMLElement) {
+        const harness = viewEl.closest('.fc-view-harness');
+        if (harness) {
+            harness.setAttribute('tabindex', '0');
+            harness.setAttribute('role', 'region');
+            harness.setAttribute('aria-label', this.translate.instant('i18n_calendar_exam_times'));
         }
     }
 

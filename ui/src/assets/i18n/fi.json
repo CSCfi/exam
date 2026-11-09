@@ -16,6 +16,7 @@
     "i18n_button_return": "Palaa",
     "i18n_calendar": "Varaustiedot",
     "i18n_calendar_phase_1": "Tentti",
+    "i18n_calendar_exam_times": "Tenttiajat",
     "i18n_calendar_phase_2": "Valitse tenttitila",
     "i18n_calendar_phase_3": "Varauksen tiedot",
     "i18n_calendar_reservation_pending_hint": "Valitse yllä tenttiaika, jotta voit tarkistaa tiedot ja vahvistaa varauksen.",
