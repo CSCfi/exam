@@ -48,7 +48,11 @@ class SystemFilter @Inject() (config: Config)(implicit val mat: Materializer, ec
       ("Expires", "0")
     )
     session match
-      case None => result.withNewSession
+      // No session came with the request. Clearing the cookie would do nothing when there is
+      // none, and harm when the browser has one but left it out: Firefox leaves EXAM's SameSite=Lax
+      // cookie out of the LTI tool's cross-site redirect back to EXAM, yet applies a Set-Cookie
+      // clearing it, which logged the user out of EXAM on every launch.
+      case None => result
       case Some(s) =>
         val (remaining, discarded) = Headers.partition(h => s.get(h._2).isDefined)
         val response = result

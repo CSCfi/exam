@@ -307,6 +307,20 @@ class LtiFlowSpec extends LtiIntegrationSpec:
       statusOf(callback(toolParams(loginHintOf(userSession, esqId)), Session())) must
         be(Status.OK)
 
+    // Firefox leaves EXAM's cookie out of the callback but applies a Set-Cookie clearing it, so
+    // clearing it here would log the user out of EXAM (SystemFilter).
+    "leave EXAM's session cookie alone" in:
+      val (_, userSession, esqId) = teacherReadyToLaunch()
+      val result                  = callback(toolParams(loginHintOf(userSession, esqId)), Session())
+      statusOf(result) must be(Status.OK)
+      result.newSession must be(None)
+      result.newCookies.map(_.name) must not contain "PLAY_SESSION"
+
+    "leave EXAM's session cookie alone when it fails" in:
+      val result = callback(toolParams("some-hint"), Session())
+      statusOf(result) must be(Status.BAD_REQUEST)
+      result.newSession must be(None)
+
     // An exam section shows its LTI questions at once; each frame has its own login.
     "complete several launches started in one session, in any order" in:
       val (_, userSession, esqId) = teacherReadyToLaunch()
