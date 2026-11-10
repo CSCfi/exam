@@ -82,6 +82,15 @@ provisioning to _prompt for existing accounts_, so they link their own Moodle ac
 contact. To relink a teacher, delete the auto-created user in Moodle; the next deep linking
 request then asks them to log in. Learners can keep automatic provisioning.
 
+**Logging in from a launch.** A launch runs in EXAM's frame, and a Moodle that logs in through
+SSO usually cannot log in there: the identity provider refuses to be framed, and the Shibboleth
+discovery page (`idpselect.js`) fails reading the top window's location. So when the prompt mode
+asks a teacher to log in during a preview, the frame stays empty. The preview offers to open the
+launch in a new window under each LTI question (`target=window` on `start-login`, sent to the tool
+as `document_target: window`); the login works there, and once the account is linked the frame
+launches without asking. The deep linking popup is a window of its own too, so a teacher who picks
+content there is linked already. Students never see the prompt under automatic provisioning.
+
 ### A+
 
 A+ supports LTI 1.3 as a tool from version 1.18. The A+ administrator registers this platform
@@ -136,9 +145,6 @@ Only the parameters the tool declares are kept from the pick, and it has to give
 one. A pick of more than one resource is refused with a page asking the teacher to pick only one,
 since Moodle's picker allows ticking several although the request asks for one. The resource's URL is not stored: launches go to the tool's `target-link-uri`.
 
-The session holds one login in progress, so starting a deep linking request and a launch at the
-same time in one browser makes one of them fail.
-
 **Network.** Deep linking is the one place where EXAM's server calls the tool: it fetches the
 tool's keys from `jwks-url` (for Moodle `GET <moodle>/enrol/lti/jwks.php` over HTTPS) to check a
 pick. EXAM's server therefore needs outbound access to the tool on port 443, through the JVM's
@@ -159,20 +165,23 @@ The launch runs in an iframe in the examination view (`ExaminationLtiComponent`)
     - an admin may open any exam
 
     It then redirects to the login initiation URL of the question's tool, with a fresh
-    `login_hint` stored in the session.
+    `login_hint`. The login is kept on the server under that hint (`LtiLogins`): who started it,
+    in which role, and for which question and exam, or which deep linking request.
 
 2. The tool redirects back to `GET /integration/lti/oidc/login` with its own `state` and `nonce`.
-   EXAM checks the `login_hint` (which binds the callback to the session that started it),
-   resolves the question again, and checks that `client_id` is the one of the question's tool and
+   EXAM takes the login by its `login_hint`, which works once and for five minutes,
+   resolves the question again for the user who started it, and checks that `client_id` is the one of the question's tool and
    that `redirect_uri` is one of that tool's `redirect-uris`.
 3. EXAM answers with a self-submitting form that POSTs the signed `id_token` and the tool's
    `state` to the `redirect_uri`.
 
-The session holds one launch in progress: a launch started before the previous one has reached
-its callback replaces it, and the previous one fails with `400`. An exam section shows all its
-questions at once, so the examination view starts LTI launches one at a time
-(`LtiLaunchQueueService`): a frame gets its URL when the frame before it has loaded its first
-document, which comes after the callback, or after 20 seconds at the latest.
+The callback does not use EXAM's session. It reaches EXAM through a redirect from the tool, and when
+the tool is on another site (`exam.uni.fi` and `moodle.other.fi`) Firefox treats it as a cross-site
+request and sends it without EXAM's `SameSite=Lax` session cookie. Chromium-based browsers send the
+cookie for now. The `login_hint` stands in for it: it is random, goes only to the tool, and can be
+used once. A callback without a known hint fails with `400`. Each launch has its own hint, so
+several launches can be in progress at once. The examination view still starts them one at a time
+(`LtiLaunchQueueService`), which they no longer need.
 
 Everything the token asserts about the launch comes from the database, not from the browser: the
 browser only names a question in an exam, so it cannot make EXAM sign a launch into a resource the
@@ -191,6 +200,15 @@ registrable domain. `exam.uni.fi` and `moodle.uni.fi` are the same site; `exam.u
   `SameSite=None`, as Moodle sets them.
 - WebKit-based browsers block them by default: Safari, and, as far as we know, SEB on macOS and
   iOS. There the tool's login fails inside the frame. This is not verified with SEB yet.
+
+- Firefox keeps them, but separately per top-level site, which is enough inside the frame.
+
+EXAM's own session cookie is not needed inside the frame (see the launch flow), so this concerns
+only the tool's cookie. Recent Moodle versions (seen in 5.1) check this themselves before the
+login: Moodle tries a `SameSite=None` cookie and then a `Partitioned` one, and when neither gets
+through it shows "Cookies are blocked by your browser" in the frame. For that case, and the SSO login above, the examination view offers the
+launch in a new window under each LTI question, where the tool is first-party. The link is shown
+in previews and home exams, not in exam rooms or SEB exams, where the exam view is the only window.
 
 So deploy EXAM and its tools on the same site where possible, and test with SEB on macOS before
 relying on a cross-site setup. SEB's URL filter also has to allow the tool's domain.

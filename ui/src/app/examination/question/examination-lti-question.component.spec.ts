@@ -6,6 +6,7 @@ import { Component, provideZonelessChangeDetection, signal } from '@angular/core
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
+import type { Implementation } from 'src/app/exam/exam.model';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { vi } from 'vitest';
@@ -18,7 +19,12 @@ const LoginUrl = 'https://exam.example.org/integration/lti/start-login';
     selector: 'xm-lti-host',
     template: `
         @for (sq of questions(); track sq.id) {
-            <xm-examination-lti-question [sq]="sq" [examHash]="examHash()" />
+            <xm-examination-lti-question
+                [sq]="sq"
+                [examHash]="examHash()"
+                [isPreview]="isPreview()"
+                [implementation]="implementation()"
+            />
         }
     `,
     imports: [ExaminationLtiComponent],
@@ -26,6 +32,8 @@ const LoginUrl = 'https://exam.example.org/integration/lti/start-login';
 class HostComponent {
     readonly questions = signal([{ id: 1 }, { id: 2 }] as unknown as ExaminationQuestion[]);
     readonly examHash = signal<string | undefined>('exam-hash');
+    readonly isPreview = signal(false);
+    readonly implementation = signal<Implementation | undefined>('AQUARIUM');
 }
 
 /**
@@ -115,5 +123,45 @@ describe('ExaminationLtiComponent', () => {
 
         expect(frames()).toHaveLength(0);
         expect(fixture.nativeElement.textContent).toContain('i18n_lti_not_available');
+    });
+
+    const windowLinks = (): HTMLAnchorElement[] =>
+        Array.from(fixture.nativeElement.querySelectorAll('a[target="_blank"]'));
+
+    it('should offer the launch in a window of its own in a preview', async () => {
+        await setUp(LoginUrl);
+
+        fixture.componentInstance.isPreview.set(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(windowLinks().map((a) => a.getAttribute('href'))).toEqual([
+            `${LoginUrl}?sectionQuestionId=1&examHash=exam-hash&target=window`,
+            `${LoginUrl}?sectionQuestionId=2&examHash=exam-hash&target=window`,
+        ]);
+        expect(windowLinks()[0].getAttribute('rel')).toBe('noopener');
+    });
+
+    // Safari blocks the tool's cookies in the frame when the tool is on another site.
+    it('should offer the window to a student taking a home exam', async () => {
+        await setUp(LoginUrl);
+
+        fixture.componentInstance.implementation.set('WHATEVER');
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(windowLinks()).toHaveLength(2);
+    });
+
+    it('should not offer a window in an exam room or a SEB exam', async () => {
+        for (const implementation of ['AQUARIUM', 'CLIENT_AUTH'] as const) {
+            TestBed.resetTestingModule();
+            await setUp(LoginUrl);
+            fixture.componentInstance.implementation.set(implementation);
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(windowLinks(), implementation).toHaveLength(0);
+        }
     });
 });

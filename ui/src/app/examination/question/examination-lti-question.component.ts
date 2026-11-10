@@ -7,6 +7,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
+import type { Implementation } from 'src/app/exam/exam.model';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { LtiLaunchQueueService, LtiLaunchTicket } from './lti-launch-queue.service';
@@ -31,6 +32,14 @@ import { LtiLaunchQueueService, LtiLaunchTicket } from './lti-launch-queue.servi
             <!-- Waiting for the login URL, or for another LTI question's launch to finish. -->
             <div class="lti-frame-placeholder"></div>
         }
+        @if (windowUrl(); as url) {
+            <!-- For a tool that cannot work in the frame: an SSO login page refusing to be framed, or a browser
+                 blocking the tool's cookies there (Safari). In a window of its own the tool is first-party. -->
+            <div class="small text-muted mt-2">
+                {{ 'i18n_lti_open_in_window_hint' | translate }}
+                <a [href]="url" target="_blank" rel="noopener">{{ 'i18n_lti_open_in_window' | translate }}</a>
+            </div>
+        }
     `,
     imports: [FormsModule, TranslateModule],
     styleUrls: ['./question.shared.scss'],
@@ -39,15 +48,20 @@ export class ExaminationLtiComponent {
     readonly sq = input.required<ExaminationQuestion>();
     readonly examHash = input<string>();
     readonly isPreview = input(false);
+    readonly implementation = input<Implementation>();
 
     // The base URL comes from lti.platform.issuer on the backend. Null while LTI is not in use.
     readonly ltiUrl = computed(() => {
-        const base = this.loginUrl();
-        const hash = this.examHash();
-        if (!base || !hash) return null;
-        // The backend resolves the tool resource and the exam context from these, never from the UI.
-        const params = new URLSearchParams({ sectionQuestionId: String(this.sq().id), examHash: hash });
-        return this.sanitizer.bypassSecurityTrustResourceUrl(`${base}?${params}`);
+        const url = this.launchUrl();
+        return url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
+    });
+
+    // The same launch in a window of its own, for when the tool cannot work in the frame. Offered in
+    // previews and home exams; not in exam rooms or SEB exams, where the exam view is the only window.
+    readonly windowUrl = computed(() => {
+        const url = this.launchUrl();
+        const offered = this.isPreview() || this.implementation() === 'WHATEVER';
+        return url && offered ? `${url}&target=window` : null;
     });
 
     // No exam to launch from (the single-question preview), or LTI is not in use.
@@ -60,6 +74,15 @@ export class ExaminationLtiComponent {
     private readonly queue = inject(LtiLaunchQueueService);
     private readonly loginUrl = toSignal(inject(ExaminationService).getLtiLoginUrl$());
     private ticket?: LtiLaunchTicket;
+
+    private readonly launchUrl = computed(() => {
+        const base = this.loginUrl();
+        const hash = this.examHash();
+        if (!base || !hash) return null;
+        // The backend resolves the tool resource and the exam context from these, never from the UI.
+        const params = new URLSearchParams({ sectionQuestionId: String(this.sq().id), examHash: hash });
+        return `${base}?${params}`;
+    });
 
     constructor() {
         effect((onCleanup) => {
