@@ -152,6 +152,30 @@ class IopPayloadFixturesSpec extends BaseIntegrationSpec with Matchers:
             "copy them to XM with `pnpm run sync-fixtures <branch>` in the XM repository."
         )
 
+    // An LTI question's tool and parameters belong to this installation's LTI setup and are
+    // never sent; the fixtures above only see questions without them.
+    "leave out the LTI tool and parameters of questions" in:
+      ensureTestDataLoaded()
+      val exam     = richExam
+      val question = exam.examSections.asScala.flatMap(_.sectionQuestions.asScala).head.question
+      question.ltiTool = "moodle"
+      question.ltiCustom = new java.util.HashMap[String, Object](Map("id" -> "42").asJava)
+      question.update()
+      val sent = Seq(
+        "enrolment"          -> IopPayloads.enrolment(exam),
+        "collaborativeExam"  -> IopPayloads.collaborativeExam(exam, "1-abc"),
+        "assessmentTransfer" -> Json.parse(IopPayloads.assessmentTransfer(externalExam(exam)))
+      )
+      sent.foreach { (name, json) =>
+        withClue(s"$name: ") {
+          val text = Json.stringify(json)
+          text must not include "ltiTool"
+          text must not include "ltiCustom"
+          // The question itself still goes, only these fields stay behind
+          text must include(question.question.take(20))
+        }
+      }
+
     "still be readable from every protocol version's fixtures" in:
       val versions = Files.list(fixtureRoot).iterator.asScala.filter(Files.isDirectory(_)).toSeq
       versions must not be empty

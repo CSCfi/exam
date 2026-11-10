@@ -4,7 +4,7 @@
 
 package services.iop
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.ObjectNode
 import database.EbeanJsonExtensions
 import database.EbeanPaths.props
@@ -14,11 +14,12 @@ import models.enrolment.ExamParticipation
 import models.exam.Exam
 import models.facility.ExamRoom
 import models.iop.ExternalExam
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsArray, JsObject, JsValue, Json}
 import services.json.EbeanMapper
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import scala.jdk.CollectionConverters.*
 
 /** The JSON this installation sends to other EXAM installations through XM.
   *
@@ -92,7 +93,32 @@ object IopPayloads extends EbeanJsonExtensions:
 
   private val plainMapper = new ObjectMapper()
 
-  def enrolment(exam: Exam): JsValue = exam.asJson(enrolmentPath)
+  /** Question fields that mean something only in this installation, left out of everything sent to
+    * others: an LTI question's tool is a key of this installation's `lti.tools`, and its custom
+    * parameters pick content in a tool registered here.
+    */
+  private val LocalOnlyFields = Set("ltiTool", "ltiCustom")
+
+  private def withoutLocalFields(json: JsValue): JsValue = json match
+    case JsObject(fields) =>
+      JsObject(fields.toSeq.collect {
+        case (k, v) if !LocalOnlyFields(k) => k -> withoutLocalFields(v)
+      })
+    case JsArray(items) => JsArray(items.map(withoutLocalFields))
+    case other          => other
+
+  private def removeLocalFields(node: JsonNode): Unit =
+    node match
+      case o: ObjectNode => LocalOnlyFields.foreach(o.remove)
+      case _             => ()
+    node.elements.asScala.foreach(removeLocalFields)
+
+  private def withoutLocalFields(json: String): String =
+    val node = plainMapper.readTree(json)
+    removeLocalFields(node)
+    node.toString
+
+  def enrolment(exam: Exam): JsValue = withoutLocalFields(exam.asJson(enrolmentPath))
 
   /** Whole collaborative exam for updating the XM copy. Uses Jackson because it serializes the
     * entire object. CouchDB expects "rev" (not "_rev") when uploading.
@@ -100,15 +126,16 @@ object IopPayloads extends EbeanJsonExtensions:
   def collaborativeExam(exam: Exam, revision: String): JsValue =
     val mapper = EbeanMapper.create()
     val node   = mapper.readTree(mapper.writeValueAsString(exam))
+    removeLocalFields(node)
     node.asInstanceOf[ObjectNode].put("rev", revision)
     Json.parse(mapper.writeValueAsString(node))
 
   def collaborativeAssessment(participation: ExamParticipation): String =
-    DB.json().toJson(participation, collaborativeAssessmentPath)
+    withoutLocalFields(DB.json().toJson(participation, collaborativeAssessmentPath))
 
   /** Attempt taken here by a visiting student, sent back to the student's home organisation */
   def assessmentTransfer(externalExam: ExternalExam): String =
-    plainMapper.readTree(DB.json.toJson(externalExam, assessmentTransferPath)).toString
+    withoutLocalFields(DB.json.toJson(externalExam, assessmentTransferPath))
 
   def facility(room: ExamRoom): String = DB.json().toJson(room, facilityPath)
 

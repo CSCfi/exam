@@ -108,8 +108,7 @@ class ExternalExamService @Inject() (
                 )
                 Left(ExternalExamError.ExamNotTransferable)
               case Some(exam) =>
-                val pp = getPath
-                Right((exam.asJson(pp), pp))
+                Right((IopPayloads.enrolment(exam), getPath))
               case None => Left(ExternalExamError.CouldNotDownloadCollaborativeExam)
             }
           case None if enrolment.exam.hasLtiQuestions =>
@@ -149,7 +148,7 @@ class ExternalExamService @Inject() (
                 case Some(reason) =>
                   logger.error(s"Could not provide enrolment [id=${enrolment.id}]: $reason")
                   Left(ExternalExamError.FailedToProvideEnrolment)
-                case None => Right((exam.asJson(pp), pp))
+                case None => Right((IopPayloads.enrolment(exam), pp))
               )
               .recover { case NonFatal(t) =>
                 logger.error(s"Could not provide enrolment [id=${enrolment.id}]", t)
