@@ -12,6 +12,7 @@ import play.api.libs.json.*
 import validation.core.*
 
 import java.time.Instant
+import java.time.ZoneOffset
 import java.util
 import java.util.Date
 import scala.jdk.CollectionConverters.*
@@ -26,6 +27,7 @@ object ExamValidator:
       .withRule(requireName)
       .withRule(requireDuration)
       .withRule(requirePublishedExamHasName)
+      .withRule(requireReasonablePeriod)
       .validate(body)
 
   def forCreation(body: JsValue): Either[ValidationException, Exam] =
@@ -72,6 +74,15 @@ object ExamValidator:
   private def requireExecutionType(exam: Exam)
       : ValidatedNel[FieldError, models.exam.ExamExecutionType] =
     PlayValidator.requirePresent("executionType", exam.executionType)
+
+  // ISO-8601 instants beyond year 9999 serialize as "+10000-..." which clients cannot parse
+  private val MaxPeriodYear = 9999
+
+  private def requireReasonablePeriod(exam: Exam): ValidatedNel[FieldError, Unit] =
+    def check(field: String, value: Instant) =
+      PlayValidator.when(Option(value).exists(_.atZone(ZoneOffset.UTC).getYear > MaxPeriodYear)):
+        PlayValidator.invalid(field, s"Year must not exceed $MaxPeriodYear")
+    (check("periodStart", exam.periodStart), check("periodEnd", exam.periodEnd)).mapN((_, _) => ())
 
   private def requirePublishedExamHasName(exam: Exam): ValidatedNel[FieldError, Unit] =
     val isPublished = exam.state == ExamState.PUBLISHED

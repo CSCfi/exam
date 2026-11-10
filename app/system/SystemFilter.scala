@@ -4,15 +4,21 @@
 
 package system
 
+import com.typesafe.config.Config
 import org.apache.pekko.stream.Materializer
 import play.api.mvc.{Filter, RequestHeader, Result}
+import services.iop.{IopLog, IopProtocol, IopTimestamps}
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter:
+class SystemFilter @Inject() (config: Config)(implicit val mat: Materializer, ec: ExecutionContext)
+    extends Filter:
+
+  // Tells XM which protocol version answered a proxied IOP request
+  private val iopHeaders = IopProtocol.responseHeaders(config)
 
   val Headers: Seq[(String, String)] = Seq(
     ("x-exam-start-exam", "ongoingExamHash"),
@@ -66,6 +72,15 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
     rh.path match
       case "/app/logout" => next.apply(rh)
+      case p if p.startsWith("/integration/iop/") =>
+        val id    = rh.headers.get(IopProtocol.RequestIdHeader).filter(IopProtocol.isRequestId)
+        val start = System.nanoTime()
+        next.apply(rh).map { r =>
+          val result =
+            IopTimestamps.normalise(processResult(r)(using rh)).withHeaders(iopHeaders*)
+          IopLog.received(rh.method, rh.path, id, result.header.status, start)
+          id.fold(result)(i => result.withHeaders(IopProtocol.RequestIdHeader -> i))
+        }
       // Disable caching for the index page so that CSRF cookie can be injected without worries
       case p if p.startsWith("/app") | p.startsWith("/integration") =>
         next.apply(rh).map(processResult(_)(using rh))

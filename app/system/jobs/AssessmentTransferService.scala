@@ -7,16 +7,12 @@ package system.jobs
 import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import com.fasterxml.jackson.databind.ObjectMapper
-import database.EbeanPaths.{path, props}
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import io.ebean.text.PathProperties
 import models.enrolment.ExamEnrolment
 import models.iop.ExternalExam
 import play.api.Logging
-import play.api.libs.json.JsonParserSettings
-import play.api.libs.json.jackson.PlayJsonMapperModule
 import play.api.libs.ws.{WSClient, writeableOf_String}
 import play.mvc.Http
 import security.BlockingIOExecutionContext
@@ -41,8 +37,6 @@ class AssessmentTransferService @Inject() (
 
   // Maximum number of concurrent HTTP requests
   private val maxConcurrency = 10
-  private val objectMapper =
-    new ObjectMapper().registerModule(new PlayJsonMapperModule(JsonParserSettings.settings))
 
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/assessment").toURL
@@ -52,14 +46,13 @@ class AssessmentTransferService @Inject() (
     logger.info(s"Transferring back assessment for reservation $ref")
     val url  = parseUrl(ref)
     val ee   = enrolment.externalExam
-    val json = DB.json.toJson(ee, props[ExternalExam]("(*, creator(id))"))
-    val node = objectMapper.readTree(json)
+    val body = IopPayloads.assessmentTransfer(ee)
     IO.fromFuture(
       IO(
         wsClient
           .url(url.toString)
           .addHttpHeaders("Content-Type" -> "application/json")
-          .post(node.toString)
+          .post(body)
       )
     ).attempt
       .map {

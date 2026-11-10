@@ -19,7 +19,7 @@ import javax.inject.Inject
 class ExamMachineService @Inject() () extends EbeanQueryExtensions:
 
   private val defaultPathProperties =
-    props[ExamMachine]("(*, softwareInfo(*), room(name, buildingName))")
+    props[ExamMachine]("(*, softwareInfo(*), room(name, buildingName, roomCode))")
 
   def getExamMachines: List[ExamMachine] =
     DB.find(classOf[ExamMachine]).where().eq(path[ExamMachine]("archived"), false).isNotNull(

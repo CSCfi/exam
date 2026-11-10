@@ -116,8 +116,8 @@ TABLES = {
     'cloze_test_answer': ['id', 'answer', 'object_version'],
     'exam': [
         'id', 'created', 'creator_id', 'modified', 'modifier_id', 'name', 'course_id',
-        'exam_type_id', 'instruction', 'shared', 'parent_id', 'hash', 'exam_active_start_date',
-        'exam_active_end_date', 'duration', 'answer_language', 'graded_by_user_id', 'graded_time',
+        'exam_type_id', 'instruction', 'shared', 'parent_id', 'hash', 'period_start',
+        'period_end', 'duration', 'answer_language', 'graded_by_user_id', 'graded_time',
         'grade_scale_id', 'grade_id', 'credit_type_id', 'execution_type_id', 'trial_count',
         'state', 'anonymous', 'implementation', 'grading_type', 'object_version',
     ],

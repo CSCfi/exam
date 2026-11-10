@@ -4,7 +4,7 @@
 
 package features.iop.transfer.services
 
-import database.EbeanPaths.{path, props}
+import database.EbeanPaths.path
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.examination.services.ExaminationService
 import features.iop.collaboration.services.CollaborativeExamLoaderService
@@ -19,6 +19,7 @@ import play.libs.Json as JavaJson
 import security.BlockingIOExecutionContext
 import services.enrolment.NoShowHandler
 import services.exam.ExternalExamHandler
+import services.iop.IopPayloads
 import services.json.JsonDeserializer
 
 import javax.inject.Inject
@@ -37,28 +38,7 @@ class ExternalExamService @Inject() (
     with EbeanJsonExtensions
     with Logging:
 
-  private def getPath: PathProperties =
-    props[Exam]("""(*,
-                  |course(*, gradeScale(*, grades(*))),
-                  |executionType(*),
-                  |autoEvaluationConfig(*, gradeEvaluations(*, grade(*, gradeScale(*)))),
-                  |examFeedbackConfig(*),
-                  |examLanguages(*),
-                  |attachment(*),
-                  |examOwners(*),
-                  |examInspections(*, user(*)),
-                  |examType(*),
-                  |creditType(*),
-                  |gradeScale(*, grades(*)),
-                  |examSections(*,
-                  |  sectionQuestions(*,
-                  |    question(*, attachment(*), options(*)),
-                  |    options(*, option(*)),
-                  |    essayAnswer(*, attachment(*)),
-                  |    clozeTestAnswer(*)
-                  |  )
-                  |)
-                  |)""".stripMargin)
+  private def getPath: PathProperties = IopPayloads.enrolmentPath
 
   def addExamForAssessment(ref: String, body: JsValue): Future[Either[ExternalExamError, Unit]] =
     getPrototype(ref) match

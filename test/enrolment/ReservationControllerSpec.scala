@@ -8,7 +8,7 @@ import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.calendar.DefaultWorkingHours
-import models.enrolment.{ExamEnrolment, Reservation}
+import models.enrolment.*
 import models.exam.{Exam, ExamState}
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.User
@@ -209,3 +209,34 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
             updated.machine.id must be(anotherMachine.id)
             updated.startAt must be(originalStart)
           case None => fail("Reservation not found")
+
+    "listing examination events" should:
+      "include the exam duration" in:
+        val (_, session)        = runIO(loginAsAdmin())
+        val (reservation, _, _) = setupOngoingReservation()
+        val enrolment =
+          DB.find(classOf[ExamEnrolment]).where().eq("reservation", reservation).find match
+            case Some(e) => e
+            case None    => fail("Enrolment not found")
+
+        val event = new ExaminationEvent()
+        event.start = fixedNow.plus(Duration.ofDays(1))
+        event.capacity = 10
+        event.save()
+        val config = new ExaminationEventConfiguration()
+        config.exam = enrolment.exam
+        config.examinationEvent = event
+        config.save()
+        enrolment.reservation = null
+        enrolment.examinationEventConfiguration = config
+        enrolment.update()
+
+        // no end date, so the service itself never reads the duration
+        val window = s"start=${fixedNow.minus(Duration.ofDays(1))}"
+        val result = runIO(get(s"/app/events?$window", session = session))
+        statusOf(result) must be(Status.OK)
+        val listed = contentAsJsonOf(result).as[JsArray].value
+          .find(e => (e \ "id").as[Long] == enrolment.id.longValue)
+          .getOrElse(fail("Enrolment not listed"))
+        // the UI adds this to the event start to show when the examination ends
+        (listed \ "exam" \ "duration").asOpt[Int] must be(Some(60))

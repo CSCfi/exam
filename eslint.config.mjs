@@ -8,7 +8,7 @@ import noRelativeImportPaths from "eslint-plugin-no-relative-import-paths";
 import { defineConfig, globalIgnores } from "eslint/config";
 import tseslint from "typescript-eslint";
 
-export default defineConfig([globalIgnores(["projects/**/*", "ui/src/assets/components/**/*"]), {
+export default defineConfig([globalIgnores(["projects/**/*", "ui/src/assets/components/**/*", "scripts/e2e/**/*"]), {
     files: ["**/*.ts"],
 
     extends: [

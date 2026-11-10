@@ -45,6 +45,8 @@
 
     <logger name="play" level="INFO"/>
     <logger name="services" level="DEBUG"/>
+    <!-- One line per cross-organisation request, with the request id XM logs as well -->
+    <logger name="iop" level="INFO"/>
     <logger name="controllers" level="DEBUG" />
     <logger name="database" level="DEBUG" />
     <logger name="features" level="DEBUG" />
