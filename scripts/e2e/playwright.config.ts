@@ -23,6 +23,22 @@ export default defineConfig({
         trace: 'retain-on-failure',
         video: 'retain-on-failure',
         screenshot: 'only-on-failure',
+        ignoreHTTPSErrors: true,
     },
-    projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+    // The LTI tests run in every engine, since browsers keep a framed tool's cookies differently;
+    // the rest only in Chromium.
+    projects: [
+        { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+        { name: 'firefox', testMatch: /lti-.*\.spec\.ts/, use: { ...devices['Desktop Firefox'] } },
+        { name: 'webkit', testMatch: /lti-.*\.spec\.ts/, use: { ...devices['Desktop Safari'] } },
+    ],
+    // The stand-in LTI tool, on another site than EXAM (lti-tool/server.mjs). Its certificate is
+    // self-signed, hence ignoreHTTPSErrors above; the keys come from run.sh.
+    webServer: {
+        command: 'node lti-tool/server.mjs',
+        url: 'https://127.0.0.1:8443/health',
+        ignoreHTTPSErrors: true,
+        reuseExistingServer: true,
+        stdout: 'pipe',
+    },
 });

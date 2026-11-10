@@ -16,6 +16,19 @@ export EXAM_DB_PORT="${EXAM_DB_PORT:-5433}"
 export COMPOSE_FILE="docker-compose.yml:scripts/e2e/compose.yml"
 
 docker compose down -v
+
+# LTI keys for the stand-in tool (lti.conf, lti-tool/server.mjs): EXAM's signing key pair and the
+# tool's TLS certificate. Generated once, kept out of git.
+lti=scripts/e2e/.lti
+if [ ! -f "$lti/tool-cert.pem" ]; then
+    mkdir -p "$lti"
+    openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$lti/platform-private.pem" 2>/dev/null
+    openssl pkey -in "$lti/platform-private.pem" -pubout -out "$lti/platform-public.pem"
+    openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -subj /CN=127.0.0.1 \
+        -addext subjectAltName=IP:127.0.0.1 -keyout "$lti/tool-key.pem" -out "$lti/tool-cert.pem" 2>/dev/null
+    # The app runs as another user in its container
+    chmod 644 "$lti"/*.pem
+fi
 # E2E_NO_BUILD=1 reuses the existing image, e.g. when only the tests or the seed changed
 if [ "${E2E_NO_BUILD:-0}" = "1" ]; then
     docker compose up -d --wait

@@ -272,6 +272,49 @@ INSERT INTO exam_enrolment (id, user_id, exam_id, reservation_id, enrolled_on, o
 VALUES (990010, 990012, 990001, 990008, now(), 1, false, false, false, 0),
        (990011, 990013, 990003, 990009, now(), 1, false, false, false, 0);
 
+-- A home exam with an LTI question, its exam event in progress -------------------------------
+-- The question launches the stand-in tool (lti.conf, lti-tool/server.mjs), on another site than
+-- EXAM. e2e-lti takes the exam; the teacher previews it. Home exam (implementation 3), so the
+-- examination view offers the launch in a new window too.
+INSERT INTO app_user (id, email, eppn, first_name, last_name, password, user_agreement_accepted,
+                      object_version, language_id, user_identifier)
+VALUES (990015, 'e2e-lti@example.org', 'e2e-lti@funet.fi', 'Liisa', 'Lti', md5('e2e'), true, 1, 'en', 'e2e-0015');
+INSERT INTO app_user_role (app_user_id, role_id) VALUES (990015, 2);
+
+INSERT INTO exam (id, created, creator_id, modified, modifier_id, name, course_id, exam_type_id,
+                  instruction, hash, period_start, period_end, duration,
+                  object_version, grade_scale_id, execution_type_id, trial_count, state,
+                  implementation, anonymous, grading_type, enroll_instruction, shared)
+VALUES (990005, now(), 990002, now(), 990002, 'E2E LTI Exam', 990001, 2,
+        '<p>Do the task in the tool.</p>', md5('e2e-exam-990005'), now() - interval '1 day',
+        now() + interval '30 days', 60, 1, 1, 1, 1, 3, 3, false, 1, NULL, false);
+INSERT INTO exam_owner (exam_id, user_id) VALUES (990005, 990002);
+INSERT INTO exam_language (exam_id, language_code) VALUES (990005, 'en');
+INSERT INTO exam_section (id, created, creator_id, name, exam_id, object_version, sequence_number,
+                          lottery_on, lottery_item_count, optional, expanded)
+VALUES (990004, now(), 990002, 'Section 1', 990005, 1, 0, false, 1, false, true);
+
+-- type 6 LtiQuestion: the tool's key and the custom parameters picking the content in it
+INSERT INTO question (id, created, creator_id, modified, modifier_id, question, state, default_max_score,
+                      default_expected_word_count, object_version, type, default_evaluation_type, shared,
+                      default_negative_score_allowed, default_option_shuffling_on, lti_tool, lti_custom)
+VALUES (990006, now(), 990002, now(), 990002, '<p>Do the task in the tool.</p>', 'SAVED', 10, NULL,
+        1, 6, 1, false, false, false, 'e2e', '{"id": "e2e-resource"}');
+INSERT INTO question_owner (question_id, user_id) VALUES (990006, 990002);
+INSERT INTO exam_section_question (id, exam_section_id, question_id, sequence_number, creator_id, created,
+                                   max_score, expected_word_count, evaluation_type, object_version,
+                                   negative_score_allowed, option_shuffling_on)
+VALUES (990007, 990004, 990006, 0, 990002, now(), 10, NULL, 1, 1, false, false);
+
+INSERT INTO examination_event (id, start, description, object_version)
+VALUES (990003, now() - interval '5 minutes', 'E2E LTI event', 1);
+INSERT INTO examination_event_configuration (id, examination_event_id, exam_id, object_version)
+VALUES (990003, 990003, 990005, 1);
+INSERT INTO exam_enrolment (id, user_id, exam_id, reservation_id, enrolled_on, object_version,
+                            reservation_canceled, retrial_permitted, no_show, delay,
+                            examination_event_configuration_id)
+VALUES (990012, 990015, 990005, NULL, now(), 1, false, false, false, 0, 990003);
+
 -- Workaround, remove once fixed in an evolution (README, "Findings"): evolution 58 leaves
 -- general_settings_seq behind rows 1-2, so on a fresh database the first two settings the
 -- application creates fail with pk_general_settings.
