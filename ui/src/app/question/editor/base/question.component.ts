@@ -82,7 +82,8 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
     readonly currentOwners = signal<User[]>([]);
     readonly currentTags = signal<Tag[]>([]);
 
-    // LTI questions are offered only where LTI, an optional integration, is in use.
+    // LTI questions are offered only where LTI, an optional integration, is in use, and never in a
+    // collaborative exam: other installations cannot launch this installation's tools.
     readonly questionTypes = computed(() =>
         [
             { type: 'EssayQuestion', name: 'i18n_toolbar_essay_question' },
@@ -91,7 +92,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
             { type: 'WeightedMultipleChoiceQuestion', name: 'i18n_toolbar_weighted_multiplechoice_question' },
             { type: 'ClaimChoiceQuestion', name: 'i18n_toolbar_claim_choice_question' },
             { type: 'LtiQuestion', name: 'i18n_toolbar_lti' },
-        ].filter((t) => t.type !== 'LtiQuestion' || this.ltiActive()),
+        ].filter((t) => t.type !== 'LtiQuestion' || (this.ltiActive() && !this.collaborative())),
     );
 
     private readonly router = inject(Router);

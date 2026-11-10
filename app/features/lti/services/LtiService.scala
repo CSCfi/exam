@@ -11,7 +11,6 @@ import com.nimbusds.jwt.{JWTClaimsSet, SignedJWT}
 import com.typesafe.config.Config
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.questions.QuestionType
 import models.sections.ExamSectionQuestion
@@ -130,28 +129,20 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
           tool   <- tool(esq.question.ltiTool)
           custom <- tool.customParameters(esq.question.ltiCustomParameters)
         yield
-          val (context, collaborative) = launchContext(esq.examSection.exam)
-          LtiLaunch(tool, custom, resourceLinkId(esq, context, collaborative), context)
+          val context = launchContext(esq.examSection.exam)
+          LtiLaunch(tool, custom, resourceLinkId(esq, context), context)
       }
 
   /** Identifies where in the context the question is placed, so the tool can tell apart two exams,
     * or two questions in one exam, that use the same published resource. Like the context it must
     * be the same for every student taking the exam and for a teacher previewing it, so it is keyed
     * by the original exam's question: a student copy's question has it as parent.
-    *
-    * A copy of a collaborative exam has no local original to point at, so there the question's
-    * position is used instead. Positions are copied verbatim from the collaborative exam.
     */
-  private def resourceLinkId(
-      esq: ExamSectionQuestion,
-      context: LtiContext,
-      collaborative: Boolean
-  ): String =
-    val exam = esq.examSection.exam
-    val originalQuestionId =
-      if collaborative then None
-      else if Option(exam.parent).isEmpty then Some(esq.question.id)
-      else Option(esq.question.parent).map(_.id)
+  private def resourceLinkId(esq: ExamSectionQuestion, context: LtiContext): String =
+    val originalQuestionId = Option(esq.examSection.exam.parent) match
+      case None    => Some(esq.question.id)
+      case Some(_) => Option(esq.question.parent).map(_.id)
+    // A copy's question always has a parent; the position is the same for every student otherwise
     val placement = originalQuestionId match
       case Some(id) => s"question-$id"
       case None     => s"section-${esq.examSection.sequenceNumber}-question-${esq.sequenceNumber}"
@@ -165,28 +156,15 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       case _                 => false
 
   /** The LTI context is the course the launch happens in, shared by everyone taking the exam. A
-    * student's exam is a copy, so it is identified by the exam it was copied from: the parent exam,
-    * or the collaborative exam for copies that have no local parent. Also tells whether the exam is
-    * such a collaborative copy.
+    * student's exam is a copy, so it is identified by the exam it was copied from. LTI questions
+    * are not allowed in collaborative exams, so every launch has a local original.
     */
-  private def launchContext(exam: Exam): (LtiContext, Boolean) =
+  private def launchContext(exam: Exam): LtiContext =
     val prototype = Option(exam.parent).getOrElse(exam)
-    val collaborativeExamId = Option(exam.parent) match
-      case Some(_) => None
-      case None =>
-        DB.find(classOf[ExamEnrolment])
-          .where()
-          .eq("exam", exam)
-          .isNotNull("collaborativeExam")
-          .find
-          .map(_.collaborativeExam.id)
-    val id = (Option(exam.parent), collaborativeExamId) match
-      case (Some(parent), _)  => s"exam-${parent.id}"
-      case (None, Some(ceId)) => s"collaborative-exam-$ceId"
-      case (None, None)       => s"exam-${exam.id}"
-    val title = Option(prototype.name).filter(_.nonEmpty).getOrElse(id)
-    val label = Option(prototype.course).flatMap(c => Option(c.code)).filter(_.nonEmpty)
-    (LtiContext(id, label.getOrElse(title), title), collaborativeExamId.isDefined)
+    val id        = s"exam-${prototype.id}"
+    val title     = Option(prototype.name).filter(_.nonEmpty).getOrElse(id)
+    val label     = Option(prototype.course).flatMap(c => Option(c.code)).filter(_.nonEmpty)
+    LtiContext(id, label.getOrElse(title), title)
 
   /** Signs the LTI 1.3 resource link id_token for the given user and launch. */
   def buildIdToken(

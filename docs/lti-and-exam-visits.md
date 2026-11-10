@@ -10,7 +10,8 @@ An LTI question embeds an activity from an external tool (Moodle or A+ in the re
 in an exam. EXAM acts as the LTI 1.3 **platform**, the role an LMS normally plays: it starts the launch,
 and it signs the token that tells the tool who the user is and where the launch comes from.
 
-This document covers how a launch works, what EXAM asserts in it, and why an exam with LTI
+This document covers how a launch works, what EXAM asserts in it, and why LTI questions stay
+within one installation: they cannot be used in collaborative exams, and an exam with LTI
 questions cannot be taken as a visit to another installation.
 
 ## Turning LTI on
@@ -241,8 +242,7 @@ rather than from the email. Moodle ignores them.
 for everyone taking the exam. Each student takes their own copy of an exam, so the context is
 the exam the copy was made from:
 
-- `id`: `exam-<id of the original exam>`, or `collaborative-exam-<id>` for a copy of a
-  collaborative exam
+- `id`: `exam-<id of the original exam>`
 - `title`: the exam name
 - `label`: the course code, or the exam name if the exam has no course
 - `type`: `CourseOffering`
@@ -250,11 +250,8 @@ the exam the copy was made from:
 **Resource link.** One activity in a tool can be used in many exams, and more than once in one
 exam, so the resource link stands for the question's placement rather than the activity (that is
 `custom`). Like the context it is the same for every student and for a teacher
-previewing the exam: `<context id>-question-<id of the original exam's question>`. A copy of a
-collaborative exam has no local original, so there it is
-`<context id>-section-<section number>-question-<question number>`, positions being copied
-verbatim from the collaborative exam. Grades sent back by the tool (LTI AGS, not implemented yet)
-would be keyed by this.
+previewing the exam: `<context id>-question-<id of the original exam's question>`. Grades sent
+back by the tool (LTI AGS, not implemented yet) would be keyed by this.
 
 **Roles.**
 
@@ -275,9 +272,18 @@ The launch needs an exam in this installation's database, so the iframe shows a 
 instead of the tool in these cases:
 
 - the single-question preview (question library and exam editor), which has no exam
-- the preview of a collaborative exam, whose exam lives on XM rather than locally
 
-Students taking a collaborative exam are not affected, since their copy is stored locally.
+## Collaborative exams
+
+LTI questions cannot be used in collaborative exams. A collaborative exam is taken in every
+participating installation, but a tool is registered with one installation (`lti.tools`), so the
+others would have nothing to launch, unless every installation registered the same tools under the
+same keys. The question editor does not offer the type there, and
+`CollaborativeExamSectionController` refuses adding an LTI question to a collaborative exam or
+changing a question into one (`i18n_lti_not_in_collaborative_exam`).
+
+For the same reason a question's `ltiTool` and `ltiCustom` are never sent to other installations:
+`IopPayloads` leaves them out of every IOP payload.
 
 ## Exam visits
 
@@ -293,8 +299,8 @@ the exam. EXAM therefore refuses the visit up front, in two places:
   `i18n_error_exam_not_available_externally`, so the student finds out when booking, not on the
   day of the exam.
 - **Transfer**: `ExternalExamService` refuses to hand the exam to the visited installation with
-  `409 Conflict` (`ExamNotTransferable`). This also covers collaborative exams, and catches LTI
-  questions added after the reservation was made.
+  `409 Conflict` (`ExamNotTransferable`). This catches LTI questions added after the reservation
+  was made, and collaborative exams that got LTI questions before they were refused.
 
 `Exam.hasLtiQuestions` decides both.
 
@@ -306,5 +312,6 @@ test `moodle` tool of `conf/integrationtest.conf` and an A+ tool, and covers a l
 `test/lti/AplusContractSpec.scala` states what A+ needs from a launch, as read from A+'s source at
 a pinned commit; update it when a test A+ is available. `test/lti/LtiInactiveSpec.scala` covers LTI turned off. `test/lti/LtiServiceSpec.scala` covers
 the tool configuration and the CSP. `test/iop/ExternalExamControllerSpec.scala` covers the refused
-transfer. None of these replaces a launch against a real tool: what Moodle or A+ does with the
+transfer, `test/iop/CollaborativeExamSectionControllerSpec.scala` the refused collaborative
+question and `test/iop/IopPayloadFixturesSpec.scala` the fields left out of IOP. None of these replaces a launch against a real tool: what Moodle or A+ does with the
 context and roles is only verified there.

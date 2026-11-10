@@ -163,6 +163,7 @@
     "i18n_lti_not_active": "LTI används inte på den här servern.",
     "i18n_lti_not_active_kept": "LTI används inte på den här servern. Verktyget och dess uppgifter behålls som de är.",
     "i18n_lti_not_available": "Frågans externa verktyg är inte tillgängligt här.",
+    "i18n_lti_not_in_collaborative_exam": "LTI-frågor kan inte användas i gemensamma tentamina.",
     "i18n_lti_open_in_window_hint": "Om verktyget ber dig logga in eller inte öppnas här, öppna det i ett nytt fönster.",
     "i18n_lti_open_in_window": "Öppna i ett nytt fönster",
     "i18n_lti_parameter_requires": "Ange även: {{names}}",

@@ -148,6 +148,54 @@ class CollaborativeExamSectionControllerSpec
         (json \ "lotteryItemCount").asOpt[Int] mustBe defined
         (json \ "sectionQuestions").as[JsArray].value mustBe empty
 
+    // Other installations taking the exam cannot launch this installation's LTI tools
+    "adding or changing a question" should:
+      val ltiQuestion = Json.obj(
+        "type"                  -> "LtiQuestion",
+        "question"              -> "<p>Do the task in the tool</p>",
+        "ltiTool"               -> "moodle",
+        "ltiCustom"             -> Json.obj("id" -> "42"),
+        "defaultMaxScore"       -> 5,
+        "defaultEvaluationType" -> "Points",
+        "questionOwners"        -> Json.arr(),
+        "options"               -> Json.arr()
+      )
+
+      "refuse an LTI question" in:
+        val ce           = setupCollaborativeExam()
+        val (_, session) = runIO(loginAsTeacher())
+        val section      = examServlet.getExam.examSections.asScala.minBy(_.sequenceNumber)
+        val body         = Json.obj("sequenceNumber" -> 0, "question" -> ltiQuestion)
+
+        val result = runIO(makeRequest(
+          "POST",
+          s"/app/iop/exams/${ce.id}/sections/${section.id}/questions",
+          Some(body),
+          session = session
+        ))
+        statusOf(result) must be(Status.BAD_REQUEST)
+        contentAsStringOf(result) must be("i18n_lti_not_in_collaborative_exam")
+        val after = examServlet.getExam.examSections.asScala.minBy(_.sequenceNumber)
+        after.sectionQuestions.asScala.map(
+          _.question.`type`
+        ) must not contain QuestionType.LtiQuestion
+
+      "refuse turning a question into an LTI question" in:
+        val ce           = setupCollaborativeExam()
+        val (_, session) = runIO(loginAsTeacher())
+        val section      = examServlet.getExam.examSections.asScala.minBy(_.sequenceNumber)
+        val body         = Json.obj("question" -> ltiQuestion)
+
+        val result = runIO(
+          put(s"/app/iop/exams/${ce.id}/sections/${section.id}/questions/987654321", body, session)
+        )
+        statusOf(result) must be(Status.BAD_REQUEST)
+        contentAsStringOf(result) must be("i18n_lti_not_in_collaborative_exam")
+        val after = examServlet.getExam.examSections.asScala.minBy(_.sequenceNumber)
+        after.sectionQuestions.asScala.map(
+          _.question.`type`
+        ) must not contain QuestionType.LtiQuestion
+
   "CollaborativeExamController" when:
     "previewing an exam" should:
       "render cloze test questions with their blanks" in:

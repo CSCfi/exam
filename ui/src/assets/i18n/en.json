@@ -164,6 +164,7 @@
     "i18n_lti_not_active": "LTI is not in use on this server.",
     "i18n_lti_not_active_kept": "LTI is not in use on this server. The tool and its details are kept as they are.",
     "i18n_lti_not_available": "The external tool of this question is not available here.",
+    "i18n_lti_not_in_collaborative_exam": "LTI questions cannot be used in collaborative exams.",
     "i18n_lti_open_in_window_hint": "If the tool asks you to log in or does not open here, open it in a new window.",
     "i18n_lti_open_in_window": "Open in a new window",
     "i18n_lti_parameter_requires": "Also give: {{names}}",

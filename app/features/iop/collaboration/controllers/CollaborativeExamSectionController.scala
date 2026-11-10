@@ -203,49 +203,51 @@ class CollaborativeExamSectionController @Inject() (
             question.questionOwners.asScala.foreach(CollaborativeExamProcessingService.cleanUser)
 
             // Validate question
-            questionService.validate(question, questionBody) match
-              case Some(message) => Some(BadRequest(message))
-              case None =>
-                val esq = new ExamSectionQuestion()
-                question.id = CollaborativeExamProcessingService.newId()
+            if question.`type` == QuestionType.LtiQuestion then Some(BadRequest(LtiNotAllowed))
+            else
+              questionService.validate(question, questionBody) match
+                case Some(message) => Some(BadRequest(message))
+                case None =>
+                  val esq = new ExamSectionQuestion()
+                  question.id = CollaborativeExamProcessingService.newId()
 
-                if question.`type` == QuestionType.ClaimChoiceQuestion then
-                  // Naturally order generated ids before saving them to question options
-                  val options = question.options.asScala.toSeq
-                  val generatedIds =
-                    options.indices.map(_ => CollaborativeExamProcessingService.newId()).sorted
-                  options.zip(generatedIds).foreach { case (opt, id) => opt.id = id }
-                else
-                  question.options.asScala.foreach(o =>
-                    o.id = CollaborativeExamProcessingService.newId()
-                  )
+                  if question.`type` == QuestionType.ClaimChoiceQuestion then
+                    // Naturally order generated ids before saving them to question options
+                    val options = question.options.asScala.toSeq
+                    val generatedIds =
+                      options.indices.map(_ => CollaborativeExamProcessingService.newId()).sorted
+                    options.zip(generatedIds).foreach { case (opt, id) => opt.id = id }
+                  else
+                    question.options.asScala.foreach(o =>
+                      o.id = CollaborativeExamProcessingService.newId()
+                    )
 
-                esq.id = sectionQuestionId
-                esq.question = question
+                  esq.id = sectionQuestionId
+                  esq.question = question
 
-                // Assert that the sequence number provided is within limits
-                val sequence = Math.min(Math.max(0, seq), es.sectionQuestions.size())
-                updateSequences(es.sectionQuestions.asScala.toList, sequence)
-                esq.sequenceNumber = sequence
+                  // Assert that the sequence number provided is within limits
+                  val sequence = Math.min(Math.max(0, seq), es.sectionQuestions.size())
+                  updateSequences(es.sectionQuestions.asScala.toList, sequence)
+                  esq.sequenceNumber = sequence
 
-                if es.sectionQuestions.contains(esq) || es.hasQuestion(question) then
-                  Some(BadRequest("i18n_question_already_in_section"))
-                else
-                  if question.`type` == QuestionType.EssayQuestion then
-                    // disable auto evaluation for this exam
-                    Option(exam.autoEvaluationConfig).foreach(_.delete())
+                  if es.sectionQuestions.contains(esq) || es.hasQuestion(question) then
+                    Some(BadRequest("i18n_question_already_in_section"))
+                  else
+                    if question.`type` == QuestionType.EssayQuestion then
+                      // disable auto evaluation for this exam
+                      Option(exam.autoEvaluationConfig).foreach(_.delete())
 
-                  // Insert a new section question
-                  esq.creator = user
-                  esq.created = Instant.now()
-                  updateExamQuestion(esq, question)
-                  esq.options.asScala.foreach(o =>
-                    o.id = CollaborativeExamProcessingService.newId()
-                  )
-                  CollaborativeExamProcessingService.cleanUser(user)
-                  es.setModifierWithDate(user)
-                  es.sectionQuestions.add(esq)
-                  None
+                    // Insert a new section question
+                    esq.creator = user
+                    esq.created = Instant.now()
+                    updateExamQuestion(esq, question)
+                    esq.options.asScala.foreach(o =>
+                      o.id = CollaborativeExamProcessingService.newId()
+                    )
+                    CollaborativeExamProcessingService.cleanUser(user)
+                    es.setModifierWithDate(user)
+                    es.sectionQuestions.add(esq)
+                    None
 
       update(
         request,
@@ -333,24 +335,33 @@ class CollaborativeExamSectionController @Inject() (
                       val questionBody =
                         JsonDeserializer.deserialize(classOf[Question], toJacksonJson(payload))
 
-                      questionService.validate(questionBody, payload) match
-                        case Some(message) => Future.successful(BadRequest(message))
-                        case None =>
-                          questionBody.options.asScala
-                            .filter(o => Option(o.id).forall(_ == 0))
-                            .foreach(o => o.id = CollaborativeExamProcessingService.newId())
+                      if questionBody.`type` == QuestionType.LtiQuestion then
+                        Future.successful(BadRequest(LtiNotAllowed))
+                      else
+                        questionService.validate(questionBody, payload) match
+                          case Some(message) => Future.successful(BadRequest(message))
+                          case None =>
+                            questionBody.options.asScala
+                              .filter(o => Option(o.id).forall(_ == 0))
+                              .foreach(o => o.id = CollaborativeExamProcessingService.newId())
 
-                          updateExamQuestion(esq, questionBody)
-                          esq.options.asScala.foreach(o =>
-                            o.id = CollaborativeExamProcessingService.newId()
-                          )
+                            updateExamQuestion(esq, questionBody)
+                            esq.options.asScala.foreach(o =>
+                              o.id = CollaborativeExamProcessingService.newId()
+                            )
 
-                          examLoader.uploadExam(ce, exam, user, esq, QuestionProps)
+                            examLoader.uploadExam(ce, exam, user, esq, QuestionProps)
           }
       }
     }
 
 object CollaborativeExamSectionController:
+  /** A collaborative exam is taken in every participating installation, but an LTI question can
+    * only be launched by the installation registered with its tool, and its tool and parameters are
+    * never sent to others (IopPayloads).
+    */
+  private val LtiNotAllowed = "i18n_lti_not_in_collaborative_exam"
+
   // An inline val so that the section spec below can embed it and still be checked as a literal
   private inline val QuestionSpec =
     "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
