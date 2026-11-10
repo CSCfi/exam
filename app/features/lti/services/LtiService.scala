@@ -193,7 +193,8 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       user: User,
       launch: LtiLaunch,
       nonce: String,
-      redirectUri: String
+      redirectUri: String,
+      documentTarget: LtiDocumentTarget = LtiDocumentTarget.Iframe
   ): Either[LtiError, String] =
     val context = Map(
       "id"    -> launch.context.id,
@@ -209,7 +210,7 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
     val custom       = launch.custom.asJava
 
     sign(
-      messageClaims(user, launch.tool, nonce, redirectUri, "LtiResourceLinkRequest")
+      messageClaims(user, launch.tool, nonce, redirectUri, "LtiResourceLinkRequest", documentTarget)
         .claim(s"$LtiClaim/context", context)
         .claim(s"$LtiClaim/resource_link", resourceLink)
         .claim(s"$LtiClaim/custom", custom)
@@ -253,14 +254,15 @@ class LtiService @Inject() (private val config: Config) extends Logging with Ebe
       tool: LtiTool,
       nonce: String,
       redirectUri: String,
-      messageType: String
+      messageType: String,
+      documentTarget: LtiDocumentTarget = LtiDocumentTarget.Iframe
   ): JWTClaimsSet.Builder =
     val now = new Date()
     val exp = new Date(now.getTime + TokenLifetime)
     // A+ reads both of these unconditionally when it creates a user, so they are always sent.
     val presentation = Map(
       "locale"          -> Option(user.language).flatMap(l => Option(l.code)).getOrElse("en"),
-      "document_target" -> "iframe"
+      "document_target" -> documentTarget.claim
     ).asJava
     val lis = Map("person_sourcedid" -> Option(user.userIdentifier).getOrElse("")).asJava
     // Not an LTI claim but Moodle's extension, which A+ prefers over email as the username.

@@ -152,7 +152,7 @@ abstract class LtiIntegrationSpec extends BaseIntegrationSpec:
     esq.id
 
   /** Step 1: the user starts a launch. Returns the redirect the browser would follow and the
-    * session it has to carry into the callback.
+    * session after it.
     */
   protected def initiateLogin(
       userSession: Session,
@@ -168,8 +168,13 @@ abstract class LtiIntegrationSpec extends BaseIntegrationSpec:
     val (teacher, session) = runIO(loginAsTeacher())
     (teacher, session, setUpLtiQuestion(teacher))
 
-  protected def ltiSessionOf(userSession: Session, sectionQuestionId: Long): Session =
-    initiateLogin(userSession, sectionQuestionId)._2
+  /** The login_hint the platform sent the tool in the redirect. */
+  protected def hintOf(result: Result): String =
+    queryOf(headerOf(result, "Location").getOrElse(fail("No redirect")))("login_hint")
+
+  /** Starts a launch as `userSession` and returns the login_hint the tool will send back. */
+  protected def loginHintOf(userSession: Session, sectionQuestionId: Long): String =
+    hintOf(initiateLogin(userSession, sectionQuestionId)._1)
 
   protected def claimsOf(result: Result): JWTClaimsSet =
     statusOf(result) must be(Status.OK)
@@ -186,7 +191,10 @@ abstract class LtiIntegrationSpec extends BaseIntegrationSpec:
     "nonce"        -> ToolNonce
   )
 
-  protected def callback(session: Session, params: Map[String, String]): Result =
+  /** The tool's callback. Without EXAM's session by default: when the tool is on another site, the
+    * browser leaves the session cookie out of it.
+    */
+  protected def callback(params: Map[String, String], session: Session = Session()): Result =
     val query = params.map((k, v) => s"$k=${encode(v)}").mkString("&")
     runIO(get(s"/integration/lti/oidc/login?$query", session = session))
 
@@ -196,8 +204,7 @@ abstract class LtiIntegrationSpec extends BaseIntegrationSpec:
       esqId: Long,
       tool: String = "moodle"
   ): (String, JWTClaimsSet) =
-    val ltiSession = ltiSessionOf(userSession, esqId)
-    val result     = callback(ltiSession, toolParams(ltiSession("lti_login_hint"), tool))
+    val result = callback(toolParams(loginHintOf(userSession, esqId), tool))
     statusOf(result) must be(Status.OK)
     val html = contentAsStringOf(result)
     (html, verifyAsTool(formValue(html, "id_token")))

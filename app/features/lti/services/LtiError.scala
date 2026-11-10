@@ -13,10 +13,9 @@ enum LtiError(val message: String):
       extends LtiError("The question is missing parameters its LTI tool requires")
   case InvalidClientId    extends LtiError("Invalid client_id")
   case MissingParameters  extends LtiError("Missing required parameters")
-  case NoLaunchInSession  extends LtiError("Missing launch target in session")
   case InvalidRedirectUri extends LtiError("redirect_uri is not registered for this client")
-  case LoginHintMismatch
-      extends LtiError("login_hint does not match the session that started this login")
+  case UnknownLoginHint
+      extends LtiError("Unknown, expired or already used login_hint")
   case KeyUnavailable          extends LtiError("LTI signing key could not be read")
   case DeepLinkingNotSupported extends LtiError("The LTI tool does not support deep linking")
   case DeepLinkNotFound        extends LtiError("No such deep linking request")

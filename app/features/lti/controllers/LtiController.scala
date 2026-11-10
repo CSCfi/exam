@@ -5,7 +5,8 @@
 package features.lti.controllers
 
 import features.lti.services.*
-import models.user.Role
+import io.ebean.DB
+import models.user.{Role, User}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import play.api.mvc.request.RequestAttrKey
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class LtiController @Inject() (
     private val ltiService: LtiService,
     private val deepLinks: LtiDeepLinkService,
+    private val logins: LtiLogins,
     ltiActive: LtiActive,
     authenticatedAction: AuthenticatedAction,
     val controllerComponents: ControllerComponents,
@@ -74,34 +76,32 @@ class LtiController @Inject() (
           sectionQuestionId <- request.getQueryString("sectionQuestionId").flatMap(_.toLongOption)
           examHash          <- request.getQueryString("examHash").map(_.trim).filter(_.nonEmpty)
         yield (sectionQuestionId, examHash)
+      // A launch runs in EXAM's frame unless opened in a window of its own. The window is the way
+      // out when the tool cannot work in the frame, such as a login page that refuses framing.
+      val documentTarget =
+        if request.getQueryString("target").contains("window") then LtiDocumentTarget.Window
+        else LtiDocumentTarget.Iframe
       // Fail before redirecting to the tool rather than in the callback, the user sees it sooner.
       // state and nonce here are spurious: the tool generates its own for the authorization
       // request. They are sent for parity with the original implementation; login_hint is
-      // what actually ties the callback back to this session.
-      val loginHint = ltiService.generateLoginHint
+      // what actually ties the callback back to this login, see LtiLogins.
+      val user = request.attrs(Auth.ATTR_USER)
       val result =
         for
           (sectionQuestionId, examHash) <- target.toRight(LtiError.MissingLaunchTarget)
-          launch <-
-            ltiService.findLaunch(sectionQuestionId, examHash, request.attrs(Auth.ATTR_USER))
+          launch                        <- ltiService.findLaunch(sectionQuestionId, examHash, user)
           url <- ltiService.buildLoginRedirect(
             launch.tool,
-            loginHint,
+            logins.start(
+              user,
+              LtiLoginTarget.Launch(sectionQuestionId, examHash, documentTarget)
+            ),
             ltiService.generateNonce,
             java.util.UUID.randomUUID.toString
           )
         yield Redirect(url)
-          .removingFromSession(DeepLinkKey)(using request)
-          .addingToSession(
-            "lti_login_hint"          -> loginHint,
-            "lti_section_question_id" -> sectionQuestionId.toString,
-            "lti_exam_hash"           -> examHash
-          )(using request)
       result.fold(toResult, identity)
     }
-
-  // The session holds one login in progress: a launch, or a deep linking request under this key.
-  private val DeepLinkKey = "lti_deep_link_id"
 
   /** Starts a deep linking request, for the question editor to pick content in the tool. Answers
     * the URL of the popup window to open it in.
@@ -124,20 +124,18 @@ class LtiController @Inject() (
   /** Starts the OIDC login of a deep linking request, in the popup window. */
   def startDeepLink(id: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
-      val loginHint = ltiService.generateLoginHint
+      val user = request.attrs(Auth.ATTR_USER)
       val result =
         for
-          tool <- deepLinks.pending(id, request.attrs(Auth.ATTR_USER))
+          tool <- deepLinks.pending(id, user)
           url <- ltiService.buildLoginRedirect(
             tool,
-            loginHint,
+            logins.start(user, LtiLoginTarget.DeepLink(id)),
             ltiService.generateNonce,
             java.util.UUID.randomUUID.toString,
             tool.deepLinkingUrl
           )
         yield Redirect(url)
-          .removingFromSession("lti_section_question_id", "lti_exam_hash")(using request)
-          .addingToSession("lti_login_hint" -> loginHint, DeepLinkKey -> id)(using request)
       result.fold(toResult, identity)
     }
 
@@ -176,9 +174,13 @@ class LtiController @Inject() (
           ))
     }
 
-  /** Tool calls back here; responds with a self-submitting form carrying the signed id_token. */
+  /** Tool calls back here; responds with a self-submitting form carrying the signed id_token.
+    *
+    * Not bound to the session: the browser leaves the session cookie out when the tool is on
+    * another site. The login_hint finds the login instead, see LtiLogins.
+    */
   def handleOidcLogin: Action[AnyContent] =
-    authenticated { request =>
+    Action.andThen(ltiActive) { request =>
       val redirectUri = request.getQueryString("redirect_uri")
       val state       = request.getQueryString("state")
       val nonce       = request.getQueryString("nonce")
@@ -189,40 +191,30 @@ class LtiController @Inject() (
             case (Some(uri), Some(s), Some(n)) => Right((uri, s, n))
             case _                             => Left(LtiError.MissingParameters)
           (uri, toolState, toolNonce) = params
-          // The tool must return the login_hint we issued, which is what binds this callback
-          // to the session that started the login.
-          _ <- Either.cond(
-            request
-              .getQueryString("login_hint")
-              .exists(hint => request.session.get("lti_login_hint").contains(hint)),
-            (),
-            LtiError.LoginHintMismatch
-          )
-          user = request.attrs(Auth.ATTR_USER)
-          // Resolved again rather than trusted from the session: the launch, or the deep linking
+          // The tool must return the login_hint we issued: it finds the login, and with it the
+          // user, and can be used once.
+          login <- request.getQueryString("login_hint").toRight(LtiError.UnknownLoginHint)
+            .flatMap(logins.take)
+          user <- loginUser(login)
+          // Resolved again rather than trusted from the login: the launch, or the deep linking
           // request, decides the tool, and the callback has to come from that tool and go back to
           // one of its redirect URIs.
-          message <- request.session.get(DeepLinkKey) match
-            case Some(id) =>
+          message <- login.target match
+            case LtiLoginTarget.DeepLink(id) =>
               deepLinks.pending(id, user).map { tool =>
                 (
                   tool,
                   (to: String) => ltiService.buildDeepLinkingToken(user, tool, toolNonce, to, id)
                 )
               }
-            case None =>
-              for
-                sectionQuestionId <- request.session
-                  .get("lti_section_question_id")
-                  .flatMap(_.toLongOption)
-                  .toRight(LtiError.NoLaunchInSession)
-                examHash <- request.session.get("lti_exam_hash")
-                  .toRight(LtiError.NoLaunchInSession)
-                launch <- ltiService.findLaunch(sectionQuestionId, examHash, user)
-              yield (
-                launch.tool,
-                (to: String) => ltiService.buildIdToken(user, launch, toolNonce, to)
-              )
+            case LtiLoginTarget.Launch(sectionQuestionId, examHash, documentTarget) =>
+              ltiService.findLaunch(sectionQuestionId, examHash, user).map { launch =>
+                (
+                  launch.tool,
+                  (to: String) =>
+                    ltiService.buildIdToken(user, launch, toolNonce, to, documentTarget)
+                )
+              }
           (tool, signFor) = message
           _ <- Either.cond(
             request.getQueryString("client_id").contains(tool.clientId),
@@ -243,4 +235,11 @@ class LtiController @Inject() (
           Ok(html)
             .as("text/html")
             .withHeaders("Cache-Control" -> "no-store", "Pragma" -> "no-cache")
+    }
+
+  /** The user who started the login, in the role they started it in. */
+  private def loginUser(login: LtiLogin): Either[LtiError, User] =
+    Option(DB.find(classOf[User], login.userId)).toRight(LtiError.UnknownLoginHint).map { user =>
+      user.loginRole = login.role
+      user
     }

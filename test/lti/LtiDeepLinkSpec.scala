@@ -145,15 +145,13 @@ class LtiDeepLinkSpec extends LtiIntegrationSpec:
 
   "The popup" should:
     "log in to the tool for its deep linking URL" in:
-      val (session, id, _)     = created()
-      val (result, ltiSession) = start(session, id)
+      val (session, id, _) = created()
+      val (result, _)      = start(session, id)
       statusOf(result) must be(Status.SEE_OTHER)
       val params = queryOf(headerOf(result, "Location").getOrElse(fail("No redirect")))
       params("target_link_uri") must be(deepLinkingUrl)
       params("client_id") must be(clientId())
-      ltiSession.get("lti_deep_link_id") must be(Some(id))
-      ltiSession.get("lti_login_hint") must be(params.get("login_hint"))
-      ltiSession.get("lti_section_question_id") must be(None)
+      params("login_hint") must not be empty
 
     "not open another user's request" in:
       val (_, id, _) = created()
@@ -163,9 +161,8 @@ class LtiDeepLinkSpec extends LtiIntegrationSpec:
   "The deep linking request" should:
     def requestClaims(): (String, JWTClaimsSet, String) =
       val (session, id, _) = created()
-      val ltiSession       = start(session, id)._2
-      val params = toolParams(ltiSession("lti_login_hint")) + ("redirect_uri" -> deepLinkingUrl)
-      val result = callback(ltiSession, params)
+      val hint             = hintOf(start(session, id)._1)
+      val result           = callback(toolParams(hint) + ("redirect_uri" -> deepLinkingUrl))
       statusOf(result) must be(Status.OK)
       val html = contentAsStringOf(result)
       (id, verifyAsTool(formValue(html, "id_token")), formAction(html))
@@ -195,13 +192,17 @@ class LtiDeepLinkSpec extends LtiIntegrationSpec:
       claims.getClaim(s"$Lti/resource_link") must be(null)
       action must be(deepLinkingUrl)
 
-    // The session holds one login in progress; a launch started later replaces the request.
-    "not turn a later launch into a deep linking request" in:
+    // Each login is kept under its own login_hint, so a request and a launch started side by
+    // side stay apart.
+    "not turn a launch started meanwhile into a deep linking request, nor the other way round" in:
       val (teacher, session) = runIO(loginAsTeacher())
       val id                 = (contentAsJsonOf(create(session)) \ "id").as[String]
-      val afterDeepLink      = start(session, id)._2
-      val (_, claims)        = launchAs(afterDeepLink, setUpLtiQuestion(teacher))
+      val deepLinkHint       = hintOf(start(session, id)._1)
+      val (_, claims)        = launchAs(session, setUpLtiQuestion(teacher))
       claims.getStringClaim(s"$Lti/message_type") must be("LtiResourceLinkRequest")
+      val request = callback(toolParams(deepLinkHint) + ("redirect_uri" -> deepLinkingUrl))
+      verifyAsTool(formValue(contentAsStringOf(request), "id_token"))
+        .getStringClaim(s"$Lti/message_type") must be("LtiDeepLinkingRequest")
 
   // Everything else coming from the tool's origin is still refused by CORS.
   "CORS" should:
