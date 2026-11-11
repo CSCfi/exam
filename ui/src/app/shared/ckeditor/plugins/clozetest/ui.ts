@@ -162,11 +162,16 @@ export class ClozeUI extends Plugin {
 
     private getBalloonPositionData = (): Partial<DomOptimalPositionOptions> => {
         const view = this.editor.editing.view;
-        const viewDocument = view.document;
-        const range = viewDocument.selection.getFirstRange();
 
-        // Set a target position by converting view selection range to DOM.
-        if (range) return { target: () => view.domConverter.viewRangeToDom(range) };
-        return { target: undefined };
+        // Read the selection when the balloon is pinned, not when it is opened. Other balloons
+        // (the table toolbar) re-pin the shared balloon after every change, and a range captured
+        // here points to view nodes that inserting the content has already replaced. Converting
+        // that to DOM throws, which makes the watchdog restart the editor (CSCEXAM-1728).
+        return {
+            target: () => {
+                const range = view.document.selection.getFirstRange();
+                return range ? view.domConverter.viewRangeToDom(range) : this.editor.ui.getEditableElement()!;
+            },
+        };
     };
 }
