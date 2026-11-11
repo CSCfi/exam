@@ -481,7 +481,7 @@ class ReservationService @Inject() (
       .fetch(path[Reservation]("participation"), "started, ended, duration")
       .fetch(
         path[Reservation]("enrolment.exam"),
-        "id, name, state, trialCount, implementation, gradeScale, grade, gradedTime, totalScore, maxScore, examLanguages"
+        "id, name, state, trialCount, implementation, gradeScale, grade, gradedTime, totalScore, maxScore, examLanguages, assessmentInfo"
       )
       .fetch(path[Reservation]("enrolment.exam.examLanguages"), "name")
       .fetch(path[Reservation]("enrolment.exam.examRecord"), "timeStamp")

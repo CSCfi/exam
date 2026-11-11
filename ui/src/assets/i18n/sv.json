@@ -173,6 +173,7 @@
     "i18n_participation_end": "Tentamensslut",
     "i18n_participation_duration": "Längd",
     "i18n_assessment_date_locked": "Bedömningsdatum (låst)",
+    "i18n_locked_assessment_additional_info": "Tilläggsinformation (låst bedömning)",
     "i18n_exam_method": "Tentamenssätt",
     "i18n_report_no_show": "No-show info",
     "i18n_aborted": "Avbruten info",

@@ -202,7 +202,7 @@ export class ReportsV2Component {
             { id: 'maxScore', label: 'i18n_max_score' },
             { id: 'language', label: 'i18n_language' },
             { id: 'organisation', label: 'i18n_faculty_name' },
-            { id: 'additionalInfo', label: 'i18n_additional_info' },
+            { id: 'additionalInfo', label: 'i18n_locked_assessment_additional_info' },
             { id: 'examType', label: 'i18n_exam_type' },
             { id: 'examMethod', label: 'i18n_exam_method' },
         ];
@@ -341,7 +341,7 @@ export class ReportsV2Component {
                                         maxScore: exam?.maxScore?.toString() ?? '',
                                         language: exam?.examLanguages?.map((l) => l.name).join(', ') ?? '',
                                         organisation: exam?.organisations ?? '',
-                                        additionalInfo: exam?.additionalInfo ?? '',
+                                        additionalInfo: exam?.assessmentInfo ?? '',
                                         examType: executionType
                                             ? this.translate.instant(
                                                   this.Exam.getExecutionTypeTranslation(executionType),

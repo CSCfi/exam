@@ -39,6 +39,7 @@ describe('ReportsV2Component', () => {
                     course: { id: 1, code: 'CS101', name: 'Intro CS' },
                     executionType: { type: 'PUBLIC' } as ExamExecutionType,
                     implementation: 'AQUARIUM' as Implementation,
+                    assessmentInfo: 'Locked review feedback details',
                 },
             },
         },
@@ -304,5 +305,22 @@ describe('ReportsV2Component', () => {
         vi.advanceTimersByTime(350);
         expect(component.reportData().length).toBe(1);
         expect(component.reportData()[0].firstName).toBe('Alice');
+    });
+
+    it('should configure additionalInfo column with i18n_locked_assessment_additional_info label', () => {
+        const columns = component.columnOptions();
+        const additionalInfoCol = columns.find((c) => c.id === 'additionalInfo');
+        expect(additionalInfoCol).toBeDefined();
+        expect(additionalInfoCol?.label).toBe('i18n_locked_assessment_additional_info');
+    });
+
+    it('should map additionalInfo from exam assessmentInfo', () => {
+        component.email.set('alice@example.com');
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+
+        const data = component.reportData();
+        expect(data.length).toBe(1);
+        expect(data[0].additionalInfo).toBe('Locked review feedback details');
     });
 });
