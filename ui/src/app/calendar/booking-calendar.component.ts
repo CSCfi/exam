@@ -39,6 +39,16 @@ const MIN_EVENT_HEIGHT_EM = 2.7;
 /** Shorter exams are scaled as this long, otherwise the grid would grow to tens of thousands of pixels. */
 const MIN_SCALED_DURATION = 10;
 
+/** Event length in minutes, or Infinity when it cannot be determined. */
+const durationMinutes = (event: EventInput): number => {
+    const { start, end } = event;
+    if (!(start instanceof Date) || !(end instanceof Date)) {
+        return Infinity;
+    }
+    const minutes = (end.getTime() - start.getTime()) / 60_000;
+    return minutes > 0 ? minutes : Infinity;
+};
+
 @Component({
     selector: 'xm-booking-calendar',
     host: { '[style.--xm-fc-slot-height]': 'slotHeight()' },
@@ -74,8 +84,11 @@ export class BookingCalendarComponent {
     /** Exam duration in minutes; short exams get taller grid slots so their events stay readable. */
     readonly examDuration = input(0);
 
+    /** Shortest event of the loaded week in minutes, e.g. the student's own reservation for a shorter exam. */
+    readonly shortestEvent = signal(Infinity);
+
     readonly slotHeight = computed(() => {
-        const duration = this.examDuration();
+        const duration = Math.min(this.examDuration(), this.shortestEvent());
         if (!(duration > 0)) {
             return `${SLOT_HEIGHT_EM}em`;
         }
@@ -201,7 +214,19 @@ export class BookingCalendarComponent {
             ...this.visibleHours(this.room(), this.searchStart(), this.searchEnd()),
         }));
 
-        this.moreEventsNeeded.emit({ date: input.startStr, timeZone: input.timeZone, success: success });
+        this.moreEventsNeeded.emit({
+            date: input.startStr,
+            timeZone: input.timeZone,
+            success: (events: EventInput[]) => {
+                const previousHeight = this.slotHeight();
+                this.shortestEvent.set(Math.min(Infinity, ...events.map(durationMinutes)));
+                success(events);
+                if (this.slotHeight() !== previousHeight) {
+                    // the grid rows changed height, FullCalendar has to measure them again to place the events
+                    afterNextRender(() => this.calendar()?.getApi().updateSize(), { injector: this.injector });
+                }
+            },
+        });
     }
 
     eventClicked(arg: EventClickArg): void {
