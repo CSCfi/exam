@@ -266,6 +266,16 @@ export class ReportsV2Component {
                                 .filter((r) => {
                                     const exam = (r.enrolment?.exam.parent || r.enrolment?.exam) as Exam;
                                     if (!exam) return false;
+                                    const status = this.Reservation.printExamState(r);
+                                    if (
+                                        status === 'DELETED' ||
+                                        exam.state === 'DELETED' ||
+                                        r.enrolment?.exam?.state === 'DELETED' ||
+                                        r.enrolment?.exam?.parent?.state === 'DELETED'
+                                    ) {
+                                        return false;
+                                    }
+
                                     const matchCourse = !currentCourse || exam.course?.id === currentCourse.id;
                                     const executionType = exam?.executionType;
                                     const implementation = exam?.implementation;

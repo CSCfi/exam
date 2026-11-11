@@ -81,6 +81,26 @@ describe('ReportsV2Component', () => {
                 },
             },
         },
+        {
+            id: 4,
+            user: {
+                firstName: 'David',
+                lastName: 'Deleted',
+                email: 'david@example.com',
+                eppn: 'david@uni.fi',
+                userIdentifier: '999',
+            },
+            enrolment: {
+                exam: {
+                    id: 104,
+                    name: 'Deleted Exam',
+                    course: { id: 4, code: 'DEL101', name: 'Deleted' },
+                    executionType: { type: 'PUBLIC' } as ExamExecutionType,
+                    implementation: 'AQUARIUM' as Implementation,
+                    state: 'DELETED',
+                },
+            },
+        },
     ];
 
     beforeEach(async () => {
@@ -353,5 +373,17 @@ describe('ReportsV2Component', () => {
         expect(component.sortDirection()).toBe('desc');
         expect(firstNameTh?.querySelector('i.bi-caret-down-fill')).toBeTruthy();
         expect(firstNameTh?.querySelector('i.bi-arrow-down-up')).toBeFalsy();
+    });
+
+    it('should not display exams with DELETED state in reports', () => {
+        component.examTypeChanged({ id: 'PUBLIC', value: 'PUBLIC', label: 'i18n_public_exam' });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+
+        const data = component.reportData();
+        // Alice (PUBLIC) is returned, but David (PUBLIC but DELETED) should be excluded
+        expect(data.length).toBe(1);
+        expect(data[0].firstName).toBe('Alice');
+        expect(data.some((row) => row.firstName === 'David')).toBe(false);
     });
 });
