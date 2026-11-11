@@ -10,8 +10,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
-import { type CollaborativeExam, type Course, type Exam } from 'src/app/exam/exam.model';
 import { CoursePickerService } from 'src/app/exam/editor/common/course-picker.service';
+import { type CollaborativeExam, type Course, type Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
 import type { User } from 'src/app/session/session.model';
@@ -249,11 +249,7 @@ export class ReportsV2Component {
                                         !currentEmail || r.user?.email?.toLowerCase().includes(currentEmail);
 
                                     return (
-                                        matchCourse &&
-                                        matchExamType &&
-                                        matchEppn &&
-                                        matchStudentNumber &&
-                                        matchEmail
+                                        matchCourse && matchExamType && matchEppn && matchStudentNumber && matchEmail
                                     );
                                 })
                                 .map((r) => {
