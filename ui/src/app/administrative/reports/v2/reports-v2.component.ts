@@ -11,7 +11,7 @@ import { DateTime } from 'luxon';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { CoursePickerService } from 'src/app/exam/editor/common/course-picker.service';
-import { type CollaborativeExam, type Course, type Exam } from 'src/app/exam/exam.model';
+import { type CollaborativeExam, type Course, type Exam, type ExamExecutionType } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
 import type { User } from 'src/app/session/session.model';
@@ -93,6 +93,7 @@ export class ReportsV2Component {
     readonly sortDirection = signal<'asc' | 'desc'>('asc');
 
     readonly statusOptions = signal<Option<string, string>[]>([]);
+    readonly examTypeOptions = signal<Option<string, string>[]>([]);
     readonly columnOptions = signal<Option<string, string>[]>([]);
     readonly reportData = signal<ReportRow[]>([]);
 
@@ -145,6 +146,16 @@ export class ReportsV2Component {
                 id: s,
                 value: s,
                 label: `i18n_exam_status_${s.toLowerCase()}`,
+            })),
+        );
+
+        const examTypes = ['PUBLIC', 'PRIVATE', 'MATURITY', 'PRINTOUT'];
+
+        this.examTypeOptions.set(
+            examTypes.map((t) => ({
+                id: t,
+                value: t,
+                label: this.Exam.getExecutionTypeTranslation({ type: t } as ExamExecutionType),
             })),
         );
 
@@ -229,17 +240,15 @@ export class ReportsV2Component {
 
                     return this.Reservation.listReservations$(params).pipe(
                         map((reservations) => {
-                            const examTypeFilter = this.examType().toLowerCase();
+                            const examTypeFilter = this.examType();
 
                             return reservations
                                 .filter((r) => {
                                     const exam = (r.enrolment?.exam.parent || r.enrolment?.exam) as Exam;
                                     if (!exam) return false;
                                     const matchCourse = !currentCourse || exam.course?.id === currentCourse.id;
-                                    const matchExamType =
-                                        !examTypeFilter ||
-                                        exam.examType?.type?.toLowerCase().includes(examTypeFilter) ||
-                                        exam.examType?.name?.toLowerCase().includes(examTypeFilter);
+                                    const executionType = exam?.executionType;
+                                    const matchExamType = !examTypeFilter || executionType?.type === examTypeFilter;
 
                                     const matchEppn = !currentEppn || r.user?.eppn?.toLowerCase().includes(currentEppn);
                                     const matchStudentNumber =
@@ -254,8 +263,10 @@ export class ReportsV2Component {
                                 })
                                 .map((r) => {
                                     const enrolment = r.enrolment;
-                                    const exam = enrolment?.exam as Exam;
+                                    const exam = (enrolment?.exam.parent || enrolment?.exam) as Exam;
                                     const participation = r.participation;
+                                    const executionType = exam?.executionType;
+                                    const implementation = exam?.implementation;
 
                                     return {
                                         firstName: r.user?.firstName ?? r.externalUserRef ?? '',
@@ -304,20 +315,16 @@ export class ReportsV2Component {
                                         language: exam?.examLanguages?.map((l) => l.name).join(', ') ?? '',
                                         organisation: exam?.organisations ?? '',
                                         additionalInfo: exam?.additionalInfo ?? '',
-                                        examType:
-                                            exam && exam.executionType
-                                                ? this.translate.instant(
-                                                      this.Exam.getExecutionTypeTranslation(exam.executionType),
-                                                  )
-                                                : '',
-                                        examMethod:
-                                            exam && exam.implementation
-                                                ? this.translate.instant(
-                                                      this.CommonExam.getExamImplementationTranslation(
-                                                          exam.implementation,
-                                                      ),
-                                                  )
-                                                : '',
+                                        examType: executionType
+                                            ? this.translate.instant(
+                                                  this.Exam.getExecutionTypeTranslation(executionType),
+                                              )
+                                            : '',
+                                        examMethod: implementation
+                                            ? this.translate.instant(
+                                                  this.CommonExam.getExamImplementationTranslation(implementation),
+                                              )
+                                            : '',
                                     };
                                 });
                         }),
@@ -408,6 +415,10 @@ export class ReportsV2Component {
 
     stageChanged(event: Option<string, string> | undefined) {
         this.status.set(event?.value ?? '');
+    }
+
+    examTypeChanged(event: Option<string, string> | undefined) {
+        this.examType.set(event?.value ?? '');
     }
 
     protected nameFormatter(item: { name: string }) {

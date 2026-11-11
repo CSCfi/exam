@@ -154,14 +154,16 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
         <div class="col-md-3">
-            <label for="exam-type" class="form-label">{{ 'i18n_exam_type' | translate }}</label>
-            <input
-                id="exam-type"
-                type="text"
-                class="form-control"
-                [value]="examType()"
-                (input)="examType.set($any($event.target).value)"
-            />
+            <label for="exam-type-search" class="form-label">{{ 'i18n_exam_type' | translate }}</label>
+            <xm-dropdown-select
+                id="exam-type-search"
+                [options]="examTypeOptions()"
+                [fullWidth]="true"
+                [noSearch]="true"
+                (optionSelected)="examTypeChanged($event)"
+                placeholder="{{ 'i18n_select' | translate }}"
+            >
+            </xm-dropdown-select>
         </div>
     </div>
 
