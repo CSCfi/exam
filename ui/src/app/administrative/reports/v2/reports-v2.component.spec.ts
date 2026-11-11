@@ -323,4 +323,35 @@ describe('ReportsV2Component', () => {
         expect(data.length).toBe(1);
         expect(data[0].additionalInfo).toBe('Locked review feedback details');
     });
+
+    it('should render sortable icon when column is unsorted and caret icons when sorted', () => {
+        component.email.set('example.com');
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        fixture.detectChanges();
+
+        const compiled = fixture.nativeElement as HTMLElement;
+        const thElements = Array.from(compiled.querySelectorAll('th.sortable'));
+        expect(thElements.length).toBeGreaterThan(0);
+
+        // When unsorted, firstName column should display bi-arrow-down-up
+        const firstNameTh = thElements.find((th) => th.textContent?.includes('i18n_firstname'));
+        expect(firstNameTh).toBeDefined();
+        expect(firstNameTh?.querySelector('i.bi-arrow-down-up')).toBeTruthy();
+
+        // Sort ascending by firstName
+        component.sort('firstName');
+        fixture.detectChanges();
+        expect(component.sortColumn()).toBe('firstName');
+        expect(component.sortDirection()).toBe('asc');
+        expect(firstNameTh?.querySelector('i.bi-caret-up-fill')).toBeTruthy();
+        expect(firstNameTh?.querySelector('i.bi-arrow-down-up')).toBeFalsy();
+
+        // Sort descending by firstName
+        component.sort('firstName');
+        fixture.detectChanges();
+        expect(component.sortDirection()).toBe('desc');
+        expect(firstNameTh?.querySelector('i.bi-caret-down-fill')).toBeTruthy();
+        expect(firstNameTh?.querySelector('i.bi-arrow-down-up')).toBeFalsy();
+    });
 });
