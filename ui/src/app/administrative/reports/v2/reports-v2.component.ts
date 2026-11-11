@@ -11,7 +11,13 @@ import { DateTime } from 'luxon';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { CoursePickerService } from 'src/app/exam/editor/common/course-picker.service';
-import { type CollaborativeExam, type Course, type Exam, type ExamExecutionType } from 'src/app/exam/exam.model';
+import {
+    type CollaborativeExam,
+    type Course,
+    type Exam,
+    type ExamExecutionType,
+    type Implementation,
+} from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
 import type { User } from 'src/app/session/session.model';
@@ -85,6 +91,7 @@ export class ReportsV2Component {
     readonly endDate = signal<Date | null>(null);
     readonly status = signal('');
     readonly examType = signal('');
+    readonly examMethod = signal('');
     readonly eppn = signal('');
     readonly studentNumber = signal('');
     readonly email = signal('');
@@ -94,6 +101,7 @@ export class ReportsV2Component {
 
     readonly statusOptions = signal<Option<string, string>[]>([]);
     readonly examTypeOptions = signal<Option<string, string>[]>([]);
+    readonly examMethodOptions = signal<Option<string, string>[]>([]);
     readonly columnOptions = signal<Option<string, string>[]>([]);
     readonly reportData = signal<ReportRow[]>([]);
 
@@ -159,6 +167,16 @@ export class ReportsV2Component {
             })),
         );
 
+        const examMethods: Implementation[] = ['AQUARIUM', 'CLIENT_AUTH', 'WHATEVER'];
+
+        this.examMethodOptions.set(
+            examMethods.map((m) => ({
+                id: m,
+                value: m,
+                label: this.CommonExam.getExamImplementationTranslation(m),
+            })),
+        );
+
         const columns = [
             { id: 'firstName', label: 'i18n_firstname' },
             { id: 'lastName', label: 'i18n_lastname' },
@@ -201,6 +219,7 @@ export class ReportsV2Component {
             toObservable(this.endDate),
             toObservable(this.status),
             toObservable(this.examType),
+            toObservable(this.examMethod),
             toObservable(this.eppn),
             toObservable(this.studentNumber),
             toObservable(this.email),
@@ -241,6 +260,7 @@ export class ReportsV2Component {
                     return this.Reservation.listReservations$(params).pipe(
                         map((reservations) => {
                             const examTypeFilter = this.examType();
+                            const examMethodFilter = this.examMethod();
 
                             return reservations
                                 .filter((r) => {
@@ -248,7 +268,9 @@ export class ReportsV2Component {
                                     if (!exam) return false;
                                     const matchCourse = !currentCourse || exam.course?.id === currentCourse.id;
                                     const executionType = exam?.executionType;
+                                    const implementation = exam?.implementation;
                                     const matchExamType = !examTypeFilter || executionType?.type === examTypeFilter;
+                                    const matchExamMethod = !examMethodFilter || implementation === examMethodFilter;
 
                                     const matchEppn = !currentEppn || r.user?.eppn?.toLowerCase().includes(currentEppn);
                                     const matchStudentNumber =
@@ -258,7 +280,12 @@ export class ReportsV2Component {
                                         !currentEmail || r.user?.email?.toLowerCase().includes(currentEmail);
 
                                     return (
-                                        matchCourse && matchExamType && matchEppn && matchStudentNumber && matchEmail
+                                        matchCourse &&
+                                        matchExamType &&
+                                        matchExamMethod &&
+                                        matchEppn &&
+                                        matchStudentNumber &&
+                                        matchEmail
                                     );
                                 })
                                 .map((r) => {
@@ -421,6 +448,10 @@ export class ReportsV2Component {
         this.examType.set(event?.value ?? '');
     }
 
+    examMethodChanged(event: Option<string, string> | undefined) {
+        this.examMethod.set(event?.value ?? '');
+    }
+
     protected nameFormatter(item: { name: string }) {
         return item.name;
     }
@@ -435,6 +466,7 @@ export class ReportsV2Component {
             !!this.course() ||
             !!this.status() ||
             !!this.examType() ||
+            !!this.examMethod() ||
             !!this.startDate() ||
             !!this.endDate() ||
             !!this.eppn() ||

@@ -165,6 +165,18 @@ SPDX-License-Identifier: EUPL-1.2
             >
             </xm-dropdown-select>
         </div>
+        <div class="col-md-3">
+            <label for="exam-method-search" class="form-label">{{ 'i18n_exam_method' | translate }}</label>
+            <xm-dropdown-select
+                id="exam-method-search"
+                [options]="examMethodOptions()"
+                [fullWidth]="true"
+                [noSearch]="true"
+                (optionSelected)="examMethodChanged($event)"
+                placeholder="{{ 'i18n_select' | translate }}"
+            >
+            </xm-dropdown-select>
+        </div>
     </div>
 
     <div class="row mt-3">

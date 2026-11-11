@@ -9,7 +9,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { CoursePickerService } from 'src/app/exam/editor/common/course-picker.service';
-import { ExamExecutionType } from 'src/app/exam/exam.model';
+import { ExamExecutionType, Implementation } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { ReservationService } from 'src/app/reservation/reservation.service';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -38,6 +38,7 @@ describe('ReportsV2Component', () => {
                     name: 'Public Exam 1',
                     course: { id: 1, code: 'CS101', name: 'Intro CS' },
                     executionType: { type: 'PUBLIC' } as ExamExecutionType,
+                    implementation: 'AQUARIUM' as Implementation,
                 },
             },
         },
@@ -56,6 +57,7 @@ describe('ReportsV2Component', () => {
                     name: 'Private Exam 1',
                     course: { id: 2, code: 'MATH101', name: 'Calculus' },
                     executionType: { type: 'PRIVATE' } as ExamExecutionType,
+                    implementation: 'CLIENT_AUTH' as Implementation,
                 },
             },
         },
@@ -74,6 +76,7 @@ describe('ReportsV2Component', () => {
                     name: 'Maturity Exam 1',
                     course: { id: 3, code: 'FIN101', name: 'Finnish' },
                     executionType: { type: 'MATURITY' } as ExamExecutionType,
+                    implementation: 'WHATEVER' as Implementation,
                 },
             },
         },
@@ -123,7 +126,18 @@ describe('ReportsV2Component', () => {
                     useValue: {
                         getScaleDisplayName: vi.fn().mockReturnValue('0-5'),
                         getExamGradeDisplayName: vi.fn().mockReturnValue('5'),
-                        getExamImplementationTranslation: vi.fn().mockReturnValue('EXAM'),
+                        getExamImplementationTranslation: (impl: Implementation) => {
+                            switch (impl) {
+                                case 'AQUARIUM':
+                                    return 'i18n_examination_type_aquarium';
+                                case 'CLIENT_AUTH':
+                                    return 'i18n_examination_type_seb';
+                                case 'WHATEVER':
+                                    return 'i18n_examination_type_home_exam';
+                                default:
+                                    return '';
+                            }
+                        },
                     },
                 },
                 {
@@ -213,5 +227,82 @@ describe('ReportsV2Component', () => {
         TestBed.flushEffects();
         vi.advanceTimersByTime(350);
         expect(component.reportData().length).toBe(3);
+    });
+
+    it('should initialize examMethodOptions with implementation types', () => {
+        const options = component.examMethodOptions();
+        expect(options).toEqual([
+            { id: 'AQUARIUM', value: 'AQUARIUM', label: 'i18n_examination_type_aquarium' },
+            { id: 'CLIENT_AUTH', value: 'CLIENT_AUTH', label: 'i18n_examination_type_seb' },
+            { id: 'WHATEVER', value: 'WHATEVER', label: 'i18n_examination_type_home_exam' },
+        ]);
+    });
+
+    it('should filter reservations by selected exam method (implementation)', () => {
+        component.examMethodChanged({
+            id: 'AQUARIUM',
+            value: 'AQUARIUM',
+            label: 'i18n_examination_type_aquarium',
+        });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+
+        const data = component.reportData();
+        expect(data.length).toBe(1);
+        expect(data[0].firstName).toBe('Alice');
+        expect(data[0].examMethod).toBe('i18n_examination_type_aquarium');
+    });
+
+    it('should filter reservations by CLIENT_AUTH exam method', () => {
+        component.examMethodChanged({
+            id: 'CLIENT_AUTH',
+            value: 'CLIENT_AUTH',
+            label: 'i18n_examination_type_seb',
+        });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+
+        const data = component.reportData();
+        expect(data.length).toBe(1);
+        expect(data[0].firstName).toBe('Bob');
+        expect(data[0].examMethod).toBe('i18n_examination_type_seb');
+    });
+
+    it('should clear exam method filter when undefined is selected', () => {
+        component.examMethodChanged({
+            id: 'AQUARIUM',
+            value: 'AQUARIUM',
+            label: 'i18n_examination_type_aquarium',
+        });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(1);
+
+        component.examMethodChanged(undefined);
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(0); // Because no filters are active now
+    });
+
+    it('should combine exam type and exam method filters', () => {
+        component.examTypeChanged({ id: 'PUBLIC', value: 'PUBLIC', label: 'i18n_public_exam' });
+        component.examMethodChanged({
+            id: 'CLIENT_AUTH',
+            value: 'CLIENT_AUTH',
+            label: 'i18n_examination_type_seb',
+        });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(0); // No exam is both PUBLIC and CLIENT_AUTH in mock data
+
+        component.examMethodChanged({
+            id: 'AQUARIUM',
+            value: 'AQUARIUM',
+            label: 'i18n_examination_type_aquarium',
+        });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(1);
+        expect(component.reportData()[0].firstName).toBe('Alice');
     });
 });
