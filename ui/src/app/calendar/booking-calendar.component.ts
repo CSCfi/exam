@@ -222,8 +222,9 @@ export class BookingCalendarComponent {
                 this.shortestEvent.set(Math.min(Infinity, ...events.map(durationMinutes)));
                 success(events);
                 if (this.slotHeight() !== previousHeight) {
-                    // the grid rows changed height, FullCalendar has to measure them again to place the events
-                    afterNextRender(() => this.calendar()?.getApi().updateSize(), { injector: this.injector });
+                    // The grid rows changed height after FullCalendar measured them, so the events sit at the
+                    // old positions. updateSize() does not measure the rows again, re-rendering the view does.
+                    afterNextRender(() => this.rerenderView(), { injector: this.injector });
                 }
             },
         });
@@ -233,6 +234,11 @@ export class BookingCalendarComponent {
         if (arg.event.extendedProps?.availableMachines > 0) {
             this.eventSelected.emit(arg.event);
         }
+    }
+
+    private rerenderView() {
+        const api = this.calendar()?.getApi();
+        api?.changeView(api.view.type);
     }
 
     /** The week's opening hours with an hour of padding on both sides, within the day. */
