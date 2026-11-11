@@ -4,7 +4,12 @@
 
 .form-label {
     font-weight: bold;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+xm-dropdown-select {
+    display: block;
+    width: 100%;
 }
 
 .table {
@@ -12,9 +17,9 @@
     white-space: nowrap;
     font-size: 0.875rem;
 
-  thead.sticky-top {
-    z-index: 1;
-  }
+    thead.sticky-top {
+        z-index: 1;
+    }
 
     th {
         background-color: #f8f9fa;
@@ -58,16 +63,16 @@
     min-width: 200px;
 
     .btn-link {
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 0.8rem;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.8rem;
 
-      &:hover {
-        text-decoration: underline;
-      }
+        &:hover {
+            text-decoration: underline;
+        }
     }
 
     .sticky-top {
-      z-index: 2;
+        z-index: 2;
     }
 }
