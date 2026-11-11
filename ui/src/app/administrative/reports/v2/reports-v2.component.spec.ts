@@ -1,0 +1,217 @@
+// SPDX-FileCopyrightText: 2026 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { CoursePickerService } from 'src/app/exam/editor/common/course-picker.service';
+import { ExamExecutionType } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { ReservationService } from 'src/app/reservation/reservation.service';
+import { FileService } from 'src/app/shared/file/file.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { vi } from 'vitest';
+import { ReportsV2Component } from './reports-v2.component';
+
+describe('ReportsV2Component', () => {
+    let component: ReportsV2Component;
+    let fixture: ComponentFixture<ReportsV2Component>;
+    let listReservationsMock: ReturnType<typeof vi.fn>;
+
+    const mockReservations = [
+        {
+            id: 1,
+            user: {
+                firstName: 'Alice',
+                lastName: 'Smith',
+                email: 'alice@example.com',
+                eppn: 'alice@uni.fi',
+                userIdentifier: '123',
+            },
+            enrolment: {
+                exam: {
+                    id: 101,
+                    name: 'Public Exam 1',
+                    course: { id: 1, code: 'CS101', name: 'Intro CS' },
+                    executionType: { type: 'PUBLIC' } as ExamExecutionType,
+                },
+            },
+        },
+        {
+            id: 2,
+            user: {
+                firstName: 'Bob',
+                lastName: 'Jones',
+                email: 'bob@example.com',
+                eppn: 'bob@uni.fi',
+                userIdentifier: '456',
+            },
+            enrolment: {
+                exam: {
+                    id: 102,
+                    name: 'Private Exam 1',
+                    course: { id: 2, code: 'MATH101', name: 'Calculus' },
+                    executionType: { type: 'PRIVATE' } as ExamExecutionType,
+                },
+            },
+        },
+        {
+            id: 3,
+            user: {
+                firstName: 'Charlie',
+                lastName: 'Brown',
+                email: 'charlie@example.com',
+                eppn: 'charlie@uni.fi',
+                userIdentifier: '789',
+            },
+            enrolment: {
+                exam: {
+                    id: 103,
+                    name: 'Maturity Exam 1',
+                    course: { id: 3, code: 'FIN101', name: 'Finnish' },
+                    executionType: { type: 'MATURITY' } as ExamExecutionType,
+                },
+            },
+        },
+    ];
+
+    beforeEach(async () => {
+        vi.useFakeTimers();
+        listReservationsMock = vi.fn().mockReturnValue(of(mockReservations));
+
+        await TestBed.configureTestingModule({
+            imports: [ReportsV2Component, TranslateModule.forRoot()],
+            providers: [
+                provideZonelessChangeDetection(),
+                provideHttpClient(withXhr()),
+                provideHttpClientTesting(),
+                {
+                    provide: ReservationService,
+                    useValue: {
+                        listReservations$: listReservationsMock,
+                        printExamState: vi.fn().mockReturnValue('Published'),
+                        searchStudents$: vi.fn().mockReturnValue(of([])),
+                        searchExams$: vi.fn().mockReturnValue(of([])),
+                        searchOwners$: vi.fn().mockReturnValue(of([])),
+                    },
+                },
+                {
+                    provide: ExamService,
+                    useValue: {
+                        getExecutionTypeTranslation: (et: ExamExecutionType) => {
+                            switch (et.type) {
+                                case 'PUBLIC':
+                                    return 'i18n_public_exam';
+                                case 'PRIVATE':
+                                    return 'i18n_private_exam';
+                                case 'MATURITY':
+                                    return 'i18n_maturity';
+                                case 'PRINTOUT':
+                                    return 'i18n_printout_exam';
+                                default:
+                                    return '';
+                            }
+                        },
+                    },
+                },
+                {
+                    provide: CommonExamService,
+                    useValue: {
+                        getScaleDisplayName: vi.fn().mockReturnValue('0-5'),
+                        getExamGradeDisplayName: vi.fn().mockReturnValue('5'),
+                        getExamImplementationTranslation: vi.fn().mockReturnValue('EXAM'),
+                    },
+                },
+                {
+                    provide: CoursePickerService,
+                    useValue: {
+                        getCourses$: vi.fn().mockReturnValue(of([])),
+                    },
+                },
+                {
+                    provide: FileService,
+                    useValue: {
+                        download: vi.fn(),
+                    },
+                },
+            ],
+        }).compileComponents();
+
+        TestBed.inject(TranslateService).use('fi');
+        fixture = TestBed.createComponent(ReportsV2Component);
+        component = fixture.componentInstance;
+        TestBed.flushEffects();
+        fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+        TestBed.resetTestingModule();
+    });
+
+    it('should initialize examTypeOptions with execution types', () => {
+        const options = component.examTypeOptions();
+        expect(options).toEqual([
+            { id: 'PUBLIC', value: 'PUBLIC', label: 'i18n_public_exam' },
+            { id: 'PRIVATE', value: 'PRIVATE', label: 'i18n_private_exam' },
+            { id: 'MATURITY', value: 'MATURITY', label: 'i18n_maturity' },
+            { id: 'PRINTOUT', value: 'PRINTOUT', label: 'i18n_printout_exam' },
+        ]);
+    });
+
+    it('should filter reservations by selected exam execution type', () => {
+        component.examTypeChanged({ id: 'PUBLIC', value: 'PUBLIC', label: 'i18n_public_exam' });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+
+        const data = component.reportData();
+        expect(data.length).toBe(1);
+        expect(data[0].firstName).toBe('Alice');
+        expect(data[0].examType).toBe('i18n_public_exam');
+    });
+
+    it('should filter reservations by PRIVATE exam execution type', () => {
+        component.examTypeChanged({ id: 'PRIVATE', value: 'PRIVATE', label: 'i18n_private_exam' });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+
+        const data = component.reportData();
+        expect(data.length).toBe(1);
+        expect(data[0].firstName).toBe('Bob');
+        expect(data[0].examType).toBe('i18n_private_exam');
+    });
+
+    it('should clear exam type filter when undefined is selected', () => {
+        component.examTypeChanged({ id: 'PUBLIC', value: 'PUBLIC', label: 'i18n_public_exam' });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(1);
+
+        component.examTypeChanged(undefined);
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(0); // Because no filters are active now
+    });
+
+    it('should include all matching types when another filter is active and exam type is cleared', () => {
+        component.email.set('example.com');
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(3);
+
+        component.examTypeChanged({ id: 'MATURITY', value: 'MATURITY', label: 'i18n_maturity' });
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(1);
+        expect(component.reportData()[0].firstName).toBe('Charlie');
+
+        component.examTypeChanged(undefined);
+        TestBed.flushEffects();
+        vi.advanceTimersByTime(350);
+        expect(component.reportData().length).toBe(3);
+    });
+});
