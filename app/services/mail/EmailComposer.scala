@@ -83,7 +83,8 @@ trait EmailComposer {
     */
   def composeExternalReservationCancellationNotification(
       reservation: Reservation,
-      message: Option[String]
+      message: Option[String],
+      hostOrganisation: Option[String]
   ): Unit
 
   /** Message sent to a student when a reservation has been changed.
