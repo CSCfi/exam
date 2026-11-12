@@ -27,7 +27,9 @@ export class DateTimeService {
         return `${h} h ${m} min`;
     };
 
-    formatDurationString = (timestamp: string) => DateTime.fromISO(timestamp, { zone: 'UTC' }).toFormat('HH:mm');
+    // Rounded to the nearest minute, as the review listings (minuteDiff) do
+    formatDurationString = (timestamp: string) =>
+        DateTime.fromISO(timestamp, { zone: 'UTC' }).plus({ seconds: 30 }).startOf('minute').toFormat('HH:mm');
 
     formatInTimeZone = (date: Date, tz: string) => DateTime.fromJSDate(date, { zone: tz }).toISO();
 
