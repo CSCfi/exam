@@ -1,5 +1,5 @@
 
-# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium 
+# SPDX-FileCopyrightText: The members of the EXAM Consortium 
 #
 # SPDX-License-Identifier: EUPL-1.2
 
@@ -17,53 +17,53 @@ SPDX-License-Identifier = "Apache-2.0"
 [[annotations]]
 path = "ui/src/favicon.ico"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
 
 [[annotations]]
 path = "ui/src/assets/images/**"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
 
 [[annotations]]
 path = "ui/src/assets/i18n/**"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
 
 [[annotations]]
 path = "ui/**.json"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
 
 [[annotations]]
 path = "conf/template/**"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
 
 [[annotations]]
 path = "conf/messages.**"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
 
 [[annotations]]
 path = "test/resources/**"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
 
 [[annotations]]
 path = "**.json"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
 
 [[annotations]]
 path = "pnpm-lock.yaml"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-FileCopyrightText = "Exam Consortium"
 SPDX-License-Identifier = "EUPL-1.2"
