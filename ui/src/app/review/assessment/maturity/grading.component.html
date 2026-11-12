@@ -108,7 +108,7 @@ SPDX-License-Identifier: EUPL-1.2
         <textarea
             id="infoForRegistry"
             class="form-control"
-            [value]="exam().additionalInfo"
+            [value]="exam().additionalInfo ?? ''"
             (input)="onAdditionalInfoInput($event)"
             rows="3"
             [disabled]="isReadOnly() || !isOwnerOrAdmin()"
@@ -129,7 +129,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-6">
         <textarea
             class="form-control"
-            [value]="exam().assessmentInfo"
+            [value]="exam().assessmentInfo ?? ''"
             (input)="onAssessmentInfoInput($event)"
             rows="3"
         ></textarea>
