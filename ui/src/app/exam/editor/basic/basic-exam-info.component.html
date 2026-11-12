@@ -133,7 +133,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 <input
                                     type="text"
                                     maxlength="128"
-                                    [value]="exam().internalRef"
+                                    [value]="exam().internalRef ?? ''"
                                     (input)="onInternalRefInput($event)"
                                 />
                             </div>
