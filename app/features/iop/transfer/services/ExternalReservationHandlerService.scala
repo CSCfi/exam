@@ -32,6 +32,7 @@ import scala.util.{Failure, Success, Try}
 class ExternalReservationHandlerService @Inject() (
     wsClient: WSClient,
     emailComposer: EmailComposer,
+    organisationService: OrganisationService,
     configReader: ConfigReader,
     clock: AppClock
 )(implicit ec: BlockingIOExecutionContext)
@@ -147,14 +148,22 @@ class ExternalReservationHandlerService @Inject() (
         wsClient
           .url(url.toString)
           .delete()
-          .map { response =>
-            if response.status != OK then Some(INTERNAL_SERVER_ERROR)
+          .flatMap { response =>
+            if response.status != OK then Future.successful(Some(INTERNAL_SERVER_ERROR))
             else
-              emailComposer.composeExternalReservationCancellationNotification(reservation, message)
-              deleteVisitorReservation(reservation)
-              None
+              notifyVisitorOfCancellation(reservation, message).map { _ =>
+                deleteVisitorReservation(reservation)
+                None
+              }
           }
           .recover { case _ => Some(INTERNAL_SERVER_ERROR) }
+
+  // Mail a visiting student that their booking here was cancelled, naming this organisation when XM
+  // knows its name. A failed lookup falls back to a generic wording rather than failing the cancel.
+  def notifyVisitorOfCancellation(reservation: Reservation, message: Option[String]): Future[Unit] =
+    organisationService.getHomeOrganisationName.map { name =>
+      emailComposer.composeExternalReservationCancellationNotification(reservation, message, name)
+    }
 
   // Logging in as a visitor creates an enrolment (and an exam copy) referencing the reservation
   def deleteVisitorReservation(reservation: Reservation): Unit =

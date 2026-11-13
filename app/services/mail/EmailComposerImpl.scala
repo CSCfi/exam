@@ -19,6 +19,7 @@ import models.user.User
 import org.apache.commons.mail.EmailAttachment
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.{Environment, Logging, Mode}
+import play.twirl.api.HtmlFormat
 import services.config.{ByodConfigHandler, ConfigReader}
 import services.file.FileHandler
 
@@ -664,11 +665,12 @@ class EmailComposerImpl @Inject() (
 
   // Cancellation of a visiting student's reservation, sent by the institution hosting the visit.
   // The exam is managed by the student's home organisation, so neither its name nor the student's
-  // language is known here. Identify the booking by place and time; the system address is left out
-  // since the student has no use for it.
+  // language is known here. Identify the booking by place and time, and the canceller by organisation
+  // name rather than system address, which the student has no use for.
   override def composeExternalReservationCancellationNotification(
       reservation: Reservation,
-      message: Option[String]
+      message: Option[String],
+      hostOrganisation: Option[String]
   ): Unit =
     val email        = Option(reservation.externalUserEmail).getOrElse(reservation.externalUserRef)
     val lang         = Lang.get("en").get
@@ -683,12 +685,19 @@ class EmailComposerImpl @Inject() (
         val subject =
           messaging("email.reservation.cancellation.subject.external", date)(using lang)
         val info = messaging("email.reservation.cancellation.info")(using lang)
-        val cancellation = messaging(
-          "email.template.reservation.cancel.message.external",
-          date,
-          time,
-          room
-        )(using lang)
+        val cancellation = hostOrganisation match
+          case Some(org) =>
+            messaging(
+              "email.template.reservation.cancel.message.external.org",
+              date,
+              time,
+              room,
+              HtmlFormat.escape(org).body
+            )(using lang)
+          case None =>
+            messaging("email.template.reservation.cancel.message.external", date, time, room)(
+              using lang
+            )
         val newBooking =
           messaging("email.template.reservation.cancel.message.external.new.booking")(using lang)
         val stringValues = Map("message" -> s"$cancellation<br />$newBooking")

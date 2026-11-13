@@ -4,6 +4,7 @@
 
 package features.iop.transfer.services
 
+import play.api.Logging
 import play.api.libs.json.*
 import play.api.libs.ws.WSClient
 import security.BlockingIOExecutionContext
@@ -12,15 +13,36 @@ import services.config.ConfigReader
 
 import java.net.URI
 import javax.inject.Inject
+import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 class OrganisationService @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader,
     facilityCache: FacilityCache
-)(implicit ec: BlockingIOExecutionContext):
+)(implicit ec: BlockingIOExecutionContext)
+    extends Logging:
 
   private def parseUrl(): String =
     URI.create(s"${configReader.getIopHost}/api/organisations?withFacilities=true").toString
+
+  // Name of this installation's organisation as registered in XM, None when XM cannot tell
+  def getHomeOrganisationName: Future[Option[String]] =
+    val ref = configReader.getHomeOrganisationRef
+    val url = URI.create(s"${configReader.getIopHost}/api/organisations/$ref").toString
+    wsClient
+      .url(url)
+      .get()
+      .map { response =>
+        if response.status != play.api.http.Status.OK then
+          logger.warn(s"Failed to fetch name of organisation $ref: status ${response.status}")
+          None
+        else (response.json \ "name").asOpt[String].map(_.trim).filter(_.nonEmpty)
+      }
+      .recover { case NonFatal(e) =>
+        logger.warn(s"Failed to fetch name of organisation $ref", e)
+        None
+      }
 
   def listOrganisations: scala.concurrent.Future[Either[String, JsValue]] =
     val url      = parseUrl()
