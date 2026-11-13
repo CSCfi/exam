@@ -8,12 +8,12 @@ import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { DateTime } from 'luxon';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { NoShowComponent } from './no-show.component';
 import { ParticipationComponent } from './participation.component';
@@ -32,11 +32,7 @@ export class GeneralInfoComponent implements OnInit {
     readonly collaborative = input(false);
 
     readonly student = computed(() => this.participation().user as User | undefined);
-    readonly duration = computed(() =>
-        DateTime.fromISO(this.participation().duration as string)
-            .set({ second: 0, millisecond: 0 })
-            .toJSDate(),
-    );
+    readonly duration = computed(() => this.DateTime.formatDurationString(this.participation().duration as string));
     readonly studentName = computed(() => {
         const s = this.student();
         if (s) return `${s.lastName} ${s.firstName}`;
@@ -51,6 +47,7 @@ export class GeneralInfoComponent implements OnInit {
     private readonly route = inject(ActivatedRoute);
     private readonly Attachment = inject(AttachmentService);
     private readonly destroyRef = inject(DestroyRef);
+    private readonly DateTime = inject(DateTimeService);
 
     ngOnInit() {
         // Inputs are not yet bound in the constructor, so collaborative() must be read here

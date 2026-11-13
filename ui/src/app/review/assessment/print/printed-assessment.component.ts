@@ -7,7 +7,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { DateTime } from 'luxon';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -46,6 +45,7 @@ export class PrintedAssessmentComponent {
     readonly questionSummary = signal<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
     readonly exam = signal<Exam | undefined>(undefined);
     readonly participation = signal<ExamParticipation | undefined>(undefined);
+    readonly duration = signal('');
     readonly previousParticipations = signal<PreviousParticipation[]>([]);
     readonly student = signal<User | undefined>(undefined);
     readonly enrolment = signal<ExamEnrolment | undefined>(undefined);
@@ -91,10 +91,7 @@ export class PrintedAssessmentComponent {
             this.questionSummary.set(this.QuestionScore.getQuestionAmounts(exam));
             this.exam.set(exam);
             this.participation.set(participation);
-            const duration = DateTime.fromISO(participation.duration as string)
-                .set({ second: 0, millisecond: 0 })
-                .toJSDate();
-            participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
+            this.duration.set(this.DateTime.formatDurationString(participation.duration as string));
 
             this.student.set(participation.user);
             this.enrolment.set(exam.examEnrolments[0]);
