@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+# SPDX-FileCopyrightText: The members of the EXAM Consortium
 # SPDX-License-Identifier: EUPL-1.2
 
 """
