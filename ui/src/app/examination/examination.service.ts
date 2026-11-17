@@ -50,6 +50,7 @@ export class ExaminationService {
     private readonly http = inject(HttpClient);
     private readonly translate = inject(TranslateService);
     private readonly toast = inject(ToastrService);
+    private readonly answerTextCache = new WeakMap<EssayAnswer, { answer: string; hasText: boolean }>();
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         const getUrl = (h: string) => (isPreview && id ? `/app/exams/${id}/preview` : `/app/student/exam/${h}`);
@@ -149,7 +150,7 @@ export class ExaminationService {
         switch (sq.question.type) {
             case 'EssayQuestion': {
                 const essayAnswer = sq.essayAnswer;
-                isAnswered = essayAnswer && essayAnswer.answer && this.stripHtml(essayAnswer.answer).length > 0;
+                isAnswered = essayAnswer && essayAnswer.answer && this.hasText(essayAnswer, essayAnswer.answer);
                 break;
             }
             case 'MultipleChoiceQuestion':
@@ -256,6 +257,18 @@ export class ExaminationService {
             default:
                 return false;
         }
+    };
+
+    // isAnswered is bound in the question card template, so it runs on every change detection pass for
+    // every question in the open section: the exam clock alone triggers one per second. Parsing each
+    // answer on each pass built a throwaway HTML document per answered essay per pass, which pinned the
+    // CPU and grew browser memory on exams with many answered essays. Parse only when the text changes.
+    private hasText = (essayAnswer: EssayAnswer, answer: string) => {
+        const cached = this.answerTextCache.get(essayAnswer);
+        if (cached?.answer === answer) return cached.hasText;
+        const hasText = this.stripHtml(answer).length > 0;
+        this.answerTextCache.set(essayAnswer, { answer, hasText });
+        return hasText;
     };
 
     private stripHtml = (text: string) => {
