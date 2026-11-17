@@ -616,8 +616,8 @@ class ExternalCalendarInterfaceSpec
         reservation.externalOrgRef = ORG_REF
         reservation.externalUserRef = "eppn@test.org"
         reservation.externalUserEmail = "external@test.org"
-        reservation.startAt = fixedNow.plus(Duration.ofHours(2))
-        reservation.endAt = fixedNow.plus(Duration.ofHours(3))
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
         reservation.machine = room.examMachines.get(0)
         reservation.save()
 
