@@ -44,8 +44,8 @@ export class ReservationDetailsComponent {
     readonly isSupportView = input(false);
 
     readonly predicate = signal('startOrd');
-    // Most recent examinations first: the near end of the range is the one people act on
-    readonly reverse = signal(true);
+    // Earliest first, so the default day view reads as that day's schedule (as in 6.x)
+    readonly reverse = signal(false);
     readonly fixedReservations = linkedSignal<ReservationDetail[]>(() => this.reservations() as ReservationDetail[]);
 
     private readonly http = inject(HttpClient);
