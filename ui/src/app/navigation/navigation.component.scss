@@ -146,6 +146,10 @@ $border-green: 3px solid shared.$exam-dark-green;
             position: relative;
             width: 100%;
         }
+        // An open mobile menu must not linger next to .nav-body when the window is widened
+        @media (min-width: shared.$mobile-width + 1px) {
+            display: none;
+        }
     }
 
     .nav-footer {
