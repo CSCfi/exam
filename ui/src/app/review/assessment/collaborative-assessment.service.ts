@@ -24,7 +24,7 @@ interface Payload {
     customCredit: number;
     creditType?: { type: string };
     answerLanguage?: string;
-    additionalInfo: string;
+    additionalInfo?: string;
     rev: string;
 }
 
