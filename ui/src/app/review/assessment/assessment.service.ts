@@ -27,7 +27,7 @@ type Payload = {
     customCredit: number;
     creditType?: string;
     answerLanguage?: string;
-    additionalInfo: string;
+    additionalInfo?: string;
     gradingType?: string;
 };
 
