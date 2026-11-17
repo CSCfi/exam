@@ -55,6 +55,12 @@ describe('DateTimeService', () => {
         it('should handle midnight', () => {
             expect(service.formatDurationString('2024-10-08T00:00:00Z')).toBe('00:00');
         });
+
+        it('should round to the nearest minute', () => {
+            expect(service.formatDurationString('1970-01-01T00:04:29.999Z')).toBe('00:04');
+            expect(service.formatDurationString('1970-01-01T00:04:30Z')).toBe('00:05');
+            expect(service.formatDurationString('1970-01-01T00:59:45Z')).toBe('01:00');
+        });
     });
 
     describe('formatInTimeZone', () => {
