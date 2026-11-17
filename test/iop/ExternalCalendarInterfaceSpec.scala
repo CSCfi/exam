@@ -117,6 +117,23 @@ class ExternalCalendarInterfaceSpec
     override def doDelete(request: HttpServletRequest, response: HttpServletResponse): Unit =
       RemoteServerHelper.writeEmptyJsonResponse(response)
 
+  // Mail text with the transfer encoding undone, so that phrases are not split by soft line breaks
+  private def decodedBody(part: jakarta.mail.Part): String = part.getContent match
+    case mp: jakarta.mail.Multipart =>
+      (0 until mp.getCount).map(i => decodedBody(mp.getBodyPart(i))).mkString
+    case other => other.toString
+
+  // This installation's organisation as XM knows it; switched off to test the fallback wording
+  @volatile private var organisationKnown = true
+  class OrganisationServlet extends HttpServlet:
+    override def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
+      if organisationKnown then
+        val org = Json.obj("_id" -> "test-org", "name" -> "Test University")
+        response.setContentType("application/json")
+        response.setStatus(HttpServletResponse.SC_OK)
+        response.getWriter.write(Json.stringify(org))
+      else response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+
   class EnrolmentServlet extends HttpServlet:
     override def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
       response.setContentType("application/json")
@@ -155,6 +172,7 @@ class ExternalCalendarInterfaceSpec
         s"$baseUrl/reservations/$RESERVATION_REF",
         s"$baseUrl2/reservations/$RESERVATION_REF/force"
       ),
+      ServletDef.FromInstance(new OrganisationServlet()) -> List("/api/organisations/test-org"),
       ServletDef.FromInstance(new EnrolmentServlet())  -> List(s"/api/enrolments/$RESERVATION_REF"),
       ServletDef.FromInstance(new AttachmentServlet()) -> List("/api/attachments/*")
     )
@@ -502,6 +520,8 @@ class ExternalCalendarInterfaceSpec
         mailBody must include("Tenttiakvaario")
         mailBody must not include "uni.org"
         mailBody must not include ",,"
+        // Instead the organisation that cancelled is named
+        decodedBody(mails(0)) must include("cancelled by Test University")
 
       "fall back to externalUserRef as email recipient when externalUserEmail is not set" in:
         val (_, _, room, _) = setupTestData()
@@ -589,6 +609,39 @@ class ExternalCalendarInterfaceSpec
         mails must have size 1
         mails(0).getAllRecipients()(0).toString must be("external@test.org")
         GreenMailUtil.getBody(mails(0)) must not include "http"
+        decodedBody(mails(0)) must include("cancelled by Test University")
+
+      "fall back to a generic canceller when the organisation name is unavailable" in:
+        val (_, _, room, _) = setupTestData()
+
+        val reservation = new Reservation()
+        reservation.externalRef = RESERVATION_REF
+        reservation.externalOrgRef = ORG_REF
+        reservation.externalUserRef = "eppn@test.org"
+        reservation.externalUserEmail = "external@test.org"
+        reservation.startAt = fixedNow.plus(Duration.ofHours(2))
+        reservation.endAt = fixedNow.plus(Duration.ofHours(3))
+        reservation.machine = room.examMachines.get(0)
+        reservation.save()
+
+        organisationKnown = false
+        try
+          val (_, session) = runIO(loginAsAdmin())
+          val result = runIO(
+            makeRequest(
+              DELETE,
+              s"/app/reservations/${reservation.id}?msg=cancellation+notice",
+              session = session
+            )
+          )
+          statusOf(result) must be(Status.OK)
+        finally organisationKnown = true
+
+        DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).find must be(empty)
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val mails = greenMail.getReceivedMessages
+        mails must have size 1
+        decodedBody(mails(0)) must include("cancelled by the hosting organisation")
 
       "remove reservation of a visitor that has already logged in" in:
         val (_, _, room, _) = setupTestData()

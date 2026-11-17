@@ -269,10 +269,14 @@ class ReservationService @Inject() (
           case Some(_) => Left(ReservationError.RemoteCallFailed)
         }
     else
-      if reservation.endAt.isAfter(Instant.now()) then
-        emailComposer.composeExternalReservationCancellationNotification(reservation, message)
-      externalReservationHandler.deleteVisitorReservation(reservation)
-      Future.successful(Right(()))
+      val notified =
+        if reservation.endAt.isAfter(Instant.now()) then
+          externalReservationHandler.notifyVisitorOfCancellation(reservation, message)
+        else Future.unit
+      notified.map { _ =>
+        externalReservationHandler.deleteVisitorReservation(reservation)
+        Right(())
+      }
 
   // Machines of IOP reservations are assigned by the institution hosting the visit, over IOP
   private def isExternalReservation(reservation: Reservation): Boolean =

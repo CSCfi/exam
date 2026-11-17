@@ -370,7 +370,9 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
       user: User,
       session: play.api.mvc.Session
   ): Unit =
-    val options = question.options.asScala.toList.sortBy(_.id)
+    // Ids come from a sequence Ebean prefetches in batches, so they need not follow insert order
+    def idOf(text: String) =
+      question.options.asScala.find(_.option == text).getOrElse(fail(s"No option $text")).id
     val json = Json.obj(
       "id"       -> JsNumber(BigDecimal(question.id)),
       "type"     -> "WeightedMultipleChoiceQuestion",
@@ -378,17 +380,17 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
       "options" -> JsArray(
         Seq(
           Json.obj(
-            "id"           -> JsNumber(BigDecimal(options.head.id)),
+            "id"           -> JsNumber(BigDecimal(idOf("Kumpi"))),
             "defaultScore" -> 1.0,
             "option"       -> "Kumpi"
           ),
           Json.obj(
-            "id"           -> JsNumber(BigDecimal(options(1).id)),
+            "id"           -> JsNumber(BigDecimal(idOf("Kampi"))),
             "defaultScore" -> 1.0,
             "option"       -> "Kampi"
           ),
           Json.obj(
-            "id"           -> JsNumber(BigDecimal(options(2).id)),
+            "id"           -> JsNumber(BigDecimal(idOf("Molemmat"))),
             "defaultScore" -> -1.0,
             "option"       -> "Molemmat"
           )
@@ -450,7 +452,10 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
     saved.options.size must be(4)
     saved.getMinDefaultScore must be(minDefaultScore +- 0.01)
 
-    val defaultScores = saved.options.asScala.toList.sortBy(_.id).map(_.defaultScore)
+    // Matched by text: the new option's id need not be the highest (see deleteAddedOption)
+    val defaultScores = Seq("Kumpi", "Kampi", "Molemmat", "Uusi").map(text =>
+      saved.options.asScala.find(_.option == text).getOrElse(fail(s"No option $text")).defaultScore
+    )
     // Handle NaN comparison specially
     expectedDefaultScores.zip(defaultScores).foreach { case (expected, actual) =>
       if (expected.isNaN) Option(actual).forall(_ == 0.0) must be(true)
@@ -475,7 +480,11 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
     esq.getMinScore.doubleValue must be(minScore +- 0.01)
     esq.getMaxAssessedScore.doubleValue must be(maxScore +- 0.01)
 
-    val scores = esq.options.asScala.map(_.score)
+    // In option text order rather than by id, which need not follow insert order
+    val textOrder = Seq("Kumpi", "Kampi", "Molemmat", "Uusi")
+    val scores = esq.options.asScala.toList
+      .sortBy(o => textOrder.indexOf(o.option.option))
+      .map(_.score)
     expectedScores.zip(scores).foreach { case (expected, actual) =>
       if (expected.isNaN) Option(actual).forall(_.isNaN) must be(true)
       else if (actual != null)
