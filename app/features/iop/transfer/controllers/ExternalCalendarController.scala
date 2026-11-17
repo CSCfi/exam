@@ -22,7 +22,6 @@ import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
 import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.datetime.{AppClock, CalendarHandler, DateTimeHandler}
-import services.mail.EmailComposer
 import system.AuditedAction
 import validation.calendar.ExternalCalendarReservationValidator
 
@@ -37,7 +36,6 @@ class ExternalCalendarController @Inject() (
     audited: AuditedAction,
     wsClient: WSClient,
     calendarHandler: CalendarHandler,
-    emailComposer: EmailComposer,
     configReader: ConfigReader,
     dateTimeHandler: DateTimeHandler,
     externalReservationHandler: ExternalReservationHandlerService,
@@ -352,20 +350,20 @@ class ExternalCalendarController @Inject() (
                   wsClient
                     .url(url.toString)
                     .delete()
-                    .map { response =>
+                    .flatMap { response =>
                       if response.status != OK then
                         val root = response.json.as[play.api.libs.json.JsObject]
                         val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
-                        InternalServerError(msg)
+                        Future.successful(InternalServerError(msg))
                       else
                         val msg =
                           request.body.asJson.map(_ \ "msg").flatMap(_.asOpt[String]).getOrElse("")
-                        emailComposer.composeExternalReservationCancellationNotification(
-                          reservation,
-                          Some(msg)
-                        )
-                        reservation.delete()
-                        Ok
+                        externalReservationHandler
+                          .notifyVisitorOfCancellation(reservation, Some(msg))
+                          .map { _ =>
+                            reservation.delete()
+                            Ok
+                          }
                     }
               )
     }
