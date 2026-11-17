@@ -8,12 +8,7 @@ package assessment
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.assessment.{
-  AutoEvaluationConfig,
-  AutoEvaluationReleaseType,
-  ExamInspection,
-  ExamRecord
-}
+import models.assessment.*
 import models.exam.*
 import models.user.User
 import play.api.http.Status
