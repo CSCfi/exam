@@ -8,7 +8,7 @@ package assessment
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.assessment.ExamInspection
+import models.assessment.*
 import models.exam.*
 import models.user.User
 import play.api.http.Status
@@ -155,3 +155,56 @@ class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions
         Option(updated.grade) must be(None)
         updated.gradingType must be(GradeType.GRADED)
         updated.state must be(ExamState.REVIEW_STARTED)
+
+    "locking an assessment" should:
+      "register an auto-graded exam and credit the registering teacher" in:
+        val (user, session) = loginAsAdminWithExamInspection()
+        // Mirror AutoEvaluationHandler: graded, but no graded-by-user
+        val config = new AutoEvaluationConfig
+        config.releaseType = AutoEvaluationReleaseType.IMMEDIATE
+        config.exam = exam.get
+        config.save()
+        val autoGraded = reload()
+        autoGraded.autoEvaluationConfig = config
+        autoGraded.grade = gradeNamed("APPROVED")
+        autoGraded.gradingType = GradeType.GRADED
+        autoGraded.creditType = autoGraded.examType
+        autoGraded.answerLanguage = "fi"
+        autoGraded.gradedByUser = null
+        autoGraded.state = ExamState.GRADED
+        autoGraded.update()
+        val registered = runIO(
+          makeRequest(
+            "POST",
+            "/app/exam/record",
+            Some(Json.obj("id" -> JsNumber(BigDecimal(exam.get.id)))),
+            session = session
+          )
+        )
+        statusOf(registered) must be(Status.OK)
+        val locked = reload()
+        locked.state must be(ExamState.GRADED_LOGGED)
+        locked.gradedByUser.id must be(user.id)
+        val record = DB.find(classOf[ExamRecord]).where().eq("exam.id", exam.get.id).find
+        record.map(_.teacher.id) must be(Some(user.id))
+
+      "refuse to register a manually reviewed exam with no grader" in:
+        val (_, session) = loginAsAdminWithExamInspection()
+        val noGrader     = reload()
+        noGrader.grade = gradeNamed("APPROVED")
+        noGrader.gradingType = GradeType.GRADED
+        noGrader.creditType = noGrader.examType
+        noGrader.answerLanguage = "fi"
+        noGrader.gradedByUser = null
+        noGrader.state = ExamState.GRADED
+        noGrader.update()
+        val registered = runIO(
+          makeRequest(
+            "POST",
+            "/app/exam/record",
+            Some(Json.obj("id" -> JsNumber(BigDecimal(exam.get.id)))),
+            session = session
+          )
+        )
+        statusOf(registered) must be(Status.FORBIDDEN)
+        reload().state must be(ExamState.GRADED)
