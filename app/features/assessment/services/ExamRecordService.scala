@@ -130,8 +130,8 @@ class ExamRecordService @Inject() (
   ): Option[ExamRecordError] =
     if !isAllowedToRegister(exam, user) then Some(ExamRecordError.AccessForbidden)
     else
-      // Side effect: Set graded-by-user if auto-graded
-      if Option(exam.gradedByUser).isEmpty && Option(exam.autoEvaluationConfig).isEmpty then
+      // Side effect: auto-grading leaves graded-by-user empty, whoever locks the grade gets it
+      if Option(exam.gradedByUser).isEmpty && Option(exam.autoEvaluationConfig).nonEmpty then
         exam.gradedByUser = user
 
       val missingRequiredFields =
