@@ -27,4 +27,5 @@ machine_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}
 docker exec -i exam-postgres psql -U exam -d exam -v ON_ERROR_STOP=1 -v machine_ip="$machine_ip" \
     < scripts/e2e/seed.sql > /dev/null
 
-pnpm exec playwright test -c scripts/e2e/playwright.config.ts "$@"
+# E2E_CONFIG picks another Playwright config, e.g. playwright.probe.config.ts for the probes
+pnpm exec playwright test -c "${E2E_CONFIG:-scripts/e2e/playwright.config.ts}" "$@"
