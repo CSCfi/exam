@@ -58,6 +58,14 @@ export class MathUI extends Plugin {
         });
     };
 
+    override destroy() {
+        super.destroy();
+        // clickOutsideHandler hangs a mousedown listener on the document off the form view, and only
+        // destroying the view removes it. Left in place, it keeps this editor, its DOM and everything
+        // it references alive for the rest of the page: every essay editor on every section switch.
+        this.formView?.destroy();
+    }
+
     showUI(expressionOverride?: string, targetElement?: HTMLElement) {
         const commandValue = this.editor.commands.get('insertMath')!.value as CommandValue | null;
         const expression = expressionOverride ?? commandValue?.expression ?? null;

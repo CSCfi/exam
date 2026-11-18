@@ -59,6 +59,14 @@ export class ClozeUI extends Plugin {
         });
     };
 
+    override destroy() {
+        super.destroy();
+        // clickOutsideHandler hangs a mousedown listener on the document off the form view, and only
+        // destroying the view removes it. Left in place, it keeps this editor, its DOM and everything
+        // it references alive for the rest of the page. The plugin is loaded in every editor.
+        this.formView?.destroy();
+    }
+
     private createFormView = () => {
         const formView = new ClozeView(this.editor.locale);
 
