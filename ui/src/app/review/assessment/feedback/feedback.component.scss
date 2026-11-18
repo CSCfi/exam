@@ -13,7 +13,8 @@
     right: 50px;
     border-radius: 25px;
     border: 1px solid;
-    background: rgba(255, 255, 255, 0.7);
+    // Opaque: page content showing through hurt legibility and button contrast
+    background: var(--bs-body-bg);
     width: 620px;
     margin: 2px;
     // Keep the panel inside the viewport so the footer buttons stay reachable
