@@ -46,7 +46,8 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.7",
   "ch.qos.logback"                % "logback-core"         % "1.5.38",
   "ch.qos.logback"                % "logback-classic"      % "1.5.38",
-  "com.sun.mail"                  % "jakarta.mail"         % "1.6.8"
+  "com.sun.mail"                  % "jakarta.mail"         % "1.6.8",
+  "com.google.guava"              % "guava"                % "33.8.0-jre"
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
