@@ -55,7 +55,9 @@ dependencyOverrides ++= Seq(
   "ch.qos.logback"                % "logback-core"         % "1.5.38",
   "ch.qos.logback"                % "logback-classic"      % "1.5.38",
   "com.sun.mail"                  % "jakarta.mail"         % "1.6.8",
-  "com.google.guava"              % "guava"                % "33.8.0-jre"
+  "com.google.guava"              % "guava"                % "33.8.0-jre",
+  "at.yawk.lz4"                   % "lz4-java"             % "1.11.4",
+  "org.apache.logging.log4j"      % "log4j-api"            % "2.25.5"
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
