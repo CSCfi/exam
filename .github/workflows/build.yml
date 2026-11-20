@@ -105,6 +105,20 @@ jobs:
           upload-artifact: false
           upload-release-assets: false
 
+      - name: Check SBOM against OSV
+        # Report only, never fails the build: findings go to the run's summary page,
+        # plus a warning annotation. Locally: scripts/internal/sbom-osv.sh <branch>
+        continue-on-error: true
+        run: |
+          curl -fsSLo /tmp/osv-scanner https://github.com/google/osv-scanner/releases/download/v2.7.1/osv-scanner_linux_amd64
+          echo "fb7dab19a8bd9bbe5c3189f09d4b7ee1820c9553a23bac202648a56efd2f6ee8  /tmp/osv-scanner" | sha256sum -c -
+          chmod +x /tmp/osv-scanner
+          rc=0
+          /tmp/osv-scanner scan source -L exam-sbom.cdx.json --format markdown --output-file osv-report.md > /dev/null 2>&1 || rc=$?
+          echo "## Known vulnerabilities in the dependency SBOM" >> "$GITHUB_STEP_SUMMARY"
+          if [ -s osv-report.md ]; then cat osv-report.md >> "$GITHUB_STEP_SUMMARY"; else echo "OSV scan failed (exit $rc)" >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ "$rc" = 1 ]; then echo "::warning title=OSV::$(grep -m1 '^Total' osv-report.md) See the run summary."; fi
+
       - name: Upload SBOM as CI Artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
