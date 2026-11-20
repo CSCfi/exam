@@ -79,11 +79,33 @@ jobs:
         # with the correct permissions for the upload step.
         run: pipx run reuse spdx -o bill-of-rights.spdx
 
+      - name: Collect dependencies for SBOM
+        # The REUSE file above lists source-file licenses only. This collects the
+        # backend runtime jars and the frontend lockfile for a dependency SBOM that
+        # vulnerability databases such as OSV can match against.
+        run: |
+          mkdir -p sbom-input/lib
+          sbt -batch -error "export Runtime/dependencyClasspath" | grep '\.jar' | tail -1 \
+            | tr ':' '\n' | grep '\.jar$' | xargs -I{} cp {} sbom-input/lib/
+          cp package.json pnpm-lock.yaml sbom-input/
+          ls sbom-input/lib | wc -l
+
+      - name: Generate dependency SBOM (CycloneDX)
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          path: sbom-input
+          format: cyclonedx-json
+          output-file: exam-sbom.cdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
       - name: Upload SBOM as CI Artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: bill-of-rights
-          path: bill-of-rights.spdx
+          path: |
+            bill-of-rights.spdx
+            exam-sbom.cdx.json
           retention-days: 7
 
   release:
@@ -108,7 +130,7 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           gh release view "$TAG" > /dev/null 2>&1 || gh release create "$TAG" --verify-tag --title "$TAG" --notes ""
-          gh release upload "$TAG" bill-of-rights.spdx --clobber
+          gh release upload "$TAG" bill-of-rights.spdx exam-sbom.cdx.json --clobber
 
   dependency-submission:
     # Sends the sbt dependency tree to GitHub's dependency graph for Dependabot alerts.
