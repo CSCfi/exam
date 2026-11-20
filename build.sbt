@@ -53,8 +53,13 @@ dependencyOverrides ++= Seq(
   "ch.qos.logback"                % "logback-core"         % "1.5.38",
   "ch.qos.logback"                % "logback-classic"      % "1.5.38",
   "com.sun.mail"                  % "jakarta.mail"         % "1.6.8",
-  "com.google.guava"              % "guava"                % "33.8.0-jre"
+  "com.google.guava"              % "guava"                % "33.8.0-jre",
+  "org.apache.logging.log4j"      % "log4j-api"            % "2.25.5"
 )
+
+// org.lz4 (via Pekko 1.0) is abandoned; at.yawk.lz4 is the maintained drop-in fork
+excludeDependencies += ExclusionRule("org.lz4", "lz4-java")
+libraryDependencies += "at.yawk.lz4" % "lz4-java" % "1.11.4"
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
 Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
