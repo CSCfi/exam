@@ -80,18 +80,24 @@ jobs:
         run: pipx run reuse spdx -o bill-of-rights.spdx
 
       - name: Collect dependencies for SBOM
-        # The REUSE file above lists source-file licenses only. This collects the
-        # backend runtime jars and the frontend lockfile for a dependency SBOM that
-        # vulnerability databases such as OSV can match against.
+        # The REUSE file above lists source-file licenses only. This collects what
+        # ships, for a dependency SBOM that vulnerability databases such as OSV can
+        # match against: the backend runtime jars, and the frontend packages from a
+        # separate --prod install (the lockfile would also list build and test tools).
         run: |
-          mkdir -p sbom-input/lib
+          mkdir -p sbom-input/lib sbom-input/ui
           sbt -batch -error "export Runtime/dependencyClasspath" | grep '\.jar' | tail -1 \
             | tr ':' '\n' | grep '\.jar$' | xargs -I{} cp {} sbom-input/lib/
-          cp package.json pnpm-lock.yaml sbom-input/
-          ls sbom-input/lib | wc -l
+          cp package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc sbom-input/ui/
+          pnpm --dir sbom-input/ui install --prod --frozen-lockfile --ignore-scripts
+          rm sbom-input/ui/pnpm-lock.yaml
+          echo "jars: $(ls sbom-input/lib | wc -l), npm: $(ls sbom-input/ui/node_modules/.pnpm | wc -l)"
 
       - name: Generate dependency SBOM (CycloneDX)
         uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        env:
+          # Directory scans read lockfiles only by default; catalog node_modules too
+          SYFT_SELECT_CATALOGERS: "+javascript-package-cataloger"
         with:
           path: sbom-input
           format: cyclonedx-json
