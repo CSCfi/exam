@@ -55,7 +55,7 @@ export class GeneralInfoComponent implements OnInit {
         const ref = this.route.snapshot.params.ref;
         const url = this.collaborative()
             ? `/app/iop/reviews/${id}/participations/${ref}`
-            : `app/examparticipations/${id}`;
+            : `/app/examparticipations/${id}`;
         this.http
             .get<ExamParticipation[]>(url)
             .pipe(takeUntilDestroyed(this.destroyRef))

@@ -6,8 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
-import { catchError, switchMap, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { LanguageInspection } from 'src/app/maturity/maturity.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
@@ -173,7 +173,7 @@ export class MaturityService {
                 this.Assessment.rejectMaturity$(exam).subscribe(() => {
                     this.toast.info(this.translate.instant('i18n_maturity_rejected'));
                     const state = this.Assessment.getExitState(exam);
-                    this.router.navigate(state.fragments, state.params);
+                    this.router.navigate(state.fragments, { queryParams: state.params });
                 });
                 break;
             case StateName.LANGUAGE_INSPECT:
@@ -221,17 +221,16 @@ export class MaturityService {
         )
             .pipe(
                 switchMap(() => this.Assessment.saveFeedback$(exam)),
-                switchMap(() => this.http.put(`app/review/${exam.id}`, this.Assessment.getPayload(exam, 'GRADED'))),
+                switchMap(() => this.http.put(`/app/review/${exam.id}`, this.Assessment.getPayload(exam, 'GRADED'))),
                 switchMap(() => this.http.post('/app/inspection', { examId: exam.id })),
-                catchError((err) => {
-                    this.toast.error(err);
-                    return throwError(() => new Error(err));
-                }),
             )
-            .subscribe(() => {
-                this.toast.info(this.translate.instant('i18n_sent_for_language_inspection'));
-                const state = this.Assessment.getExitState(exam);
-                this.router.navigate(state.fragments, state.params);
+            .subscribe({
+                next: () => {
+                    this.toast.info(this.translate.instant('i18n_sent_for_language_inspection'));
+                    const state = this.Assessment.getExitState(exam);
+                    this.router.navigate(state.fragments, { queryParams: state.params });
+                },
+                error: (err) => this.toast.error(err),
             });
 
     private finalizeLanguageInspection = (exam: Exam, reject: boolean) => {
@@ -256,14 +255,12 @@ export class MaturityService {
                             : this.Assessment.createExamRecord$(exam, false, setting.status === 'everything'), // TODO: is this necessary with private examinations?
                 ),
             )
-            .subscribe(() => {
-                if (reject) {
-                    this.toast.info(this.translate.instant('i18n_maturity_rejected'));
+            .subscribe({
+                next: () => {
+                    this.toast.info(this.translate.instant(reject ? 'i18n_maturity_rejected' : 'i18n_review_recorded'));
                     this.router.navigate(['/staff/inspections']);
-                } else {
-                    this.toast.info(this.translate.instant('i18n_review_recorded'));
-                    this.router.navigate(['/staff/inspections']);
-                }
+                },
+                error: (err) => this.toast.error(err),
             });
     };
 }

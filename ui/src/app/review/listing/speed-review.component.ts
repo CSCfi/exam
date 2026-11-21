@@ -172,12 +172,15 @@ export class SpeedReviewComponent {
             this.translate.instant('i18n_confirm_grade_review'),
         ).subscribe({
             next: () => {
-                forkJoin(reviews.map((r) => this.gradeExam$(r))).subscribe(() => {
-                    this.toast.info(this.translate.instant('i18n_saved'));
-                    const remainingReviews = this.examReviews();
-                    if (remainingReviews.length === 0) {
-                        this.router.navigate(['/staff/exams', this.examId(), '5']);
-                    }
+                forkJoin(reviews.map((r) => this.gradeExam$(r))).subscribe({
+                    next: () => {
+                        this.toast.info(this.translate.instant('i18n_saved'));
+                        const remainingReviews = this.examReviews();
+                        if (remainingReviews.length === 0) {
+                            this.router.navigate(['/staff/exams', this.examId(), '5']);
+                        }
+                    },
+                    error: (err) => this.toast.error(err),
                 });
             },
         });

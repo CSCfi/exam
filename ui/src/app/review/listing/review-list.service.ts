@@ -34,11 +34,13 @@ export class ReviewListService {
             return true;
         }
         const s = filter.toLowerCase();
-        const name = `${review.examParticipation.user.firstName || ''} ${review.examParticipation.user.lastName || ''}`;
-        return (
-            name.toLowerCase().indexOf(s) > -1 ||
-            (review.examParticipation.user.email || ' ').toLowerCase().indexOf(s) > -1
-        );
+        const user = review.examParticipation.user;
+        // Anonymous reviews come without the user
+        if (!user) {
+            return review.displayName.toLowerCase().includes(s);
+        }
+        const name = `${user.firstName || ''} ${user.lastName || ''}`;
+        return name.toLowerCase().includes(s) || (user.email || ' ').toLowerCase().includes(s);
     };
 
     filterByState = (reviews: ExamParticipation[], states: string[]) => {
@@ -176,7 +178,7 @@ export class ReviewListService {
                     .put<ExamParticipation & { rev: string }>(url, examToRecord)
                     .pipe(map((resp) => ({ ...review, _rev: resp.rev })));
             } else {
-                const resource = exam.gradingType === 'NOT_GRADED' ? '/app/exam/register' : 'app/exam/record';
+                const resource = exam.gradingType === 'NOT_GRADED' ? '/app/exam/register' : '/app/exam/record';
                 return this.http.post<ExamParticipation>(resource, examToRecord);
             }
         } else {
