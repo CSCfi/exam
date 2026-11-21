@@ -19,7 +19,7 @@ import play.api.libs.json.*
 import play.api.libs.json.Json.*
 import play.api.libs.ws.JsonBodyWritables
 import play.api.mvc.*
-import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
+import security.Auth.{AuthenticatedAction, authorized}
 import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.exam.ExamUpdater
@@ -159,7 +159,7 @@ class CollaborativeExamController @Inject() (
     }
 
   def listGradeScales(): Action[AnyContent] =
-    controllerComponents.actionBuilder.andThen(subjectNotPresent) { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))) { _ =>
       val grades = DB
         .find(classOf[GradeScale])
         .fetch("grades")
