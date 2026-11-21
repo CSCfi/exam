@@ -585,7 +585,8 @@ class CollaborativeReviewController @Inject() (
                     val examNode = (r.json \ "exam").get
                     val exam = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
 
-                    if collaborativeExamAuthorizationService.isUnauthorizedToAssess(exam, user) then
+                    // Only a recorded assessment takes this, so the review states do not apply
+                    if !collaborativeExamAuthorizationService.isOwnerOrAdmin(exam, user) then
                       Future.successful(Forbidden("You are not allowed to modify this object"))
                     else if !exam.hasState(ExamState.GRADED_LOGGED) then
                       Future.successful(Forbidden("Not allowed to update grading of this exam"))

@@ -140,7 +140,7 @@ class CollaborativeExamSectionController @Inject() (
       val updater = (exam: Exam, _: User) =>
         ((request.body \ "from").asOpt[Int], (request.body \ "to").asOpt[Int]) match
           case (Some(from), Some(to)) =>
-            checkBounds(from, to) match
+            checkBounds(from, to, exam.examSections.size) match
               case Some(err) => Some(err)
               case None      =>
                 // Reorder by sequenceNumber (TreeSet orders the collection based on it)
@@ -165,12 +165,12 @@ class CollaborativeExamSectionController @Inject() (
       val updater = (exam: Exam, _: User) =>
         ((request.body \ "from").asOpt[Int], (request.body \ "to").asOpt[Int]) match
           case (Some(from), Some(to)) =>
-            checkBounds(from, to) match
-              case Some(err) => Some(err)
-              case None =>
-                exam.examSections.asScala.find(_.id == sectionId) match
-                  case None     => Some(NotFound("i18n_error_not_found"))
-                  case Some(es) =>
+            exam.examSections.asScala.find(_.id == sectionId) match
+              case None => Some(NotFound("i18n_error_not_found"))
+              case Some(es) =>
+                checkBounds(from, to, es.sectionQuestions.size) match
+                  case Some(err) => Some(err)
+                  case None      =>
                     // Reorder by sequenceNumber
                     val questions =
                       es.sectionQuestions.asScala.toSeq.sortBy(_.sequenceNumber).toBuffer

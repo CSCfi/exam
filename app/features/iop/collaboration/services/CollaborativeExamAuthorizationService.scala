@@ -60,11 +60,15 @@ class CollaborativeExamAuthorizationService @Inject() (
     *   true if unauthorized, false if authorized
     */
   def isUnauthorizedToAssess(exam: Exam, user: User): Boolean =
-    !user.isAdminOrSupport &&
-      (exam.examOwners.asScala.forall { u =>
-        !u.email.equalsIgnoreCase(user.email) &&
-        !u.email.equalsIgnoreCase(user.eppn)
-      } || !exam.hasState(ExamState.REVIEW, ExamState.REVIEW_STARTED, ExamState.GRADED))
+    !isOwnerOrAdmin(exam, user) ||
+      (!user.isAdminOrSupport &&
+        !exam.hasState(ExamState.REVIEW, ExamState.REVIEW_STARTED, ExamState.GRADED))
+
+  /** Admins and support, and the exam's owners whatever its state */
+  def isOwnerOrAdmin(exam: Exam, user: User): Boolean =
+    user.isAdminOrSupport || exam.examOwners.asScala.exists { u =>
+      u.email.equalsIgnoreCase(user.email) || u.email.equalsIgnoreCase(user.eppn)
+    }
 
   /** Find a collaborative exam by ID and return as Either
     *

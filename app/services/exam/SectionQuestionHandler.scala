@@ -24,8 +24,9 @@ enum OptionUpdateOptions:
 
 trait SectionQuestionHandler:
 
-  def checkBounds(from: Int, to: Int): Option[Result] =
-    if from < 0 || to < 0 then Some(BadRequest)
+  /** Positions for moving one of `size` items */
+  def checkBounds(from: Int, to: Int, size: Int): Option[Result] =
+    if Seq(from, to).exists(i => i < 0 || i >= size) then Some(BadRequest)
     else if from == to then Some(Ok)
     else None
 
