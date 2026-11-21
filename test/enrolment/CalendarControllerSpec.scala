@@ -18,7 +18,6 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsNumber, Json}
 import play.api.test.Helpers.*
 import services.datetime.{AppClock, FixedAppClock}
@@ -37,13 +36,15 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
   val fixedNow: Instant = LocalDate.now().atTime(10, 0).atZone(ZoneOffset.UTC).toInstant
 
   override def fakeApplication(): Application =
-    new GuiceApplicationBuilder()
+    appBuilder
       .overrides(bind[AppClock].toInstance(FixedAppClock(fixedNow)))
       .build()
 
   private val MAIL_TIMEOUT = 5000L
 
   // GreenMail setup for email testing - using GreenMail directly instead of JUnit rule
+  override protected def sendsMail: Boolean = true
+
   private lazy val greenMail = new GreenMail(ServerSetupTest.SMTP)
     .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication())
 

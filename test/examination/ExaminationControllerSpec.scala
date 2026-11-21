@@ -32,6 +32,8 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
   private val MAIL_TIMEOUT = 20000L
 
   // GreenMail setup for email testing
+  override protected def sendsMail: Boolean = true
+
   private lazy val greenMail = new GreenMail(ServerSetupTest.SMTP)
     .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication())
 

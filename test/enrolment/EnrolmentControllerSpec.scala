@@ -43,6 +43,8 @@ class EnrolmentControllerSpec
   private var server: Server = uninitialized
 
   // GreenMail setup for email testing
+  override protected def sendsMail: Boolean = true
+
   private lazy val greenMail = new GreenMail(ServerSetupTest.SMTP)
     .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication())
 

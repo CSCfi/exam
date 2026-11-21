@@ -15,6 +15,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.*
 import play.api.Application
 import play.api.http.{Status, Writeable}
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
 import play.api.mvc.*
 import play.api.test.*
@@ -67,6 +68,17 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
         StandardCharsets.UTF_8
       )
   )
+
+  /** Specs that start GreenMail turn this on to send mail over SMTP. The rest use the mock sender,
+    * as nothing listens on the SMTP port then.
+    */
+  protected def sendsMail: Boolean = false
+
+  /** Builder for this spec's app. Specs that customise the app start from this one. */
+  protected def appBuilder: GuiceApplicationBuilder =
+    GuiceApplicationBuilder().configure("play.mailer.mock" -> !sendsMail)
+
+  override def fakeApplication(): Application = appBuilder.build()
 
   // Each test gets a new app and an empty database
   override def newAppForTest(testData: TestData): Application =

@@ -7,6 +7,7 @@ package services.mail
 import biweekly.component.VEvent
 import biweekly.{Biweekly, ICalVersion, ICalendar}
 import cats.effect.IO
+import cats.effect.std.Supervisor
 import cats.effect.unsafe.implicits.global
 import database.EbeanPaths.path
 import database.EbeanQueryExtensions
@@ -18,6 +19,7 @@ import models.iop.CollaborativeExam
 import models.user.User
 import org.apache.commons.mail.EmailAttachment
 import play.api.i18n.{Lang, MessagesApi}
+import play.api.inject.ApplicationLifecycle
 import play.api.{Environment, Logging, Mode}
 import play.twirl.api.HtmlFormat
 import services.config.{ByodConfigHandler, ConfigReader}
@@ -29,7 +31,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZonedDateTime}
 import java.util.Date
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.Using
@@ -41,13 +43,15 @@ object EmailComposerImpl:
   private val DTF       = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm z")
   private val DF        = DateTimeFormatter.ofPattern("dd.MM.yyyy")
   private val TF        = DateTimeFormatter.ofPattern("HH:mm")
+@Singleton
 class EmailComposerImpl @Inject() (
     private val emailSender: EmailSender,
     private val fileHandler: FileHandler,
     private val env: Environment,
     private val messaging: MessagesApi,
     private val configReader: ConfigReader,
-    private val byodConfigHandler: ByodConfigHandler
+    private val byodConfigHandler: ByodConfigHandler,
+    lifecycle: ApplicationLifecycle
 ) extends EmailComposer
     with EbeanQueryExtensions
     with Logging:
@@ -1099,7 +1103,18 @@ class EmailComposerImpl @Inject() (
     val code = Option(user.language).flatMap(l => Option(l.code)).getOrElse("en")
     Lang.get(code).get
 
+  // Scheduled emails are cancelled when the application stops. Left running, they would read the
+  // database after its connection pool has closed, or, in tests, the next test's database.
+  private val (scheduled, closeScheduled) =
+    Supervisor[IO](await = false).allocated.unsafeRunSync()
+  lifecycle.addStopHook(() => closeScheduled.unsafeToFuture())
+
   override def scheduleEmail(delay: Duration)(action: => Unit): Unit =
-    (IO.sleep(delay) *> IO.blocking(action))
-      .handleErrorWith(e => IO(logger.error("Error in scheduled email action", e)))
+    scheduled
+      .supervise(
+        (IO.sleep(delay) *> IO.blocking(action))
+          .handleErrorWith(e => IO(logger.error("Error in scheduled email action", e)))
+      )
+      .void
+      .handleErrorWith(e => IO(logger.warn(s"Email not scheduled: ${e.getMessage}")))
       .unsafeRunAndForget()

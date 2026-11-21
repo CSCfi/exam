@@ -39,6 +39,8 @@ class ExternalExaminationControllerSpec
     with Matchers
     with EbeanQueryExtensions:
 
+  override protected def sendsMail: Boolean = true
+
   private lazy val greenMail = new GreenMail(ServerSetupTest.SMTP)
     .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication())
 

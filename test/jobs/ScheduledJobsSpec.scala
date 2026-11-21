@@ -27,6 +27,8 @@ import scala.jdk.CollectionConverters.*
 class ScheduledJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions
     with BeforeAndAfterAll:
 
+  override protected def sendsMail: Boolean = true
+
   private lazy val greenMail = new GreenMail(ServerSetupTest.SMTP)
     .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication())
 

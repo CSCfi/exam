@@ -29,7 +29,6 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsArray, Json}
 import play.api.test.Helpers.*
 import services.datetime.TimeUtils
@@ -58,6 +57,8 @@ class ExternalCalendarInterfaceSpec
   private var server: Option[Server] = None
 
   // GreenMail setup for email testing
+  override protected def sendsMail: Boolean = true
+
   private lazy val greenMail = new GreenMail(ServerSetupTest.SMTP)
     .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication())
 
@@ -154,7 +155,7 @@ class ExternalCalendarInterfaceSpec
 
   override def fakeApplication(): Application =
     val config = Map("exam.integration.enrolmentPermissionCheck.active" -> java.lang.Boolean.FALSE)
-    new GuiceApplicationBuilder()
+    appBuilder
       .configure(config)
       .overrides(bind[AppClock].toInstance(FixedAppClock(fixedNow)))
       .build()
