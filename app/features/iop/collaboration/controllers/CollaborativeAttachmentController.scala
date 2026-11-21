@@ -227,8 +227,9 @@ class CollaborativeAttachmentController @Inject() (
   private def updateExternalAssessment(
       examId: Long,
       assessmentRef: String
-  ): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = Action
-    .andThen(audited)
+  ): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async(parse.multipartFormData) { request =>
       getExternalExam(examId).flatMap {
         case None => Future.successful(NotFound)
@@ -258,7 +259,7 @@ class CollaborativeAttachmentController @Inject() (
     }
 
   private def deleteExternalAssessment(examId: Long, assessmentRef: String): Action[AnyContent] =
-    Action.async { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { _ =>
       getExternalExam(examId).flatMap {
         case None => Future.successful(NotFound)
         case Some(exam) =>
