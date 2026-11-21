@@ -200,9 +200,11 @@ export class CalendarService {
     private adjustBack(date: DateTime): string {
         return date.toUTC().toISO() as string;
     }
-    private weeksOverlap = (w1d1: string, w1d2: string, w2d1: string, w2d2: string) =>
-        DateTime.fromISO(w1d1).weekNumber <= DateTime.fromISO(w2d1).weekNumber &&
-        DateTime.fromISO(w1d2).weekNumber >= DateTime.fromISO(w2d2).weekNumber;
+    // Week numbers alone would match the same week of any year
+    private weeksOverlap = (w1d1: string, w1d2: string, w2d1: string, w2d2: string) => {
+        const [w1Start, w1End] = [DateTime.fromISO(w1d1).startOf('week'), DateTime.fromISO(w1d2).endOf('week')];
+        return w1Start <= DateTime.fromISO(w2d2) && w1End >= DateTime.fromISO(w2d1);
+    };
 
     private hasMultiDayExceptionalOpeningDuring = (exceptions: ExceptionWorkingHours[], start: string, end: string) =>
         exceptions
