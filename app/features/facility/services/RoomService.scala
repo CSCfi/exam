@@ -81,7 +81,7 @@ class RoomService @Inject() (
 
     val rooms = query.list
     rooms.foreach { room =>
-      room.examMachines.asScala.filterNot(_.archived)
+      room.examMachines.removeIf(_.archived)
       room.internalPasswordRequired = Option(room.internalPassword).isDefined
       room.externalPasswordRequired = Option(room.externalPassword).isDefined
     }

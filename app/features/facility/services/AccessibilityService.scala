@@ -20,11 +20,13 @@ class AccessibilityService @Inject() () extends EbeanQueryExtensions:
     accessibility.save()
     accessibility
 
-  def updateAccessibility(name: String): Accessibility =
-    val accessibility = new Accessibility()
-    accessibility.name = name
-    accessibility.update()
-    accessibility
+  def updateAccessibility(id: Long, name: String): Either[AccessibilityError, Accessibility] =
+    Option(DB.find(classOf[Accessibility], id)) match
+      case None => Left(NotFound)
+      case Some(accessibility) =>
+        accessibility.name = name
+        accessibility.update()
+        Right(accessibility)
 
   def removeAccessibility(id: Long): Either[AccessibilityError, Unit] =
     Option(DB.find(classOf[Accessibility], id)) match

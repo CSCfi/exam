@@ -39,9 +39,11 @@ class AccessibilityController @Inject() (
   def updateAccessibility(): Action[JsValue] =
     audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) {
       request =>
-        val name          = (request.body \ "name").as[String]
-        val accessibility = accessibilityService.updateAccessibility(name)
-        Ok(accessibility.asJson)
+        val id   = (request.body \ "id").as[Long]
+        val name = (request.body \ "name").as[String]
+        accessibilityService.updateAccessibility(id, name) match
+          case Left(error)          => toResult(error)
+          case Right(accessibility) => Ok(accessibility.asJson)
     }
 
   def removeAccessibility(id: Long): Action[AnyContent] =
