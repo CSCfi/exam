@@ -100,6 +100,7 @@ export class ExaminationQuestionComponent {
             } else {
                 this.Attachment.downloadQuestionAttachment(currentSq.question);
             }
+        } else {
             console.error('Cannot retrieve attachment without exam.');
         }
     }
