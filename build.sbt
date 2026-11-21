@@ -68,6 +68,8 @@ Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
 // Play applies evolutions unconditionally in Test mode - downs included, ignoring autoApply -
 // so such a run can wipe the dev database.
 Test / javaOptions += "-Dconfig.resource=integrationtest.conf"
+// Coverage only applies after `sbt coverage` (see `pnpm coverage:backend`); skip the generated routes
+coverageExcludedFiles                  := ".*/routes/main/.*"
 routesGenerator                        := InjectedRoutesGenerator
 PlayKeys.fileWatchService              := play.dev.filewatch.FileWatchService.polling(500)
 Compile / doc / sources                := Seq.empty
