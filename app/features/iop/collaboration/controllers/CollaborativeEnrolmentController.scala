@@ -10,7 +10,7 @@ import features.iop.collaboration.services.*
 import models.exam.Exam
 import models.user.Role
 import play.api.mvc.*
-import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
+import security.Auth.{AuthenticatedAction, authorized}
 import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.exam.ExamUpdater
@@ -35,7 +35,7 @@ class CollaborativeEnrolmentController @Inject() (
     with EbeanJsonExtensions:
 
   def searchExams(filter: Option[String]): Action[AnyContent] =
-    controllerComponents.actionBuilder.andThen(subjectNotPresent).async { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { _ =>
       val request = collaborativeExamSearchService.buildSearchRequest(filter)
       val homeOrg = configReader.getHomeOrganisationRef
 
