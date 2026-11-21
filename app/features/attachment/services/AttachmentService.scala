@@ -35,6 +35,8 @@ class AttachmentService @Inject() (
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions:
 
+  private val Forbidden = "i18n_error_access_forbidden"
+
   def addAttachmentToQuestionAnswer(
       questionId: Long,
       filePart: FilePart[TemporaryFile],
@@ -80,7 +82,8 @@ class AttachmentService @Inject() (
 
   def addAttachmentToQuestion(
       questionId: Long,
-      filePart: FilePart[TemporaryFile]
+      filePart: FilePart[TemporaryFile],
+      user: User
   ): Future[Either[String, Question]] =
     DB.find(classOf[Question])
       .fetch(path[Question]("examSectionQuestions.examSection.exam.parent"))
@@ -88,6 +91,8 @@ class AttachmentService @Inject() (
       .idEq(questionId)
       .find match
       case None => Future.successful(Left("NotFound"))
+      case Some(_) if !canModifyQuestion(questionId, user) =>
+        Future.successful(Left(Forbidden))
       case Some(question) =>
         Try(copyFile(filePart.ref, "question", questionId.toString)) match
           case Failure(_) => Future.successful(Left("i18n_error_creating_attachment"))
@@ -97,9 +102,10 @@ class AttachmentService @Inject() (
               case _ => Left("i18n_error_creating_attachment")
             }
 
-  def deleteQuestionAttachment(questionId: Long): Either[String, Unit] =
+  def deleteQuestionAttachment(questionId: Long, user: User): Either[String, Unit] =
     Option(DB.find(classOf[Question], questionId)) match
-      case None => Left("NotFound")
+      case None                                            => Left("NotFound")
+      case Some(_) if !canModifyQuestion(questionId, user) => Left(Forbidden)
       case Some(question) =>
         fileHandler.removePrevious(question)
         Right(())
@@ -142,9 +148,10 @@ class AttachmentService @Inject() (
             Right(())
           }
 
-  def deleteFeedbackAttachment(examId: Long): Future[Either[String, Unit]] =
+  def deleteFeedbackAttachment(examId: Long, user: User): Future[Either[String, Unit]] =
     Option(DB.find(classOf[Exam], examId)) match
-      case None => Future.successful(Left("NotFound"))
+      case None                                       => Future.successful(Left("NotFound"))
+      case Some(exam) if !canGiveFeedback(exam, user) => Future.successful(Left(Forbidden))
       case Some(exam) =>
         Future {
           Option(exam.examFeedback).foreach(fileHandler.removePrevious)
@@ -185,7 +192,8 @@ class AttachmentService @Inject() (
       user: User
   ): Future[Either[String, Comment]] =
     Option(DB.find(classOf[Exam], examId)) match
-      case None => Future.successful(Left("NotFound"))
+      case None                                       => Future.successful(Left("NotFound"))
+      case Some(exam) if !canGiveFeedback(exam, user) => Future.successful(Left(Forbidden))
       case Some(exam) =>
         if Option(exam.examFeedback).isEmpty then
           val comment = new Comment()
@@ -290,6 +298,23 @@ class AttachmentService @Inject() (
     else
       val source: Source[ByteString, Future[IOResult]] = FileIO.fromPath(file.toPath)
       Future.successful(Right(source))
+
+  /** Same rule as editing the question itself (QuestionService.updateQuestion). */
+  private def canModifyQuestion(questionId: Long, user: User): Boolean =
+    !user.hasRole(Role.Name.TEACHER) ||
+      DB.find(classOf[Question])
+        .where()
+        .idEq(questionId)
+        .or()
+        .eq(path[Question]("shared"), true)
+        .eq(path[Question]("questionOwners"), user)
+        .eq(path[Question]("examSectionQuestions.examSection.exam.examOwners"), user)
+        .endOr()
+        .exists()
+
+  /** Feedback goes on a student's exam copy; allowed for those who may review it. */
+  private def canGiveFeedback(exam: Exam, user: User): Boolean =
+    user.isAdminOrSupport || exam.isInspectedOrCreatedOrOwnedBy(user)
 
   private def replaceAndFinish(
       ac: AttachmentContainer,

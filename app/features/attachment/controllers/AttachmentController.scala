@@ -61,19 +61,23 @@ class AttachmentController @Inject() (
           formData.get("questionId").flatMap(_.headOption).flatMap(_.toLongOption) match
             case None => Future.successful(BadRequest("Missing questionId"))
             case Some(qid) =>
-              attachmentService.addAttachmentToQuestion(qid, filePart).map {
-                case Right(question)  => Ok(question.attachment.asJson)
-                case Left("NotFound") => NotFound
-                case Left(_)          => InternalServerError("i18n_error_creating_attachment")
+              val user = request.attrs(Auth.ATTR_USER)
+              attachmentService.addAttachmentToQuestion(qid, filePart, user).map {
+                case Right(question)                     => Ok(question.attachment.asJson)
+                case Left("i18n_error_access_forbidden") => Forbidden("i18n_error_access_forbidden")
+                case Left("NotFound")                    => NotFound
+                case Left(_) => InternalServerError("i18n_error_creating_attachment")
               }
     }
 
   def deleteQuestionAttachment(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
-      _ =>
-        attachmentService.deleteQuestionAttachment(id) match
-          case Right(_) => Ok
-          case Left(_)  => NotFound
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        attachmentService.deleteQuestionAttachment(id, user) match
+          case Right(_)                            => Ok
+          case Left("i18n_error_access_forbidden") => Forbidden("i18n_error_access_forbidden")
+          case Left(_)                             => NotFound
     }
 
   def deleteQuestionAnswerAttachment(qid: Long): Action[AnyContent] =
@@ -102,10 +106,12 @@ class AttachmentController @Inject() (
   def deleteFeedbackAttachment(id: Long): Action[AnyContent] =
     authenticated.andThen(
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))
-    ).async { _ =>
-      attachmentService.deleteFeedbackAttachment(id).map {
-        case Right(_) => Ok
-        case Left(_)  => NotFound("i18n_exam_not_found")
+    ).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      attachmentService.deleteFeedbackAttachment(id, user).map {
+        case Right(_)                            => Ok
+        case Left("i18n_error_access_forbidden") => Forbidden("i18n_error_access_forbidden")
+        case Left(_)                             => NotFound("i18n_exam_not_found")
       }
     }
 
@@ -147,9 +153,10 @@ class AttachmentController @Inject() (
         case Some((filePart, _)) =>
           val user = request.attrs(Auth.ATTR_USER)
           attachmentService.addFeedbackAttachment(id, filePart, user).map {
-            case Right(comment)   => Ok(comment.attachment.asJson)
-            case Left("NotFound") => NotFound
-            case Left(_)          => InternalServerError("i18n_error_creating_attachment")
+            case Right(comment)                      => Ok(comment.attachment.asJson)
+            case Left("i18n_error_access_forbidden") => Forbidden("i18n_error_access_forbidden")
+            case Left("NotFound")                    => NotFound
+            case Left(_) => InternalServerError("i18n_error_creating_attachment")
           }
     }
 
