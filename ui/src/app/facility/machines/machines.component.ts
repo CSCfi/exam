@@ -53,7 +53,7 @@ export class MachineListComponent {
                 // Update local machines signal
                 this.machines.set(this.sort([...currentRoom.examMachines]));
             },
-            error: (err) => this.toast.error(err.data),
+            error: (err) => this.toast.error(err),
         });
     }
 

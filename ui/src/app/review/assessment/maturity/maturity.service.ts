@@ -224,7 +224,7 @@ export class MaturityService {
                 switchMap(() => this.http.put(`app/review/${exam.id}`, this.Assessment.getPayload(exam, 'GRADED'))),
                 switchMap(() => this.http.post('/app/inspection', { examId: exam.id })),
                 catchError((err) => {
-                    this.toast.error(err.data);
+                    this.toast.error(err);
                     return throwError(() => new Error(err));
                 }),
             )

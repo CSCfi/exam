@@ -147,7 +147,7 @@ export class RoomEditComponent {
                         availableForExternals: !room.availableForExternals,
                     };
                 });
-                this.toast.error(err.data.message);
+                this.toast.error(err);
             },
         });
     };

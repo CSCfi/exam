@@ -87,12 +87,7 @@ export class CourseSelectionComponent {
         if (!currentExam) return;
         this.Exam.updateExam$(currentExam).subscribe({
             next: () => this.router.navigate(['/staff/exams', currentExam.id, 1]),
-            error: (error) => {
-                if (error.data) {
-                    const msg = error.data.message || error.data;
-                    this.toast.error(this.translate.instant(msg));
-                }
-            },
+            error: (err) => this.toast.error(err),
         });
     }
 }

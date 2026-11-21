@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, Injector, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FormField, form, required } from '@angular/forms/signals';
+import { form, FormField, required } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Accessibility } from 'src/app/reservation/reservation.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -23,6 +23,7 @@ export class AccessibilityComponent {
 
     private readonly editNameForms = new Map<number, ReturnType<typeof this.createEditNameForm>>();
 
+    private readonly injector = inject(Injector);
     private readonly accessibilityService = inject(AccessibilityService);
     private readonly toast = inject(ToastService);
     private readonly translate = inject(TranslateService);
@@ -88,7 +89,8 @@ export class AccessibilityComponent {
         }
     }
 
+    // Created on demand from the template, where there is no injection context of its own
     private createEditNameForm(name: string) {
-        return form(signal({ name }));
+        return form(signal({ name }), { injector: this.injector });
     }
 }

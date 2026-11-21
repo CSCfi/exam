@@ -167,7 +167,8 @@ export class ExceptionDialogComponent {
                 .eachDayOfInterval(minDateTime.startOf('month').toJSDate(), minDateTime.minus({ days: 1 }).toJSDate())
                 .filter((d) => d.weekday === currentOptions.monthlyWeekday?.ord),
         );
-        const grouped = groupBy(datesFromBeginningOfMonth, (d) => d.month.toString());
+        // By year too, or the same month of different years would count as one
+        const grouped = groupBy(datesFromBeginningOfMonth, (d) => `${d.year}-${d.month}`);
         const index = (xs: unknown[]) => {
             if (ord == 5) return xs.length - 1;
             else if (ord - 1 > xs.length - 1) return -1;

@@ -61,8 +61,8 @@ export class EnrolmentService {
             this.translate.instant('i18n_confirm_delete_exam_reservation'),
         ).pipe(
             switchMap(() => this.http.delete<void>(url)),
-            catchError((resp: { data: string }) => {
-                this.toast.error(resp.data);
+            catchError((err: string) => {
+                this.toast.error(err);
                 return EMPTY;
             }),
         );

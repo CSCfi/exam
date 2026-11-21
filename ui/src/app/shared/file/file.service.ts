@@ -122,7 +122,10 @@ export class FileService {
                 parent.objectVersion = resp.objectVersion;
                 parent.attachment = !this.isAttachment(resp) ? resp.attachment : resp;
             },
-            error: (resp) => this.toast.error(this.translate.instant(resp.error.data)),
+            // A file too large has been reported already; an HTTP error arrives as a translated message
+            error: (err) => {
+                if (typeof err === 'string') this.toast.error(err);
+            },
         });
     }
 

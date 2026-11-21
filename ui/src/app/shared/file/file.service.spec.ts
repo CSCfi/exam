@@ -2,12 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { errorInterceptor } from 'src/app/interceptors/error.interceptor';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 import { vi } from 'vitest';
@@ -38,7 +39,7 @@ describe('FileService', () => {
                 FileService,
                 { provide: ToastService, useValue: toastSpy },
                 { provide: TranslateService, useValue: translateSpy },
-                provideHttpClient(withXhr()),
+                provideHttpClient(withXhr(), withInterceptors([errorInterceptor])),
                 provideHttpClientTesting(),
                 provideZonelessChangeDetection(),
             ],
@@ -241,7 +242,8 @@ describe('FileService', () => {
             const req = httpMock.expectOne(url);
             req.error(new ProgressEvent('error'), { status: 500, statusText: 'Server Error' });
 
-            await expect(resultPromise).rejects.toMatchObject({ status: 500 });
+            // The error interceptor has turned the failure into a message
+            await expect(resultPromise).rejects.toBe('i18n_unexpected_error');
         });
     });
 
@@ -299,7 +301,8 @@ describe('FileService', () => {
             service.uploadAnswerAttachment(url, file, params, parent);
 
             const req = httpMock.expectOne(url);
-            req.flush({ data: 'i18n_error_upload' }, { status: 400, statusText: 'Bad Request' });
+            // The backend answers with the message as text, which the error interceptor translates
+            req.flush('i18n_error_upload', { status: 400, statusText: 'Bad Request' });
 
             await new Promise<void>((resolve) => setTimeout(resolve, 0));
 

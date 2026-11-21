@@ -112,7 +112,7 @@ export class SpeedReviewComponent {
                     this.examReviews.set(processedReviews);
                     this.toggleReviews.set(processedReviews.length > 0);
                 },
-                error: (err) => this.toast.error(err.data),
+                error: (err) => this.toast.error(err),
             });
     }
 

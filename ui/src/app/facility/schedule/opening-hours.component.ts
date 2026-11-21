@@ -72,9 +72,19 @@ export class OpenHoursComponent {
             return;
         }
         const id = wh.id;
+        // Saving replaces only the hours the new ones overlap, so hours moved clear of their old time
+        // have to be removed separately
+        const replacesOld =
+            this.toMinutes(wh.displayStartingTime) < this.toMinutes(wh.pickEndingTime) &&
+            this.toMinutes(wh.pickStartingTime) < this.toMinutes(wh.displayEndingTime);
         this.roomService
             .updateWorkingHours$({ startTime: start, endTime: end, weekday: wh.weekday }, [this.room().id])
             .subscribe((data) => {
+                if (id && !replacesOld) {
+                    this.roomService
+                        .removeWorkingHours$(id, this.room().id)
+                        .subscribe({ error: (err) => this.toast.error(err) });
+                }
                 const updatedWh = { ...wh, id: data.id, editing: false };
                 updatedWh.displayStartingTime = updatedWh.pickStartingTime;
                 updatedWh.displayEndingTime = updatedWh.pickEndingTime;

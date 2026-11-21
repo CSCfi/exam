@@ -110,7 +110,7 @@ export class RoomService {
         return this.updateExamStartingHours$(data).pipe(
             tap({
                 next: () => this.toast.info(this.translate.instant('i18n_exam_starting_hours_updated')),
-                error: (error) => this.toast.error(error.data),
+                error: (error) => this.toast.error(error),
             }),
             map(() => void 0),
         );
