@@ -76,21 +76,19 @@ export class LibraryService {
 
     applyFreeSearchFilter = (text: string | undefined, questions: LibraryQuestion[]) => {
         if (text) {
+            // Plain text, not a pattern: "C++" or "(" must not throw
+            const matches = (value: string) => value.toLowerCase().includes(text.toLowerCase());
             return questions.filter((question) => {
-                const re = new RegExp(text, 'i');
-
-                const isMatch = question.question && this.htmlDecode(question.question).match(re);
-                const idMatches = String(question.id).match(re);
+                const isMatch = question.question && matches(this.htmlDecode(question.question));
+                const idMatches = matches(String(question.id));
                 if (isMatch || idMatches) {
                     return true;
                 }
                 // match course code
-                return (
-                    question.examSectionQuestions.filter(
-                        (esq) =>
-                            // Course can be empty in case of a copied exam
-                            esq.examSection.exam.course && esq.examSection.exam.course.code.match(re),
-                    ).length > 0
+                return question.examSectionQuestions.some(
+                    (esq) =>
+                        // Course can be empty in case of a copied exam
+                        esq.examSection.exam.course && matches(esq.examSection.exam.course.code),
                 );
             });
         } else {
@@ -101,9 +99,8 @@ export class LibraryService {
     applyOwnerSearchFilter = (text: string, questions: LibraryQuestion[]) => {
         if (text) {
             return questions.filter((question) => {
-                const re = new RegExp(text, 'i');
                 const owner = question.questionOwners.map((o) => o.firstName + ' ' + o.lastName).toString();
-                return owner.match(re);
+                return owner.toLowerCase().includes(text.toLowerCase());
             });
         } else {
             return questions;

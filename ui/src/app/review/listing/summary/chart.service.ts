@@ -277,7 +277,8 @@ export class ChartService {
     };
 
     private calculateGradeTimeValues = (reviews: ExamParticipation[]) => {
-        return reviews
+        // Copy, the caller's list is shown in its own order
+        return [...reviews]
             .sort(
                 (a, b) =>
                     this.ReviewList.diffInMinutes(a.started, a.ended) -
@@ -311,7 +312,8 @@ export class ChartService {
 
     private median = (...xs: number[]) => {
         const sz = xs.length;
-        const sorted = xs.sort();
+        // Numerically: the default sort compares as text and puts 10 before 2
+        const sorted = [...xs].sort((a, b) => a - b);
         return sz % 2 == 1 ? sorted[Math.floor(sz / 2)] : (sorted[Math.floor(sz / 2 - 1)] + sorted[sz / 2]) / 2;
     };
 }
