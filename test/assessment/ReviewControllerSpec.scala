@@ -11,7 +11,7 @@ import io.ebean.DB
 import models.assessment.*
 import models.enrolment.ExamParticipation
 import models.exam.*
-import models.user.User
+import models.user.{Permission, PermissionType, User}
 import play.api.http.Status
 import play.api.libs.json.*
 import play.api.mvc.Session
@@ -319,3 +319,81 @@ class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions
         val locked = reload()
         locked.state must be(ExamState.REJECTED)
         Option(locked.lockedAt) must not be None
+
+    "updating the feedback comment" should:
+      def userNamed(eppn: String): User =
+        DB.find(classOf[User]).where().eq("eppn", eppn).find.getOrElse(fail(s"$eppn missing"))
+
+      // Detach the exam copy and its parent from teacher@funet.fi (the test data creator)
+      def detachFromTeacher(): Unit =
+        val child = reload()
+        child.creator = userNamed("student@funet.fi")
+        child.update()
+        val parent = DB.find(classOf[Exam], examParentId)
+        parent.creator = userNamed("teacher@b.funet.fi")
+        parent.update()
+
+      def saveFeedback(session: Session, body: JsObject) =
+        runIO(put(s"/app/review/${exam.get.id}/comment", body, session = session))
+
+      "create and then update the feedback for an inspector" in:
+        val (_, session) = loginAsTeacherWithExamInspection()
+        detachFromTeacher()
+
+        val created = saveFeedback(session, Json.obj("comment" -> "first"))
+        statusOf(created) must be(Status.OK)
+        val id = (contentAsJsonOf(created) \ "id").as[Long]
+        reload().examFeedback.id must be(id)
+
+        val updated = saveFeedback(session, Json.obj("id" -> id, "comment" -> "second"))
+        statusOf(updated) must be(Status.OK)
+        DB.find(classOf[Comment], id).comment must be("second")
+
+      "forbid a teacher who does not review the exam" in:
+        val (_, session) = runIO(loginAsTeacher())
+        detachFromTeacher()
+
+        val result = saveFeedback(session, Json.obj("comment" -> "nope"))
+        statusOf(result) must be(Status.FORBIDDEN)
+        reload().examFeedback must be(null)
+
+      "allow an admin without any relation to the exam" in:
+        val (_, session) = runIO(loginAsAdmin())
+        detachFromTeacher()
+        statusOf(saveFeedback(session, Json.obj("comment" -> "admin"))) must be(Status.OK)
+
+      "allow the assigned language inspector of a maturity exam" in:
+        val (inspector, _) = runIO(loginAsTeacher())
+        detachFromTeacher()
+        val perm = new Permission
+        perm.`type` = PermissionType.CAN_INSPECT_LANGUAGE
+        perm.save()
+        inspector.permissions.add(perm)
+        inspector.update()
+        val child = reload()
+        child.executionType = DB.find(classOf[ExamExecutionType])
+          .where()
+          .eq("type", ExamExecutionType.Type.MATURITY.toString)
+          .find
+          .getOrElse(fail("no maturity type"))
+        child.update()
+        val li = new LanguageInspection
+        li.exam = child
+        li.assignee = inspector
+        li.save()
+        // permissions are read into the session at login
+        val (_, inspectorSession) = runIO(loginAsTeacher())
+
+        statusOf(saveFeedback(inspectorSession, Json.obj("comment" -> "lang"))) must be(Status.OK)
+
+      "refuse to update a comment that is not this exam's feedback" in:
+        val (teacher, session) = loginAsTeacherWithExamInspection()
+        val other              = new Comment
+        other.comment = "someone else's"
+        other.setCreatorWithDate(teacher)
+        other.save()
+
+        val result =
+          saveFeedback(session, Json.obj("id" -> other.id.longValue, "comment" -> "hijack"))
+        statusOf(result) must be(Status.NOT_FOUND)
+        DB.find(classOf[Comment], other.id).comment must be("someone else's")

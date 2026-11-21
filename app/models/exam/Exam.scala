@@ -162,6 +162,14 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
       languageInspection != null &&
       languageInspection.assignee != null
 
+  /** Who may write the teacher's feedback (text or attachment) on a student's exam copy: the same
+    * users who may open its assessment (ReviewService.getReview). Students are kept out by the role
+    * checks on the routes, not here.
+    */
+  def isFeedbackWritableBy(user: User): Boolean =
+    user.isAdminOrSupport || isChildInspectedOrCreatedOrOwnedBy(user) ||
+      isViewableForLanguageInspector(user)
+
   def isPrivate: Boolean =
     executionType != null &&
       executionType.`type` != ExamExecutionType.Type.PUBLIC.toString &&

@@ -391,9 +391,11 @@ class ReviewService @Inject() (
       case Some(exam) =>
         if exam.hasState(ExamState.ABORTED, ExamState.GRADED_LOGGED, ExamState.ARCHIVED) then
           Left(ReviewError.Forbidden)
+        else if !exam.isFeedbackWritableBy(user) then Left(ReviewError.Forbidden)
         else
+          // An existing comment can only be this exam's feedback, not any comment by id
           val comment = commentId match
-            case Some(id) => DB.find(classOf[Comment], id)
+            case Some(id) => Option(exam.examFeedback).filter(_.id.longValue == id).orNull
             case None     => new Comment
           if Option(comment).isEmpty then Left(ReviewError.CommentNotFound)
           else

@@ -150,8 +150,8 @@ class AttachmentService @Inject() (
 
   def deleteFeedbackAttachment(examId: Long, user: User): Future[Either[String, Unit]] =
     Option(DB.find(classOf[Exam], examId)) match
-      case None                                       => Future.successful(Left("NotFound"))
-      case Some(exam) if !canGiveFeedback(exam, user) => Future.successful(Left(Forbidden))
+      case None                                           => Future.successful(Left("NotFound"))
+      case Some(exam) if !exam.isFeedbackWritableBy(user) => Future.successful(Left(Forbidden))
       case Some(exam) =>
         Future {
           Option(exam.examFeedback).foreach(fileHandler.removePrevious)
@@ -192,8 +192,8 @@ class AttachmentService @Inject() (
       user: User
   ): Future[Either[String, Comment]] =
     Option(DB.find(classOf[Exam], examId)) match
-      case None                                       => Future.successful(Left("NotFound"))
-      case Some(exam) if !canGiveFeedback(exam, user) => Future.successful(Left(Forbidden))
+      case None                                           => Future.successful(Left("NotFound"))
+      case Some(exam) if !exam.isFeedbackWritableBy(user) => Future.successful(Left(Forbidden))
       case Some(exam) =>
         if Option(exam.examFeedback).isEmpty then
           val comment = new Comment()
@@ -311,10 +311,6 @@ class AttachmentService @Inject() (
         .eq(path[Question]("examSectionQuestions.examSection.exam.examOwners"), user)
         .endOr()
         .exists()
-
-  /** Feedback goes on a student's exam copy; allowed for those who may review it. */
-  private def canGiveFeedback(exam: Exam, user: User): Boolean =
-    user.isAdminOrSupport || exam.isInspectedOrCreatedOrOwnedBy(user)
 
   private def replaceAndFinish(
       ac: AttachmentContainer,
