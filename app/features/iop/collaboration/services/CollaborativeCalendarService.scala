@@ -5,7 +5,7 @@
 package features.iop.collaboration.services
 
 import cats.data.EitherT
-import database.EbeanPaths.path
+import database.EbeanPaths.{path, props}
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
@@ -15,7 +15,7 @@ import models.facility.ExamRoom
 import models.sections.ExamSection
 import models.user.User
 import play.api.Logging
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import security.BlockingIOExecutionContext
 import services.datetime.*
 import services.enrolment.EnrolmentHandler
@@ -44,12 +44,13 @@ class CollaborativeCalendarService @Inject() (
     with Logging:
   implicit private val executionContext: BlockingIOExecutionContext = ec
 
+  /** What a student booking a slot sees of the exam: its sections without their questions */
   def getExamInfo(id: Long): Future[Option[JsValue]] =
     collaborativeExamService.findById(id).flatMap {
       case None => Future.successful(None)
       case Some(ce) =>
-        examLoader.downloadExamJson(ce).map(_.map { json =>
-          json.as[JsObject] ++ Json.obj("id" -> ce.id.longValue, "externalRef" -> ce.externalRef)
+        examLoader.downloadExam(ce).map(_.map { exam =>
+          Json.parse(DB.json().toJson(exam, CollaborativeCalendarService.ExamInfoProps))
         })
     }
 
@@ -182,3 +183,7 @@ class CollaborativeCalendarService @Inject() (
           case Left(CalendarHandlerError.RoomNotFound(_)) =>
             Left("i18n_error_enrolment_not_found")
     }.value
+
+object CollaborativeCalendarService:
+  private val ExamInfoProps =
+    props[Exam]("(*, examSections(*, examMaterials(*)), examLanguages(*))")
