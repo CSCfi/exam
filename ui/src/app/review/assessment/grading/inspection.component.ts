@@ -33,7 +33,9 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                 <div class="make-inline ps-2">
                     <select class="form-select" [disabled]="disabled()" (change)="onReadyChangeEvent($event)">
                         @for (rs of reviewStatuses; track rs) {
-                            <option [value]="rs.key" [selected]="rs.key === inspection().ready">{{ rs.value }}</option>
+                            <option [value]="rs.key" [selected]="rs.key === inspection().ready">
+                                {{ rs.label | translate }}
+                            </option>
                         }
                     </select>
                 </div>
@@ -47,18 +49,14 @@ export class InspectionComponent {
     readonly disabled = input(false);
     readonly inspected = output<void>();
 
-    readonly reviewStatuses: { key: boolean; value: string }[];
+    readonly reviewStatuses: { key: boolean; label: string }[] = [
+        { key: true, label: 'i18n_ready' },
+        { key: false, label: 'i18n_in_progress' },
+    ];
 
     private readonly translate = inject(TranslateService);
     private readonly http = inject(HttpClient);
     private readonly toast = inject(ToastService);
-
-    constructor() {
-        this.reviewStatuses = [
-            { key: true, value: this.translate.instant('i18n_ready') },
-            { key: false, value: this.translate.instant('i18n_in_progress') },
-        ];
-    }
 
     setInspectionStatus = () => {
         const inspectionValue = this.inspection();

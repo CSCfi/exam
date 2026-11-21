@@ -11,13 +11,10 @@ SPDX-License-Identifier: EUPL-1.2
                 <strong class="review-list-subtitle">{{ 'i18n_teachers' | translate }}:&nbsp;</strong>
                 @if (exam()) {
                     @for (owner of exam()!.examOwners; track owner; let isLast = $last) {
-                        <span class="review-list-subtitle">
-                            @if (!collaborative()) {
-                                {{ owner.firstName }} {{ owner.lastName }}
-                            } @else {
-                                {{ owner.email }}
-                            }
-                        </span>
+                        <span class="review-list-subtitle"
+                            >{{ collaborative() ? owner.email : owner.firstName + ' ' + owner.lastName
+                            }}{{ isLast ? '' : ', ' }}</span
+                        >
                     }
                 }
             </div>
