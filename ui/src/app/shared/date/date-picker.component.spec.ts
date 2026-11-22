@@ -45,7 +45,8 @@ describe('DatePickerComponent', () => {
     });
 
     it('should not emit a typed date before the minimum date', () => {
-        fixture.componentRef.setInput('minDate', '2026-01-01');
+        // Callers pass a timestamp, read as a local date
+        fixture.componentRef.setInput('minDate', new Date(2026, 0, 1).toISOString());
         fixture.detectChanges();
         type(new NgbDate(2025, 12, 31));
         expect(emitted).not.toHaveBeenCalled();

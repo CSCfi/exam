@@ -7,6 +7,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import type { LibraryQuestion } from 'src/app/question/question.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -191,8 +192,8 @@ describe('LibrarySearchComponent', () => {
                 id: 7,
                 name: 'Final',
                 course: { code: 'MA1' },
-                periodStart: '2030-06-01T12:00:00Z',
-                periodEnd: '2030-06-30T12:00:00Z',
+                periodStart: DateTime.local(2030, 6, 1, 12).toISO(),
+                periodEnd: DateTime.local(2030, 6, 30, 12).toISO(),
             },
         ]);
 

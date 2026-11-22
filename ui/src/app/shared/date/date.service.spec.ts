@@ -206,8 +206,8 @@ describe('DateTimeService', () => {
 
     describe('eachDayOfInterval', () => {
         it('should return array of days in range', () => {
-            const start = new Date('2024-10-01');
-            const end = new Date('2024-10-05');
+            const start = new Date(2024, 9, 1);
+            const end = new Date(2024, 9, 5);
             const days = service.eachDayOfInterval(start, end);
             expect(days.length).toBe(5);
             expect(days[0].day).toBe(1);
@@ -215,21 +215,21 @@ describe('DateTimeService', () => {
         });
 
         it('should return single day for same start and end', () => {
-            const date = new Date('2024-10-08');
+            const date = new Date(2024, 9, 8);
             const days = service.eachDayOfInterval(date, date);
             expect(days.length).toBe(1);
         });
 
         it('should handle month boundaries', () => {
-            const start = new Date('2024-10-30');
-            const end = new Date('2024-11-02');
+            const start = new Date(2024, 9, 30);
+            const end = new Date(2024, 10, 2);
             const days = service.eachDayOfInterval(start, end);
             expect(days.length).toBe(4);
         });
 
         it('should return empty array for invalid range', () => {
-            const start = new Date('2024-10-08');
-            const end = new Date('2024-10-01');
+            const start = new Date(2024, 9, 8);
+            const end = new Date(2024, 9, 1);
             const days = service.eachDayOfInterval(start, end);
             expect(days.length).toBe(0);
         });
@@ -237,48 +237,48 @@ describe('DateTimeService', () => {
 
     describe('intervalsOverlap', () => {
         it('should detect overlapping intervals', () => {
-            const interval1 = { start: new Date('2024-10-01'), end: new Date('2024-10-10') };
-            const interval2 = { start: new Date('2024-10-05'), end: new Date('2024-10-15') };
+            const interval1 = { start: new Date(2024, 9, 1), end: new Date(2024, 9, 10) };
+            const interval2 = { start: new Date(2024, 9, 5), end: new Date(2024, 9, 15) };
             expect(service.intervalsOverlap(interval1, interval2)).toBe(true);
         });
 
         it('should detect non-overlapping intervals', () => {
-            const interval1 = { start: new Date('2024-10-01'), end: new Date('2024-10-05') };
-            const interval2 = { start: new Date('2024-10-10'), end: new Date('2024-10-15') };
+            const interval1 = { start: new Date(2024, 9, 1), end: new Date(2024, 9, 5) };
+            const interval2 = { start: new Date(2024, 9, 10), end: new Date(2024, 9, 15) };
             expect(service.intervalsOverlap(interval1, interval2)).toBe(false);
         });
 
         it('should detect touching intervals as overlapping', () => {
-            const interval1 = { start: new Date('2024-10-01'), end: new Date('2024-10-05') };
-            const interval2 = { start: new Date('2024-10-05'), end: new Date('2024-10-10') };
+            const interval1 = { start: new Date(2024, 9, 1), end: new Date(2024, 9, 5) };
+            const interval2 = { start: new Date(2024, 9, 5), end: new Date(2024, 9, 10) };
             expect(service.intervalsOverlap(interval1, interval2)).toBe(true);
         });
 
         it('should handle contained intervals', () => {
-            const interval1 = { start: new Date('2024-10-01'), end: new Date('2024-10-20') };
-            const interval2 = { start: new Date('2024-10-05'), end: new Date('2024-10-10') };
+            const interval1 = { start: new Date(2024, 9, 1), end: new Date(2024, 9, 20) };
+            const interval2 = { start: new Date(2024, 9, 5), end: new Date(2024, 9, 10) };
             expect(service.intervalsOverlap(interval1, interval2)).toBe(true);
         });
     });
 
     describe('mapDateRange', () => {
         it('should map function over date range', () => {
-            const start = new Date('2024-10-01');
-            const end = new Date('2024-10-03');
+            const start = new Date(2024, 9, 1);
+            const end = new Date(2024, 9, 3);
             const result = service.mapDateRange(start, end, (date) => date.day);
             expect(result).toEqual([1, 2, 3]);
         });
 
         it('should provide index to map function', () => {
-            const start = new Date('2024-10-01');
-            const end = new Date('2024-10-03');
+            const start = new Date(2024, 9, 1);
+            const end = new Date(2024, 9, 3);
             const result = service.mapDateRange(start, end, (_date, index) => index);
             expect(result).toEqual([0, 1, 2]);
         });
 
         it('should handle complex mapping', () => {
-            const start = new Date('2024-10-01');
-            const end = new Date('2024-10-03');
+            const start = new Date(2024, 9, 1);
+            const end = new Date(2024, 9, 3);
             const result = service.mapDateRange(start, end, (date, index) => ({
                 day: date.day,
                 index: index,
@@ -289,8 +289,8 @@ describe('DateTimeService', () => {
         });
 
         it('should return empty array for invalid range', () => {
-            const start = new Date('2024-10-08');
-            const end = new Date('2024-10-01');
+            const start = new Date(2024, 9, 8);
+            const end = new Date(2024, 9, 1);
             const result = service.mapDateRange(start, end, (date) => date.day);
             expect(result).toEqual([]);
         });
