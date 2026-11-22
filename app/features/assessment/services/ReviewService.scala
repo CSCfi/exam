@@ -202,7 +202,7 @@ class ReviewService @Inject() (
             question.essayAnswer = answer
             question.update()
             answer
-        essayAnswer.evaluatedScore = round(score.fold(null: java.lang.Double)(Double.box))
+        essayAnswer.evaluatedScore = rounded(score)
         essayAnswer.update()
         Right(())
       case None => Left(ReviewError.QuestionNotFound)
@@ -232,7 +232,7 @@ class ReviewService @Inject() (
         then
           Left(ReviewError.InvalidScoreRange)
         else
-          esq.forcedScore = round(score.fold(null: java.lang.Double)(Double.box))
+          esq.forcedScore = rounded(score)
           esq.update()
           Right(())
       case None => Left(ReviewError.QuestionNotFound)
@@ -566,3 +566,7 @@ class ReviewService @Inject() (
     }
 
   private def round(src: Double): Double = Math.round(src * 100) / 100.0
+
+  /** No score (a cleared field) stays null; unboxed for rounding, it became 0 */
+  private def rounded(score: Option[Double]): java.lang.Double =
+    score.map(s => Double.box(round(s))).orNull
