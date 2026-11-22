@@ -22,7 +22,7 @@ class ExamInspection extends GeneratedIdentityModel:
   @JsonManagedReference
   var user: User = uninitialized
 
-  @OneToOne
+  @ManyToOne
   var assignedBy: User = uninitialized
 
   @OneToOne

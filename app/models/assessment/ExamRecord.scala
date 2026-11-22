@@ -16,10 +16,10 @@ import scala.compiletime.uninitialized
 
 @Entity
 class ExamRecord extends GeneratedIdentityModel:
-  @OneToOne
+  @ManyToOne
   var teacher: User = uninitialized
 
-  @OneToOne
+  @ManyToOne
   var student: User = uninitialized
 
   @OneToOne
