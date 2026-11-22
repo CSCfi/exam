@@ -147,7 +147,7 @@ class EmailComposerImpl @Inject() (
     val teacherName = s"${sender.firstName} ${sender.lastName} <${sender.email}>"
     val examInfo    = exam.name
     val linkToInspection =
-      s"%$hostName/staff/assessments/${ce.id}/collaborative/${ce.revision}"
+      s"$hostName/staff/assessments/${ce.id}/collaborative/${ce.revision}"
     sendInspectionMessage(linkToInspection, teacherName, examInfo, msg, inspector, sender)
 
   /** This notification is sent to the creator of exam when assigned inspector has finished
@@ -496,7 +496,7 @@ class EmailComposerImpl @Inject() (
           val list = exams.map(e =>
             s"<li>${e.creator.firstName} ${e.creator.lastName}</li>"
           ).mkString
-          replaceAll(template, values + ("student_list" -> s"<ul>$list</ul>)"))
+          replaceAll(template, values + ("student_list" -> s"<ul>$list</ul>"))
         else replaceAll(template.replace("<p>{{student_list}}</p>", ""), values)
         emailSender.send(Mail(toUser.email, fromUser.email, subject, content))
 
@@ -963,7 +963,7 @@ class EmailComposerImpl @Inject() (
         val examInfo = exam.name
         val examPeriod = messaging(
           "email.template.participant.notification.exam.period",
-          s"%${EmailComposerImpl.DF.format(
+          s"${EmailComposerImpl.DF.format(
               exam.periodStart.atZone(ZoneOffset.UTC)
             )} - ${EmailComposerImpl.DF.format(exam.periodEnd.atZone(ZoneOffset.UTC))}"
         )(using lang)
