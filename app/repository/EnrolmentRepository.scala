@@ -149,12 +149,7 @@ class EnrolmentRepository @Inject() (
       case Some(ongoingEnrolment) =>
         handleOngoingEnrolment(ongoingEnrolment, request, headers, eppn)
       case None =>
-        val now = clock.now()
-        val lookAheadMinutes =
-          Duration.between(
-            now,
-            LocalDate.now(ZoneOffset.UTC).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant
-          ).toMinutes.toInt
+        val lookAheadMinutes = Duration.between(clock.now(), endOfToday).toMinutes.toInt
         getNextEnrolment(userId, lookAheadMinutes) match
           case Some(upcomingEnrolment) =>
             handleUpcomingEnrolment(upcomingEnrolment, request, headers, eppn)
@@ -164,6 +159,11 @@ class EnrolmentRepository @Inject() (
           case _ =>
 
     headers.toMap
+
+  // The exam day follows the organisation's calendar, not UTC's
+  private def endOfToday: Instant =
+    val zone = configReader.getDefaultTimeZone
+    clock.now().atZone(zone).toLocalDate.plusDays(1).atStartOfDay(zone).toInstant
 
   def isOnExamMachine(remoteAddress: String): Boolean =
     db.find(classOf[ExamMachine]).where().eq(
@@ -290,10 +290,9 @@ class EnrolmentRepository @Inject() (
     else if isMachineOk(enrolment, request, headers, eppn) then
       if Option(enrolment.exam).exists(_.implementation == ExamImplementation.AQUARIUM) then
         // Aquarium exam
-        val threshold = clock.now().plus(Duration.ofMinutes(5))
-        val thresholdEarly =
-          LocalDate.now(ZoneOffset.UTC).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant
-        val start = enrolment.reservation.startAt
+        val threshold      = clock.now().plus(Duration.ofMinutes(5))
+        val thresholdEarly = endOfToday
+        val start          = enrolment.reservation.startAt
         // if start is within 5 minutes, set the upcoming exam header
         if start.isBefore(threshold) then
           headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.id}")
