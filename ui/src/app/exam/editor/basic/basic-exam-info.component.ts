@@ -20,6 +20,7 @@ import type { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ToastService } from 'src/app/shared/toast/toast.service';
 import { ExamCourseComponent } from './exam-course.component';
 import { ExamInspectorSelectorComponent } from './exam-inspector-picker.component';
 import { ExamOwnerSelectorComponent } from './exam-owner-picker.component';
@@ -63,6 +64,7 @@ export class BasicExamInfoComponent {
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
     private readonly Session = inject(SessionService);
+    private readonly toast = inject(ToastService);
 
     constructor() {
         this.user = this.Session.getUser();
@@ -88,7 +90,6 @@ export class BasicExamInfoComponent {
 
     onExamAnonymousChange = (event: Event) => {
         this.updateExamAnonymous((event.target as HTMLInputElement).checked);
-        this.toggleAnonymous();
     };
 
     onInternalRefInput = (event: Event) => this.updateInternalRef((event.target as HTMLInputElement).value);
@@ -153,10 +154,6 @@ export class BasicExamInfoComponent {
         }
     }
 
-    toggleAnonymous() {
-        this.updateExam();
-    }
-
     toggleAnonymousDisabled() {
         const currentExam = this.exam();
         return (
@@ -182,8 +179,12 @@ export class BasicExamInfoComponent {
                     });
                 }),
             )
-            .subscribe((resp) => {
-                this.ExamTabs.setExam({ ...this.exam(), attachment: resp });
+            .subscribe({
+                next: (resp) => this.ExamTabs.setExam({ ...this.exam(), attachment: resp }),
+                // A file too large has been reported already; an HTTP error arrives as a translated message
+                error: (err) => {
+                    if (typeof err === 'string') this.toast.error(err);
+                },
             });
     }
 

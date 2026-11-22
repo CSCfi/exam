@@ -93,8 +93,9 @@ export class SectionQuestionComponent {
         const currentSectionQuestion = this.sectionQuestion();
         if (this.collaborative()) {
             this.Attachment.downloadCollaborativeQuestionAttachment(this.examId(), currentSectionQuestion);
+        } else {
+            this.Attachment.downloadQuestionAttachment(currentSectionQuestion.question);
         }
-        this.Attachment.downloadQuestionAttachment(currentSectionQuestion.question);
     }
 
     removeQuestion() {

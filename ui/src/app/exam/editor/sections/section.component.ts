@@ -122,6 +122,8 @@ export class SectionComponent implements OnInit {
                         sectionQuestions: [],
                         lotteryOn: false,
                     };
+                    // The backend switched the lottery off, keep the form from turning it back on
+                    this.sectionForm.lotteryOn().value.set(false);
                     this.updated.emit(updated);
                     this.toast.info(this.translate.instant('i18n_all_questions_removed'));
                 },
@@ -144,7 +146,13 @@ export class SectionComponent implements OnInit {
             optional: this.sectionForm.optional().value(),
         };
         this.updated.emit(updated);
-        this.updateSection(false);
+        // Put back what was there if the change is refused, e.g. optionality with upcoming reservations
+        this.updateSection(false, () => {
+            this.sectionForm.name().value.set(currentSection.name || '');
+            this.sectionForm.description().value.set(currentSection.description || '');
+            this.sectionForm.optional().value.set(currentSection.optional ?? false);
+            this.updated.emit(currentSection);
+        });
     }
 
     expandSection() {
@@ -241,15 +249,18 @@ export class SectionComponent implements OnInit {
                     from: from,
                     to: to,
                 })
-                .subscribe(() => {
-                    this.toast.info(this.translate.instant('i18n_questions_reordered'));
-                    const reordered = [...currentSection.sectionQuestions];
-                    moveItemInArray(reordered, from, to);
-                    const updated = {
-                        ...currentSection,
-                        sectionQuestions: reordered.map((sq, i) => ({ ...sq, sequenceNumber: i })),
-                    };
-                    this.updated.emit(updated);
+                .subscribe({
+                    next: () => {
+                        this.toast.info(this.translate.instant('i18n_questions_reordered'));
+                        const reordered = [...currentSection.sectionQuestions];
+                        moveItemInArray(reordered, from, to);
+                        const updated = {
+                            ...currentSection,
+                            sectionQuestions: reordered.map((sq, i) => ({ ...sq, sequenceNumber: i })),
+                        };
+                        this.updated.emit(updated);
+                    },
+                    error: (err) => this.toast.error(err),
                 });
         }
     }
@@ -288,10 +299,13 @@ export class SectionComponent implements OnInit {
                         this.sectionForm.lotteryOn().value.set(false);
                         this.sectionForm.lotteryItemCount().value.set(1);
                     } else if (currentSection.lotteryOn) {
+                        // The backend lowers the count to the questions left; the form must follow or the
+                        // next save would raise it again
                         updated = {
                             ...updated,
                             lotteryItemCount: resp.lotteryItemCount,
                         };
+                        this.sectionForm.lotteryItemCount().value.set(resp.lotteryItemCount);
                     }
                     this.updated.emit(updated);
                     this.toast.info(this.translate.instant('i18n_question_removed'));
@@ -361,7 +375,7 @@ export class SectionComponent implements OnInit {
         return this.section().sectionQuestions.filter((q) => q.evaluationType === 'Selection').length;
     }
 
-    private updateSection(silent: boolean) {
+    private updateSection(silent: boolean, revert?: () => void) {
         const currentSection = this.section();
         this.http
             .put<ExamSection>(
@@ -374,9 +388,9 @@ export class SectionComponent implements OnInit {
                         this.toast.info(this.translate.instant('i18n_section_updated'));
                     }
                 },
-                error: () => {
-                    const updated = { ...currentSection, optional: !currentSection.optional };
-                    this.updated.emit(updated);
+                error: (err) => {
+                    this.toast.error(err);
+                    revert?.();
                 },
             });
     }

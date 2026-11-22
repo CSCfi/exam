@@ -82,22 +82,26 @@ export class ExamPublicationComponent {
                 .post<ExaminationDate>(`/app/exam/${currentExam.id}/examinationdate`, {
                     date: formattedDate,
                 })
-                .subscribe((date) =>
-                    this.Tabs.setExam({
-                        ...this.exam(),
-                        examinationDates: [...this.exam().examinationDates, date],
-                    }),
-                );
+                .subscribe({
+                    next: (date) =>
+                        this.Tabs.setExam({
+                            ...this.exam(),
+                            examinationDates: [...this.exam().examinationDates, date],
+                        }),
+                    error: (err) => this.toast.error(err),
+                });
         }
     }
 
     removeExaminationDate(date: ExaminationDate) {
         const currentExam = this.exam();
-        this.http.delete(`/app/exam/${currentExam.id}/examinationdate/${date.id}`).subscribe(() => {
-            this.Tabs.setExam({
-                ...this.exam(),
-                examinationDates: this.exam().examinationDates.filter((d) => d.id !== date.id),
-            });
+        this.http.delete(`/app/exam/${currentExam.id}/examinationdate/${date.id}`).subscribe({
+            next: () =>
+                this.Tabs.setExam({
+                    ...this.exam(),
+                    examinationDates: this.exam().examinationDates.filter((d) => d.id !== date.id),
+                }),
+            error: (err) => this.toast.error(err),
         });
     }
 
