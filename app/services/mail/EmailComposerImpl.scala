@@ -1090,7 +1090,8 @@ class EmailComposerImpl @Inject() (
               messaging(
                 "email.weekly.report.review.summary",
                 amount,
-                EmailComposerImpl.DF.format(deadline.atZone(ZoneOffset.UTC))
+                // The deadline day as the organisation counts it
+                EmailComposerImpl.DF.format(deadline.atZone(timeZone))
               )(
                 using lang
               )
