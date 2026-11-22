@@ -17,6 +17,7 @@
     "i18n_calendar": "Reservation information",
     "i18n_calendar_phase_1": "Exam",
     "i18n_calendar_exam_times": "Exam times",
+    "i18n_calendar_room_time": "Times are shown in the room's local time ({{zone}}).",
     "i18n_calendar_phase_2": "Choose room",
     "i18n_calendar_phase_3": "Reservation",
     "i18n_calendar_reservation_pending_hint": "Select an exam time above to review the details and confirm.",

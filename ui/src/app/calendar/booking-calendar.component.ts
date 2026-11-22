@@ -22,7 +22,7 @@ import fiLocale from '@fullcalendar/core/locales/fi';
 import svLocale from '@fullcalendar/core/locales/sv';
 import luxon2Plugin from '@fullcalendar/luxon3';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { combineLatest, skip } from 'rxjs';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
@@ -57,13 +57,19 @@ const durationMinutes = (event: EventInput): number => {
             <div class="row my-2">
                 @if (visible() && (passwordVerified() || isAdmin())) {
                     <div class="col-md-12">
+                        @if (otherZone(); as zone) {
+                            <p class="small text-body-secondary mb-2" role="note">
+                                <i class="bi bi-clock me-1" aria-hidden="true"></i
+                                >{{ 'i18n_calendar_room_time' | translate: { zone } }}
+                            </p>
+                        }
                         <full-calendar #fc [options]="calendarOptions()"></full-calendar>
                     </div>
                 }
             </div>
         }
     `,
-    imports: [FullCalendarModule],
+    imports: [FullCalendarModule, TranslateModule],
 })
 export class BookingCalendarComponent {
     readonly calendar = viewChild<FullCalendarComponent>('fc');
@@ -76,6 +82,12 @@ export class BookingCalendarComponent {
     }>();
 
     readonly room = input.required<ExamRoom>();
+    /** The room's zone when this device is on another clock, as the calendar shows room time. */
+    readonly otherZone = computed(() => {
+        const zone = this.room().localTimezone;
+        const now = DateTime.now();
+        return zone && now.setZone(zone).offset !== now.offset ? zone : undefined;
+    });
     readonly visible = input(false);
     readonly passwordVerified = input(false);
     readonly minDate = input<Date>();
