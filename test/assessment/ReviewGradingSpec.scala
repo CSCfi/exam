@@ -7,16 +7,10 @@ package assessment
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.assessment.{Comment, ExamFeedbackConfig, ExamFeedbackReleaseType, InspectionComment}
+import models.assessment.*
 import models.enrolment.ExamEnrolment
 import models.exam.{Exam, ExamState}
-import models.questions.{
-  EssayAnswer,
-  MultipleChoiceOption,
-  Question,
-  QuestionEvaluationType,
-  QuestionType
-}
+import models.questions.*
 import models.sections.{ExamSection, ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.User
 import play.api.http.Status

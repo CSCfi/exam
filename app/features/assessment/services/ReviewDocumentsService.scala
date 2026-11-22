@@ -19,8 +19,8 @@ import services.csv.CsvBuilder
 
 import java.io.*
 import java.nio.charset.StandardCharsets
-import java.time.format.DateTimeFormatter
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import scala.collection.mutable

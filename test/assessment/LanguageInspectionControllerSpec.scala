@@ -18,7 +18,6 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.Date
-import scala.jdk.CollectionConverters.*
 
 class LanguageInspectionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 

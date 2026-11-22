@@ -6,13 +6,13 @@ package excel
 
 import base.BaseIntegrationSpec
 import models.assessment.{ExamRecord, ExamScore}
-import models.enrolment.{ExamEnrolment, ExamParticipation, ExternalReservation, Reservation}
-import models.exam.{Course, Exam, ExamState, ExamType, Grade, GradeScale}
+import models.enrolment.*
+import models.exam.*
 import models.facility.{ExamMachine, ExamRoom}
-import models.questions.{EssayAnswer, Question, QuestionEvaluationType, QuestionType}
+import models.questions.*
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.{Language, User}
-import org.apache.poi.ss.usermodel.{Cell, CellType, DataFormatter, Row, Sheet}
+import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import play.i18n.MessagesApi
 import services.excel.ExcelBuilder
