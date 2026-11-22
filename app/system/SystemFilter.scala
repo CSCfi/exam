@@ -63,7 +63,6 @@ class SystemFilter @Inject() (config: Config)(implicit val mat: Materializer, ec
                 )
               case _ => response.withSession(s)
             }
-          case path if path.contains("logout") => response.withSession(s)
           case _ =>
             response.withSession(
               s + ("since" -> DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
@@ -71,7 +70,8 @@ class SystemFilter @Inject() (config: Config)(implicit val mat: Materializer, ec
 
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
     rh.path match
-      case "/app/logout" => next.apply(rh)
+      // Logging out clears the session, which must not be put back from the request
+      case "/app/session" if rh.method == "DELETE" => next.apply(rh)
       case p if p.startsWith("/integration/iop/") =>
         val id    = rh.headers.get(IopProtocol.RequestIdHeader).filter(IopProtocol.isRequestId)
         val start = System.nanoTime()
