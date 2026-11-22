@@ -58,6 +58,17 @@ class EmailComposerImpl @Inject() (
   private val hostName      = configReader.getHostName
   private val timeZone      = ZoneId.of(configReader.getDefaultTimeZone.getId)
   private val systemAccount = configReader.getSystemAccount
+
+  /** A reservation is for a room, so its times are given on that room's clock */
+  private def zoneOf(reservation: Reservation): ZoneId =
+    Option(reservation.externalReservation)
+      .flatMap(er => Option(er.roomTz))
+      .orElse(Option(reservation.machine).flatMap(m => Option(m.room)).flatMap(r =>
+        Option(r.localTimezone)
+      ))
+      .filter(_.nonEmpty)
+      .map(ZoneId.of)
+      .getOrElse(timeZone)
   private val baseSystemUrl = configReader.getBaseSystemUrl
   private val templateRoot  = s"${env.rootPath.getAbsolutePath}/conf/template/email/"
 
@@ -353,8 +364,8 @@ class EmailComposerImpl @Inject() (
         val teacherName =
           if !exam.examOwners.isEmpty then getTeachers(exam)
           else s"${exam.creator.firstName} ${exam.creator.lastName}"
-        val startDate = reservation.startAt.atZone(timeZone)
-        val endDate   = reservation.endAt.atZone(timeZone)
+        val startDate = reservation.startAt.atZone(zoneOf(reservation))
+        val endDate   = reservation.endAt.atZone(zoneOf(reservation))
         val reservationDate =
           s"${EmailComposerImpl.DTF.format(startDate)} - ${EmailComposerImpl.DTF.format(endDate)}"
         val examDuration = s"${exam.duration / 60}h ${exam.duration % 60}min"
@@ -502,17 +513,21 @@ class EmailComposerImpl @Inject() (
       case Right(template) =>
         val lang      = getLang(current.user)
         val enrolment = current.enrolment
-        val startDate = enrolment.reservation.startAt.atZone(timeZone)
-        val endDate   = enrolment.reservation.endAt.atZone(timeZone)
+        val startDate = enrolment.reservation.startAt.atZone(zoneOf(enrolment.reservation))
+        val endDate   = enrolment.reservation.endAt.atZone(zoneOf(enrolment.reservation))
         val reservationDate =
           s"${EmailComposerImpl.DTF.format(startDate)} - ${EmailComposerImpl.DTF.format(endDate)}"
         val examName =
           Option(enrolment.exam).map(_.name).getOrElse(enrolment.collaborativeExam.name)
         val subject = messaging("email.template.reservation.change.subject", examName)(using lang)
         val previousSlot =
-          s"${EmailComposerImpl.DTF.format(previous.startAt.atZone(timeZone))} - ${EmailComposerImpl.DTF.format(previous.endAt.atZone(timeZone))}"
+          s"${EmailComposerImpl.DTF.format(
+              previous.startAt.atZone(zoneOf(previous))
+            )} - ${EmailComposerImpl.DTF.format(previous.endAt.atZone(zoneOf(previous)))}"
         val newSlot =
-          s"${EmailComposerImpl.DTF.format(current.startAt.atZone(timeZone))} - ${EmailComposerImpl.DTF.format(current.endAt.atZone(timeZone))}"
+          s"${EmailComposerImpl.DTF.format(
+              current.startAt.atZone(zoneOf(current))
+            )} - ${EmailComposerImpl.DTF.format(current.endAt.atZone(zoneOf(current)))}"
         val values = Map(
           "message" -> messaging("email.template.reservation.change.message")(using lang),
           "previousTimeslot" -> messaging("email.template.reservation.change.previous.time")(
@@ -598,7 +613,7 @@ class EmailComposerImpl @Inject() (
             .getOrElse(reservation.externalReservation.roomName)
         val info = messaging("email.reservation.cancellation.info")(using lang)
         val time = s"${EmailComposerImpl.DTF
-            .format(reservation.startAt.atZone(timeZone))} - ${EmailComposerImpl.DTF.format(reservation.endAt.atZone(timeZone))}"
+            .format(reservation.startAt.atZone(zoneOf(reservation)))} - ${EmailComposerImpl.DTF.format(reservation.endAt.atZone(zoneOf(reservation)))}"
         val owners = Option(enrolment.exam.parent).map(_.examOwners).getOrElse(
           enrolment.exam.examOwners
         )
@@ -643,7 +658,7 @@ class EmailComposerImpl @Inject() (
         val subject =
           messaging("email.reservation.cancellation.subject.forced", examName)(using lang)
         val date =
-          EmailComposerImpl.DF.format(reservation.startAt.atZone(timeZone))
+          EmailComposerImpl.DF.format(reservation.startAt.atZone(zoneOf(reservation)))
         val room =
           Option(reservation.machine)
             .flatMap(m => Option(m.room))
@@ -651,7 +666,7 @@ class EmailComposerImpl @Inject() (
             .getOrElse(reservation.externalReservation.roomName)
         val info = messaging("email.reservation.cancellation.info")(using lang)
         val time =
-          EmailComposerImpl.TF.format(reservation.startAt.atZone(timeZone))
+          EmailComposerImpl.TF.format(reservation.startAt.atZone(zoneOf(reservation)))
         val stringValues = Map(
           "message" -> messaging("email.template.reservation.cancel.message", date, time, room)(
             using lang
@@ -682,7 +697,7 @@ class EmailComposerImpl @Inject() (
     readTemplate(templatePath) match
       case Left(error) => logger.error(error)
       case Right(template) =>
-        val startAt = reservation.startAt.atZone(timeZone)
+        val startAt = reservation.startAt.atZone(zoneOf(reservation))
         val date    = EmailComposerImpl.DF.format(startAt)
         val time    = EmailComposerImpl.TF.format(startAt)
         val room    = getReservationPlace(reservation)
@@ -1020,7 +1035,7 @@ class EmailComposerImpl @Inject() (
                 val first = enrolments.head
                 val date =
                   if Option(first.reservation).nonEmpty then
-                    first.reservation.startAt.atZone(timeZone)
+                    first.reservation.startAt.atZone(zoneOf(first.reservation))
                   else
                     first.examinationEventConfiguration.examinationEvent.start.atZone(timeZone)
                 commonValues + ("enrolments" ->
