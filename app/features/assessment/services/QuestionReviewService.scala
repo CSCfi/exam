@@ -109,8 +109,10 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
 
     // Create ordering based on original question list
     val idToIndex = questions.map(_.id).zipWithIndex.toMap
+    // Questions no longer in the exam come last. The id keeps them apart: as equal keys of the
+    // TreeMap below, one would replace another and show its answers under the wrong question.
     implicit val questionOrdering: Ordering[Question] = Ordering.by { q =>
-      idToIndex.getOrElse(q.id, Int.MaxValue)
+      (idToIndex.getOrElse(q.id, Int.MaxValue), q.id.longValue)
     }
 
     // Group essay answers by question parent
