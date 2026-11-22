@@ -20,6 +20,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.component';
 import { OptionalSectionsComponent } from './helpers/optional-sections.component';
 
+import { RoomTimePipe } from 'src/app/reservation/room-time.pipe';
 @Component({
     selector: 'xm-active-enrolment',
     templateUrl: './active-enrolment.component.html',
@@ -35,6 +36,7 @@ import { OptionalSectionsComponent } from './helpers/optional-sections.component
         SlicePipe,
         DatePipe,
         TranslateModule,
+        RoomTimePipe,
     ],
     styleUrls: ['../enrolment.shared.scss', './active-enrolment.component.scss'],
 })

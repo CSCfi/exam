@@ -13,6 +13,7 @@ import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { ReservationService, Selection } from 'src/app/reservation/reservation.service';
+import { reservationZone } from 'src/app/reservation/room-time.pipe';
 import type { User } from 'src/app/session/session.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -261,6 +262,11 @@ export class ReportsV2Component {
                                     const enrolment = r.enrolment;
                                     const exam = enrolment?.exam as Exam;
                                     const participation = r.participation;
+                                    // Taken in the reservation's room, so on its clock
+                                    const roomTime = (iso: string) =>
+                                        DateTime.fromISO(iso, { zone: reservationZone(r) }).toFormat(
+                                            'yyyy-MM-dd HH:mm',
+                                        );
 
                                     return {
                                         firstName: r.user?.firstName ?? r.externalUserRef ?? '',
@@ -275,18 +281,12 @@ export class ReportsV2Component {
                                             (exam?.examOwners?.length ? exam.examOwners : exam?.parent?.examOwners)
                                                 ?.map((o) => `${o.firstName} ${o.lastName} (${o.email})`)
                                                 .join(', ') ?? '',
-                                        reservationStart: r.startAt
-                                            ? DateTime.fromISO(r.startAt).toFormat('yyyy-MM-dd HH:mm')
-                                            : '',
-                                        reservationEnd: r.endAt
-                                            ? DateTime.fromISO(r.endAt).toFormat('yyyy-MM-dd HH:mm')
-                                            : '',
+                                        reservationStart: r.startAt ? roomTime(r.startAt) : '',
+                                        reservationEnd: r.endAt ? roomTime(r.endAt) : '',
                                         participationStart: participation?.started
-                                            ? DateTime.fromISO(participation.started).toFormat('yyyy-MM-dd HH:mm')
+                                            ? roomTime(participation.started)
                                             : '',
-                                        participationEnd: participation?.ended
-                                            ? DateTime.fromISO(participation.ended).toFormat('yyyy-MM-dd HH:mm')
-                                            : '',
+                                        participationEnd: participation?.ended ? roomTime(participation.ended) : '',
                                         participationDuration: participation?.duration
                                             ? DateTime.fromISO(participation.duration).toUTC().toFormat('HH:mm:ss')
                                             : '',

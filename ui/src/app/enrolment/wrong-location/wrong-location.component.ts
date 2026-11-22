@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import { Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -12,6 +12,7 @@ import { DateTime } from 'luxon';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { ExamMachine, Reservation } from 'src/app/reservation/reservation.model';
+import { RoomTimePipe } from 'src/app/reservation/room-time.pipe';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -31,7 +32,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         PageHeaderComponent,
         PageContentComponent,
         NgTemplateOutlet,
-        DatePipe,
+        RoomTimePipe,
         TranslateModule,
     ],
 })

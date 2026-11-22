@@ -506,7 +506,7 @@ class ReservationService @Inject() (
       .fetch(path[Reservation]("enrolment.collaborativeExam"), "*")
       .fetch(path[Reservation]("externalReservation"))
       .fetch(path[Reservation]("machine"), "id, name, ipAddress, otherIdentifier")
-      .fetch(path[Reservation]("machine.room"), "id, name, roomCode")
+      .fetch(path[Reservation]("machine.room"), "id, name, roomCode, localTimezone")
       .where()
 
     val withTeacherFilter =

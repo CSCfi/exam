@@ -361,6 +361,8 @@ class ReviewService @Inject() (
       .fetch(path[ExamEnrolment]("collaborativeExam"))
       .fetch(path[ExamEnrolment]("exam.executionType"))
       .fetch(path[ExamEnrolment]("reservation"))
+      .fetch(path[ExamEnrolment]("reservation.machine.room"), "localTimezone")
+      .fetch(path[ExamEnrolment]("reservation.externalReservation"), "roomTz")
       .fetch(path[ExamEnrolment]("examinationEventConfiguration.examinationEvent"))
       .fetch(path[ExamEnrolment]("user"), "id, firstName, lastName, email, userIdentifier")
       .fetch(path[ExamEnrolment]("exam.course"), "code, credits")

@@ -33,9 +33,9 @@ SPDX-License-Identifier: EUPL-1.2
                         <!-- calendar box -->
                         @if (enrolment()?.reservation) {
                             <div class="student-enrolment-date-box">
-                                {{ enrolment()!.reservation.startAt | date: 'dd' }}
+                                {{ enrolment()!.reservation | roomTime: 'startAt' : 'dd' }}
                                 <span class="month-name">{{
-                                    enrolment()!.reservation.startAt | date: 'MMM' | slice: 0 : 3 | uppercase
+                                    enrolment()!.reservation | roomTime: 'startAt' : 'LLL' | slice: 0 : 3 | uppercase
                                 }}</span>
                             </div>
                         }
@@ -98,7 +98,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="row">
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_reservation' | translate }}:</div>
                         <div class="col">
-                            {{ enrolment()!.reservation.startAt | date: 'dd.MM.yyyy' }}
+                            {{ enrolment()!.reservation | roomTime: 'startAt' : 'dd.MM.yyyy' }}
                             {{ enrolment()!.reservation.occasion.startAt }}
                             - {{ enrolment()!.reservation.occasion.endAt }}
                         </div>

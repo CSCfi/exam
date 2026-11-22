@@ -2,13 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe } from '@angular/common';
+import { LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { RoomTimePipe } from 'src/app/reservation/room-time.pipe';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
@@ -28,7 +29,7 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         CourseCodeComponent,
         TeacherListComponent,
         LowerCasePipe,
-        DatePipe,
+        RoomTimePipe,
         TranslateModule,
         OrderByPipe,
         NgbDropdownModule,

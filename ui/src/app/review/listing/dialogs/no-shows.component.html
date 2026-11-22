@@ -71,10 +71,10 @@ SPDX-License-Identifier: EUPL-1.2
                             </td>
                             @if (noShow.reservation) {
                                 <td>
-                                    {{ noShow.reservation.startAt | date: 'dd.MM.yyyy' }}
+                                    {{ noShow.reservation | roomTime: 'startAt' : 'dd.MM.yyyy' }}
                                     {{ 'i18n_clock_short' | translate }}
-                                    {{ noShow.reservation.startAt | date: 'HH:mm' }} -
-                                    {{ noShow.reservation.endAt | date: 'HH:mm' }}
+                                    {{ noShow.reservation | roomTime: 'startAt' : 'HH:mm' }} -
+                                    {{ noShow.reservation | roomTime: 'endAt' : 'HH:mm' }}
                                 </td>
                             }
                             @if (!noShow.reservation && !noShow.examinationEventConfiguration) {

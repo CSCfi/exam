@@ -24,6 +24,7 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     reservation: WaitingReservation;
 };
 
+import { RoomTimePipe } from 'src/app/reservation/room-time.pipe';
 @Component({
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
@@ -38,6 +39,7 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
+        RoomTimePipe,
     ],
 })
 export class WaitingRoomComponent implements OnDestroy {

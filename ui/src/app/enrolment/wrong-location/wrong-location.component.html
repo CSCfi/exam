@@ -72,7 +72,7 @@ SPDX-License-Identifier: EUPL-1.2
 
                 <dt class="col-md-3 text-muted">{{ 'i18n_reservation_time' | translate }}:</dt>
                 <dd class="col-md-9 mb-2">
-                    {{ reservation()!.startAt | date: 'dd.MM.yyyy' }} {{ occasion().startAt }} -
+                    {{ reservation()! | roomTime: 'startAt' : 'dd.MM.yyyy' }} {{ occasion().startAt }} -
                     {{ occasion().endAt }} ({{ reservation()!.machine.room.localTimezone }})
                 </dd>
 

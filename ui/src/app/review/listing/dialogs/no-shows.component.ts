@@ -11,9 +11,10 @@ import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
+import { RoomTimePipe } from 'src/app/reservation/room-time.pipe';
 @Component({
     selector: 'xm-no-shows-component',
-    imports: [TranslateModule, OrderByPipe, DatePipe, TableSortComponent],
+    imports: [TranslateModule, OrderByPipe, DatePipe, TableSortComponent, RoomTimePipe],
     templateUrl: './no-shows.component.html',
     styleUrls: ['../review-list.component.scss'],
 })
