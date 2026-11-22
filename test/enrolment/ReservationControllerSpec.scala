@@ -30,7 +30,8 @@ class ReservationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
 
   // Anchored to today at 12:15, so that a reservation can have started a moment ago and the room
   // still has later slots to offer. Off the hour, so that "the next slot" is never ambiguous.
-  val fixedNow: Instant = LocalDate.now().atTime(12, 15).atZone(ZoneOffset.UTC).toInstant
+  val fixedNow: Instant =
+    LocalDate.now(ZoneOffset.UTC).atTime(12, 15).atZone(ZoneOffset.UTC).toInstant
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()

@@ -149,9 +149,10 @@ class ExternalCalendarInterfaceSpec
         fis.close()
       catch case _: IOException => response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
 
-  // Anchored to today at 10:00 — consistent with LocalDate.now() in URLs in test setup,
+  // Anchored to today at 10:00 — consistent with LocalDate.now(ZoneOffset.UTC) in URLs in test setup,
   // keeping the time-of-day safely within working hours and well before midnight
-  val fixedNow: Instant = LocalDate.now().atTime(10, 0).atZone(ZoneOffset.UTC).toInstant
+  val fixedNow: Instant =
+    LocalDate.now(ZoneOffset.UTC).atTime(10, 0).atZone(ZoneOffset.UTC).toInstant
 
   override def fakeApplication(): Application =
     val config = Map("exam.integration.enrolmentPermissionCheck.active" -> java.lang.Boolean.FALSE)
@@ -283,7 +284,7 @@ class ExternalCalendarInterfaceSpec
         val (exam, user, room, enrolment) = setupTestData(Some(studentUser))
         val (_, session)                  = runIO(loginAsStudent())
         val url =
-          s"/app/iop/calendar/${exam.id}/${room.externalRef}?&org=$ORG_REF&date=${LocalDate.now().toString}"
+          s"/app/iop/calendar/${exam.id}/${room.externalRef}?&org=$ORG_REF&date=${LocalDate.now(ZoneOffset.UTC).toString}"
         val result = runIO(get(url, session = session))
         statusOf(result) must be(Status.OK)
         val node = contentAsJsonOf(result)
@@ -316,7 +317,7 @@ class ExternalCalendarInterfaceSpec
 
         val (_, session) = runIO(loginAsStudent())
         val url =
-          s"/app/iop/calendar/${exam.id}/${room.externalRef}?&org=$ORG_REF&date=${LocalDate.now().toString}"
+          s"/app/iop/calendar/${exam.id}/${room.externalRef}?&org=$ORG_REF&date=${LocalDate.now(ZoneOffset.UTC).toString}"
         val result = runIO(get(url, session = session))
         statusOf(result) must be(Status.OK)
         val node = contentAsJsonOf(result)
@@ -333,7 +334,7 @@ class ExternalCalendarInterfaceSpec
         val (_, _, room, _) = setupTestData()
         val machineCount    = room.examMachines.asScala.count(!_.outOfService)
         val url =
-          s"/integration/iop/slots?roomId=${room.externalRef}&date=${LocalDate.now()}" +
+          s"/integration/iop/slots?roomId=${room.externalRef}&date=${LocalDate.now(ZoneOffset.UTC)}" +
             s"&start=${DateTimeFormatter.ISO_INSTANT.format(Instant.now().minus(Duration.ofDays(7)))}" +
             s"&end=${DateTimeFormatter.ISO_INSTANT.format(Instant.now().plus(Duration.ofDays(7)))}" +
             "&duration=180"

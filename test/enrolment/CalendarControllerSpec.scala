@@ -32,9 +32,10 @@ import scala.jdk.CollectionConverters.*
 class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
     with EbeanQueryExtensions:
 
-  // Anchored to today at 10:00 — consistent with LocalDate.now() in test setup while keeping
+  // Anchored to today at 10:00 — consistent with LocalDate.now(ZoneOffset.UTC) in test setup while keeping
   // the time-of-day safely within working hours and well before midnight
-  val fixedNow: Instant = LocalDate.now().atTime(10, 0).atZone(ZoneOffset.UTC).toInstant
+  val fixedNow: Instant =
+    LocalDate.now(ZoneOffset.UTC).atTime(10, 0).atZone(ZoneOffset.UTC).toInstant
 
   override def fakeApplication(): Application =
     appBuilder
@@ -118,8 +119,10 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         exam.examOwners.add(Option(DB.find(classOf[User], 4L)).orNull)
         exam.save()
 
-        val start = LocalDate.now().plusDays(1).atTime(12, 0).atZone(ZoneOffset.UTC).toInstant
-        val end   = LocalDate.now().plusDays(1).atTime(13, 0).atZone(ZoneOffset.UTC).toInstant
+        val start =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(12, 0).atZone(ZoneOffset.UTC).toInstant
+        val end =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(13, 0).atZone(ZoneOffset.UTC).toInstant
 
         val callCount = 10
         val latch     = new CountDownLatch(callCount)
@@ -172,8 +175,10 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         exam.examOwners.add(Option(DB.find(classOf[User], 4L)).orNull)
         exam.save()
 
-        val start = LocalDate.now().plusDays(1).atTime(12, 0).atZone(ZoneOffset.UTC).toInstant
-        val end   = LocalDate.now().plusDays(1).atTime(13, 0).atZone(ZoneOffset.UTC).toInstant
+        val start =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(12, 0).atZone(ZoneOffset.UTC).toInstant
+        val end =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(13, 0).atZone(ZoneOffset.UTC).toInstant
 
         val reservationData = Json.obj(
           "roomId" -> JsNumber(BigDecimal(room.id)),
@@ -217,8 +222,9 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         room.update()
 
         // 10:00 - 11:00 in Tokyo, within its opening hours there
-        val start = LocalDate.now().plusDays(1).atTime(1, 0).atZone(ZoneOffset.UTC).toInstant
-        val end   = start.plus(Duration.ofHours(1))
+        val start =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(1, 0).atZone(ZoneOffset.UTC).toInstant
+        val end = start.plus(Duration.ofHours(1))
         val reservationData = Json.obj(
           "roomId" -> JsNumber(BigDecimal(room.id)),
           "examId" -> JsNumber(BigDecimal(exam.id)),
@@ -238,8 +244,10 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       "create reservation when previous reservation is in future" in:
         val (user, session)                      = runIO(loginAsStudent())
         val (exam, room, reservation, enrolment) = setupTestData()
-        val start = LocalDate.now().plusDays(1).atTime(12, 0).atZone(ZoneOffset.UTC).toInstant
-        val end   = LocalDate.now().plusDays(1).atTime(13, 0).atZone(ZoneOffset.UTC).toInstant
+        val start =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(12, 0).atZone(ZoneOffset.UTC).toInstant
+        val end =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(13, 0).atZone(ZoneOffset.UTC).toInstant
 
         // Setup existing future reservation (must be after fixedNow=10:00 so checkEnrolment passes)
         reservation.startAt = fixedNow.plus(Duration.ofHours(2))
@@ -282,8 +290,10 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       "create reservation when previous reservation is in past" in:
         val (user, session)                      = runIO(loginAsStudent())
         val (exam, room, reservation, enrolment) = setupTestData()
-        val start = LocalDate.now().plusDays(1).atTime(12, 0).atZone(ZoneOffset.UTC).toInstant
-        val end   = LocalDate.now().plusDays(1).atTime(13, 0).atZone(ZoneOffset.UTC).toInstant
+        val start =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(12, 0).atZone(ZoneOffset.UTC).toInstant
+        val end =
+          LocalDate.now(ZoneOffset.UTC).plusDays(1).atTime(13, 0).atZone(ZoneOffset.UTC).toInstant
 
         // Setup past reservation with no-show
         reservation.startAt = fixedNow.minus(Duration.ofDays(1)).minus(Duration.ofMinutes(10))

@@ -49,7 +49,8 @@ class CollaborativeExternalCalendarControllerSpec
 
   // Anchored to today at 10:00, same rationale as in ExternalCalendarInterfaceSpec: keeps the
   // time-of-day within working hours while staying well clear of midnight
-  private val fixedNow: Instant = LocalDate.now().atTime(10, 0).atZone(ZoneOffset.UTC).toInstant
+  private val fixedNow: Instant =
+    LocalDate.now(ZoneOffset.UTC).atTime(10, 0).atZone(ZoneOffset.UTC).toInstant
 
   private class ReservationServlet extends HttpServlet:
     @volatile var lastUri: Option[String]   = None
