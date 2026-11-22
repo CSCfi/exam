@@ -61,12 +61,14 @@ export class LibraryResultsComponent {
     });
     readonly currentPage = linkedSignal<LibraryQuestion[], number>({
         source: this.questions,
-        // Hold the page when questions are merely removed or updated, reset it for a new result set
+        // Hold the page when questions are updated, or one is removed or copied; reset it for a new result set
         computation: (questions, previous) => {
             if (!previous) return 0;
-            const ids = new Set(questions.map((q) => q.id));
+            const [ids, previousIds] = [new Set(questions.map((q) => q.id)), new Set(previous.source.map((q) => q.id))];
+            const added = questions.filter((q) => !previousIds.has(q.id)).length;
+            const removed = previous.source.filter((q) => !ids.has(q.id)).length;
             const lastPage = Math.max(0, Math.ceil(questions.length / this.pageSize) - 1);
-            return previous.source.every((q) => ids.has(q.id)) ? Math.min(previous.value, lastPage) : 0;
+            return added + removed <= 1 ? Math.min(previous.value, lastPage) : 0;
         },
     });
     // Newest first by default, matching the ordering the backend used to impose

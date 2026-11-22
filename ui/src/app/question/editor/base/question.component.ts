@@ -172,12 +172,12 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
                 multipleChoice?: {
                     defaultNegativeScoreAllowed?: boolean;
                     defaultOptionShufflingOn?: boolean;
-                    options?: Array<{ optionText?: string; correctOption?: boolean }>;
+                    options?: Array<{ id?: number | null; optionText?: string; correctOption?: boolean }>;
                 };
                 weightedMc?: {
                     negativeScore?: boolean;
                     optionShuffling?: boolean;
-                    options?: Array<{ optionText?: string; defaultScore?: number }>;
+                    options?: Array<{ id?: number | null; optionText?: string; defaultScore?: number }>;
                 };
                 claimChoice?: {
                     options?: Array<{ optionText?: string; score?: number; isSkipOption?: boolean }>;
@@ -249,12 +249,16 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
         });
     }
 
+    // By id: after a removal the rows no longer line up with the stored options by position
+    private findOption = (options: MultipleChoiceOption[], id?: number | null) =>
+        id != null ? options.find((o) => o.id === id) : undefined;
+
     private mapMultipleChoiceOptions(
-        formOptions: Array<{ optionText?: string; correctOption?: boolean }>,
+        formOptions: Array<{ id?: number | null; optionText?: string; correctOption?: boolean }>,
         currentOptions: MultipleChoiceOption[],
     ): MultipleChoiceOption[] {
-        return formOptions.map((formOption, index) => {
-            const existingOption = currentOptions[index];
+        return formOptions.map((formOption) => {
+            const existingOption = this.findOption(currentOptions, formOption.id);
             return {
                 ...(existingOption || {}),
                 option: formOption.optionText || '',
@@ -265,11 +269,11 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
     }
 
     private mapWeightedMcOptions(
-        formOptions: Array<{ optionText?: string; defaultScore?: number }>,
+        formOptions: Array<{ id?: number | null; optionText?: string; defaultScore?: number }>,
         currentOptions: MultipleChoiceOption[],
     ): MultipleChoiceOption[] {
-        return formOptions.map((formOption, index) => {
-            const existingOption = currentOptions[index];
+        return formOptions.map((formOption) => {
+            const existingOption = this.findOption(currentOptions, formOption.id);
             const score = formOption.defaultScore ?? 0;
             return {
                 ...(existingOption || {}),
