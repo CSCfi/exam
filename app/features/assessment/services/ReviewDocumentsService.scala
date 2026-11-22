@@ -14,20 +14,23 @@ import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOut
 import org.apache.commons.io.IOUtils
 import org.jsoup.Jsoup
 import play.api.Logging
+import services.config.ConfigReader
 import services.csv.CsvBuilder
 
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, ZoneOffset}
+import java.time.Instant
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
-import scala.util.Try
+import scala.util.{Try, Using}
 
-class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
-    extends EbeanQueryExtensions
+class ReviewDocumentsService @Inject() (
+    private val csvBuilder: CsvBuilder,
+    private val configReader: ConfigReader
+) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:
 
@@ -52,12 +55,13 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
       start: Option[String],
       end: Option[String]
   )(os: OutputStream): Unit =
-    val df = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-    def parseDate(txt: String) =
-      java.time.LocalDate.parse(txt, df).atStartOfDay(ZoneOffset.UTC).toInstant
+    // Whole days on the organisation's calendar: from the start of the first to the end of the last
+    val df                     = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    val zone                   = configReader.getDefaultTimeZone
+    def parseDate(txt: String) = java.time.LocalDate.parse(txt, df)
     Try {
-      val startDate = start.map(parseDate)
-      val endDate   = end.map(parseDate)
+      val startDate = start.map(parseDate(_).atStartOfDay(zone).toInstant)
+      val endDate   = end.map(parseDate(_).plusDays(1).atStartOfDay(zone).toInstant)
       val gzip      = new GZIPOutputStream(os)
       val tar       = new TarArchiveOutputStream(gzip)
       tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
@@ -71,7 +75,7 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
   private def isEligibleForArchiving(exam: Exam, start: Option[Instant], end: Option[Instant]) =
     exam.hasState(ExamState.ABORTED, ExamState.REVIEW, ExamState.REVIEW_STARTED) &&
       start.forall(!exam.created.isBefore(_)) &&
-      end.forall(!exam.created.isAfter(_))
+      end.forall(exam.created.isBefore(_))
 
   private def createArchive(
       prototype: Exam,
@@ -107,7 +111,7 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
                 logger.warn(
                   s"Attachment ${attachment.get.id} is not connected to a file on disk!"
                 )
-              val entryName = s"${prototype.id}/$questionId/$uid"
+              val entryName = s"${prototype.id}/$questionIdText/$uid"
               val entry     = new TarArchiveEntry(entryName)
               aos.putArchiveEntry(entry)
               aos.closeArchiveEntry()
@@ -117,7 +121,7 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
     val entry = new TarArchiveEntry(name)
     entry.setSize(file.length)
     os.putArchiveEntry(entry)
-    IOUtils.copy(new FileInputStream(file), os)
+    Using.resource(new FileInputStream(file))(in => IOUtils.copy(in, os))
     os.closeArchiveEntry()
 
   private def addContentEntry(
@@ -140,8 +144,10 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
   ): Unit =
     val dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val periodLine = Option.when(start.isDefined || end.isDefined) {
-      val s = start.map(i => dtf.format(i.atZone(ZoneOffset.UTC).toLocalDate)).getOrElse("")
-      val e = end.map(i => dtf.format(i.atZone(ZoneOffset.UTC).toLocalDate)).getOrElse("")
+      val zone = configReader.getDefaultTimeZone
+      val s    = start.map(i => dtf.format(i.atZone(zone).toLocalDate)).getOrElse("")
+      // The end is the start of the day after the last one
+      val e = end.map(i => dtf.format(i.atZone(zone).toLocalDate.minusDays(1))).getOrElse("")
       s"period: $s-$e"
     }
     val lines = periodLine.toSeq ++ Seq(
