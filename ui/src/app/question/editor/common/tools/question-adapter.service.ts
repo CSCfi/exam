@@ -55,12 +55,12 @@ export class QuestionAdapterService {
                 multipleChoice?: {
                     defaultNegativeScoreAllowed?: boolean;
                     defaultOptionShufflingOn?: boolean;
-                    options?: Array<{ optionText?: string; correctOption?: boolean }>;
+                    options?: Array<{ id?: number | null; optionText?: string; correctOption?: boolean }>;
                 };
                 weightedMc?: {
                     negativeScore?: boolean;
                     optionShuffling?: boolean;
-                    options?: Array<{ optionText?: string; defaultScore?: number }>;
+                    options?: Array<{ id?: number | null; optionText?: string; defaultScore?: number }>;
                 };
                 claimChoice?: {
                     options?: Array<{ optionText?: string; score?: number; isSkipOption?: boolean }>;
@@ -147,12 +147,16 @@ export class QuestionAdapterService {
     /**
      * Convert MultipleChoice form options to ExamSectionQuestionOption[]
      */
+    // By the base option id: after a removal the rows no longer line up with the stored options by position
+    private findExamOption = (options: ExamSectionQuestionOption[], id?: number | null) =>
+        id != null ? options.find((o) => o.option?.id === id) : undefined;
+
     private convertMultipleChoiceOptionsToExamOptions(
-        formOptions: Array<{ optionText?: string; correctOption?: boolean }>,
+        formOptions: Array<{ id?: number | null; optionText?: string; correctOption?: boolean }>,
         currentOptions: ExamSectionQuestionOption[],
     ): ExamSectionQuestionOption[] {
-        return formOptions.map((formOpt, index) => {
-            const currentOpt = currentOptions[index];
+        return formOptions.map((formOpt) => {
+            const currentOpt = this.findExamOption(currentOptions, formOpt.id);
             const baseOption = currentOpt?.option;
             return {
                 ...(currentOpt || {}),
@@ -162,7 +166,7 @@ export class QuestionAdapterService {
                     correctOption: formOpt.correctOption === true,
                 },
                 score: formOpt.correctOption ? (baseOption?.defaultScore ?? 1) : 0,
-            };
+            } as ExamSectionQuestionOption;
         });
     }
 
@@ -170,11 +174,11 @@ export class QuestionAdapterService {
      * Convert WeightedMultipleChoice form options to ExamSectionQuestionOption[]
      */
     private convertWeightedMcOptionsToExamOptions(
-        formOptions: Array<{ optionText?: string; defaultScore?: number }>,
+        formOptions: Array<{ id?: number | null; optionText?: string; defaultScore?: number }>,
         currentOptions: ExamSectionQuestionOption[],
     ): ExamSectionQuestionOption[] {
-        return formOptions.map((formOpt, index) => {
-            const currentOpt = currentOptions[index];
+        return formOptions.map((formOpt) => {
+            const currentOpt = this.findExamOption(currentOptions, formOpt.id);
             const baseOption = currentOpt?.option;
             return {
                 ...(currentOpt || {}),
@@ -185,7 +189,7 @@ export class QuestionAdapterService {
                     correctOption: (formOpt.defaultScore ?? 0) > 0,
                 },
                 score: formOpt.defaultScore ?? 0,
-            };
+            } as ExamSectionQuestionOption;
         });
     }
 

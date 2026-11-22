@@ -149,6 +149,7 @@ export class WeightedMultipleChoiceComponent implements OnInit, AfterViewInit {
         }
         const optionsArray = this.optionsFormArray;
         const newOptionGroup = new FormGroup({
+            id: new FormControl<number | null>(null),
             optionText: new FormControl('', [Validators.required]),
             defaultScore: new FormControl(0, [Validators.required]),
         });
@@ -232,6 +233,8 @@ export class WeightedMultipleChoiceComponent implements OnInit, AfterViewInit {
             for (let i = currentLength; i < newLength; i++) {
                 const option = options[i];
                 const optionGroup = new FormGroup({
+                    // Saving matches rows to the stored options by id, not by position
+                    id: new FormControl<number | null>(option.id ?? null),
                     optionText: new FormControl({ value: option.option || '', disabled: this.lotteryOn() }, [
                         Validators.required,
                     ]),
@@ -253,6 +256,7 @@ export class WeightedMultipleChoiceComponent implements OnInit, AfterViewInit {
             if (formGroup) {
                 formGroup.patchValue(
                     {
+                        id: option.id ?? null,
                         optionText: option.option || '',
                         defaultScore: option.defaultScore || 0,
                     },

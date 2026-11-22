@@ -109,6 +109,7 @@ export class MultipleChoiceComponent implements OnInit, AfterViewInit {
         }
         const optionsArray = this.optionsFormArray;
         const newOptionGroup = new FormGroup({
+            id: new FormControl<number | null>(null),
             optionText: new FormControl('', [Validators.required]),
             correctOption: new FormControl(false),
         });
@@ -210,6 +211,8 @@ export class MultipleChoiceComponent implements OnInit, AfterViewInit {
                 const option = options[i];
                 const isCorrect = option.correctOption || false;
                 const optionGroup = new FormGroup({
+                    // Saving matches rows to the stored options by id, not by position
+                    id: new FormControl<number | null>(option.id ?? null),
                     optionText: new FormControl({ value: option.option || '', disabled: this.lotteryOn() }, [
                         Validators.required,
                     ]),
@@ -230,6 +233,7 @@ export class MultipleChoiceComponent implements OnInit, AfterViewInit {
                 const isCorrect = option.correctOption || false;
                 formGroup.patchValue(
                     {
+                        id: option.id ?? null,
                         optionText: option.option || '',
                         correctOption: isCorrect,
                     },
