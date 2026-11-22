@@ -103,7 +103,8 @@ class ExternalExamExpirationService @Inject() (
       }
     else IO.unit
 
-  private def runCheck(): IO[Unit] =
+  // Visible for tests
+  def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Starting external exam expiration check ->")
       DB

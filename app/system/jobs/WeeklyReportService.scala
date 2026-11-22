@@ -61,7 +61,8 @@ class WeeklyReportService @Inject() (
     logger.info(s"Scheduled next weekly report to be run at $nextRun (in ${safeDelay} seconds)")
     safeDelay
 
-  private def runReport(): IO[Unit] =
+  // Visible for tests
+  def runReport(): IO[Unit] =
     IO.blocking {
       logger.info("Running weekly email report")
       DB.find(classOf[User])

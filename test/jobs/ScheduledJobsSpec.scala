@@ -11,12 +11,13 @@ import database.EbeanQueryExtensions
 import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.assessment.*
-import models.enrolment.{ExamParticipation, Reservation}
+import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.*
-import models.user.{Language, User}
+import models.facility.ExamMachine
+import models.user.{Language, Role, User}
 import org.scalatest.BeforeAndAfterAll
 import services.mail.EmailComposer
-import system.jobs.ExamAutoSaverService
+import system.jobs.*
 
 import java.time.Instant
 import scala.jdk.CollectionConverters.*
@@ -54,6 +55,9 @@ class ScheduledJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions
     u.language = DB.find(classOf[Language]).where().eq("code", "en").find.orNull
     u.save()
     u
+
+  private def teacherRole: Role =
+    DB.find(classOf[Role]).where().eq("name", Role.Name.TEACHER.toString).find.get
 
   private def exam(name: String, state: ExamState, parent: Option[Exam] = None): Exam =
     val e = new Exam
@@ -165,3 +169,124 @@ class ScheduledJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions
       val body = greenMail.getReceivedMessages.map(GreenMailUtil.getBody).mkString
       body must include("Owned exam")
       body must include("Inspected exam")
+
+    "reach every teacher, even when one of them cannot be mailed" in:
+      setup()
+      // No address at all, so composing their mail fails
+      val unreachable = user("weekly-unreachable@test.org")
+      unreachable.email = null
+      unreachable.roles = new java.util.ArrayList(List(teacherRole).asJava)
+      unreachable.update()
+      val teacher = user("weekly-reached@test.org")
+      teacher.roles = new java.util.ArrayList(List(teacherRole).asJava)
+      teacher.update()
+      val student = user("weekly-reviewed@test.org")
+      // Something to report for both, so that both get a mail composed
+      Seq(unreachable, teacher).foreach { t =>
+        val owned = exam(s"Owned by ${t.lastName}", ExamState.PUBLISHED)
+        owned.examOwners = Set(t).asJava
+        owned.update()
+        participation(exam("Copy", ExamState.REVIEW, Some(owned)), student, None)
+      }
+
+      runIO(app.injector.instanceOf(classOf[WeeklyReportService]).runReport())
+
+      greenMail.waitForIncomingEmail(5000L, 1) mustBe true
+      greenMail.getReceivedMessagesForDomain("weekly-reached@test.org") must not be empty
+
+  "The auto-evaluation notifier" should:
+    "tell the student once the release date has passed, and only then" in:
+      setup()
+      val student = user("released-student@test.org")
+      def graded(name: String, release: AutoEvaluationReleaseType, days: Int): Exam =
+        val e = exam(name, ExamState.GRADED, Some(exam(s"$name parent", ExamState.PUBLISHED)))
+        e.creator = student
+        e.course = DB.find(classOf[Exam], 1L).course
+        e.gradedTime = Instant.now().minusDays(10)
+        e.grade = DB.find(classOf[Grade]).setMaxRows(1).findOne()
+        e.creditType = DB.find(classOf[ExamType]).setMaxRows(1).findOne()
+        e.answerLanguage = "en"
+        e.update()
+        val config = new AutoEvaluationConfig
+        config.releaseType = release
+        config.amountDays = days
+        config.exam = e
+        config.save()
+        e
+      val due      = graded("Due", AutoEvaluationReleaseType.GIVEN_AMOUNT_DAYS, 2)
+      val notYet   = graded("Not yet", AutoEvaluationReleaseType.GIVEN_AMOUNT_DAYS, 30)
+      val instant  = graded("Immediate", AutoEvaluationReleaseType.IMMEDIATE, 0)
+      val notifier = app.injector.instanceOf(classOf[AutoEvaluationNotifierService])
+
+      runIO(notifier.runCheck())
+
+      greenMail.waitForIncomingEmail(5000L, 1) mustBe true
+      greenMail.getReceivedMessages must have size 1
+      DB.find(classOf[Exam], due.id).autoEvaluationNotified must not be null
+      DB.find(classOf[Exam], notYet.id).autoEvaluationNotified mustBe null
+      DB.find(classOf[Exam], instant.id).autoEvaluationNotified mustBe null
+
+      runIO(notifier.runCheck())
+      greenMail.getReceivedMessages must have size 1
+
+  "The reservation reminder" should:
+    "remind of tomorrow's exams once" in:
+      setup()
+      val student = user("reminded-student@test.org")
+      def booked(hoursAhead: Int): Reservation =
+        val r = new Reservation
+        r.user = student
+        r.machine = DB.find(classOf[ExamMachine]).setMaxRows(1).findOne()
+        r.startAt = Instant.now().plusHours(hoursAhead)
+        r.endAt = r.startAt.plusHours(1)
+        r.save()
+        val e = new ExamEnrolment
+        e.user = student
+        e.exam = DB.find(classOf[Exam], 1L)
+        e.reservation = r
+        e.enrolledOn = Instant.now()
+        e.save()
+        r
+      val soon     = booked(12)
+      val later    = booked(48)
+      val reminder = app.injector.instanceOf(classOf[ReservationReminderService])
+
+      runIO(reminder.runCheck())
+
+      greenMail.waitForIncomingEmail(5000L, 1) mustBe true
+      greenMail.getReceivedMessages must have size 1
+      DB.find(classOf[Reservation], soon.id).reminderSent mustBe true
+      DB.find(classOf[Reservation], later.id).reminderSent mustBe false
+
+      runIO(reminder.runCheck())
+      greenMail.getReceivedMessages must have size 1
+
+  "The exam expiration" should:
+    "delete attempts and their records once the expiration period has passed" in:
+      setup()
+      val student = user("expired-student@test.org")
+      def finished(name: String, state: ExamState, monthsAgo: Long): Exam =
+        val e = exam(name, state, Some(exam(s"$name parent", ExamState.PUBLISHED)))
+        e.creator = student
+        e.gradedTime = Instant.now().atZone(java.time.ZoneOffset.UTC).minusMonths(monthsAgo)
+          .toInstant
+        e.update()
+        val record = new ExamRecord
+        record.exam = e
+        record.student = student
+        record.save()
+        e
+      val old              = finished("Old", ExamState.GRADED_LOGGED, 7)
+      val recent           = finished("Recent", ExamState.GRADED_LOGGED, 2)
+      val active           = finished("Still graded", ExamState.GRADED, 7)
+      def records(e: Exam) = DB.find(classOf[ExamRecord]).where().eq("exam.id", e.id).list
+
+      runIO(app.injector.instanceOf(classOf[ExamExpirationService]).runCheck())
+
+      val expired = DB.find(classOf[Exam], old.id)
+      expired.state mustBe ExamState.DELETED
+      expired.creator mustBe null
+      records(old) mustBe empty
+      DB.find(classOf[Exam], recent.id).state mustBe ExamState.GRADED_LOGGED
+      records(recent) must have size 1
+      DB.find(classOf[Exam], active.id).state mustBe ExamState.GRADED

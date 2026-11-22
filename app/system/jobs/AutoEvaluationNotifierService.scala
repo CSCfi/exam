@@ -64,7 +64,8 @@ class AutoEvaluationNotifierService @Inject() (
         exam.autoEvaluationNotified = Instant.now()
         exam.update()
 
-  private def runCheck(): IO[Unit] =
+  // Visible for tests
+  def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Auto evaluation notification check started ->")
       DB.find(classOf[Exam])

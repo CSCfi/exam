@@ -30,7 +30,8 @@ class ReservationReminderService @Inject() (
       r.update()
     }.handleErrorWith(e => IO(logger.error(s"Failed to send reminder for reservation ${r.id}", e)))
 
-  private def runCheck(): IO[Unit] =
+  // Visible for tests
+  def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Starting reservation reminder task ->")
       val now      = Instant.now()

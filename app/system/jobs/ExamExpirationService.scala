@@ -33,7 +33,8 @@ class ExamExpirationService @Inject() (private val configReader: ConfigReader)
     exam.update()
     DB.find(classOf[ExamRecord]).where.eq(path[ExamRecord]("exam"), exam).list.foreach(_.delete)
 
-  private def runCheck(): IO[Unit] =
+  // Visible for tests
+  def runCheck(): IO[Unit] =
     IO.blocking {
       logger.info("Starting exam expiration check ->")
       val exams = DB
