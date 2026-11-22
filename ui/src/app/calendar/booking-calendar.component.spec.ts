@@ -56,6 +56,18 @@ describe('BookingCalendarComponent', () => {
         expect([options.slotMinTime, options.slotMaxTime]).toEqual(['00:00:00', '23:59:59']);
     });
 
+    it('should say the times are room time only when this device is on another clock', () => {
+        const here = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        // UTC-12, which no one lives in
+        const elsewhere = 'Etc/GMT+12';
+
+        fixture.componentRef.setInput('room', { id: 3, localTimezone: here } as ExamRoom);
+        expect(component.otherZone()).toBeUndefined();
+
+        fixture.componentRef.setInput('room', { id: 3, localTimezone: elsewhere } as ExamRoom);
+        expect(component.otherZone()).toBe(elsewhere);
+    });
+
     it('should title the week from its wall-clock dates', () => {
         // FullCalendar markers hold the shown wall time in their UTC fields
         const week = {
