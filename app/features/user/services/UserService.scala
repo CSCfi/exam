@@ -9,6 +9,7 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.ExamEnrolment
+import models.questions.Question
 import models.user.*
 import services.user.UserHandler
 
@@ -117,17 +118,20 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
     ).list
     (users, pp)
 
+  /** Users of the role matching the criteria, leaving out the question's owners and the asker */
   def listQuestionOwners(
       role: String,
       criteria: String,
       qid: Option[Long],
       currentUser: User
-  ): Seq[User] =
-    val users = listUsersByRoleAndName(role, criteria).toSet
-    val owners = qid
-      .map(id => DB.find(classOf[User]).where().idIn(List(id).asJava).distinct.toList.toSet)
-      .getOrElse(Set.empty[User]) + currentUser
-    (users -- owners).toSeq
+  ): Either[UserError, Seq[User]] =
+    val owners = qid match
+      case None => Right(Set(currentUser))
+      case Some(id) =>
+        Option(DB.find(classOf[Question], id))
+          .toRight(QuestionNotFound)
+          .map(_.questionOwners.asScala.toSet + currentUser)
+    owners.map(o => listUsersByRoleAndName(role, criteria).filterNot(o.contains))
 
   def listTeachers(criteria: String): Seq[User] =
     listUsersByRoleAndName(Role.Name.TEACHER.toString, criteria)

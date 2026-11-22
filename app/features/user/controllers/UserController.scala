@@ -33,6 +33,7 @@ class UserController @Inject() (
       case UserError.PermissionNotFound    => NotFound(error.message)
       case UserError.InvalidPermissionType => BadRequest(error.message)
       case UserError.RoleNotFound          => NotFound(error.message)
+      case UserError.QuestionNotFound      => NotFound(error.message)
       case UserError.UnsupportedLanguage   => BadRequest(error.message)
 
   def listPermissions: Action[AnyContent] =
@@ -97,7 +98,9 @@ class UserController @Inject() (
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
       request =>
         val user = request.attrs(Auth.ATTR_USER)
-        Ok(userService.listQuestionOwners(role, criteria, qid, user).asJson)
+        userService.listQuestionOwners(role, criteria, qid, user) match
+          case Left(error)  => toResult(error)
+          case Right(users) => Ok(users.asJson)
     }
 
   def listTeachers(criteria: String): Action[AnyContent] =

@@ -16,5 +16,7 @@ object UserError:
     val message = "invalid permission type"
   case object RoleNotFound extends UserError:
     val message = "i18n_role_not_found"
+  case object QuestionNotFound extends UserError:
+    val message = "i18n_error_not_found"
   case object UnsupportedLanguage extends UserError:
     val message = "Unsupported language code"
