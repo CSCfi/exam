@@ -7,7 +7,6 @@ import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { MachineListComponent } from 'src/app/facility/machines/machines.component';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
 import { OpenHoursComponent } from 'src/app/facility/schedule/opening-hours.component';
@@ -21,7 +20,6 @@ import { RoomService } from './room.service';
 interface ExtendedRoom extends ExamRoom {
     addressVisible: boolean;
     availabilityVisible: boolean;
-    extendedDwh: DefaultWorkingHoursWithEditing[];
     activate: boolean;
 }
 

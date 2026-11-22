@@ -4,7 +4,6 @@
 
 import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -14,7 +13,6 @@ import { RoomService } from './room.service';
 interface ExtendedRoom extends ExamRoom {
     addressVisible: boolean;
     availabilityVisible: boolean;
-    extendedDwh: DefaultWorkingHoursWithEditing[];
     activate: boolean;
 }
 
@@ -40,29 +38,10 @@ export class RoomListComponent {
         this.roomService.getRooms$().subscribe((rooms) => {
             const roomsWithVisibility = rooms as ExtendedRoom[];
             const processedRooms = roomsWithVisibility.map((r) => {
-                const extendedDWH = r.defaultWorkingHours as DefaultWorkingHoursWithEditing[];
                 return {
                     ...r,
                     addressVisible: false,
                     availabilityVisible: false,
-                    extendedDWH: extendedDWH.map((wh) => {
-                        return {
-                            ...wh,
-                            editing: false,
-                            pickStartingTime: {
-                                hour: new Date(wh.startTime).getHours(),
-                                minute: new Date(wh.startTime).getMinutes(),
-                                second: 0,
-                                millisecond: 0,
-                            },
-                            pickEndingTime: {
-                                hour: new Date(wh.endTime).getHours(),
-                                minute: new Date(wh.endTime).getMinutes(),
-                                second: 0,
-                                millisecond: 0,
-                            },
-                        };
-                    }),
                 };
             });
             processedRooms.forEach((room) => {
