@@ -191,12 +191,9 @@ class SessionService @Inject() (
       remoteAddress: String
   ): Option[Reservation] =
     val now = clock.now()
-    val lookAheadMinutes =
-      Duration.between(
-        now,
-        LocalDate.now(ZoneOffset.UTC).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant
-      ).toMinutes
-    val future = now.plus(Duration.ofMinutes(lookAheadMinutes))
+    // The exam day follows the organisation's calendar, not UTC's
+    val zone   = configReader.getDefaultTimeZone
+    val future = now.atZone(zone).toLocalDate.plusDays(1).atStartOfDay(zone).toInstant
     DB
       .find(classOf[Reservation])
       .where()
