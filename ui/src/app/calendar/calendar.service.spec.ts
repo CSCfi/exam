@@ -76,6 +76,12 @@ describe('CalendarService', () => {
             expect(service.getClosedWeekdays(room([saturday]), weekStart, weekEnd)).toEqual([0, 3, 4, 5, 6]);
         });
 
+        it('should show the day of an extra opening in room time', () => {
+            // Friday 22:00 UTC is Saturday 01:00 in the room
+            const saturday = exception('2030-06-14T22:00:00Z', '2030-06-14T23:30:00Z');
+            expect(service.getClosedWeekdays(room([saturday]), weekStart, weekEnd)).toEqual([0, 3, 4, 5]);
+        });
+
         it('should ignore days out of service', () => {
             const saturday = exception('2030-06-15T08:00:00+03:00', '2030-06-15T12:00:00+03:00', true);
             expect(service.getClosedWeekdays(room([saturday]), weekStart, weekEnd)).toContain(6);
@@ -88,17 +94,11 @@ describe('CalendarService', () => {
             expect(service.getLatestClosing(room(), weekStart, weekEnd).getHours()).toBe(20);
         });
 
-        it('should stretch to an extra opening that week', () => {
-            const early = exception('2030-06-12T06:00:00+03:00', '2030-06-12T22:00:00+03:00');
-            // Normalised to this browser's clock
-            const local = (iso: string) => DateTime.fromISO(iso).hour;
+        it('should stretch to an extra opening that week, in room time', () => {
+            const early = exception('2030-06-12T03:00:00Z', '2030-06-12T19:00:00Z');
 
-            expect(service.getEarliestOpening(room([early]), weekStart, weekEnd).getHours()).toBe(
-                Math.min(8, local('2030-06-12T06:00:00+03:00')),
-            );
-            expect(service.getLatestClosing(room([early]), weekStart, weekEnd).getHours()).toBe(
-                Math.max(20, local('2030-06-12T22:00:00+03:00')),
-            );
+            expect(service.getEarliestOpening(room([early]), weekStart, weekEnd).getHours()).toBe(6);
+            expect(service.getLatestClosing(room([early]), weekStart, weekEnd).getHours()).toBe(22);
         });
 
         it('should show the whole day around a multi-day opening that week', () => {
