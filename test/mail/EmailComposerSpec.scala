@@ -8,7 +8,7 @@ import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.{Comment, LanguageInspection}
-import models.enrolment.{ExamEnrolment, ExaminationEvent, ExaminationEventConfiguration}
+import models.enrolment.*
 import models.exam.*
 import models.iop.CollaborativeExam
 import models.user.{Language, User}
@@ -264,3 +264,24 @@ class EmailComposerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
         composer.composePrivateExamParticipantNotification(student, teacher, e)
         outbox.only.subject must startWith("A maturity test has been created for you")
+
+  "The weekly summary" when:
+    "a review deadline falls early in the morning" should:
+      "give it as the organisation's day, not UTC's" in:
+        val teacher = user("weekly")
+        val e       = exam(teacher)
+        val copy    = new Exam
+        copy.name = e.name
+        copy.parent = e
+        copy.state = ExamState.REVIEW
+        copy.creator = user("waiting")
+        copy.save()
+        val p = new ExamParticipation
+        p.exam = copy
+        p.user = copy.creator
+        // 01:30 on 2 December in Finland, still 1 December in UTC
+        p.deadline = Instant.parse("2026-12-01T23:30:00Z")
+        p.save()
+
+        composer.composeWeeklySummary(teacher)
+        outbox.only.content must include("1 exams (assessment deadline 02.12.2026)")
