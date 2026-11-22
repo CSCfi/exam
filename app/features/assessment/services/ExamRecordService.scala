@@ -14,6 +14,7 @@ import models.exam.ExamState
 import models.exam.GradeType
 import models.user.{PermissionType, Role, User}
 import play.api.Logging
+import services.config.ConfigReader
 import services.csv.CsvBuilder
 import services.excel.ExcelBuilder
 import services.file.FileHandler
@@ -21,7 +22,6 @@ import services.mail.EmailComposer
 
 import java.io.OutputStream
 import java.time.Instant
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.duration.*
@@ -32,7 +32,8 @@ class ExamRecordService @Inject() (
     private val emailComposer: EmailComposer,
     private val csvBuilder: CsvBuilder,
     private val excelBuilder: ExcelBuilder,
-    private val fileHandler: FileHandler
+    private val fileHandler: FileHandler,
+    private val configReader: ConfigReader
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:
@@ -183,18 +184,22 @@ class ExamRecordService @Inject() (
     score.additionalInfo = exam.additionalInfo
     score.student = record.student.eppn
     score.studentId = record.student.userIdentifier
-    if Option(exam.customCredit).isEmpty then
-      score.credits = exam.course.credits.toString
-    else score.credits = exam.customCredit.toString
+    // A course from the course registry may come without credits
+    score.credits = Option(exam.customCredit)
+      .orElse(Option(exam.course.credits))
+      .map(_.toString)
+      .getOrElse("")
     score.examScore = exam.getTotalScore.toString
     score.lecturer = record.teacher.eppn
     score.lecturerId = record.teacher.userIdentifier
     score.lecturerEmployeeNumber = record.teacher.employeeNumber
     score.lecturerFirstName = record.teacher.firstName
     score.lecturerLastName = record.teacher.lastName
-    val dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    score.registrationDate = dtf.format(Instant.now().atZone(ZoneOffset.UTC).toLocalDate)
-    score.examDate = dtf.format(examDate.atZone(ZoneOffset.UTC).toLocalDate)
+    // Dates as on the organisation's calendar, not UTC: an exam ending after midnight is on the next day
+    val dtf  = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val zone = configReader.getDefaultTimeZone
+    score.registrationDate = dtf.format(Instant.now().atZone(zone).toLocalDate)
+    score.examDate = dtf.format(examDate.atZone(zone).toLocalDate)
     score.courseImplementation = exam.course.courseImplementation
     score.courseUnitCode = exam.course.code
     score.courseUnitLevel = exam.course.level
