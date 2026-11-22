@@ -16,8 +16,7 @@ import services.mail.EmailComposer
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.time.format.DateTimeFormatter
-import java.time.{Instant, ZoneOffset}
+import java.time.{Instant, OffsetDateTime}
 import java.util.Date
 import javax.inject.Inject
 import scala.concurrent.duration.*
@@ -156,14 +155,13 @@ class LanguageInspectionService @Inject() (
         }
 
       // Case 2: Month filter
+      // The browser sends the first of the month on its own clock, e.g. 2030-06-01T00:00+03:00.
+      // Read in UTC, that would be the end of the previous month.
       case (None, None, Some(monthStr)) =>
-        val decoded = URLDecoder.decode(monthStr, StandardCharsets.UTF_8)
-        val startOfMonth = Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(decoded)).atZone(
-          ZoneOffset.UTC
-        ).toLocalDate.withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC).toInstant
-        val endOfMonth = startOfMonth.atZone(ZoneOffset.UTC).toLocalDate.plusMonths(1).atStartOfDay(
-          ZoneOffset.UTC
-        ).toInstant
+        val sent         = OffsetDateTime.parse(URLDecoder.decode(monthStr, StandardCharsets.UTF_8))
+        val first        = sent.toLocalDate.withDayOfMonth(1)
+        val startOfMonth = first.atStartOfDay().atOffset(sent.getOffset).toInstant
+        val endOfMonth   = first.plusMonths(1).atStartOfDay().atOffset(sent.getOffset).toInstant
         query.between(path[LanguageInspection]("finishedAt"), startOfMonth, endOfMonth)
 
       // Case 3: No filter
