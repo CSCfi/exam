@@ -15,6 +15,7 @@ import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.ss.usermodel.*
+import org.apache.poi.ss.util.WorkbookUtil
 import org.apache.poi.xssf.streaming.{SXSSFSheet, SXSSFWorkbook}
 import play.api.Logging
 import play.i18n.{Lang, MessagesApi}
@@ -361,7 +362,8 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     }
 
   private def buildExamSheet(wb: Workbook, exam: Exam): Unit =
-    val values = Map(
+    // In this order in the sheet
+    val values = List(
       "Creator ID"       -> exam.creator.id.toString,
       "First name"       -> exam.creator.firstName,
       "Last name"        -> exam.creator.lastName,
@@ -381,11 +383,12 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       "Instructions" -> forceNotNull(exam.instruction),
       "Shared"       -> exam.shared.toString
     )
-    val sheet     = wb.createSheet(exam.name)
+    // Sheet names are limited to 31 characters, without / \ ? * [ ] or :
+    val sheet     = wb.createSheet(WorkbookUtil.createSafeSheetName(exam.name))
     val headerRow = sheet.createRow(0)
-    values.keys.zipWithIndex.foreach { case (key, i) => headerRow.createCell(i).setCellValue(key) }
+    values.zipWithIndex.foreach { case ((key, _), i) => headerRow.createCell(i).setCellValue(key) }
     val dataRow = sheet.createRow(1)
-    values.values.zipWithIndex.foreach { case (value, i) =>
+    values.zipWithIndex.foreach { case ((_, value), i) =>
       dataRow.createCell(i).setCellValue(value)
     }
 
@@ -570,7 +573,7 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     dataRow.createCell(1).setCellValue(student.firstName)
     dataRow.createCell(2).setCellValue(student.lastName)
     dataRow.createCell(3).setCellValue(student.email)
-    dataRow.createCell(4).setCellValue(student.language.code)
+    dataRow.createCell(4).setCellValue(Option(student.language).map(_.code).getOrElse(""))
     buildParticipationsSheet(wb, participations, includeStudentInfo = false)
 
   private def buildParticipationsSheet(
@@ -617,24 +620,28 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
         if includeStudentInfo then
           List(p.user.id.toString, p.user.firstName, p.user.lastName, p.user.email)
         else List.empty
+      // Examination events (BYOD, home exams) have no reservation, so no room or machine
+      val reservation = Option(p.reservation)
+      val machine     = reservation.flatMap(r => Option(r.machine))
+      val external    = reservation.flatMap(r => Option(r.externalReservation))
+      val notLocal    = if external.isDefined then "external" else ""
       val data = studentInfo ++ List(
         Option(p.exam.gradedByUser).map(_.id.toString).getOrElse(""),
         Option(p.exam.gradedByUser).map(_.firstName).getOrElse(""),
         Option(p.exam.gradedByUser).map(_.lastName).getOrElse(""),
         Option(p.exam.gradedByUser).map(_.email).getOrElse(""),
-        p.reservation.id.toString,
+        reservation.map(_.id.toString).getOrElse(""),
         DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(p.started.atZone(ZoneOffset.UTC)),
         DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(p.ended.atZone(ZoneOffset.UTC)),
-        DateTimeFormatter.ISO_OFFSET_TIME.format(p.duration.atZone(ZoneOffset.UTC)),
-        Option(p.reservation.machine).map(_.room.id.toString).getOrElse("external"),
-        Option(p.reservation.machine).map(_.room.name)
-          .getOrElse(p.reservation.externalReservation.roomName),
-        Option(p.reservation.machine).map(_.room.roomCode)
-          .getOrElse(p.reservation.externalReservation.roomCode),
-        Option(p.reservation.machine).map(_.id.toString).getOrElse("external"),
-        Option(p.reservation.machine).map(_.name)
-          .getOrElse(p.reservation.externalReservation.machineName),
-        Option(p.reservation.machine).map(_.ipAddress).getOrElse("external"),
+        Option(p.duration)
+          .map(d => DateTimeFormatter.ISO_OFFSET_TIME.format(d.atZone(ZoneOffset.UTC)))
+          .getOrElse(""),
+        machine.map(_.room.id.toString).getOrElse(notLocal),
+        machine.map(_.room.name).orElse(external.map(_.roomName)).getOrElse(""),
+        machine.map(_.room.roomCode).orElse(external.map(_.roomCode)).getOrElse(""),
+        machine.map(_.id.toString).getOrElse(notLocal),
+        machine.map(_.name).orElse(external.map(_.machineName)).getOrElse(""),
+        machine.map(_.ipAddress).getOrElse(notLocal),
         Option(p.exam.course).map(_.name).getOrElse(""),
         Option(p.exam.course).map(_.code).getOrElse(""),
         p.exam.id.toString,
@@ -642,8 +649,10 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
         p.exam.duration.toString,
         p.exam.state.toString,
         p.exam.getTotalScore.toString,
-        Option(p.exam.gradeScale).map(_.description)
-          .getOrElse(p.exam.course.gradeScale.description),
+        Option(p.exam.gradeScale)
+          .orElse(Option(p.exam.course).flatMap(c => Option(c.gradeScale)))
+          .map(_.description)
+          .getOrElse(""),
         Option(p.exam.grade).map(_.name).getOrElse(""),
         Option(p.exam.gradedTime)
           .map(t =>
