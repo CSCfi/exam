@@ -54,7 +54,8 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
 
   private def fetchTeacherExamsBetween(uid: Long, from: String, to: String): List[Exam] =
     val start = DateTime.parse(from, DTF)
-    val end   = DateTime.parse(to, DTF)
+    // Up to the start of the day after, so that the last day is included
+    val end = DateTime.parse(to, DTF).plusDays(1)
     DB
       .find(classOf[Exam])
       .select("name, created, state, periodStart, periodEnd")
@@ -89,7 +90,8 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
 
   private def fetchExamsGradedBetween(from: String, to: String): List[Exam] =
     val start = DateTime.parse(from, DTF)
-    val end   = DateTime.parse(to, DTF)
+    // Up to the start of the day after, so that the last day is included
+    val end = DateTime.parse(to, DTF).plusDays(1)
     DB
       .find(classOf[Exam])
       .select("name, created, gradedTime, answerLanguage, state")
@@ -119,7 +121,8 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
       to: String
   ): List[ExamEnrolment] =
     val start = DateTime.parse(from, DTF)
-    val end   = DateTime.parse(to, DTF)
+    // Up to the start of the day after, so that the last day is included
+    val end = DateTime.parse(to, DTF).plusDays(1)
     DB
       .find(classOf[ExamEnrolment])
       .select("enrolledOn")
@@ -138,7 +141,8 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
   /** Streams the all-exams report to the given output stream. Caller must close the stream. */
   def streamAllExamsAsExcel(from: String, to: String)(os: OutputStream): Unit =
     val start = DateTime.parse(from, DTF)
-    val end   = DateTime.parse(to, DTF)
+    // Up to the start of the day after, so that the last day is included
+    val end = DateTime.parse(to, DTF).plusDays(1)
     val participations = DB
       .find(classOf[ExamParticipation])
       .select("started, ended, duration")
@@ -182,7 +186,8 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
       to: String
   ): List[ExamParticipation] =
     val start = DateTime.parse(from, DTF)
-    val end   = DateTime.parse(to, DTF)
+    // Up to the start of the day after, so that the last day is included
+    val end = DateTime.parse(to, DTF).plusDays(1)
     DB
       .find(classOf[ExamParticipation])
       .select("started, ended, duration")
