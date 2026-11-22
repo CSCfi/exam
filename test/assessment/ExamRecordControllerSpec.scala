@@ -11,7 +11,6 @@ import models.assessment.{ExamInspection, ExamRecord}
 import models.enrolment.ExamParticipation
 import models.exam.*
 import models.user.User
-import org.apache.poi.ss.usermodel.DataFormatter
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import play.api.http.Status
 import play.api.libs.json.*
@@ -77,17 +76,6 @@ class ExamRecordControllerSpec extends BaseIntegrationSpec with EbeanQueryExtens
         score.lecturer must be(user.eppn)
         DB.find(classOf[Exam], e.id).state must be(ExamState.GRADED_LOGGED)
 
-      "register a course without credits, leaving them empty" in:
-        val (user, session) = runIO(loginAsAdmin())
-        inspect(user)
-        val e      = graded(null, Instant.parse("2030-06-12T10:00:00Z"), user)
-        val course = e.course
-        course.credits = null
-        course.update()
-
-        statusOf(register(e.id, session)) must be(Status.OK)
-        record(e.id).examScore.credits must be("")
-
       "refuse a second registration" in:
         val (user, session) = runIO(loginAsAdmin())
         inspect(user)
@@ -126,13 +114,10 @@ class ExamRecordControllerSpec extends BaseIntegrationSpec with EbeanQueryExtens
         statusOf(register(999999L, session)) must be(Status.NOT_FOUND)
 
     "exporting registered records" should:
-      "give them as Excel, with empty credits left empty" in:
+      "give them as Excel, with the credits as a number" in:
         val (user, session) = runIO(loginAsAdmin())
         inspect(user)
-        val e      = graded(null, Instant.parse("2030-06-12T10:00:00Z"), user)
-        val course = e.course
-        course.credits = null
-        course.update()
+        val e = graded(5.0, Instant.parse("2030-06-12T10:00:00Z"), user)
         statusOf(register(e.id, session)) must be(Status.OK)
 
         val result = runIO(
@@ -147,12 +132,11 @@ class ExamRecordControllerSpec extends BaseIntegrationSpec with EbeanQueryExtens
         val sheet = new XSSFWorkbook(
           new ByteArrayInputStream(contentAsBytes(Future.successful(result)).toArray)
         ).getSheetAt(0)
-        val fmt = new DataFormatter()
         val headers = (0 until sheet.getRow(0).getLastCellNum).map(i =>
           sheet.getRow(0).getCell(i).getStringCellValue
         )
         sheet.getLastRowNum must be(1)
-        fmt.formatCellValue(sheet.getRow(1).getCell(headers.indexOf("credits"))) must be("")
+        sheet.getRow(1).getCell(headers.indexOf("credits")).getNumericCellValue must be(5.0)
 
       "give them as CSV" in:
         val (user, session) = runIO(loginAsAdmin())

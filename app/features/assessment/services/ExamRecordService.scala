@@ -184,11 +184,9 @@ class ExamRecordService @Inject() (
     score.additionalInfo = exam.additionalInfo
     score.student = record.student.eppn
     score.studentId = record.student.userIdentifier
-    // A course from the course registry may come without credits
-    score.credits = Option(exam.customCredit)
-      .orElse(Option(exam.course.credits))
-      .map(_.toString)
-      .getOrElse("")
+    if Option(exam.customCredit).isEmpty then
+      score.credits = exam.course.credits.toString
+    else score.credits = exam.customCredit.toString
     score.examScore = exam.getTotalScore.toString
     score.lecturer = record.teacher.eppn
     score.lecturerId = record.teacher.userIdentifier

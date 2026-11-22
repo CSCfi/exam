@@ -266,8 +266,7 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
 
   private def setValue(cell: Cell, value: String, cellType: CellType): Unit =
     cellType match
-      // A missing number (e.g. credits of a course without them) leaves the cell empty
-      case CellType.DECIMAL => Option(value).flatMap(_.toDoubleOption).foreach(cell.setCellValue)
+      case CellType.DECIMAL => cell.setCellValue(value.toDouble)
       case CellType.STRING  => cell.setCellValue(value)
 
   private def appendCell(row: Row, value: String): Int =
