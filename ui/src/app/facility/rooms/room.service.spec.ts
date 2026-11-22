@@ -21,7 +21,9 @@ describe('RoomService', () => {
     const toast = { info: vi.fn(), error: vi.fn() };
     const dialogs = { open$: vi.fn() };
     const modalResult = new Subject<unknown>();
-    const modalRef = { componentInstance: { outOfService: { set: vi.fn() }, exceptions: { set: vi.fn() } } };
+    const modalRef = {
+        componentInstance: { outOfService: { set: vi.fn() }, exceptions: { set: vi.fn() }, timeZone: { set: vi.fn() } },
+    };
     const modal = { openRef: vi.fn(() => modalRef), result$: vi.fn(() => modalResult) };
 
     const room = () => ({ id: 3, state: 'ACTIVE', examMachines: [] }) as unknown as ExamRoom;
@@ -151,11 +153,12 @@ describe('RoomService', () => {
         const callback = vi.fn();
         const existing = [{ id: 1, startDate: 'a', endDate: 'b', outOfService: false }];
 
-        service.openExceptionDialog(callback, false, existing);
+        service.openExceptionDialog(callback, false, existing, 'Asia/Tokyo');
         modalResult.next([{ id: 2 }]);
 
         expect(modalRef.componentInstance.outOfService.set).toHaveBeenCalledWith(false);
         expect(modalRef.componentInstance.exceptions.set).toHaveBeenCalledWith(existing);
+        expect(modalRef.componentInstance.timeZone.set).toHaveBeenCalledWith('Asia/Tokyo');
         expect(callback).toHaveBeenCalledWith([{ id: 2 }]);
     });
 

@@ -56,6 +56,19 @@ describe('BookingCalendarComponent', () => {
         expect([options.slotMinTime, options.slotMaxTime]).toEqual(['00:00:00', '23:59:59']);
     });
 
+    it('should title the week from its wall-clock dates', () => {
+        // FullCalendar markers hold the shown wall time in their UTC fields
+        const week = {
+            start: { marker: new Date(Date.UTC(2030, 5, 10)) },
+            end: { marker: new Date(Date.UTC(2030, 5, 17)) },
+        };
+        const title = (lang: string) =>
+            (component['getFormatOverrides'](lang).titleFormat as (info: typeof week) => string)(week);
+
+        expect(title('fi')).toBe('10. – 16.6.2030');
+        expect(title('en')).toBe('10 - 16 Jun 2030');
+    });
+
     it('should ask slots for the shown week', () => {
         const asked = vi.fn();
         component.moreEventsNeeded.subscribe(asked);

@@ -20,11 +20,8 @@ describe('CalendarService', () => {
     const weekStart = '2030-06-10T00:00:00.000+03:00';
     const weekEnd = '2030-06-16T23:59:59.999+03:00';
 
-    const hours = (weekday: string, start: string, end: string) => ({
-        weekday,
-        startTime: `2030-01-07T${start}:00+02:00`,
-        endTime: `2030-01-07T${end}:00+02:00`,
-    });
+    // Times of day on the room's clock, as the backend sends them (LocalTime)
+    const hours = (weekday: string, startTime: string, endTime: string) => ({ weekday, startTime, endTime });
     const exception = (startDate: string, endDate: string, outOfService = false) =>
         ({ id: 1, startDate, endDate, outOfService }) as ExceptionWorkingHours;
     const room = (exceptions: ExceptionWorkingHours[] = []) =>

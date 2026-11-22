@@ -51,6 +51,43 @@ describe('ExceptionDialogComponent', () => {
         fixture.detectChanges();
     });
 
+    describe('in room time', () => {
+        // Nine hours ahead of UTC, so it differs from the zone these tests run in
+        beforeEach(() => component.timeZone.set('Asia/Tokyo'));
+
+        it('should take the picked times as room time', () => {
+            repeat(REPEAT_OPTION.once, { start: at(2030, 6, 12, 8), end: at(2030, 6, 12, 12) });
+
+            expect(saved()[0].startDate).toBe('2030-06-12T08:00:00.000+09:00');
+            expect(saved()[0].endDate).toBe('2030-06-12T12:00:00.000+09:00');
+        });
+
+        it('should repeat at the same room time', () => {
+            repeat(REPEAT_OPTION.daily_weekly, {
+                start: at(2030, 6, 10, 8),
+                end: at(2030, 6, 12, 9),
+                weekdays: [{ ord: 1 }, { ord: 3 }] as RepetitionConfig['weekdays'],
+            });
+
+            expect(saved().map((e) => new Date(e.startDate).toISOString())).toEqual([
+                '2030-06-09T23:00:00.000Z',
+                '2030-06-11T23:00:00.000Z',
+            ]);
+        });
+
+        it('should find overlaps in room time', () => {
+            // 09:00 - 11:00 in Tokyo
+            component.exceptions.set([
+                { id: 1, startDate: '2030-06-12T00:00:00Z', endDate: '2030-06-12T02:00:00Z', outOfService: true },
+            ]);
+
+            repeat(REPEAT_OPTION.once, { start: at(2030, 6, 12, 8), end: at(2030, 6, 12, 10) });
+
+            expect(toast.error).toHaveBeenCalledWith('i18n_room_closed_overlap');
+            expect(modal.close).not.toHaveBeenCalled();
+        });
+    });
+
     describe('a single exception', () => {
         it('should be returned as is', () => {
             component.outOfService.set(false);

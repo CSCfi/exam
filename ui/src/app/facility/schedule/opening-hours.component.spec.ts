@@ -50,7 +50,7 @@ describe('OpenHoursComponent', () => {
     afterEach(() => http.verify());
 
     it('should read the room hours into editable times', () => {
-        create(room([{ id: 5, weekday: 'MONDAY', startTime: '8:00', endTime: '12:30' }]));
+        create(room([{ id: 5, weekday: 'MONDAY', startTime: '08:00', endTime: '12:30' }]));
 
         expect(hours()[0]).toMatchObject({
             id: 5,
@@ -69,7 +69,7 @@ describe('OpenHoursComponent', () => {
     });
 
     describe('adding hours', () => {
-        beforeEach(() => create(room([{ id: 5, weekday: 'MONDAY', startTime: '8:00', endTime: '12:00' }])));
+        beforeEach(() => create(room([{ id: 5, weekday: 'MONDAY', startTime: '08:00', endTime: '12:00' }])));
 
         const add = (weekday: string, start: ReturnType<typeof time>, end: ReturnType<typeof time>) => {
             component.updateNewTime(weekday);
@@ -117,7 +117,7 @@ describe('OpenHoursComponent', () => {
     });
 
     describe('editing hours', () => {
-        beforeEach(() => create(room([{ id: 5, weekday: 'MONDAY', startTime: '8:00', endTime: '12:00' }])));
+        beforeEach(() => create(room([{ id: 5, weekday: 'MONDAY', startTime: '08:00', endTime: '12:00' }])));
 
         const edit = (start: ReturnType<typeof time>, end: ReturnType<typeof time>) => {
             const wh = { ...hours()[0], pickStartingTime: start, pickEndingTime: end };
@@ -158,7 +158,7 @@ describe('OpenHoursComponent', () => {
     });
 
     it('should delete hours', () => {
-        create(room([{ id: 5, weekday: 'MONDAY', startTime: '8:00', endTime: '12:00' }]));
+        create(room([{ id: 5, weekday: 'MONDAY', startTime: '08:00', endTime: '12:00' }]));
 
         component.deleteHours(hours()[0]);
         const req = http.expectOne('/app/workinghours/1/5');
