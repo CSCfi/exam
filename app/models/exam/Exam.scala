@@ -195,8 +195,11 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   def supportsOptionalSections: Boolean =
     (implementation == null || implementation == ExamImplementation.AQUARIUM) && !isMaturity
 
+  /** Taken outside an exam room: a home exam or one started with SEB. No implementation means an
+    * aquarium exam, as in supportsOptionalSections.
+    */
   def isUnsupervised: Boolean =
-    executionType == null || executionType.`type` != ExamImplementation.AQUARIUM.toString
+    implementation != null && implementation != ExamImplementation.AQUARIUM
 
   def setDerivedMaxScores(): Unit =
     examSections.asScala
