@@ -291,18 +291,22 @@ export class BookingCalendarComponent {
                           day: 'numeric' as const,
                           omitCommas: true,
                       },
+            // FullCalendar date markers hold the calendar's wall time in their UTC fields
             titleFormat:
                 lang === 'fi'
                     ? (info: { start: { marker: Date }; end?: { marker: Date } }) => {
                           const start = new Date(info.start.marker);
-                          if (!info.end) return start.toLocaleDateString('fi');
+                          if (!info.end) return start.toLocaleDateString('fi', { timeZone: 'UTC' });
                           const end = new Date(info.end.marker);
-                          end.setDate(end.getDate() - 1);
+                          end.setUTCDate(end.getUTCDate() - 1);
 
-                          if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
-                              return `${start.getDate()}. – ${end.getDate()}.${start.getMonth() + 1}.${start.getFullYear()}`;
+                          if (
+                              start.getUTCMonth() === end.getUTCMonth() &&
+                              start.getUTCFullYear() === end.getUTCFullYear()
+                          ) {
+                              return `${start.getUTCDate()}. – ${end.getUTCDate()}.${start.getUTCMonth() + 1}.${start.getUTCFullYear()}`;
                           } else {
-                              return `${start.getDate()}.${start.getMonth() + 1}. – ${end.getDate()}.${end.getMonth() + 1}.${end.getFullYear()}`;
+                              return `${start.getUTCDate()}.${start.getUTCMonth() + 1}. – ${end.getUTCDate()}.${end.getUTCMonth() + 1}.${end.getUTCFullYear()}`;
                           }
                       }
                     : // English title format
@@ -310,26 +314,27 @@ export class BookingCalendarComponent {
                       ? (info: { start: { marker: Date }; end?: { marker: Date } }) => {
                             const start = new Date(info.start.marker);
                             if (!info.end) {
-                                return `${start.getDate()} ${start.toLocaleString('en-GB', { month: 'short' })} ${start.getFullYear()}`;
+                                return `${start.getUTCDate()} ${start.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' })} ${start.getUTCFullYear()}`;
                             }
                             const end = new Date(info.end.marker);
-                            end.setDate(end.getDate() - 1);
+                            end.setUTCDate(end.getUTCDate() - 1);
 
                             const sameMonth =
-                                start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
-                            const sameYear = start.getFullYear() === end.getFullYear();
+                                start.getUTCMonth() === end.getUTCMonth() &&
+                                start.getUTCFullYear() === end.getUTCFullYear();
+                            const sameYear = start.getUTCFullYear() === end.getUTCFullYear();
 
                             if (sameMonth) {
-                                return `${start.getDate()} - ${end.getDate()} ${end.toLocaleString('en-GB', { month: 'short' })} ${end.getFullYear()}`;
+                                return `${start.getUTCDate()} - ${end.getUTCDate()} ${end.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' })} ${end.getUTCFullYear()}`;
                             }
                             if (sameYear) {
-                                const sm = start.toLocaleString('en-GB', { month: 'short' });
-                                const em = end.toLocaleString('en-GB', { month: 'short' });
-                                return `${start.getDate()} ${sm} - ${end.getDate()} ${em} ${end.getFullYear()}`;
+                                const sm = start.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
+                                const em = end.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
+                                return `${start.getUTCDate()} ${sm} - ${end.getUTCDate()} ${em} ${end.getUTCFullYear()}`;
                             }
-                            const sm = start.toLocaleString('en-GB', { month: 'short' });
-                            const em = end.toLocaleString('en-GB', { month: 'short' });
-                            return `${start.getDate()} ${sm} ${start.getFullYear()} - ${end.getDate()} ${em} ${end.getFullYear()}`;
+                            const sm = start.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
+                            const em = end.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
+                            return `${start.getUTCDate()} ${sm} ${start.getUTCFullYear()} - ${end.getUTCDate()} ${em} ${end.getUTCFullYear()}`;
                         }
                       : { year: 'numeric' as const, month: 'short' as const, day: 'numeric' as const },
         };
