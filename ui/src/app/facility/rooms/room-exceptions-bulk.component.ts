@@ -78,6 +78,7 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                             <div class="col-md-12">
                                 <xm-exceptions
                                     [exceptions]="room.calendarExceptionEvents"
+                                    [timeZone]="room.localTimezone"
                                     (removed)="deleteException($event, room)"
                                     [hideButton]="true"
                                     [hideTitle]="true"
@@ -145,8 +146,10 @@ export class RoomExceptionsBulkComponent {
             this.toast.error(this.translate.instant('i18n_select_room_error'));
             return;
         }
-        if (outOfService) this.roomService.openExceptionDialog(this.addExceptions.bind(this), true, allExceptions);
-        else this.roomService.openExceptionDialog(this.addExceptions.bind(this), false, allExceptions);
+        // The same times go to every selected room, so room time only works when they share a zone
+        const zones = new Set(currentRooms.filter((r) => r.selected).map((r) => r.localTimezone));
+        const timeZone = zones.size === 1 ? [...zones][0] : undefined;
+        this.roomService.openExceptionDialog(this.addExceptions.bind(this), outOfService, allExceptions, timeZone);
     }
 
     onSelectAllChange = (event: Event) => {

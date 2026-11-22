@@ -64,6 +64,8 @@ export class ExceptionListComponent {
     readonly hideTitle = input(false);
     readonly hideInfo = input(true);
     readonly filter = input<(exception: ExceptionWorkingHours) => boolean>(() => true);
+    /** The room's zone: exception times are shown and entered in room time. */
+    readonly timeZone = input<string>();
     readonly created = output<ExceptionWorkingHours[]>();
     readonly removed = output<ExceptionWorkingHours>();
 
@@ -81,8 +83,8 @@ export class ExceptionListComponent {
             return;
         }
         const fmt = 'dd.MM.yyyy HH:mm';
-        const start = DateTime.fromISO(exception.startDate);
-        const end = DateTime.fromISO(exception.endDate);
+        const start = DateTime.fromISO(exception.startDate, { zone: this.timeZone() });
+        const end = DateTime.fromISO(exception.endDate, { zone: this.timeZone() });
         return (
             start.toFormat(fmt) +
             ' - ' +
@@ -91,9 +93,19 @@ export class ExceptionListComponent {
     }
 
     addExceptionClosed = () =>
-        this.roomService.openExceptionDialog((exceptions) => this.created.emit(exceptions), true, this.exceptions());
+        this.roomService.openExceptionDialog(
+            (exceptions) => this.created.emit(exceptions),
+            true,
+            this.exceptions(),
+            this.timeZone(),
+        );
     addExceptionOpen = () =>
-        this.roomService.openExceptionDialog((exceptions) => this.created.emit(exceptions), false, this.exceptions());
+        this.roomService.openExceptionDialog(
+            (exceptions) => this.created.emit(exceptions),
+            false,
+            this.exceptions(),
+            this.timeZone(),
+        );
 
     deleteException(exception: ExceptionWorkingHours) {
         const modal = this.modal.openRef(ExceptionDeleteDialogComponent, { size: 'lg' });

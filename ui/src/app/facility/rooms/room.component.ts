@@ -88,8 +88,9 @@ export class RoomComponent {
             return;
         }
         const fmt = 'dd.MM.yyyy HH:mm';
-        const start = DateTime.fromISO(exception.startDate);
-        const end = DateTime.fromISO(exception.endDate);
+        const zone = this.room().localTimezone;
+        const start = DateTime.fromISO(exception.startDate, { zone });
+        const end = DateTime.fromISO(exception.endDate, { zone });
         return (
             start.toFormat(fmt) +
             ' - ' +

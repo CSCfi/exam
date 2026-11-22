@@ -89,9 +89,11 @@ export class RoomService {
         callBack: (exception: ExceptionWorkingHours[]) => void,
         outOfService?: boolean,
         exceptions?: ExceptionWorkingHours[],
+        timeZone?: string,
     ) => {
         const modalRef = this.modal.openRef(ExceptionDialogComponent, { size: 'lg' });
         modalRef.componentInstance.outOfService.set(outOfService ?? true);
+        modalRef.componentInstance.timeZone.set(timeZone);
         modalRef.componentInstance.exceptions.set(exceptions ?? []);
         this.modal.result$<ExceptionWorkingHours[]>(modalRef).subscribe(callBack);
     };

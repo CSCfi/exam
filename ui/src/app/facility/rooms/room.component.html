@@ -179,6 +179,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-exceptions
                                 class="col-12"
                                 [exceptions]="calendarExceptionEvents()"
+                                [timeZone]="room().localTimezone"
                                 (created)="onAddExceptions($event)"
                                 (removed)="onDeleteException($event)"
                             ></xm-exceptions>

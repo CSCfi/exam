@@ -22,6 +22,8 @@ import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetitio
 })
 export class ExceptionDialogComponent {
     readonly outOfService = signal(true);
+    /** The room's zone. The pickers give wall times on this browser's clock, which are taken as room time. */
+    readonly timeZone = signal<string | undefined>(undefined);
     readonly exceptions = signal<ExceptionWorkingHours[]>([]);
 
     readonly wholeDay = signal(false);
@@ -82,8 +84,8 @@ export class ExceptionDialogComponent {
     }
 
     private repeatOnce() {
-        const startDate = DateTime.fromJSDate(this.options().start);
-        const endDate = DateTime.fromJSDate(this.options().end);
+        const startDate = this.inRoomTime(this.options().start);
+        const endDate = this.inRoomTime(this.options().end);
         const result: ExceptionWorkingHours[] = [
             {
                 id: 0,
@@ -92,7 +94,7 @@ export class ExceptionDialogComponent {
                 outOfService: this.outOfService(),
             },
         ];
-        const overlapCheck = [{ start: this.options().start, end: this.options().end }];
+        const overlapCheck = [{ start: startDate.toJSDate(), end: endDate.toJSDate() }];
         if (this.isOverlapping(this.exceptions(), overlapCheck)) {
             return;
         }
@@ -194,7 +196,11 @@ export class ExceptionDialogComponent {
         }));
     }
 
-    private endDialogue(repetitionMessage: string, result: { start: Date; end: Date }[]) {
+    private endDialogue(repetitionMessage: string, localResult: { start: Date; end: Date }[]) {
+        const result = localResult.map((r) => ({
+            start: this.inRoomTime(r.start).toJSDate(),
+            end: this.inRoomTime(r.end).toJSDate(),
+        }));
         if (this.isOverlapping(this.exceptions(), result)) {
             return;
         }
@@ -217,6 +223,11 @@ export class ExceptionDialogComponent {
             next: () => this.activeModal.close(results),
         });
     }
+
+    private inRoomTime = (d: Date) => {
+        const zone = this.timeZone();
+        return zone ? DateTime.fromJSDate(d).setZone(zone, { keepLocalTime: true }) : DateTime.fromJSDate(d);
+    };
 
     private isOverlapping(existing: ExceptionWorkingHours[], fresh: { start: Date; end: Date }[]) {
         const intervals = existing.map((oe) => ({ start: oe.startDate, end: oe.endDate }));
