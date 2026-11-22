@@ -20,7 +20,8 @@ import play.api.http.Status
 import play.api.inject.bind
 import play.api.libs.json.{JsNumber, Json}
 import play.api.test.Helpers.*
-import services.datetime.{AppClock, FixedAppClock}
+import services.config.ConfigReader
+import services.datetime.{AppClock, CalendarHandler, FixedAppClock}
 
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -209,6 +210,31 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         body must include("information in English here")
         body must include(room.name)
 
+      "give the reservation time on the room's clock in the email" in:
+        val (_, session)               = runIO(loginAsStudent())
+        val (exam, room, _, enrolment) = setupTestData()
+        room.localTimezone = "Asia/Tokyo"
+        room.update()
+
+        // 10:00 - 11:00 in Tokyo, within its opening hours there
+        val start = LocalDate.now().plusDays(1).atTime(1, 0).atZone(ZoneOffset.UTC).toInstant
+        val end   = start.plus(Duration.ofHours(1))
+        val reservationData = Json.obj(
+          "roomId" -> JsNumber(BigDecimal(room.id)),
+          "examId" -> JsNumber(BigDecimal(exam.id)),
+          "start"  -> DateTimeFormatter.ISO_INSTANT.format(start),
+          "end"    -> DateTimeFormatter.ISO_INSTANT.format(end)
+        )
+        val result = runIO(
+          makeRequest(POST, "/app/calendar/reservation", Some(reservationData), session = session)
+        )
+        statusOf(result).must(be(Status.OK))
+
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val body = GreenMailUtil.getBody(greenMail.getReceivedMessages()(0))
+        body must include("10:00 JST")
+        body must include("11:00 JST")
+
       "create reservation when previous reservation is in future" in:
         val (user, session)                      = runIO(loginAsStudent())
         val (exam, room, reservation, enrolment) = setupTestData()
@@ -304,6 +330,22 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
         val mails = greenMail.getReceivedMessages
         mails must have size 1
+
+    "counting the reservation window" should:
+      "count its days in the room's zone" in:
+        ensureTestDataLoaded()
+        app.injector.instanceOf[ConfigReader].getOrCreateSettings(
+          "reservation_window_size",
+          Some("0"),
+          None
+        )
+        val handler = app.injector.instanceOf[CalendarHandler]
+        // At 10:00 UTC it is already the next day at UTC+14
+        val zone       = ZoneId.of("Pacific/Kiritimati")
+        val roomToday  = fixedNow.atZone(zone).toLocalDate
+        val farExamEnd = roomToday.plusYears(1)
+
+        handler.getEndSearchDate(roomToday, farExamEnd, zone) must be(roomToday)
 
     "handling invalid reservations" should:
       "reject reservation with start time in past" in:
