@@ -12,17 +12,28 @@ import models.exam.Exam
 import models.exam.ExamState
 import models.user.User
 import play.api.Logging
+import services.config.ConfigReader
 import services.excel.ExcelBuilder
 
 import java.io.OutputStream
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, LocalDate}
 import javax.inject.Inject
 
-class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
-    extends EbeanQueryExtensions with EbeanJsonExtensions with Logging:
+class ReportService @Inject() (
+    private val excelBuilder: ExcelBuilder,
+    private val configReader: ConfigReader
+) extends EbeanQueryExtensions with EbeanJsonExtensions with Logging:
 
   private val DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+  /** The days from `from` through `to`, both included, on the organisation's calendar */
+  private def daysBetween(from: String, to: String): (Instant, Instant) =
+    val zone = configReader.getDefaultTimeZone
+    (
+      LocalDate.parse(from, DTF).atStartOfDay(zone).toInstant,
+      LocalDate.parse(to, DTF).plusDays(1).atStartOfDay(zone).toInstant
+    )
 
   def getStudents: List[User] =
     DB
@@ -54,8 +65,7 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
     excelBuilder.streamTeacherExams(fetchTeacherExamsBetween(uid, from, to))(os)
 
   private def fetchTeacherExamsBetween(uid: Long, from: String, to: String): List[Exam] =
-    val start = java.time.LocalDate.parse(from, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
-    val end   = java.time.LocalDate.parse(to, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
+    val (start, end) = daysBetween(from, to)
     DB
       .find(classOf[Exam])
       .select("name, created, state, periodStart, periodEnd")
@@ -89,8 +99,7 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
     excelBuilder.streamReviews(fetchExamsGradedBetween(from, to))(os)
 
   private def fetchExamsGradedBetween(from: String, to: String): List[Exam] =
-    val start = java.time.LocalDate.parse(from, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
-    val end   = java.time.LocalDate.parse(to, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
+    val (start, end) = daysBetween(from, to)
     DB
       .find(classOf[Exam])
       .select("name, created, gradedTime, answerLanguage, state")
@@ -119,8 +128,7 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
       from: String,
       to: String
   ): List[ExamEnrolment] =
-    val start = java.time.LocalDate.parse(from, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
-    val end   = java.time.LocalDate.parse(to, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
+    val (start, end) = daysBetween(from, to)
     DB
       .find(classOf[ExamEnrolment])
       .select(path[ExamEnrolment]("enrolledOn"))
@@ -138,8 +146,7 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
 
   /** Streams the all-exams report to the given output stream. Caller must close the stream. */
   def streamAllExamsAsExcel(from: String, to: String)(os: OutputStream): Unit =
-    val start = java.time.LocalDate.parse(from, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
-    val end   = java.time.LocalDate.parse(to, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
+    val (start, end) = daysBetween(from, to)
     val participations = DB
       .find(classOf[ExamParticipation])
       .select("started, ended, duration")
@@ -191,8 +198,7 @@ class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
       from: String,
       to: String
   ): List[ExamParticipation] =
-    val start = java.time.LocalDate.parse(from, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
-    val end   = java.time.LocalDate.parse(to, DTF).atStartOfDay(ZoneOffset.UTC).toInstant
+    val (start, end) = daysBetween(from, to)
     DB
       .find(classOf[ExamParticipation])
       .select("started, ended, duration")
