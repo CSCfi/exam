@@ -8,14 +8,16 @@ import database.EbeanJsonExtensions
 import features.admin.services.ReportService
 import models.user.Role
 import org.apache.pekko.stream.scaladsl.StreamConverters
+import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.BlockingIOExecutionContext
 
-import java.io.{PipedInputStream, PipedOutputStream}
+import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 class ReportController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -23,9 +25,25 @@ class ReportController @Inject() (
     private val reportService: ReportService,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
-    with EbeanJsonExtensions:
+    with EbeanJsonExtensions
+    with Logging:
 
   private val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+  /** Streams the workbook as it is written. The response has started by the time writing fails, so
+    * the download is cut short and the log is the only trace of the error.
+    */
+  private def excel(filename: String)(write: OutputStream => Unit): Result =
+    val pos = new PipedOutputStream()
+    val pis = new PipedInputStream(pos)
+    Future {
+      try write(pos)
+      catch case NonFatal(e) => logger.error(s"Failed to write report $filename", e)
+      finally pos.close()
+    }(using ec)
+    Ok.chunked(StreamConverters.fromInputStream(() => pis))
+      .as(XLSX_MIME)
+      .withHeaders("Content-Disposition" -> s"attachment; filename=\"$filename\"")
 
   def getStudents: Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
@@ -44,17 +62,7 @@ class ReportController @Inject() (
         case Some(exam) =>
           reportType match
             case "xlsx" =>
-              val pos = new PipedOutputStream()
-              val pis = new PipedInputStream(pos)
-              Future {
-                try reportService.streamExamAsExcel(exam)(pos)
-                finally pos.close()
-              }(using ec)
-              Future.successful(
-                Ok.chunked(StreamConverters.fromInputStream(() => pis))
-                  .as(XLSX_MIME)
-                  .withHeaders("Content-Disposition" -> "attachment; filename=\"exams.xlsx\"")
-              )
+              Future.successful(excel("exams.xlsx")(reportService.streamExamAsExcel(exam)))
             case "json" =>
               Future.successful(
                 Ok(exam.asJson)
@@ -66,17 +74,11 @@ class ReportController @Inject() (
 
   def getTeacherExamsByDate(uid: Long, from: String, to: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
-      val pos = new PipedOutputStream()
-      val pis = new PipedInputStream(pos)
-      Future {
-        try reportService.streamTeacherExamsByDateAsExcel(uid, from, to)(pos)
-        finally pos.close()
-      }(using ec)
-      Future.successful(
-        Ok.chunked(StreamConverters.fromInputStream(() => pis))
-          .as(XLSX_MIME)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"teachers_exams.xlsx\"")
-      )
+      Future.successful(excel("teachers_exams.xlsx")(reportService.streamTeacherExamsByDateAsExcel(
+        uid,
+        from,
+        to
+      )))
     }
 
   def getExamEnrolments(id: Long): Action[AnyContent] =
@@ -84,62 +86,24 @@ class ReportController @Inject() (
       reportService.streamExamEnrolmentsAsExcel(id) match
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(write) =>
-          val pos = new PipedOutputStream()
-          val pis = new PipedInputStream(pos)
-          Future {
-            try write(pos)
-            finally pos.close()
-          }(using ec)
-          Future.successful(
-            Ok.chunked(StreamConverters.fromInputStream(() => pis))
-              .as(XLSX_MIME)
-              .withHeaders("Content-Disposition" -> "attachment; filename=\"enrolments.xlsx\"")
-          )
+          Future.successful(excel("enrolments.xlsx")(write))
     }
 
   def getReviewsByDate(from: String, to: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
-      val pos = new PipedOutputStream()
-      val pis = new PipedInputStream(pos)
-      Future {
-        try reportService.streamReviewsByDateAsExcel(from, to)(pos)
-        finally pos.close()
-      }(using ec)
-      Future.successful(
-        Ok.chunked(StreamConverters.fromInputStream(() => pis))
-          .as(XLSX_MIME)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"reviews.xlsx\"")
-      )
+      Future.successful(excel("reviews.xlsx")(reportService.streamReviewsByDateAsExcel(from, to)))
     }
 
   def getReservationsForRoomByDate(roomId: Long, from: String, to: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
-      val pos = new PipedOutputStream()
-      val pis = new PipedInputStream(pos)
-      Future {
-        try reportService.streamReservationsForRoomByDateAsExcel(roomId, from, to)(pos)
-        finally pos.close()
-      }(using ec)
-      Future.successful(
-        Ok.chunked(StreamConverters.fromInputStream(() => pis))
-          .as(XLSX_MIME)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"reservations.xlsx\"")
-      )
+      Future.successful(excel("reservations.xlsx")(
+        reportService.streamReservationsForRoomByDateAsExcel(roomId, from, to)
+      ))
     }
 
   def reportAllExams(from: String, to: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
-      val pos = new PipedOutputStream()
-      val pis = new PipedInputStream(pos)
-      Future {
-        try reportService.streamAllExamsAsExcel(from, to)(pos)
-        finally pos.close()
-      }(using ec)
-      Future.successful(
-        Ok.chunked(StreamConverters.fromInputStream(() => pis))
-          .as(XLSX_MIME)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"all_exams.xlsx\"")
-      )
+      Future.successful(excel("all_exams.xlsx")(reportService.streamAllExamsAsExcel(from, to)))
     }
 
   def reportStudentActivity(studentId: Long, from: String, to: String): Action[AnyContent] =
@@ -147,34 +111,15 @@ class ReportController @Inject() (
       reportService.streamStudentActivityAsExcel(studentId, from, to) match
         case None => Future.successful(NotFound("i18n_error_not_found"))
         case Some(writer) =>
-          val pos = new PipedOutputStream()
-          val pis = new PipedInputStream(pos)
-          Future {
-            try writer(pos)
-            finally pos.close()
-          }(using ec)
-          Future.successful(
-            Ok.chunked(StreamConverters.fromInputStream(() => pis))
-              .as(XLSX_MIME)
-              .withHeaders(
-                "Content-Disposition" -> "attachment; filename=\"student_activity.xlsx\""
-              )
-          )
+          Future.successful(excel("student_activity.xlsx")(writer))
     }
 
   def genericReport: Action[JsValue] =
     authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
       val headers = (request.body \ "headers").as[List[String]]
       val rows    = (request.body \ "rows").as[List[List[String]]]
-      val pos     = new PipedOutputStream()
-      val pis     = new PipedInputStream(pos)
-      Future {
-        try reportService.streamGenericReportAsExcel(headers, rows)(pos)
-        finally pos.close()
-      }(using ec)
-      Future.successful(
-        Ok.chunked(StreamConverters.fromInputStream(() => pis))
-          .as(XLSX_MIME)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"report.xlsx\"")
-      )
+      Future.successful(excel("report.xlsx")(reportService.streamGenericReportAsExcel(
+        headers,
+        rows
+      )))
     }
