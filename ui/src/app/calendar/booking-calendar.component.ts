@@ -206,7 +206,7 @@ export class BookingCalendarComponent {
 
     refetch(input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) {
         this.searchStart.set(input.startStr);
-        this.searchEnd.set(DateTime.fromISO(input.startStr).endOf('week').toISO() as string);
+        this.searchEnd.set(DateTime.fromISO(input.startStr, { setZone: true }).endOf('week').toISO() as string);
         const hidden = this.Calendar.getClosedWeekdays(this.room(), this.searchStart(), this.searchEnd());
         this.calendarOptions.update((cos) => ({
             ...cos,
