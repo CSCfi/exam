@@ -130,7 +130,7 @@ importers:
         specifier: ^8.70.1
         version: 8.70.1(eslint@10.11.0)(typescript@6.0.3)
       '@vitest/coverage-v8':
-        specifier: 4.1.11
+        specifier: ^4.1.11
         version: 4.1.11(vitest@4.1.11)
       angular-eslint:
         specifier: ^22.5.0
