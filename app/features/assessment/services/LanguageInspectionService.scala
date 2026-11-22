@@ -146,23 +146,13 @@ class LanguageInspectionService @Inject() (
       end: Option[Long]
   ): ExpressionList[LanguageInspection] =
     (start, end, month) match
-      // Case 1: Range filter (start and/or end)
+      // Case 1: Range filter (start and/or end), the bounds of the viewer's days
       case (Some(_), _, _) | (_, Some(_), _) =>
         val withStart = start.fold(query) { s =>
-          query.ge(
-            path[LanguageInspection]("finishedAt"),
-            Instant.ofEpochMilli(s).plus(java.time.Duration.ofDays(1)).truncatedTo(
-              java.time.temporal.ChronoUnit.DAYS
-            )
-          )
+          query.ge(path[LanguageInspection]("finishedAt"), Instant.ofEpochMilli(s))
         }
         end.fold(withStart) { e =>
-          withStart.lt(
-            path[LanguageInspection]("finishedAt"),
-            Instant.ofEpochMilli(e).plus(java.time.Duration.ofDays(1)).truncatedTo(
-              java.time.temporal.ChronoUnit.DAYS
-            )
-          )
+          withStart.lt(path[LanguageInspection]("finishedAt"), Instant.ofEpochMilli(e))
         }
 
       // Case 2: Month filter

@@ -71,12 +71,12 @@ export class LanguageInspectionsComponent {
 
     private query() {
         const params: QueryParams = {};
-        const tzOffset = new Date().getTimezoneOffset() * 60000;
+        // From the start of the first day to the end of the last one, on the viewer's clock
         if (this.startDate) {
-            params.start = this.startDate.getTime() + tzOffset;
+            params.start = DateTime.fromJSDate(this.startDate).startOf('day').toMillis();
         }
         if (this.endDate) {
-            params.end = DateTime.fromJSDate(this.endDate).plus({ days: 1 }).toMillis();
+            params.end = DateTime.fromJSDate(this.endDate).plus({ days: 1 }).startOf('day').toMillis();
         }
         const refreshAll = Object.keys(params).length === 0;
         this.LanguageInspection.query(params).subscribe((resp: LanguageInspection[]) => {
