@@ -204,7 +204,7 @@ class ExternalCalendarController @Inject() (
                       .list
                       .map(p => p.startsAt to p.endsAt)
 
-                    val endOfSearch = getEndSearchDate(e, searchDate)
+                    val endOfSearch = getEndSearchDate(e, searchDate, room)
 
                     Iterator
                       .iterate(searchDate)(_.plusDays(1))
@@ -460,9 +460,10 @@ class ExternalCalendarController @Inject() (
       val searchDate = if afterNow.isBefore(examStartDate) then examStartDate else afterNow
       Some(searchDate)
 
-  private def getEndSearchDate(endDate: String, searchDate: LocalDate): LocalDate =
-    val examEnd = TimeUtils.parseInstant(endDate).atZone(ZoneOffset.UTC).toLocalDate
-    calendarHandler.getEndSearchDate(searchDate, examEnd)
+  private def getEndSearchDate(endDate: String, searchDate: LocalDate, room: ExamRoom): LocalDate =
+    val zone    = TimeUtils.zoneIdOf(room.localTimezone)
+    val examEnd = TimeUtils.parseInstant(endDate).atZone(zone).toLocalDate
+    calendarHandler.getEndSearchDate(searchDate, examEnd, zone)
 
   private def isReservedDuring(machine: ExamMachine, interval: Interval): Boolean =
     machine.reservations.asScala.exists(r => interval.overlaps(r.toInterval))

@@ -83,7 +83,7 @@ class ExamService @Inject() (
       .where()
       .eq(path[Exam]("executionType.type"), ExamExecutionType.Type.PRINTOUT.toString)
       .eq(path[Exam]("state"), ExamState.PUBLISHED)
-      .ge(path[Exam]("examinationDates.date"), LocalDate.now())
+      .ge(path[Exam]("examinationDates.date"), LocalDate.now(configReader.getDefaultTimeZone))
       .list
 
   def listExams(

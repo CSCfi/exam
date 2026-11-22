@@ -13,7 +13,7 @@ import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc.Result
 
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate}
+import java.time.{Instant, LocalDate, ZoneId}
 import scala.concurrent.Future
 
 /** Error types for calendar handler operations */
@@ -61,7 +61,8 @@ trait CalendarHandler:
       user: User
   ): Reservation
 
-  def getEndSearchDate(searchDate: LocalDate, examEnd: LocalDate): LocalDate
+  /** Last day to search for slots, with the reservation window counted in the room's zone */
+  def getEndSearchDate(searchDate: LocalDate, examEnd: LocalDate, zone: ZoneId): LocalDate
 
   def getReservationWindowSize: Int
 

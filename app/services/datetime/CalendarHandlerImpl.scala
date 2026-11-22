@@ -93,7 +93,7 @@ class CalendarHandlerImpl @Inject() (
                   .map(p => p.startsAt to p.endsAt)
 
                 val endOfSearch =
-                  getEndSearchDate(searchDate, exam.periodEnd.atZone(zoneId).toLocalDate)
+                  getEndSearchDate(searchDate, exam.periodEnd.atZone(zoneId).toLocalDate, zoneId)
 
                 Iterator
                   .iterate(searchDate)(_.plusDays(1))
@@ -333,9 +333,14 @@ class CalendarHandlerImpl @Inject() (
       .map(_.toInt)
       .getOrElse(0)
 
-  override def getEndSearchDate(searchDate: LocalDate, examEnd: LocalDate): LocalDate =
-    val endOfWeek             = searchDate.`with`(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-    val reservationWindowDate = LocalDate.now().plusDays(getReservationWindowSize)
+  override def getEndSearchDate(
+      searchDate: LocalDate,
+      examEnd: LocalDate,
+      zone: ZoneId
+  ): LocalDate =
+    val endOfWeek = searchDate.`with`(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+    val reservationWindowDate =
+      clock.now().atZone(zone).toLocalDate.plusDays(getReservationWindowSize)
     val endOfSearchDate =
       if examEnd.isBefore(reservationWindowDate) then examEnd else reservationWindowDate
     if endOfWeek.isBefore(endOfSearchDate) then endOfWeek else endOfSearchDate
