@@ -23,10 +23,11 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
 
   override def findGaps(reserved: List[Interval], searchInterval: Interval): List[Interval] =
     val (searchStart, searchEnd) = (searchInterval.start, searchInterval.end)
+    // Reservations may lie on both sides of the search interval without touching it
+    val subReservedList = removeNonOverlappingIntervals(reserved, searchInterval)
 
-    if hasNoOverlap(reserved, searchStart, searchEnd) then List(searchInterval)
+    if subReservedList.isEmpty then List(searchInterval)
     else
-      val subReservedList  = removeNonOverlappingIntervals(reserved, searchInterval)
       val subEarliestStart = subReservedList.head.start
       val subLatestEnd     = subReservedList.last.end
 
@@ -52,17 +53,6 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
       searchInterval: Interval
   ): List[Interval] =
     reserved.filter(_.overlaps(searchInterval))
-
-  private def hasNoOverlap(
-      reserved: List[Interval],
-      searchStart: Instant,
-      searchEnd: Instant
-  ): Boolean = reserved match
-    case Nil => true
-    case _ =>
-      val earliestStart = reserved.head.start
-      val latestStop    = reserved.last.end
-      !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop)
 
   override def getExceptionEvents(
       hours: List[ExceptionWorkingHours],
