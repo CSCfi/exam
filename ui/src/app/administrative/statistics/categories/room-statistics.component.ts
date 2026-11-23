@@ -99,43 +99,36 @@ export class RoomStatisticsComponent {
     totalParticipations(month?: Date, room?: string): number {
         const currentParticipations = this.participations();
         if (!currentParticipations) return 0;
+        // From the start of the month up to, not including, the start of the next one
         const isWithinBounds = (data: { date: string }) => {
             const date = new Date(data.date);
             const current = month ? new Date(month) : new Date();
-            const min = new Date(current.getFullYear(), current.getMonth(), 1);
-            const max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
-            return date > min && date < max;
+            const start = new Date(current.getFullYear(), current.getMonth(), 1);
+            const next = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+            return date >= start && date < next;
         };
         const rp = room ? currentParticipations[room] : Object.values(currentParticipations).flat();
         return month ? rp.filter(isWithinBounds).length : rp.length;
     }
 
+    /** The first day of each month from the earliest date to the latest, both included */
     private calculateMonths(params: QueryParams) {
         const currentParticipations = this.participations();
         if (Object.keys(currentParticipations).length === 0) {
             return [];
         }
-        const months: Date[] = [];
         const limits = this.getMinAndMaxDates(params);
-        months.push(limits.min);
-        let current = new Date(limits.min);
-        let next = new Date(new Date(current).setMonth(current.getMonth() + 1));
-        const last = new Date(limits.max);
-        while (this.isBefore(next, last)) {
-            months.push(next);
-            current = next;
-            next = new Date(new Date(current).setMonth(current.getMonth() + 1));
-        }
-        if (this.isBefore(new Date(limits.min), last)) {
-            months.push(limits.max);
+        const last = new Date(limits.max.getFullYear(), limits.max.getMonth(), 1);
+        const months: Date[] = [];
+        // Stepping from the first day, as from the 31st a month later would skip a shorter month
+        for (
+            let month = new Date(limits.min.getFullYear(), limits.min.getMonth(), 1);
+            month <= last;
+            month = new Date(month.getFullYear(), month.getMonth() + 1, 1)
+        ) {
+            months.push(month);
         }
         return months;
-    }
-
-    private isBefore(a: Date, b: Date): boolean {
-        return (
-            a.getFullYear() < b.getFullYear() || (a.getFullYear() === b.getFullYear() && a.getMonth() < b.getMonth())
-        );
     }
 
     private getMinAndMaxDates(params: QueryParams): { min: Date; max: Date } {
