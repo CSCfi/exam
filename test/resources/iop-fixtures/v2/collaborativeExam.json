@@ -1277,7 +1277,6 @@
   "internalRef" : null,
   "languageInspection" : null,
   "lockedAt" : null,
-  "maturity" : false,
   "maxScore" : 70,
   "modified" : null,
   "modifier" : null,
@@ -1287,8 +1286,6 @@
   "parent" : null,
   "periodEnd" : "2014-12-29T16:00:00.123Z",
   "periodStart" : "2014-05-01T08:00:00.123Z",
-  "printout" : false,
-  "private" : false,
   "rejectedAnswerCount" : 0,
   "rev" : "<rev>",
   "shared" : false,
@@ -1296,6 +1293,5 @@
   "state" : "PUBLISHED",
   "subjectToLanguageInspection" : null,
   "totalScore" : 0,
-  "trialCount" : null,
-  "unsupervised" : true
+  "trialCount" : null
 }

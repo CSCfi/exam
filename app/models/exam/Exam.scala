@@ -5,7 +5,7 @@
 package models.exam
 
 import cats.syntax.all.*
-import com.fasterxml.jackson.annotation.{JsonBackReference, JsonManagedReference}
+import com.fasterxml.jackson.annotation.{JsonBackReference, JsonIgnore, JsonManagedReference}
 import features.exam.copy.ExamCopyContext
 import jakarta.persistence.*
 import models.assessment.*
@@ -170,6 +170,8 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
     user.isAdminOrSupport || isChildInspectedOrCreatedOrOwnedBy(user) ||
       isViewableForLanguageInspector(user)
 
+  // These are derived from fields that are sent themselves, so they stay off the JSON
+  @JsonIgnore
   def isPrivate: Boolean =
     executionType != null &&
       executionType.`type` != ExamExecutionType.Type.PUBLIC.toString &&
@@ -181,9 +183,11 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   def markLocked(at: Instant): Unit =
     if lockedAt == null then lockedAt = at
 
+  @JsonIgnore
   def isPrintout: Boolean =
     executionType != null && executionType.`type` == ExamExecutionType.Type.PRINTOUT.toString
 
+  @JsonIgnore
   def isMaturity: Boolean =
     executionType != null && executionType.`type` == ExamExecutionType.Type.MATURITY.toString
 
@@ -198,6 +202,7 @@ class Exam extends OwnedModel with Ordered[Exam] with AttachmentContainer:
   /** Taken outside an exam room: a home exam or one started with SEB. No implementation means an
     * aquarium exam, as in supportsOptionalSections.
     */
+  @JsonIgnore
   def isUnsupervised: Boolean =
     implementation != null && implementation != ExamImplementation.AQUARIUM
 
