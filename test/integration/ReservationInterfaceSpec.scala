@@ -44,6 +44,24 @@ class ReservationInterfaceSpec extends BaseIntegrationSpec:
         val records = json.as[JsArray]
         records.value must have size 1
 
+      "leave out the room passwords" in:
+        ensureTestDataLoaded()
+        val room = DB.find(classOf[ExamRoom], 1L)
+        room.internalPassword = "secret-in"
+        room.externalPassword = "secret-ex"
+        room.update()
+
+        for path <- Seq("/integration/rooms", "/integration/rooms/1/openinghours?date=2026-01-01")
+        do
+          val result = runIO(get(path))
+          statusOf(result).must(be(Status.OK))
+          contentAsStringOf(result) must not include "secret-"
+          val room = contentAsJsonOf(result) match
+            case JsArray(rooms) => rooms.head.as[JsObject]
+            case other          => other.as[JsObject]
+          room.keys must contain noneOf ("internalPassword", "externalPassword")
+          room.keys must contain allOf ("internalPasswordRequired", "externalPasswordRequired")
+
     "getting room opening hours" should:
       "return room with filtered exception events" in:
         // Setup
