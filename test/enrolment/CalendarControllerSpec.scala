@@ -21,7 +21,7 @@ import play.api.inject.bind
 import play.api.libs.json.{JsNumber, Json}
 import play.api.test.Helpers.*
 import services.config.ConfigReader
-import services.datetime.{AppClock, CalendarHandler, FixedAppClock}
+import services.datetime.*
 
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -356,6 +356,81 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val farExamEnd = roomToday.plusYears(1)
 
         handler.getEndSearchDate(roomToday, farExamEnd, zone) must be(roomToday)
+
+    "choosing the days to search for slots" should:
+      def searchFrom(day: String, examStarts: LocalDate, window: Int = 30): Option[LocalDate] =
+        ensureTestDataLoaded()
+        app.injector.instanceOf[ConfigReader].getOrCreateSettings(
+          "reservation_window_size",
+          Some(window.toString),
+          None
+        )
+        val exam = new Exam
+        exam.periodStart = examStarts.atStartOfDay(ZoneOffset.UTC).toInstant
+        exam.periodEnd = examStarts.plusYears(1).atStartOfDay(ZoneOffset.UTC).toInstant
+        val room = new ExamRoom
+        room.localTimezone = "UTC"
+        app.injector.instanceOf[CalendarHandler].parseSearchDate(day, exam, Some(room))
+
+      val today = fixedNow.atZone(ZoneOffset.UTC).toLocalDate
+
+      "start today, or on the Monday of a later week" in:
+        searchFrom("", today.minusDays(1)) must be(Some(today))
+        searchFrom(today.minusDays(7).toString, today.minusDays(1)) must be(Some(today))
+        val later = today.plusDays(9)
+        searchFrom(later.toString, today.minusDays(1)) must be(
+          Some(later.`with`(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
+        )
+
+      "start when the exam period does" in:
+        searchFrom("", today.plusDays(3)) must be(Some(today.plusDays(3)))
+
+      "find nothing past the reservation window" in:
+        searchFrom(today.plusDays(14).toString, today.minusDays(1), window = 7) must be(None)
+
+      "offer nothing for an exam that starts after the window" in:
+        ensureTestDataLoaded()
+        val (exam, room, _, enrolment) = setupTestData()
+        app.injector.instanceOf[ConfigReader].getOrCreateSettings(
+          "reservation_window_size",
+          Some("7"),
+          None
+        )
+        exam.periodStart = today.plusDays(10).atStartOfDay(ZoneOffset.UTC).toInstant
+        exam.periodEnd = today.plusDays(40).atStartOfDay(ZoneOffset.UTC).toInstant
+        exam.update()
+        app.injector.instanceOf[CalendarHandler]
+          .getSlots(enrolment.user, exam, room.id, "", Nil) must be(Right(Json.arr()))
+
+    "listing a room's slots" should:
+      "answer for an unknown room" in:
+        ensureTestDataLoaded()
+        val (exam, _, _, enrolment) = setupTestData()
+        app.injector.instanceOf[CalendarHandler]
+          .getSlots(enrolment.user, exam, 999999L, "", Nil) must be(
+          Left(CalendarHandlerError.RoomNotFound(999999L))
+        )
+
+      "offer nothing in a room out of service or without the accessibility needed" in:
+        ensureTestDataLoaded()
+        val (exam, room, _, enrolment) = setupTestData()
+        val handler                    = app.injector.instanceOf[CalendarHandler]
+        def slots(aids: Seq[Long] = Nil) =
+          handler.getSlots(enrolment.user, exam, room.id, "", aids)
+
+        app.injector.instanceOf[ConfigReader].getOrCreateSettings(
+          "reservation_window_size",
+          Some("30"),
+          None
+        )
+        exam.periodStart = fixedNow.minus(Duration.ofDays(1))
+        exam.periodEnd = fixedNow.plus(Duration.ofDays(30))
+        exam.update()
+        slots() must not be Right(Json.arr())
+        slots(Seq(999999L)) must be(Right(Json.arr()))
+        room.outOfService = true
+        room.update()
+        slots() must be(Right(Json.arr()))
 
     "handling invalid reservations" should:
       "reject reservation with start time in past" in:

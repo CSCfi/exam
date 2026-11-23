@@ -11,15 +11,16 @@ import database.EbeanQueryExtensions
 import helpers.InstantArithmetic.*
 import io.ebean.DB
 import models.assessment.*
-import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
+import models.enrolment.*
 import models.exam.*
 import models.facility.ExamMachine
+import models.iop.ExternalExam
 import models.user.{Language, Role, User}
 import org.scalatest.BeforeAndAfterAll
 import services.mail.EmailComposer
 import system.jobs.*
 
-import java.time.Instant
+import java.time.{Duration, Instant}
 import scala.jdk.CollectionConverters.*
 
 /** Scheduled jobs keep working through bad rows, and the weekly report finds both the exams a
@@ -143,6 +144,107 @@ class ScheduledJobsSpec extends BaseIntegrationSpec with EbeanQueryExtensions
       graded.state mustBe ExamState.GRADED
       graded.grade must not be null
       graded.autoEvaluationNotified must not be null
+
+    "end an attempt taken in an examination event once its time is up" in:
+      setup()
+      val student = user("event-student@test.org")
+      def attemptIn(name: String, startedAgo: Duration) =
+        val event = new ExaminationEvent
+        event.start = Instant.now().minus(startedAgo)
+        event.save()
+        val p = participation(exam(name, ExamState.STUDENT_STARTED), student, None)
+        p.examinationEvent = event
+        p.update()
+        p
+      val over    = attemptIn("Event over", Duration.ofMinutes(61))
+      val ongoing = attemptIn("Event ongoing", Duration.ofMinutes(59))
+
+      runIO(app.injector.instanceOf(classOf[ExamAutoSaverService]).runCheck())
+
+      DB.find(classOf[ExamParticipation], over.id).ended must not be null
+      DB.find(classOf[Exam], over.exam.id).state mustBe ExamState.REVIEW
+      DB.find(classOf[ExamParticipation], ongoing.id).ended mustBe null
+      DB.find(classOf[Exam], ongoing.exam.id).state mustBe ExamState.STUDENT_STARTED
+
+    "leave an attempt whose reservation began less than the exam's duration ago" in:
+      setup()
+      val student = user("ongoing-student@test.org")
+      val r       = pastReservation(student)
+      r.startAt = Instant.now().minus(Duration.ofMinutes(30))
+      r.update()
+      val ongoing = participation(exam("Ongoing", ExamState.STUDENT_STARTED), student, Some(r))
+
+      runIO(app.injector.instanceOf(classOf[ExamAutoSaverService]).runCheck())
+
+      DB.find(classOf[ExamParticipation], ongoing.id).ended mustBe null
+
+    "tell the owners and inspectors of a private exam that it has ended" in:
+      setup()
+      val student   = user("private-student@test.org")
+      val owner     = user("private-owner@test.org")
+      val inspector = user("private-inspector@test.org")
+      val parent    = exam("Private", ExamState.PUBLISHED)
+      parent.examOwners = Set(owner).asJava
+      parent.update()
+      val copy = exam("Private", ExamState.STUDENT_STARTED, Some(parent))
+      copy.executionType = DB.find(classOf[ExamExecutionType]).where()
+        .eq("type", ExamExecutionType.Type.PRIVATE.toString).find.get
+      copy.creator = student
+      copy.course = DB.find(classOf[Course]).setMaxRows(1).find.get
+      copy.update()
+      val ei = new ExamInspection
+      ei.exam = copy
+      ei.user = inspector
+      ei.save()
+      participation(copy, student, Some(pastReservation(student)))
+
+      runIO(app.injector.instanceOf(classOf[ExamAutoSaverService]).runCheck())
+
+      greenMail.waitForIncomingEmail(5000, 2) mustBe true
+      greenMail.getReceivedMessages.toList.flatMap(_.getAllRecipients.map(_.toString))
+        .toSet mustBe Set(owner.email, inspector.email)
+
+    "end a visiting student's external exam once its time is up" in:
+      setup()
+      def visit(ref: String, startedAgo: Duration) =
+        // A student creates one external exam at most
+        val student = user(s"$ref@test.org")
+        val r       = new Reservation
+        r.startAt = Instant.now().minus(startedAgo)
+        r.endAt = r.startAt.plus(Duration.ofMinutes(60))
+        r.externalRef = ref
+        r.user = student
+        r.save()
+        val ee = new ExternalExam
+        ee.hash = s"hash-$ref"
+        ee.externalRef = s"exam-$ref"
+        ee.creator = student
+        ee.created = r.startAt
+        ee.started = r.startAt
+        ee.content = Map[String, Object](
+          "id"       -> Integer.valueOf(1),
+          "name"     -> "Visit",
+          "duration" -> Integer.valueOf(60),
+          "state"    -> ExamState.STUDENT_STARTED.toString
+        ).asJava
+        ee.save()
+        val enrolment = new ExamEnrolment
+        enrolment.user = student
+        enrolment.reservation = r
+        enrolment.externalExam = ee
+        enrolment.save()
+        ee
+      val over    = visit("visit-over", Duration.ofMinutes(61))
+      val ongoing = visit("visit-ongoing", Duration.ofMinutes(59))
+
+      runIO(app.injector.instanceOf(classOf[ExamAutoSaverService]).runCheck())
+
+      val ended = DB.find(classOf[ExternalExam], over.id)
+      ended.finished must not be null
+      ended.deserialize.state mustBe ExamState.REVIEW
+      val still = DB.find(classOf[ExternalExam], ongoing.id)
+      still.finished mustBe null
+      still.deserialize.state mustBe ExamState.STUDENT_STARTED
 
   "The weekly report" should:
     "list reviews of exams the teacher owns and of attempts they inspect" in:
