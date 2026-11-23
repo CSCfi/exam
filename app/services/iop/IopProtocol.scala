@@ -19,6 +19,8 @@ import com.typesafe.config.Config
   *   - 2: EXAM 7.1. Adds `Exam.lockedAt` and `Reservation.participation`, which 7.0 ignores, so XM
   *     needs no translation step between 1 and 2. (7.1 keeps timestamps in a different format
   *     internally, but [[IopTimestamps]] puts them on the wire the way 6.x and 7.0 write them.)
+  *     Drops `Exam`'s derived `private`, `printout`, `maturity` and `unsupervised`, which no
+  *     version reads.
   */
 object IopProtocol:
   val Version = 2
