@@ -97,6 +97,73 @@ the code so the payload matches the fixture again. Nothing else to do.
 7. **Deploy XM before the EXAM release.** The translation must be live before any organisation
    upgrades to the new EXAM.
 
+## Hotfixes to released lines
+
+Protocol numbers form a single chain in the order the versions are released, and XM translates
+along it one step at a time. A number therefore can't be shared by two release lines, and nothing
+can be put between two numbers already in use.
+
+The fixture spec runs on release branches as well: on `release/7.0` it compares the payloads with
+`v1/`. A hotfix that changes what a released line sends fails there, just as it would on dev.
+
+### First choice: leave the wire format alone
+
+A hotfix on a released line may change how that version *reads* payloads (accept more, tolerate a
+missing field), but not what it *sends*. A change to what is sent goes into the newest line only.
+Most hotfixes never touch `IopPayloads`; for them this section is irrelevant.
+
+Merging such a hotfix into dev can still change dev's payloads, if the same code builds them. Dev's
+fixture spec then fails like for any change made on dev, and is handled as one (an unreleased
+version is overwritten, see "Write modes of the fixture spec").
+
+### If a released line must change what it sends
+
+That depends on whether the next line has been released yet.
+
+**The next line is still unreleased** (example: a 7.0 hotfix while 7.1 is only on dev; 7.0 is
+protocol 1, dev is 2). The hotfix takes the next number, and dev moves up by one:
+
+1. **On the release branch,** bump `IopProtocol.Version` to 2, add the history entry, and generate
+   `v2/` with `IOP_FIXTURES_UPDATE=1`. This `v2/` is now what the hotfixed 7.0 sends.
+2. **Merge the hotfix into dev.** `IopProtocol.scala` and `v2/` conflict. Resolve them so that dev
+   takes the release branch's `v2/` unchanged, sets `Version` to 3, and describes its own former
+   protocol 2 as 3 in the history. Generate `v3/` with `IOP_FIXTURES_UPDATE=1`;
+   `diff -r v2 v3` now shows dev's changes on top of the hotfix.
+3. **In XM,** replace `src/test/fixtures/v2/` with EXAM's new `v2/` by hand
+   (`pnpm run sync-fixtures` never replaces an existing version), then run it to add `v3/`. Add the
+   step 1 → 2 for the hotfix's change if receivers need one, and turn dev's step (until now 1 → 2)
+   into 2 → 3. Review the snapshots of both.
+4. **Deploy XM before the hotfix reaches any organisation.** From then on XM reads protocol 2 as
+   the hotfix's shape.
+5. **Update every installation running dev at the same time** (the test servers): until then they
+   still announce 2 with dev's old meaning.
+
+**The next line is already released** (example: a 7.0 hotfix after 7.1 is out; 2 belongs to 7.1).
+There is no number left for the change, so 7.0 keeps sending what it sends. The fix goes elsewhere,
+in this order of preference:
+
+1. **Repair in XM.** XM knows the protocol of every request (the `X-Iop-Protocol` header) and of
+   every stored exam and assessment (its `iopProtocol` stamp). A fix-up applied only to protocol 1
+   payloads corrects what every 7.0 sends, in transit and in storage, without a 7.0 release; only
+   XM is deployed. This works whenever the right data can be derived from what 7.0 sends or from
+   what XM stores. Make the fix-up idempotent, so that a payload already correct passes unchanged.
+   It leaves the window together with protocol 1.
+2. **Repair at the receivers.** 7.1, and 7.0 itself through a reading-side hotfix, tolerate or
+   correct the faulty data when it arrives. This works when the receiver can recognise it.
+3. **Upgrade.** If 7.0 does not send the information at all, so that nobody can reconstruct it,
+   the fix lives in the newest line only and the 7.0 organisations upgrade, with a deadline agreed
+   in the consortium. Until then the affected interaction is avoided with 7.0 participants, by
+   agreement or, once it exists, by the lowest-protocol check under "Changes that can't be
+   translated".
+
+Never:
+
+- let a 7.0 hotfix send a new shape while still announcing protocol 1: neither XM nor the
+  receivers can tell the hotfixed 7.0 from the others, and `v1/` stays frozen
+- give the change a number out of order, or invent sub-versions such as 1.1: the header and XM's
+  chain are whole numbers in release order
+- make XM depend on the `X-Exam-Version` header instead: it travels for information only
+
 ## Changes that can't be translated
 
 Some changes can't be bridged by a translation step at all. They come in three degrees:
@@ -235,7 +302,8 @@ Then:
 - The inbound check verifies structure (the exam's name, sections and questions survive parsing),
   not every field. The outbound comparison is what catches field-level changes.
 - Copying fixtures to XM is a manual step (`pnpm run sync-fixtures`), done when the version is
-  bumped.
+  bumped. It only adds versions: changing one XM already has (an unreleased version, or a
+  renumbering after a hotfix) means replacing its files by hand.
 - Older versions reading newer payloads is checked for 7.0 (and later release branches), not
   for 6.x.
 - Changes of meaning (same shape, different interpretation) are not caught; see "What counts as a
