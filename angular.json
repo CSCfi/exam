@@ -136,7 +136,9 @@
           "options": {
             "tsConfig": "ui/tsconfig.spec.json",
             "runner": "vitest",
-            "buildTarget": "exam:build:development"
+            "buildTarget": "exam:build:development",
+            "coverageInclude": ["ui/src/app/**/*.ts"],
+            "coverageExclude": ["ui/src/app/**/*.spec.ts"]
           }
         },
         "lint": {
