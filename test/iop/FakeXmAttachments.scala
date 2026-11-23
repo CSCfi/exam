@@ -17,7 +17,12 @@ class FakeXmAttachments extends HttpServlet:
   private val files    = new ConcurrentHashMap[String, File]()
   private val sequence = new AtomicInteger()
 
-  def reset(): Unit = files.clear()
+  /** When set, requests of this method are answered with this status. */
+  @volatile var failWith: Option[(String, Int)] = None
+
+  def reset(): Unit =
+    files.clear()
+    failWith = None
 
   def add(id: String, name: String, content: String): Unit =
     files.put(id, File(name, "text/plain", content.getBytes))
@@ -45,6 +50,11 @@ class FakeXmAttachments extends HttpServlet:
       id,
       File(part.getSubmittedFileName, part.getContentType, part.getInputStream.readAllBytes())
     )
+
+  override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit =
+    failWith.filter(_._1 == req.getMethod) match
+      case Some((_, status)) => resp.setStatus(status)
+      case None              => super.service(req, resp)
 
   override def doPost(req: HttpServletRequest, resp: HttpServletResponse): Unit =
     val id = s"att-${sequence.incrementAndGet()}"

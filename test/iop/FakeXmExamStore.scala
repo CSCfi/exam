@@ -23,10 +23,14 @@ class FakeXmExamStore extends HttpServlet:
   /** When set, every request is answered with this status and an error message. */
   @volatile var failWith: Option[Int] = None
 
+  /** When set, updates are answered with this status. */
+  @volatile var failPutsWith: Option[Int] = None
+
   def reset(): Unit =
     docs.clear()
     revs.clear()
     failWith = None
+    failPutsWith = None
 
   def put(ref: String, doc: JsObject): Unit =
     docs.put(ref, doc - "_id" - "_rev" - "rev")
@@ -64,7 +68,7 @@ class FakeXmExamStore extends HttpServlet:
     respond(resp, 404, Json.obj("message" -> "not found"))
 
   override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit =
-    failWith match
+    failWith.orElse(failPutsWith.filter(_ => req.getMethod == "PUT")) match
       case Some(status) => respond(resp, status, Json.obj("message" -> "XM failure"))
       case None         => super.service(req, resp)
 
