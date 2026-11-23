@@ -219,9 +219,6 @@ export class ExamService {
     addSection$ = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
         this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {});
 
-    removeSection$ = (exam: Exam, section: ExamSection): Observable<void> =>
-        this.http.delete<void>(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`));
-
     addExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfigurationInput,
