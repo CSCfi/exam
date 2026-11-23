@@ -101,38 +101,30 @@ class CollaborativeAttachmentController @Inject() (
       assessment: JsValue
   ): Future[Option[JsValue]] =
     val externalId = getExternalId(assessment)
-    parseUrl("/api/attachments/%s", externalId) match
+    // Without feedback there is nothing to refer to the file from, so it is not sent at all
+    (assessment \ "exam" \ "examFeedback").asOpt[JsObject]
+      .zip(parseUrl("/api/attachments/%s", externalId)) match
       case None => Future.successful(None)
-      case Some(url) =>
+      case Some((feedback, url)) =>
         val request = wsClient.url(url.toString)
         val source  = createMultipartSource(filePart)
 
         val responseFuture =
           if externalId.isBlank then request.post(source) else request.put(source)
 
-        responseFuture.flatMap { response =>
-          if response.status != CREATED && response.status != OK then Future.successful(None)
+        responseFuture.map { response =>
+          if response.status != CREATED && response.status != OK then None
           else
-            val root        = response.json
-            val newId       = (root \ "id").as[String]
-            val mimeType    = (root \ "mimeType").as[String]
-            val displayName = (root \ "displayName").as[String]
-
-            val feedbackPath = assessment \ "exam" \ "examFeedback"
-            feedbackPath.asOpt[JsObject] match
-              case Some(feedback) =>
-                val attachment = Json.obj(
-                  "externalId" -> newId,
-                  "mimeType"   -> mimeType,
-                  "fileName"   -> displayName
-                )
-                val updatedFeedback = feedback + ("attachment" -> attachment)
-                val updatedExam =
-                  (assessment \ "exam").as[JsObject] + ("examFeedback" -> updatedFeedback)
-                val updatedAssessment = assessment.as[JsObject] + ("exam" -> updatedExam)
-                Future.successful(Some(updatedAssessment))
-              case None =>
-                Future.successful(None)
+            val root = response.json
+            val attachment = Json.obj(
+              "externalId" -> (root \ "id").as[String],
+              "mimeType"   -> (root \ "mimeType").as[String],
+              "fileName"   -> (root \ "displayName").as[String]
+            )
+            val updatedFeedback = feedback + ("attachment" -> attachment)
+            val updatedExam =
+              (assessment \ "exam").as[JsObject] + ("examFeedback" -> updatedFeedback)
+            Some(assessment.as[JsObject] + ("exam"                 -> updatedExam))
         }
 
   private def removeAssessmentAttachment(assessment: JsValue): Future[Result] =
