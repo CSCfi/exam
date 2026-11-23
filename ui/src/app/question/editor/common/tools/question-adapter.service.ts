@@ -245,24 +245,4 @@ export class QuestionAdapterService {
             defaultScore: eqo.score ?? eqo.option?.defaultScore ?? 0,
         }));
     }
-
-    /**
-     * Convert MultipleChoiceOption[] back to ExamSectionQuestionOption[]
-     */
-    private convertOptionsBack(
-        formOptions: MultipleChoiceOption[],
-        currentOptions: ExamSectionQuestionOption[],
-    ): ExamSectionQuestionOption[] {
-        return formOptions.map((formOpt, index) => {
-            const currentOpt = currentOptions[index];
-            return {
-                ...(currentOpt || {}),
-                option: {
-                    ...(currentOpt?.option || {}),
-                    ...formOpt,
-                },
-                score: formOpt.defaultScore ?? currentOpt?.score ?? 0,
-            };
-        });
-    }
 }
