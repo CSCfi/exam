@@ -67,62 +67,6 @@ class CollaborativeAttachmentControllerSpec
         assertLastCall("GET", attachmentServlet)
         assertDownloadResult(result)
 
-    "managing question answer attachments" should:
-      "add attachment to question answer as student" in:
-        val (_, examSectionQuestion, externalExam) = setupTestData()
-        val (_, session)                           = runIO(loginAsStudent())
-        val result = uploadAttachment(
-          "/question/answer",
-          Map(
-            "examId"     -> externalExam.id.toString,
-            "questionId" -> examSectionQuestion.id.toString
-          ),
-          session
-        )
-        examServlet.getWaiter.tryAcquire(1, 10000, TimeUnit.MILLISECONDS) must be(true)
-        assertLastCall("PUT", examServlet)
-        // Check the servlet's exam - it should have the EssayAnswer from the serialized exam
-        val exam2                = examServlet.getExam
-        val examSectionQuestion2 = getExamSectionQuestion(exam2, Some(examSectionQuestion.id))
-        Option(examSectionQuestion2.essayAnswer) match
-          case Some(ea) =>
-            Option(ea.attachment) match
-              case Some(attachment) =>
-                attachment.externalId must be("abcdefg123456")
-                attachment.fileName must be("test_image.png")
-              case None => fail("Question answer attachment not set")
-          case None => fail("EssayAnswer not created")
-
-      "delete question answer attachment as student" in:
-        val (exam, examSectionQuestion, externalExam) = setupTestData()
-        val (user, session)                           = runIO(loginAsStudent())
-        val essayAnswer                               = examSectionQuestion.essayAnswer
-        val attachment = createAttachment("test_image.png", testImage.getAbsolutePath, "image/png")
-        attachment.externalId = "abcdefg12345"
-        essayAnswer.attachment = attachment
-        examServlet.setExam(exam)
-
-        val eBefore  = examServlet.getExam
-        val sqBefore = getExamSectionQuestion(eBefore, Some(examSectionQuestion.id))
-        Option(sqBefore.essayAnswer).map(_.attachment) must be(defined)
-
-        val url    = s"$baseURL/question/${examSectionQuestion.id}/answer/${externalExam.id}"
-        val result = runIO(delete(url, session = session))
-        statusOf(result) must be(Status.OK)
-        assertLastCall("DELETE", attachmentServlet)
-
-        examServlet.getWaiter.tryAcquire(1, 10000, TimeUnit.MILLISECONDS) must be(true)
-        val eAfter  = examServlet.getExam
-        val sqAfter = getExamSectionQuestion(eAfter, Some(examSectionQuestion.id))
-        Option(sqAfter.essayAnswer).flatMap(ea => Option(ea.attachment)) must be(empty)
-
-      "forbid teacher from deleting question answer attachment" in:
-        val (exam, examSectionQuestion, externalExam) = setupTestData()
-        val (_, session)                              = runIO(loginAsTeacher())
-        val url    = s"$baseURL/question/${examSectionQuestion.id}/answer/${externalExam.id}"
-        val result = runIO(delete(url, session = session))
-        statusOf(result) must be(Status.FORBIDDEN)
-
   private def assertLastCall(method: String, servlet: BaseServlet): Unit =
     servlet.getLastCallMethod must be(method)
 

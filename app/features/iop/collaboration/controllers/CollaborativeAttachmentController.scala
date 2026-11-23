@@ -11,14 +11,11 @@ import features.iop.collaboration.services.{
   CollaborativeExamService
 }
 import io.ebean.DB
-import models.assessment.Comment
 import models.attachment.{Attachment, AttachmentContainer}
 import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.iop.CollaborativeExam
-import models.questions.EssayAnswer
 import models.sections.ExamSectionQuestion
-import models.user.PermissionType
 import models.user.{Role, User}
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{FileIO, Source}
@@ -29,7 +26,7 @@ import play.api.libs.json.*
 import play.api.libs.ws.WSClient
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
-import security.{Auth, BlockingIOExecutionContext, PermissionFilter}
+import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.file.ChunkMaker
 import system.AuditedAction
@@ -332,13 +329,6 @@ class CollaborativeAttachmentController @Inject() (
       .flatMap(_.sectionQuestions.asScala)
       .find(_.id == qid)
 
-  private def findEssayAnswerWithAttachment(esq: ExamSectionQuestion): Option[EssayAnswer] =
-    Option(esq.essayAnswer) match
-      case Some(ea)
-          if Option(ea.attachment).flatMap(a => Option(a.externalId)).exists(_.nonEmpty) =>
-        Some(ea)
-      case _ => None
-
   private def uploadAttachment(
       filePart: MultipartFormData.FilePart[play.api.libs.Files.TemporaryFile],
       ce: CollaborativeExam,
@@ -497,84 +487,6 @@ class CollaborativeAttachmentController @Inject() (
       }
     }
 
-  def addAttachmentToQuestionAnswer()
-      : Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(
-      parse.multipartFormData
-    ) {
-      request =>
-        val formData  = request.body.asFormUrlEncoded
-        val examIdOpt = formData.get("examId").flatMap(_.headOption).flatMap(_.toLongOption)
-        val questionIdOpt =
-          formData.get("questionId").flatMap(_.headOption).flatMap(_.toLongOption)
-
-        (examIdOpt, questionIdOpt) match
-          case (Some(examId), Some(questionId)) =>
-            getExternalExam(examId).flatMap {
-              case None => Future.successful(NotFound)
-              case Some(ce) =>
-                examLoader.downloadExam(ce).flatMap {
-                  case None => Future.successful(NotFound)
-                  case Some(exam) =>
-                    findSectionQuestion(questionId, exam) match
-                      case None => Future.successful(NotFound)
-                      case Some(sq) =>
-                        if sq.essayAnswer == null then sq.essayAnswer = new EssayAnswer()
-                        request.body.file("file") match
-                          case None => Future.successful(BadRequest("Missing file"))
-                          case Some(filePart) =>
-                            val user = request.attrs(Auth.ATTR_USER)
-                            uploadAttachment(filePart, ce, exam, sq.essayAnswer, user)
-                }
-            }
-          case _ => Future.successful(BadRequest("Missing or invalid examId or questionId"))
-    }
-
-  def deleteQuestionAnswerAttachment(qid: Long, eid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))).async { request =>
-      getExternalExam(eid).flatMap {
-        case None => Future.successful(NotFound)
-        case Some(ce) =>
-          examLoader.downloadExam(ce).flatMap {
-            case None => Future.successful(NotFound)
-            case Some(exam) =>
-              findSectionQuestion(qid, exam) match
-                case None => Future.successful(NotFound)
-                case Some(sq) =>
-                  findEssayAnswerWithAttachment(sq) match
-                    case None => Future.successful(NotFound)
-                    case Some(ea) =>
-                      val user = request.attrs(Auth.ATTR_USER)
-                      deleteExternalAttachment(ea, ce, exam, user)
-          }
-      }
-    }
-
-  def downloadQuestionAnswerAttachment(qid: Long, eid: Long): Action[AnyContent] =
-    authenticated.andThen(
-      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
-    ).async { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      getExternalExam(eid).flatMap {
-        case None => Future.successful(NotFound)
-        case Some(ce) if !studentEnrolledOrNotStudent(ce.id, user) =>
-          Future.successful(Forbidden)
-        case Some(ce) =>
-          examLoader.downloadExam(ce).flatMap {
-            case None => Future.successful(NotFound)
-            case Some(exam) =>
-              findSectionQuestion(qid, exam) match
-                case None => Future.successful(NotFound)
-                case Some(sq) =>
-                  findEssayAnswerWithAttachment(sq) match
-                    case None => Future.successful(NotFound)
-                    case Some(ea) =>
-                      val attachment = ea.attachment
-                      downloadExternalAttachment(attachment)
-          }
-      }
-    }
-
   def addAttachmentToExam(): Action[MultipartFormData[TemporaryFile]] =
     audited
       .andThen(authenticated)
@@ -610,75 +522,6 @@ class CollaborativeAttachmentController @Inject() (
             case Some(exam) =>
               val user = request.attrs(Auth.ATTR_USER)
               deleteExternalAttachment(exam, ce, exam, user)
-          }
-      }
-    }
-
-  def addStatementAttachment(id: Long): Action[MultipartFormData[TemporaryFile]] =
-    audited
-      .andThen(authenticated)
-      .andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE))
-      .async(parse.multipartFormData) { request =>
-        getExternalExam(id).flatMap {
-          case None => Future.successful(NotFound)
-          case Some(ce) =>
-            examLoader.downloadExam(ce).flatMap {
-              case None => Future.successful(NotFound)
-              case Some(exam) =>
-                Option(exam.languageInspection) match
-                  case None => Future.successful(NotFound)
-                  case Some(li) =>
-                    val user = request.attrs(Auth.ATTR_USER)
-                    if li.statement == null then
-                      val comment = new Comment()
-                      comment.setCreatorWithDate(user)
-                      li.statement = comment
-                    request.body.file("file") match
-                      case None => Future.successful(BadRequest("Missing file"))
-                      case Some(filePart) =>
-                        uploadAttachment(filePart, ce, exam, li.statement, user)
-            }
-        }
-      }
-
-  def deleteStatementAttachment(id: Long): Action[AnyContent] =
-    authenticated.andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE)).async { request =>
-      getExternalExam(id).flatMap {
-        case None => Future.successful(NotFound)
-        case Some(ce) =>
-          examLoader.downloadExam(ce).flatMap {
-            case None => Future.successful(NotFound)
-            case Some(exam) =>
-              val statementOpt = Option(exam.languageInspection)
-                .flatMap(li => Option(li.statement))
-                .filter(s =>
-                  Option(s.attachment).flatMap(a => Option(a.externalId)).exists(_.nonEmpty)
-                )
-              statementOpt match
-                case None => Future.successful(NotFound)
-                case Some(_) =>
-                  val user = request.attrs(Auth.ATTR_USER)
-                  deleteExternalAttachment(exam.languageInspection.statement, ce, exam, user)
-          }
-      }
-    }
-
-  def downloadStatementAttachment(id: Long): Action[AnyContent] =
-    authenticated.andThen(
-      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
-    ).async { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      getExternalExam(id).flatMap {
-        case None => Future.successful(NotFound)
-        case Some(ce) if !studentEnrolledOrNotStudent(ce.id, user) =>
-          Future.successful(Forbidden)
-        case Some(ce) =>
-          examLoader.downloadExam(ce).flatMap {
-            case None => Future.successful(NotFound)
-            case Some(exam) =>
-              Option(exam.languageInspection).flatMap(li => Option(li.statement)) match
-                case None            => Future.successful(NotFound)
-                case Some(statement) => downloadExternalAttachment(statement.attachment)
           }
       }
     }

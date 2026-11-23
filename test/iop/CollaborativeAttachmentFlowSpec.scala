@@ -12,7 +12,7 @@ import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
 import models.iop.CollaborativeExam
-import models.user.{Permission, PermissionType, User}
+import models.user.User
 import org.eclipse.jetty.server.Server
 import org.scalatest.BeforeAndAfterAll
 import play.api.http.Status
@@ -271,61 +271,6 @@ class CollaborativeAttachmentFlowSpec
         val feedback =
           (store.assessment(ce.externalRef, "a1").get \ "exam" \ "examFeedback").as[JsObject]
         feedback.keys.must(be(Set("comment")))
-
-    "attaching a language inspection statement" should:
-      "be allowed for language inspectors" in:
-        val ce = createExam()
-        store.update(ce.externalRef)(_ ++ Json.obj("languageInspection" -> Json.obj("id" -> 1)))
-        // Permissions are read at login
-        val permission = new Permission
-        permission.`type` = PermissionType.CAN_INSPECT_LANGUAGE
-        permission.save()
-        val teacher = user("teacher@funet.fi")
-        teacher.permissions.add(permission)
-        teacher.update()
-        val (_, session) = runIO(loginAsTeacher())
-
-        statusOf(upload(s"/app/iop/collab/attachment/exam/${ce.id}/statement", session))
-          .must(be(Status.CREATED))
-        val id =
-          (doc(ce) \ "languageInspection" \ "statement" \ "attachment" \ "externalId").as[String]
-        stored(id).must(be("first version"))
-
-        statusOf(runIO(delete(s"/app/iop/collab/attachment/exam/${ce.id}/statement", session)))
-          .must(be(Status.OK))
-        attachments.ids.must(be(empty))
-
-      "not be allowed for other teachers" in:
-        val ce = createExam()
-        store.update(ce.externalRef)(_ ++ Json.obj("languageInspection" -> Json.obj("id" -> 1)))
-        val (_, session) = runIO(loginAsTeacher())
-        statusOf(upload(s"/app/iop/collab/attachment/exam/${ce.id}/statement", session))
-          .must(be(Status.FORBIDDEN))
-
-    "downloading a statement" should:
-      "not be allowed for a student not enrolled on the exam" in:
-        val ce = createExam()
-        attachments.add("att-s", "statement.txt", "statement")
-        store.update(ce.externalRef)(_ ++ Json.obj("languageInspection" -> Json.obj(
-          "id" -> 1,
-          "statement" -> Json.obj("attachment" -> Json.obj(
-            "externalId" -> "att-s",
-            "fileName"   -> "statement.txt",
-            "mimeType"   -> "text/plain"
-          ))
-        )))
-        val (_, session) = runIO(loginAsStudent())
-        statusOf(runIO(get(
-          s"/app/iop/collab/attachment/exam/${ce.id}/statement",
-          session = session
-        )))
-          .must(be(Status.FORBIDDEN))
-
-        enrol(ce)
-        val result =
-          runIO(get(s"/app/iop/collab/attachment/exam/${ce.id}/statement", session = session))
-        statusOf(result).must(be(Status.OK))
-        body(result).must(be("statement"))
 
     "attaching a file to an exam fails" should:
       "pass on XM's refusal of the file and leave the exam as it was" in:

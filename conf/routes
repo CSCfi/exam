@@ -364,19 +364,12 @@ GET           /app/iop/collab/attachment/:id                                    
 POST          /app/iop/collab/attachment/question                                features.iop.collaboration.controllers.CollaborativeAttachmentController.addAttachmentToQuestion()
 DELETE        /app/iop/collab/attachment/exam/:eid/question/:qid                 features.iop.collaboration.controllers.CollaborativeAttachmentController.deleteQuestionAttachment(eid: Long, qid: Long)
 GET           /app/iop/collab/attachment/exam/:eid/question/:qid                 features.iop.collaboration.controllers.CollaborativeAttachmentController.downloadQuestionAttachment(eid: Long, qid: Long)
-POST          /app/iop/collab/attachment/question/answer                         features.iop.collaboration.controllers.CollaborativeAttachmentController.addAttachmentToQuestionAnswer()
-DELETE        /app/iop/collab/attachment/question/:qid/answer/:eid               features.iop.collaboration.controllers.CollaborativeAttachmentController.deleteQuestionAnswerAttachment(qid: Long, eid: Long)
-GET           /app/iop/collab/attachment/question/:qid/answer/:eid               features.iop.collaboration.controllers.CollaborativeAttachmentController.downloadQuestionAnswerAttachment(qid: Long, eid: Long)
 POST          /app/iop/collab/attachment/exam                                    features.iop.collaboration.controllers.CollaborativeAttachmentController.addAttachmentToExam()
 DELETE        /app/iop/collab/attachment/exam/:id                                features.iop.collaboration.controllers.CollaborativeAttachmentController.deleteExamAttachment(id: Long)
 GET           /app/iop/collab/attachment/exam/:id                                features.iop.collaboration.controllers.CollaborativeAttachmentController.downloadExamAttachment(id: Long)
 
 POST          /app/iop/collab/attachment/exam/:id/:ref/feedback                  features.iop.collaboration.controllers.CollaborativeAttachmentController.addAssessmentAttachment(id: Long, ref: String)
 DELETE        /app/iop/collab/attachment/exam/:id/:ref/feedback                  features.iop.collaboration.controllers.CollaborativeAttachmentController.deleteAssessmentAttachment(id: Long, ref: String)
-
-POST          /app/iop/collab/attachment/exam/:id/statement                      features.iop.collaboration.controllers.CollaborativeAttachmentController.addStatementAttachment(id: Long)
-DELETE        /app/iop/collab/attachment/exam/:id/statement                      features.iop.collaboration.controllers.CollaborativeAttachmentController.deleteStatementAttachment(id: Long)
-GET           /app/iop/collab/attachment/exam/:id/statement                      features.iop.collaboration.controllers.CollaborativeAttachmentController.downloadStatementAttachment(id: Long)
 
 ############# Integration data transfer #################
 POST          /app/iop/export                                                    features.iop.transfer.controllers.DataTransferController.exportData()
