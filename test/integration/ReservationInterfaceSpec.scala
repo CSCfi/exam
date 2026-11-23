@@ -37,6 +37,14 @@ class ReservationInterfaceSpec extends BaseIntegrationSpec:
         val records2 = json2.as[JsArray]
         records2.value must be(empty)
 
+      "write timestamps with milliseconds" in:
+        val result = runIO(get("/integration/reservations?start=1999-01-01&roomId=1"))
+        statusOf(result).must(be(Status.OK))
+        val first = contentAsJsonOf(result).as[JsArray].value.head
+        // The fixture times have zero milliseconds, which java.time would leave out
+        (first \ "startAt").as[String] mustBe "2014-06-10T08:00:00.000Z"
+        (first \ "endAt").as[String] mustBe "2014-06-10T10:00:00.000Z"
+
     "getting rooms" should:
       "return list of available rooms" in:
         val result = runIO(get("/integration/rooms"))
@@ -45,6 +53,24 @@ class ReservationInterfaceSpec extends BaseIntegrationSpec:
         json.mustBe(a[JsArray])
         val records = json.as[JsArray]
         records.value must have size 1
+
+      "leave out the room passwords" in:
+        ensureTestDataLoaded()
+        val room = DB.find(classOf[ExamRoom], 1L)
+        room.internalPassword = "secret-in"
+        room.externalPassword = "secret-ex"
+        room.update()
+
+        for path <- Seq("/integration/rooms", "/integration/rooms/1/openinghours?date=2026-01-01")
+        do
+          val result = runIO(get(path))
+          statusOf(result).must(be(Status.OK))
+          contentAsStringOf(result) must not include "secret-"
+          val room = contentAsJsonOf(result) match
+            case JsArray(rooms) => rooms.head.as[JsObject]
+            case other          => other.as[JsObject]
+          room.keys must contain noneOf ("internalPassword", "externalPassword")
+          room.keys must contain allOf ("internalPasswordRequired", "externalPasswordRequired")
 
     "getting room opening hours" should:
       "return room with filtered exception events" in:

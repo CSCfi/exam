@@ -9,15 +9,20 @@ import features.integration.services.{ReservationAPIError, ReservationAPIService
 import play.api.mvc.*
 import security.Auth.subjectNotPresent
 import security.BlockingIOExecutionContext
+import system.interceptors.SensitiveDataFilter
 
 import javax.inject.Inject
 
 class ReservationAPIController @Inject() (
     private val reservationAPIService: ReservationAPIService,
+    private val sensitiveDataFilter: SensitiveDataFilter,
     val controllerComponents: ControllerComponents,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
+
+  // Room passwords are stored in plain text and these endpoints need no login
+  private val roomSecrets = Set("internalPassword", "externalPassword")
 
   private def toResult(error: ReservationAPIError): Result =
     error match
@@ -35,13 +40,13 @@ class ReservationAPIController @Inject() (
     }
 
   def getRooms: Action[AnyContent] =
-    Action.andThen(subjectNotPresent) { _ =>
+    Action.andThen(subjectNotPresent).andThen(sensitiveDataFilter(roomSecrets)) { _ =>
       val (rooms, pp) = reservationAPIService.getRooms
       Ok(rooms.asJson(pp))
     }
 
   def getRoomOpeningHours(roomId: Long, date: Option[String]): Action[AnyContent] =
-    Action.andThen(subjectNotPresent) { _ =>
+    Action.andThen(subjectNotPresent).andThen(sensitiveDataFilter(roomSecrets)) { _ =>
       date match
         case None => toResult(ReservationAPIError.NoSearchDate)
         case Some(d) =>

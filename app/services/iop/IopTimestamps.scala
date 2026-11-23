@@ -19,7 +19,8 @@ import scala.util.Try
   * `java.util.Date` fields need exactly milliseconds. EXAM 7.1 writes instants with a variable
   * fraction (none when the milliseconds are zero, six digits for microseconds), which those
   * versions would read as null or misread. Applied to everything sent to XM ([[IopAwareWSClient]])
-  * and to `/integration/iop` responses (`SystemFilter`), so no serializer needs to know about it.
+  * and to all `/integration` responses (`SystemFilter`), so no serializer needs to know about it.
+  * The non-IOP integration APIs are read by customers' own systems, which may parse as strictly.
   */
 object IopTimestamps:
 
