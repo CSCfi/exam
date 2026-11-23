@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { EMPTY, Subscription, defer, fromEvent, interval, merge, of, throwError } from 'rxjs';
-import { catchError, delay, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, delay, filter, map, switchMap, take, takeUntil, tap, throwIfEmpty } from 'rxjs/operators';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { StorageService } from 'src/app/shared/storage/storage.service';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -172,6 +172,9 @@ export class SessionService {
             .pipe(
                 switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
+                // A dismissed dialog (external login, role, user agreement) completes without a user.
+                // Turn that into the undefined error handled below, which logs out.
+                throwIfEmpty(() => undefined),
                 switchMap((u) =>
                     of(u).pipe(
                         delay(100),
