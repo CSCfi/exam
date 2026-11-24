@@ -300,7 +300,9 @@ export class ChartService {
         const grades = this.getGrades(reviews);
         const gradeDistribution = countBy(grades, (g) => g);
         const data = Object.values(gradeDistribution);
-        const labels = Object.keys(gradeDistribution).map(this.CommonExam.getExamGradeDisplayName);
+        // All reviews are of the same exam and so share its scale
+        const scale = this.CommonExam.resolveGradeScale(reviews[0]?.exam);
+        const labels = Object.keys(gradeDistribution).map((g) => this.CommonExam.getExamGradeDisplayName(g, scale));
         return { data: data, labels: labels };
     };
 

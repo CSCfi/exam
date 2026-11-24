@@ -15,6 +15,7 @@ import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
 import { NoShowComponent } from './no-show.component';
 import { ParticipationComponent } from './participation.component';
@@ -42,6 +43,7 @@ export class GeneralInfoComponent implements OnInit {
     });
     readonly enrolment = computed(() => this.exam().examEnrolments[0] as ExamEnrolment | undefined);
     readonly reservation = computed(() => this.enrolment()?.reservation);
+    readonly gradeScale = computed(() => this.CommonExam.resolveGradeScale(this.exam()));
     readonly participations = signal<ExamParticipation[]>([]);
     readonly noShows = signal<ExamEnrolment[]>([]);
 
@@ -50,6 +52,7 @@ export class GeneralInfoComponent implements OnInit {
     private readonly Attachment = inject(AttachmentService);
     private readonly destroyRef = inject(DestroyRef);
     private readonly DateTime = inject(DateTimeService);
+    private readonly CommonExam = inject(CommonExamService);
 
     ngOnInit() {
         // Inputs are not yet bound in the constructor, so collaborative() must be read here

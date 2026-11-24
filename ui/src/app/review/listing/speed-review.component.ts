@@ -226,15 +226,11 @@ export class SpeedReviewComponent {
     }
 
     private resolveGradeScale(exam: Exam): GradeScale {
-        if (exam.gradeScale) {
-            return exam.gradeScale;
-        } else if (exam.parent?.gradeScale) {
-            return exam.parent.gradeScale;
-        } else if (exam?.course?.gradeScale) {
-            return exam.course.gradeScale;
-        } else {
+        const scale = this.CommonExam.resolveGradeScale(exam);
+        if (!scale) {
             throw Error('No GradeScale for Assessment!');
         }
+        return scale;
     }
 
     private initGrades(exam: Exam): SelectableGrade[] {
@@ -243,7 +239,7 @@ export class SpeedReviewComponent {
             .map((grade) => {
                 return {
                     ...grade,
-                    name: this.CommonExam.getExamGradeDisplayName(grade.name),
+                    name: this.CommonExam.getExamGradeDisplayName(grade.name, scale),
                     type: grade.name,
                 };
             })

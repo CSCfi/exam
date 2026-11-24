@@ -5,7 +5,7 @@
 import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Course, Exam } from 'src/app/exam/exam.model';
+import type { Course, Exam, GradeScale } from 'src/app/exam/exam.model';
 import { CommonExamService } from './common-exam.service';
 
 function makeExam(overrides: Partial<Exam> = {}): Exam {
@@ -65,19 +65,50 @@ describe('CommonExamService', () => {
     });
 
     describe('getExamGradeDisplayName', () => {
-        it('should map Latin grade codes to full names', () => {
-            expect(service.getExamGradeDisplayName('I')).toBe('Improbatur');
-            expect(service.getExamGradeDisplayName('A')).toBe('Approbatur');
-            expect(service.getExamGradeDisplayName('B')).toBe('Lubenter approbatur');
-            expect(service.getExamGradeDisplayName('N')).toBe('Non sine laude approbatur');
-            expect(service.getExamGradeDisplayName('C')).toBe('Cum laude approbatur');
-            expect(service.getExamGradeDisplayName('M')).toBe('Magna cum laude approbtur');
-            expect(service.getExamGradeDisplayName('E')).toBe('Eximia cum laude approbatur');
-            expect(service.getExamGradeDisplayName('L')).toBe('Laudatur approbatur');
+        const scale = (description: string) => ({ description }) as GradeScale;
+
+        it('should map Latin grade codes to full names in the Latin scale', () => {
+            const latin = scale('LATIN');
+            expect(service.getExamGradeDisplayName('I', latin)).toBe('Improbatur');
+            expect(service.getExamGradeDisplayName('A', latin)).toBe('Approbatur');
+            expect(service.getExamGradeDisplayName('B', latin)).toBe('Lubenter approbatur');
+            expect(service.getExamGradeDisplayName('N', latin)).toBe('Non sine laude approbatur');
+            expect(service.getExamGradeDisplayName('C', latin)).toBe('Cum laude approbatur');
+            expect(service.getExamGradeDisplayName('M', latin)).toBe('Magna cum laude approbatur');
+            expect(service.getExamGradeDisplayName('E', latin)).toBe('Eximia cum laude approbatur');
+            expect(service.getExamGradeDisplayName('L', latin)).toBe('Laudatur');
+        });
+
+        it('should keep Latin-looking grades of other scales as they are', () => {
+            expect(service.getExamGradeDisplayName('E', scale('OTHER'))).toBe('E');
+            expect(service.getExamGradeDisplayName('L', scale('OTHER'))).toBe('L');
+        });
+
+        it('should keep grades as they are when the scale is unknown', () => {
+            expect(service.getExamGradeDisplayName('E')).toBe('E');
         });
 
         it('should return the grade string as-is for unknown grades', () => {
-            expect(service.getExamGradeDisplayName('UNKNOWN_GRADE')).toBe('UNKNOWN_GRADE');
+            expect(service.getExamGradeDisplayName('UNKNOWN_GRADE', scale('LATIN'))).toBe('UNKNOWN_GRADE');
+        });
+    });
+
+    describe('resolveGradeScale', () => {
+        const own = { id: 1 } as GradeScale;
+        const parents = { id: 2 } as GradeScale;
+        const courses = { id: 3 } as GradeScale;
+
+        it('should prefer the exam scale, then the parent scale, then the course scale', () => {
+            const course = { gradeScale: courses } as Course;
+            const parent = makeExam({ gradeScale: parents });
+            expect(service.resolveGradeScale(makeExam({ gradeScale: own, parent, course }))).toBe(own);
+            expect(service.resolveGradeScale(makeExam({ parent, course }))).toBe(parents);
+            expect(service.resolveGradeScale(makeExam({ parent: null, course }))).toBe(courses);
+        });
+
+        it('should return undefined when there is no exam or scale', () => {
+            expect(service.resolveGradeScale(undefined)).toBeUndefined();
+            expect(service.resolveGradeScale(makeExam({ parent: null }))).toBeUndefined();
         });
     });
 
