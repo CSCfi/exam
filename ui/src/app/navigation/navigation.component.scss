@@ -32,20 +32,6 @@ $border-green: 3px solid shared.$exam-dark-green;
         z-index: 1;
     }
 
-    .hidden-mobile {
-        display: block;
-        @include mobile {
-            display: none;
-        }
-    }
-
-    .visible-mobile {
-        display: none;
-        @include mobile {
-            display: block;
-        }
-    }
-
     .nav-container {
         display: flex;
         flex-direction: column;
@@ -61,16 +47,16 @@ $border-green: 3px solid shared.$exam-dark-green;
         vertical-align: middle;
     }
 
-    .logo img {
+    .logo-desktop {
         margin: 1.07em 3.57em 0 2.5em;
-        @include mobile {
-            margin-top: 0;
-            margin-left: 20px;
-            padding-top: 15px;
-        }
+    }
+    .logo-mobile {
+        margin-left: 20px;
+        padding-top: 15px;
     }
 
-    button {
+    button,
+    .menu-link {
         display: flex;
         text-decoration: none;
         padding-left: 1.5em;
@@ -88,6 +74,12 @@ $border-green: 3px solid shared.$exam-dark-green;
             border-radius: 50px;
             align-items: center;
             padding-left: 20px;
+        }
+
+        &.menu-link {
+            @include mobile {
+                width: 100%;
+            }
         }
 
         &.selected {
@@ -115,6 +107,12 @@ $border-green: 3px solid shared.$exam-dark-green;
             margin-bottom: 0;
         }
     }
+    /* Phones: a little room between the top-level items (an empty submenu list used to make it) */
+    .nav-body > ul > li {
+        @include mobile {
+            margin-bottom: 10px;
+        }
+    }
 
     ul {
         padding: 0;
@@ -123,22 +121,63 @@ $border-green: 3px solid shared.$exam-dark-green;
         }
     }
 
+    /* Wide screens: the logo above the menu. Phones: a header bar with the small logo and
+       the menu button, the app version under them. */
     .nav-header {
         background-color: $nav-bg;
         padding-bottom: 5em;
 
+        .logo-mobile,
+        .mobile-menu {
+            display: none;
+        }
+
         @include mobile {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
             padding-bottom: 0;
             height: 80px;
+
+            .logo-desktop {
+                display: none;
+            }
+            .logo-mobile,
+            .mobile-menu {
+                display: block;
+            }
+            .app-version {
+                flex-basis: 100%;
+            }
         }
 
         .mobile-menu {
-            float: right;
             background: none;
             border: none;
+            margin-right: 20px;
 
             img {
                 padding-top: 30px;
+            }
+        }
+    }
+
+    /* The menu: always shown as the side bar on wide screens (whatever its collapse state),
+       opened from the header on phones */
+    .nav-menu {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+
+        @include mobile {
+            display: block;
+            background-color: $nav-bg;
+            padding-block: 0.5rem;
+
+            &.collapse:not(.show) {
+                display: none;
             }
         }
     }
@@ -149,36 +188,20 @@ $border-green: 3px solid shared.$exam-dark-green;
         overscroll-behavior: contain;
         background-color: $nav-bg;
         padding-top: 4px;
-        @include mobile {
-            display: none;
-        }
-    }
-
-    .nav-body-mobile {
-        @include mobile {
-            background-color: $nav-bg;
-            position: relative;
-            width: 100%;
-        }
-        // An open mobile menu must not linger next to .nav-body when the window is widened
-        @media (min-width: shared.$mobile-width + 1px) {
-            display: none;
-        }
     }
 
     .nav-footer {
         background-color: shared.$exam-medium-green;
-        &.button {
-            height: 25px;
-        }
-        @include mobile {
-            display: none;
-        }
-    }
 
-    .nav-user {
         @include mobile {
-            display: none;
+            background-color: $nav-bg;
+
+            .user-name {
+                padding-block: 0.5rem 0.25rem;
+            }
+            .locale-bar {
+                margin: 0;
+            }
         }
     }
 
@@ -210,11 +233,9 @@ $border-green: 3px solid shared.$exam-dark-green;
         text-align: left;
     }
 
-    .user {
-        color: white;
-    }
-
     .user-name {
+        display: flex;
+        align-items: flex-start;
         background-color: $nav-bg;
         padding: 1.5em 1em 1em;
         font-size: 1em;
@@ -245,8 +266,12 @@ $border-green: 3px solid shared.$exam-dark-green;
             margin-top: 1.5em;
         }
 
-        :active :hover {
+        /* The current language, and the one under the pointer, in bold */
+        &[aria-pressed='true'],
+        &:hover {
             font-weight: bold;
+        }
+        &:hover {
             @include mobile {
                 border-radius: 50px;
                 border: 3px solid white;
@@ -261,13 +286,10 @@ $border-green: 3px solid shared.$exam-dark-green;
     }
 
     .user-logo {
-        display: inline-block;
-        vertical-align: top;
         margin: 0 10px;
     }
 
     .user-data {
-        display: inline-block;
         max-width: 165px;
     }
 
@@ -283,7 +305,8 @@ $border-green: 3px solid shared.$exam-dark-green;
         line-height: 1.25;
         text-align: left;
 
-        button {
+        button,
+        .menu-link {
             height: auto;
             border-radius: 0;
             font-size: inherit;
@@ -322,7 +345,7 @@ $border-green: 3px solid shared.$exam-dark-green;
             opacity: 0.92;
         }
 
-        button.selected img {
+        .selected img {
             opacity: 1;
         }
 
