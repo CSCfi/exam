@@ -41,6 +41,8 @@ describe('GradingBaseComponent', () => {
     const examService = { refreshExamTypes$: vi.fn(() => of([partial, final].map((t) => ({ ...t, name: t.type })))) };
     const commonExam = {
         getExamGradeDisplayName: vi.fn((name: string) => `display:${name}`),
+        resolveGradeScale: (e?: Partial<Exam> | null) =>
+            e?.gradeScale ?? e?.parent?.gradeScale ?? e?.course?.gradeScale,
         hasCustomCredit: vi.fn(() => false),
     };
     const language = { getExamLanguages$: vi.fn(() => of([fi, sv])) };
@@ -88,6 +90,7 @@ describe('GradingBaseComponent', () => {
             grading.grades$();
             expect(types()).toEqual(['REJECTED', 'APPROVED', 'POINT_GRADED', 'NOT_GRADED']);
             expect(grading.grades()[1].name).toBe('display:APPROVED');
+            expect(commonExam.getExamGradeDisplayName).toHaveBeenCalledWith('APPROVED', grading.exam.gradeScale);
         });
 
         it('leave out point grading for maturity tests and collaborative exams', () => {

@@ -152,7 +152,9 @@ export class AutoEvaluationComponent implements OnInit {
     }
 
     displayGrade(grade?: Grade) {
-        return grade ? this.CommonExam.getExamGradeDisplayName(grade.name) : '';
+        return grade
+            ? this.CommonExam.getExamGradeDisplayName(grade.name, this.CommonExam.resolveGradeScale(this.exam()))
+            : '';
     }
 
     scoreLimit(ev: GradeEvaluation | number) {

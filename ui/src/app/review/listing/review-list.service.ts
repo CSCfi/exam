@@ -127,7 +127,7 @@ export class ReviewListService {
 
     translateGrade = (exam: Exam) => {
         if (exam.gradingType === 'GRADED' && exam.grade?.name) {
-            return this.CommonExam.getExamGradeDisplayName(exam.grade.name);
+            return this.CommonExam.getExamGradeDisplayName(exam.grade.name, this.CommonExam.resolveGradeScale(exam));
         } else if (exam.gradingType === 'NOT_GRADED') {
             return this.translate.instant('i18n_no_grading');
         } else if (exam.gradingType === 'POINT_GRADED') {

@@ -108,12 +108,23 @@ export class PrintedAssessmentComponent {
         });
     }
 
+    // Earlier participations of the same exam share the scale of the exam being printed
     translateGrade = (participation: PreviousParticipation) =>
-        !participation.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(participation.exam.grade.name);
+        !participation.exam.grade
+            ? 'N/A'
+            : this.CommonExam.getExamGradeDisplayName(
+                  participation.exam.grade.name,
+                  this.CommonExam.resolveGradeScale(this.exam()),
+              );
 
     getGrade = () => {
         const examValue = this.exam();
-        return !examValue?.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(examValue.grade.name);
+        return !examValue?.grade
+            ? 'N/A'
+            : this.CommonExam.getExamGradeDisplayName(
+                  examValue.grade.name,
+                  this.CommonExam.resolveGradeScale(examValue),
+              );
     };
 
     getCreditType = () => {
