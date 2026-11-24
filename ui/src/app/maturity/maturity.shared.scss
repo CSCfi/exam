@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../shared/breakpoints' as bp;
+
 .maturity-input-label {
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -12,4 +14,25 @@
     font-size: 1.375rem;
     color: #2c2c2c;
     padding-bottom: 5px;
+}
+
+/* List heading: title (and its toggle) at the start, an optional link at the end */
+.section-heading {
+    padding: var(--xm-space-2);
+    margin-bottom: var(--xm-space-2);
+}
+.no-results {
+    margin-inline-start: var(--xm-space-4);
+}
+/* Search 3/12, begin and end dates 2/12 each from md up (the old columns) */
+.filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--xm-space-2) 1.5rem;
+    align-items: end;
+    margin-bottom: var(--xm-space-3);
+
+    @include bp.up(md) {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) minmax(0, 2fr) minmax(0, 5fr);
+    }
 }

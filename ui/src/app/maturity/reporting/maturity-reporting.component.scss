@@ -22,3 +22,21 @@
         display: none !important;
     }
 }
+
+/* Print button (and the month shown in print) at the end of the page header */
+.report-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-inline-end: var(--xm-space-2);
+}
+.report-period {
+    column-gap: 2rem;
+    margin-bottom: var(--xm-space-3);
+}
+/* The table scrolls sideways on narrow screens; in print it keeps its full width */
+@media screen {
+    .report-table {
+        overflow-x: auto;
+    }
+}
