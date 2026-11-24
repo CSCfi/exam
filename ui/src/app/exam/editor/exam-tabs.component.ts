@@ -11,22 +11,13 @@ import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import { ExamTabService } from './exam-tabs.service';
 
 @Component({
     selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
-    imports: [
-        NgbNavModule,
-        RouterOutlet,
-        LowerCasePipe,
-        TranslateModule,
-        PageHeaderComponent,
-        PageContentComponent,
-        HistoryBackComponent,
-    ],
+    imports: [NgbNavModule, RouterOutlet, LowerCasePipe, TranslateModule, PageHeaderComponent, PageContentComponent],
     styleUrl: './exam-tabs.component.scss',
 })
 export class ExamTabsComponent {
