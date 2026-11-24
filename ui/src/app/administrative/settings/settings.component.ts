@@ -16,6 +16,35 @@ import { SettingsService } from './settings.service';
 
 @Component({
     templateUrl: './settings.component.html',
+    styles: `
+        @use '../../shared/breakpoints' as bp;
+
+        /* Number field with its own save button */
+        .setting-field {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: end;
+            gap: var(--xm-space-2) var(--xm-space-3);
+
+            input {
+                width: 10rem;
+            }
+        }
+        /* Instance settings and HTTP headers: stacked, side by side from md up */
+        .settings-info {
+            display: grid;
+            gap: var(--xm-space-3);
+
+            @include bp.up(md) {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            /* Long values (cookies, URLs) wrap instead of widening the page */
+            li {
+                overflow-wrap: anywhere;
+            }
+        }
+    `,
     selector: 'xm-settings',
     imports: [
         CKEditorComponent,

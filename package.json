@@ -18,8 +18,8 @@
     "coverage": "ng test --no-watch --coverage --coverage-reporters=html --coverage-reporters=text-summary",
     "coverage:backend": "sbt coverage test coverageReport coverageOff",
     "lint": "ng lint --fix",
-    "format": "prettier --write \"ui/src/app/**/*.{ts,html}\" --print-width=120 --tab-width=4; exit 0",
-    "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --print-width=120 --tab-width=4",
+    "format": "prettier --write \"ui/src/app/**/*.{ts,html,scss}\" --print-width=120 --tab-width=4; exit 0",
+    "check-format": "prettier --check \"ui/src/app/**/*.{ts,html,scss}\" --print-width=120 --tab-width=4",
     "check-lint": "ng lint",
     "analyze": "ng build --configuration production && node scripts/internal/analyze-chunks.js",
     "e2e": "playwright test -c scripts/e2e/playwright.config.ts"

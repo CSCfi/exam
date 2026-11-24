@@ -10,32 +10,28 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     template: `
-        <div class="row">
-            <strong class="col-12">
-                {{ 'i18n_get_graded_exams' | translate }}
-            </strong>
-        </div>
-        <div class="row align-items-end mb-2">
-            <div class="col-3">
-                <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
-                <div id="startAt">
-                    <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
+        <section class="xm-stack xm-gap-2">
+            <h2 class="report-title">{{ 'i18n_get_graded_exams' | translate }}</h2>
+            <div class="xm-fields">
+                <div>
+                    <label for="reviews-report-start">{{ 'i18n_start_time' | translate }}</label>
+                    <xm-date-picker
+                        inputId="reviews-report-start"
+                        (updated)="startDateChanged($event)"
+                    ></xm-date-picker>
                 </div>
-            </div>
-            <div class="col-3">
-                <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
-                <div id="endAt">
-                    <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
+                <div>
+                    <label for="reviews-report-end">{{ 'i18n_end_time' | translate }}</label>
+                    <xm-date-picker inputId="reviews-report-end" (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
-            </div>
-            <div class="col-6">
-                <button class="btn btn-success btn-sm float-end" (click)="getReviewsByDate()">
+                <button class="btn btn-success btn-sm xm-fields-action" (click)="getReviewsByDate()">
                     <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
                 </button>
             </div>
-        </div>
+        </section>
     `,
     selector: 'xm-reviews-report',
+    styleUrl: './report-category.scss',
     imports: [DatePickerComponent, TranslateModule],
 })
 export class ReviewsReportComponent {

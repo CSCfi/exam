@@ -63,6 +63,8 @@ export class DatePickerI18n extends NgbDatepickerI18n {
 })
 export class DatePickerComponent {
     readonly initialDate = input<Date | string | number | null>(null);
+    /** id of the text input, for <label for="…"> */
+    readonly inputId = input<string | undefined>(undefined);
     readonly initiallyEmpty = input(false);
     readonly extra = input(false);
     readonly extraText = input('');

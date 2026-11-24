@@ -11,29 +11,26 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     template: `
-        <div class="row">
-            <strong class="col-md-12">
-                {{ 'i18n_get_all_enrolments_reservations_and_cancelations' | translate }}
-            </strong>
-        </div>
-        <div class="row mb-2 align-items-end">
-            <div class="col-10">
-                <label for="enrolment">{{ 'i18n_select_exam' | translate }}</label>
-                <xm-dropdown-select
-                    id="enrolment"
-                    [options]="examNames()"
-                    (optionSelected)="enrolmentSelected($event)"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                ></xm-dropdown-select>
-            </div>
-            <div class="col-2">
-                <button class="btn btn-success btn-sm float-end" (click)="getExamEnrolments()">
+        <section class="xm-stack xm-gap-2">
+            <h2 class="report-title">{{ 'i18n_get_all_enrolments_reservations_and_cancelations' | translate }}</h2>
+            <div class="xm-fields">
+                <div>
+                    <label for="enrolment">{{ 'i18n_select_exam' | translate }}</label>
+                    <xm-dropdown-select
+                        triggerId="enrolment"
+                        [options]="examNames()"
+                        (optionSelected)="enrolmentSelected($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    ></xm-dropdown-select>
+                </div>
+                <button class="btn btn-success btn-sm xm-fields-action" (click)="getExamEnrolments()">
                     <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
                 </button>
             </div>
-        </div>
+        </section>
     `,
     selector: 'xm-enrolments-report',
+    styleUrl: './report-category.scss',
     imports: [DropdownSelectComponent, TranslateModule],
 })
 export class EnrolmentsReportComponent {

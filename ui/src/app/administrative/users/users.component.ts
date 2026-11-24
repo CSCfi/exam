@@ -39,6 +39,34 @@ interface UserWithOptions extends User {
 
 @Component({
     templateUrl: './users.component.html',
+    styles: `
+        .users-filters {
+            align-items: end;
+            gap: var(--xm-space-2) var(--xm-space-3);
+
+            > :first-child {
+                width: 18rem;
+                max-width: 100%;
+            }
+        }
+        .searching {
+            align-self: start;
+        }
+        /* Role and permission cells: icons at the start, add/remove menus at the end */
+        .cell-with-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--xm-space-2);
+        }
+        /* Filter menu items: name at the start, icon at the end */
+        .menu-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--xm-space-3);
+        }
+    `,
     selector: 'xm-users',
     imports: [
         NgbPopover,
@@ -49,15 +77,6 @@ interface UserWithOptions extends User {
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
-    ],
-    styles: [
-        `
-            .flex-wrap-gap {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-            }
-        `,
     ],
 })
 export class UsersComponent {

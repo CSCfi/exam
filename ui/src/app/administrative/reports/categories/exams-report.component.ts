@@ -11,32 +11,30 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     template: `
-        <div class="row">
-            <strong class="col-12">
-                {{ 'i18n_get_all_info_from_exam' | translate }}
-                {{ 'i18n_excel_file' | translate }}
-            </strong>
-        </div>
-        <div class="row mb-2 align-items-end">
-            <div class="col-2">
-                <label for="exam">{{ 'i18n_select_exam' | translate }}</label>
-                @if (examNames()) {
-                    <xm-dropdown-select
-                        id="exam"
-                        [options]="examNames()"
-                        (optionSelected)="examSelected($event)"
-                        placeholder="{{ 'i18n_select' | translate }}"
-                    ></xm-dropdown-select>
-                }
-            </div>
-            <div class="col-10">
-                <button class="btn btn-success btn-sm float-end" (click)="getExams()">
+        <section class="xm-stack xm-gap-2">
+            <h2 class="report-title">
+                {{ 'i18n_get_all_info_from_exam' | translate }} {{ 'i18n_excel_file' | translate }}
+            </h2>
+            <div class="xm-fields">
+                <div>
+                    <label for="exam">{{ 'i18n_select_exam' | translate }}</label>
+                    @if (examNames()) {
+                        <xm-dropdown-select
+                            triggerId="exam"
+                            [options]="examNames()"
+                            (optionSelected)="examSelected($event)"
+                            placeholder="{{ 'i18n_select' | translate }}"
+                        ></xm-dropdown-select>
+                    }
+                </div>
+                <button class="btn btn-success btn-sm xm-fields-action" (click)="getExams()">
                     <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
                 </button>
             </div>
-        </div>
+        </section>
     `,
     selector: 'xm-exams-report',
+    styleUrl: './report-category.scss',
     imports: [DropdownSelectComponent, TranslateModule],
 })
 export class ExamsReportComponent {

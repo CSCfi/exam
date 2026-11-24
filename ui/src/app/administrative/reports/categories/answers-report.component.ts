@@ -10,33 +10,29 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     template: `
-        <div class="row">
-            <strong class="col-12">
-                {{ 'i18n_get_all_exam_answers' | translate }}
-            </strong>
-        </div>
-        <div class="row align-items-end mb-2">
-            <!-- Start & End time datepickers -->
-            <div class="col-3">
-                <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
-                <div id="startAt">
-                    <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
+        <section class="xm-stack xm-gap-2">
+            <h2 class="report-title">{{ 'i18n_get_all_exam_answers' | translate }}</h2>
+            <div class="xm-fields">
+                <!-- Start & End time datepickers -->
+                <div>
+                    <label for="answers-report-start">{{ 'i18n_start_time' | translate }}</label>
+                    <xm-date-picker
+                        inputId="answers-report-start"
+                        (updated)="startDateChanged($event)"
+                    ></xm-date-picker>
                 </div>
-            </div>
-            <div class="col-3">
-                <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
-                <div id="endAt">
-                    <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
+                <div>
+                    <label for="answers-report-end">{{ 'i18n_end_time' | translate }}</label>
+                    <xm-date-picker inputId="answers-report-end" (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
-            </div>
-            <div class="col-6">
-                <button class="btn btn-success btn-sm float-end" (click)="getExamAnswerReport()">
+                <button class="btn btn-success btn-sm xm-fields-action" (click)="getExamAnswerReport()">
                     <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
                 </button>
             </div>
-        </div>
+        </section>
     `,
     selector: 'xm-answers-report',
+    styleUrl: './report-category.scss',
     imports: [DatePickerComponent, TranslateModule],
 })
 export class AnswersReportComponent {

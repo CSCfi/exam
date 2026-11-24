@@ -52,6 +52,7 @@ export class StatisticsComponent {
     readonly endDate = signal<Date | null>(null);
 
     readonly confirmedQueryParams = signal<QueryParams | null>(null);
+    readonly hasDepartmentFilter = computed(() => this.departments().some((d) => d.filtered));
 
     readonly filteredDepartments = computed(() => {
         const filter = this._departmentFilter().toLowerCase();

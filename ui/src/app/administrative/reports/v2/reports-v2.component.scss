@@ -8,7 +8,6 @@
 }
 
 .table {
-    margin-top: 1rem;
     white-space: nowrap;
     font-size: 0.875rem;
 
@@ -54,16 +53,24 @@
     min-width: 200px;
 
     .btn-link {
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 0.8rem;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.8rem;
 
-      &:hover {
-        text-decoration: underline;
-      }
+        &:hover {
+            text-decoration: underline;
+        }
     }
 
     .sticky-top {
-      z-index: 2;
+        z-index: 2;
     }
+}
+
+/* Column menu: header links and column names at the start, check mark at the end */
+.menu-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--xm-space-2);
 }

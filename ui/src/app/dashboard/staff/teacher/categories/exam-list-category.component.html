@@ -4,22 +4,18 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row my-4">
-    <div class="col-md-7">
-        <div class="input-group">
-            <input
-                [value]="filterText"
-                (input)="onFilterInput($event)"
-                type="text"
-                class="form-control"
-                placeholder="{{ 'i18n_exam_search_description' | translate }}"
-            />
-            <div class="input-group-append bi-search search-append"></div>
-        </div>
+<div class="xm-stack">
+    <div class="input-group exam-search">
+        <input
+            [value]="filterText"
+            (input)="onFilterInput($event)"
+            type="text"
+            class="form-control"
+            placeholder="{{ 'i18n_exam_search_description' | translate }}"
+        />
+        <div class="input-group-append bi-search search-append"></div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
+    <div class="table-responsive">
         <table class="table table-striped xm-data-table">
             <thead>
                 <tr>

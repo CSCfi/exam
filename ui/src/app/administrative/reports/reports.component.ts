@@ -32,14 +32,16 @@ enum UserRole {
         <xm-page-header text="i18n_reports" />
         <xm-page-content [content]="content" />
         <ng-template #content>
-            <div class="report-category"><xm-rooms-report [rooms]="rooms()" /></div>
-            <div class="report-category"><xm-exams-report [examNames]="examNames()" /></div>
-            <div class="report-category"><xm-students-report [students]="students()" /></div>
-            <div class="report-category"><xm-enrolments-report [examNames]="examNames()" /></div>
-            <div class="report-category"><xm-answers-report /></div>
-            <div class="report-category"><xm-reviews-report /></div>
-            <div class="report-category"><xm-records-report /></div>
-            <div class="report-category"><xm-teachers-report [teachers]="teachers()" /></div>
+            <div class="xm-stack">
+                <xm-rooms-report [rooms]="rooms()" />
+                <xm-exams-report [examNames]="examNames()" />
+                <xm-students-report [students]="students()" />
+                <xm-enrolments-report [examNames]="examNames()" />
+                <xm-answers-report />
+                <xm-reviews-report />
+                <xm-records-report />
+                <xm-teachers-report [teachers]="teachers()" />
+            </div>
         </ng-template>
     `,
     imports: [
@@ -55,7 +57,6 @@ enum UserRole {
         PageHeaderComponent,
         PageContentComponent,
     ],
-    styleUrl: './reports.component.scss',
 })
 export class ReportsComponent {
     readonly rooms = signal<Option<ExamRoom, number>[]>([]);

@@ -14,11 +14,11 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="col-md-2 pt-1 reservation-search-form-label">
             <label for="start-date-picker" class="reservation-search-form-label">{{ 'i18n_begin' | translate }}</label>
-            <xm-date-picker id="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
+            <xm-date-picker inputId="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
         </div>
         <div class="col-md-2 pt-1 reservation-search-form-label">
             <label for="end-date-picker" class="reservation-search-form-label">{{ 'i18n_end' | translate }}</label>
-            <xm-date-picker id="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
+            <xm-date-picker inputId="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
         <div class="col-md-2">
             <label for="student-search" class="reservation-search-form-label">{{ 'i18n_student' | translate }}</label>
@@ -63,7 +63,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-3">
             <label for="state-search" class="reservation-search-form-label">{{ 'i18n_exam_state' | translate }}</label>
             <xm-dropdown-select
-                id="state-search"
+                triggerId="state-search"
                 [options]="stateOptions()"
                 [fullWidth]="true"
                 [noSearch]="true"
@@ -102,7 +102,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <label for="room-search" class="reservation-search-form-label">{{ 'i18n_room' | translate }}</label>
                 @if (roomOptions().length > 0) {
                     <xm-dropdown-select
-                        id="room-search"
+                        triggerId="room-search"
                         [options]="roomOptions()"
                         (optionSelected)="roomChanged($event)"
                         [limitTo]="0"
@@ -118,7 +118,7 @@ SPDX-License-Identifier: EUPL-1.2
                 }}</label>
                 @if (machineOptions().length > 0) {
                     <xm-dropdown-select
-                        id="machine-search"
+                        triggerId="machine-search"
                         [options]="machineOptions()"
                         (optionSelected)="machineChanged($event)"
                         [limitTo]="0"

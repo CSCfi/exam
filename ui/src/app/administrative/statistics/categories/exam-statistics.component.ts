@@ -12,45 +12,39 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 @Component({
     template: `
         @if (queryParams()) {
-            <div class="row">
-                <div class="col-12">
-                    <strong>{{ 'i18n_most_popular_exams' | translate }}</strong>
-                </div>
+            <div class="xm-stack xm-gap-2">
+                <strong>{{ 'i18n_most_popular_exams' | translate }}</strong>
+                @if (exams().length > 0) {
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>{{ 'i18n_rank' | translate }}</th>
+                                <th>{{ 'i18n_exam' | translate }}</th>
+                                <th>{{ 'i18n_amount_exams' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (exam of exams(); track exam; let i = $index) {
+                                <tr>
+                                    <td>{{ exam.rank }}.</td>
+                                    <td>{{ exam.name }}</td>
+                                    <td>{{ exam.participations }}</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2">
+                                    <strong>{{ 'i18n_total' | translate }}</strong>
+                                </td>
+                                <td>
+                                    <strong>{{ totalExams() }}</strong>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                }
             </div>
-            @if (exams().length > 0) {
-                <div class="row">
-                    <div class="col-12">
-                        <table class="table table-striped table-sm">
-                            <thead>
-                                <tr>
-                                    <th>{{ 'i18n_rank' | translate }}</th>
-                                    <th>{{ 'i18n_exam' | translate }}</th>
-                                    <th>{{ 'i18n_amount_exams' | translate }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (exam of exams(); track exam; let i = $index) {
-                                    <tr>
-                                        <td>{{ exam.rank }}.</td>
-                                        <td>{{ exam.name }}</td>
-                                        <td>{{ exam.participations }}</td>
-                                    </tr>
-                                }
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="2">
-                                        <strong>{{ 'i18n_total' | translate }}</strong>
-                                    </td>
-                                    <td>
-                                        <strong>{{ totalExams() }}</strong>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            }
         }
     `,
     selector: 'xm-exam-statistics',

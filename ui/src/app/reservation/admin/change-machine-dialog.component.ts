@@ -44,7 +44,7 @@ interface MachineChoice {
                 <label for="room">{{ 'i18n_examination_location' | translate }}</label>
                 <xm-dropdown-select
                     #roomSelection
-                    id="room"
+                    triggerId="room"
                     [initial]="room()"
                     [options]="availableRoomOptions()"
                     [limitTo]="0"

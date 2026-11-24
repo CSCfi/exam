@@ -79,6 +79,27 @@
     }
 }
 
+// Form fields (label above control) side by side, as many per row as fit; one column on
+// phones. Controls line up at the bottom even when a label wraps. An optional trailing
+// action (search, download…) goes to the last column of its row: .xm-fields-action.
+.xm-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
+    gap: var(--xm-space-2) var(--xm-space-3);
+    align-items: end;
+
+    > * > label {
+        display: block;
+    }
+    > .btn {
+        justify-self: start;
+    }
+    > .xm-fields-action {
+        grid-column-end: -1;
+        justify-self: end;
+    }
+}
+
 // Gap modifiers, combine with xm-stack / xm-cluster / xm-split: class="xm-stack xm-gap-1".
 // Defined after the primitives so they win at equal specificity. They set gap itself rather
 // than a custom property, which would inherit into nested primitives.

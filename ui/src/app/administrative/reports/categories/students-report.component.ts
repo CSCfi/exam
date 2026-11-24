@@ -14,41 +14,37 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     template: `
-        <div class="row">
-            <strong class="col-md-12">
-                {{ 'i18n_get_all_student_activities' | translate }}
-            </strong>
-        </div>
-        <div class="row align-items-end mb-2">
-            <div class="col-3">
-                <label for="student">{{ 'i18n_student' | translate }}</label>
-                <xm-dropdown-select
-                    id="student"
-                    [options]="students()"
-                    (optionSelected)="studentSelected($event)"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                ></xm-dropdown-select>
-            </div>
-            <div class="col-3">
-                <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
-                <div id="startAt">
-                    <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
+        <section class="xm-stack xm-gap-2">
+            <h2 class="report-title">{{ 'i18n_get_all_student_activities' | translate }}</h2>
+            <div class="xm-fields">
+                <div>
+                    <label for="student">{{ 'i18n_student' | translate }}</label>
+                    <xm-dropdown-select
+                        triggerId="student"
+                        [options]="students()"
+                        (optionSelected)="studentSelected($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    ></xm-dropdown-select>
                 </div>
-            </div>
-            <div class="col-3">
-                <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
-                <div id="endAt">
-                    <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
+                <div>
+                    <label for="students-report-start">{{ 'i18n_start_time' | translate }}</label>
+                    <xm-date-picker
+                        inputId="students-report-start"
+                        (updated)="startDateChanged($event)"
+                    ></xm-date-picker>
                 </div>
-            </div>
-            <div class="col-3">
-                <button class="btn btn-success btn-sm float-end" (click)="getStudentReport()">
+                <div>
+                    <label for="students-report-end">{{ 'i18n_end_time' | translate }}</label>
+                    <xm-date-picker inputId="students-report-end" (updated)="endDateChanged($event)"></xm-date-picker>
+                </div>
+                <button class="btn btn-success btn-sm xm-fields-action" (click)="getStudentReport()">
                     <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
                 </button>
             </div>
-        </div>
+        </section>
     `,
     selector: 'xm-students-report',
+    styleUrl: './report-category.scss',
     imports: [DropdownSelectComponent, DatePickerComponent, TranslateModule],
 })
 export class StudentsReportComponent {

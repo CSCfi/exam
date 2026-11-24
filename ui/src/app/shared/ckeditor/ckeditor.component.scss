@@ -62,7 +62,7 @@
     }
 
     span[cloze],
-    span[cloze="true"],
+    span[cloze='true'],
     .cloze-test-wrapper {
         cursor: pointer !important;
         transition: background-color 0.15s ease;
@@ -74,4 +74,3 @@
         }
     }
 }
-
