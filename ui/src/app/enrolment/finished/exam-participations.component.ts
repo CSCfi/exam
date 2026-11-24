@@ -21,7 +21,7 @@ import { ExamParticipationComponent } from './exam-participation.component';
 @Component({
     selector: 'xm-exam-participations',
     templateUrl: './exam-participations.component.html',
-    styleUrl: './exam-participations.component.scss',
+    styleUrls: ['./exam-participations.component.scss', '../enrolment.shared.scss'],
     imports: [
         NgbDropdownModule,
         ExamParticipationComponent,

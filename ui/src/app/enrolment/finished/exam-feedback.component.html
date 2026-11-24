@@ -4,200 +4,116 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@if (assessment().grade?.name === 'NONE') {
-    <div class="row mt-2">
-        <div class="notice-wrap">
-            <span class="form-group" role="note"
-                ><img alt="" src="/assets/images/icon_info.png" />
-                &nbsp;
-                <span>{{ 'i18n_no_grading_description' | translate }}</span>
-            </span>
-        </div>
-    </div>
-}
+<div class="xm-stack xm-gap-2">
+    @if (assessment().grade?.name === 'NONE') {
+        <p class="xm-icon-text" role="note">
+            <img alt="" src="/assets/images/icon_info.png" />
+            <span>{{ 'i18n_no_grading_description' | translate }}</span>
+        </p>
+    }
+    @if (assessment().state === 'GRADED') {
+        <p class="xm-icon-text" role="note">
+            <img alt="" src="/assets/images/icon_info.png" />
+            <span>{{ 'i18n_autoevaluation_release_description' | translate }}</span>
+        </p>
+    }
 
-@if (assessment().state === 'GRADED') {
-    <div class="row mt-2">
-        <div class="notice-wrap">
-            <span class="form-group" role="note"
-                ><img alt="" src="/assets/images/icon_info.png" />
-                &nbsp;
-                <span>{{ 'i18n_autoevaluation_release_description' | translate }}</span>
-            </span>
-        </div>
-    </div>
-}
+    <dl class="xm-details exam-feedback-meta">
+        <dt>{{ 'i18n_exam_credit' | translate }}:</dt>
+        <dd>{{ assessment().credit }} {{ 'i18n_exam_credit_abbr' | translate }}</dd>
+        <dt>{{ 'i18n_exam_grade' | translate }}:</dt>
+        <dd>{{ assessment().grade?.displayName }}</dd>
+        <dt>{{ 'i18n_exam_credit_type' | translate }}:</dt>
+        <dd>{{ assessment().creditType.displayName }}</dd>
+        <dt>{{ 'i18n_assessment_date' | translate }}:</dt>
+        <dd>{{ assessment().gradedTime | date: 'dd.MM.yyyy' }}</dd>
 
-<!-- credits and grade -->
-<div class="row mt-2 g-2 exam-feedback-meta">
-    <div class="col-12 exam-feedback-field">
-        <span class="exam-feedback-label">{{ 'i18n_exam_credit' | translate }}:</span>
-        <span class="exam-feedback-value"> {{ assessment().credit }} {{ 'i18n_exam_credit_abbr' | translate }} </span>
-    </div>
-    <div class="col-12 exam-feedback-field">
-        <span class="exam-feedback-label">{{ 'i18n_exam_grade' | translate }}:</span>
-        <span class="exam-feedback-value">{{ assessment().grade?.displayName }}</span>
-    </div>
-</div>
+        <!-- scores: only if not maturity and an actual grade was given -->
+        @if (scores() && assessment().executionType.type !== 'MATURITY' && assessment().grade?.name !== 'NONE') {
+            <dt>{{ 'i18n_total_score' | translate }}:</dt>
+            <dd>{{ scores()!.totalScore }} / {{ scores()!.maxScore }}</dd>
+            @if (
+                !collaborative() &&
+                (assessment().state === 'GRADED_LOGGED' || assessment().state === 'ARCHIVED') &&
+                assessment().gradingType !== 'NOT_GRADED'
+            ) {
+                <dd>
+                    <button
+                        class="btn btn-outline-secondary"
+                        (keydown.enter)="downloadScoreReport()"
+                        (click)="downloadScoreReport()"
+                    >
+                        {{ 'i18n_download_report_excel' | translate }}
+                    </button>
+                </dd>
+            }
+            @if (scores()!.hasApprovedRejectedAnswers) {
+                <dt>{{ 'i18n_approved' | translate }}:</dt>
+                <dd>{{ scores()!.approvedAnswerCount }}</dd>
+                <dt>{{ 'i18n_rejected' | translate }}:</dt>
+                <dd>{{ scores()!.rejectedAnswerCount }}</dd>
+            }
+        }
 
-<!-- credit type and grading time -->
-<div class="row g-2 exam-feedback-meta">
-    <div class="col-12 exam-feedback-field">
-        <span class="exam-feedback-label">{{ 'i18n_exam_credit_type' | translate }}:</span>
-        <span class="exam-feedback-value">{{ assessment().creditType.displayName }}</span>
-    </div>
-    <div class="col-12 exam-feedback-field">
-        <span class="exam-feedback-label">{{ 'i18n_assessment_date' | translate }}:</span>
-        <span class="exam-feedback-value">{{ assessment().gradedTime | date: 'dd.MM.yyyy' }}</span>
-    </div>
-</div>
-
-@if (scores()) {
-    <!-- total score: only show if not maturity and actual grade given -->
-    <div
-        class="row g-2 exam-feedback-meta"
-        [hidden]="assessment().executionType.type === 'MATURITY' || assessment().grade?.name === 'NONE'"
-    >
-        <div class="col-12 exam-feedback-field">
-            <span class="exam-feedback-label">{{ 'i18n_total_score' | translate }}:</span>
-            <span class="exam-feedback-value"> {{ scores()!.totalScore }} / {{ scores()!.maxScore }} </span>
-        </div>
+        <!-- content grade (language inspection) -->
+        @if (assessment().languageInspection) {
+            <dt>{{ 'i18n_content_grade' | translate }}:</dt>
+            <dd>{{ assessment().contentGrade }}</dd>
+        }
+        @if (assessment().examFeedback?.comment) {
+            <dt class="xm-details-wide">{{ 'i18n_teachers_comment' | translate }}:</dt>
+            <dd
+                class="xm-details-wide exam-feedback-html"
+                [innerHtml]="$safeNavigationMigration(assessment().examFeedback?.comment)"
+            ></dd>
+        }
+        @if (assessment().examFeedback?.attachment) {
+            <dt>{{ 'i18n_feedback_attachment' | translate }}:</dt>
+            <dd>
+                <button class="btn btn-outline-secondary" (click)="downloadFeedbackAttachment()">
+                    {{ assessment().examFeedback?.attachment?.fileName }}
+                </button>
+            </dd>
+        }
+        @if (assessment().languageInspection) {
+            <dt>{{ 'i18n_language_inspections' | translate }}:</dt>
+            <dd>{{ assessment().grade?.displayName }}</dd>
+            <dt class="xm-details-wide">{{ 'i18n_inspector_statement' | translate }}:</dt>
+            <dd
+                class="xm-details-wide exam-feedback-html"
+                [innerHtml]="$safeNavigationMigration(assessment().languageInspection?.statement?.comment)"
+            ></dd>
+        }
+        @if (assessment().languageInspection?.statement?.attachment) {
+            <dt>{{ 'i18n_statement_attachment' | translate }}:</dt>
+            <dd>
+                <button class="btn btn-outline-secondary" (click)="downloadStatementAttachment()">
+                    {{ assessment().languageInspection.statement.attachment?.fileName }}
+                </button>
+            </dd>
+        }
+        @if (assessment().assessmentInfo) {
+            <dt class="xm-details-wide">
+                <i class="bi-exclamation-circle text-danger"></i>
+                {{ 'i18n_additional_info_for_student' | translate }}:
+            </dt>
+            <dd class="xm-details-wide">{{ assessment().assessmentInfo }}</dd>
+        }
         @if (
             !collaborative() &&
             (assessment().state === 'GRADED_LOGGED' || assessment().state === 'ARCHIVED') &&
             assessment().gradingType !== 'NOT_GRADED'
         ) {
-            <div class="col-12">
-                <button
-                    class="btn btn-outline-secondary"
-                    (keydown.enter)="downloadScoreReport()"
-                    (click)="downloadScoreReport()"
-                >
-                    {{ 'i18n_download_report_excel' | translate }}
-                </button>
-            </div>
+            <dt class="xm-details-wide fw-bold">{{ 'i18n_examination_answer' | translate }}</dt>
+            <dd class="xm-details-wide">
+                @if (assessmentWithAnswers()) {
+                    <button class="btn btn-outline-secondary" (keydown.enter)="showAnswers()" (click)="showAnswers()">
+                        {{ 'i18n_show' | translate }}
+                    </button>
+                } @else {
+                    {{ 'i18n_not_available' | translate }}
+                }
+            </dd>
         }
-    </div>
-    <!-- approved and rejected: only show if not maturity and actual grade given -->
-    <div
-        class="row g-2 exam-feedback-meta"
-        [hidden]="assessment().executionType.type === 'MATURITY' || assessment().grade?.name === 'NONE'"
-    >
-        @if (scores()!.hasApprovedRejectedAnswers) {
-            <div class="col-12 exam-feedback-field">
-                <span class="exam-feedback-label">{{ 'i18n_approved' | translate }}:</span>
-                <span class="exam-feedback-value">{{ scores()!.approvedAnswerCount }}</span>
-            </div>
-            <div class="col-12 exam-feedback-field">
-                <span class="exam-feedback-label">{{ 'i18n_rejected' | translate }}:</span>
-                <span class="exam-feedback-value">{{ scores()!.rejectedAnswerCount }}</span>
-            </div>
-        }
-    </div>
-}
-
-<!-- content grade (language inspection) -->
-@if (assessment().languageInspection) {
-    <div class="row mt-1 g-2 exam-feedback-meta">
-        <div class="col-12 exam-feedback-field">
-            <span class="exam-feedback-label">{{ 'i18n_content_grade' | translate }}:</span>
-            <span class="exam-feedback-value">{{ assessment().contentGrade }}</span>
-        </div>
-    </div>
-}
-
-@if (assessment().examFeedback?.comment) {
-    <div class="row g-2 exam-feedback-meta" [class.mt-1]="!assessment().languageInspection">
-        <div class="col-12 exam-feedback-field exam-feedback-field--stacked">
-            <span class="exam-feedback-label d-block">{{ 'i18n_teachers_comment' | translate }}:</span>
-            <div
-                class="exam-feedback-value exam-feedback-html"
-                [innerHtml]="$safeNavigationMigration(assessment().examFeedback?.comment)"
-            ></div>
-        </div>
-    </div>
-}
-
-@if (assessment().examFeedback?.attachment) {
-    <div class="row g-2 exam-feedback-meta">
-        <div class="col-12 exam-feedback-field">
-            <span class="exam-feedback-label">{{ 'i18n_feedback_attachment' | translate }}:</span>
-            <span class="exam-feedback-value">
-                <button class="btn btn-outline-secondary" (click)="downloadFeedbackAttachment()">
-                    {{ assessment().examFeedback?.attachment?.fileName }}
-                </button>
-            </span>
-        </div>
-    </div>
-}
-
-@if (assessment().languageInspection) {
-    <div class="row mt-2 g-2 exam-feedback-meta">
-        <div class="col-12 exam-feedback-field">
-            <span class="exam-feedback-label">{{ 'i18n_language_inspections' | translate }}:</span>
-            <span class="exam-feedback-value">{{ assessment().grade?.displayName }}</span>
-        </div>
-    </div>
-}
-
-@if (assessment().languageInspection) {
-    <div class="row g-2 exam-feedback-meta">
-        <div class="col-12 exam-feedback-field exam-feedback-field--stacked">
-            <span class="exam-feedback-label d-block">{{ 'i18n_inspector_statement' | translate }}:</span>
-            <div
-                class="exam-feedback-value exam-feedback-html"
-                [innerHtml]="$safeNavigationMigration(assessment().languageInspection?.statement?.comment)"
-            ></div>
-        </div>
-    </div>
-}
-
-@if (assessment().languageInspection?.statement?.attachment) {
-    <div class="row g-2 exam-feedback-meta">
-        <div class="col-12 exam-feedback-field">
-            <span class="exam-feedback-label">{{ 'i18n_statement_attachment' | translate }}:</span>
-            <span class="exam-feedback-value">
-                <button class="btn btn-outline-secondary" (click)="downloadStatementAttachment()">
-                    {{ assessment().languageInspection.statement.attachment?.fileName }}
-                </button>
-            </span>
-        </div>
-    </div>
-}
-
-@if (assessment().assessmentInfo) {
-    <div class="row pt-2 mt-1 g-2 exam-feedback-meta">
-        <div class="col-12 exam-feedback-field exam-feedback-field--stacked">
-            <span class="exam-feedback-label d-block">
-                <i class="bi-exclamation-circle text-danger"></i>
-                {{ 'i18n_additional_info_for_student' | translate }}:
-            </span>
-            <span class="exam-feedback-value">{{ assessment().assessmentInfo }}</span>
-        </div>
-    </div>
-}
-@if (
-    !collaborative() &&
-    (assessment().state === 'GRADED_LOGGED' || assessment().state === 'ARCHIVED') &&
-    assessment().gradingType !== 'NOT_GRADED'
-) {
-    <div class="row mt-2">
-        <div class="col-12">
-            <strong>{{ 'i18n_examination_answer' | translate }}</strong>
-        </div>
-    </div>
-    <div class="row">
-        @if (assessmentWithAnswers()) {
-            <div class="col-12">
-                <button class="btn btn-outline-secondary" (keydown.enter)="showAnswers()" (click)="showAnswers()">
-                    {{ 'i18n_show' | translate }}
-                </button>
-            </div>
-        }
-        @if (!assessmentWithAnswers()) {
-            <div class="col-12">
-                {{ 'i18n_not_available' | translate }}
-            </div>
-        }
-    </div>
-}
+    </dl>
+</div>

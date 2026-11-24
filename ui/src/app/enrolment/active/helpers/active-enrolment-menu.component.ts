@@ -17,6 +17,15 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
     selector: 'xm-active-enrolment-menu',
     templateUrl: './active-enrolment-menu.component.html',
+    styles: `
+        /* Reservation actions at the start, removal links at the end; wraps on narrow cards */
+        .enrolment-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: var(--xm-space-2);
+        }
+    `,
     imports: [RouterLink, TranslateModule],
 })
 export class ActiveEnrolmentMenuComponent {

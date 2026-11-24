@@ -27,6 +27,7 @@
 
 /* Link-style show/hide feedback: lighter than outline button */
 .exam-feedback-toggle {
+    align-self: start;
     font-size: 0.9375rem;
     font-weight: 500;
     text-align: start;
@@ -41,4 +42,16 @@
         text-decoration: underline;
         box-shadow: none;
     }
+}
+
+/* Feedback indented under the card, with a light rule at its start */
+.feedback-panel {
+    margin-top: var(--xm-space-1);
+    padding: var(--xm-space-1) 0 0 var(--xm-space-3);
+    border-inline-start: 2px solid var(--bs-light);
+}
+
+/* The cards are narrow on any screen: keep label and value side by side even on phones */
+.participation-meta {
+    grid-template-columns: fit-content(45%) minmax(0, 1fr);
 }

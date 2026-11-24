@@ -15,30 +15,22 @@ import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
 @Component({
     selector: 'xm-exam-enrolments',
     template: `
-        @if (exam()?.noTrialsLeft) {
-            <div class="row mt-2 ms-2 me-2">
-                <div class="col-md-12 alert-danger">
+        <div class="xm-stack">
+            @if (exam()?.noTrialsLeft) {
+                <div class="alert-danger">
                     <h1>{{ 'i18n_no_trials_left' | translate }}</h1>
                 </div>
-            </div>
-        }
-        @if (exam()) {
-            <xm-enrolment-details [exam]="exam()!"></xm-enrolment-details>
-        }
-        @if (exams().length > 0) {
-            <div class="row mt-2 ms-2 me-2">
-                <div class="col-12 ms-4">
-                    <h2>{{ 'i18n_student_exams' | translate }}</h2>
-                </div>
-            </div>
-            @for (exam of exams(); track exam.id) {
-                <div class="row mt-2 ms-4 me-4 ">
-                    <div class="col-12 ms-2">
-                        <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
-                    </div>
-                </div>
             }
-        }
+            @if (exam()) {
+                <xm-enrolment-details [exam]="exam()!"></xm-enrolment-details>
+            }
+            @if (exams().length > 0) {
+                <h2>{{ 'i18n_student_exams' | translate }}</h2>
+                @for (exam of exams(); track exam.id) {
+                    <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
+                }
+            }
+        </div>
     `,
     imports: [EnrolmentDetailsComponent, ExamSearchResultComponent, TranslateModule],
 })

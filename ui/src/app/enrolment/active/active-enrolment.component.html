@@ -8,246 +8,178 @@ SPDX-License-Identifier: EUPL-1.2
 @let eventConfig = enrolment().examinationEventConfiguration;
 @let exam = enrolment().exam;
 @let collabExam = enrolment().collaborativeExam;
-<div class="active-enrolment-container">
-    <div class="row align-items-center">
-        <!-- calendar box -->
-        @if (reservation || eventConfig) {
-            <div class="col-auto">
-                @if (reservation) {
-                    <div class="student-enrolment-date-box">
-                        {{ reservation! | roomTime: 'startAt' : 'dd' : currentLang() }}
-                        <span class="month-name">{{
-                            reservation! | roomTime: 'startAt' : 'LLL' : currentLang() | slice: 0 : 3 | uppercase
-                        }}</span>
-                    </div>
-                }
-                @if (eventConfig) {
-                    <div class="student-enrolment-date-box">
-                        {{ eventConfig!.examinationEvent.start | date: 'dd' : undefined : currentLang() }}
-                        <span class="month-name">{{
-                            eventConfig!.examinationEvent.start
-                                | date: 'MMM' : undefined : currentLang()
-                                | slice: 0 : 3
-                                | uppercase
-                        }}</span>
-                    </div>
-                }
+<article class="active-enrolment-container xm-stack xm-gap-2">
+    <header class="enrolment-header">
+        @if (reservation) {
+            <div class="student-enrolment-date-box">
+                {{ reservation! | roomTime: 'startAt' : 'dd' : currentLang() }}
+                <span class="month-name">{{
+                    reservation! | roomTime: 'startAt' : 'LLL' : currentLang() | slice: 0 : 3 | uppercase
+                }}</span>
             </div>
         }
-        <!-- exam title n stuff -->
-        <div class="col active-enrolment-heading">
-            <div class="row">
-                <div class="col">
-                    @if (exam) {
-                        <h2>
-                            <a
-                                class="exam-title-link mt-2"
-                                [routerLink]="['/enrolments', exam.id]"
-                                [queryParams]="{ code: $safeNavigationMigration(exam.course?.code) }"
-                            >
-                                {{ exam.name }}
-                            </a>
-                        </h2>
-                    }
-                    @if (collabExam) {
-                        <h2>
-                            <a>
-                                {{ collabExam.name }}
-                            </a>
-                        </h2>
-                    }
-                    @if (exam?.anonymous || collabExam?.anonymous) {
-                        <span>({{ 'i18n_anonymous_review' | translate }})</span>
-                    }
-                    @if (exam && exam.implementation === 'CLIENT_AUTH') {
-                        <span class="ps-2">({{ 'i18n_examination_type_seb' | translate }})</span>
-                    }
-                    @if (exam && exam.implementation === 'WHATEVER') {
-                        <span class="ps-2">({{ 'i18n_examination_type_home_exam' | translate }})</span>
-                    }
-                    <div class="row">
-                        <div class="col">
-                            @if (
-                                (exam?.state === 'PUBLISHED' || collabExam?.state === 'PUBLISHED') &&
-                                (reservation || eventConfig)
-                            ) {
-                                <span class="text-success">{{ 'i18n_state_ready' | translate }}</span>
-                            }
-                            @if (
-                                (exam?.state === 'PUBLISHED' || collabExam?.state === 'PUBLISHED') &&
-                                !reservation &&
-                                !eventConfig
-                            ) {
-                                <span class="text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</span>
-                            }
-                            @if (exam?.state === 'STUDENT_STARTED') {
-                                <span class="text-success">
-                                    {{ 'i18n_state_started' | translate }}
-                                </span>
-                            }
-                        </div>
-                    </div>
-                </div>
+        @if (eventConfig) {
+            <div class="student-enrolment-date-box">
+                {{ eventConfig!.examinationEvent.start | date: 'dd' : undefined : currentLang() }}
+                <span class="month-name">{{
+                    eventConfig!.examinationEvent.start
+                        | date: 'MMM' : undefined : currentLang()
+                        | slice: 0 : 3
+                        | uppercase
+                }}</span>
             </div>
+        }
+        <div class="active-enrolment-heading">
+            @if (exam) {
+                <h2>
+                    <a
+                        class="exam-title-link"
+                        [routerLink]="['/enrolments', exam.id]"
+                        [queryParams]="{ code: $safeNavigationMigration(exam.course?.code) }"
+                    >
+                        {{ exam.name }}
+                    </a>
+                </h2>
+            }
+            @if (collabExam) {
+                <h2>
+                    <a>
+                        {{ collabExam.name }}
+                    </a>
+                </h2>
+            }
+            <div class="xm-cluster">
+                @if (exam?.anonymous || collabExam?.anonymous) {
+                    <span>({{ 'i18n_anonymous_review' | translate }})</span>
+                }
+                @if (exam && exam.implementation === 'CLIENT_AUTH') {
+                    <span>({{ 'i18n_examination_type_seb' | translate }})</span>
+                }
+                @if (exam && exam.implementation === 'WHATEVER') {
+                    <span>({{ 'i18n_examination_type_home_exam' | translate }})</span>
+                }
+            </div>
+            @if ((exam?.state === 'PUBLISHED' || collabExam?.state === 'PUBLISHED') && (reservation || eventConfig)) {
+                <span class="text-success">{{ 'i18n_state_ready' | translate }}</span>
+            }
+            @if ((exam?.state === 'PUBLISHED' || collabExam?.state === 'PUBLISHED') && !reservation && !eventConfig) {
+                <span class="text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</span>
+            }
+            @if (exam?.state === 'STUDENT_STARTED') {
+                <span class="text-success">{{ 'i18n_state_started' | translate }}</span>
+            }
         </div>
-    </div>
-    @if (exam) {
-        <div class="row mt-3">
-            <div class="col-md-3 col-lg-2">{{ 'i18n_course_name' | translate }}:</div>
-            <div class="col-md-9 col-lg-10">
+    </header>
+
+    <dl class="xm-details">
+        @if (exam) {
+            <dt>{{ 'i18n_course_name' | translate }}:</dt>
+            <dd>
                 @if (exam.course) {
                     <span class="exam-code" [ariaLabel]="'i18n_course_code' | translate">
                         <strong><xm-course-code [course]="exam.course"></xm-course-code></strong>
                     </span>
                     {{ exam.course.name }}
                 }
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-3 col-lg-2">{{ 'i18n_teachers' | translate }}:</div>
-            <div class="col-md-9 col-lg-10">
+            </dd>
+            <dt>{{ 'i18n_teachers' | translate }}:</dt>
+            <dd>
                 <xm-teacher-list [exam]="exam"></xm-teacher-list>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-9 col-lg-10 offset-md-3 offset-lg-2">
-                <button class="btn btn-link text-secondary ps-0" (click)="addEnrolmentInformation()">
+            </dd>
+            <dd>
+                <button class="btn btn-link text-secondary p-0" (click)="addEnrolmentInformation()">
                     <i class="bi bi-envelope"></i>
                     {{ 'i18n_student_edit' | translate }}
                 </button>
-            </div>
-        </div>
-    }
-    @if (!reservation) {
-        <div class="row">
-            <div class="col-md-3 col-lg-2">{{ 'i18n_exam_validity' | translate }}:</div>
-            <div class="col-md-9 col-lg-10">
+            </dd>
+        }
+        @if (!reservation) {
+            <dt>{{ 'i18n_exam_validity' | translate }}:</dt>
+            <dd>
                 {{ exam?.periodStart || collabExam.periodStart | date: 'dd.MM.yyyy' }}
                 &ndash;
                 {{ exam?.periodEnd || collabExam.periodEnd | date: 'dd.MM.yyyy' }}
-            </div>
-        </div>
-        @if (enrolment().reservationCanceled) {
-            <div class="row justify-content-start">
-                <div class="col">
-                    <div class="text-danger">
-                        {{ 'i18n_exam_reservation_canceled' | translate }}
-                    </div>
-                </div>
-            </div>
-        }
-    } @else {
-        <div class="row">
-            <div class="col-md-3 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
-            @if (reservation.machine) {
-                <div class="col-md-9 col-lg-10">
+            </dd>
+        } @else {
+            <dt>{{ 'i18n_exam_room' | translate }}:</dt>
+            <dd>
+                @if (reservation.machine) {
                     {{ reservation.machine.name }}&nbsp;&nbsp;|&nbsp;&nbsp;{{ reservation.machine.room.name }} ({{
                         reservation.machine.room.roomCode
                     }})
-                </div>
-            }
-        </div>
-        <div class="row mt-3">
-            @if (reservation.externalReservation) {
-                <div class="col-sm-12">
-                    @if (reservation.externalReservation.orgName) {
-                        <span>
-                            <strong>{{ 'i18n_faculty_name' | translate | uppercase }}:</strong>
-                            {{ reservation.externalReservation.orgName }} ({{
-                                reservation.externalReservation.orgCode
-                            }})<br />
-                        </span>
+                }
+                @if (reservation.externalReservation; as external) {
+                    @if (external.orgName) {
+                        <strong>{{ 'i18n_faculty_name' | translate | uppercase }}:</strong>
+                        {{ external.orgName }} ({{ external.orgCode }})<br />
                     }
                     <strong>{{ 'i18n_room_campus' | translate | uppercase }}:</strong>
-                    {{ reservation.externalReservation.campus }}<br />
+                    {{ external.campus }}<br />
                     <strong>{{ 'i18n_room_building_name' | translate | uppercase }}:</strong>
-                    {{ reservation.externalReservation.buildingName }}<br />
+                    {{ external.buildingName }}<br />
                     <strong>{{ 'i18n_exam_room' | translate | uppercase }}:</strong>
-                    {{ reservation.externalReservation.roomName }}
-                    ({{ reservation.externalReservation.roomCode }})<br />
+                    {{ external.roomName }} ({{ external.roomCode }})<br />
                     <strong>{{ 'i18n_exam_machine' | translate | uppercase }}:</strong>
-                    {{ reservation.externalReservation.machineName }}<br />
-                    {{ reservation.externalReservation.mailAddress.street }},
-                    {{ reservation.externalReservation.mailAddress.zip }}&nbsp;
-                    {{ reservation.externalReservation.mailAddress.city | uppercase }}
-                </div>
-            }
-            <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'i18n_reservation' | translate }}:</div>
-            <div class="col-md-9 col-lg-10 mt-md-2">
+                    {{ external.machineName }}<br />
+                    {{ external.mailAddress.street }}, {{ external.mailAddress.zip }}&nbsp;
+                    {{ external.mailAddress.city | uppercase }}
+                }
+            </dd>
+            <dt>{{ 'i18n_reservation' | translate }}:</dt>
+            <dd>
                 {{ reservation | roomTime: 'startAt' : 'dd.MM.yyyy' }}
                 {{ enrolment().occasion?.startAt }} &ndash; {{ enrolment().occasion?.endAt }} ({{
                     enrolment().occasion?.tz
                 }})
-            </div>
-        </div>
-    }
-    @if (exam && eventConfig && exam.implementation !== 'AQUARIUM') {
-        <div class="row mt-3 mb-2">
-            <div class="col-md-3 col-lg-2">{{ 'i18n_examination_event' | translate }}:</div>
-            <div class="col-md-9 col-lg-10">
+            </dd>
+        }
+        @if (exam && eventConfig && exam.implementation !== 'AQUARIUM') {
+            <dt>{{ 'i18n_examination_event' | translate }}:</dt>
+            <dd>
                 {{ $safeNavigationMigration(eventConfig?.examinationEvent?.start) | date: 'dd.MM.yyyy HH:mm zzzz' }}
-            </div>
-        </div>
-    }
-
-    @if (exam && eventConfig && exam.implementation !== 'AQUARIUM') {
-        <div class="row mt-3 mb-2">
-            <div class="col-md-3 col-lg-2">{{ 'i18n_instructions' | translate }}:</div>
-            <div class="col-md-9 col-lg-10">
-                <span class="me-2">
-                    {{ eventConfig.examinationEvent.description }}
-                </span>
-            </div>
-        </div>
-    }
-
-    @if (exam && exam.implementation === 'CLIENT_AUTH') {
-        <div class="row mt-3 mb-2">
-            <div class="col-md-3 col-lg-2">{{ 'i18n_seb_file' | translate }}:</div>
-            <div class="col-md-9 col-lg-10">
-                <span class="me-2">
-                    <button (click)="downloadSebFile()" class="mt-1 btn btn-sm btn-outline-secondary">
-                        {{ 'i18n_download' | translate }}
-                    </button>
-                </span>
-            </div>
-        </div>
+            </dd>
+            <dt>{{ 'i18n_instructions' | translate }}:</dt>
+            <dd>{{ eventConfig.examinationEvent.description }}</dd>
+        }
+        @if (exam && exam.implementation === 'CLIENT_AUTH') {
+            <dt>{{ 'i18n_seb_file' | translate }}:</dt>
+            <dd>
+                <button (click)="downloadSebFile()" class="btn btn-sm btn-outline-secondary">
+                    {{ 'i18n_download' | translate }}
+                </button>
+            </dd>
+        }
+    </dl>
+    @if (!reservation && enrolment().reservationCanceled) {
+        <p class="text-danger">{{ 'i18n_exam_reservation_canceled' | translate }}</p>
     }
     @if (reservation && enrolment().optionalSections.length > 0) {
         <xm-optional-sections [selectedSections]="enrolment().optionalSections" [allSections]="exam.examSections" />
     }
     @if (exam?.enrollInstruction || collabExam?.enrollInstruction) {
-        <div class="row mb-3 mt-2">
-            <div class="col">
-                <button
-                    class="btn btn-sm btn-link text-secondary p-0"
-                    [hidden]="!exam?.enrollInstruction && !collabExam?.enrollInstruction"
-                    (click)="showInstructions.set(!showInstructions())"
-                    [ariaExpanded]="showInstructions()"
-                    [attr.aria-controls]="'instructions-' + enrolment().id"
-                >
-                    {{ 'i18n_view_instructions' | translate }}
-                    <i [hidden]="showInstructions()" class="bi bi-chevron-right" aria-hidden="true"></i>
-                    <i [hidden]="!showInstructions()" class="bi bi-chevron-down" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div
-                [id]="'instructions-' + enrolment().id"
-                aria-live="polite"
-                class="row mb-3 mt-3 instructions-collapse"
-                [ngbCollapse]="!showInstructions()"
+        <div>
+            <button
+                class="btn btn-sm btn-link text-secondary p-0"
+                (click)="showInstructions.set(!showInstructions())"
+                [ariaExpanded]="showInstructions()"
+                [attr.aria-controls]="'instructions-' + enrolment().id"
             >
-                <div [xmRichText]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
+                {{ 'i18n_view_instructions' | translate }}
+                <i [hidden]="showInstructions()" class="bi bi-chevron-right" aria-hidden="true"></i>
+                <i [hidden]="!showInstructions()" class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <div [id]="'instructions-' + enrolment().id" aria-live="polite" [ngbCollapse]="!showInstructions()">
+                <div
+                    class="instructions"
+                    [xmRichText]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"
+                ></div>
             </div>
         </div>
     }
-    <div class="row my-3">
-        <xm-active-enrolment-menu
-            [enrolment]="enrolment()"
-            (removed)="enrolmentRemoved($event)"
-            (reservationRemoved)="enrolmentReservationRemoved($event)"
-            (eventConfigSelected)="eventConfigSelected.emit($event)"
-        ></xm-active-enrolment-menu>
-    </div>
-</div>
+    <xm-active-enrolment-menu
+        [enrolment]="enrolment()"
+        (removed)="enrolmentRemoved($event)"
+        (reservationRemoved)="enrolmentReservationRemoved($event)"
+        (eventConfigSelected)="eventConfigSelected.emit($event)"
+    ></xm-active-enrolment-menu>
+</article>

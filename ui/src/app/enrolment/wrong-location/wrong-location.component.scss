@@ -27,3 +27,16 @@
         }
     }
 }
+
+/* Warning icon beside the location comparison and the log out action */
+.location-alert {
+    display: flex;
+    gap: var(--xm-space-3);
+
+    > div {
+        flex: 1;
+    }
+    .logout {
+        align-self: start;
+    }
+}

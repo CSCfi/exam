@@ -7,9 +7,9 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="modal-header">
     <h2 ngbAutofocus tabindex="-1" id="modal-heading-id">{{ 'i18n_questions_with_your_answers' | translate }}</h2>
 </div>
-<div class="modal-body p-4">
+<div class="modal-body p-4 xm-stack xm-gap-4">
     <!-- Exam identity -->
-    <div class="mb-4">
+    <div>
         <div class="xm-answers-field">
             <strong class="d-block">{{ 'i18n_course_name' | translate }}:</strong>
             @if (sortedExam()?.course) {
@@ -32,17 +32,17 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 
     @if (sortedExam()?.instruction) {
-        <div class="xm-bordered-area p-3 mb-4 small">
+        <div class="xm-bordered-area p-3 small xm-stack xm-gap-1">
             <strong>{{ 'i18n_exam_instruction' | translate }}</strong>
-            <div [xmRichText]="sortedExam()!.instruction" class="mt-1"></div>
+            <div [xmRichText]="sortedExam()!.instruction"></div>
         </div>
     }
 
     <!-- Sections -->
     @for (section of sortedExam()!.examSections; track section.id) {
-        <div class="mt-4">
-            <h4 class="xm-paragraph-title mb-3">{{ 'i18n_exam_section' | translate }}: {{ section.name }}</h4>
-            <div class="d-flex flex-column gap-3">
+        <section class="xm-stack">
+            <h4 class="xm-paragraph-title">{{ 'i18n_exam_section' | translate }}: {{ section.name }}</h4>
+            <div class="xm-stack">
                 @for (esq of section.sectionQuestions; track esq) {
                     <div class="xm-study-item-container">
                         <!-- Question -->
@@ -140,13 +140,13 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 }
             </div>
-        </div>
+        </section>
     }
 
     <!-- Review summary -->
-    <div class="xm-bordered-area p-3 mt-4">
-        <h4 class="mb-3">{{ 'i18n_exam_review_settings' | translate }}</h4>
-        <div class="d-flex flex-column gap-2 xm-answers-meta">
+    <div class="xm-bordered-area p-3 xm-stack">
+        <h4>{{ 'i18n_exam_review_settings' | translate }}</h4>
+        <div class="xm-stack xm-gap-2 xm-answers-meta">
             @if (sortedExam()?.grade) {
                 <div>
                     <span class="xm-answers-meta-label">{{ 'i18n_exam_grade' | translate }}:</span>
@@ -172,7 +172,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 
-    <div class="modal-footer mt-4">
+    <div class="modal-footer">
         <button class="btn btn-secondary" (click)="activeModal.close()">
             {{ 'i18n_button_ok' | translate }}
         </button>
