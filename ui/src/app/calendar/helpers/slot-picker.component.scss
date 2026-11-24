@@ -4,17 +4,25 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-/* Cap control width on wide viewports; stay full-width when stacked on small screens */
-.xm-slot-picker-room-actions {
+@use '../../shared/breakpoints' as bp;
+
+/* Room menu and external reservation: stacked and full width on phones, side by side from md up */
+.room-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--xm-space-2);
+
     .btn {
         width: 100%;
-        max-width: 100%;
     }
 
-    @media (min-width: 768px) {
+    @include bp.up(md) {
+        flex-direction: row;
+        gap: var(--xm-space-4);
+
         .btn {
             width: auto;
-            max-width: min(22rem, 100%);
+            max-width: 22rem;
         }
     }
 }

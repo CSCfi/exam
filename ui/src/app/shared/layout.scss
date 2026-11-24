@@ -1,0 +1,89 @@
+/*
+ * SPDX-FileCopyrightText: The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+// Design tokens and layout primitives that replace Bootstrap's grid (row/col-*) and layout
+// utilities (d-flex, gap-*, m*-/p*-). Loaded once globally from styles.scss.
+// Primitives only arrange their direct children; they set no colours or typography.
+@use './breakpoints' as bp;
+
+:root {
+    --xm-space-1: 0.25rem;
+    --xm-space-2: 0.5rem;
+    --xm-space-3: 1rem;
+    --xm-space-4: 1.5rem;
+    --xm-space-5: 3rem;
+}
+
+// Vertical flow with even spacing between children.
+.xm-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--xm-space-3);
+
+    // Spacing comes from gap; drop default margins (p, dl, .alert…) of the children
+    > * {
+        margin-block: 0;
+    }
+}
+
+// Horizontal group that wraps: buttons, badges, checkboxes.
+.xm-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--xm-space-2);
+}
+
+// First child at the start, last at the end: title + icon, title + actions.
+.xm-split {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--xm-space-2);
+
+    // The first item (usually a title) shrinks and wraps its own text before the
+    // last item is pushed onto a new line
+    > :first-child {
+        flex: 1 1 12rem;
+        min-width: 0;
+    }
+}
+
+// Label/value pairs, normally on <dl>. Stacked on phones, two aligned columns from sm up.
+// The label column is as wide as the longest label but never more than 40% of the row.
+.xm-details {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 var(--xm-space-3);
+    margin: 0;
+
+    > dt {
+        font-weight: inherit;
+    }
+    > dd {
+        min-width: 0;
+        min-height: 1lh; // an empty value still takes a line
+        margin: 0 0 var(--xm-space-2);
+        overflow-wrap: anywhere;
+    }
+    > dd:last-child {
+        margin-bottom: 0;
+    }
+
+    @include bp.up(sm) {
+        grid-template-columns: fit-content(40%) minmax(0, 1fr);
+    }
+}
+
+// Gap modifiers, combine with xm-stack / xm-cluster / xm-split: class="xm-stack xm-gap-1".
+// Defined after the primitives so they win at equal specificity. They set gap itself rather
+// than a custom property, which would inherit into nested primitives.
+@for $i from 1 through 5 {
+    .xm-gap-#{$i} {
+        gap: var(--xm-space-#{$i});
+    }
+}

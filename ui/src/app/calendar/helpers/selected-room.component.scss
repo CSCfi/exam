@@ -4,15 +4,39 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/breakpoints' as bp;
+
+/* Room name and address: stacked, on one baseline from lg up */
+.room-heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--xm-space-2);
+
+    @include bp.up(lg) {
+        flex-flow: row wrap;
+        align-items: baseline;
+    }
+}
+
 /* Long room names: use horizontal space, break only when needed */
-.selected-room-title {
-    word-break: break-word;
+.selected-room-title,
+.selected-room-address {
+    min-width: 0;
     overflow-wrap: anywhere;
     hyphens: auto;
 }
 
-.selected-room-address {
-    word-break: break-word;
-    overflow-wrap: anywhere;
-    min-width: 0;
+/* Weekday + hours, two columns at every width */
+.opening-hours {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0 var(--xm-space-4);
+    margin: 0;
+
+    > dt {
+        font-weight: inherit;
+    }
+    > dd {
+        margin: 0;
+    }
 }

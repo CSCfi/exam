@@ -11,6 +11,7 @@
 @use 'highlight.js/styles/github.css';
 
 @use './app/shared/definitions.scss' as shared;
+@use './app/shared/layout.scss';
 
 /* fonts */
 @font-face {
@@ -266,44 +267,120 @@ textarea.ng-invalid {
 /* CKEditor-style blockquote, code and table */
 $xm-code-bg: #f2f3f5;
 $xm-code-border: 1px solid #e0e0e0;
-blockquote { border-left: 3px solid #d0d0d0; margin: 0.25rem 0; padding: 0.25rem 0 0.25rem 1rem; color: #555; }
-code { font-family: 'Courier New', Courier, monospace; font-size: 0.9em; background: $xm-code-bg; border: $xm-code-border; border-radius: 3px; padding: 0.1em 0.35em; color: #333; }
-pre { background: $xm-code-bg; border: $xm-code-border; border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto;
-    code { background: none; border: none; padding: 0; font-size: 0.875em; }
+blockquote {
+    border-left: 3px solid #d0d0d0;
+    margin: 0.25rem 0;
+    padding: 0.25rem 0 0.25rem 1rem;
+    color: #555;
+}
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    background: $xm-code-bg;
+    border: $xm-code-border;
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    color: #333;
+}
+pre {
+    background: $xm-code-bg;
+    border: $xm-code-border;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    code {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 0.875em;
+    }
     /* The highlight.js theme paints its own white block; only its token colors are wanted here */
-    code.hljs { background: none; padding: 0; }
+    code.hljs {
+        background: none;
+        padding: 0;
+    }
 }
 figure.table {
     max-width: 100%;
     overflow-x: auto;
 }
 figure.table table {
-    width: 100%; border-collapse: collapse; border: 1px solid #d0d0d0; border-radius: 4px; overflow: hidden; font-size: 0.9em;
-    th, td { padding: 0.5rem 0.75rem; border-right: 1px solid #d0d0d0; &:last-child { border-right: none; } }
-    th { background: $xm-code-bg; font-weight: 600; border-bottom: 2px solid #c0c0c0; }
-    td { padding-top: 0.45rem; padding-bottom: 0.45rem; border-bottom: 1px solid #e5e5e5; border-right-color: #e5e5e5; vertical-align: top; }
-    tr:last-child td { border-bottom: none; }
-    tbody tr:nth-child(even) { background: #fafafa; }
-    tbody tr:hover { background: #f0f4ff; }
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 0.9em;
+    th,
+    td {
+        padding: 0.5rem 0.75rem;
+        border-right: 1px solid #d0d0d0;
+        &:last-child {
+            border-right: none;
+        }
+    }
+    th {
+        background: $xm-code-bg;
+        font-weight: 600;
+        border-bottom: 2px solid #c0c0c0;
+    }
+    td {
+        padding-top: 0.45rem;
+        padding-bottom: 0.45rem;
+        border-bottom: 1px solid #e5e5e5;
+        border-right-color: #e5e5e5;
+        vertical-align: top;
+    }
+    tr:last-child td {
+        border-bottom: none;
+    }
+    tbody tr:nth-child(even) {
+        background: #fafafa;
+    }
+    tbody tr:hover {
+        background: #f0f4ff;
+    }
 }
 /* Ckeditor content markup */
 /* Colors come from CKEditor's own :root vars so content looks identical in and out of the editor */
-.marker-green { background-color: var(--ck-content-highlight-marker-green); }
-.marker-yellow { background-color: var(--ck-content-highlight-marker-yellow); }
-.marker-pink { background-color: var(--ck-content-highlight-marker-pink); }
-.marker-blue { background-color: var(--ck-content-highlight-marker-blue); }
+.marker-green {
+    background-color: var(--ck-content-highlight-marker-green);
+}
+.marker-yellow {
+    background-color: var(--ck-content-highlight-marker-yellow);
+}
+.marker-pink {
+    background-color: var(--ck-content-highlight-marker-pink);
+}
+.marker-blue {
+    background-color: var(--ck-content-highlight-marker-blue);
+}
 /* Pens color the text only, so Bootstrap's <mark> background and padding need clearing */
-.pen-red { color: var(--ck-content-highlight-pen-red); background-color: transparent; padding: 0; }
-.pen-green { color: var(--ck-content-highlight-pen-green); background-color: transparent; padding: 0; }
+.pen-red {
+    color: var(--ck-content-highlight-pen-red);
+    background-color: transparent;
+    padding: 0;
+}
+.pen-green {
+    color: var(--ck-content-highlight-pen-green);
+    background-color: transparent;
+    padding: 0;
+}
 
 /* Todo lists. CKEditor scopes its own rules under .ck-content, which read-only views don't use.
    The checkbox is drawn here rather than left native because the markup is always disabled, and
    browsers grey a disabled checkbox down until the checked state is hard to make out. */
 ul.todo-list {
     list-style: none;
-    li { margin-bottom: 5px; }
-    li .todo-list { margin-top: 5px; }
-    .todo-list__label__description { vertical-align: middle; }
+    li {
+        margin-bottom: 5px;
+    }
+    li .todo-list {
+        margin-top: 5px;
+    }
+    .todo-list__label__description {
+        vertical-align: middle;
+    }
     input[type='checkbox'] {
         -webkit-appearance: none;
         appearance: none;
@@ -317,7 +394,8 @@ ul.todo-list {
 
         &:checked {
             border-color: #26ab33;
-            background: #26ab33 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M3 8.5l3.5 3.5L13 5'/%3E%3C/svg%3E")
+            background: #26ab33
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M3 8.5l3.5 3.5L13 5'/%3E%3C/svg%3E")
                 center / 12px no-repeat;
         }
     }

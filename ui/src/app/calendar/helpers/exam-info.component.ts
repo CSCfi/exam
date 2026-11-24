@@ -14,82 +14,46 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
 @Component({
     selector: 'xm-calendar-exam-info',
     template: `
-        <div class="row xm-study-item-container m-2 details-view">
-            <div class="col-md-12">
-                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                    <h2 class="calendar-phase-title mb-0">1. {{ 'i18n_calendar_phase_1' | translate }}</h2>
-                    <img
-                        class="calendar-phase-icon arrow_icon flex-shrink-0"
-                        src="/assets/images/icon-phase.png"
-                        alt=""
-                    />
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="calendar-titles">
-                            <span class="calendar-course-title">{{ examInfo().name }}</span>
-                            @if (examInfo().anonymous) {
-                                <span>({{ 'i18n_anonymous_review' | translate }})</span>
-                            }
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2 g-2">
-                    <div class="col-12">
-                        <div
-                            class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
-                        >
-                            <span class="exam-info-label flex-shrink-0">{{ 'i18n_course_name' | translate }}:</span>
-                            <span class="text-break min-w-0">
-                                @if (!collaborative() && examInfo().course) {
-                                    <xm-course-code [course]="examInfo().course"></xm-course-code>
-                                    {{ examInfo().course.name }}
-                                }
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div
-                            class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
-                        >
-                            <span class="exam-info-label flex-shrink-0">{{ 'i18n_exam_validity' | translate }}:</span>
-                            <span class="text-break min-w-0">
-                                {{ examInfo().periodStart | date: 'dd.MM.yyyy' }} -
-                                {{ examInfo().periodEnd | date: 'dd.MM.yyyy' }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div
-                            class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
-                        >
-                            <span class="exam-info-label flex-shrink-0">{{ 'i18n_exam_duration' | translate }}:</span>
-                            <span class="text-break min-w-0">{{ printExamDuration(examInfo()) }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <div class="d-flex flex-column gap-1" [hidden]="examInfo().executionType?.type === 'MATURITY'">
-                            <span class="exam-info-label">{{ 'i18n_calendar_instructions' | translate }}:</span>
-                            <div class="text-break" [xmRichText]="examInfo().enrollInstruction"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-12">
-                        @if (showReservationWindowDescription()) {
-                            <span class="xm-info-link d-flex align-items-center gap-2" role="note">
-                                <img class="arrow_icon flex-shrink-0" src="/assets/images/icon_info.png" alt="" />
-                                <span class="text-break min-w-0">{{ reservationWindowDescription() }}</span>
-                            </span>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
+        <section class="xm-stack xm-gap-2 xm-study-item-container">
+            <header class="xm-split">
+                <h2 class="calendar-phase-title">1. {{ 'i18n_calendar_phase_1' | translate }}</h2>
+                <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
+            </header>
+            <p>
+                <span class="calendar-course-title">{{ examInfo().name }}</span>
+                @if (examInfo().anonymous) {
+                    <span>({{ 'i18n_anonymous_review' | translate }})</span>
+                }
+            </p>
+            <dl class="xm-details calendar-details">
+                <dt>{{ 'i18n_course_name' | translate }}:</dt>
+                <dd>
+                    @if (!collaborative() && examInfo().course) {
+                        <xm-course-code [course]="examInfo().course"></xm-course-code>
+                        {{ examInfo().course.name }}
+                    }
+                </dd>
+                <dt>{{ 'i18n_exam_validity' | translate }}:</dt>
+                <dd>
+                    {{ examInfo().periodStart | date: 'dd.MM.yyyy' }} -
+                    {{ examInfo().periodEnd | date: 'dd.MM.yyyy' }}
+                </dd>
+                <dt>{{ 'i18n_exam_duration' | translate }}:</dt>
+                <dd>{{ printExamDuration(examInfo()) }}</dd>
+            </dl>
+            <dl class="calendar-details" [hidden]="examInfo().executionType?.type === 'MATURITY'">
+                <dt>{{ 'i18n_calendar_instructions' | translate }}:</dt>
+                <dd class="text-break m-0" [xmRichText]="examInfo().enrollInstruction"></dd>
+            </dl>
+            @if (showReservationWindowDescription()) {
+                <p class="xm-info-link xm-cluster" role="note">
+                    <img class="arrow_icon" src="/assets/images/icon_info.png" alt="" />
+                    <span class="text-break">{{ reservationWindowDescription() }}</span>
+                </p>
+            }
+        </section>
     `,
-    styleUrls: ['./exam-info.component.scss', '../calendar.component.scss'],
+    styleUrls: ['../calendar.component.scss'],
     imports: [CourseCodeComponent, RichTextDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent {

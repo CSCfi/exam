@@ -11,80 +11,53 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
 @Component({
     selector: 'xm-calendar-organisation-picker',
     template: `
-        <div
-            class="row m-2 details-view"
+        <section
+            class="xm-stack xm-gap-2"
             [class.xm-study-item-container]="selectedOrganisation()"
             [class.xm-study-item-container--inactive]="!selectedOrganisation()"
         >
-            <div class="col-md-12">
-                <div class="row">
-                    <span class="col-md-11 col-9">
-                        <h2 class="calendar-phase-title">
-                            {{ sequenceNumber() }}. {{ 'i18n_choose_institution' | translate }}
-                        </h2>
-                    </span>
-                    <span class="col-md-1 col-3">
-                        @if (selectedOrganisation()) {
-                            <span class="calendar-phase-icon float-end">
-                                <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                            </span>
-                        }
-                    </span>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="row mt-2">
-                            <div class="col student-exam-row-title">
-                                <span ngbDropdown>
-                                    <button
-                                        [disabled]="disabled()"
-                                        ngbDropdownToggle
-                                        class="btn btn-outline-secondary"
-                                        type="button"
-                                        id="dropDownMenu21"
-                                        aria-haspopup="true"
-                                        aria-expanded="true"
-                                    >
-                                        {{ 'i18n_faculty_name' | translate }}&nbsp;
-                                    </button>
-                                    <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
-                                        @for (org of organisations(); track org.code) {
-                                            <li
-                                                ngbDropdownItem
-                                                [hidden]="org.filtered"
-                                                role="presentation"
-                                                (click)="setOrganisation(org)"
-                                            >
-                                                <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
-                                            </li>
-                                        }
-                                    </ul>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <div class="col-12 ps-0">
-                                    <button class="btn btn-outline-secondary" (click)="makeInternalReservation()">
-                                        {{ 'i18n_internal_reservation' | translate }}&nbsp;
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Selected organisation  -->
+            <header class="xm-split">
+                <h2 class="calendar-phase-title">
+                    {{ sequenceNumber() }}. {{ 'i18n_choose_institution' | translate }}
+                </h2>
                 @if (selectedOrganisation()) {
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <div class="calendar-room-title">
-                                <span
-                                    >{{ selectedOrganisation()?.name }}&nbsp;({{ selectedOrganisation()?.code }})</span
-                                >
-                            </div>
-                        </div>
-                    </div>
+                    <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                 }
+            </header>
+            <div class="xm-cluster">
+                <div ngbDropdown>
+                    <button
+                        [disabled]="disabled()"
+                        ngbDropdownToggle
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        id="dropDownMenu21"
+                        aria-haspopup="true"
+                        aria-expanded="true"
+                    >
+                        {{ 'i18n_faculty_name' | translate }}&nbsp;
+                    </button>
+                    <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
+                        @for (org of organisations(); track org.code) {
+                            <li
+                                ngbDropdownItem
+                                [hidden]="org.filtered"
+                                role="presentation"
+                                (click)="setOrganisation(org)"
+                            >
+                                <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <button class="btn btn-outline-secondary" (click)="makeInternalReservation()">
+                    {{ 'i18n_internal_reservation' | translate }}&nbsp;
+                </button>
             </div>
-        </div>
+            @if (selectedOrganisation()) {
+                <div>{{ selectedOrganisation()?.name }}&nbsp;({{ selectedOrganisation()?.code }})</div>
+            }
+        </section>
     `,
     styleUrls: ['../calendar.component.scss'],
     imports: [NgbDropdownModule, TranslateModule],

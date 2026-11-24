@@ -10,29 +10,27 @@ import type { ExamInfo, SelectableSection } from 'src/app/calendar/calendar.mode
 @Component({
     selector: 'xm-calendar-optional-sections',
     template: `
-        <div
-            class="row m-2 xm details-view"
+        <section
+            class="xm-stack"
             [class.xm-study-item-container]="sectionSelectionOk()"
             [class.xm-study-item-container--inactive]="!sectionSelectionOk()"
         >
-            <span class="col-md-12">
+            <header class="xm-split">
                 <h2 class="calendar-phase-title">2. {{ 'i18n_exam_materials' | translate }}</h2>
                 @if (sectionSelectionOk()) {
-                    <span class="calendar-phase-icon float-end">
-                        <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                    </span>
+                    <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                 }
-            </span>
+            </header>
             @for (section of examInfo().examSections; track section.id) {
-                <div class="col-md-12 mb-3">
-                    <div>
+                <div class="xm-stack xm-gap-1">
+                    <p>
                         <strong>{{ 'i18n_exam_section' | translate }}:</strong> {{ section.name }}
-                    </div>
+                    </p>
                     @if (section.description) {
-                        <div class="mt-1">{{ section.description }}</div>
+                        <p>{{ section.description }}</p>
                     }
                     @if (section.optional) {
-                        <div class="d-flex flex-wrap align-items-center column-gap-3 row-gap-1 mt-1">
+                        <div class="xm-cluster section-choice">
                             <div class="text text-success">
                                 {{ 'i18n_optional_section' | translate | uppercase }}
                             </div>
@@ -51,11 +49,11 @@ import type { ExamInfo, SelectableSection } from 'src/app/calendar/calendar.mode
                         </div>
                     }
                     @if (section.examMaterials.length > 0) {
-                        <div class="mt-1">
+                        <p>
                             <strong>{{ 'i18n_exam_materials' | translate }}</strong>
-                        </div>
+                        </p>
                         @for (material of section.examMaterials; track material.id) {
-                            <div>
+                            <p>
                                 {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
                                 @if (material.author) {
                                     <span> {{ 'i18n_author' | translate | uppercase }}: {{ material.author }} </span>
@@ -63,14 +61,19 @@ import type { ExamInfo, SelectableSection } from 'src/app/calendar/calendar.mode
                                 @if (material.isbn) {
                                     <span> ISBN: {{ material.isbn }} </span>
                                 }
-                            </div>
+                            </p>
                         }
                     }
                 </div>
             }
-        </div>
+        </section>
     `,
     styleUrls: ['../calendar.component.scss'],
+    styles: `
+        .section-choice {
+            gap: var(--xm-space-1) var(--xm-space-3);
+        }
+    `,
     imports: [UpperCasePipe, TranslateModule],
 })
 export class OptionalSectionsComponent {
