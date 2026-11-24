@@ -4,8 +4,8 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row p-2 mb-2 maturity-paragraph-title">
-    <div class="col-md-6">
+<div class="section-heading maturity-paragraph-title xm-split">
+    <div>
         {{ 'i18n_processed_language_inspections' | translate }}
         @if (inspections().length > 0) {
             <a (click)="toggleHideItems()" class="pointer ms-1">
@@ -14,263 +14,255 @@ SPDX-License-Identifier: EUPL-1.2
             </a>
         }
     </div>
-    <div class="col-md-6">
-        <small class="float-end">
-            <a [routerLink]="['/staff/inspections/reports']">{{
-                'i18n_language_inspection_report_link' | translate
-            }}</a>
-        </small>
-    </div>
+    <small>
+        <a [routerLink]="['/staff/inspections/reports']">{{ 'i18n_language_inspection_report_link' | translate }}</a>
+    </small>
 </div>
 
 <div [ngbCollapse]="hideItems()" [hidden]="inspections().length === 0">
-    <div class="col-md-12">
-        <!-- Start & End time datepickers -->
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <span class="maturity-input-label">&nbsp;</span>
-                <div class="input-group">
-                    <input
-                        [value]="filterText"
-                        (input)="onFilterInput($event)"
-                        class="form-control"
-                        placeholder="{{ 'i18n_search' | translate }}"
-                        ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    />
+    <!-- Start & End time datepickers -->
+    <div class="filters">
+        <div>
+            <span class="maturity-input-label">&nbsp;</span>
+            <div class="input-group">
+                <input
+                    [value]="filterText"
+                    (input)="onFilterInput($event)"
+                    class="form-control"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                    ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                />
 
-                    <div class="input-group-append bi-search search-append"></div>
-                </div>
+                <div class="input-group-append bi-search search-append"></div>
             </div>
+        </div>
 
-            <div class="col-md-2">
-                <span class="maturity-input-label">{{ 'i18n_begin' | translate }}</span>
-                <xm-date-picker
-                    [optional]="true"
-                    [initiallyEmpty]="true"
-                    (updated)="onStartDateChanged($event)"
-                ></xm-date-picker>
-            </div>
-            <div class="col-md-2">
-                <span class="maturity-input-label">{{ 'i18n_end' | translate }}</span>
-                <xm-date-picker
-                    [optional]="true"
-                    [initiallyEmpty]="true"
-                    (updated)="onEndDateChanged($event)"
-                ></xm-date-picker>
-            </div>
+        <div>
+            <span class="maturity-input-label">{{ 'i18n_begin' | translate }}</span>
+            <xm-date-picker
+                [optional]="true"
+                [initiallyEmpty]="true"
+                (updated)="onStartDateChanged($event)"
+            ></xm-date-picker>
+        </div>
+        <div>
+            <span class="maturity-input-label">{{ 'i18n_end' | translate }}</span>
+            <xm-date-picker
+                [optional]="true"
+                [initiallyEmpty]="true"
+                (updated)="onEndDateChanged($event)"
+            ></xm-date-picker>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12 table-responsive">
-        <table class="table table-striped xm-data-table" [hidden]="hideItems()">
-            <thead>
-                <tr>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="exam.course.code"
-                            text="i18n_code"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('exam.course.code')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="answerLanguage"
-                            text="i18n_language"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('answerLanguage')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="exam.name"
-                            text="i18n_exam_name"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('exam.name')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="ownerAggregate"
-                            text="i18n_teachers"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('ownerAggregate')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="created"
-                            text="i18n_arrived"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('created')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="studentNameAggregate"
-                            text="i18n_student"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('studentNameAggregate')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="exam.created"
-                            text="i18n_finished"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('exam.created')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="inspectorNameAggregate"
-                            text="i18n_language_inspector"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('inspectorNameAggregate')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="finishedAt"
-                            text="i18n_inspection_finished"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('finishedAt')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="approved"
-                            text="i18n_language_inspections"
-                            [predicate]="sorting().predicate"
-                            [reverse]="sorting().reverse"
-                            (click)="setPredicate('approved')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">{{ 'i18n_feedback' | translate }}</th>
-                </tr>
-            </thead>
+<div class="table-responsive">
+    <table class="table table-striped xm-data-table" [hidden]="hideItems()">
+        <thead>
+            <tr>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="exam.course.code"
+                        text="i18n_code"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('exam.course.code')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="answerLanguage"
+                        text="i18n_language"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('answerLanguage')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="exam.name"
+                        text="i18n_exam_name"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('exam.name')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="ownerAggregate"
+                        text="i18n_teachers"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('ownerAggregate')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="created"
+                        text="i18n_arrived"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('created')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="studentNameAggregate"
+                        text="i18n_student"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('studentNameAggregate')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="exam.created"
+                        text="i18n_finished"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('exam.created')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="inspectorNameAggregate"
+                        text="i18n_language_inspector"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('inspectorNameAggregate')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="finishedAt"
+                        text="i18n_inspection_finished"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('finishedAt')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="approved"
+                        text="i18n_language_inspections"
+                        [predicate]="sorting().predicate"
+                        [reverse]="sorting().reverse"
+                        (click)="setPredicate('approved')"
+                    >
+                    </xm-table-sort>
+                </th>
+                <th class="with-top">{{ 'i18n_feedback' | translate }}</th>
+            </tr>
+        </thead>
 
-            <tbody>
-                @for (
-                    inspection of filteredInspections()
-                        | orderBy: sorting().predicate : sorting().reverse
-                        | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
-                    track inspection.id
-                ) {
-                    <tr>
-                        <!-- 1 -->
+        <tbody>
+            @for (
+                inspection of filteredInspections()
+                    | orderBy: sorting().predicate : sorting().reverse
+                    | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
+                track inspection.id
+            ) {
+                <tr>
+                    <!-- 1 -->
+                    <td>
+                        @if (inspection.exam.course) {
+                            <xm-course-code [course]="inspection.exam.course"></xm-course-code>
+                        }
+                    </td>
+                    <!-- 2 -->
+                    <td>
+                        {{ inspection.answerLanguage }}
+                    </td>
+                    <!-- 3 -->
+                    <td>
+                        <a
+                            [routerLink]="['/staff/assessments', inspection.exam.id]"
+                            [ariaLabel]="'Open inspection for ' + inspection.exam.name"
+                        >
+                            {{ inspection.exam.name }}
+                        </a>
+                    </td>
+                    <!-- 4 -->
+                    <td>
+                        {{ inspection.ownerAggregate }}
+                    </td>
+                    <!-- 5 -->
+                    <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                    <!-- 6 -->
+                    <td>
+                        <span>{{ inspection.studentName }}</span>
+                        @if (inspection.exam.creator.userIdentifier) {
+                            <span>&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                        }
+                        <span>
+                            <br />
+                            <a class="pointer" href="mailto:{{ inspection.exam.creator.email }}">{{
+                                inspection.exam.creator.email
+                            }}</a>
+                        </span>
+                    </td>
+                    <!-- 7 -->
+                    <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                    <!-- 8 -->
+                    @if (inspection.modifier) {
                         <td>
-                            @if (inspection.exam.course) {
-                                <xm-course-code [course]="inspection.exam.course"></xm-course-code>
-                            }
-                        </td>
-                        <!-- 2 -->
-                        <td>
-                            {{ inspection.answerLanguage }}
-                        </td>
-                        <!-- 3 -->
-                        <td>
-                            <a
-                                [routerLink]="['/staff/assessments', inspection.exam.id]"
-                                [ariaLabel]="'Open inspection for ' + inspection.exam.name"
-                            >
-                                {{ inspection.exam.name }}
-                            </a>
-                        </td>
-                        <!-- 4 -->
-                        <td>
-                            {{ inspection.ownerAggregate }}
-                        </td>
-                        <!-- 5 -->
-                        <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
-                        <!-- 6 -->
-                        <td>
-                            <span>{{ inspection.studentName }}</span>
-                            @if (inspection.exam.creator.userIdentifier) {
-                                <span>&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
-                            }
+                            <span>{{ inspection.inspectorName }} </span>
                             <span>
                                 <br />
-                                <a class="pointer" href="mailto:{{ inspection.exam.creator.email }}">{{
-                                    inspection.exam.creator.email
+                                <a class="pointer" href="mailto:{{ inspection.modifier.email }}">{{
+                                    inspection.modifier.email
                                 }}</a>
                             </span>
                         </td>
-                        <!-- 7 -->
-                        <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
-                        <!-- 8 -->
-                        @if (inspection.modifier) {
-                            <td>
-                                <span>{{ inspection.inspectorName }} </span>
-                                <span>
-                                    <br />
-                                    <a class="pointer" href="mailto:{{ inspection.modifier.email }}">{{
-                                        inspection.modifier.email
-                                    }}</a>
-                                </span>
-                            </td>
+                    }
+                    <!-- 9 -->
+                    <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
+                    <!-- 10 -->
+                    <td>
+                        @if (inspection.approved) {
+                            <span class="text-success">
+                                {{ 'i18n_approved' | translate }}
+                            </span>
+                        } @else {
+                            <span class="text-danger">
+                                {{ 'i18n_rejected' | translate }}
+                            </span>
                         }
-                        <!-- 9 -->
-                        <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
-                        <!-- 10 -->
-                        <td>
-                            @if (inspection.approved) {
-                                <span class="text-success">
-                                    {{ 'i18n_approved' | translate }}
-                                </span>
-                            } @else {
-                                <span class="text-danger">
-                                    {{ 'i18n_rejected' | translate }}
-                                </span>
-                            }
-                        </td>
-                        <!-- 11 -->
-                        <td>
-                            <button type="button" class="btn btn-link" (click)="showStatement(inspection.statement)">
-                                {{ 'i18n_view' | translate }}
-                            </button>
-                        </td>
-                    </tr>
-                }
-                <!--Fill if page not full-->
-                @for (r of [] | pageFill: filteredInspections().length : currentPage() : pageSize; track r) {
-                    <tr>
-                        <td colspan="11">&nbsp;</td>
-                    </tr>
-                }
-                @if (filteredInspections().length === 0) {
-                    <tr>
-                        <td colspan="11">
-                            {{ 'i18n_processed_language_inspections_no_results' | translate }}
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                    </td>
+                    <!-- 11 -->
+                    <td>
+                        <button type="button" class="btn btn-link" (click)="showStatement(inspection.statement)">
+                            {{ 'i18n_view' | translate }}
+                        </button>
+                    </td>
+                </tr>
+            }
+            <!--Fill if page not full-->
+            @for (r of [] | pageFill: filteredInspections().length : currentPage() : pageSize; track r) {
+                <tr>
+                    <td colspan="11">&nbsp;</td>
+                </tr>
+            }
+            @if (filteredInspections().length === 0) {
+                <tr>
+                    <td colspan="11">
+                        {{ 'i18n_processed_language_inspections_no_results' | translate }}
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <div [hidden]="filteredInspections().length <= pageSize">
     <xm-paginator
