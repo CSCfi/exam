@@ -9,12 +9,18 @@ import { Component, input, TemplateRef } from '@angular/core';
     selector: 'xm-page-content',
     imports: [NgTemplateOutlet],
     template: `
-        <div class="row mx-3">
-            <div class="col-md-12 my-4">
-                <ng-container [ngTemplateOutlet]="content()"></ng-container>
-            </div>
+        <div class="page-content">
+            <ng-container [ngTemplateOutlet]="content()"></ng-container>
         </div>
     `,
+    styles: [
+        `
+            // Same inset as the page header, so the two line up on every page
+            .page-content {
+                padding: var(--xm-space-4) var(--xm-page-inset);
+            }
+        `,
+    ],
 })
 export class PageContentComponent {
     readonly content = input.required<TemplateRef<unknown>>();

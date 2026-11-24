@@ -15,21 +15,13 @@ import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-question',
     templateUrl: './question.component.html',
     styleUrls: ['../question.shared.scss'],
-    imports: [
-        ReactiveFormsModule,
-        TranslateModule,
-        PageHeaderComponent,
-        PageContentComponent,
-        HistoryBackComponent,
-        QuestionBodyComponent,
-    ],
+    imports: [ReactiveFormsModule, TranslateModule, PageHeaderComponent, PageContentComponent, QuestionBodyComponent],
 })
 export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDestroy {
     // Inputs - simplified API
@@ -126,7 +118,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDest
             // In modal, emit cancelled event
             this.cancelled.emit();
         } else {
-            // In route, use browser history back (same as HistoryBackComponent)
+            // In route, use browser history back (same as the header's back button)
             window.history.back();
         }
     }

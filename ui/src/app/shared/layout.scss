@@ -15,6 +15,10 @@
     --xm-space-3: 1rem;
     --xm-space-4: 1.5rem;
     --xm-space-5: 3rem;
+
+    // Distance of the page header and the page content from the edges of the main view. Both
+    // use it, so the header (back button included) never starts right of the content.
+    --xm-page-inset: 1.75rem;
 }
 
 // Vertical flow with even spacing between children.

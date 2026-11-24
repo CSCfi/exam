@@ -4,11 +4,8 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<xm-page-header [text]="examInfo().title || 'loading'" [prependTemplate]="linkBack" [appendTemplate]="status" />
+<xm-page-header [text]="examInfo().title || 'loading'" [back]="true" [appendTemplate]="status" />
 <xm-page-content [content]="content" />
-<ng-template #linkBack>
-    <xm-history-back></xm-history-back>
-</ng-template>
 <ng-template #status>
     @if (exam()?.state) {
         <span class="exam-status">{{ 'i18n_' + exam()!.state | lowercase | translate }} </span>
