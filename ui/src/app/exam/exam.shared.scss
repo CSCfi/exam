@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-.grey-top {
-    border-top: 1px solid #c3c3c3;
-}
+@use '../shared/breakpoints' as bp;
+
 @mixin selection-button($pl, $pr) {
     color: #2c2c2c;
     background-color: white;
@@ -31,4 +30,63 @@
 }
 .hover-grey:hover {
     background: #dedede !important;
+}
+
+/* Editor inputs that should not run the full width of the control column. A width, not a
+   flex-basis: inside a column flexbox (xm-stack) the basis would set the height instead. */
+.editor-field {
+    width: 100%;
+    max-width: 32rem;
+}
+/* Beside other items in a row: grow up to the cap, wrap below 18rem */
+.xm-cluster > .editor-field {
+    flex: 1 1 18rem;
+    width: auto;
+}
+
+/* Name + remove button rows (owners, inspectors) */
+.person-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--xm-space-3);
+    max-width: 32rem;
+}
+
+/* Save/remove at the end of an editor tab, the next tab link below a rule */
+.editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--xm-space-2);
+}
+.editor-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--xm-space-2);
+    padding-top: var(--xm-space-3);
+    border-top: 1px solid #c3c3c3;
+}
+
+/* Message textarea with the add button at its bottom edge */
+.inspector-message {
+    align-items: end;
+}
+/* The "next tab" link goes to the end, also when there is no "previous" */
+.editor-footer > .next {
+    margin-inline-start: auto;
+}
+/* Actions that belong at the start of an editor-actions row (add section…) */
+.editor-actions > .at-start {
+    margin-inline-end: auto;
+}
+
+/* Course code and name side by side from md up (course picker) */
+.course-fields {
+    display: grid;
+    gap: var(--xm-space-2) var(--xm-space-3);
+
+    @include bp.up(md) {
+        grid-template-columns: 1fr 1fr;
+    }
 }

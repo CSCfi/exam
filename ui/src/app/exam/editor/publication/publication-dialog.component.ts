@@ -24,12 +24,12 @@ import type { Exam } from 'src/app/exam/exam.model';
                 </p>
             }
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
             <button class="btn btn-success" (click)="activeModal.close()" autofocus>
                 {{ 'i18n_button_ok' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
-                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     `,

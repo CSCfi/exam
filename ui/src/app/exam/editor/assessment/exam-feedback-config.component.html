@@ -4,87 +4,86 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row ms-2 mt-4">
-    <div class="col-md-12">
-        <div class="xm-paragraph-title">
-            <span class="pointer" (click)="toggleDisplay()">
-                {{ 'i18n_exam_feedback_config' | translate }}
-                @if (examFeedbackConfig.enabled) {
-                    <span>({{ 'i18n_in_use' | translate }})</span>
+<div class="xm-stack">
+    <div class="xm-paragraph-title">
+        <span class="pointer" (click)="toggleDisplay()">
+            {{ 'i18n_exam_feedback_config' | translate }}
+            @if (examFeedbackConfig.enabled) {
+                <span>({{ 'i18n_in_use' | translate }})</span>
+            }
+            @if (!examFeedbackConfig.enabled) {
+                <span>({{ 'i18n_not_in_use' | translate }})</span>
+            }
+            <span
+                ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                class="ms-2"
+                triggers="mouseenter:mouseleave"
+            >
+                @if (!examFeedbackConfigDisplayVisible()) {
+                    <img src="/assets/images/icon_list_show_right.svg" alt="" />
                 }
-                @if (!examFeedbackConfig.enabled) {
-                    <span>({{ 'i18n_not_in_use' | translate }})</span>
+                @if (examFeedbackConfigDisplayVisible()) {
+                    <img src="/assets/images/icon_list_show_down.svg" alt="" />
                 }
-                <span
-                    ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    class="ms-2"
-                    triggers="mouseenter:mouseleave"
-                >
-                    @if (!examFeedbackConfigDisplayVisible()) {
-                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                    }
-                    @if (examFeedbackConfigDisplayVisible()) {
-                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
-                    }
-                </span>
             </span>
-        </div>
-    </div>
-</div>
-
-<div class="row ms-2" [ngbCollapse]="!examFeedbackConfigDisplayVisible()">
-    <div class="col-md-12 mt-3">
-        <span class="config-info">
-            {{ 'i18n_exam_feedback_config_instructions' | translate }}
         </span>
     </div>
-    <div class="row">
-        <div class="col-md-12 my-3">
-            @if (!examFeedbackConfig.enabled) {
-                <button
-                    class="btn btn-success"
-                    [class.feature-not-in-use]="modifiable() !== 'everything'"
-                    name="enableExamFeedbackConfig"
-                    (click)="enable()"
-                >
-                    {{ 'i18n_use' | translate }}
-                </button>
-            }
-            @if (examFeedbackConfig.enabled) {
-                <button
-                    class="btn btn-outline-danger"
-                    [class.feature-not-in-use]="modifiable() !== 'everything'"
-                    name="disableExamFeedbackConfig"
-                    (click)="disable()"
-                >
-                    {{ 'i18n_do_not_use' | translate }}
-                </button>
-            }
-        </div>
-    </div>
-</div>
 
-<div class="row ms-2 mt-2 align-items-end" [hidden]="!examFeedbackConfigDisplayVisible()">
-    <div class="col-6">
-        {{ 'i18n_exam_feedback_release_type' | translate }}:
-        <div class="dropdown" ngbDropdown>
-            <button class="btn btn-outline-dark" [disabled]="true" type="button" ngbDropdownToggle aria-expanded="true">
-                {{ selectedReleaseType()?.translation || '' | translate }}&nbsp;<span class="caret"></span>
-            </button>
-            <ul ngbDropdownMenu role="menu">
-                @for (type of availableReleaseTypes(); track type) {
-                    <li role="presentation" [class.active]="type.filtered" (click)="applyFilter(type)">
-                        <a ngbDropdownItem class="pointer">
-                            {{ type.translation | translate }}
-                        </a>
-                    </li>
+    <div [ngbCollapse]="!examFeedbackConfigDisplayVisible()">
+        <div class="xm-stack panel">
+            <p class="config-info">
+                {{ 'i18n_exam_feedback_config_instructions' | translate }}
+            </p>
+            <div>
+                @if (!examFeedbackConfig.enabled) {
+                    <button
+                        class="btn btn-success"
+                        [class.feature-not-in-use]="modifiable() !== 'everything'"
+                        name="enableExamFeedbackConfig"
+                        (click)="enable()"
+                    >
+                        {{ 'i18n_use' | translate }}
+                    </button>
                 }
-            </ul>
+                @if (examFeedbackConfig.enabled) {
+                    <button
+                        class="btn btn-outline-danger"
+                        [class.feature-not-in-use]="modifiable() !== 'everything'"
+                        name="disableExamFeedbackConfig"
+                        (click)="disable()"
+                    >
+                        {{ 'i18n_do_not_use' | translate }}
+                    </button>
+                }
+            </div>
         </div>
     </div>
 
-    <div class="col-6" [hidden]="!examFeedbackConfigDisplayVisible()">
+    <div class="xm-cluster xm-gap-3 panel release" [hidden]="!examFeedbackConfigDisplayVisible()">
+        <div>
+            {{ 'i18n_exam_feedback_release_type' | translate }}:
+            <div ngbDropdown>
+                <button
+                    class="btn btn-outline-dark"
+                    [disabled]="true"
+                    type="button"
+                    ngbDropdownToggle
+                    aria-expanded="true"
+                >
+                    {{ selectedReleaseType()?.translation || '' | translate }}
+                </button>
+                <ul ngbDropdownMenu role="menu">
+                    @for (type of availableReleaseTypes(); track type) {
+                        <li role="presentation" [class.active]="type.filtered" (click)="applyFilter(type)">
+                            <a ngbDropdownItem class="pointer">
+                                {{ type.translation | translate }}
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
         @if (selectedReleaseType()?.name === 'GIVEN_DATE') {
             <xm-date-picker
                 (updated)="releaseDateChanged($event)"

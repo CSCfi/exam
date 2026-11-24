@@ -33,6 +33,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
     selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
+    styleUrl: './sections.shared.scss',
     imports: [
         CdkDragHandle,
         NgbPopover,

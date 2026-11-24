@@ -4,342 +4,237 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row mx-2">
-    <div class="col-md-12">
-        <div class="row">
-            @if (!collaborative()) {
-                <div class="col-md-12 pt-2">
-                    <div class="xm-paragraph-title">{{ 'i18n_course_info' | translate }}</div>
+<div class="xm-stack">
+    @if (!collaborative()) {
+        <div class="xm-paragraph-title">{{ 'i18n_course_info' | translate }}</div>
+        <xm-exam-course [exam]="exam()" (updated)="onCourseChange($event)"></xm-exam-course>
+    }
+
+    <!-- Exam name and language -->
+    <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
+    <div class="xm-form-row">
+        <label for="exam-name">
+            {{ 'i18n_exam_name' | translate }}
+            <sup
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                ngbPopover="{{ 'i18n_exam_title_description' | translate }}"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </label>
+        <div>
+            <input
+                id="exam-name"
+                class="form-control w-50"
+                [formField]="examNameForm.name"
+                [class.is-invalid]="examNameForm.name().invalid() && examNameForm.name().touched()"
+                (input)="onExamNameInput()"
+                (blur)="updateExam()"
+            />
+            @if (examNameForm.name().invalid() && examNameForm.name().touched()) {
+                <div class="invalid-feedback d-block">
+                    {{ 'i18n_exam_name_missing_or_too_short' | translate }}
                 </div>
             }
         </div>
-        <div class="row">
-            <!-- General info section container -->
-            <div class="col-md-12">
-                <!-- Course data -->
-                @if (!collaborative()) {
-                    <xm-exam-course [exam]="exam()" (updated)="onCourseChange($event)"></xm-exam-course>
-                }
-                <!-- Exam name and language -->
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-3">
-                                {{ 'i18n_exam_name' | translate }}
-                                <sup
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'i18n_exam_title_description' | translate }}"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </div>
-                            <div class="col-md-9">
-                                <input
-                                    class="form-control w-50"
-                                    [formField]="examNameForm.name"
-                                    [class.is-invalid]="examNameForm.name().invalid() && examNameForm.name().touched()"
-                                    (input)="onExamNameInput()"
-                                    (blur)="updateExam()"
-                                />
-                                @if (examNameForm.name().invalid() && examNameForm.name().touched()) {
-                                    <div class="invalid-feedback d-block">
-                                        {{ 'i18n_exam_name_missing_or_too_short' | translate }}
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <div class="row">
-                            <div class="col-md-3">
-                                {{ 'i18n_exam_language' | translate }}
-                                <sup
-                                    ngbPopover="{{ 'i18n_exam_language_description' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </div>
-                            <div class="col">
-                                <xm-language-picker
-                                    [exam]="exam()"
-                                    [collaborative]="collaborative()"
-                                    [disabled]="collaborative() && !user.isAdmin"
-                                    (updated)="updateExamLanguages($event)"
-                                ></xm-language-picker>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    </div>
+    <div class="xm-form-row">
+        <span>
+            {{ 'i18n_exam_language' | translate }}
+            <sup
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                ngbPopover="{{ 'i18n_exam_language_description' | translate }}"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </span>
+        <xm-language-picker
+            [exam]="exam()"
+            [collaborative]="collaborative()"
+            [disabled]="collaborative() && !user.isAdmin"
+            (updated)="updateExamLanguages($event)"
+        ></xm-language-picker>
+    </div>
 
-                <!-- EXECUTION TYPE -->
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <div class="row">
-                            <div class="col-md-3">{{ 'i18n_new_exam_type' | translate }}</div>
-                            <div class="col-md-9">{{ getExecutionTypeTranslation() | translate }}</div>
-                        </div>
-                    </div>
-                </div>
+    <!-- EXECUTION TYPE -->
+    <div class="xm-form-row">
+        <span>{{ 'i18n_new_exam_type' | translate }}</span>
+        <span>{{ getExecutionTypeTranslation() | translate }}</span>
+    </div>
 
-                <!-- EXAMINATION TYPE -->
-                @if (byodExaminationSupported()) {
-                    <div class="row">
-                        <div class="col-md-12 mt-3">
-                            <div class="row">
-                                <div class="col-md-3">{{ 'i18n_examination_type' | translate }}</div>
-                                <div class="col-md-9">{{ getExaminationTypeName() | translate }}</div>
-                            </div>
-                        </div>
-                    </div>
-                }
+    <!-- EXAMINATION TYPE -->
+    @if (byodExaminationSupported()) {
+        <div class="xm-form-row">
+            <span>{{ 'i18n_examination_type' | translate }}</span>
+            <span>{{ getExaminationTypeName() | translate }}</span>
+        </div>
+    }
 
-                <!-- ANONYMOUS REVIEW -->
-                <div class="row" [hidden]="!showAnonymousReview()">
-                    <div class="col-md-12 mt-3">
-                        <div class="row">
-                            <div class="col-md-3">{{ 'i18n_anonymous_review' | translate }}</div>
-                            <div class="col-md-9">
-                                <input
-                                    type="checkbox"
-                                    title="anonymous"
-                                    name="anonymous"
-                                    [checked]="exam().anonymous"
-                                    (change)="onExamAnonymousChange($event)"
-                                    [disabled]="toggleAnonymousDisabled()"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- INTERNAL REF -->
-                <div class="row" [hidden]="exam().executionType.type !== 'PRINTOUT'">
-                    <div class="col-md-12 mt-3">
-                        <div class="row">
-                            <div class="col-md-3">
-                                {{ 'i18n_internal_exam_reference' | translate }}
-                            </div>
-                            <div class="col-md-9">
-                                <input
-                                    type="text"
-                                    maxlength="128"
-                                    [value]="exam().internalRef ?? ''"
-                                    (input)="onInternalRefInput($event)"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Exam owners -->
-                <div class="row">
-                    <div class="col-md-12">
-                        @if (!collaborative()) {
-                            <xm-exam-owner-picker [exam]="exam()"></xm-exam-owner-picker>
-                        }
-                    </div>
-                </div>
-
-                <!-- Subject to language inspection-->
-                <div class="row" [hidden]="exam().executionType.type !== 'MATURITY'">
-                    <div class="col-md-12 mt-3">
-                        <div class="row">
-                            <div class="col-md-3">
-                                {{ 'i18n_subject_to_language_inspection' | translate }}
-                            </div>
-                            <div class="col-md-9">
-                                <button
-                                    class="btn selection-button-wide"
-                                    [class.btn-primary]="exam().subjectToLanguageInspection === true"
-                                    [disabled]="exam().state === 'PUBLISHED'"
-                                    (click)="setSubjectToLanguageInspection(true)"
-                                >
-                                    {{ 'DIALOGS_YES' | translate }}</button
-                                >&nbsp;
-                                <button
-                                    class="btn selection-button-wide"
-                                    [class.btn-primary]="exam().subjectToLanguageInspection === false"
-                                    [disabled]="exam().state === 'PUBLISHED'"
-                                    (click)="setSubjectToLanguageInspection(false)"
-                                >
-                                    {{ 'DIALOGS_NO' | translate }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Exam inspectors -->
-                <div class="row">
-                    <div class="col-md-12">
-                        @if (exam().executionType.type !== 'MATURITY' && !collaborative()) {
-                            <xm-exam-inspector-picker [exam]="exam()"> </xm-exam-inspector-picker>
-                        }
-                    </div>
-                </div>
-
-                <!-- Space requirements and attachments -->
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <div class="row me-3">
-                            <div class="col-md-12">
-                                <div class="xm-paragraph-title">{{ 'i18n_exam_requirements' | translate }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @if (exam() && !collaborative()) {
-                    <xm-software-picker [exam]="exam()" (updated)="updateExamSoftwares($event)"></xm-software-picker>
-                }
-
-                <!-- EXAM ATTACHMENT -->
-                @if (exam().implementation !== 'CLIENT_AUTH') {
-                    <div class="row">
-                        <div class="col-md-12 mt-3">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    {{ 'i18n_exam_attachment' | translate }}
-                                    <sup
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        triggers="mouseenter:mouseleave"
-                                        ngbPopover="{{ 'i18n_attachment_description' | translate }}"
-                                    >
-                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                    </sup>
-                                </div>
-                                <div class="col-md-9">
-                                    <button type="button" class="btn btn-success" (click)="selectAttachmentFile()">
-                                        {{ 'i18n_attach_file' | translate }}
-                                    </button>
-                                    @if (exam().attachment) {
-                                        <div class="make-inline">
-                                            <button
-                                                type="button"
-                                                class="btn btn-link"
-                                                (click)="downloadExamAttachment()"
-                                                [ariaLabel]="'i18n_download_attachment' | translate"
-                                            >
-                                                <i class="bi-paperclip ps-2" aria-hidden="true"></i
-                                                >{{ exam().attachment?.fileName }}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="ms-2 border-none background-none"
-                                                (click)="removeExamAttachment()"
-                                                [ariaLabel]="'i18n_remove' | translate"
-                                            >
-                                                <i
-                                                    class="bi bi-x-lg text-danger"
-                                                    aria-hidden="true"
-                                                    title="{{ 'i18n_remove' | translate }}"
-                                                ></i>
-                                            </button>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                <!-- INSTRUCTIONS -->
-                <div class="row" [hidden]="exam().executionType.type === 'MATURITY'">
-                    <div class="col-md-12 mt-3">
-                        <div class="row me-3">
-                            <div class="col-md-12">
-                                <div class="xm-paragraph-title">{{ 'i18n_instruction' | translate }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" [hidden]="exam().executionType.type === 'MATURITY'">
-                    <div class="col-md-12 mt-3">
-                        <div class="row me-3">
-                            <div class="col-md-3">
-                                {{ 'i18n_exam_instruction' | translate }}
-                                <sup
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'i18n_exam_instruction_description' | translate }}"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </div>
-                            <div class="col-md-9">
-                                <xm-ckeditor
-                                    [data]="exam().instruction"
-                                    id="exam-instructions"
-                                    (dataChange)="instructionChanged($event)"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" [hidden]="exam().executionType.type === 'MATURITY'">
-                    <div class="col-md-12 mt-3">
-                        <div class="row me-3">
-                            @if (exam().executionType.type !== 'PRINTOUT') {
-                                <div class="col-md-3">
-                                    {{ 'i18n_enroll_instruction' | translate }}
-                                    <sup
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        triggers="mouseenter:mouseleave"
-                                        ngbPopover="{{ 'i18n_exam_enroll_instruction_description' | translate }}"
-                                    >
-                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                    </sup>
-                                </div>
-                            }
-                            <!-- Map these instructions to allowed tools in case of printout -->
-                            @if (exam().executionType.type === 'PRINTOUT') {
-                                <div class="col-md-3">
-                                    {{ 'i18n_allowed_tools' | translate }}
-                                </div>
-                            }
-                            <div class="col-md-9">
-                                <xm-ckeditor
-                                    [data]="exam().enrollInstruction"
-                                    id="enrolment-instructions"
-                                    (dataChange)="enrollInstructionsChanged($event)"
-                                ></xm-ckeditor>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- ANONYMOUS REVIEW -->
+    <div class="xm-form-row" [hidden]="!showAnonymousReview()">
+        <label for="exam-anonymous">{{ 'i18n_anonymous_review' | translate }}</label>
+        <div>
+            <input
+                id="exam-anonymous"
+                type="checkbox"
+                name="anonymous"
+                [checked]="exam().anonymous"
+                (change)="onExamAnonymousChange($event)"
+                [disabled]="toggleAnonymousDisabled()"
+            />
         </div>
     </div>
-</div>
 
-<!-- Buttons -->
-<div class="row d-flex flex-row-reverse flex-align-r m-4">
-    <div class="col-auto p1">
+    <!-- INTERNAL REF -->
+    <div class="xm-form-row" [hidden]="exam().executionType.type !== 'PRINTOUT'">
+        <label for="exam-internal-ref">{{ 'i18n_internal_exam_reference' | translate }}</label>
+        <div>
+            <input
+                id="exam-internal-ref"
+                type="text"
+                maxlength="128"
+                [value]="exam().internalRef ?? ''"
+                (input)="onInternalRefInput($event)"
+            />
+        </div>
+    </div>
+
+    <!-- Exam owners -->
+    @if (!collaborative()) {
+        <xm-exam-owner-picker [exam]="exam()"></xm-exam-owner-picker>
+    }
+
+    <!-- Subject to language inspection-->
+    <div class="xm-form-row" [hidden]="exam().executionType.type !== 'MATURITY'">
+        <span>{{ 'i18n_subject_to_language_inspection' | translate }}</span>
+        <div class="xm-cluster">
+            <button
+                class="btn selection-button-wide"
+                [class.btn-primary]="exam().subjectToLanguageInspection === true"
+                [disabled]="exam().state === 'PUBLISHED'"
+                (click)="setSubjectToLanguageInspection(true)"
+            >
+                {{ 'DIALOGS_YES' | translate }}
+            </button>
+            <button
+                class="btn selection-button-wide"
+                [class.btn-primary]="exam().subjectToLanguageInspection === false"
+                [disabled]="exam().state === 'PUBLISHED'"
+                (click)="setSubjectToLanguageInspection(false)"
+            >
+                {{ 'DIALOGS_NO' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Exam inspectors -->
+    @if (exam().executionType.type !== 'MATURITY' && !collaborative()) {
+        <xm-exam-inspector-picker [exam]="exam()"> </xm-exam-inspector-picker>
+    }
+
+    <!-- Space requirements and attachments -->
+    <div class="xm-paragraph-title">{{ 'i18n_exam_requirements' | translate }}</div>
+    @if (exam() && !collaborative()) {
+        <xm-software-picker [exam]="exam()" (updated)="updateExamSoftwares($event)"></xm-software-picker>
+    }
+
+    <!-- EXAM ATTACHMENT -->
+    @if (exam().implementation !== 'CLIENT_AUTH') {
+        <div class="xm-form-row">
+            <span>
+                {{ 'i18n_exam_attachment' | translate }}
+                <sup
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    ngbPopover="{{ 'i18n_attachment_description' | translate }}"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </span>
+            <div class="xm-cluster">
+                <button type="button" class="btn btn-success" (click)="selectAttachmentFile()">
+                    {{ 'i18n_attach_file' | translate }}
+                </button>
+                @if (exam().attachment) {
+                    <button
+                        type="button"
+                        class="btn btn-link"
+                        (click)="downloadExamAttachment()"
+                        [ariaLabel]="'i18n_download_attachment' | translate"
+                    >
+                        <i class="bi-paperclip" aria-hidden="true"></i>{{ exam().attachment?.fileName }}
+                    </button>
+                    <button
+                        type="button"
+                        class="border-none background-none"
+                        (click)="removeExamAttachment()"
+                        [ariaLabel]="'i18n_remove' | translate"
+                    >
+                        <i
+                            class="bi bi-x-lg text-danger"
+                            aria-hidden="true"
+                            title="{{ 'i18n_remove' | translate }}"
+                        ></i>
+                    </button>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- INSTRUCTIONS -->
+    @if (exam().executionType.type !== 'MATURITY') {
+        <div class="xm-paragraph-title">{{ 'i18n_instruction' | translate }}</div>
+        <div class="xm-form-row">
+            <span>
+                {{ 'i18n_exam_instruction' | translate }}
+                <sup
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    ngbPopover="{{ 'i18n_exam_instruction_description' | translate }}"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </span>
+            <xm-ckeditor [data]="exam().instruction" id="exam-instructions" (dataChange)="instructionChanged($event)" />
+        </div>
+        <div class="xm-form-row">
+            @if (exam().executionType.type !== 'PRINTOUT') {
+                <span>
+                    {{ 'i18n_enroll_instruction' | translate }}
+                    <sup
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        ngbPopover="{{ 'i18n_exam_enroll_instruction_description' | translate }}"
+                    >
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                    </sup>
+                </span>
+            } @else {
+                <!-- Map these instructions to allowed tools in case of printout -->
+                <span>{{ 'i18n_allowed_tools' | translate }}</span>
+            }
+            <xm-ckeditor
+                [data]="exam().enrollInstruction"
+                id="enrolment-instructions"
+                (dataChange)="enrollInstructionsChanged($event)"
+            ></xm-ckeditor>
+        </div>
+    }
+
+    <!-- Buttons -->
+    <div class="editor-actions">
+        @if (showDelete()) {
+            <button class="btn btn-outline-danger" (click)="removeExam()">{{ 'i18n_exam_remove' | translate }}</button>
+        }
         <button class="btn btn-success" (click)="updateExam()" [disabled]="examNameForm.name().invalid()">
             {{ 'i18n_save' | translate }}
         </button>
     </div>
-    <div class="col-auto p1">
-        @if (showDelete()) {
-            <button class="btn btn-outline-danger" (click)="removeExam()">{{ 'i18n_exam_remove' | translate }}</button>
-        }
-    </div>
-</div>
-<div class="row mt-3">
-    <div class="col-md-12 mb-3 pt-3 grey-top">
-        <span class="float-end">
-            <button class="btn btn-outline-secondary" (click)="nextTab()">
-                {{ 'i18n_questions' | translate }} &raquo;
-            </button>
-        </span>
+    <div class="editor-footer">
+        <button class="btn btn-outline-secondary next" (click)="nextTab()">
+            {{ 'i18n_questions' | translate }} &raquo;
+        </button>
     </div>
 </div>

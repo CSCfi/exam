@@ -7,94 +7,73 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="modal-header">
     <h1 class="xm-modal-title">{{ 'i18n_modify_materials' | translate }}</h1>
 </div>
-<div class="modal-body">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group input-group">
-                <input
-                    [value]="filter()"
-                    (input)="onFilterInput($event)"
-                    type="text"
-                    class="form-control"
-                    placeholder="{{ 'i18n_search_by_name' | translate }}"
-                    autofocus
-                />
-                <div class="input-group-append">
-                    <i class="bi-search"></i>
-                </div>
-            </div>
+<div class="modal-body xm-stack">
+    <div class="input-group">
+        <input
+            [value]="filter()"
+            (input)="onFilterInput($event)"
+            type="text"
+            class="form-control"
+            placeholder="{{ 'i18n_search_by_name' | translate }}"
+            autofocus
+        />
+        <div class="input-group-append">
+            <i class="bi-search"></i>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>{{ 'i18n_name' | translate }}</th>
-                        <th>{{ 'i18n_author' | translate }}</th>
-                        <th>ISBN</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (material of filteredMaterials(); track material) {
-                        <tr>
-                            <td>{{ material.name }}</td>
-                            <td>{{ material.author }}</td>
-                            <td>{{ material.isbn }}</td>
-                            <td>
-                                <i
-                                    (click)="removeMaterial(material)"
-                                    class="pointer bi-trash"
-                                    ngbPopover="{{ 'i18n_exam_remove' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                >
-                                </i>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>{{ 'i18n_name' | translate }}</th>
+                <th>{{ 'i18n_author' | translate }}</th>
+                <th>ISBN</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (material of filteredMaterials(); track material) {
+                <tr>
+                    <td>{{ material.name }}</td>
+                    <td>{{ material.author }}</td>
+                    <td>{{ material.isbn }}</td>
+                    <td>
+                        <i
+                            (click)="removeMaterial(material)"
+                            class="pointer bi-trash"
+                            ngbPopover="{{ 'i18n_exam_remove' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                        </i>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-    <div class="row">
-        <h1 class="col-md-12">
-            {{ 'i18n_create_new' | translate }}
-        </h1>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <form>
-                <div class="form-group">
-                    <label for="name">{{ 'i18n_name' | translate }}</label>
-                    <input id="name" class="form-control" aria-describedby="name" [formField]="materialForm.name" />
-                </div>
-                <div class="form-group">
-                    <label for="author">{{ 'i18n_author' | translate }}</label>
-                    <input
-                        id="author"
-                        class="form-control"
-                        aria-describedby="author"
-                        [formField]="materialForm.author"
-                    />
-                </div>
-                <div class="form-group">
-                    <label for="isbn">ISBN</label>
-                    <input id="isbn" class="form-control" aria-describedby="isbn" [formField]="materialForm.isbn" />
-                </div>
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                    [disabled]="materialForm.name().invalid()"
-                    (click)="createMaterial()"
-                >
-                    {{ 'i18n_create_new' | translate }}
-                </button>
-            </form>
+    <h1>{{ 'i18n_create_new' | translate }}</h1>
+    <form class="xm-stack xm-gap-2">
+        <div>
+            <label for="name">{{ 'i18n_name' | translate }}</label>
+            <input id="name" class="form-control" aria-describedby="name" [formField]="materialForm.name" />
         </div>
-    </div>
+        <div>
+            <label for="author">{{ 'i18n_author' | translate }}</label>
+            <input id="author" class="form-control" aria-describedby="author" [formField]="materialForm.author" />
+        </div>
+        <div>
+            <label for="isbn">ISBN</label>
+            <input id="isbn" class="form-control" aria-describedby="isbn" [formField]="materialForm.isbn" />
+        </div>
+        <button
+            type="submit"
+            class="btn btn-primary align-self-start"
+            [disabled]="materialForm.name().invalid()"
+            (click)="createMaterial()"
+        >
+            {{ 'i18n_create_new' | translate }}
+        </button>
+    </form>
 </div>
 <div class="modal-footer">
     <button class="btn btn-secondary" (click)="ok()">

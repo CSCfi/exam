@@ -22,71 +22,69 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         <xm-page-header text="i18n_printout_exams" />
         <xm-page-content [content]="content" />
         <ng-template #content>
-            <div class="row">
-                <div class="col-md-12">
-                    <table class="table table-striped table-sm xm-data-table">
-                        <thead>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm xm-data-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse()"
+                                    [predicate]="predicate()"
+                                    by="examinationDatesAggregate"
+                                    text="i18n_examination_dates"
+                                    (click)="setPredicate('examinationDatesAggregate')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse()"
+                                    [predicate]="predicate()"
+                                    by="course.code"
+                                    text="i18n_examcode"
+                                    (click)="setPredicate('course.code')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse()"
+                                    [predicate]="predicate()"
+                                    by="name"
+                                    text="i18n_exam_name"
+                                    (click)="setPredicate('name')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse()"
+                                    [predicate]="predicate()"
+                                    by="ownerAggregate"
+                                    text="i18n_teachers"
+                                    (click)="setPredicate('ownerAggregate')"
+                                ></xm-table-sort>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (exam of printouts() | orderBy: predicate() : reverse(); track exam) {
                             <tr>
-                                <th>
-                                    <xm-table-sort
-                                        [reverse]="reverse()"
-                                        [predicate]="predicate()"
-                                        by="examinationDatesAggregate"
-                                        text="i18n_examination_dates"
-                                        (click)="setPredicate('examinationDatesAggregate')"
-                                    ></xm-table-sort>
-                                </th>
-                                <th>
-                                    <xm-table-sort
-                                        [reverse]="reverse()"
-                                        [predicate]="predicate()"
-                                        by="course.code"
-                                        text="i18n_examcode"
-                                        (click)="setPredicate('course.code')"
-                                    ></xm-table-sort>
-                                </th>
-                                <th>
-                                    <xm-table-sort
-                                        [reverse]="reverse()"
-                                        [predicate]="predicate()"
-                                        by="name"
-                                        text="i18n_exam_name"
-                                        (click)="setPredicate('name')"
-                                    ></xm-table-sort>
-                                </th>
-                                <th>
-                                    <xm-table-sort
-                                        [reverse]="reverse()"
-                                        [predicate]="predicate()"
-                                        by="ownerAggregate"
-                                        text="i18n_teachers"
-                                        (click)="setPredicate('ownerAggregate')"
-                                    ></xm-table-sort>
-                                </th>
+                                <td>{{ exam.examinationDatesAggregate }}</td>
+                                <td>
+                                    @if (exam.course) {
+                                        <xm-course-code [course]="exam.course"></xm-course-code>
+                                    }
+                                </td>
+                                <td>
+                                    <a [routerLink]="['/staff/exams', exam.id, 'printout']"
+                                        ><strong>{{ exam.name }}</strong></a
+                                    >
+                                </td>
+                                <td>
+                                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @for (exam of printouts() | orderBy: predicate() : reverse(); track exam) {
-                                <tr>
-                                    <td>{{ exam.examinationDatesAggregate }}</td>
-                                    <td>
-                                        @if (exam.course) {
-                                            <xm-course-code [course]="exam.course"></xm-course-code>
-                                        }
-                                    </td>
-                                    <td>
-                                        <a [routerLink]="['/staff/exams', exam.id, 'printout']"
-                                            ><strong>{{ exam.name }}</strong></a
-                                        >
-                                    </td>
-                                    <td>
-                                        <xm-teacher-list [exam]="exam"></xm-teacher-list>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                        }
+                    </tbody>
+                </table>
             </div>
         </ng-template>
     `,

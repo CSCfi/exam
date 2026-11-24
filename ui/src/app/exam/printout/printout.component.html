@@ -21,12 +21,12 @@ SPDX-License-Identifier: EUPL-1.2
 </span>
 
 <div class="prow">
-    <div class="col-md-12 pcenter pinstruction">
+    <div class="pcenter pinstruction">
         <h3>TENTTI &ndash; TENTAMEN &ndash; EXAM</h3>
     </div>
 </div>
 <div class="prow pbreak">
-    <div class="col-md-12">
+    <div>
         <table class="pinfotable">
             <tr>
                 <td colspan="2">
@@ -122,13 +122,13 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 <hr class="hidden-print" />
 <div class="prow">
-    <div class="col-md-12 instruction center">
+    <div class="instruction center">
         <h3>KYSYMYKSET &ndash; FRÅGOR &ndash; QUESTIONS</h3>
     </div>
 </div>
 @if (exam()?.instruction) {
-    <div class="prow mb-3">
-        <div class="col-md-12">
+    <div class="prow pinstructions">
+        <div>
             <strong>Ohjeet / Anvisning / Instructions:</strong>
             <br />
             <div [innerHtml]="exam()!.instruction"></div>
@@ -138,37 +138,35 @@ SPDX-License-Identifier: EUPL-1.2
 @if (exam()?.examSections) {
     @for (es of exam()!.examSections | orderBy: 'sequenceNumber'; track es) {
         <div class="prow">
-            <div class="col-md-12">
+            <div>
                 <h4>{{ es.name }}</h4>
             </div>
         </div>
         @if (es.description) {
             <div class="prow">
-                <div class="col-md-12">
+                <div>
                     {{ es.description }}
                 </div>
             </div>
         }
         @for (esq of es.sectionQuestions | orderBy: 'sequenceNumber'; track esq) {
             <div class="prow pquestion">
-                <span class="col-md-8"
-                    ><strong>{{ esq.sequenceNumber + 1 }}.&nbsp;{{ getQuestionTypeName(esq) }}</strong></span
-                >
-                <span class="col-md-4"
-                    ><strong class="float-end">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
-                >
+                <div class="pquestion-header">
+                    <strong>{{ esq.sequenceNumber + 1 }}.&nbsp;{{ getQuestionTypeName(esq) }}</strong>
+                    <strong>{{ esq.derivedMaxScore }} pistettä / poäng / points</strong>
+                </div>
                 @if (esq.answerInstructions.length > 0) {
-                    <span class="col-md-12 pquestion"
+                    <span class="pquestion"
                         ><strong>Ohjeet / Anvisning / Instructions:</strong><br />
                         {{ esq.answerInstructions }}
                     </span>
                 }
                 @if (esq.question.type !== 'ClozeTestQuestion') {
-                    <span class="col-md-12 pquestion" [xmRichText]="esq.question.question"></span>
+                    <span class="pquestion" [xmRichText]="esq.question.question"></span>
                 }
                 @if (esq.question.type === 'ClozeTestQuestion') {
                     <span
-                        class="col-md-12 pquestion"
+                        class="pquestion"
                         [xmRichText]="$safeNavigationMigration(esq.clozeTestAnswer?.question)"
                     ></span>
                 }
@@ -177,7 +175,7 @@ SPDX-License-Identifier: EUPL-1.2
                     esq.question.type === 'WeightedMultipleChoiceQuestion' ||
                     esq.question.type === 'ClaimChoiceQuestion'
                 ) {
-                    <span class="col-md-12">
+                    <span>
                         @for (o of esq.options; track o) {
                             @if (esq.question.type === 'WeightedMultipleChoiceQuestion') {
                                 <div class="checkbox">

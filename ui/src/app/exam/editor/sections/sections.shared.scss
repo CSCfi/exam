@@ -26,3 +26,45 @@
     font-size: 1.125rem;
     color: #555555;
 }
+
+/* Section heading: drag handle, title and the edit menu at the end */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--xm-space-2);
+    padding-bottom: var(--xm-space-3);
+
+    > .section-title {
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--xm-space-2);
+    }
+}
+
+.lottery-count {
+    width: 6rem;
+}
+
+/* Question card heading: drag handle, id and points, the settings menu at the end */
+.question-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--xm-space-3);
+
+    > .question-menu {
+        margin-inline-start: auto;
+    }
+}
+.expand-toggle {
+    align-self: start;
+}
+.question-details {
+    padding: var(--xm-space-2) 0 0 var(--xm-space-2);
+}
+.option-row {
+    gap: var(--xm-space-2);
+}

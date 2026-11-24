@@ -15,14 +15,14 @@ SPDX-License-Identifier: EUPL-1.2
     </h1>
 </div>
 
-<form class="modal-body">
+<form class="modal-body xm-stack xm-gap-2">
     @if (hasEnrolments()) {
         <div class="alert alert-warning form-text">
             {{ 'i18n_enrolments_exist_for_examination_event' | translate }}
         </div>
     }
     @if (maintenancePeriods().length > 0) {
-        <div class="alert alert-warning form-text mb-2">
+        <div class="alert alert-warning form-text">
             {{ 'i18n_maintenance_periods' | translate }}
             @for (period of maintenancePeriods() | orderBy: 'startsAt'; track period) {
                 <span class="d-block">
@@ -47,7 +47,7 @@ SPDX-License-Identifier: EUPL-1.2
         autofocus
     >
     </xm-date-time-picker>
-    <div class="form-group">
+    <div>
         <label for="description">{{ 'i18n_instructions' | translate }}:</label>
         <textarea
             id="description"
@@ -61,7 +61,7 @@ SPDX-License-Identifier: EUPL-1.2
             }
         }
     </div>
-    <div class="form-group">
+    <div>
         <label for="capacity">{{ 'i18n_event_capacity' | translate }}:</label>
         <input
             id="capacity"
@@ -95,7 +95,7 @@ SPDX-License-Identifier: EUPL-1.2
         </ul>
     </div>
     @if (requiresPassword()) {
-        <div class="form-group mt-2">
+        <div>
             <label for="settings-password">{{ 'i18n_settings_password' | translate }}:</label>
             <div id="settings-password" class="input-group">
                 <input
@@ -119,7 +119,7 @@ SPDX-License-Identifier: EUPL-1.2
                 }
             }
         </div>
-        <div class="form-group">
+        <div>
             <label for="quit-password">{{ 'i18n_quit_password' | translate }}:</label>
             <div id="quit-password" class="input-group">
                 <input
@@ -146,21 +146,19 @@ SPDX-License-Identifier: EUPL-1.2
     }
 </form>
 <div class="modal-footer">
-    <div class="d-flex flex-row-reverse flex-align-r">
-        <button
-            class="btn btn-success"
-            [disabled]="
-                eventForm.description().invalid() ||
-                eventForm.capacity().invalid() ||
-                eventForm.settingsPassword().invalid() ||
-                eventForm.quitPassword().invalid()
-            "
-            (click)="ok()"
-        >
-            {{ 'i18n_button_accept' | translate }}
-        </button>
-        <button class="btn btn-outline-secondary me-3" (click)="cancel()">
-            {{ 'i18n_button_decline' | translate }}
-        </button>
-    </div>
+    <button class="btn btn-outline-secondary" (click)="cancel()">
+        {{ 'i18n_button_decline' | translate }}
+    </button>
+    <button
+        class="btn btn-success"
+        [disabled]="
+            eventForm.description().invalid() ||
+            eventForm.capacity().invalid() ||
+            eventForm.settingsPassword().invalid() ||
+            eventForm.quitPassword().invalid()
+        "
+        (click)="ok()"
+    >
+        {{ 'i18n_button_accept' | translate }}
+    </button>
 </div>

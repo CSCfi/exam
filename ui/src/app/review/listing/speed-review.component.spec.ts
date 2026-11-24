@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { ExamService } from 'src/app/exam/exam.service';
 import { errorInterceptor } from 'src/app/interceptors/error.interceptor';
+import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
@@ -100,6 +101,18 @@ describe('SpeedReviewComponent', () => {
             ['Meikäläinen 1 Maija', '01:30'],
             ['Meikäläinen 2 Maija', '01:30'],
         ]);
+    });
+
+    it('should list the exam owners without a gap before the separator', () => {
+        component.examInfo.set({
+            title: 'MA1 Maths',
+            anonymous: false,
+            examOwners: [
+                { firstName: 'Maija', lastName: 'Meikäläinen' },
+                { firstName: 'Matti', lastName: 'Meikäläinen' },
+            ] as User[],
+        });
+        expect(component.ownerNames()).toBe('Maija Meikäläinen, Matti Meikäläinen');
     });
 
     it('should offer the scale grades and the non-grade options', () => {

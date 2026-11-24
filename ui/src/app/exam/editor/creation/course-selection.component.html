@@ -9,38 +9,24 @@ SPDX-License-Identifier: EUPL-1.2
     <xm-page-content [content]="content" />
 }
 <ng-template #content>
-    <div class="row my-3">
-        <div class="col">
-            <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
+    <div class="xm-stack">
+        <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
+        <div class="xm-form-row">
+            <span>
+                {{ 'i18n_new_exam_type' | translate }}
+                <sup
+                    triggers="mouseenter:mouseleave"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </span>
+            <span>{{ getExecutionTypeTranslation() | translate }}</span>
         </div>
-    </div>
-    <div class="row mt-1">
-        <div class="col-md-3">
-            {{ 'i18n_new_exam_type' | translate }}
-            <sup
-                triggers="mouseenter:mouseleave"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
-            >
-                <img src="/assets/images/icon_tooltip.svg" alt="" />
-            </sup>
-        </div>
-        <div class="col">
-            {{ getExecutionTypeTranslation() | translate }}
-        </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col">
-            <xm-exam-course [exam]="exam()!" (updated)="onCourseSelected($event)"></xm-exam-course>
-        </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col">
-            <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
-        </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col-md-12">
+        <xm-exam-course [exam]="exam()!" (updated)="onCourseSelected($event)"></xm-exam-course>
+        <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
+        <div>
             <label class="form-label" for="examName"
                 >{{ 'i18n_exam_name' | translate }}
                 <sup
@@ -59,7 +45,9 @@ SPDX-License-Identifier: EUPL-1.2
                 (input)="onExamNameInput($event)"
                 (keydown.enter)="$event.preventDefault()"
             />
-            <label class="form-label mt-2" for="examLanguage">
+        </div>
+        <div>
+            <label class="form-label" for="examLanguage">
                 {{ 'i18n_exam_language' | translate }}
                 <sup
                     ngbPopover="{{ 'i18n_exam_language_description' | translate }}"
@@ -77,23 +65,16 @@ SPDX-License-Identifier: EUPL-1.2
                 ></xm-language-picker>
             }
         </div>
-    </div>
-    <div class="row m-3 justify-content-end d-flex">
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <!-- buttons -->
+        <div class="editor-actions">
+            <button class="btn btn-outline-secondary" (click)="cancelNewExam()" [hidden]="exam()?.state !== 'DRAFT'">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
             <button
                 class="btn btn-success"
                 [disabled]="!exam()?.course || !exam()?.name || (exam()?.examLanguages?.length ?? 0) < 1"
                 (click)="continueToExam()"
             >
                 {{ 'i18n_save' | translate }}
-            </button>
-            <button
-                class="btn btn-outline-secondary me-3"
-                (click)="cancelNewExam()"
-                [hidden]="exam()?.state !== 'DRAFT'"
-            >
-                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     </div>

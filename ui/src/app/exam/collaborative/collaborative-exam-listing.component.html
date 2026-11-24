@@ -8,47 +8,45 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-content [content]="content" />
 <ng-template #button>
     @if (user.isAdmin) {
-        <a class="float-end btn btn-success" (click)="createExam()">
-            {{ 'i18n_toolbar_new_exam' | translate }}
-        </a>
+        <div class="header-actions">
+            <a class="btn btn-success" (click)="createExam()">
+                {{ 'i18n_toolbar_new_exam' | translate }}
+            </a>
+        </div>
     }
 </ng-template>
 <ng-template #content>
-    <div class="row">
-        <div class="col-12">
-            <ul
-                ngbNav
-                #nav="ngbNav"
-                [activeId]="view()"
-                (activeIdChange)="setView($event)"
-                class="nav-tabs"
-                [keyboard]="false"
-            >
-                <li [ngbNavItem]="'PUBLISHED'">
-                    <a ngbNavLink>
-                        {{ 'i18n_published_joint_exams' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ publishedCount() }}</span>
-                    </a>
-                </li>
-                <li [ngbNavItem]="'EXPIRED'">
-                    <a ngbNavLink>
-                        {{ 'i18n_expired_joint_exams' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ expiredCount() }}</span>
-                    </a>
-                </li>
-                <li [ngbNavItem]="'DRAFTS'">
-                    <a ngbNavLink>
-                        {{ 'i18n_joint_exam_drafts' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ draftsCount() }}</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
+    <div class="xm-stack">
+        <ul
+            ngbNav
+            #nav="ngbNav"
+            [activeId]="view()"
+            (activeIdChange)="setView($event)"
+            class="nav-tabs"
+            [keyboard]="false"
+        >
+            <li [ngbNavItem]="'PUBLISHED'">
+                <a ngbNavLink>
+                    {{ 'i18n_published_joint_exams' | translate }}
+                    <span class="badge bg-secondary">{{ publishedCount() }}</span>
+                </a>
+            </li>
+            <li [ngbNavItem]="'EXPIRED'">
+                <a ngbNavLink>
+                    {{ 'i18n_expired_joint_exams' | translate }}
+                    <span class="badge bg-secondary">{{ expiredCount() }}</span>
+                </a>
+            </li>
+            <li [ngbNavItem]="'DRAFTS'">
+                <a ngbNavLink>
+                    {{ 'i18n_joint_exam_drafts' | translate }}
+                    <span class="badge bg-secondary">{{ draftsCount() }}</span>
+                </a>
+            </li>
+        </ul>
 
-    <div class="row mt-3">
-        <div class="col-4">
-            <div class="form-group input-group">
+        <div class="xm-cluster">
+            <div class="input-group list-search">
                 <input
                     (keyup)="search($event)"
                     type="text"
@@ -60,17 +58,13 @@ SPDX-License-Identifier: EUPL-1.2
                 />
                 <div class="input-group-append bi-search search-append"></div>
             </div>
-        </div>
-        <div class="col" [hidden]="!loading()">
-            <button class="btn btn-success" type="button" disabled>
+            <button class="btn btn-success" type="button" disabled [hidden]="!loading()">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 {{ 'i18n_searching' | translate }}...
             </button>
         </div>
-    </div>
 
-    <div class="row mt-2">
-        <div class="col-12 table-responsive">
+        <div class="table-responsive">
             <table class="table table-striped table-sm xm-data-table">
                 <thead>
                     <tr>

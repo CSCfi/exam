@@ -7,44 +7,35 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-header text="i18n_byod_exam_search" />
 <xm-page-content [content]="content" />
 <ng-template #content>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <div class="row mt-3 align-items-center" role="note">
-                        <div class="col-auto"><img src="/assets/images/icon_info.png" alt="" role="note" /></div>
-                        <div class="col">
-                            {{ 'i18n_byod_exam_search_description' | translate }}
-                        </div>
-                    </div>
-                </div>
+    <div class="xm-stack">
+        <p class="xm-icon-text" role="note">
+            <img src="/assets/images/icon_info.png" alt="" />
+            {{ 'i18n_byod_exam_search_description' | translate }}
+        </p>
+        <div class="xm-fields">
+            <!-- Start & End time datepickers -->
+            <div>
+                <label>{{ 'i18n_begin' | translate }}</label>
+                <xm-date-picker
+                    [optional]="true"
+                    [initialDate]="date()"
+                    (updated)="startDateChanged($event)"
+                ></xm-date-picker>
             </div>
-        </div>
-    </div>
-    <div class="row my-3 align-items-end">
-        <!-- Start & End time datepickers -->
-        <div class="col-2">
-            {{ 'i18n_begin' | translate }}
-            <xm-date-picker
-                [optional]="true"
-                [initialDate]="date()"
-                (updated)="startDateChanged($event)"
-            ></xm-date-picker>
-        </div>
-        <div class="col-2">
-            {{ 'i18n_end' | translate }}
-            <xm-date-picker
-                [optional]="true"
-                [initialDate]="date()"
-                (updated)="endDateChanged($event)"
-            ></xm-date-picker>
-        </div>
-        <div class="col-2">
+            <div>
+                <label>{{ 'i18n_end' | translate }}</label>
+                <xm-date-picker
+                    [optional]="true"
+                    [initialDate]="date()"
+                    (updated)="endDateChanged($event)"
+                ></xm-date-picker>
+            </div>
             <div class="input-group">
                 <input
                     [value]="filterText()"
                     (input)="onFilterInput($event)"
                     class="form-control"
+                    [ariaLabel]="'i18n_search' | translate"
                     placeholder="{{ 'i18n_search' | translate }}"
                     ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -54,11 +45,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
-    </div>
 
-    @if (events().length > 0) {
-        <div class="row">
-            <div class="col-md-12 mt-4">
+        @if (events().length > 0) {
+            <div class="table-responsive">
                 <table class="table table-striped xm-data-table">
                     <thead>
                         <tr>
@@ -171,12 +160,8 @@ SPDX-License-Identifier: EUPL-1.2
                     </tbody>
                 </table>
             </div>
-        </div>
-    } @else {
-        <div class="row mt-4">
-            <div class="col-md-12">
-                {{ 'i18n_exam_no_result' | translate }}
-            </div>
-        </div>
-    }
+        } @else {
+            <p>{{ 'i18n_exam_no_result' | translate }}</p>
+        }
+    </div>
 </ng-template>

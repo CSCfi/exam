@@ -4,55 +4,52 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="xm-paragraph-title pb-3">
-            <span cdkDragHandle class="me-2">
-                <i
-                    class="bi bi-arrows-vertical"
-                    ngbPopover="{{ 'i18n_move_section' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    placement="top-left"
-                    triggers="mouseenter:mouseleave"
-                ></i>
-            </span>
-            <span (mousedown)="$event.stopPropagation()">
+<div class="xm-stack">
+    <div class="xm-paragraph-title section-header">
+        <span cdkDragHandle>
+            <i
+                class="bi bi-arrows-vertical"
+                ngbPopover="{{ 'i18n_move_section' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                placement="top-left"
+                triggers="mouseenter:mouseleave"
+            ></i>
+        </span>
+        <span class="section-title" (mousedown)="$event.stopPropagation()">
+            <span>
                 {{ 'i18n_section_title' | translate }} {{ index() }}
                 <sup
                     ngbPopover="{{ 'i18n_exam_section_order_description' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
-                    class="me-4"
                 >
                     <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
-                <!-- settings -->
-                <div class="float-end" ngbDropdown>
-                    <button class="btn btn-outline-dark" ngbDropdownToggle>
-                        {{ 'i18n_edit' | translate }}
-                    </button>
-                    <div ngbDropdownMenu>
-                        <button ngbDropdownItem (click)="clearAllQuestions()">
-                            {{ 'i18n_exam_clear' | translate }}
-                        </button>
-                        <button ngbDropdownItem (click)="removeSection()">
-                            {{ 'i18n_exam_remove' | translate }}
-                        </button>
-                    </div>
-                </div>
             </span>
-        </div>
+            <!-- settings -->
+            <div ngbDropdown>
+                <button class="btn btn-outline-dark" ngbDropdownToggle>
+                    {{ 'i18n_edit' | translate }}
+                </button>
+                <div ngbDropdownMenu>
+                    <button ngbDropdownItem (click)="clearAllQuestions()">
+                        {{ 'i18n_exam_clear' | translate }}
+                    </button>
+                    <button ngbDropdownItem (click)="removeSection()">
+                        {{ 'i18n_exam_remove' | translate }}
+                    </button>
+                </div>
+            </div>
+        </span>
     </div>
-</div>
-<div (mousedown)="$event.stopPropagation()">
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <form>
+    <div class="xm-stack" (mousedown)="$event.stopPropagation()">
+        <form class="xm-stack xm-gap-3">
+            <div>
                 <label for="sectionName_{{ section().id }}" class="form-label">
                     {{ 'i18n_section_name' | translate }}
                     <sup
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         ngbPopover="{{ 'i18n_exam_section_name_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
                         <img src="/assets/images/icon_tooltip.svg" alt="" />
@@ -61,11 +58,13 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     id="sectionName_{{ section().id }}"
                     type="text"
-                    class="form-control mb-1 w-50"
+                    class="form-control w-50"
                     [class.is-invalid]="sectionForm.name().invalid() && sectionForm.name().touched()"
                     [formField]="sectionForm.name"
                     (change)="renameSection()"
                 />
+            </div>
+            <div>
                 <label for="sectionDescription_{{ section().id }}" class="form-label">
                     {{ 'i18n_section_description' | translate }}
                     <sup
@@ -79,146 +78,126 @@ SPDX-License-Identifier: EUPL-1.2
                 <textarea
                     (focus)="$event.stopPropagation()"
                     id="sectionDescription_{{ section().id }}"
-                    class="form-control mb-3"
+                    class="form-control"
                     rows="4"
                     cols="150"
                     [formField]="sectionForm.description"
                     (change)="renameSection()"
                 >
                 </textarea>
-                <!-- Section material resources-->
-                <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
-                <!-- exam-material-selector [section]="section()" [allMaterials]="materials()"
-                         (changed)="materialsChanged.emit()"></exam-material-selector -->
-                @if (!collaborative() && canBeOptional()) {
-                    <div class="form-check mb-3">
-                        <input
-                            id="sectionOptionality_{{ section().id }}"
-                            class="form-check-input"
-                            type="checkbox"
-                            [formField]="sectionForm.optional"
-                            (change)="renameSection()"
-                        />
-                        <label for="sectionOptionality_{{ section().id }}" class="form-check-label">
-                            {{ 'i18n_optional_section' | translate }}
-                            <sup
-                                ngbPopover="{{ 'i18n_optional_section_description' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            >
-                                <img src="/assets/images/icon_tooltip.svg" alt="" />
-                            </sup>
-                        </label>
-                    </div>
-                }
+            </div>
+            <!-- Section material resources-->
+            <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
+            <!-- exam-material-selector [section]="section()" [allMaterials]="materials()"
+                     (changed)="materialsChanged.emit()"></exam-material-selector -->
+            @if (!collaborative() && canBeOptional()) {
                 <div class="form-check">
                     <input
-                        id="sectionRandomized_{{ section().id }}"
-                        type="checkbox"
+                        id="sectionOptionality_{{ section().id }}"
                         class="form-check-input"
-                        [formField]="sectionForm.lotteryOn"
-                        (change)="toggleLottery()"
+                        type="checkbox"
+                        [formField]="sectionForm.optional"
+                        (change)="renameSection()"
                     />
-                    <label for="sectionRandomized_{{ section().id }}" class="form-check-label">
-                        {{ 'i18n_randomize_questions' | translate }}
+                    <label for="sectionOptionality_{{ section().id }}" class="form-check-label">
+                        {{ 'i18n_optional_section' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_optional_section_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
                     </label>
-                    <sup
-                        ngbPopover="{{ 'i18n_exam_section_randomize_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                        class="ms-1"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                    </sup>
-                    @if (!questionPointsMatch()) {
-                        <span class="text text-danger ms-2">{{
-                            'i18n_error_lottery_points_not_match' | translate
-                        }}</span>
-                    }
                 </div>
-                @if (section().lotteryOn) {
-                    <div class="row">
-                        <div class="col-auto">
-                            <label class="col-form-label" for="sectionLotteryCount_{{ section().id }}">
-                                {{ 'i18n_lottery_questions' | translate }} [1...{{
-                                    section().sectionQuestions.length
-                                }}]</label
-                            >
-                        </div>
-                        <div class="col-auto">
-                            <input
-                                id="sectionLotteryCount_{{ section().id }}"
-                                class="form-control"
-                                type="number"
-                                lang="en"
-                                [class.is-invalid]="
-                                    sectionForm.lotteryItemCount().invalid() && sectionForm.lotteryItemCount().touched()
-                                "
-                                [formField]="sectionForm.lotteryItemCount"
-                                (change)="updateLotteryCount()"
-                            />
-                        </div>
-                    </div>
-                }
-            </form>
-        </div>
-    </div>
-
-    @if (getSectionTotalScore() > 0) {
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <strong>{{ 'i18n_section_max_score' | translate }}: {{ getSectionTotalScore() }}</strong>
-            </div>
-        </div>
-    }
-    @if (getAmountOfSelectionEvaluatedQuestions() > 0) {
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_evaluation_select' | translate }}
+            }
+            <div class="form-check">
+                <input
+                    id="sectionRandomized_{{ section().id }}"
+                    type="checkbox"
+                    class="form-check-input"
+                    [formField]="sectionForm.lotteryOn"
+                    (change)="toggleLottery()"
+                />
+                <label for="sectionRandomized_{{ section().id }}" class="form-check-label">
+                    {{ 'i18n_randomize_questions' | translate }}
+                </label>
                 <sup
-                    ngbPopover="{{ 'i18n_evaluation_select_amount_description' | translate }}"
+                    class="ms-1"
+                    ngbPopover="{{ 'i18n_exam_section_randomize_description' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
+                @if (!questionPointsMatch()) {
+                    <span class="text text-danger ms-2">{{ 'i18n_error_lottery_points_not_match' | translate }}</span>
+                }
             </div>
-            <div class="col-md-9">
-                {{ getAmountOfSelectionEvaluatedQuestions() }}
-            </div>
-        </div>
-    }
+            @if (section().lotteryOn) {
+                <div class="xm-cluster">
+                    <label class="col-form-label" for="sectionLotteryCount_{{ section().id }}">
+                        {{ 'i18n_lottery_questions' | translate }} [1...{{ section().sectionQuestions.length }}]</label
+                    >
+                    <input
+                        id="sectionLotteryCount_{{ section().id }}"
+                        class="form-control lottery-count"
+                        type="number"
+                        lang="en"
+                        [class.is-invalid]="
+                            sectionForm.lotteryItemCount().invalid() && sectionForm.lotteryItemCount().touched()
+                        "
+                        [formField]="sectionForm.lotteryItemCount"
+                        (change)="updateLotteryCount()"
+                    />
+                </div>
+            }
+        </form>
 
-    <div class="row mt-4 mb-4">
-        <div class="col-md-12">
-            <div class="xm-paragraph-title">
-                {{ 'i18n_exam_questions' | translate }}
-                <a
-                    class="pointer"
-                    ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                    (click)="toggleExpanded()"
-                >
-                    @if (!expanded()) {
-                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                    }
-                    @if (expanded()) {
-                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
-                    }
-                </a>
+        @if (getSectionTotalScore() > 0) {
+            <strong>{{ 'i18n_section_max_score' | translate }}: {{ getSectionTotalScore() }}</strong>
+        }
+        @if (getAmountOfSelectionEvaluatedQuestions() > 0) {
+            <div class="xm-form-row">
+                <span>
+                    {{ 'i18n_evaluation_select' | translate }}
+                    <sup
+                        ngbPopover="{{ 'i18n_evaluation_select_amount_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                    </sup>
+                </span>
+                <span>{{ getAmountOfSelectionEvaluatedQuestions() }}</span>
             </div>
-        </div>
-    </div>
+        }
 
-    <div class="row" [ngbCollapse]="!expanded()">
-        <div class="col-md-12 mt-2">
-            <div cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="p-0 mb-2">
+        <div class="xm-paragraph-title">
+            {{ 'i18n_exam_questions' | translate }}
+            <a
+                class="pointer"
+                ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                (click)="toggleExpanded()"
+            >
+                @if (!expanded()) {
+                    <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                }
+                @if (expanded()) {
+                    <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                }
+            </a>
+        </div>
+
+        <div [ngbCollapse]="!expanded()">
+            <div cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="xm-stack xm-gap-4">
                 @for (
                     sectionQuestion of section().sectionQuestions | orderBy: 'sequenceNumber';
                     track sectionQuestion.id
                 ) {
-                    <div cdkDrag cdkDragLockAxis="y" class="mb-4">
+                    <div cdkDrag cdkDragLockAxis="y">
                         <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
                         <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
                         <xm-section-question
@@ -237,15 +216,13 @@ SPDX-License-Identifier: EUPL-1.2
                 }
             </div>
         </div>
-    </div>
-    <div class="row my-3">
-        <div class="col-12">
+        <div class="xm-cluster">
             @if (!collaborative()) {
                 <button class="btn btn-success" (click)="openLibrary()">
                     <i class="bi-plus"></i>&nbsp;{{ 'i18n_add_from_library' | translate }}
                 </button>
             }
-            <button class="btn btn-success ms-2" (click)="addNewQuestion()">
+            <button class="btn btn-success" (click)="addNewQuestion()">
                 <i class="bi-plus"></i>&nbsp;{{ 'i18n_exam_new_question' | translate }}
             </button>
         </div>

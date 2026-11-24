@@ -10,26 +10,37 @@
     line-height: 1.625rem;
 }
 
-.autoevaluation-titles {
-    background-color: white;
-    border: 0;
-    font-size: 0.75rem;
-    color: #777777;
-    text-transform: uppercase;
-    font-weight: normal;
-    padding-bottom: 10px;
+/* Grade, percentage and point limit columns */
+.grade-limits {
+    th {
+        font-size: 0.75rem;
+        color: #777777;
+        text-transform: uppercase;
+        font-weight: normal;
+        padding-bottom: 10px;
+    }
+    th,
+    td {
+        padding-inline-end: var(--xm-space-5);
+    }
+    td {
+        padding-block: var(--xm-space-1);
+    }
 }
 
 .autoevaluation-inputs {
     width: 113px;
     height: 40px;
-    //border: 1px solid #EDEDED;
     display: inline-block;
 }
 
-.autoevaluation-numbers {
-    height: 40px;
-    padding-top: 10px;
+/* Collapsible content indented under the panel title */
+.panel {
+    padding-inline-start: var(--xm-space-2);
+}
+
+.release-field {
+    max-width: 24rem;
 }
 
 // Form validation border

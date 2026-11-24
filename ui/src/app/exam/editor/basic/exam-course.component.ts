@@ -13,46 +13,35 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-exam-course',
-    template: `<div class="row align-items-center">
-            <div class="col-md-3 mt-2">
-                {{ 'i18n_course' | translate }}
-                <sup
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    ngbPopover="{{ 'i18n_select_exam_course_description' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" placement="top" />
-                </sup>
-            </div>
-            <div class="col mt-2">
+    template: `
+        <div class="xm-stack">
+            <div class="xm-form-row">
+                <span>
+                    {{ 'i18n_course' | translate }}
+                    <sup
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_select_exam_course_description' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
+                        <img src="/assets/images/icon_tooltip.svg" alt="" placement="top" />
+                    </sup>
+                </span>
                 <xm-course-picker [course]="exam().course" (updated)="setCourse($event)"></xm-course-picker>
             </div>
-        </div>
-        <!-- Course scope and organization name elements -> 3 rows -->
-        <div class="row mt-3">
-            <div class="col-md-3 col-md-offset-3">
-                {{ 'i18n_course_scope' | translate }}
+            <div class="xm-form-row">
+                <span>{{ 'i18n_course_scope' | translate }}</span>
+                <span>{{ exam().course?.credits }}</span>
             </div>
-            <div class="col-md-6">
-                {{ exam().course?.credits }}
+            <div class="xm-form-row">
+                <span>{{ 'i18n_faculty_name' | translate }}</span>
+                <span>{{ exam().course?.organisation?.name }}</span>
             </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-3 col-md-offset-3">
-                {{ 'i18n_faculty_name' | translate }}
-            </div>
-            <div class="col-md-6">
-                {{ exam().course?.organisation?.name }}
+            <div class="xm-form-row" [hidden]="!exam().course?.gradeScale">
+                <span>{{ 'i18n_grade_scale' | translate }}</span>
+                <span>{{ displayGradeScale() }}</span>
             </div>
         </div>
-        <div class="row mt-3" [hidden]="!exam().course?.gradeScale">
-            <div class="col-md-3 col-md-offset-3">
-                {{ 'i18n_grade_scale' | translate }}
-            </div>
-            <div class="col-md-6">
-                {{ displayGradeScale() }}
-            </div>
-        </div> `,
+    `,
     imports: [NgbPopover, CoursePickerComponent, TranslateModule],
 })
 export class ExamCourseComponent {

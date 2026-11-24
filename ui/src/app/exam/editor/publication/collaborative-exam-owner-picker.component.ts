@@ -15,8 +15,9 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-collaborative-exam-owner-selector',
-    template: ` <div class="row mt-3">
-            <div class="col-md-3">
+    template: `
+        <div class="xm-form-row">
+            <span>
                 {{ 'i18n_exam_owners' | translate }}
                 <sup
                     ngbPopover="{{ 'i18n_exam_owner_description' | translate }}"
@@ -24,34 +25,30 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     triggers="mouseenter:mouseleave"
                     ><img src="/assets/images/icon_tooltip.svg" alt=""
                 /></sup>
+            </span>
+            <div class="input-group editor-field">
+                <input
+                    type="email"
+                    placeholder="{{ 'i18n_write_exam_owner_email' | translate }}"
+                    class="form-control"
+                    [formField]="ownerForm.email"
+                />
+                <button
+                    type="button"
+                    [disabled]="!ownerForm.email().value() || ownerForm.email().invalid() || !user.isAdmin"
+                    (click)="addOwner()"
+                    class="input-group-text btn btn-success"
+                >
+                    {{ 'i18n_add' | translate }}
+                </button>
             </div>
-            <div class="col-md-5">
-                <div class="input-group">
-                    <input
-                        type="email"
-                        placeholder="{{ 'i18n_write_exam_owner_email' | translate }}"
-                        class="form-control"
-                        [formField]="ownerForm.email"
-                    />
-                    <button
-                        type="button"
-                        [disabled]="!ownerForm.email().value() || ownerForm.email().invalid() || !user.isAdmin"
-                        (click)="addOwner()"
-                        class="input-group-text btn btn-success"
-                    >
-                        {{ 'i18n_add' | translate }}
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-5 offset-md-3">
+            <div class="xm-stack xm-gap-2">
                 @for (owner of exam().examOwners; track owner) {
-                    <div class="d-flex align-items-center justify-content-between mt-2">
+                    <div class="person-row">
                         <small>{{ owner.email }}</small>
                         <button
                             type="button"
-                            class="btn btn-outline-danger btn-sm ms-3 flex-shrink-0"
+                            class="btn btn-outline-danger btn-sm"
                             (click)="removeOwner(owner.id)"
                             [hidden]="!user.isAdmin"
                             [ariaLabel]="owner.email"
@@ -61,7 +58,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     </div>
                 }
             </div>
-        </div>`,
+        </div>
+    `,
     imports: [NgbPopover, FormField, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
 })

@@ -18,3 +18,12 @@
     border: 1px solid black;
     cursor: not-allowed;
 }
+
+/* Collapsible content indented under the panel title */
+.panel {
+    padding-inline-start: var(--xm-space-2);
+}
+/* Release type menu and its date side by side, bottoms aligned */
+.release {
+    align-items: end;
+}

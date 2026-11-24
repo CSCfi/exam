@@ -32,3 +32,11 @@
     vertical-align: bottom;
     margin-right: 10px;
 }
+
+.date-field {
+    max-width: 20rem;
+}
+/* Begin and end dates side by side, the restriction note beside them when it fits */
+.validity {
+    grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 16rem));
+}
