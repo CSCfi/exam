@@ -53,20 +53,14 @@ const durationMinutes = (event: EventInput): number => {
     selector: 'xm-booking-calendar',
     host: { '[style.--xm-fc-slot-height]': 'slotHeight()' },
     template: `
-        @if (visible()) {
-            <div class="row my-2">
-                @if (visible() && (passwordVerified() || isAdmin())) {
-                    <div class="col-md-12">
-                        @if (otherZone(); as zone) {
-                            <p class="small text-body-secondary mb-2" role="note">
-                                <i class="bi bi-clock me-1" aria-hidden="true"></i
-                                >{{ 'i18n_calendar_room_time' | translate: { zone } }}
-                            </p>
-                        }
-                        <full-calendar #fc [options]="calendarOptions()"></full-calendar>
-                    </div>
-                }
-            </div>
+        @if (visible() && (passwordVerified() || isAdmin())) {
+            @if (otherZone(); as zone) {
+                <p class="small text-body-secondary mb-2" role="note">
+                    <i class="bi bi-clock me-1" aria-hidden="true"></i
+                    >{{ 'i18n_calendar_room_time' | translate: { zone } }}
+                </p>
+            }
+            <full-calendar #fc [options]="calendarOptions()"></full-calendar>
         }
     `,
     imports: [FullCalendarModule, TranslateModule],
@@ -293,66 +287,66 @@ export class BookingCalendarComponent {
     }
 
     private getFormatOverrides(lang: string) {
-        return {
-            dayHeaderFormat:
-                lang === 'fi'
-                    ? 'cccc d.L.'
-                    : {
-                          weekday: 'short' as const,
-                          month: 'numeric' as const,
-                          day: 'numeric' as const,
-                          omitCommas: true,
-                      },
-            // FullCalendar date markers hold the calendar's wall time in their UTC fields
-            titleFormat:
-                lang === 'fi'
-                    ? (info: { start: { marker: Date }; end?: { marker: Date } }) => {
-                          const start = new Date(info.start.marker);
-                          if (!info.end) return start.toLocaleDateString('fi', { timeZone: 'UTC' });
-                          const end = new Date(info.end.marker);
-                          end.setUTCDate(end.getUTCDate() - 1);
-
-                          if (
-                              start.getUTCMonth() === end.getUTCMonth() &&
-                              start.getUTCFullYear() === end.getUTCFullYear()
-                          ) {
-                              return `${start.getUTCDate()}. – ${end.getUTCDate()}.${start.getUTCMonth() + 1}.${start.getUTCFullYear()}`;
-                          } else {
-                              return `${start.getUTCDate()}.${start.getUTCMonth() + 1}. – ${end.getUTCDate()}.${end.getUTCMonth() + 1}.${end.getUTCFullYear()}`;
-                          }
-                      }
-                    : // English title format
-                      lang === 'en'
-                      ? (info: { start: { marker: Date }; end?: { marker: Date } }) => {
-                            const start = new Date(info.start.marker);
-                            if (!info.end) {
-                                return `${start.getUTCDate()} ${start.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' })} ${start.getUTCFullYear()}`;
-                            }
-                            const end = new Date(info.end.marker);
-                            end.setUTCDate(end.getUTCDate() - 1);
-
-                            const sameMonth =
-                                start.getUTCMonth() === end.getUTCMonth() &&
-                                start.getUTCFullYear() === end.getUTCFullYear();
-                            const sameYear = start.getUTCFullYear() === end.getUTCFullYear();
-
-                            if (sameMonth) {
-                                return `${start.getUTCDate()} - ${end.getUTCDate()} ${end.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' })} ${end.getUTCFullYear()}`;
-                            }
-                            if (sameYear) {
-                                const sm = start.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
-                                const em = end.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
-                                return `${start.getUTCDate()} ${sm} - ${end.getUTCDate()} ${em} ${end.getUTCFullYear()}`;
-                            }
-                            const sm = start.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
-                            const em = end.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
-                            return `${start.getUTCDate()} ${sm} ${start.getUTCFullYear()} - ${end.getUTCDate()} ${em} ${end.getUTCFullYear()}`;
-                        }
-                      : { year: 'numeric' as const, month: 'short' as const, day: 'numeric' as const },
-        };
+        switch (lang) {
+            case 'fi':
+                return { dayHeaderFormat: 'cccc d.L.', titleFormat: finnishTitle };
+            case 'en':
+                return { dayHeaderFormat: SHORT_DAY_HEADER, titleFormat: englishTitle };
+            default:
+                return { dayHeaderFormat: SHORT_DAY_HEADER, titleFormat: SHORT_TITLE };
+        }
     }
     // Fix for FullCalendar locale
     private resolveCalendarLocale(lang: string): string {
         return lang === 'en' ? 'en-gb' : lang;
     }
+}
+
+const SHORT_DAY_HEADER = { weekday: 'short', month: 'numeric', day: 'numeric', omitCommas: true } as const;
+const SHORT_TITLE = { year: 'numeric', month: 'short', day: 'numeric' } as const;
+
+type TitleInfo = { start: { marker: Date }; end?: { marker: Date } };
+type WallDate = { day: number; month: number; year: number; monthName: string };
+
+// FullCalendar date markers hold the calendar's wall time in their UTC fields
+function wallDate(marker: Date): WallDate {
+    return {
+        day: marker.getUTCDate(),
+        month: marker.getUTCMonth() + 1,
+        year: marker.getUTCFullYear(),
+        monthName: marker.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' }),
+    };
+}
+
+// The end marker is exclusive: the title ends on the day before it
+function titleRange({ start, end }: TitleInfo): [WallDate, WallDate | undefined] {
+    const last = end && new Date(end.marker);
+    last?.setUTCDate(last.getUTCDate() - 1);
+    return [wallDate(start.marker), last && wallDate(last)];
+}
+
+// 10.6.2030, 10. – 16.6.2030, 28.6. – 4.7.2030, 30.12.2030 – 5.1.2031
+function finnishTitle(info: TitleInfo): string {
+    const [s, e] = titleRange(info);
+    if (!e) return `${s.day}.${s.month}.${s.year}`;
+    const from =
+        s.year !== e.year
+            ? `${s.day}.${s.month}.${s.year}`
+            : s.month !== e.month
+              ? `${s.day}.${s.month}.`
+              : `${s.day}.`;
+    return `${from} – ${e.day}.${e.month}.${e.year}`;
+}
+
+// 10 Jun 2030, 10 - 16 Jun 2030, 28 Jun - 4 Jul 2030, 30 Dec 2030 - 5 Jan 2031
+function englishTitle(info: TitleInfo): string {
+    const [s, e] = titleRange(info);
+    if (!e) return `${s.day} ${s.monthName} ${s.year}`;
+    const from =
+        s.year !== e.year
+            ? `${s.day} ${s.monthName} ${s.year}`
+            : s.month !== e.month
+              ? `${s.day} ${s.monthName}`
+              : `${s.day}`;
+    return `${from} - ${e.day} ${e.monthName} ${e.year}`;
 }

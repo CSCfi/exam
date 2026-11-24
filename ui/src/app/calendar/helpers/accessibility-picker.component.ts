@@ -9,11 +9,11 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-accessibility-picker',
-    template: `<div class="row mt-4">
-        <div class="col-md-12">
+    template: `
+        <div class="xm-stack xm-gap-2">
             @if (!disabled()) {
                 <button
-                    class="btn btn-outline-secondary"
+                    class="btn btn-outline-secondary accs-toggle"
                     (click)="showMenu.set(!showMenu())"
                     (keydown.enter)="showMenu.set(!showMenu())"
                     [ariaExpanded]="showMenu()"
@@ -26,39 +26,45 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
                     }
                 </button>
             } @else {
-                <span class="text text-muted">
-                    {{ 'i18n_calendar_room_accessibility_info' | translate }}
-                </span>
+                <p class="text-muted">{{ 'i18n_calendar_room_accessibility_info' | translate }}</p>
             }
             <div [ngbCollapse]="!showMenu()">
-                <div class="row mt-2 ms-2">
-                    <div class="col-md-12">
-                        <div class="calendar-accs-title">
-                            {{ 'i18n_exam_room_accessibility' | translate }}
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2 ms-2">
-                    <div class="col-md-12 calendar-accs-checkboxes">
-                        @for (item of items(); track item.id) {
-                            <span class="me-2 accs-list">
-                                <label for="{{ item.name }}">
-                                    <input
-                                        id="{{ item.name }}"
-                                        type="checkbox"
-                                        (click)="item.filtered = !item.filtered; select()"
-                                        value="{{ item.name }}"
-                                    />
-                                </label>
-                                {{ item.name }}
-                            </span>
-                        }
-                    </div>
+                <div class="accs-group xm-stack xm-gap-1" role="group" aria-labelledby="accs-title">
+                    <p id="accs-title">{{ 'i18n_exam_room_accessibility' | translate }}</p>
+                    @for (item of items(); track item.id) {
+                        <label class="accs-item">
+                            <input
+                                type="checkbox"
+                                (click)="item.filtered = !item.filtered; select()"
+                                value="{{ item.name }}"
+                            />
+                            <span>{{ item.name }}</span>
+                        </label>
+                    }
                 </div>
             </div>
         </div>
-    </div> `,
-    styleUrls: ['../calendar.component.scss'],
+    `,
+    styles: `
+        /* A stack stretches its children; keep the button as wide as its text */
+        .accs-toggle {
+            align-self: start;
+        }
+        .accs-group {
+            margin-inline-start: var(--xm-space-3);
+        }
+        /* Checkbox stays beside its name; long names wrap, even without spaces */
+        .accs-item {
+            display: flex;
+            align-items: baseline;
+            gap: var(--xm-space-1);
+
+            > span {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
+        }
+    `,
     imports: [NgbCollapse, TranslateModule],
 })
 export class AccessibilityPickerComponent {

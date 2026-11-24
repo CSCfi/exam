@@ -22,122 +22,62 @@ export type CalendarReservationChoice = {
 @Component({
     selector: 'xm-calendar-reservation-confirmation',
     template: `
-        <div class="row mb-4">
-            <div class="col-md-8 col-12 p-0">
-                <div
-                    class="row m-2 reservation-confirm-panel"
-                    [class.reservation-confirm-panel--pending]="!reservation()"
-                    [class.xm-study-item-container]="reservation()"
-                    [class.xm-study-item-container--inactive]="!reservation()"
-                >
-                    <div class="col-md-12">
-                        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                            <h2 class="calendar-phase-title mb-0">
-                                {{ sequenceNumber() }}. {{ 'i18n_calendar_phase_3' | translate }}
-                            </h2>
-                            <span class="calendar-phase-icon flex-shrink-0" [hidden]="!reservation()">
-                                <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                            </span>
-                        </div>
-                        @if (!reservation()) {
-                            <p class="reservation-confirm-pending-hint mb-2 small text-muted" role="status">
-                                {{ 'i18n_calendar_reservation_pending_hint' | translate }}
-                            </p>
+        <div class="reservation-confirm">
+            <section
+                class="xm-stack xm-gap-2 reservation-confirm-panel"
+                [class.reservation-confirm-panel--pending]="!reservation()"
+                [class.xm-study-item-container]="reservation()"
+                [class.xm-study-item-container--inactive]="!reservation()"
+            >
+                <header class="xm-split">
+                    <h2 class="calendar-phase-title">
+                        {{ sequenceNumber() }}. {{ 'i18n_calendar_phase_3' | translate }}
+                    </h2>
+                    <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" [hidden]="!reservation()" />
+                </header>
+                @if (!reservation()) {
+                    <p class="reservation-confirm-pending-hint small text-muted" role="status">
+                        {{ 'i18n_calendar_reservation_pending_hint' | translate }}
+                    </p>
+                }
+                <p class="calendar-course-title">{{ examInfo().name }}</p>
+                <dl class="xm-details calendar-details">
+                    <dt>{{ 'i18n_course_name' | translate }}:</dt>
+                    <dd>
+                        @if (examInfo().course) {
+                            <xm-course-code [course]="examInfo().course"></xm-course-code>
+                            {{ examInfo().course.name }}
                         }
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="calendar-titles">
-                                    <span class="calendar-course-title">{{ examInfo().name }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-2 g-2">
-                            <div class="col-12">
-                                <div
-                                    class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
-                                >
-                                    <span class="reservation-confirm-label flex-shrink-0"
-                                        >{{ 'i18n_course_name' | translate }}:</span
-                                    >
-                                    <span class="text-break min-w-0">
-                                        @if (examInfo().course) {
-                                            <xm-course-code [course]="examInfo().course"></xm-course-code>
-                                            {{ examInfo().course.name }}
-                                        }
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div
-                                    class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
-                                >
-                                    <span class="reservation-confirm-label flex-shrink-0"
-                                        >{{ 'i18n_exam_validity' | translate }}:</span
-                                    >
-                                    <span class="text-break min-w-0">
-                                        {{ examInfo().periodStart | date: 'dd.MM.yyyy' }} -
-                                        {{ examInfo().periodEnd | date: 'dd.MM.yyyy' }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div
-                                    class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
-                                >
-                                    <span class="reservation-confirm-label flex-shrink-0"
-                                        >{{ 'i18n_examination_location' | translate }}:</span
-                                    >
-                                    <span class="text-break min-w-0">{{ reservation()?.room?.name }}</span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div
-                                    class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
-                                >
-                                    <span class="reservation-confirm-label flex-shrink-0"
-                                        >{{ 'i18n_reservation' | translate }}:</span
-                                    >
-                                    <span class="text-break min-w-0">{{ reservation()?.time }}</span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div
-                                    class="d-flex flex-column flex-sm-row flex-sm-wrap align-items-sm-baseline gap-1 gap-sm-2 min-w-0"
-                                >
-                                    <span class="reservation-confirm-label flex-shrink-0"
-                                        >{{ 'i18n_exam_duration' | translate }}:</span
-                                    >
-                                    <span class="text-break min-w-0">{{ printExamDuration(examInfo()) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 col-12 p-0">
-                <div class="row m-2 align-items-center">
-                    <div class="col-md-12">
-                        <button
-                            type="button"
-                            [disabled]="!reservation() || confirming()"
-                            class="btn btn-lg btn-success float-end important-clear-focus w-100 reservation-confirm-btn"
-                            (click)="confirmClick.emit()"
-                        >
-                            {{ 'i18n_student_confirm_reservation' | translate }}
-                        </button>
-                    </div>
-                </div>
-                <div class="row m-2 align-items-center">
-                    <div class="col-md-12">
-                        <button
-                            type="button"
-                            class="btn btn-lg btn-outline-secondary float-end w-100 reservation-confirm-btn"
-                            (click)="cancelClick.emit()"
-                        >
-                            {{ 'i18n_button_cancel' | translate }}
-                        </button>
-                    </div>
-                </div>
+                    </dd>
+                    <dt>{{ 'i18n_exam_validity' | translate }}:</dt>
+                    <dd>
+                        {{ examInfo().periodStart | date: 'dd.MM.yyyy' }} -
+                        {{ examInfo().periodEnd | date: 'dd.MM.yyyy' }}
+                    </dd>
+                    <dt>{{ 'i18n_examination_location' | translate }}:</dt>
+                    <dd>{{ reservation()?.room?.name }}</dd>
+                    <dt>{{ 'i18n_reservation' | translate }}:</dt>
+                    <dd>{{ reservation()?.time }}</dd>
+                    <dt>{{ 'i18n_exam_duration' | translate }}:</dt>
+                    <dd>{{ printExamDuration(examInfo()) }}</dd>
+                </dl>
+            </section>
+            <div class="xm-stack xm-gap-2">
+                <button
+                    type="button"
+                    [disabled]="!reservation() || confirming()"
+                    class="btn btn-lg btn-success important-clear-focus reservation-confirm-btn"
+                    (click)="confirmClick.emit()"
+                >
+                    {{ 'i18n_student_confirm_reservation' | translate }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-lg btn-outline-secondary reservation-confirm-btn"
+                    (click)="cancelClick.emit()"
+                >
+                    {{ 'i18n_button_cancel' | translate }}
+                </button>
             </div>
         </div>
     `,

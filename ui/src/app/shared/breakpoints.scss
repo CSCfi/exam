@@ -1,0 +1,23 @@
+/*
+ * SPDX-FileCopyrightText: The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+@use 'sass:map';
+
+// Viewport breakpoints for native layout. Same values as Bootstrap's so converted and
+// unconverted screens switch at the same widths. Media queries cannot read CSS custom
+// properties, hence Sass. This file emits no CSS, so components can @use it freely.
+$breakpoints: (
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+);
+
+@mixin up($name) {
+    @media (min-width: map.get($breakpoints, $name)) {
+        @content;
+    }
+}

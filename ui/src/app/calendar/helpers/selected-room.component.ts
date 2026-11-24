@@ -17,35 +17,29 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-calendar-selected-room',
     template: `
-        <div class="row g-2">
-            <div class="col-12">
-                <div class="d-flex flex-column flex-lg-row flex-lg-wrap align-items-lg-baseline gap-2 min-w-0">
-                    <strong class="selected-room-title mb-0">{{ room().name }}</strong>
-                    <span class="selected-room-address text-body-secondary">
-                        {{ room().mailAddress.street }} {{ room().mailAddress.zip }}
-                        {{ room().mailAddress.city }}
-                    </span>
-                </div>
+        <div class="xm-stack xm-gap-3">
+            <div class="room-heading">
+                <strong class="selected-room-title">{{ room().name }}</strong>
+                <span class="selected-room-address text-body-secondary">
+                    {{ room().mailAddress.street }} {{ room().mailAddress.zip }}
+                    {{ room().mailAddress.city }}
+                </span>
             </div>
-        </div>
-        <div class="row mt-3 g-2">
-            <div class="col-12 col-md-4 col-lg-3 col-xl-2">
-                <span class="d-block">{{ 'i18n_room_default_working_hours' | translate }}</span>
-                <small class="text-muted">({{ room().localTimezone }})</small>
-            </div>
-            <div class="col-12 col-md-8 col-lg-9 col-xl-10">
-                @for (oh of openingHours(); track oh.ord) {
-                    <div class="row g-0 gx-md-2">
-                        <div class="col-4 col-sm-3 col-md-2 col-lg-2">{{ oh.name | uppercase }}</div>
-                        <div class="col-8 col-sm-9 col-md-10 col-lg-10">{{ oh.periodText }}</div>
-                    </div>
-                }
-            </div>
-        </div>
-        @if (exceptionHours().length > 0) {
-            <div class="row mt-2 g-2">
-                <div class="col-12 col-sm-4 col-lg-3 col-xl-2">{{ 'i18n_exception_datetimes' | translate }}:</div>
-                <div class="col-12 col-sm-8 col-lg-9 col-xl-10">
+            <dl class="xm-details">
+                <dt>
+                    <span class="d-block">{{ 'i18n_room_default_working_hours' | translate }}</span>
+                    <small class="text-muted">({{ room().localTimezone }})</small>
+                </dt>
+                <dd>
+                    <dl class="opening-hours">
+                        @for (oh of openingHours(); track oh.ord) {
+                            <dt>{{ oh.name | uppercase }}</dt>
+                            <dd>{{ oh.periodText }}</dd>
+                        }
+                    </dl>
+                </dd>
+                <dt>{{ 'i18n_exception_datetimes' | translate }}:</dt>
+                <dd>
                     @for (eh of exceptionHours(); track eh.id) {
                         <div
                             [class.text-danger]="eh.outOfService"
@@ -56,18 +50,12 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         >
                             {{ eh.start }} - {{ eh.end }} {{ eh.description + '' | translate }}
                         </div>
+                    } @empty {
+                        {{ 'i18n_no_exceptions_this_week' | translate }}
                     }
-                </div>
-            </div>
-        } @else {
-            <div class="row mt-2">
-                <div class="col-12">{{ 'i18n_no_exceptions_this_week' | translate }}</div>
-            </div>
-        }
-        @if (thisWeeksMaintenancePeriods().length > 0) {
-            <div class="row mt-2 g-2">
-                <div class="col-12 col-sm-4 col-lg-3 col-xl-2">{{ 'i18n_maintenance_periods' | translate }}:</div>
-                <div class="col-12 col-sm-8 col-lg-9 col-xl-10">
+                </dd>
+                <dt>{{ 'i18n_maintenance_periods' | translate }}:</dt>
+                <dd>
                     @for (period of thisWeeksMaintenancePeriods() | orderBy: 'startsAt'; track period.id) {
                         <div>
                             {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
@@ -77,28 +65,22 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                                 <span class="text-danger">({{ period.org }})</span>
                             }
                         </div>
+                    } @empty {
+                        {{ 'i18n_no_maintenance_periods_this_week' | translate }}
                     }
-                </div>
-            </div>
-        } @else {
-            <div class="row mt-2">
-                <div class="col-12">{{ 'i18n_no_maintenance_periods_this_week' | translate }}</div>
-            </div>
-        }
-        @if (roomInstructions()) {
-            <div class="row mt-2 g-2">
-                <div class="col-12 col-sm-4 col-lg-3 col-xl-2">{{ 'i18n_room_guidance' | translate }}:</div>
-                <div class="col-12 col-sm-8 col-lg-9 col-xl-10 text-break">{{ roomInstructions() }}</div>
-            </div>
-        }
-        @if (roomAccessibility()) {
-            <div class="row mt-2 g-2">
-                <div class="col-12 col-sm-4 col-lg-3 col-xl-2">{{ 'i18n_room_accessibility' | translate }}:</div>
-                <div class="col-12 col-sm-8 col-lg-9 col-xl-10 text-break">{{ roomAccessibility() }}</div>
-            </div>
-        }
+                </dd>
+                @if (roomInstructions()) {
+                    <dt>{{ 'i18n_room_guidance' | translate }}:</dt>
+                    <dd>{{ roomInstructions() }}</dd>
+                }
+                @if (roomAccessibility()) {
+                    <dt>{{ 'i18n_room_accessibility' | translate }}:</dt>
+                    <dd>{{ roomAccessibility() }}</dd>
+                }
+            </dl>
+        </div>
     `,
-    styleUrls: ['./selected-room.component.scss', '../calendar.component.scss'],
+    styleUrls: ['./selected-room.component.scss'],
     imports: [NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
 export class SelectedRoomComponent {

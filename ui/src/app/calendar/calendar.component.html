@@ -7,68 +7,54 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-header text="i18n_calendar" [history]="true" />
 <xm-page-content [content]="content" />
 <ng-template #content>
-    <!-- Phase 1: Exam Info -->
-    @if (examInfo() && reservationWindowSize()) {
-        <div class="row">
-            <div class="col-12 p-0">
-                <xm-calendar-exam-info
-                    [examInfo]="examInfo()"
-                    [reservationWindowSize]="reservationWindowSize()"
-                    [collaborative]="isCollaborative()"
-                ></xm-calendar-exam-info>
-            </div>
-        </div>
-    }
-    <!-- Phase 2: Optional exam section selection (optional) -->
-    @if (examInfo() && hasOptionalSections()) {
-        <div class="row">
-            <div class="col-12 p-0">
-                <xm-calendar-optional-sections
-                    [examInfo]="examInfo()"
-                    (selected)="onSectionSelection($event)"
-                ></xm-calendar-optional-sections>
-            </div>
-        </div>
-    }
-    <!-- Phase 3: Organisation picker -->
-    @if (isInteroperable() && isExternal()) {
-        <div class="row">
-            <div class="col-12 p-0">
-                <xm-calendar-organisation-picker
-                    [sequenceNumber]="getSequenceNumber('organization')"
-                    [disabled]="!sectionSelectionOk()"
-                    (selected)="setOrganisation($event)"
-                    (cancelled)="makeInternalReservation()"
-                ></xm-calendar-organisation-picker>
-            </div>
-        </div>
-    }
-    <!-- Phase 4: Room picker -->
-    <div class="row">
-        <div class="col-12 p-0">
-            <xm-calendar-slot-picker
-                [sequenceNumber]="getSequenceNumber('room')"
-                [isInteroperable]="isInteroperable()"
-                [isExternal]="isExternal()"
-                [isCollaborative]="isCollaborative()"
-                [organisation]="selectedOrganisation()"
-                [minDate]="minDate()"
-                [maxDate]="maxDate()"
-                [examDuration]="examInfo().duration"
+    <div class="xm-stack">
+        <!-- Phase 1: Exam Info -->
+        @if (examInfo() && reservationWindowSize()) {
+            <xm-calendar-exam-info
+                [examInfo]="examInfo()"
+                [reservationWindowSize]="reservationWindowSize()"
+                [collaborative]="isCollaborative()"
+            ></xm-calendar-exam-info>
+        }
+        <!-- Phase 2: Optional exam section selection (optional) -->
+        @if (examInfo() && hasOptionalSections()) {
+            <xm-calendar-optional-sections
+                [examInfo]="examInfo()"
+                (selected)="onSectionSelection($event)"
+            ></xm-calendar-optional-sections>
+        }
+        <!-- Phase 3: Organisation picker -->
+        @if (isInteroperable() && isExternal()) {
+            <xm-calendar-organisation-picker
+                [sequenceNumber]="getSequenceNumber('organization')"
                 [disabled]="!sectionSelectionOk()"
-                (cancelled)="makeExternalReservation()"
-                (selected)="createReservation($event)"
-            >
-            </xm-calendar-slot-picker>
-        </div>
-    </div>
+                (selected)="setOrganisation($event)"
+                (cancelled)="makeInternalReservation()"
+            ></xm-calendar-organisation-picker>
+        }
+        <!-- Phase 4: Room picker -->
+        <xm-calendar-slot-picker
+            [sequenceNumber]="getSequenceNumber('room')"
+            [isInteroperable]="isInteroperable()"
+            [isExternal]="isExternal()"
+            [isCollaborative]="isCollaborative()"
+            [organisation]="selectedOrganisation()"
+            [minDate]="minDate()"
+            [maxDate]="maxDate()"
+            [examDuration]="examInfo().duration"
+            [disabled]="!sectionSelectionOk()"
+            (cancelled)="makeExternalReservation()"
+            (selected)="createReservation($event)"
+        >
+        </xm-calendar-slot-picker>
 
-    <xm-calendar-reservation-confirmation
-        [sequenceNumber]="getSequenceNumber('confirmation')"
-        [examInfo]="examInfo()"
-        [reservation]="reservation()"
-        [confirming]="confirming()"
-        (confirmClick)="confirmReservation()"
-        (cancelClick)="cancel()"
-    />
+        <xm-calendar-reservation-confirmation
+            [sequenceNumber]="getSequenceNumber('confirmation')"
+            [examInfo]="examInfo()"
+            [reservation]="reservation()"
+            [confirming]="confirming()"
+            (confirmClick)="confirmReservation()"
+            (cancelClick)="cancel()"
+        />
+    </div>
 </ng-template>

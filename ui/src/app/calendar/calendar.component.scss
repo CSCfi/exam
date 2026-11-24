@@ -4,18 +4,11 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@use '../shared/definitions.scss';
+/* Shared by the phase components in helpers/ through their styleUrls */
 .calendar-phase-title {
     font-size: 1.375rem;
     color: #2c2c2c;
-}
-
-.calendar-phase-icon {
-    float: right;
-}
-
-.calendar-titles {
-    padding-top: 10px;
+    margin: 0;
 }
 
 .calendar-course-title {
@@ -24,9 +17,8 @@
     font-weight: bold;
 }
 
-.accs-list {
-    display: flex;
-    flex-flow: nowrap;
-    align-items: center;
-    gap: 5px;
+/* Labels of the label/value lists (xm-details) */
+.calendar-details > dt {
+    font-weight: 600;
+    color: #5c5c5c;
 }

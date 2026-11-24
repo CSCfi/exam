@@ -4,18 +4,23 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-.reservation-confirm-label {
-    font-weight: 600;
-    color: #5c5c5c;
+@use '../../shared/breakpoints' as bp;
+
+/* Summary panel and the confirm/cancel buttons: stacked on phones, 2:1 columns from md up */
+.reservation-confirm {
+    display: grid;
+    gap: var(--xm-space-3);
+    margin-bottom: var(--xm-space-4);
+
+    @include bp.up(md) {
+        grid-template-columns: 2fr 1fr;
+        align-items: start;
+    }
 }
 
 .reservation-confirm-btn {
     line-height: 1.5;
     border-radius: 3px;
-}
-
-:host .calendar-phase-icon {
-    float: none;
 }
 
 .reservation-confirm-panel {

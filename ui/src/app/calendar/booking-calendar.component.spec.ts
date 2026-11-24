@@ -81,6 +81,34 @@ describe('BookingCalendarComponent', () => {
         expect(title('en')).toBe('10 - 16 Jun 2030');
     });
 
+    it('should title weeks across months and years, and single days', () => {
+        type Info = { start: { marker: Date }; end?: { marker: Date } };
+        const span = (from: Date, to?: Date): Info => ({
+            start: { marker: from },
+            ...(to ? { end: { marker: to } } : {}),
+        });
+        const title = (lang: string, info: Info) =>
+            (component['getFormatOverrides'](lang).titleFormat as (info: Info) => string)(info);
+        const acrossMonths = span(new Date(Date.UTC(2030, 5, 28)), new Date(Date.UTC(2030, 6, 5)));
+        const acrossYears = span(new Date(Date.UTC(2030, 11, 30)), new Date(Date.UTC(2031, 0, 6)));
+        const day = span(new Date(Date.UTC(2030, 5, 10)));
+
+        expect(title('fi', acrossMonths)).toBe('28.6. – 4.7.2030');
+        expect(title('fi', acrossYears)).toBe('30.12.2030 – 5.1.2031');
+        expect(title('fi', day)).toBe('10.6.2030');
+        expect(title('en', acrossMonths)).toBe('28 Jun - 4 Jul 2030');
+        expect(title('en', acrossYears)).toBe('30 Dec 2030 - 5 Jan 2031');
+        expect(title('en', day)).toBe('10 Jun 2030');
+    });
+
+    it('should leave other languages to FullCalendar formatting', () => {
+        expect(component['getFormatOverrides']('sv')).toEqual({
+            dayHeaderFormat: { weekday: 'short', month: 'numeric', day: 'numeric', omitCommas: true },
+            titleFormat: { year: 'numeric', month: 'short', day: 'numeric' },
+        });
+        expect(component['getFormatOverrides']('fi').dayHeaderFormat).toBe('cccc d.L.');
+    });
+
     it('should ask slots for the shown week', () => {
         const asked = vi.fn();
         component.moreEventsNeeded.subscribe(asked);

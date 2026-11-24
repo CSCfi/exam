@@ -8,22 +8,30 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-password-prompt',
+    styles: `
+        @use '../../shared/breakpoints' as bp;
+
+        /* Password field and confirm button: stacked on phones, two equal columns from md up */
+        .password-row {
+            display: grid;
+            gap: var(--xm-space-2) var(--xm-space-4);
+
+            @include bp.up(md) {
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+        }
+    `,
     imports: [FormField, TranslateModule],
     template: `
         @if (visible()) {
-            <form role="form" (submit)="submit()" aria-labelledby="password-prompt-title">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="alert alert-warning mb-3" role="alert" aria-live="polite">
-                            <i class="bi bi-lock me-2" aria-hidden="true"></i>
-                            <span id="password-prompt-title">{{
-                                'i18n_room_password_required_message' | translate
-                            }}</span>
-                        </div>
-                    </div>
+            <form class="xm-stack" role="form" (submit)="submit()" aria-labelledby="password-prompt-title">
+                <div class="alert alert-warning" role="alert" aria-live="polite">
+                    <i class="bi bi-lock me-2" aria-hidden="true"></i>
+                    <span id="password-prompt-title">{{ 'i18n_room_password_required_message' | translate }}</span>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="password-row">
+                    <div>
                         <label for="password" class="form-label visually-hidden">
                             {{ 'i18n_password' | translate }}
                         </label>
@@ -52,7 +60,7 @@ import { TranslateModule } from '@ngx-translate/core';
                             </div>
                         }
                     </div>
-                    <div class="col-md-6">
+                    <div>
                         <button
                             type="submit"
                             class="btn btn-success"
