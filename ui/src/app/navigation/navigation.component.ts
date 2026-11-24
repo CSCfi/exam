@@ -2,12 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+import { UpperCasePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
-import { filter, forkJoin, of } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { filter, forkJoin, map, of } from 'rxjs';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
 import { SessionService } from 'src/app/session/session.service';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -20,7 +21,7 @@ type SubmenuCollapsedMap = Readonly<Record<string, boolean>>;
 @Component({
     selector: 'xm-navigation',
     templateUrl: './navigation.component.html',
-    imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
+    imports: [RouterLinkActive, RouterLink, NgbCollapse, UpperCasePipe, TranslateModule],
     styleUrl: './navigation.component.scss',
 })
 export class NavigationComponent {
@@ -33,6 +34,21 @@ export class NavigationComponent {
         this.ExaminationStatus.combinedStatusSignal();
         const { iop, byod } = this.featureFlags();
         return this.Navigation.getLinks(iop, byod, this.hideNav());
+    });
+
+    /** Routes that prefix another menu route (the admin dashboard): active only on an exact match */
+    readonly exactRoutes = computed(() => {
+        const routes = this.links().flatMap((l) => [l.route, ...l.submenu.items.map((i) => i.route)]);
+        return new Set(routes.filter((r) => routes.some((other) => other.startsWith(r + '/'))));
+    });
+    /** Language names in their own language, for screen readers (the buttons show FI / SV / EN) */
+    readonly languages = [
+        { code: 'fi', name: 'Suomi' },
+        { code: 'sv', name: 'Svenska' },
+        { code: 'en', name: 'English' },
+    ];
+    readonly currentLang = toSignal(inject(TranslateService).onLangChange.pipe(map((e) => e.lang)), {
+        initialValue: inject(TranslateService).getCurrentLang(),
     });
 
     private readonly submenuCollapsedByRoute = signal<SubmenuCollapsedMap>({});
@@ -85,34 +101,36 @@ export class NavigationComponent {
         this.mobileMenuOpen.update((v) => !v);
     }
 
-    /** `true` when submenu should be collapsed (ngbCollapse input). */
+    /**
+     * `true` when the submenu should be collapsed (ngbCollapse input). Until the user toggles it, a
+     * submenu is open only when the current page is one of its items.
+     */
     submenuCollapsed(link: Link): boolean {
         if (link.submenu.items.length === 0) {
             return false;
         }
-        const map = this.submenuCollapsedByRoute();
-        return link.route in map ? map[link.route] : link.submenu.hidden;
+        const collapsed = this.submenuCollapsedByRoute();
+        if (link.route in collapsed) {
+            return collapsed[link.route];
+        }
+        return !link.submenu.items.some((item) => item.visible && this.isActive(item));
     }
 
     toggleSubmenu(link: Link): void {
         if (link.submenu.items.length === 0) {
             return;
         }
-        const key = link.route;
-        this.submenuCollapsedByRoute.update((m) => {
-            const collapsed = key in m ? m[key] : link.submenu.hidden;
-            return { ...m, [key]: !collapsed };
-        });
+        const wasCollapsed = this.submenuCollapsed(link);
+        this.submenuCollapsedByRoute.update((m) => ({ ...m, [link.route]: !wasCollapsed }));
     }
 
-    /** Parents with submenus: avoid RouterLink on the same control as toggle (ordering/CD conflicts with reopen). */
-    onParentNavClick(link: Link): void {
-        if (link.submenu.items.length === 0) {
-            return;
+    /** A parent opens or closes its submenu; any other choice closes the menu on phones */
+    linkClicked(link: Link): void {
+        if (link.submenu.items.length > 0) {
+            this.toggleSubmenu(link);
+        } else {
+            this.mobileMenuOpen.set(false);
         }
-        this.toggleSubmenu(link);
-        const path = link.route.startsWith('/') ? link.route : `/${link.route}`;
-        void this.router.navigateByUrl(path);
     }
 
     parentAriaExpanded(link: Link): boolean | null {
