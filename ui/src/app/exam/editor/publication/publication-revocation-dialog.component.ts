@@ -18,12 +18,12 @@ import { TranslateModule } from '@ngx-translate/core';
                 {{ 'i18n_unpublish_exam_confirm' | translate }}
             </p>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+                {{ 'i18n_close' | translate }}
+            </button>
             <button class="btn btn-success" (click)="activeModal.close()" autofocus>
                 {{ 'i18n_unpublish_exam' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
-                {{ 'i18n_close' | translate }}
             </button>
         </div>
     `,

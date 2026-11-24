@@ -6,99 +6,67 @@ SPDX-License-Identifier: EUPL-1.2
 
 <!-- Sections -->
 
-@if (exam().hasEnrolmentsInEffect) {
-    <div class="row mx-2">
-        <div class="col-md-12">
-            <div class="row xm-study-item-container--warning m-3">
-                <div class="col-md-1">
-                    <img src="/assets/images/icon_warning.png" alt="" />
-                </div>
-                <div class="col-md-11 warning-text">
-                    {{ 'i18n_upcoming_reservations_exist' | translate }}
-                </div>
+<div class="xm-stack">
+    @if (exam().hasEnrolmentsInEffect) {
+        <div class="xm-study-item-container--warning xm-icon-text">
+            <img src="/assets/images/icon_warning.png" alt="" />
+            <span class="warning-text">{{ 'i18n_upcoming_reservations_exist' | translate }}</span>
+        </div>
+    }
+
+    <div
+        class="xm-stack xm-gap-4"
+        cdkDropList
+        [cdkDropListData]="exam().examSections"
+        (cdkDropListDropped)="moveSection($event)"
+    >
+        @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section.id; let i = $index) {
+            <div class="section-box" cdkDrag cdkDragLockAxis="y">
+                <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
+                <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
+                <xm-section
+                    [section]="section"
+                    [index]="i + 1"
+                    [examId]="exam().id"
+                    [collaborative]="collaborative()"
+                    [canBeOptional]="exam().executionType.type !== 'MATURITY' && exam().implementation === 'AQUARIUM'"
+                    (removed)="removeSection(section)"
+                    (updated)="updateSection($event)"
+                    (materialsChanged)="loadMaterials()"
+                >
+                </xm-section>
             </div>
-        </div>
+        }
     </div>
-}
 
-<div class="row mx-2">
-    <div class="col-md-12">
-        <div cdkDropList [cdkDropListData]="exam().examSections" (cdkDropListDropped)="moveSection($event)">
-            @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section.id; let i = $index) {
-                <div class="section-box mb-4" cdkDrag cdkDragLockAxis="y">
-                    <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
-                    <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
-                    <div class="row">
-                        <xm-section
-                            class="col-md-12 pt-2"
-                            [section]="section"
-                            [index]="i + 1"
-                            [examId]="exam().id"
-                            [collaborative]="collaborative()"
-                            [canBeOptional]="
-                                exam().executionType.type !== 'MATURITY' && exam().implementation === 'AQUARIUM'
-                            "
-                            (removed)="removeSection(section)"
-                            (updated)="updateSection($event)"
-                            (materialsChanged)="loadMaterials()"
-                        >
-                        </xm-section>
-                    </div>
-                </div>
-            }
-        </div>
+    <div class="xm-form-row h4">
+        <span>{{ 'i18n_total_score' | translate }}:</span>
+        <span>{{ calculateExamMaxScore() }}</span>
     </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-md-3">
-        <h4>{{ 'i18n_total_score' | translate }}:</h4>
-    </div>
-    <div class="col-md-9">
-        <h4>{{ calculateExamMaxScore() }}</h4>
-    </div>
-</div>
-
-<!-- Buttons -->
-<div class="row me-1 mt-4">
-    <div class="col-md-3 mb-3">
-        <button class="btn btn-success" (click)="addNewSection()">
+    <!-- Buttons -->
+    <div class="editor-actions">
+        <button class="btn btn-success at-start" (click)="addNewSection()">
             <i class="bi-plus"></i>&nbsp;{{ 'i18n_section_add' | translate }}
         </button>
+        <button class="btn btn-outline-secondary" (click)="previewExam(2)">
+            {{ 'i18n_preview' | translate }}
+        </button>
+        <button class="btn btn-success" (click)="updateExam(false)">
+            {{ 'i18n_save' | translate }}
+        </button>
+        @if (showDelete()) {
+            <button class="btn btn-outline-danger" (click)="removeExam()">
+                {{ 'i18n_exam_remove' | translate }}
+            </button>
+        }
     </div>
-    <div class="col">
-        <div class="row justify-content-end">
-            <div class="col-auto p-1">
-                <button class="btn btn-outline-secondary" (click)="previewExam(2)">
-                    {{ 'i18n_preview' | translate }}
-                </button>
-            </div>
-            <div class="col-auto p-1">
-                <button class="btn btn-success" (click)="updateExam(false)">
-                    {{ 'i18n_save' | translate }}
-                </button>
-            </div>
-            <div class="col-auto p-1">
-                @if (showDelete()) {
-                    <button class="btn btn-outline-danger" (click)="removeExam()">
-                        {{ 'i18n_exam_remove' | translate }}
-                    </button>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row mt-2">
-    <div class="col-md-2 grey-top mb-3 pt-3">
+    <div class="editor-footer">
         <button class="btn btn-outline-secondary" (click)="previousTab()">
             &#171; {{ 'i18n_exam_basic_information_tab' | translate }}
         </button>
-    </div>
-    <div class="col grey-top mb-3 pt-3">
-        <div class="float-end">
-            <button class="btn btn-outline-secondary" (click)="nextTab()">
-                {{ 'i18n_exam_assessment_settings' | translate }} &#187;
-            </button>
-        </div>
+        <button class="btn btn-outline-secondary next" (click)="nextTab()">
+            {{ 'i18n_exam_assessment_settings' | translate }} &#187;
+        </button>
     </div>
 </div>

@@ -202,7 +202,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="col-md-9">
                     @for (teacher of exam()?.parent?.examOwners; track teacher; let isLast = $last) {
                         <span>
-                            {{ teacher.firstName }} {{ teacher.lastName }}
+                            <span>{{ teacher.firstName }} {{ teacher.lastName }}</span>
                             @if (!isLast) {
                                 <span>,&nbsp;</span>
                             }

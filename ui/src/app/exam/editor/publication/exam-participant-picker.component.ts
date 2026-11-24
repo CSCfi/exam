@@ -19,48 +19,39 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
     selector: 'xm-exam-participant-selector',
     template: `
-        <div class="row">
-            <div class="col-md-5 offset-md-3">
-                <div class="input-group">
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="{{ 'i18n_write_participant_name' | translate }}"
-                        [(ngModel)]="participantName"
-                        [ngbTypeahead]="listStudents$"
-                        [inputFormatter]="nameFormat"
-                        [resultFormatter]="nameFormat"
-                        (selectItem)="setExamParticipant($event)"
-                    />
-                    <button
-                        [disabled]="!newParticipantData().id"
-                        (click)="addParticipant()"
-                        class="input-group-text btn btn-success"
-                    >
-                        {{ 'i18n_add' | translate }}
-                    </button>
-                </div>
+        <div class="xm-stack xm-gap-2">
+            <div class="input-group editor-field">
+                <input
+                    type="text"
+                    class="form-control"
+                    placeholder="{{ 'i18n_write_participant_name' | translate }}"
+                    [(ngModel)]="participantName"
+                    [ngbTypeahead]="listStudents$"
+                    [inputFormatter]="nameFormat"
+                    [resultFormatter]="nameFormat"
+                    (selectItem)="setExamParticipant($event)"
+                />
+                <button
+                    [disabled]="!newParticipantData().id"
+                    (click)="addParticipant()"
+                    class="input-group-text btn btn-success"
+                >
+                    {{ 'i18n_add' | translate }}
+                </button>
             </div>
-        </div>
-
-        <div class="row mt-1">
-            <span class="col-md-9 offset-md-3 text-break mt-2">
+            <p class="text-break">
                 {{ 'i18n_maturity_exam_participants_info' | translate }}
                 @if (exam().state === 'PUBLISHED') {
                     {{ 'i18n_exam_published' | translate }}
                 } @else {
                     {{ 'i18n_exam_not_published' | translate }}
                 }
-            </span>
-        </div>
-        @if (examEnrolments().length > 0) {
-            <div class="row mt-3">
-                <div class="col-md-5 offset-md-3">{{ 'i18n_exam_participants' | translate }}:</div>
-            </div>
-            <!-- Students not having finished the exam, sorted alphabetically -->
-            @for (enrolment of examEnrolments(); track enrolment) {
-                <div class="row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
-                    <div class="col-md-5 offset-md-3 d-flex align-items-center justify-content-between mt-2">
+            </p>
+            @if (examEnrolments().length > 0) {
+                <div>{{ 'i18n_exam_participants' | translate }}:</div>
+                <!-- Students not having finished the exam, sorted alphabetically -->
+                @for (enrolment of examEnrolments(); track enrolment) {
+                    <div class="person-row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
                         <small>
                             {{ renderParticipantLabel(enrolment) }}
                             @if (enrolment.user?.email) {
@@ -71,7 +62,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                             }
                         </small>
                         <button
-                            class="btn btn-outline-danger btn-sm ms-3 flex-shrink-0"
+                            class="btn btn-outline-danger btn-sm"
                             (click)="removeParticipant(enrolment.id)"
                             [hidden]="exam().state === 'PUBLISHED'"
                             [ariaLabel]="renderParticipantLabel(enrolment)"
@@ -79,27 +70,21 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                             {{ 'i18n_remove' | translate }}
                         </button>
                     </div>
-                </div>
+                }
             }
-        }
-        @if (participants().length > 0) {
-            <div class="row mt-3">
-                <div class="col-md-5 offset-md-3">{{ 'i18n_finished_exam_participants' | translate }}:</div>
-            </div>
-            <!-- Students that have finished the exam -->
-            @for (participant of participants(); track participant) {
-                <div class="row">
-                    <div class="col-md-5 offset-md-3 mt-2">
-                        <small>
-                            {{ participant.firstName }} {{ participant.lastName }} &lt;{{ participant.email }}&gt;
-                            @if (participant.userIdentifier) {
-                                ({{ participant.userIdentifier }})
-                            }
-                        </small>
-                    </div>
-                </div>
+            @if (participants().length > 0) {
+                <div>{{ 'i18n_finished_exam_participants' | translate }}:</div>
+                <!-- Students that have finished the exam -->
+                @for (participant of participants(); track participant) {
+                    <small>
+                        {{ participant.firstName }} {{ participant.lastName }} &lt;{{ participant.email }}&gt;
+                        @if (participant.userIdentifier) {
+                            ({{ participant.userIdentifier }})
+                        }
+                    </small>
+                }
             }
-        }
+        </div>
     `,
     imports: [FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],

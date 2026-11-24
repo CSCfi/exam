@@ -4,82 +4,78 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row ms-2 mt-4">
-    <div class="col-md-12">
-        <div class="xm-paragraph-title">
-            <span class="pointer" (click)="togglePanel()">
-                {{ 'i18n_exam_autoevaluation' | translate }}
-                @if (exam().autoEvaluationConfig) {
-                    <span>({{ 'i18n_in_use' | translate }})</span>
+<div class="xm-stack">
+    <div class="xm-paragraph-title">
+        <span class="pointer" (click)="togglePanel()">
+            {{ 'i18n_exam_autoevaluation' | translate }}
+            @if (exam().autoEvaluationConfig) {
+                <span>({{ 'i18n_in_use' | translate }})</span>
+            }
+            @if (!exam().autoEvaluationConfig) {
+                <span>({{ 'i18n_not_in_use' | translate }})</span>
+            }
+            <span
+                ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                class="ms-2"
+                triggers="mouseenter:mouseleave"
+            >
+                @if (!panelOpen()) {
+                    <img src="/assets/images/icon_list_show_right.svg" alt="" />
                 }
-                @if (!exam().autoEvaluationConfig) {
-                    <span>({{ 'i18n_not_in_use' | translate }})</span>
+                @if (panelOpen()) {
+                    <img src="/assets/images/icon_list_show_down.svg" alt="" />
                 }
-                <span
-                    ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    class="ms-2"
-                    triggers="mouseenter:mouseleave"
-                >
-                    @if (!panelOpen()) {
-                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                    }
-                    @if (panelOpen()) {
-                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
-                    }
-                </span>
             </span>
-        </div>
-    </div>
-</div>
-
-<div class="row ms-2" [ngbCollapse]="!panelOpen()" [ariaExpanded]="panelOpen()">
-    <div class="col-md-12 my-3">
-        <span class="autoevaluation-info">
-            {{ 'i18n_autoevaluation_instructions' | translate }}
         </span>
     </div>
-    <div class="col-md-12 mb-3">
-        @if (!exam().autoEvaluationConfig) {
-            <button class="btn btn-success" name="enableAutoEvaluation" (click)="toggleEnabled()">
-                {{ 'i18n_use' | translate }}
-            </button>
-        }
-        @if (exam().autoEvaluationConfig) {
-            <button class="btn btn-outline-danger" name="disableAutoEvaluation" (click)="toggleEnabled()">
-                {{ 'i18n_do_not_use' | translate }}
-            </button>
-        }
-    </div>
-</div>
 
-<div class="row ms-2" [hidden]="!panelOpen()">
-    <div class="col-md-2 autoevaluation-titles">
-        <strong>{{ 'i18n_exam_grade' | translate }}</strong>
+    <div [ngbCollapse]="!panelOpen()" [ariaExpanded]="panelOpen()">
+        <div class="xm-stack panel">
+            <p class="autoevaluation-info">
+                {{ 'i18n_autoevaluation_instructions' | translate }}
+            </p>
+            <div>
+                @if (!exam().autoEvaluationConfig) {
+                    <button class="btn btn-success" name="enableAutoEvaluation" (click)="toggleEnabled()">
+                        {{ 'i18n_use' | translate }}
+                    </button>
+                }
+                @if (exam().autoEvaluationConfig) {
+                    <button class="btn btn-outline-danger" name="disableAutoEvaluation" (click)="toggleEnabled()">
+                        {{ 'i18n_do_not_use' | translate }}
+                    </button>
+                }
+            </div>
+        </div>
     </div>
-    <div class="col-md-4 autoevaluation-titles">
-        <strong>{{ 'i18n_percentage' | translate }} ({{ maxScore() }})</strong>
-    </div>
-    <div class="col-md-5 autoevaluation-titles">
-        <strong>{{ 'i18n_point_limit' | translate }}</strong>
-    </div>
-</div>
 
-<div class="row ms-2" [hidden]="!panelOpen()">
-    <div class="col-md-12 pt-2 pb-2" [class.form-invalid]="form.invalid">
-        <form role="form" [formGroup]="form" (ngSubmit)="save()">
-            @if (form.get('gradeEvaluations')?.hasError('nonUniqueValue')) {
-                <div class="alert alert-danger">
-                    {{ 'i18n_autoevaluation_percentages_not_unique' | translate }}
-                </div>
-            }
-            <div formArrayName="gradeEvaluations">
+    <form
+        class="xm-stack panel"
+        [class.form-invalid]="form.invalid"
+        [hidden]="!panelOpen()"
+        role="form"
+        [formGroup]="form"
+        (ngSubmit)="save()"
+    >
+        @if (form.get('gradeEvaluations')?.hasError('nonUniqueValue')) {
+            <div class="alert alert-danger">
+                {{ 'i18n_autoevaluation_percentages_not_unique' | translate }}
+            </div>
+        }
+        <table class="grade-limits">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'i18n_exam_grade' | translate }}</th>
+                    <th scope="col">{{ 'i18n_percentage' | translate }} ({{ maxScore() }})</th>
+                    <th scope="col">{{ 'i18n_point_limit' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody formArrayName="gradeEvaluations">
                 @for (control of gradeArray.controls; track control.get('gradeId')?.value; let index = $index) {
-                    <div class="row ps-3 mb-2" [formGroupName]="index">
-                        <div class="col-md-2">
-                            {{ displayGrade(getGradeFromForm(index)) }}
-                        </div>
-                        <div class="col-md-4">
+                    <tr [formGroupName]="index">
+                        <td>{{ displayGrade(getGradeFromForm(index)) }}</td>
+                        <td>
                             <input
                                 type="number"
                                 lang="en"
@@ -109,71 +105,56 @@ SPDX-License-Identifier: EUPL-1.2
                                     }
                                 </div>
                             }
-                        </div>
-                        <div class="col-md-4 autoevaluation-numbers">
-                            {{ scoreLimit(getPercentageFromForm(index)) }}
-                        </div>
-                    </div>
+                        </td>
+                        <td>{{ scoreLimit(getPercentageFromForm(index)) }}</td>
+                    </tr>
                 }
-            </div>
+            </tbody>
+        </table>
 
-            <div class="row ms-2 mt-3">
-                <div class="col-md-12">
-                    {{ 'i18n_autoevaluation_release_type' | translate }}:
-                    <div class="dropdown" ngbDropdown #releaseTypeDropdown="ngbDropdown">
-                        <button
-                            class="btn btn-outline-dark"
-                            [disabled]="!exam().autoEvaluationConfig"
-                            type="button"
-                            ngbDropdownToggle
-                            aria-expanded="true"
-                        >
-                            {{ selectedReleaseType()?.translation || '' | translate }}&nbsp;<span class="caret"></span>
-                        </button>
-                        <ul ngbDropdownMenu role="menu">
-                            @for (type of releaseTypes; track type.name) {
-                                <li role="presentation" [class.active]="selectedReleaseType()?.name === type.name">
-                                    <a
-                                        ngbDropdownItem
-                                        class="pointer"
-                                        (click)="selectReleaseType(type); releaseTypeDropdown.close()"
-                                    >
-                                        {{ type.translation | translate }}
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                </div>
+        <div class="xm-cluster">
+            {{ 'i18n_autoevaluation_release_type' | translate }}:
+            <div ngbDropdown #releaseTypeDropdown="ngbDropdown">
+                <button
+                    class="btn btn-outline-dark"
+                    [disabled]="!exam().autoEvaluationConfig"
+                    type="button"
+                    ngbDropdownToggle
+                    aria-expanded="true"
+                >
+                    {{ selectedReleaseType()?.translation || '' | translate }}
+                </button>
+                <ul ngbDropdownMenu role="menu">
+                    @for (type of releaseTypes; track type.name) {
+                        <li role="presentation" [class.active]="selectedReleaseType()?.name === type.name">
+                            <a
+                                ngbDropdownItem
+                                class="pointer"
+                                (click)="selectReleaseType(type); releaseTypeDropdown.close()"
+                            >
+                                {{ type.translation | translate }}
+                            </a>
+                        </li>
+                    }
+                </ul>
             </div>
+        </div>
 
-            @if (selectedReleaseType()?.name === 'GIVEN_DATE') {
-                <div class="row ms-2 mt-2">
-                    <div class="col-md-6">
-                        <xm-date-picker
-                            [optional]="false"
-                            (updated)="releaseDateChanged($event)"
-                            [initialDate]="getReleaseDate()"
-                            [disabled]="!exam().autoEvaluationConfig"
-                        ></xm-date-picker>
-                    </div>
-                </div>
-            }
-            @if (selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS') {
-                <div class="row ms-2 mt-2">
-                    <div class="col-md-6">
-                        {{ 'i18n_autoevaluation_release_after_days' | translate }}:
-                        <input
-                            type="number"
-                            lang="en"
-                            class="form-control"
-                            formControlName="amountDays"
-                            [min]="1"
-                            [max]="60"
-                        />
-                    </div>
-                </div>
-            }
-        </form>
-    </div>
+        @if (selectedReleaseType()?.name === 'GIVEN_DATE') {
+            <div class="release-field">
+                <xm-date-picker
+                    [optional]="false"
+                    (updated)="releaseDateChanged($event)"
+                    [initialDate]="getReleaseDate()"
+                    [disabled]="!exam().autoEvaluationConfig"
+                ></xm-date-picker>
+            </div>
+        }
+        @if (selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS') {
+            <label class="release-field">
+                {{ 'i18n_autoevaluation_release_after_days' | translate }}:
+                <input type="number" lang="en" class="form-control" formControlName="amountDays" [min]="1" [max]="60" />
+            </label>
+        }
+    </form>
 </div>

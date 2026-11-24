@@ -11,54 +11,55 @@ SPDX-License-Identifier: EUPL-1.2
 </ng-template>
 <ng-template #status>
     @if (exam()?.state) {
-        <span class="exam-status float-end pe-3">{{ 'i18n_' + exam()!.state | lowercase | translate }} </span>
+        <span class="exam-status">{{ 'i18n_' + exam()!.state | lowercase | translate }} </span>
     }
 </ng-template>
 <ng-template #content>
-    <ul
-        ngbNav
-        #nav="ngbNav"
-        [activeId]="activeTab()"
-        (activeIdChange)="activeTab.set($event)"
-        [destroyOnHide]="false"
-        [keyboard]="false"
-        class="nav-tabs ms-2 me-2"
-        (navChange)="navChanged($event)"
-    >
-        <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="1">
-            <a ngbNavLink>{{ 'i18n_exam_basic_information_tab' | translate }}</a>
-        </li>
-        <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="2">
-            <a ngbNavLink>{{ 'i18n_exam_question_tab' | translate }}</a>
-        </li>
-        <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="3">
-            <a ngbNavLink>{{ 'i18n_exam_assessment_settings' | translate }}</a>
-        </li>
-        <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="4">
-            <a ngbNavLink>{{ 'i18n_exam_publish_tab' | translate }}</a>
-        </li>
-        <li [disabled]="exam()?.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
-            <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
-        </li>
-        @if (!collaborative()) {
-            <li [disabled]="exam()?.executionType?.type === 'PRINTOUT'" [ngbNavItem]="6">
-                <a ngbNavLink>{{ 'i18n_question_review' | translate }}</a>
+    <div class="xm-stack">
+        <ul
+            ngbNav
+            #nav="ngbNav"
+            [activeId]="activeTab()"
+            (activeIdChange)="activeTab.set($event)"
+            [destroyOnHide]="false"
+            [keyboard]="false"
+            class="nav-tabs"
+            (navChange)="navChanged($event)"
+        >
+            <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="1">
+                <a ngbNavLink>{{ 'i18n_exam_basic_information_tab' | translate }}</a>
             </li>
-        }
-        @if (exam() && !collaborative()) {
-            <li
-                [disabled]="
-                    (!isOwner() && !user.isAdmin && !user.isSupport) || exam()!.executionType?.type === 'PRINTOUT'
-                "
-                [ngbNavItem]="7"
-            >
-                <a ngbNavLink>{{ 'i18n_exam_summary_tab' | translate }}</a>
+            <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="2">
+                <a ngbNavLink>{{ 'i18n_exam_question_tab' | translate }}</a>
             </li>
-        }
-    </ul>
+            <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="3">
+                <a ngbNavLink>{{ 'i18n_exam_assessment_settings' | translate }}</a>
+            </li>
+            <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="4">
+                <a ngbNavLink>{{ 'i18n_exam_publish_tab' | translate }}</a>
+            </li>
+            <li [disabled]="exam()?.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
+                <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
+            </li>
+            @if (!collaborative()) {
+                <li [disabled]="exam()?.executionType?.type === 'PRINTOUT'" [ngbNavItem]="6">
+                    <a ngbNavLink>{{ 'i18n_question_review' | translate }}</a>
+                </li>
+            }
+            @if (exam() && !collaborative()) {
+                <li
+                    [disabled]="
+                        (!isOwner() && !user.isAdmin && !user.isSupport) || exam()!.executionType?.type === 'PRINTOUT'
+                    "
+                    [ngbNavItem]="7"
+                >
+                    <a ngbNavLink>{{ 'i18n_exam_summary_tab' | translate }}</a>
+                </li>
+            }
+        </ul>
 
-    <div class="row mt-2">
-        <div class="col-md-12">
+        <!-- wrapper: the routed tab renders next to router-outlet, both in one stack item -->
+        <div>
             <router-outlet></router-outlet>
         </div>
     </div>

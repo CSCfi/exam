@@ -9,6 +9,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 
 @Component({
+    styles: `
+        /* Hours and minutes side by side */
+        .duration-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--xm-space-3);
+        }
+    `,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
@@ -16,14 +24,10 @@ import { Duration } from 'luxon';
                 {{ 'i18n_custom' | translate }} {{ ('i18n_exam_time' | translate).toLowerCase() }}
             </div>
         </div>
-        <div class="modal-body">
-            <div class="row">
-                <div class="col-md-12">
-                    ({{ 'i18n_between' | translate }}: {{ format(minDuration()) }} - {{ format(maxDuration()) }})
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-6">
+        <div class="modal-body xm-stack xm-gap-2">
+            <p>({{ 'i18n_between' | translate }}: {{ format(minDuration()) }} - {{ format(maxDuration()) }})</p>
+            <div class="duration-fields">
+                <div>
                     <label class="form-label" for="hourValue">{{ 'i18n_hours' | translate }}</label>
                     <input
                         id="hourValue"
@@ -35,7 +39,7 @@ import { Duration } from 'luxon';
                         [min]="0"
                     />
                 </div>
-                <div class="col-6">
+                <div>
                     <label class="form-label" for="minuteValue">{{ 'i18n_minutes' | translate }}</label>
                     <input
                         id="minuteValue"
@@ -49,7 +53,10 @@ import { Duration } from 'luxon';
                 </div>
             </div>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
             <button
                 class="btn btn-success"
                 (click)="activeModal.close({ hours: hours(), minutes: minutes() })"
@@ -57,9 +64,6 @@ import { Duration } from 'luxon';
                 autofocus
             >
                 {{ 'i18n_button_ok' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
-                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     `,

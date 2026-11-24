@@ -4,64 +4,62 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="xm-study-item-container review-view mb-2">
-    <div class="row align-items-center">
-        <span class="col-md-6">
-            <span cdkDragHandle class="me-3">
-                <i
-                    class="bi bi-arrows-vertical"
-                    ngbPopover="{{ 'i18n_move_question' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    placement="top-left"
-                    triggers="mouseenter:mouseleave"
-                ></i>
-            </span>
-            <span (mousedown)="$event.stopPropagation()">
-                <strong class="me-3">#{{ sectionQuestion().question.id }}</strong>
-                <!-- question points -->
-                @if (
-                    sectionQuestion().evaluationType === 'Points' ||
-                    sectionQuestion().question.type === 'ClozeTestQuestion' ||
-                    sectionQuestion().question.type === 'MultipleChoiceQuestion'
-                ) {
-                    <span> 0 / {{ sectionQuestion().maxScore }} {{ 'i18n_unit_points' | translate }} </span>
-                }
-                @if (sectionQuestion().evaluationType === 'Selection') {
-                    <span>
-                        {{ 'i18n_evaluation_select' | translate }}
-                    </span>
-                }
-                @if (sectionQuestion().question.type === 'WeightedMultipleChoiceQuestion') {
-                    <span>
-                        {{ calculateWeightedMinPoints() }} / {{ calculateWeightedMaxPoints() }}
-                        {{ 'i18n_unit_points' | translate }}
-                    </span>
-                }
-                @if (sectionQuestion().question.type === 'ClaimChoiceQuestion') {
-                    <span>
-                        {{ getMinimumOptionScore() }} / {{ getCorrectClaimChoiceOptionScore() }}
-                        {{ 'i18n_unit_points' | translate }}
-                    </span>
-                }
-                @if (sectionQuestion().question.attachment?.id || sectionQuestion().question.attachment?.externalId) {
-                    <span class="ms-3">
-                        <button
-                            type="button"
-                            class="btn btn-link text-dark"
-                            ngbPopover="{{ sectionQuestion().question.attachment?.fileName }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            (click)="downloadQuestionAttachment()"
-                            [ariaLabel]="'i18n_download_attachment' | translate"
-                        >
-                            <i class="bi-paperclip" aria-hidden="true"></i>
-                        </button>
-                    </span>
-                }
-            </span>
+<div class="xm-study-item-container review-view xm-stack xm-gap-2">
+    <div class="question-header">
+        <span cdkDragHandle>
+            <i
+                class="bi bi-arrows-vertical"
+                ngbPopover="{{ 'i18n_move_question' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                placement="top-left"
+                triggers="mouseenter:mouseleave"
+            ></i>
         </span>
-        <div class="col" (mousedown)="$event.stopPropagation()" ngbDropdown>
-            <button class="btn btn-outline-dark float-end" ngbDropdownToggle>
+        <span class="xm-cluster xm-gap-3" (mousedown)="$event.stopPropagation()">
+            <strong>#{{ sectionQuestion().question.id }}</strong>
+            <!-- question points -->
+            @if (
+                sectionQuestion().evaluationType === 'Points' ||
+                sectionQuestion().question.type === 'ClozeTestQuestion' ||
+                sectionQuestion().question.type === 'MultipleChoiceQuestion'
+            ) {
+                <span> 0 / {{ sectionQuestion().maxScore }} {{ 'i18n_unit_points' | translate }} </span>
+            }
+            @if (sectionQuestion().evaluationType === 'Selection') {
+                <span>
+                    {{ 'i18n_evaluation_select' | translate }}
+                </span>
+            }
+            @if (sectionQuestion().question.type === 'WeightedMultipleChoiceQuestion') {
+                <span>
+                    {{ calculateWeightedMinPoints() }} / {{ calculateWeightedMaxPoints() }}
+                    {{ 'i18n_unit_points' | translate }}
+                </span>
+            }
+            @if (sectionQuestion().question.type === 'ClaimChoiceQuestion') {
+                <span>
+                    {{ getMinimumOptionScore() }} / {{ getCorrectClaimChoiceOptionScore() }}
+                    {{ 'i18n_unit_points' | translate }}
+                </span>
+            }
+            @if (sectionQuestion().question.attachment?.id || sectionQuestion().question.attachment?.externalId) {
+                <span>
+                    <button
+                        type="button"
+                        class="btn btn-link text-dark"
+                        ngbPopover="{{ sectionQuestion().question.attachment?.fileName }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        (click)="downloadQuestionAttachment()"
+                        [ariaLabel]="'i18n_download_attachment' | translate"
+                    >
+                        <i class="bi-paperclip" aria-hidden="true"></i>
+                    </button>
+                </span>
+            }
+        </span>
+        <div class="question-menu" (mousedown)="$event.stopPropagation()" ngbDropdown>
+            <button class="btn btn-outline-dark" ngbDropdownToggle>
                 {{ 'i18n_settings' | translate }}
             </button>
             <div ngbDropdownMenu>
@@ -71,82 +69,66 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
     </div>
-    <div (mousedown)="$event.stopPropagation()">
-        <div class="row mt-3">
-            <!-- Question -->
-            <div class="col-md-12">
-                <div class="make-inline mw-100" [xmRichText]="sectionQuestion().question.question"></div>
-            </div>
-        </div>
-        <div class="row mt-2">
-            <div class="col-md-12">
-                @if (sectionQuestion().answerInstructions || sectionQuestion().options.length > 0) {
-                    <button (click)="toggleExpanded()" class="btn btn-outline-dark" [ariaExpanded]="expanded()">
-                        <span [hidden]="expanded()">{{ 'i18n_show_more' | translate }}</span>
-                        <span [hidden]="!expanded()">{{ 'i18n_hide' | translate }}</span>
-                        <i [hidden]="expanded()" class="bi bi-chevron-right ms-2" alt=""></i>
-                        <i [hidden]="!expanded()" class="bi bi-chevron-down ms-2" alt=""></i>
-                    </button>
-                }
-            </div>
-        </div>
-        <div class="row mt-1" [ngbCollapse]="!expanded()">
-            <div class="col-md-12">
+    <div class="xm-stack xm-gap-2" (mousedown)="$event.stopPropagation()">
+        <!-- Question -->
+        <div class="mw-100" [xmRichText]="sectionQuestion().question.question"></div>
+        @if (sectionQuestion().answerInstructions || sectionQuestion().options.length > 0) {
+            <button (click)="toggleExpanded()" class="btn btn-outline-dark expand-toggle" [ariaExpanded]="expanded()">
+                <span [hidden]="expanded()">{{ 'i18n_show_more' | translate }}</span>
+                <span [hidden]="!expanded()">{{ 'i18n_hide' | translate }}</span>
+                <i [hidden]="expanded()" class="bi bi-chevron-right ms-2" alt=""></i>
+                <i [hidden]="!expanded()" class="bi bi-chevron-down ms-2" alt=""></i>
+            </button>
+        }
+        <div [ngbCollapse]="!expanded()">
+            <div class="xm-stack xm-gap-2 question-details">
                 @if (sectionQuestion().answerInstructions && sectionQuestion().answerInstructions.length > 0) {
-                    <div class="row my-4 ms-2">
-                        <div class="col-md-12" role="note">
-                            <img src="/assets/images/icon_info.png" alt="" />
-                            {{ sectionQuestion().answerInstructions }}
-                        </div>
-                    </div>
+                    <p class="xm-icon-text" role="note">
+                        <img src="/assets/images/icon_info.png" alt="" />
+                        {{ sectionQuestion().answerInstructions }}
+                    </p>
                 }
                 @switch (sectionQuestion().question.type) {
                     @case ('MultipleChoiceQuestion') {
                         @for (option of sectionQuestion().options; track option.id) {
-                            <div class="row ms-2 mt-2">
-                                <div class="col-md-12">
-                                    @if (option.option.correctOption) {
-                                        <img src="/assets/images/icon_correct_answer.png" alt="" />
-                                    } @else {
-                                        <img src="/assets/images/icon_wrong_answer.png" alt="" />
-                                    }
-                                    {{ option.option.option }}
-                                </div>
+                            <div class="xm-cluster option-row">
+                                @if (option.option.correctOption) {
+                                    <img src="/assets/images/icon_correct_answer.png" alt="" />
+                                } @else {
+                                    <img src="/assets/images/icon_wrong_answer.png" alt="" />
+                                }
+                                {{ option.option.option }}
                             </div>
                         }
                     }
                     @case ('WeightedMultipleChoiceQuestion') {
                         @for (option of sectionQuestion().options; track option.id) {
-                            <div class="row ms-2 mt-2">
-                                <div class="col-md-12">
-                                    @if (option.score >= 0) {
-                                        <img src="/assets/images/icon_correct_answer_checkbox.png" alt="" />
-                                    }
-                                    @if (option.score < 0) {
-                                        <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
-                                    }
-                                    <span class="ps-2">{{ option.option.option }}</span>
-                                    <span class="ps-2">{{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
-                                </div>
+                            <div class="xm-cluster option-row">
+                                @if (option.score >= 0) {
+                                    <img src="/assets/images/icon_correct_answer_checkbox.png" alt="" />
+                                }
+                                @if (option.score < 0) {
+                                    <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
+                                }
+                                <span>{{ option.option.option }}</span>
+                                <span>{{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
                             </div>
                         }
                     }
                     @case ('ClaimChoiceQuestion') {
                         @for (option of sectionQuestion().options | orderBy: 'option.id'; track option) {
-                            <div class="row ms-2 mt-2">
-                                <div class="col-md-12">
-                                    @if (determineClaimOptionType(option) === 'CorrectOption') {
-                                        <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
-                                    }
-                                    @if (determineClaimOptionType(option) === 'IncorrectOption') {
-                                        <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
-                                    }
-                                    @if (determineClaimOptionType(option) === 'SkipOption') {
-                                        <img src="/assets/images/icon_wrong_answer.png" alt="" />
-                                    }
-                                    <span class="ps-2">{{ option.option.option }}</span>
-                                    <span class="ps-2">{{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
-                                </div>
+                            <div class="xm-cluster option-row">
+                                @if (determineClaimOptionType(option) === 'CorrectOption') {
+                                    <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
+                                }
+                                @if (determineClaimOptionType(option) === 'IncorrectOption') {
+                                    <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
+                                }
+                                @if (determineClaimOptionType(option) === 'SkipOption') {
+                                    <img src="/assets/images/icon_wrong_answer.png" alt="" />
+                                }
+                                <span>{{ option.option.option }}</span>
+                                <span>{{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
                             </div>
                         }
                     }

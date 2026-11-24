@@ -24,11 +24,9 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
     selector: 'xm-exam-publication-participants',
     template: `
         @if (!collaborative()) {
-            <div class="row mt-2">
-                <div class="col-md-3">
-                    {{ 'i18n_exam_add_participants_title' | translate }}
-                </div>
-                <div class="col-md-9 participant-selector-toggle">
+            <div class="xm-form-row">
+                <span>{{ 'i18n_exam_add_participants_title' | translate }}</span>
+                <div class="xm-cluster xm-gap-3">
                     <label>
                         <input
                             type="radio"
@@ -43,7 +41,7 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
                             ><img src="/assets/images/icon_tooltip.svg" alt=""
                         /></sup>
                     </label>
-                    <label class="ms-2">
+                    <label>
                         <input
                             type="radio"
                             [checked]="visibleParticipantSelector() === 'pre-participant'"
@@ -58,26 +56,27 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
                         /></sup>
                     </label>
                 </div>
+                <!-- Exam participants -->
+                @if (visibleParticipantSelector() === 'participant') {
+                    <xm-exam-participant-selector
+                        [exam]="exam()"
+                        (participantsChange)="participantsChanged($event)"
+                    ></xm-exam-participant-selector>
+                }
+                <!-- Exam pre-participants -->
+                @if (visibleParticipantSelector() === 'pre-participant') {
+                    <xm-exam-pre-participant-selector
+                        [exam]="exam()"
+                        (participantsChange)="participantsChanged($event)"
+                    ></xm-exam-pre-participant-selector>
+                }
             </div>
-            <!-- Exam participants -->
-            @if (visibleParticipantSelector() === 'participant') {
-                <xm-exam-participant-selector
-                    [exam]="exam()"
-                    (participantsChange)="participantsChanged($event)"
-                ></xm-exam-participant-selector>
-            }
-
-            <!-- Exam pre-participants -->
-            @if (visibleParticipantSelector() === 'pre-participant') {
-                <xm-exam-pre-participant-selector
-                    [exam]="exam()"
-                    (participantsChange)="participantsChanged($event)"
-                ></xm-exam-pre-participant-selector>
-            }
         }
         @if (collaborative()) {
-            <xm-collaborative-exam-owner-selector [exam]="exam()"> </xm-collaborative-exam-owner-selector>
-            <xm-exam-organisation-selector [exam]="exam()"></xm-exam-organisation-selector>
+            <div class="xm-stack">
+                <xm-collaborative-exam-owner-selector [exam]="exam()"> </xm-collaborative-exam-owner-selector>
+                <xm-exam-organisation-selector [exam]="exam()"></xm-exam-organisation-selector>
+            </div>
         }
     `,
 })

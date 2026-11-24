@@ -19,8 +19,9 @@ type Organisation = {
 
 @Component({
     selector: 'xm-exam-organisation-selector',
-    template: `<div class="row mt-2">
-            <div class="col-md-3 ">
+    template: `
+        <div class="xm-form-row">
+            <span>
                 {{ 'i18n_exam_organisations' | translate }}
                 <sup
                     ngbPopover="{{ 'i18n_exam_organisations_description' | translate }}"
@@ -29,8 +30,8 @@ type Organisation = {
                 >
                     <img src="/assets/images/icon_tooltip.svg" alt="exam organisations" />
                 </sup>
-            </div>
-            <div class="col-md-9" ngbDropdown>
+            </span>
+            <div ngbDropdown>
                 <button
                     ngbDropdownToggle
                     [disabled]="exam().state === 'PUBLISHED'"
@@ -57,30 +58,31 @@ type Organisation = {
                     }
                 </ul>
             </div>
-        </div>
-        @if (selectedOrganisations().length > 0) {
-            <div class="row mt-2">
-                <div class="col-md-9 offset-md-3">
+            @if (selectedOrganisations().length > 0) {
+                <div class="xm-cluster">
                     @for (org of selectedOrganisations(); track org) {
-                        {{ org.name }} ({{ org.code }})
-                        <button
-                            class="btn btn-sm btn-link px-0"
-                            [disabled]="exam().state === 'PUBLISHED'"
-                            (click)="removeOrganisation(org)"
-                            [ariaLabel]="'i18n_remove' | translate"
-                            title="{{ 'i18n_remove' | translate }}"
-                        >
-                            <i
-                                class="bi bi-x-lg"
-                                [class.text-danger]="exam().state === 'PUBLISHED'"
-                                [class.text-success]="exam().state !== 'PUBLISHED'"
-                                aria-hidden="true"
-                            ></i>
-                        </button>
+                        <span>
+                            {{ org.name }} ({{ org.code }})
+                            <button
+                                class="btn btn-sm btn-link px-0"
+                                [disabled]="exam().state === 'PUBLISHED'"
+                                (click)="removeOrganisation(org)"
+                                [ariaLabel]="'i18n_remove' | translate"
+                                title="{{ 'i18n_remove' | translate }}"
+                            >
+                                <i
+                                    class="bi bi-x-lg"
+                                    [class.text-danger]="exam().state === 'PUBLISHED'"
+                                    [class.text-success]="exam().state !== 'PUBLISHED'"
+                                    aria-hidden="true"
+                                ></i>
+                            </button>
+                        </span>
                     }
                 </div>
-            </div>
-        }`,
+            }
+        </div>
+    `,
     imports: [NgbPopover, NgbDropdownModule, TranslateModule],
 })
 export class OrganisationSelectorComponent {

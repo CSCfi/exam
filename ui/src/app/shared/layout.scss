@@ -121,6 +121,24 @@
     }
 }
 
+// Form row: label (with its tooltip) beside the control, stacked on phones. The label column
+// has a fixed share of the row, so rows in different components line up with each other.
+// Further children (a list under the field, help text) stay in the control column.
+.xm-form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--xm-space-1) var(--xm-space-3);
+    align-items: baseline;
+
+    > :nth-child(n + 3) {
+        grid-column: -2 / -1;
+    }
+
+    @include bp.up(md) {
+        grid-template-columns: 25% minmax(0, 1fr);
+    }
+}
+
 // Gap modifiers, combine with xm-stack / xm-cluster / xm-split: class="xm-stack xm-gap-1".
 // Defined after the primitives so they win at equal specificity. They set gap itself rather
 // than a custom property, which would inherit into nested primitives.

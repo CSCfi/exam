@@ -15,6 +15,11 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 @Component({
     selector: 'xm-new-exam',
     templateUrl: './new-exam.component.html',
+    styles: `
+        .new-exam-fields {
+            max-width: 20rem;
+        }
+    `,
     imports: [NgbPopover, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class NewExamComponent {

@@ -29,6 +29,18 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 @Component({
     selector: 'xm-exam-list',
     templateUrl: './exam-list.component.html',
+    styles: `
+        .header-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .list-search {
+            max-width: 26rem;
+        }
+        .searching {
+            align-self: start;
+        }
+    `,
     imports: [
         NgbNavModule,
         NgbPopover,

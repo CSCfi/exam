@@ -11,16 +11,7 @@ SPDX-License-Identifier: EUPL-1.2
         @if (examInfo()?.examOwners) {
             <div class="speed-review-title">
                 {{ examInfo()?.title }}
-                <span class="speed-review-subtitle">({{ 'i18n_teachers' | translate }}:</span>
-                @for (owner of examInfo()!.examOwners; track owner; let isLast = $last) {
-                    <span class="speed-review-subtitle">
-                        {{ owner.firstName }} {{ owner.lastName }}
-                        @if (!isLast) {
-                            <span>,&nbsp;</span>
-                        }
-                    </span>
-                }
-                <span class="speed-review-subtitle">)</span>
+                <span class="speed-review-subtitle">({{ 'i18n_teachers' | translate }}: {{ ownerNames() }})</span>
             </div>
         }
     </div>

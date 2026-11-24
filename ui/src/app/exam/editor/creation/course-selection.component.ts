@@ -19,6 +19,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 @Component({
     selector: 'xm-course-selection',
     templateUrl: './course-selection.component.html',
+    styleUrl: '../../exam.shared.scss',
     imports: [
         NgbPopover,
         ExamCourseComponent,

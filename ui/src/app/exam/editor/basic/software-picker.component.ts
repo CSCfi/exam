@@ -12,48 +12,44 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     selector: 'xm-software-picker',
-    template: `<div [hidden]="exam().executionType.type === 'MATURITY'" class="row">
-        <div class="col-md-12 mt-3">
-            <div class="row">
-                <div class="col-md-3 ">
-                    {{ 'i18n_machine_softwares' | translate }}
-                    <sup
-                        ngbPopover="{{ 'i18n_exam_software_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                    </sup>
-                </div>
-                <div class="col-md-9">
-                    <div ngbDropdown>
+    template: `
+        <div [hidden]="exam().executionType.type === 'MATURITY'" class="xm-form-row">
+            <span>
+                {{ 'i18n_machine_softwares' | translate }}
+                <sup
+                    ngbPopover="{{ 'i18n_exam_software_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </span>
+            <div ngbDropdown>
+                <button
+                    ngbDropdownToggle
+                    class="btn btn-outline-dark"
+                    type="button"
+                    id="dropDownMenu1"
+                    aria-expanded="true"
+                >
+                    {{ selectedSoftware() }}
+                </button>
+                <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
+                    @for (sw of software(); track sw) {
                         <button
-                            ngbDropdownToggle
-                            class="btn btn-outline-dark"
-                            type="button"
-                            id="dropDownMenu1"
-                            aria-expanded="true"
+                            ngbDropdownItem
+                            role="presentation"
+                            [class.active]="isSelected(sw)"
+                            (click)="updateExamSoftware(sw)"
+                            title="{{ sw.name }}"
                         >
-                            {{ selectedSoftware() }}&nbsp;<span class="caret"></span>
+                            {{ sw.name }}
                         </button>
-                        <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                            @for (sw of software(); track sw) {
-                                <button
-                                    ngbDropdownItem
-                                    role="presentation"
-                                    [class.active]="isSelected(sw)"
-                                    (click)="updateExamSoftware(sw)"
-                                    title="{{ sw.name }}"
-                                >
-                                    {{ sw.name }}
-                                </button>
-                            }
-                        </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
-    </div>`,
+    `,
     imports: [NgbPopover, NgbDropdownModule, TranslateModule],
 })
 export class SoftwareSelectorComponent {

@@ -4,8 +4,8 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row col-md-12 mt-3">
-    <div class="col-md-3">
+<div class="xm-form-row">
+    <span>
         {{ 'i18n_exam_editor_materials' | translate }}
         <sup
             ngbPopover="{{ 'i18n_exam_material_description' | translate }}"
@@ -13,11 +13,11 @@ SPDX-License-Identifier: EUPL-1.2
             triggers="mouseenter:mouseleave"
             ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
-    </div>
-    <div class="col-md-6">
+    </span>
+    <div class="xm-cluster">
         <input
             type="text"
-            class="form-control w-50 make-inline"
+            class="form-control w-50"
             [ngModel]="filter()"
             (ngModelChange)="filter.set($event)"
             [ngbTypeahead]="filterMaterials$"
@@ -25,21 +25,14 @@ SPDX-License-Identifier: EUPL-1.2
             [resultFormatter]="nameFormat"
             [editable]="false"
         />
-        <span
-            ><button (click)="addMaterial()" class="btn btn-success">
-                {{ 'i18n_add' | translate }}
-            </button></span
-        >
-    </div>
-    <div class="col-md-3">
-        <button class="btn btn-sm btn-outline-secondary px-0" (click)="openMaterialEditor()">
+        <button (click)="addMaterial()" class="btn btn-success">
+            {{ 'i18n_add' | translate }}
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" (click)="openMaterialEditor()">
             {{ 'i18n_modify_materials' | translate }}
         </button>
     </div>
-</div>
-<div class="row col-md-12">
-    <div class="col-md-3"></div>
-    <div class="col-md-9">
+    <div class="xm-cluster">
         @for (material of section().examMaterials; track material) {
             <button
                 class="btn btn-sm btn-light px-0"

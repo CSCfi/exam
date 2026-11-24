@@ -17,13 +17,20 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
+    styles: `
+        .event-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+    `,
     imports: [NgbPopoverModule, TranslateModule, DatePipe],
     selector: 'xm-examination-events',
     template: `
         <!-- Examination events -->
         @if (exam().implementation !== 'AQUARIUM') {
-            <div class="row mt-2">
-                <div class="col-md-3">
+            <div class="xm-form-row">
+                <span>
                     {{ 'i18n_examination_events' | translate }}
                     <sup
                         triggers="mouseenter:mouseleave"
@@ -32,8 +39,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     >
                         <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
-                </div>
-                <div class="col-md-3">
+                </span>
+                <div class="xm-cluster xm-gap-3">
                     <button
                         type="button"
                         (click)="addExaminationEvent()"
@@ -42,11 +49,9 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     >
                         {{ 'i18n_add_examination_event' | translate }}
                     </button>
-                </div>
-                <div class="col-md-6 justify-content-center">
-                    <ul class="list-inline pt-2">
+                    <ul class="xm-cluster event-list">
                         @for (config of sortByString(configurations()); track config) {
-                            <li class="list-inline-item mb-3">
+                            <li>
                                 <span
                                     title="{{ 'i18n_edit' | translate }}"
                                     (click)="modifyExaminationEvent(config)"

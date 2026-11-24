@@ -14,8 +14,18 @@
 }
 .prow {
     margin: 0;
-    padding-left: 1em;
-    padding-right: 1em;
+    /* includes the 0.75rem the Bootstrap columns inside used to add */
+    padding-left: calc(1em + 0.75rem);
+    padding-right: calc(1em + 0.75rem);
+}
+.pinstructions {
+    margin-bottom: 1rem;
+}
+/* Question number and type, points at the end */
+.pquestion-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
 }
 .pbreak {
     page-break-after: always;

@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -64,6 +64,11 @@ export class SpeedReviewComponent {
     readonly examInfo = signal<{ examOwners: User[]; title: string; anonymous: boolean } | undefined>(undefined);
     readonly toggleReviews = signal(false);
     readonly examReviews = signal<Review[]>([]);
+    // Joined here rather than in the template: a @for block leaves the collapsed newline before
+    // each separator in place, which rendered the list as "Jane Doe , John Roe )".
+    readonly ownerNames = computed(() =>
+        (this.examInfo()?.examOwners ?? []).map((o) => `${o.firstName} ${o.lastName}`).join(', '),
+    );
 
     readonly pageSize = 10;
 
