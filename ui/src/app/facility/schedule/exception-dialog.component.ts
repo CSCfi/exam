@@ -18,7 +18,14 @@ import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetitio
     imports: [TranslateModule, ExceptionDialogRepetitionOptionsComponent, NgbDropdownModule],
     templateUrl: './exception-dialog.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
-    styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
+    styles: `
+        .blue-shadow-hover:hover {
+            box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1);
+        }
+        .whole-day {
+            margin-top: var(--xm-space-4);
+        }
+    `,
 })
 export class ExceptionDialogComponent {
     readonly outOfService = signal(true);

@@ -24,3 +24,30 @@
 li {
     list-style: none;
 }
+
+/* Title on the left; add, counts and the chevron on the right */
+.machines-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--xm-space-2);
+}
+.machines-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--xm-space-1);
+
+    /* a little more room after the add icon and before the chevron, as before */
+    > a {
+        margin-inline-end: var(--xm-space-2);
+    }
+    > div {
+        margin-inline-start: var(--xm-space-2);
+    }
+}
+/* Software names on one wrapping line */
+.software-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+}

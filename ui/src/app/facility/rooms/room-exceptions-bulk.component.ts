@@ -20,38 +20,32 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
         <xm-page-header text="i18n_edit_all_rooms" />
         <xm-page-content [content]="content" />
         <ng-template #content>
-            <div class="row">
-                <div class="col-md-12">
-                    <button (click)="addMultiRoomException(true)" class="btn btn-sm btn-outline-dark me-2 mb-2">
+            <div class="xm-stack xm-gap-2">
+                <div class="xm-cluster">
+                    <button (click)="addMultiRoomException(true)" class="btn btn-sm btn-outline-dark">
                         {{ 'i18n_add_out_of_service_time' | translate }}
                     </button>
-                    <button (click)="addMultiRoomException(false)" class="btn btn-sm btn-outline-success mb-2">
+                    <button (click)="addMultiRoomException(false)" class="btn btn-sm btn-outline-success">
                         {{ 'i18n_add_extra_working_hour' | translate }}
                     </button>
                 </div>
-            </div>
-            <div class="row my-2">
-                <div class="col-md-12">
-                    <div class="form-check">
-                        <input
-                            type="checkbox"
-                            class="form-check-input"
-                            name="select_all"
-                            [checked]="allSelected()"
-                            (change)="onSelectAllChange($event)"
-                            triggers="mouseenter:mouseleave"
-                            ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        />
-                        <label class="form-check-label ms-1" for="flexCheckIndeterminate">
-                            <strong>{{ 'i18n_select_all_rooms' | translate }}</strong>
-                        </label>
-                    </div>
+                <div class="form-check select-all">
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        name="select_all"
+                        [checked]="allSelected()"
+                        (change)="onSelectAllChange($event)"
+                        triggers="mouseenter:mouseleave"
+                        ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    />
+                    <label class="form-check-label ms-1" for="flexCheckIndeterminate">
+                        <strong>{{ 'i18n_select_all_rooms' | translate }}</strong>
+                    </label>
                 </div>
-            </div>
-            @for (room of rooms(); track room.id) {
-                <div class="row mt-2">
-                    <div class="col-md-12">
+                @for (room of rooms(); track room.id) {
+                    <div>
                         <div class="form-check">
                             <input
                                 type="checkbox"
@@ -72,10 +66,8 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                                 ></i>
                             }
                         </div>
-                    </div>
-                    <div class="row ms-3">
                         @if (room.showBreaks) {
-                            <div class="col-md-12">
+                            <div class="room-breaks">
                                 <xm-exceptions
                                     [exceptions]="room.calendarExceptionEvents"
                                     [timeZone]="room.localTimezone"
@@ -86,15 +78,13 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                             </div>
                         }
                     </div>
-                </div>
-            }
+                }
 
-            <div class="row mt-2">
-                <div class="col-12">
-                    <button (click)="addMultiRoomException(true)" class="btn btn-sm btn-outline-dark me-2 mb-2">
+                <div class="xm-cluster">
+                    <button (click)="addMultiRoomException(true)" class="btn btn-sm btn-outline-dark">
                         {{ 'i18n_add_out_of_service_time' | translate }}
                     </button>
-                    <button (click)="addMultiRoomException(false)" class="btn btn-sm btn-outline-success mb-2">
+                    <button (click)="addMultiRoomException(false)" class="btn btn-sm btn-outline-success">
                         {{ 'i18n_add_extra_working_hour' | translate }}
                     </button>
                 </div>

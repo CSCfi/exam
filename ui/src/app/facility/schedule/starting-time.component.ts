@@ -11,48 +11,39 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
 
 @Component({
     selector: 'xm-starting-time',
-    template: ` <div class="row">
-            <div class="col-md-12 header-text">
-                <strong>{{ 'i18n_exam_starting_hours' | translate }}:</strong>
-            </div>
+    template: `<div class="xm-stack xm-gap-2">
+        <div class="header-text">
+            <strong>{{ 'i18n_exam_starting_hours' | translate }}:</strong>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <form>
-                    <div class="row">
-                        <label class="col-6 col-form-label" for="hourOffset"
-                            >{{ 'i18n_minutes_on_the_hour' | translate }}:</label
-                        >
-                        <div class="col-2">
-                            <input
-                                class="form-control"
-                                id="hourOffset"
-                                type="number"
-                                lang="en"
-                                [formField]="hourOffsetForm.hourOffset"
-                                (change)="onHourOffsetChange()"
-                                (click)="setUnsavedProgress(true)"
-                            />
-                        </div>
-                    </div>
-                </form>
+        <form>
+            <div class="offset-row">
+                <label class="col-form-label" for="hourOffset">{{ 'i18n_minutes_on_the_hour' | translate }}:</label>
+                <div>
+                    <input
+                        class="form-control"
+                        id="hourOffset"
+                        type="number"
+                        lang="en"
+                        [formField]="hourOffsetForm.hourOffset"
+                        (change)="onHourOffsetChange()"
+                        (click)="setUnsavedProgress(true)"
+                    />
+                </div>
             </div>
+        </form>
+        <div class="xm-cluster">
+            @for (hour of examStartingHours(); track hour) {
+                <span
+                    class="badge pointer"
+                    [class.bg-success]="hour.selected"
+                    [class.bg-secondary]="!hour.selected"
+                    (click)="toggleHourSelected(hour)"
+                    >{{ hour.startingHour }}</span
+                >
+            }
         </div>
-        <div class="row mt-2">
-            <div class="col-12">
-                @for (hour of examStartingHours(); track hour) {
-                    <span
-                        class="badge pointer m-1"
-                        [class.bg-success]="hour.selected"
-                        [class.bg-secondary]="!hour.selected"
-                        (click)="toggleHourSelected(hour)"
-                        >{{ hour.startingHour }}</span
-                    >
-                }
-            </div>
-        </div>
-        <div class="row mt-2">
-            <div class="col-6">
+        <div class="starting-actions">
+            <div>
                 <button
                     class="btn btn-sm btn-outline-dark"
                     (click)="updateStartingHours()"
@@ -67,12 +58,26 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                     [hidden]="!unsavedProgress()"
                 ></i>
             </div>
-            <div class="col-6">
-                <button class="btn btn-outline-dark float-end" (click)="toggleAllExamStartingHours()">
-                    {{ 'i18n_add_remove_all' | translate }}
-                </button>
-            </div>
-        </div>`,
+            <button class="btn btn-outline-dark" (click)="toggleAllExamStartingHours()">
+                {{ 'i18n_add_remove_all' | translate }}
+            </button>
+        </div>
+    </div>`,
+    styles: `
+        /* Label in half the row, the minutes field in the next 2/12 */
+        .offset-row {
+            display: grid;
+            grid-template-columns: minmax(0, 6fr) minmax(0, 2fr) minmax(0, 4fr);
+            column-gap: 1.5rem;
+        }
+        /* Save (and the unsaved-changes warning) at the start, select-all at the end */
+        .starting-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: var(--xm-space-2);
+        }
+    `,
     imports: [FormField, TranslateModule, NgbPopover],
 })
 export class StartingTimeComponent {

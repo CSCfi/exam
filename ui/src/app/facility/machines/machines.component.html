@@ -5,13 +5,11 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <div [hidden]="room().state === 'INACTIVE'">
-    <div class="row">
-        <div class="col">
-            <span class="pointer user-select-none"> {{ 'i18n_exam_room_machines' | translate }}&nbsp;&nbsp; </span>
-        </div>
-        <div class="d-flex justify-content-end col">
+    <div class="machines-heading">
+        <span class="pointer user-select-none"> {{ 'i18n_exam_room_machines' | translate }}&nbsp;&nbsp; </span>
+        <div class="machines-summary">
             <a
-                class="ps-2 me-2 text text-success pointer"
+                class="text text-success pointer"
                 (click)="addNewMachine()"
                 triggers="mouseenter:mouseleave"
                 ngbPopover="{{ 'i18n_add' | translate }}"
@@ -32,7 +30,7 @@ SPDX-License-Identifier: EUPL-1.2
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 ngbPopover="{{ 'i18n_status_inservice' | translate }}"
             >
-                <span class="badge bg-danger ms-1 me-3">
+                <span class="badge bg-danger">
                     {{ countMachineAlerts() }}
                 </span>
             </span>
@@ -42,53 +40,51 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
     </div>
-    <div class="row" [hidden]="!showMachines()">
-        <div class="col-md-12">
-            <table class="table table-striped">
-                <thead>
+    <div class="table-responsive" [hidden]="!showMachines()">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>{{ 'i18n_name' | translate }}</th>
+                    <th>{{ 'i18n_machine_other_identifier' | translate }}</th>
+                    <th>{{ 'i18n_machine_softwares' | translate }}</th>
+                    <th>{{ 'i18n_status' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (machine of machines(); track machine.id) {
                     <tr>
-                        <th>{{ 'i18n_name' | translate }}</th>
-                        <th>{{ 'i18n_machine_other_identifier' | translate }}</th>
-                        <th>{{ 'i18n_machine_softwares' | translate }}</th>
-                        <th>{{ 'i18n_status' | translate }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (machine of machines(); track machine.id) {
-                        <tr>
-                            <td>
-                                <a [class.text-danger]="!machine.name" [routerLink]="['/staff/machines', machine.id]">
-                                    <strong>{{ !machine.name ? ('i18n_no_name' | translate) : machine.name }}</strong>
-                                </a>
-                            </td>
-                            <td>{{ machine.otherIdentifier }}</td>
-                            <td>
-                                <ul>
-                                    @for (software of machine.softwareInfo; track software; let l = $last) {
-                                        <li class="float-start">
-                                            @if (software.status !== 'DISABLED') {
-                                                <span>{{ software.name }}</span>
-                                                @if (!l) {
-                                                    <span>,&nbsp;</span>
-                                                }
+                        <td>
+                            <a [class.text-danger]="!machine.name" [routerLink]="['/staff/machines', machine.id]">
+                                <strong>{{ !machine.name ? ('i18n_no_name' | translate) : machine.name }}</strong>
+                            </a>
+                        </td>
+                        <td>{{ machine.otherIdentifier }}</td>
+                        <td>
+                            <ul class="software-list">
+                                @for (software of machine.softwareInfo; track software; let l = $last) {
+                                    <li>
+                                        @if (software.status !== 'DISABLED') {
+                                            <span>{{ software.name }}</span>
+                                            @if (!l) {
+                                                <span>,&nbsp;</span>
                                             }
-                                        </li>
-                                    }
-                                </ul>
-                            </td>
-                            <td>
-                                @if (machine.outOfService) {
-                                    <span class="status_red">{{ 'i18n_status_inactive' | translate }}</span>
+                                        }
+                                    </li>
                                 }
-                                @if (!machine.outOfService) {
-                                    <span class="status_green">{{ 'i18n_status_active' | translate }}</span>
-                                }
-                                <span class="ms-2">{{ machine.statusComment }}</span>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                            </ul>
+                        </td>
+                        <td>
+                            @if (machine.outOfService) {
+                                <span class="status_red">{{ 'i18n_status_inactive' | translate }}</span>
+                            }
+                            @if (!machine.outOfService) {
+                                <span class="status_green">{{ 'i18n_status_active' | translate }}</span>
+                            }
+                            <span class="ms-2">{{ machine.statusComment }}</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>

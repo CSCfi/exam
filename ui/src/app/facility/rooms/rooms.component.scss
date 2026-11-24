@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/breakpoints' as bp;
+
 .selected {
     background-color: #d3e7a8;
     border-top: none;
@@ -49,4 +51,106 @@
     pointer-events: none;
     opacity: 0.6;
     filter: grayscale(100%);
+}
+
+/* Form fields two per row from md up (the old col-md-6 pairs), a gutter's width apart */
+.field-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 1.5rem;
+
+    @include bp.up(md) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+/* Four per row from md up: room instructions in three languages and the contact person */
+.field-row-4 {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 1.5rem;
+
+    @include bp.up(md) {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+/* Save button under a form */
+.form-actions {
+    margin-top: var(--xm-space-3);
+}
+
+/* Room list item (room.component) */
+.room {
+    margin-top: var(--xm-space-4);
+}
+/* Long room names and codes without spaces wrap instead of widening the page */
+.room > h4,
+.panel-heading,
+.form-check-label {
+    overflow-wrap: anywhere;
+}
+/* Panel title on the left, summary and expand chevron on the right */
+.panel-heading {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--xm-space-2);
+
+    /* summary text and its expand chevron */
+    > div:last-child {
+        display: flex;
+        gap: var(--xm-space-2);
+    }
+}
+.hours-summary {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--xm-space-2);
+}
+.timetable-row,
+.more-exceptions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--xm-space-2);
+}
+/* Upcoming exceptions in the last 5/12 of the panel, status and time side by side */
+.next-exceptions {
+    margin-top: var(--xm-space-2);
+
+    @include bp.up(md) {
+        margin-inline-start: calc(7 / 12 * 100%);
+    }
+}
+.exception-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    column-gap: var(--xm-space-2);
+}
+/* Opening hours beside the exceptions and starting times from md up */
+.room-schedule {
+    display: grid;
+    gap: var(--xm-space-3) 1.5rem;
+
+    @include bp.up(md) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Machine page: software and service status a little further apart (1rem in all) */
+.spaced {
+    margin-top: var(--xm-space-2);
+}
+/* Machine page: the save button at the end of the form, as before */
+.machine-save {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--xm-space-3);
+}
+
+/* Bulk exceptions page: "select all" a little further from the buttons above it */
+.select-all {
+    margin-top: var(--xm-space-2);
+}
+/* Bulk exceptions page: a room's exceptions indented under its checkbox */
+.room-breaks {
+    margin-inline-start: var(--xm-space-3);
 }

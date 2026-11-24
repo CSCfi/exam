@@ -23,6 +23,17 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
 
 @Component({
     templateUrl: './facility.component.html',
+    styles: `
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: var(--xm-space-3);
+        }
+        .rooms-tabs {
+            margin-top: var(--xm-space-2);
+        }
+    `,
     selector: 'xm-facility',
     imports: [
         NgbNavModule,

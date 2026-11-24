@@ -13,8 +13,8 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
             <div class="xm-modal-title">{{ 'i18n_remove_exception_confirmation' | translate }}</div>
         </div>
         <div class="modal-body">
-            <div class="d-flex">
-                <div class="me-2">
+            <div class="xm-cluster">
+                <div>
                     {{ message() }}
                 </div>
                 @if (exception()?.outOfService) {
@@ -29,12 +29,12 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
                 }
             </div>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
             <button class="btn btn-success" (click)="activeModal.close()" autofocus>
                 {{ 'i18n_confirm' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
-                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     `,
