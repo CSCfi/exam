@@ -49,7 +49,34 @@ interface MonthOfYear {
     imports: [CommonModule, TranslateModule, NgbDropdownModule, DateTimePickerComponent],
     templateUrl: './exception-repetition-options.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
-    styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
+    styles: `
+        .blue-shadow-hover:hover {
+            box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1);
+        }
+        /* Begin and end on the left, the repetition settings beside them (equal columns) */
+        .repetition {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(0, 1fr);
+            align-items: center;
+            column-gap: 1.5rem;
+        }
+        .dates {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 1.5rem;
+            margin-top: var(--xm-space-2);
+        }
+        .mode-title {
+            margin-block: var(--xm-space-2) var(--xm-space-3);
+        }
+        .weekdays {
+            margin-block: var(--xm-space-2);
+        }
+        .monthly-options {
+            margin-bottom: var(--xm-space-3);
+        }
+    `,
 })
 export class ExceptionDialogRepetitionOptionsComponent {
     readonly mode = input(REPEAT_OPTION.once);

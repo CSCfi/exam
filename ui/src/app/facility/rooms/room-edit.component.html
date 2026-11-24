@@ -9,58 +9,56 @@ SPDX-License-Identifier: EUPL-1.2
     <xm-page-content [content]="content" />
 }
 <ng-template #content>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="row">
-                <span class="col font-6">
-                    <span class="me-2" [hidden]="!showName()" onclick="document.getElementById('name_field').select()">
-                        {{ room()?.name || 'i18n_no_name' | translate }}
-                        <button
-                            type="button"
-                            class="btn btn-link btn-lg text-body width-auto"
-                            (click)="toggleShowName()"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_edit' | translate }}"
-                        >
-                            <i class="bi-pencil ms-2"></i>
-                        </button>
-                        <button
-                            type="button"
-                            class="btn btn-link btn-lg width-auto"
-                            (click)="disableRoom()"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
-                        >
-                            <i class="text-danger bi-trash"></i>
-                        </button>
-                    </span>
-                    <span [hidden]="showName()">
-                        <div class="input-group">
-                            <input
-                                id="name_field"
-                                type="text"
-                                name="name"
-                                class="form-control input-lg"
-                                [value]="room()?.name ?? ''"
-                                (input)="onRoomTextInput('name', $event)"
-                                required
-                                (blur)="toggleShowName()"
-                            />
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-primary" (click)="toggleShowName()">
-                                    <i class="bi-check"></i>
-                                </button>
-                            </div>
+    <div class="xm-stack xm-gap-2">
+        <div>
+            <div class="font-6">
+                <span class="me-2" [hidden]="!showName()" onclick="document.getElementById('name_field').select()">
+                    {{ room()?.name || 'i18n_no_name' | translate }}
+                    <button
+                        type="button"
+                        class="btn btn-link btn-lg text-body width-auto"
+                        (click)="toggleShowName()"
+                        triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_edit' | translate }}"
+                    >
+                        <i class="bi-pencil ms-2"></i>
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-link btn-lg width-auto"
+                        (click)="disableRoom()"
+                        triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
+                    >
+                        <i class="text-danger bi-trash"></i>
+                    </button>
+                </span>
+                <span [hidden]="showName()">
+                    <div class="input-group">
+                        <input
+                            id="name_field"
+                            type="text"
+                            name="name"
+                            class="form-control input-lg"
+                            [value]="room()?.name ?? ''"
+                            (input)="onRoomTextInput('name', $event)"
+                            required
+                            (blur)="toggleShowName()"
+                        />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary" (click)="toggleShowName()">
+                                <i class="bi-check"></i>
+                            </button>
                         </div>
-                    </span>
+                    </div>
                 </span>
             </div>
             <form role="form" novalidate id="roomForm" (submit)="$event.preventDefault(); validateAndUpdateRoom()">
                 <!-- Room Code & Building name -->
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="field-row">
+                    <div>
                         <div class="facility-info-text">{{ 'i18n_room_code' | translate }}</div>
                         <div class="input-group">
                             <input type="text" class="form-control" [formField]="roomDetailsForm.roomCode" />
@@ -76,7 +74,7 @@ SPDX-License-Identifier: EUPL-1.2
                             </span>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div>
                         <div class="facility-info-text">{{ 'i18n_room_building_name' | translate }}</div>
                         <div class="input-group">
                             <input type="text" class="form-control" [formField]="roomDetailsForm.buildingName" />
@@ -93,9 +91,9 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="field-row">
                     <!-- Campus name -->
-                    <div class="col-md-6">
+                    <div>
                         <div class="facility-info-text">{{ 'i18n_room_campus' | translate }}</div>
                         <div class="input-group">
                             <input type="text" class="form-control" [formField]="roomDetailsForm.campus" />
@@ -113,8 +111,8 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
                 <!-- Passwords -->
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="field-row">
+                    <div>
                         <div class="facility-info-text">{{ 'i18n_internal_password' | translate }}</div>
                         <div class="input-group">
                             <input
@@ -136,7 +134,7 @@ SPDX-License-Identifier: EUPL-1.2
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div>
                         <div class="facility-info-text">{{ 'i18n_external_password' | translate }}</div>
                         <div class="input-group">
                             <input
@@ -160,19 +158,15 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
 
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <button type="submit" [disabled]="roomDetailsForm.roomCode().invalid()" class="btn btn-success">
-                            {{ 'i18n_save' | translate }}
-                        </button>
-                    </div>
+                <div class="form-actions">
+                    <button type="submit" [disabled]="roomDetailsForm.roomCode().invalid()" class="btn btn-success">
+                        {{ 'i18n_save' | translate }}
+                    </button>
                 </div>
             </form>
         </div>
-    </div>
-    <!-- IOP -->
-    <div class="row mt-2" [hidden]="!isInteroperable()">
-        <div class="col">
+        <!-- IOP -->
+        <div [hidden]="!isInteroperable()">
             <div class="form-check">
                 <label>
                     <input
@@ -185,29 +179,17 @@ SPDX-License-Identifier: EUPL-1.2
                 </label>
             </div>
         </div>
-    </div>
-    <!-- AVAILABILITY TODO: MOVE TO A TAB -->
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <xm-availability [room]="room()!"></xm-availability>
-        </div>
-    </div>
+        <!-- AVAILABILITY TODO: MOVE TO A TAB -->
+        <xm-availability [room]="room()!"></xm-availability>
 
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <h3>{{ 'i18n_instructions' | translate }}</h3>
-        </div>
-    </div>
-    <!-- Accessibility information -->
-    <div class="row">
+        <h3>{{ 'i18n_instructions' | translate }}</h3>
+        <!-- Accessibility information -->
         <xm-accessibility-picker [room]="room()!"></xm-accessibility-picker>
-    </div>
-    <!-- Guidance & Contact person information -->
-    <div class="row mt-2">
-        <div class="col-md-12">
+        <!-- Guidance & Contact person information -->
+        <div>
             <strong>{{ 'i18n_room_guidance' | translate }}</strong>
-            <div class="row">
-                <div class="col-md-3">
+            <div class="field-row-4">
+                <div>
                     <div class="facility-info-text">FI</div>
                     <textarea
                         class="form-control"
@@ -216,7 +198,7 @@ SPDX-License-Identifier: EUPL-1.2
                     >
                     </textarea>
                 </div>
-                <div class="col-md-3">
+                <div>
                     <div class="facility-info-text">SV</div>
                     <textarea
                         class="form-control"
@@ -225,7 +207,7 @@ SPDX-License-Identifier: EUPL-1.2
                     >
                     </textarea>
                 </div>
-                <div class="col-md-3">
+                <div>
                     <div class="facility-info-text">EN</div>
                     <div class="input-group">
                         <textarea
@@ -236,7 +218,7 @@ SPDX-License-Identifier: EUPL-1.2
                         </textarea>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div>
                     <div class="facility-info-text">{{ 'i18n_room_contact_person' | translate }}</div>
                     <div class="input-group">
                         <input
@@ -259,47 +241,41 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Video recordings URL -->
-    <div class="row mt-2">
-        <div class="col-md-6">
-            <div class="facility-info-text">{{ 'i18n_room_videorecordings_url' | translate }}</div>
-            <div class="input-group">
-                <input
-                    type="text"
-                    class="form-control"
-                    [value]="room()?.videoRecordingsURL ?? ''"
-                    (input)="onRoomTextInput('videoRecordingsURL', $event)"
-                />
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_address_for_camera_footage_from_this_room' | translate }}"
-                        ></i>
+        <!-- Video recordings URL -->
+        <div class="field-row">
+            <div>
+                <div class="facility-info-text">{{ 'i18n_room_videorecordings_url' | translate }}</div>
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [value]="room()?.videoRecordingsURL ?? ''"
+                        (input)="onRoomTextInput('videoRecordingsURL', $event)"
+                    />
+                    <span class="input-group-append">
+                        <span class="input-group-text">
+                            <i
+                                class="bi-question-circle"
+                                triggers="mouseenter:mouseleave"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                ngbPopover="{{ 'i18n_address_for_camera_footage_from_this_room' | translate }}"
+                            ></i>
+                        </span>
                     </span>
-                </span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col-md-12">
+        <div>
             <button type="button" class="btn btn-success" (click)="updateRoom()">{{ 'i18n_save' | translate }}</button>
         </div>
-    </div>
-    <!-- Postal address-->
-    <div class="row mt-2">
-        <div class="col-md-12">
+        <!-- Postal address-->
+        <div>
             <!-- Address -->
             <h3>{{ 'i18n_exam_room_address' | translate }}</h3>
             <xm-room-address [address]="room()!.mailAddress"></xm-room-address>
         </div>
-    </div>
-    <!-- Service status -->
-    <div class="row mt-2">
-        <div class="col-md-12">
+        <!-- Service status -->
+        <div>
             <label>
                 <input
                     class="me-2"
@@ -310,37 +286,33 @@ SPDX-License-Identifier: EUPL-1.2
                 <strong>{{ 'i18n_out_of_service' | translate }}</strong>
             </label>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 facility-info-text">{{ 'i18n_reason' | translate }}</div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="input-group">
-                <textarea
-                    [disabled]="!room()?.outOfService"
-                    class="form-control"
-                    [value]="room()?.statusComment ?? ''"
-                    (input)="onRoomTextInput('statusComment', $event)"
-                    (blur)="updateRoom()"
-                >
-                </textarea>
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            ngbPopover="{{ 'i18n_room_accessibility_features' | translate }}"
-                        ></i>
+        <div class="field-row">
+            <div>
+                <div class="facility-info-text">{{ 'i18n_reason' | translate }}</div>
+                <div class="input-group">
+                    <textarea
+                        [disabled]="!room()?.outOfService"
+                        class="form-control"
+                        [value]="room()?.statusComment ?? ''"
+                        (input)="onRoomTextInput('statusComment', $event)"
+                        (blur)="updateRoom()"
+                    >
+                    </textarea>
+                    <span class="input-group-append">
+                        <span class="input-group-text">
+                            <i
+                                class="bi-question-circle"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                                ngbPopover="{{ 'i18n_room_accessibility_features' | translate }}"
+                            ></i>
+                        </span>
                     </span>
-                </span>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Button row -->
-    <div class="row mt-2">
-        <div class="col-md-12">
+        <!-- Button row -->
+        <div>
             <button
                 type="button"
                 [disabled]="roomDetailsForm.roomCode().invalid()"

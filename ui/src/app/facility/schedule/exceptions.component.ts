@@ -15,28 +15,24 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
     selector: 'xm-exceptions',
     template: `
         @if (!hideTitle()) {
-            <div class="row">
-                <div class="col-md-12 header-text">
-                    <strong>{{ 'i18n_exception_datetimes' | translate }}:</strong>
-                </div>
+            <div class="header-text">
+                <strong>{{ 'i18n_exception_datetimes' | translate }}:</strong>
             </div>
         }
         @if (!hideInfo()) {
-            <div class="row">
-                <div class="col-md-12 header-text">{{ 'i18n_exception_datetimes_info' | translate }}</div>
-            </div>
+            <div class="header-text">{{ 'i18n_exception_datetimes_info' | translate }}</div>
         }
 
         @for (exception of orderedExceptions() | filterBy: filter(); track exception; let i = $index) {
-            <div class="row mb-2" [class]="i % 2 === 0 ? 'background-light-blue' : ''">
-                <div class="col">
+            <div class="exception" [class]="i % 2 === 0 ? 'background-light-blue' : ''">
+                <div>
                     {{ formatDate(exception) }}
                 </div>
-                <div class="col">
+                <div>
                     {{ !exception.outOfService ? ('i18n_room_in_service' | translate) : '' }}
                     {{ exception.outOfService ? ('i18n_room_out_of_service' | translate) : '' }}
                 </div>
-                <div class="col-3">
+                <div>
                     <button class="btn btn-sm btn-outline-danger pointer" (click)="deleteException(exception)">
                         {{ 'i18n_exam_remove' | translate }}
                     </button>
@@ -44,16 +40,26 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
             </div>
         }
         @if (!hideButton()) {
-            <div class="row mt-2">
-                <div class="col-12">
-                    <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark me-2 mb-2">
-                        {{ 'i18n_add_out_of_service_time' | translate }}
-                    </button>
-                    <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-success mb-2">
-                        {{ 'i18n_add_extra_working_hour' | translate }}
-                    </button>
-                </div>
+            <div class="xm-cluster add-exception">
+                <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark">
+                    {{ 'i18n_add_out_of_service_time' | translate }}
+                </button>
+                <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-success">
+                    {{ 'i18n_add_extra_working_hour' | translate }}
+                </button>
             </div>
+        }
+    `,
+    styles: `
+        /* Time, status and remove button: the col / col / col-3 split of the row */
+        .exception {
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 3fr) minmax(0, 2fr);
+            column-gap: 1.5rem;
+            margin-bottom: var(--xm-space-2);
+        }
+        .add-exception {
+            margin-block: var(--xm-space-2);
         }
     `,
     imports: [TranslateModule, FilterByPipe],

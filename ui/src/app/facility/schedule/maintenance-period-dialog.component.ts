@@ -11,6 +11,14 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
 import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
+    styles: `
+        /* Begin and end side by side */
+        .dates {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 1.5rem;
+        }
+    `,
     imports: [FormField, TranslateModule, DateTimePickerComponent],
     template: `
         <div class="modal-header">
@@ -18,15 +26,13 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         </div>
 
         <div class="modal-body">
-            <form>
-                <div class="row">
-                    <div class="col-md-12 mb-2">
-                        <label for="description" class="form-label">{{ 'i18n_description' | translate }}:</label>
-                        <input class="form-control" id="description" [formField]="descriptionForm.description" />
-                    </div>
+            <form class="xm-stack xm-gap-2">
+                <div>
+                    <label for="description" class="form-label">{{ 'i18n_description' | translate }}:</label>
+                    <input class="form-control" id="description" [formField]="descriptionForm.description" />
                 </div>
-                <div class="row">
-                    <div class="col">
+                <div class="dates">
+                    <div>
                         <label for="startDate">{{ 'i18n_begin' | translate }}:</label>
                         <xm-date-time-picker
                             id="startDate"
@@ -37,7 +43,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                         >
                         </xm-date-time-picker>
                     </div>
-                    <div class="col">
+                    <div>
                         <label for="endDate">{{ 'i18n_end' | translate }}:</label>
                         <xm-date-time-picker
                             id="endDate"
@@ -51,12 +57,12 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                 </div>
             </form>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
             <button class="btn btn-success" [disabled]="descriptionForm.description().invalid()" (click)="ok()">
                 {{ 'i18n_button_save' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary float-end me-3" (click)="cancel()">
-                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     `,

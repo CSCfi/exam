@@ -4,200 +4,159 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row mt-4" [class.text-muted]="room().state === 'INACTIVE'">
-    <div class="col-12">
-        <h4>
-            {{ room().name || 'i18n_no_name' | translate }}
-            <a
-                [hidden]="room().state === 'INACTIVE'"
-                (click)="onDisableRoom()"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
-            >
-                <i class="bi-trash ms-2 text-danger pointer"></i>
-            </a>
-            <a
-                [hidden]="room().state !== 'INACTIVE'"
-                (click)="onEnableRoom()"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'i18n_activate_room' | translate }}"
-            >
-                <i class="bi-plus text-success pointer"></i>
-            </a>
-        </h4>
-        <div class="toggleMessage col-md">
-            <div class="d-flex justify-content-between">
-                <div>
-                    {{ 'i18n_exam_basic_information_tab' | translate }}
-                    <a
-                        [routerLink]="['/staff/rooms', room().id]"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                        ngbPopover="{{ 'i18n_edit' | translate }}"
-                    >
-                        <i class="bi-pencil"></i>
-                    </a>
+<article class="room" [class.text-muted]="room().state === 'INACTIVE'">
+    <h4>
+        {{ room().name || 'i18n_no_name' | translate }}
+        <a
+            [hidden]="room().state === 'INACTIVE'"
+            (click)="onDisableRoom()"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+            ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
+        >
+            <i class="bi-trash ms-2 text-danger pointer"></i>
+        </a>
+        <a
+            [hidden]="room().state !== 'INACTIVE'"
+            (click)="onEnableRoom()"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+            ngbPopover="{{ 'i18n_activate_room' | translate }}"
+        >
+            <i class="bi-plus text-success pointer"></i>
+        </a>
+    </h4>
+    <div class="toggleMessage">
+        <div class="panel-heading">
+            <div>
+                {{ 'i18n_exam_basic_information_tab' | translate }}
+                <a
+                    [routerLink]="['/staff/rooms', room().id]"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    ngbPopover="{{ 'i18n_edit' | translate }}"
+                >
+                    <i class="bi-pencil"></i>
+                </a>
+            </div>
+            <div>
+                <span>{{ room().roomCode }}, {{ room().buildingName }}, {{ room().campus }}</span>
+                @if (room().addressVisible) {
+                    <i class="bi-chevron-down pointer" (click)="room().addressVisible = false"></i>
+                } @else {
+                    <i class="bi-chevron-right pointer" (click)="room().addressVisible = true"></i>
+                }
+            </div>
+        </div>
+        <div [hidden]="!room().addressVisible">
+            <div class="field-row">
+                <div class="facility-info-text">
+                    {{ 'i18n_room_code' | translate }}:
+                    <strong>{{ room().roomCode }}</strong>
                 </div>
-                <div>
-                    <span class="me-2">{{ room().roomCode }}, {{ room().buildingName }}, {{ room().campus }}</span>
-                    @if (room().addressVisible) {
-                        <i class="bi-chevron-down pointer" (click)="room().addressVisible = false"></i>
-                    } @else {
-                        <i class="bi-chevron-right pointer" (click)="room().addressVisible = true"></i>
+                <div class="facility-info-text">
+                    {{ 'i18n_room_accessibility_info' | translate }}:
+                    @for (info of room().accessibilities; track info; let last = $last) {
+                        <strong> {{ info.name }}{{ last ? '' : ', ' }} </strong>
                     }
                 </div>
-            </div>
-            <div [hidden]="!room().addressVisible">
-                <!-- Room Code & Accessibility Info -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="facility-info-text">
-                            {{ 'i18n_room_code' | translate }}:
-                            <strong>{{ room().roomCode }}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="facility-info-text">
-                            {{ 'i18n_room_accessibility_info' | translate }}:
-                            @for (info of room().accessibilities; track info; let last = $last) {
-                                <strong> {{ info.name }}{{ last ? '' : ', ' }} </strong>
-                            }
-                        </div>
-                    </div>
+                <div class="facility-info-text">
+                    {{ 'i18n_room_building_name' | translate }}:
+                    <strong>{{ room().buildingName }}</strong>
                 </div>
-                <!-- Building name & Tilaohjeet -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="facility-info-text">
-                            {{ 'i18n_room_building_name' | translate }}:
-                            <strong>{{ room().buildingName }}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="facility-info-text">
-                            {{ 'i18n_room_guidance' | translate }}:
-                            <strong>{{ room().roomInstruction }}</strong>
-                        </div>
-                    </div>
+                <div class="facility-info-text">
+                    {{ 'i18n_room_guidance' | translate }}:
+                    <strong>{{ room().roomInstruction }}</strong>
                 </div>
-                <!-- Campus & Contact Person -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="facility-info-text">
-                            {{ 'i18n_room_campus' | translate }}:
-                            <strong>{{ room().campus }}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="facility-info-text">
-                            {{ 'i18n_room_contact_person' | translate }}:
-                            <strong>{{ room().contactPerson }}</strong>
-                        </div>
-                    </div>
+                <div class="facility-info-text">
+                    {{ 'i18n_room_campus' | translate }}:
+                    <strong>{{ room().campus }}</strong>
                 </div>
-                <!-- Address -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="facility-info-text">
-                            {{ 'i18n_exam_room_address' | translate }}:
-                            <strong
-                                >{{ room().mailAddress.street }}, {{ room().mailAddress.zip }},
-                                {{ room().mailAddress.city }}
-                            </strong>
-                        </div>
-                    </div>
+                <div class="facility-info-text">
+                    {{ 'i18n_room_contact_person' | translate }}:
+                    <strong>{{ room().contactPerson }}</strong>
+                </div>
+                <div class="facility-info-text">
+                    {{ 'i18n_exam_room_address' | translate }}:
+                    <strong
+                        >{{ room().mailAddress.street }}, {{ room().mailAddress.zip }},
+                        {{ room().mailAddress.city }}
+                    </strong>
                 </div>
             </div>
         </div>
-        <div class="toggleMessage col-md border-top-none">
-            <div class="d-flex justify-content-between">
+    </div>
+    <div class="toggleMessage border-top-none">
+        <div class="panel-heading">
+            <div>
+                {{ 'i18n_openinghours_exception_datetimes' | translate }}
+            </div>
+            <div class="hours-summary">
+                <span [hidden]="room().availabilityVisible">
+                    @for (timetable of getWorkingHoursDisplayFormat(room().defaultWorkingHours); track timetable) {
+                        <div class="timetable-row">
+                            @if (timetable.length > 0) {
+                                <div class="bg-success custom-green-dot"></div>
+                            }
+                            <div>{{ timetable }}</div>
+                        </div>
+                    }
+                </span>
                 <div>
-                    {{ 'i18n_openinghours_exception_datetimes' | translate }}
+                    @if (room().availabilityVisible) {
+                        <i class="bi-chevron-down pointer" (click)="switchVisibility(room())"></i>
+                    }
+                    @if (!room().availabilityVisible) {
+                        <i class="bi-chevron-right pointer" (click)="switchVisibility(room())"></i>
+                    }
                 </div>
-                <div class="d-flex justify-content-end">
-                    <span class="me-2 d-" [hidden]="room().availabilityVisible">
-                        @for (timetable of getWorkingHoursDisplayFormat(room().defaultWorkingHours); track timetable) {
-                            <div class="d-flex justify-content-end">
-                                @if (timetable.length > 0) {
-                                    <div class="bg-success custom-green-dot me-2"></div>
-                                }
-                                <div>{{ timetable }}</div>
-                            </div>
-                        }
-                    </span>
+            </div>
+        </div>
+        <div class="next-exceptions" [hidden]="room().availabilityVisible">
+            @for (exception of getNextExceptionEvent(calendarExceptionEvents()); track exception.id) {
+                <div class="exception-row">
+                    @if (exception?.outOfService) {
+                        <div class="text-danger bi-exclamation-triangle-fill">
+                            {{ 'i18n_room_out_of_service' | translate }}
+                        </div>
+                    } @else {
+                        <div class="text-success">
+                            {{ 'i18n_room_in_service' | translate }}
+                        </div>
+                    }
                     <div>
-                        @if (room().availabilityVisible) {
-                            <i class="bi-chevron-down pointer" (click)="switchVisibility(room())"></i>
-                        }
-                        @if (!room().availabilityVisible) {
-                            <i class="bi-chevron-right pointer" (click)="switchVisibility(room())"></i>
-                        }
-                    </div>
-                </div>
-            </div>
-            <div class="row" [hidden]="room().availabilityVisible">
-                <div class="col-md mt-2 me-2">
-                    @for (exception of getNextExceptionEvent(calendarExceptionEvents()); track exception.id) {
-                        <div class="row">
-                            <div class="col-md-2 offset-md-7">
-                                @if (exception?.outOfService) {
-                                    <div class="text-danger me-2 bi-exclamation-triangle-fill">
-                                        {{ 'i18n_room_out_of_service' | translate }}
-                                    </div>
-                                } @else {
-                                    <div class="text-success me-2">
-                                        {{ 'i18n_room_in_service' | translate }}
-                                    </div>
-                                }
-                            </div>
-                            <div class="col-md-3">
-                                {{ formatDate(exception) }}
-                            </div>
-                        </div>
-                    }
-                    @if (getFutureExceptionEvent(calendarExceptionEvents()).length > 2) {
-                        <div class="d-flex justify-content-end flex-nowrap">
-                            <i class="bi-three-dots pointer me-2" (click)="room().availabilityVisible = true"></i>
-                            <div class="text-danger">
-                                ({{ getFutureExceptionEvent(calendarExceptionEvents()).length }})
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-            @if (room().activate) {
-                <div class="row" [hidden]="!room().availabilityVisible">
-                    <div class="col-6">
-                        @if (room()) {
-                            <xm-opening-hours class="col-md-12" [room]="room()"></xm-opening-hours>
-                        }
-                    </div>
-                    <div class="col-6">
-                        <div class="row">
-                            <xm-exceptions
-                                class="col-12"
-                                [exceptions]="calendarExceptionEvents()"
-                                [timeZone]="room().localTimezone"
-                                (created)="onAddExceptions($event)"
-                                (removed)="onDeleteException($event)"
-                            ></xm-exceptions>
-                        </div>
-                        <div class="row">
-                            <xm-starting-time
-                                class="col-12 mt-2"
-                                [startingHours]="room().examStartingHours"
-                                [roomIds]="[room().id]"
-                            >
-                            </xm-starting-time>
-                        </div>
+                        {{ formatDate(exception) }}
                     </div>
                 </div>
             }
+            @if (getFutureExceptionEvent(calendarExceptionEvents()).length > 2) {
+                <div class="more-exceptions">
+                    <i class="bi-three-dots pointer" (click)="room().availabilityVisible = true"></i>
+                    <div class="text-danger">({{ getFutureExceptionEvent(calendarExceptionEvents()).length }})</div>
+                </div>
+            }
         </div>
-        <div class="toggleMessage col-md border-top-none">
-            <xm-machines [room]="room()"></xm-machines>
-        </div>
+        @if (room().activate) {
+            <div class="room-schedule" [hidden]="!room().availabilityVisible">
+                <div>
+                    @if (room()) {
+                        <xm-opening-hours [room]="room()"></xm-opening-hours>
+                    }
+                </div>
+                <div class="xm-stack xm-gap-2">
+                    <xm-exceptions
+                        [exceptions]="calendarExceptionEvents()"
+                        [timeZone]="room().localTimezone"
+                        (created)="onAddExceptions($event)"
+                        (removed)="onDeleteException($event)"
+                    ></xm-exceptions>
+                    <xm-starting-time [startingHours]="room().examStartingHours" [roomIds]="[room().id]">
+                    </xm-starting-time>
+                </div>
+            </div>
+        }
     </div>
-</div>
+    <div class="toggleMessage border-top-none">
+        <xm-machines [room]="room()"></xm-machines>
+    </div>
+</article>

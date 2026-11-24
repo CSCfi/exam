@@ -12,6 +12,15 @@ import { AccessibilityService } from './accessibility.service';
 
 @Component({
     templateUrl: './accessibility.component.html',
+    styles: `
+        .indented {
+            margin-inline-start: var(--xm-space-3);
+        }
+        /* A stack stretches its children; keep the button as wide as its text */
+        .create {
+            align-self: start;
+        }
+    `,
     selector: 'xm-accessibility',
     imports: [FormsModule, FormField, TranslateModule],
 })

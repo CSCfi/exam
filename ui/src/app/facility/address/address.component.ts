@@ -14,8 +14,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     selector: 'xm-room-address',
     template: `
         <form role="form" novalidate id="roomAddress" (submit)="validateAndUpdateAddress()">
-            <div class="row">
-                <div class="col-md-6">
+            <div class="field-row">
+                <div>
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_street' | translate }}</div>
                     <div class="input-group">
                         <input type="text" class="form-control" [formField]="addressForm.street" />
@@ -32,7 +32,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div>
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_zip' | translate }}</div>
                     <div class="input-group">
                         <input type="text" class="form-control" [formField]="addressForm.zip" />
@@ -49,8 +49,8 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6">
+            <div class="field-row">
+                <div>
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_city' | translate }}</div>
                     <div class="input-group">
                         <input type="text" class="form-control" [formField]="addressForm.city" />
@@ -67,20 +67,16 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     </div>
                 </div>
             </div>
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <button
-                        type="submit"
-                        [disabled]="
-                            addressForm.street().invalid() ||
-                            addressForm.zip().invalid() ||
-                            addressForm.city().invalid()
-                        "
-                        class="btn btn-success"
-                    >
-                        {{ 'i18n_save' | translate }}
-                    </button>
-                </div>
+            <div class="form-actions">
+                <button
+                    type="submit"
+                    [disabled]="
+                        addressForm.street().invalid() || addressForm.zip().invalid() || addressForm.city().invalid()
+                    "
+                    class="btn btn-success"
+                >
+                    {{ 'i18n_save' | translate }}
+                </button>
             </div>
         </form>
     `,
