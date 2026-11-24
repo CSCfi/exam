@@ -43,6 +43,9 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
             }
             #mainView {
                 width: auto !important;
+                /* The page's side padding (container-fluid's gutter), for full-width parts such as
+                   the exam header that cancel it with a negative margin */
+                --xm-page-gutter: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
                 @media print {
                     margin: 0 15px;
                     max-width: 1000px;
@@ -61,6 +64,12 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
 
                 @media print {
                     overflow-x: visible;
+                }
+            }
+            /* Same condition as the padding removal above */
+            #mainView.vmenu-on {
+                @media (max-width: 1024px) {
+                    --xm-page-gutter: 0px;
                 }
             }
         `,

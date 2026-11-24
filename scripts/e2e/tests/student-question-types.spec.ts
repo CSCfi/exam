@@ -42,6 +42,13 @@ test('every question type can be answered and the exam is graded automatically o
     await page.getByRole('button', { name: 'Save', exact: true }).click();
     await answerSaved(page);
 
+    // Collapsed, the cloze card hides the blanks and previews the text with the answers in place
+    await page.getByRole('button', { name: /^Collapse Question The capital of Finland is\b/ }).click();
+    await expect(textBlank).toBeHidden();
+    await expect(page.getByText(/The capital of Finland is \[helsinki\]/)).toBeVisible();
+    await page.getByRole('button', { name: /^Expand Question The capital of Finland is\b/ }).click();
+    await expect(textBlank).toHaveValue('helsinki');
+
     // Everything was saved, not just shown: reload (the exam view asks "Leave site?")
     page.on('dialog', (dialog) => dialog.accept());
     await page.reload();
@@ -69,9 +76,7 @@ test('every question type can be answered and the exam is graded automatically o
     });
 });
 
+// The feedback is a description list: the value is the <dd> right after its label's <dt>
 function feedbackValue(page: Page, label: string) {
-    return page
-        .locator('.exam-feedback-field')
-        .filter({ has: page.locator('.exam-feedback-label', { hasText: `${label}:` }) })
-        .locator('.exam-feedback-value');
+    return page.locator('xm-exam-feedback dt', { hasText: `${label}:` }).locator('xpath=following-sibling::dd[1]');
 }

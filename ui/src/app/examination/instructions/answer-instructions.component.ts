@@ -13,44 +13,52 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
     selector: 'xm-answer-instructions',
     template: `
         <!-- ANSWER INSTRUCTIONS -->
-        <div class="row mt-3 ms-1">
-            <div class="col-md-12">
-                <h2 class="exam-title" aria-live="polite" id="examination-section">
-                    {{ 'i18n_exam_guide' | translate }}
-                </h2>
-            </div>
-        </div>
-        <div class="row ms-3 guide-wrapper">
-            <div class="col-md-12">
+        <div class="guide">
+            <h2 class="exam-title" aria-live="polite" id="examination-section">
+                {{ 'i18n_exam_guide' | translate }}
+            </h2>
+            <dl class="xm-details guide-wrapper guide-list">
                 @if (exam().course) {
-                    <div class="row">
-                        <div class="header col-md-4">{{ 'i18n_course_name' | translate }}:</div>
-                        <div class="text col-md-8">{{ exam().course!.name }}</div>
-                    </div>
+                    <dt>{{ 'i18n_course_name' | translate }}:</dt>
+                    <dd>{{ exam().course!.name }}</dd>
+                    <dt>{{ 'i18n_course_code' | translate }}:</dt>
+                    <dd><xm-course-code [course]="exam().course!"></xm-course-code></dd>
                 }
-                @if (exam().course) {
-                    <div class="row">
-                        <div class="header col-md-4">{{ 'i18n_course_code' | translate }}:</div>
-                        <div class="text col-md-8"><xm-course-code [course]="exam().course!"></xm-course-code></div>
-                    </div>
-                }
-                <div class="row">
-                    <div class="header col-md-4">{{ 'i18n_exam_name' | translate }}:</div>
-                    <div class="text col-md-8">{{ exam().name }}</div>
-                </div>
-                <div class="row">
-                    <div class="header col-md-4">{{ 'i18n_exam_duration' | translate }}:</div>
-                    <div class="text col-md-8">{{ printExamDuration() }}</div>
-                </div>
-                <div class="row">
-                    <div class="header col-md-4">{{ 'i18n_exam_guide' | translate }}:</div>
-                    <div class="text col-md-8" [xmRichText]="exam().instruction"></div>
-                </div>
-            </div>
+                <dt>{{ 'i18n_exam_name' | translate }}:</dt>
+                <dd>{{ exam().name }}</dd>
+                <dt>{{ 'i18n_exam_duration' | translate }}:</dt>
+                <dd>{{ printExamDuration() }}</dd>
+                <dt>{{ 'i18n_exam_guide' | translate }}:</dt>
+                <dd [xmRichText]="exam().instruction"></dd>
+            </dl>
         </div>
     `,
     imports: [CourseCodeComponent, RichTextDirective, TranslateModule],
     styleUrls: ['../examination.shared.scss'],
+    styles: `
+        @use '../../shared/breakpoints' as bp;
+
+        .guide {
+            margin-top: var(--xm-space-3);
+            padding-inline-start: var(--xm-space-3);
+        }
+        /* Labels in the first third of the row from md up, stacked below that; rows without gaps */
+        .guide-list {
+            grid-template-columns: minmax(0, 1fr);
+            column-gap: 1.5rem;
+            padding-inline: 22px;
+            /* reaches into the column's padding on the right, as the old row did */
+            margin-inline-end: -0.75rem;
+
+            > dd {
+                margin: 0;
+            }
+
+            @include bp.up(md) {
+                grid-template-columns: calc((100% + 1.5rem) / 3 - 1.5rem) minmax(0, 1fr);
+            }
+        }
+    `,
 })
 export class AnswerInstructionsComponent {
     readonly exam = input.required<Examination>();

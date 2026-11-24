@@ -11,7 +11,7 @@ import type { ExamSectionQuestionOption } from 'src/app/question/question.model'
 @Component({
     selector: 'xm-examination-weighted-multi-choice-question',
     template: `
-        <div class="pb-3">
+        <div class="xm-stack">
             <fieldset [ariaLabel]="questionTitle()">
                 <legend [hidden]="true">answer options for multiple choice question</legend>
                 @for (sqo of sq().options; track sqo) {
@@ -28,11 +28,11 @@ import type { ExamSectionQuestionOption } from 'src/app/question/question.model'
                     </div>
                 }
             </fieldset>
-        </div>
 
-        <div class="ps-0 question-type-text">
-            {{ 'i18n_max_points' | translate }} {{ sq().derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
-            {{ sq().derivedMinScore }}
+            <div class="question-type-text">
+                {{ 'i18n_max_points' | translate }} {{ sq().derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
+                {{ sq().derivedMinScore }}
+            </div>
         </div>
     `,
     imports: [TranslateModule],

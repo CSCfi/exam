@@ -9,39 +9,43 @@ import type { Examination, ExaminationSection, NavigationPage } from 'src/app/ex
 @Component({
     selector: 'xm-examination-navigation',
     template: `<!-- SECTION NAVIGATION ARROWS AND LABELS -->
-        <div class="row pt-2 mb-3">
-            <span class="col-md-12 ms-2">
-                <!-- PREVIOUS SECTION BUTTON -->
-                @if (prev().valid) {
-                    <button class="btn btn-outline-secondary" (click)="previousPage()">
-                        <img
-                            class="arrow_icon sitnet-black"
-                            style="filter: invert()"
-                            alt=""
-                            src="/assets/images/icon_left_white.png"
-                        />
-                        {{ prev()?.index ? ('i18n_move_to_section' | translate) : ('i18n_open_it' | translate) }}
-                        {{ prev()?.index ? prev().index + ':' : '' }} {{ prev().text || '' | translate }}
-                    </button>
-                }
-                <!-- NEXT SECTION BUTTON -->
-                @if (next().valid) {
-                    <button class="btn btn-outline-secondary float-end me-2" (click)="nextPage()">
-                        {{ next()?.index ? ('i18n_move_to_section' | translate) : ('i18n_open_it' | translate) }}
-                        {{ next()?.index ? next().index + ':' : '' }} {{ next().text || '' | translate }}
-                        <img
-                            class="arrow_icon"
-                            style="filter: invert()"
-                            alt=""
-                            src="/assets/images/icon_right_white.png"
-                        />
-                    </button>
-                }
-            </span>
+        <div class="section-nav">
+            <!-- PREVIOUS SECTION BUTTON -->
+            @if (prev().valid) {
+                <button class="btn btn-outline-secondary" (click)="previousPage()">
+                    <img
+                        class="arrow_icon sitnet-black"
+                        style="filter: invert()"
+                        alt=""
+                        src="/assets/images/icon_left_white.png"
+                    />
+                    {{ prev()?.index ? ('i18n_move_to_section' | translate) : ('i18n_open_it' | translate) }}
+                    {{ prev()?.index ? prev().index + ':' : '' }} {{ prev().text || '' | translate }}
+                </button>
+            }
+            <!-- NEXT SECTION BUTTON -->
+            @if (next().valid) {
+                <button class="btn btn-outline-secondary next" (click)="nextPage()">
+                    {{ next()?.index ? ('i18n_move_to_section' | translate) : ('i18n_open_it' | translate) }}
+                    {{ next()?.index ? next().index + ':' : '' }} {{ next().text || '' | translate }}
+                    <img class="arrow_icon" style="filter: invert()" alt="" src="/assets/images/icon_right_white.png" />
+                </button>
+            }
         </div>`,
     imports: [TranslateModule],
     styles: [
         `
+            /* Previous at the start, next at the end (also when there is no previous) */
+            .section-nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--xm-space-2);
+                padding-block: var(--xm-space-2) var(--xm-space-3);
+                padding-inline: 1.25rem 0;
+            }
+            .next {
+                margin-inline-start: auto;
+            }
             .arrow_icon {
                 vertical-align: baseline;
                 padding-left: 13px;

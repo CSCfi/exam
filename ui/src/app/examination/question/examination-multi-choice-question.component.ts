@@ -13,7 +13,7 @@ import { ExaminationService } from 'src/app/examination/examination.service';
 @Component({
     selector: 'xm-examination-multi-choice-question',
     template: `
-        <div class="pb-3">
+        <div class="xm-stack">
             <fieldset [ariaLabel]="questionTitle()">
                 <legend [hidden]="true">answer options for multiple choice question</legend>
                 @for (sqo of sq().options; track sqo) {
@@ -33,16 +33,16 @@ import { ExaminationService } from 'src/app/examination/examination.service';
                     </div>
                 }
             </fieldset>
+            @if (sq().question.type !== 'ClaimChoiceQuestion') {
+                <div class="question-type-text">{{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
+            }
+            @if (sq().question.type === 'ClaimChoiceQuestion' && sq().derivedMinScore !== null) {
+                <div class="question-type-text">
+                    {{ 'i18n_max_points' | translate }} {{ sq().derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
+                    {{ sq().derivedMinScore }}
+                </div>
+            }
         </div>
-        @if (sq().question.type !== 'ClaimChoiceQuestion') {
-            <div class="ps-0 question-type-text">{{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
-        }
-        @if (sq().question.type === 'ClaimChoiceQuestion' && sq().derivedMinScore !== null) {
-            <div class="ps-0 question-type-text">
-                {{ 'i18n_max_points' | translate }} {{ sq().derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
-                {{ sq().derivedMinScore }}
-            </div>
-        }
     `,
     imports: [FormsModule, TranslateModule],
     styleUrls: ['./question.shared.scss'],
