@@ -19,7 +19,7 @@ import { UserService } from 'src/app/shared/user/user.service';
             <h1 class="xm-modal-title">{{ 'i18n_add_question_owner' | translate }}</h1>
         </div>
         <div class="modal-body">
-            <div class="form-group input-group">
+            <div class="input-group">
                 <input
                     class="form-control"
                     [ngbTypeahead]="listTeachers$"

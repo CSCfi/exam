@@ -18,24 +18,21 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
 @Component({
     selector: 'xm-exam-question',
     template: `
-        <div class="row">
-            <div class="col-md-12 px-4">
-                <form role="form" [formGroup]="questionForm" name="questionForm">
-                    @if (adaptedQuestion()) {
-                        <xm-question-body
-                            [question]="adaptedQuestion()!"
-                            [currentOwners]="adaptedQuestion()!.questionOwners || []"
-                            [lotteryOn]="lotteryOn()"
-                            [collaborative]="false"
-                            [questionTypes]="[]"
-                            [newQuestion]="false"
-                            (tagsChange)="onTagsChange($event)"
-                            (currentOwnersChange)="onOwnersChange($event)"
-                        />
-                    }
-                </form>
-            </div>
-        </div>
+        <!-- Inset from the dialog edges by the width of the former grid gutter -->
+        <form role="form" [formGroup]="questionForm" name="questionForm" class="exam-question-form">
+            @if (adaptedQuestion()) {
+                <xm-question-body
+                    [question]="adaptedQuestion()!"
+                    [currentOwners]="adaptedQuestion()!.questionOwners || []"
+                    [lotteryOn]="lotteryOn()"
+                    [collaborative]="false"
+                    [questionTypes]="[]"
+                    [newQuestion]="false"
+                    (tagsChange)="onTagsChange($event)"
+                    (currentOwnersChange)="onOwnersChange($event)"
+                />
+            }
+        </form>
     `,
     styleUrls: ['../question.shared.scss'],
     viewProviders: [{ provide: FormGroupDirective, useExisting: FormGroupDirective }],

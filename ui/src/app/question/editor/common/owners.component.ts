@@ -14,6 +14,27 @@ import type { User } from 'src/app/session/session.model';
 @Component({
     selector: 'xm-question-owners',
     templateUrl: './owners.component.html',
+    styles: `
+        // Name and remove button in two columns, the names in line with the text in the field above
+        .owner-list {
+            display: grid;
+            gap: var(--xm-space-2);
+            margin: 0.75rem 0 0;
+            padding: 0 0 0 0.75rem;
+            list-style: none;
+
+            > li {
+                display: grid;
+                grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+                gap: var(--xm-space-1);
+                align-items: center;
+                overflow-wrap: anywhere;
+            }
+            .btn {
+                justify-self: start;
+            }
+        }
+    `,
     imports: [TranslateModule, NgbTypeahead, NgbPopover],
 })
 export class OwnersComponent {

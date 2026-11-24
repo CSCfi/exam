@@ -4,9 +4,9 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<!-- Owner name input -->
-<div class="row mt-3">
-    <div class="col-md-3">
+<!-- Owner name input, the current owners listed under it -->
+<div class="xm-form-row">
+    <label for="newOwner">
         {{ 'i18n_question_owners' | translate }}
         <sup
             ngbPopover="{{ 'i18n_question_owners_description' | translate }}"
@@ -15,42 +15,36 @@ SPDX-License-Identifier: EUPL-1.2
         >
             <img src="/assets/images/icon_tooltip.svg" alt="" />
         </sup>
+    </label>
+    <div class="input-group">
+        <input
+            id="newOwner"
+            type="text"
+            class="form-control"
+            [ngbTypeahead]="listQuestionOwners$"
+            [editable]="false"
+            [inputFormatter]="nameFormat"
+            [resultFormatter]="nameFormat"
+            (selectItem)="setQuestionOwner($event)"
+            [placeholder]="'i18n_add_question_owner' | translate"
+        />
+        <button (click)="addQuestionOwner()" [disabled]="!newOwner?.id" class="btn btn-success input-group-text">
+            {{ 'i18n_add' | translate }}
+        </button>
     </div>
-    <div class="col-md-9">
-        <div class="input-group">
-            <input
-                type="text"
-                class="form-control"
-                [ngbTypeahead]="listQuestionOwners$"
-                [editable]="false"
-                [inputFormatter]="nameFormat"
-                [resultFormatter]="nameFormat"
-                (selectItem)="setQuestionOwner($event)"
-                [placeholder]="'i18n_add_question_owner' | translate"
-            />
-            <button (click)="addQuestionOwner()" [disabled]="!newOwner?.id" class="btn btn-success input-group-text">
-                {{ 'i18n_add' | translate }}
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Current owners list -->
-<div class="row mt-3">
-    <div class="col-md-3"></div>
-    <div class="col-md-9">
+    <ul class="owner-list">
         @for (user of currentOwners(); track user.id) {
-            <div class="ms-1 row mb-2">
-                <div class="col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
+            <li>
+                <span>{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</span>
                 <button
-                    class="btn btn-danger btn-sm ms-1 w-auto"
+                    class="btn btn-danger btn-sm"
                     (click)="removeOwner(user)"
                     [hidden]="currentOwners().length === 1"
-                    [ariaLabel]="user.firstName + ' ' + user.lastName"
+                    [ariaLabel]="('i18n_remove' | translate) + ' ' + user.firstName + ' ' + user.lastName"
                 >
                     {{ 'i18n_remove' | translate }}
                 </button>
-            </div>
+            </li>
         }
-    </div>
+    </ul>
 </div>

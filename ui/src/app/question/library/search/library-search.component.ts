@@ -32,6 +32,26 @@ interface Filterable<T> {
 @Component({
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
+    styles: `
+        @use '../../../shared/breakpoints' as bp;
+
+        :host {
+            display: block;
+        }
+        .library-search {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--xm-space-2) var(--xm-space-4);
+            align-items: center;
+
+            @include bp.up(md) {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        .search-filters {
+            margin-block: var(--xm-space-3) var(--xm-space-2);
+        }
+    `,
     imports: [DropdownSelectComponent, FormField, TranslateModule],
 })
 export class LibrarySearchComponent implements AfterViewInit, OnDestroy {

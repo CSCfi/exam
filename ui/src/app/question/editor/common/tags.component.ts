@@ -16,6 +16,11 @@ import { SessionService } from 'src/app/session/session.service';
 @Component({
     selector: 'xm-question-tags',
     templateUrl: './tags.component.html',
+    styles: `
+        .tag-input {
+            flex: 0 1 15rem;
+        }
+    `,
     imports: [TranslateModule, NgbPopover, NgbTypeahead],
 })
 export class TagsComponent {

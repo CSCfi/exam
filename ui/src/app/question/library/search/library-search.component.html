@@ -4,86 +4,67 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row ms-3 me-3 align-items-center">
-    <div class="col-md-6 mb-2">
-        <span class="m-1">
-            <xm-dropdown-select
-                [options]="courseOptions()"
-                placeholder="i18n_course"
-                [clearAfterSelect]="true"
-                [allowClearing]="false"
-                (optionSelected)="onFilterOptionSelected($event)"
-                (dropdownOpenChange)="onCourseOpen($event)"
-            />
-        </span>
-        <span class="m-1">
-            <xm-dropdown-select
-                [options]="examOptions()"
-                placeholder="i18n_exam"
-                [clearAfterSelect]="true"
-                [allowClearing]="false"
-                (optionSelected)="onFilterOptionSelected($event)"
-                (dropdownOpenChange)="onExamOpen($event)"
-            />
-        </span>
-        <span class="m-1">
-            <xm-dropdown-select
-                [options]="tagOptions()"
-                placeholder="i18n_category"
-                [clearAfterSelect]="true"
-                [allowClearing]="false"
-                (optionSelected)="onFilterOptionSelected($event)"
-                (dropdownOpenChange)="onTagOpen($event)"
-            />
-        </span>
-        <span class="m-1">
-            <xm-dropdown-select
-                [options]="sectionOptions()"
-                placeholder="i18n_exam_section"
-                [clearAfterSelect]="true"
-                [allowClearing]="false"
-                (optionSelected)="onFilterOptionSelected($event)"
-                (dropdownOpenChange)="onSectionOpen($event)"
-            />
-        </span>
-        <span class="m-1">
-            <xm-dropdown-select
-                [options]="ownerOptions()"
-                placeholder="i18n_owner"
-                [clearAfterSelect]="true"
-                [allowClearing]="false"
-                (optionSelected)="onFilterOptionSelected($event)"
-                (dropdownOpenChange)="onOwnerOpen($event)"
-            />
-        </span>
+<!-- Filter menus and the text search side by side, stacked on phones -->
+<div class="library-search">
+    <div class="xm-cluster">
+        <xm-dropdown-select
+            [options]="courseOptions()"
+            placeholder="i18n_course"
+            [clearAfterSelect]="true"
+            [allowClearing]="false"
+            (optionSelected)="onFilterOptionSelected($event)"
+            (dropdownOpenChange)="onCourseOpen($event)"
+        />
+        <xm-dropdown-select
+            [options]="examOptions()"
+            placeholder="i18n_exam"
+            [clearAfterSelect]="true"
+            [allowClearing]="false"
+            (optionSelected)="onFilterOptionSelected($event)"
+            (dropdownOpenChange)="onExamOpen($event)"
+        />
+        <xm-dropdown-select
+            [options]="tagOptions()"
+            placeholder="i18n_category"
+            [clearAfterSelect]="true"
+            [allowClearing]="false"
+            (optionSelected)="onFilterOptionSelected($event)"
+            (dropdownOpenChange)="onTagOpen($event)"
+        />
+        <xm-dropdown-select
+            [options]="sectionOptions()"
+            placeholder="i18n_exam_section"
+            [clearAfterSelect]="true"
+            [allowClearing]="false"
+            (optionSelected)="onFilterOptionSelected($event)"
+            (dropdownOpenChange)="onSectionOpen($event)"
+        />
+        <xm-dropdown-select
+            [options]="ownerOptions()"
+            placeholder="i18n_owner"
+            [clearAfterSelect]="true"
+            [allowClearing]="false"
+            (optionSelected)="onFilterOptionSelected($event)"
+            (dropdownOpenChange)="onOwnerOpen($event)"
+        />
     </div>
-    <div class="col-md-6">
-        <div class="col-md-12">
-            <form>
-                <div class="input-group">
-                    <input
-                        class="form-control"
-                        [formField]="searchForm.text"
-                        placeholder="{{ 'i18n_search_by_question_text' | translate }}"
-                    />
-                    <div class="input-group-append bi-search search-append"></div>
-                </div>
-            </form>
+    <form>
+        <div class="input-group">
+            <input
+                class="form-control"
+                [formField]="searchForm.text"
+                placeholder="{{ 'i18n_search_by_question_text' | translate }}"
+            />
+            <div class="input-group-append bi-search search-append"></div>
         </div>
-    </div>
+    </form>
 </div>
 @if (getFilters().length > 0) {
-    <div class="row m-3">
-        <div class="col-md-12 ms-2">
-            @for (filter of getFilters(); track filter) {
-                <span
-                    class="badge text-bg-secondary me-1 mb-1"
-                    (click)="applyFilter(filter)"
-                    title="{{ 'i18n_remove' | translate }}"
-                >
-                    {{ filter.name }}
-                </span>
-            }
-        </div>
+    <div class="xm-cluster xm-gap-1 search-filters">
+        @for (filter of getFilters(); track filter) {
+            <span class="badge text-bg-secondary" (click)="applyFilter(filter)" title="{{ 'i18n_remove' | translate }}">
+                {{ filter.name }}
+            </span>
+        }
     </div>
 }

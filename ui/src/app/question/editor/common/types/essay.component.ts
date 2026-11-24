@@ -19,6 +19,12 @@ import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.m
 @Component({
     selector: 'xm-essay',
     templateUrl: './essay.component.html',
+    styles: `
+        .evaluation-type {
+            justify-self: start;
+            width: auto;
+        }
+    `,
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule],
 })

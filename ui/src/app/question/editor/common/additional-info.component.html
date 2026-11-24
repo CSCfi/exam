@@ -4,98 +4,97 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<!-- Additional Info -->
-<div class="row mt-2">
-    <div class="col-md-12 mt-2 pe-0">
-        <div class="xm-paragraph-title">{{ 'i18n_additional_info' | translate }}</div>
-    </div>
-</div>
+<div class="xm-stack">
+    <div class="xm-paragraph-title">{{ 'i18n_additional_info' | translate }}</div>
 
-<!-- Owners -->
-<ng-content select="[owners-content]"></ng-content>
+    <!-- Owners -->
+    <ng-content select="[owners-content]"></ng-content>
 
-<!-- Attachment -->
-<div class="row mt-3 align-items-center">
-    <div class="col-md-3">
-        {{ 'i18n_question_attachment' | translate }}
-        <sup
-            ngbPopover="{{ 'i18n_attachment_description' | translate }}"
-            popoverTitle="{{ 'i18n_instructions' | translate }}"
-            triggers="mouseenter:mouseleave"
-        >
-            <img src="/assets/images/icon_tooltip.svg" alt="" />
-        </sup>
-    </div>
-    <div class="col-md-9" id="attachment">
-        @if (showWarning()) {
-            <div class="mt-1 mb-2 edit-warning-container">
-                <i class="bi-exclamation-circle text-danger"></i>
-                <span class="warning-text-small ps-2">{{ 'i18n_shared_question_property_info' | translate }}</span>
-            </div>
-        }
-        <button class="btn btn-success" (click)="selectFile()">
-            {{ 'i18n_attach_file' | translate }}
-        </button>
-
-        @if (attachment() && !attachment()?.removed) {
-            <div class="make-inline ps-2">
-                @if (isDownloadable()) {
-                    <button
-                        type="button"
-                        class="btn btn-link"
-                        (click)="downloadQuestionAttachment()"
-                        [ariaLabel]="'i18n_download_attachment' | translate"
-                    >
-                        <i class="bi-paperclip" aria-hidden="true"></i>
-                        {{ attachment()?.fileName }}
-                    </button>
-                } @else {
-                    <span class="px-2">
-                        <i class="bi-paperclip" aria-hidden="true"></i>
-                        {{ attachment()?.fileName }}
-                        <small>({{ getFileSize() }})</small>
-                    </span>
-                }
-                <button
-                    type="button"
-                    class="remove-attachment border-none background-none"
-                    (click)="removeQuestionAttachment()"
-                    [ariaLabel]="'i18n_remove_attachment' | translate"
-                >
-                    <img src="/assets/images/icon_remove.svg" alt="{{ 'i18n_remove_attachment' | translate }}" />
-                </button>
-            </div>
-            @if (hasPendingUpload()) {
-                <div class="mt-1 ps-2">
-                    <i class="bi-info-circle text-primary" aria-hidden="true"></i>
-                    <span class="ps-2">{{ 'i18n_attachment_pending_save' | translate }}</span>
+    <!-- Attachment -->
+    <div class="xm-form-row">
+        <div>
+            {{ 'i18n_question_attachment' | translate }}
+            <sup
+                ngbPopover="{{ 'i18n_attachment_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        <div class="xm-stack xm-gap-2" id="attachment">
+            @if (showWarning()) {
+                <div class="xm-icon-text">
+                    <i class="bi-exclamation-circle text-danger"></i>
+                    <span>{{ 'i18n_shared_question_property_info' | translate }}</span>
                 </div>
             }
-        } @else if (attachment()?.removed) {
-            <div class="mt-1 ps-2">
-                <i class="bi-info-circle text-primary" aria-hidden="true"></i>
-                <span class="ps-2">{{ 'i18n_attachment_pending_removal' | translate }}</span>
-                <button type="button" class="btn btn-link p-0 ps-2" (click)="undoRemoveQuestionAttachment()">
-                    {{ 'i18n_undo_attachment_removal' | translate }}
+            <div class="xm-cluster">
+                <button class="btn btn-success" (click)="selectFile()">
+                    {{ 'i18n_attach_file' | translate }}
                 </button>
+                @if (attachment() && !attachment()?.removed) {
+                    <div class="xm-cluster xm-gap-1">
+                        @if (isDownloadable()) {
+                            <button
+                                type="button"
+                                class="btn btn-link"
+                                (click)="downloadQuestionAttachment()"
+                                [ariaLabel]="'i18n_download_attachment' | translate"
+                            >
+                                <i class="bi-paperclip" aria-hidden="true"></i>
+                                {{ attachment()?.fileName }}
+                            </button>
+                        } @else {
+                            <span>
+                                <i class="bi-paperclip" aria-hidden="true"></i>
+                                {{ attachment()?.fileName }}
+                                <small>({{ getFileSize() }})</small>
+                            </span>
+                        }
+                        <button
+                            type="button"
+                            class="border-none background-none"
+                            (click)="removeQuestionAttachment()"
+                            [ariaLabel]="'i18n_remove_attachment' | translate"
+                        >
+                            <img
+                                src="/assets/images/icon_remove.svg"
+                                alt="{{ 'i18n_remove_attachment' | translate }}"
+                            />
+                        </button>
+                    </div>
+                }
             </div>
-        }
+            @if (attachment() && !attachment()?.removed && hasPendingUpload()) {
+                <div class="xm-icon-text">
+                    <i class="bi-info-circle text-primary" aria-hidden="true"></i>
+                    <span>{{ 'i18n_attachment_pending_save' | translate }}</span>
+                </div>
+            } @else if (attachment()?.removed) {
+                <div class="xm-cluster">
+                    <i class="bi-info-circle text-primary" aria-hidden="true"></i>
+                    <span>{{ 'i18n_attachment_pending_removal' | translate }}</span>
+                    <button type="button" class="btn btn-link p-0" (click)="undoRemoveQuestionAttachment()">
+                        {{ 'i18n_undo_attachment_removal' | translate }}
+                    </button>
+                </div>
+            }
+        </div>
     </div>
-</div>
 
-<!-- Instructions -->
-<div class="row mt-2" [formGroup]="additionalInfoForm">
-    <div class="col-md-3">
-        {{ 'i18n_question_instruction' | translate
-        }}<sup
-            ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
-            popoverTitle="{{ 'i18n_instructions' | translate }}"
-            triggers="mouseenter:mouseleave"
-        >
-            <img src="/assets/images/icon_tooltip.svg" alt="" />
-        </sup>
-    </div>
-    <div class="col-md-9">
+    <!-- Instructions -->
+    <div class="xm-form-row" [formGroup]="additionalInfoForm">
+        <label for="instruction">
+            {{ 'i18n_question_instruction' | translate
+            }}<sup
+                ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </label>
         <textarea
             id="instruction"
             name="instruction"
@@ -105,22 +104,20 @@ SPDX-License-Identifier: EUPL-1.2
             [placeholder]="'i18n_question_instruction' | translate"
         ></textarea>
     </div>
-</div>
 
-<!-- Evaluation criteria (for Essay questions) -->
-@if (showEvaluationCriteria) {
-    <div class="row mt-3" [formGroup]="additionalInfoForm">
-        <div class="col-md-3">
-            {{ 'i18n_exam_evaluation_criteria' | translate }}
-            <sup
-                ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <img src="/assets/images/icon_tooltip.svg" alt="" />
-            </sup>
-        </div>
-        <div class="col-md-9">
+    <!-- Evaluation criteria (for Essay questions) -->
+    @if (showEvaluationCriteria) {
+        <div class="xm-form-row" [formGroup]="additionalInfoForm">
+            <label for="defaultEvaluationCriteria">
+                {{ 'i18n_exam_evaluation_criteria' | translate }}
+                <sup
+                    ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </label>
             <textarea
                 id="defaultEvaluationCriteria"
                 name="defaultEvaluationCriteria"
@@ -130,8 +127,8 @@ SPDX-License-Identifier: EUPL-1.2
                 [placeholder]="'i18n_exam_evaluation_criteria' | translate"
             ></textarea>
         </div>
-    </div>
-}
+    }
 
-<!-- Tags -->
-<ng-content select="[tags-content]"></ng-content>
+    <!-- Tags -->
+    <ng-content select="[tags-content]"></ng-content>
+</div>
