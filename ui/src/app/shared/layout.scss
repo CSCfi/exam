@@ -53,6 +53,18 @@
     }
 }
 
+// Icon beside a text that may wrap: the text wraps next to the icon, never below it.
+.xm-icon-text {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--xm-space-2);
+
+    > img,
+    > i {
+        flex-shrink: 0;
+    }
+}
+
 // Label/value pairs, normally on <dl>. Stacked on phones, two aligned columns from sm up.
 // The label column is as wide as the longest label but never more than 40% of the row.
 .xm-details {
@@ -72,6 +84,15 @@
     }
     > dd:last-child {
         margin-bottom: 0;
+    }
+    // A further value for the same label (dt, dd, dd) stays in the value column
+    > dd + dd {
+        grid-column: -2 / -1;
+    }
+    // A long value (comment, rich text) under its label, using the full row: put the class
+    // on both the dt and its dd
+    > .xm-details-wide {
+        grid-column: 1 / -1;
     }
 
     @include bp.up(sm) {

@@ -46,7 +46,7 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
                 <dd class="text-break m-0" [xmRichText]="examInfo().enrollInstruction"></dd>
             </dl>
             @if (showReservationWindowDescription()) {
-                <p class="xm-info-link xm-cluster" role="note">
+                <p class="xm-info-link xm-icon-text" role="note">
                     <img class="arrow_icon" src="/assets/images/icon_info.png" alt="" />
                     <span class="text-break">{{ reservationWindowDescription() }}</span>
                 </p>

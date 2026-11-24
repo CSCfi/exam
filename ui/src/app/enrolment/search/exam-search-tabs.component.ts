@@ -31,31 +31,29 @@ const EXAM_TABS: ExamTab[] = [
         <xm-page-content [content]="content" />
         <ng-template #content>
             @if (collaborationSupported()) {
-                <div class="row">
-                    <div class="col-12">
-                        <ul
-                            ngbNav
-                            #nav="ngbNav"
-                            [activeId]="activeTab()"
-                            (activeIdChange)="activeTab.set($event)"
-                            class="nav-tabs"
-                            [keyboard]="false"
-                            (navChange)="onTabChange()"
-                        >
-                            @for (tab of availableTabs(); track tab.id) {
-                                <li [ngbNavItem]="tab.id">
-                                    <a ngbNavLink>{{ tab.labelKey | translate }}</a>
-                                </li>
-                            }
-                        </ul>
-                    </div>
+                <div class="xm-stack">
+                    <ul
+                        ngbNav
+                        #nav="ngbNav"
+                        [activeId]="activeTab()"
+                        (activeIdChange)="activeTab.set($event)"
+                        class="nav-tabs"
+                        [keyboard]="false"
+                        (navChange)="onTabChange()"
+                    >
+                        @for (tab of availableTabs(); track tab.id) {
+                            <li [ngbNavItem]="tab.id">
+                                <a ngbNavLink>{{ tab.labelKey | translate }}</a>
+                            </li>
+                        }
+                    </ul>
+                    @if (activeTab() === 1) {
+                        <xm-exam-search></xm-exam-search>
+                    }
+                    @if (activeTab() === 2) {
+                        <xm-collaborative-exam-search></xm-collaborative-exam-search>
+                    }
                 </div>
-                @if (activeTab() === 1) {
-                    <xm-exam-search></xm-exam-search>
-                }
-                @if (activeTab() === 2) {
-                    <xm-collaborative-exam-search></xm-collaborative-exam-search>
-                }
             } @else {
                 <xm-exam-search></xm-exam-search>
             }

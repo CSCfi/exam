@@ -19,6 +19,15 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 @Component({
     selector: 'xm-enrolment-details',
     templateUrl: './exam-enrolment-details.component.html',
+    styles: `
+        /* A stack stretches its children; keep the button as wide as its text */
+        .reserve {
+            align-self: start;
+        }
+        header > span {
+            display: block;
+        }
+    `,
     imports: [
         CourseCodeComponent,
         TeacherListComponent,

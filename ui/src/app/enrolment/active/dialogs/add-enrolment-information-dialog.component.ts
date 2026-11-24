@@ -13,26 +13,24 @@ import { TranslateModule } from '@ngx-translate/core';
         <div class="modal-header">
             <h1 class="xm-modal-title">{{ 'i18n_student_enrolment_info' | translate }}</h1>
         </div>
-        <div class="modal-body">
-            {{ 'i18n_student_enrolment_info_description' | translate }}
+        <div class="modal-body xm-stack xm-gap-1">
+            <label for="enrolment-information">{{ 'i18n_student_enrolment_info_description' | translate }}</label>
             <textarea
-                aria-label="write additional information for the examiner"
+                id="enrolment-information"
                 rows="10"
-                class="mt-1 w-100"
+                class="form-control"
                 [value]="information"
                 (input)="information = $any($event.target).value"
             >
             </textarea>
         </div>
         <div class="modal-footer">
-            <div class="d-flex flex-row-reverse flex-align-r">
-                <button class="btn btn-success" (click)="ok()">
-                    {{ 'i18n_button_save' | translate }}
-                </button>
-                <button class="btn btn-outline-secondary me-3" (click)="cancel()">
-                    {{ 'i18n_button_cancel' | translate }}
-                </button>
-            </div>
+            <button class="btn btn-outline-secondary" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
+            <button class="btn btn-success" (click)="ok()">
+                {{ 'i18n_button_save' | translate }}
+            </button>
         </div>
     `,
 })

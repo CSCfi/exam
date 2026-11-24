@@ -15,74 +15,54 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 
 @Component({
     selector: 'xm-exam-search-result',
-    template: `<div
-        [class]="
-            exam().alreadyEnrolled && exam().reservationMade
-                ? 'xm-study-item-container'
-                : 'xm-study-item-container--inactive'
-        "
-    >
-        <div class="row">
-            <div class="col">
-                <h2>
-                    @if (!collaborative()) {
-                        <a
-                            class="exam-title-link"
-                            [routerLink]="['/enrolments', exam().id]"
-                            [queryParams]="{ code: $safeNavigationMigration(exam().course?.code) }"
-                        >
-                            {{ exam().name }}
-                        </a>
-                    }
-                    @if (collaborative()) {
-                        <span class="exam-title-link">{{ exam().name }}</span>
-                    }
-                </h2>
-            </div>
-        </div>
-        @if (exam().alreadyEnrolled && !exam().reservationMade) {
-            <div class="row mt-1">
-                <div class="col">
-                    <span class="text-danger">
-                        {{ 'i18n_state_needs_reservation_title' | translate }}
-                    </span>
-                </div>
-            </div>
-        }
-        <div class="mt-3">
-            @if (!collaborative() && exam().course) {
-                <div class="row mb-2">
-                    <div class="col-md-3">{{ 'i18n_course_name' | translate }}:</div>
-                    <div class="col-md-9">
+    template: `
+        <article
+            class="xm-stack xm-gap-2"
+            [class]="
+                exam().alreadyEnrolled && exam().reservationMade
+                    ? 'xm-study-item-container'
+                    : 'xm-study-item-container--inactive'
+            "
+        >
+            <h2>
+                @if (!collaborative()) {
+                    <a
+                        class="exam-title-link"
+                        [routerLink]="['/enrolments', exam().id]"
+                        [queryParams]="{ code: $safeNavigationMigration(exam().course?.code) }"
+                    >
+                        {{ exam().name }}
+                    </a>
+                }
+                @if (collaborative()) {
+                    <span class="exam-title-link">{{ exam().name }}</span>
+                }
+            </h2>
+            @if (exam().alreadyEnrolled && !exam().reservationMade) {
+                <p class="text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</p>
+            }
+            <dl class="xm-details">
+                @if (!collaborative() && exam().course) {
+                    <dt>{{ 'i18n_course_name' | translate }}:</dt>
+                    <dd>
                         <span [ariaLabel]="'i18n_course_code' | translate">
                             <xm-course-code [course]="exam().course!"></xm-course-code>
                         </span>
                         {{ exam().course?.name }}
-                    </div>
-                </div>
-            }
-
-            <div class="row mb-2">
-                <div class="col-md-3">{{ 'i18n_exam_validity' | translate }}:</div>
-                <div class="col-md-9">
+                    </dd>
+                }
+                <dt>{{ 'i18n_exam_validity' | translate }}:</dt>
+                <dd>
                     {{ exam().periodStart | date: 'dd.MM.yyyy' }} &ndash; {{ exam().periodEnd | date: 'dd.MM.yyyy' }}
-                </div>
-            </div>
-
-            @if (!collaborative()) {
-                <div class="row mb-2">
-                    <div class="col-md-3">{{ 'i18n_teachers' | translate }}:</div>
-                    <div class="col-md-9"><xm-teacher-list [exam]="exam()"></xm-teacher-list></div>
-                </div>
-            }
-
-            <div class="row mb-2">
-                <div class="col-md-3">{{ 'i18n_exam_language' | translate }}:</div>
-                <div class="col-md-9">{{ exam().languages.join(', ') }}</div>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
+                </dd>
+                @if (!collaborative()) {
+                    <dt>{{ 'i18n_teachers' | translate }}:</dt>
+                    <dd><xm-teacher-list [exam]="exam()"></xm-teacher-list></dd>
+                }
+                <dt>{{ 'i18n_exam_language' | translate }}:</dt>
+                <dd>{{ exam().languages.join(', ') }}</dd>
+            </dl>
+            <div>
                 @if (!exam().alreadyEnrolled) {
                     <button class="btn btn-success" (click)="enrollForExam()" [disabled]="enrolling()">
                         {{ 'i18n_enroll_to_exam' | translate }}
@@ -97,8 +77,8 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                     <span class="student-exam-all-required">{{ 'i18n_enrolled_to_exam' | translate }}</span>
                 }
             </div>
-        </div>
-    </div>`,
+        </article>
+    `,
     styleUrls: ['./exam-search.component.scss', '../enrolment.shared.scss'],
     imports: [RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })

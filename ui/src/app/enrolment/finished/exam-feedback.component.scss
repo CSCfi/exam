@@ -4,31 +4,14 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-.notice-wrap {
-    margin-left: 1em;
-    display: inline-block;
-    margin-bottom: 30px;
-    margin-top: 10px;
-}
-
 /* Stacked fields: works inside narrow cards (e.g. max-width list items), not viewport breakpoints */
 .exam-feedback-meta {
     font-size: 0.9375rem;
-}
 
-.exam-feedback-label {
-    color: #5c5c5c;
-    font-weight: 500;
-    margin-right: 0.25rem;
-}
-
-.exam-feedback-value {
-    word-break: break-word;
-}
-
-.exam-feedback-field--stacked .exam-feedback-label {
-    margin-right: 0;
-    margin-bottom: 0.25rem;
+    > dt {
+        color: #5c5c5c;
+        font-weight: 500;
+    }
 }
 
 .exam-feedback-html :first-child {

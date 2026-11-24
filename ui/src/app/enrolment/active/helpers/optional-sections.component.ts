@@ -11,10 +11,10 @@ import { ExamSection } from 'src/app/exam/exam.model';
 @Component({
     selector: 'xm-optional-sections',
     imports: [NgbCollapse, TranslateModule, LowerCasePipe, UpperCasePipe],
-    template: `<div class="row mt-2 enrollment-card-dropdown">
-        <div class="col col-md-12">
+    template: `
+        <div class="xm-stack xm-gap-2">
             <button
-                class="btn btn-outline-secondary"
+                class="btn btn-outline-secondary toggle"
                 (click)="showSections.set(!showSections())"
                 [ariaExpanded]="showSections()"
             >
@@ -22,12 +22,11 @@ import { ExamSection } from 'src/app/exam/exam.model';
                 <i [hidden]="showSections()" class="bi bi-chevron-right ms-1" aria-hidden="true"></i>
                 <i [hidden]="!showSections()" class="bi bi-chevron-down ms-1" aria-hidden="true"></i>
             </button>
-
-            <div class="pt-2" [ngbCollapse]="!showSections()">
-                @for (section of sections(); track section.id) {
-                    <div class="mb-3">
-                        <div class="row">
-                            <div class="col">
+            <div [ngbCollapse]="!showSections()">
+                <div class="xm-stack">
+                    @for (section of sections(); track section.id) {
+                        <div class="xm-stack xm-gap-1">
+                            <p>
                                 <strong
                                     >{{ 'i18n_exam_section' | translate }}
                                     @if (section.optional) {
@@ -42,22 +41,14 @@ import { ExamSection } from 'src/app/exam/exam.model';
                                     :</strong
                                 >
                                 {{ section.name }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ section.description }}
-                            </div>
-                        </div>
-                        @if (section.optional && section.examMaterials.length > 0) {
-                            <div class="row">
-                                <div class="col">
+                            </p>
+                            <p>{{ section.description }}</p>
+                            @if (section.optional && section.examMaterials.length > 0) {
+                                <p>
                                     <strong>{{ 'i18n_exam_materials' | translate }}</strong>
-                                </div>
-                            </div>
-                            @for (material of section.examMaterials; track material.id) {
-                                <div class="row">
-                                    <span class="col">
+                                </p>
+                                @for (material of section.examMaterials; track material.id) {
+                                    <p>
                                         {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
                                         @if (material.author) {
                                             <span>
@@ -68,15 +59,21 @@ import { ExamSection } from 'src/app/exam/exam.model';
                                         @if (material.isbn) {
                                             <span> ISBN: {{ material.isbn }} </span>
                                         }
-                                    </span>
-                                </div>
+                                    </p>
+                                }
                             }
-                        }
-                    </div>
-                }
+                        </div>
+                    }
+                </div>
             </div>
         </div>
-    </div>`,
+    `,
+    styles: `
+        /* A stack stretches its children; keep the button as wide as its text */
+        .toggle {
+            align-self: start;
+        }
+    `,
 })
 export class OptionalSectionsComponent {
     readonly allSections = input.required<ExamSection[]>();

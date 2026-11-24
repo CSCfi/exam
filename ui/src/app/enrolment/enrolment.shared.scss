@@ -17,7 +17,7 @@
     font-size: 1.25rem;
     width: 2.875rem;
     line-height: 1rem;
-    margin-right: 15px;
+    flex-shrink: 0;
 
     .month-name {
         font-size: 0.875rem;
@@ -31,4 +31,30 @@
     padding: 8px 0px;
     display: inline-flex;
     align-items: center;
+}
+
+/* Date box and exam title side by side (active enrolment, waiting room) */
+.enrolment-header {
+    display: flex;
+    align-items: center;
+    gap: var(--xm-space-3);
+}
+
+/* Search field and sort menu (exam search, study attainments): the field takes up to about
+   half the width, the menu sits beside it and wraps below on phones */
+.search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--xm-space-2);
+
+    > .input-group {
+        flex: 0 1 28rem;
+    }
+    /* Long sort labels wrap on phones instead of widening the page */
+    .dropdown-toggle {
+        max-width: 100%;
+        white-space: normal;
+        text-align: start;
+    }
 }

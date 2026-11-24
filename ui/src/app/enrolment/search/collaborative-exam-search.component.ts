@@ -24,15 +24,12 @@ interface LoadingState {
 @Component({
     selector: 'xm-collaborative-exam-search',
     template: `
-        <div class="row">
-            <span class="col-12 align-items-center mt-3">
-                <img src="/assets/images/icon_info.png" class="pe-1" alt="" />
-                &nbsp;
+        <div class="xm-stack">
+            <p class="xm-icon-text" role="note">
+                <img src="/assets/images/icon_info.png" alt="" />
                 <span>{{ 'i18n_collaborative_exam_search_description' | translate }}</span>
-            </span>
-        </div>
-        <div class="row mt-3">
-            <div class="col-5">
+            </p>
+            <div class="search-bar">
                 <div class="input-group">
                     <input
                         [value]="filterText"
@@ -44,81 +41,70 @@ interface LoadingState {
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </div>
-            </div>
-            <div class="col-7" ngbDropdown>
-                <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
-                    {{ 'i18n_set_ordering' | translate }}:
-                    @switch (filterOrdering()) {
-                        @case ('name') {
-                            {{
-                                (filterReverse() ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending') | translate
-                            }}
+                <div ngbDropdown>
+                    <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
+                        {{ 'i18n_set_ordering' | translate }}:
+                        @switch (filterOrdering()) {
+                            @case ('name') {
+                                {{
+                                    (filterReverse() ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending')
+                                        | translate
+                                }}
+                            }
+                            @case ('periodStart') {
+                                {{ 'i18n_exam_period_start_ascending' | translate }}
+                            }
+                            @case ('periodEnd') {
+                                {{ 'i18n_exam_period_end_ascending' | translate }}
+                            }
                         }
-                        @case ('periodStart') {
+                    </button>
+                    <div ngbDropdownMenu role="menu">
+                        <button ngbDropdownItem role="presentation" (click)="updateSorting('name', false)">
+                            {{ 'i18n_exam_name_ascending' | translate }}
+                        </button>
+                        <button ngbDropdownItem role="presentation" (click)="updateSorting('name', true)">
+                            {{ 'i18n_exam_name_descending' | translate }}
+                        </button>
+                        <button ngbDropdownItem role="presentation" (click)="updateSorting('periodStart', false)">
                             {{ 'i18n_exam_period_start_ascending' | translate }}
-                        }
-                        @case ('periodEnd') {
+                        </button>
+                        <button ngbDropdownItem role="presentation" (click)="updateSorting('periodEnd', false)">
                             {{ 'i18n_exam_period_end_ascending' | translate }}
-                        }
-                    }
-                </button>
-                <div ngbDropdownMenu role="menu">
-                    <button ngbDropdownItem role="presentation" (click)="updateSorting('name', false)">
-                        {{ 'i18n_exam_name_ascending' | translate }}
-                    </button>
-                    <button ngbDropdownItem role="presentation" (click)="updateSorting('name', true)">
-                        {{ 'i18n_exam_name_descending' | translate }}
-                    </button>
-                    <button ngbDropdownItem role="presentation" (click)="updateSorting('periodStart', false)">
-                        {{ 'i18n_exam_period_start_ascending' | translate }}
-                    </button>
-                    <button ngbDropdownItem role="presentation" (click)="updateSorting('periodEnd', false)">
-                        {{ 'i18n_exam_period_end_ascending' | translate }}
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div
-            role="region"
-            [attr.aria-label]="'i18n_collaborative_exams' | translate"
-            [attr.aria-busy]="loader().loading ? true : null"
-        >
-            <!-- Loading State -->
-            @if (loader().loading) {
-                <div class="row mt-3" role="status">
-                    <div class="col-12">
-                        <div class="d-flex align-items-center">
-                            <div class="spinner-border spinner-border-sm me-2" aria-hidden="true"></div>
-                            <span>{{ 'i18n_searching' | translate }}...</span>
-                        </div>
+                        </button>
                     </div>
                 </div>
-            }
+            </div>
 
-            @if (searchDone() && !loader().loading) {
-                <div class="row mt-2">
-                    <div class="col-12" aria-live="polite">
+            <div
+                class="xm-stack"
+                role="region"
+                [attr.aria-label]="'i18n_collaborative_exams' | translate"
+                [attr.aria-busy]="loader().loading ? true : null"
+            >
+                <!-- Loading State -->
+                @if (loader().loading) {
+                    <div class="xm-cluster" role="status">
+                        <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+                        <span>{{ 'i18n_searching' | translate }}...</span>
+                    </div>
+                }
+
+                @if (searchDone() && !loader().loading) {
+                    <p aria-live="polite">
                         {{ 'i18n_student_exam_search_result' | translate }}
                         {{ exams().length }}
                         {{ 'i18n_student_exam_search_result_continues' | translate }}
-                    </div>
-                </div>
-            }
+                    </p>
+                }
 
-            <div class="row mt-3">
-                <div class="col-12">
-                    @for (exam of exams() | orderBy: filterOrdering() : filterReverse(); track exam.id) {
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
-                            </div>
-                        </div>
-                    }
-                </div>
+                @for (exam of exams() | orderBy: filterOrdering() : filterReverse(); track exam.id) {
+                    <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
+                }
             </div>
         </div>
     `,
+    styleUrl: '../enrolment.shared.scss',
     imports: [NgbDropdownModule, ExamSearchResultComponent, TranslateModule, OrderByPipe],
 })
 export class CollaborativeExamSearchComponent {

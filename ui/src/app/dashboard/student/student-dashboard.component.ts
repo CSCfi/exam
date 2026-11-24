@@ -27,7 +27,7 @@ import { StudentDashboardService } from './student-dashboard.service';
                         (eventConfigSelected)="eventConfigSelected(enrolment.id, $event)"
                     ></xm-active-enrolment>
                 } @empty {
-                    <p class="xm-cluster" role="note">
+                    <p class="xm-icon-text" role="note">
                         <img src="/assets/images/icon_info.png" alt="" />
                         {{ 'i18n_no_enrolments' | translate }}
                     </p>

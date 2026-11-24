@@ -4,74 +4,47 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="xm-study-item-container">
-    <div class="row mb-1">
-        <div class="col-12">
-            <h3 class="participation-heading">
-                @if (!participation().exam.anonymous) {
-                    <span>#{{ participation().exam.id }}</span>
-                }
-                {{ participation().exam.name }}
-                @if (participation().exam.anonymous) {
-                    <span>({{ 'i18n_anonymous_review' | translate }})</span>
-                }
-            </h3>
-        </div>
-    </div>
-    <div class="row g-2 participation-meta">
-        @if (!collaborative()) {
-            <div class="col-12">
-                @if (participation().exam.course) {
-                    <div class="participation-meta-line">
-                        <span class="participation-meta-label">{{ 'i18n_course_name' | translate }}:</span>
-                        <span class="participation-meta-value">
-                            <xm-course-code [course]="participation().exam.course!"></xm-course-code>
-                            {{ participation().exam.course?.name }}
-                        </span>
-                    </div>
-                }
-                <div class="participation-meta-line">
-                    <span class="participation-meta-label">{{ 'i18n_exam_endtime' | translate }}:</span>
-                    <span class="participation-meta-value">{{ participation().ended | date: 'dd.MM.yyyy' }}</span>
-                </div>
-                <div class="participation-meta-line">
-                    <span class="participation-meta-label">{{ 'i18n_teachers' | translate }}:</span>
-                    <span class="participation-meta-value">
-                        <xm-teacher-list [exam]="participation().exam" [useParent]="true"></xm-teacher-list>
-                    </span>
-                </div>
-            </div>
-        } @else {
-            <div class="col-12">
-                <div class="participation-meta-line">
-                    <span class="participation-meta-label">{{ 'i18n_exam_endtime' | translate }}:</span>
-                    <span class="participation-meta-value">{{ participation().ended | date: 'dd.MM.yyyy' }}</span>
-                </div>
-            </div>
+<article class="xm-study-item-container xm-stack xm-gap-2">
+    <h3 class="participation-heading">
+        @if (!participation().exam.anonymous) {
+            <span>#{{ participation().exam.id }}</span>
         }
-    </div>
+        {{ participation().exam.name }}
+        @if (participation().exam.anonymous) {
+            <span>({{ 'i18n_anonymous_review' | translate }})</span>
+        }
+    </h3>
+    <dl class="xm-details participation-meta">
+        @if (!collaborative() && participation().exam.course) {
+            <dt>{{ 'i18n_course_name' | translate }}:</dt>
+            <dd>
+                <xm-course-code [course]="participation().exam.course!"></xm-course-code>
+                {{ participation().exam.course?.name }}
+            </dd>
+        }
+        <dt>{{ 'i18n_exam_endtime' | translate }}:</dt>
+        <dd>{{ participation().ended | date: 'dd.MM.yyyy' }}</dd>
+        @if (!collaborative()) {
+            <dt>{{ 'i18n_teachers' | translate }}:</dt>
+            <dd><xm-teacher-list [exam]="participation().exam" [useParent]="true"></xm-teacher-list></dd>
+        }
+    </dl>
 
     @if (reviewedExam()) {
-        <div class="row mt-2">
-            <div class="col-12">
-                <button
-                    type="button"
-                    class="btn btn-link btn-sm text-body-secondary text-decoration-none p-0 exam-feedback-toggle"
-                    (click)="toggleEvaluation()"
-                    (ngEnter)="toggleEvaluation()"
-                    [attr.aria-expanded]="showEvaluation()"
-                >
-                    <span [hidden]="showEvaluation()">{{ 'i18n_comments_open' | translate }}</span>
-                    <span [hidden]="!showEvaluation()">{{ 'i18n_comments_hide' | translate }}</span>
-                    <i [hidden]="showEvaluation()" class="bi bi-chevron-right ms-1" aria-hidden="true"></i>
-                    <i [hidden]="!showEvaluation()" class="bi bi-chevron-down ms-1" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
-    }
-    @if (reviewedExam()) {
-        <div class="row" [ngbCollapse]="!showEvaluation()">
-            <div class="col-12 ps-3 ps-md-4 border-start border-2 border-light mt-1 pt-1">
+        <button
+            type="button"
+            class="btn btn-link btn-sm text-body-secondary text-decoration-none p-0 exam-feedback-toggle"
+            (click)="toggleEvaluation()"
+            (ngEnter)="toggleEvaluation()"
+            [attr.aria-expanded]="showEvaluation()"
+        >
+            <span [hidden]="showEvaluation()">{{ 'i18n_comments_open' | translate }}</span>
+            <span [hidden]="!showEvaluation()">{{ 'i18n_comments_hide' | translate }}</span>
+            <i [hidden]="showEvaluation()" class="bi bi-chevron-right ms-1" aria-hidden="true"></i>
+            <i [hidden]="!showEvaluation()" class="bi bi-chevron-down ms-1" aria-hidden="true"></i>
+        </button>
+        <div [ngbCollapse]="!showEvaluation()">
+            <div class="feedback-panel">
                 <xm-exam-feedback
                     [assessment]="reviewedExam()!"
                     [participationTime]="participation().ended || ''"
@@ -83,12 +56,10 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
     }
-    <div class="row mt-2">
-        @if (participation().noShow) {
-            <div class="col-12 text-danger">{{ 'i18n_no_show' | translate }}</div>
-        }
-        @if (!participation().noShow && !reviewedExam()) {
-            <div class="col-12 text-muted">{{ 'i18n_no_comments' | translate }}</div>
-        }
-    </div>
-</div>
+    @if (participation().noShow) {
+        <p class="text-danger">{{ 'i18n_no_show' | translate }}</p>
+    }
+    @if (!participation().noShow && !reviewedExam()) {
+        <p class="text-muted">{{ 'i18n_no_comments' | translate }}</p>
+    }
+</article>

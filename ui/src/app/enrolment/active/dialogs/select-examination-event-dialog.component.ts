@@ -21,17 +21,17 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
                 <i class="bi-calendar-event"></i>&nbsp;&nbsp;{{ 'i18n_pick_examination_event' | translate }}
             </h1>
         </div>
-        <div class="modal-body">
+        <div class="modal-body xm-stack">
             @if (exam()) {
-                <p class="text-muted mb-3">
+                <p class="text-muted">
                     {{ 'i18n_exam_duration' | translate }}: {{ exam()!.duration }}
                     {{ 'i18n_minutes' | translate }}
                 </p>
             }
             <div class="list-group">
                 @for (config of configs(); track config) {
-                    <div class="list-group-item d-flex justify-content-between align-items-center gap-3">
-                        <div>
+                    <div class="list-group-item xm-split xm-gap-3">
+                        <div class="xm-stack xm-gap-1">
                             <div class="fw-semibold">
                                 {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}
                             </div>
@@ -39,13 +39,13 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
                                 <small class="text-muted">{{ config.examinationEvent.description }}</small>
                             }
                             @if (config.id && reasons()[config.id]) {
-                                <div class="alert alert-warning py-1 px-2 mb-0 mt-1">
+                                <div class="alert alert-warning py-1 px-2">
                                     <small>{{ reasons()[config.id!]!.message }}</small>
                                 </div>
                             }
                         </div>
                         <button
-                            class="btn btn-sm btn-success flex-shrink-0"
+                            class="btn btn-sm btn-success"
                             [disabled]="isFull(config)"
                             (click)="selectEvent(config)"
                             autofocus
@@ -57,11 +57,9 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
             </div>
         </div>
         <div class="modal-footer">
-            <div class="col-md-12">
-                <button class="btn btn-sm btn-danger float-end" (click)="cancel()">
-                    {{ 'i18n_button_decline' | translate }}
-                </button>
-            </div>
+            <button class="btn btn-sm btn-danger" (click)="cancel()">
+                {{ 'i18n_button_decline' | translate }}
+            </button>
         </div>
     `,
 })
