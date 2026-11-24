@@ -18,23 +18,17 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             <h1 class="xm-modal-title">{{ 'i18n_tag_questions' | translate }}</h1>
         </div>
         <div class="modal-body">
-            <div class="row">
-                <div class="col-6">
-                    <div class="form-group input-group">
-                        <input
-                            class="form-control"
-                            [ngbTypeahead]="listTags$"
-                            (selectItem)="setQuestionTag($event)"
-                            [inputFormatter]="nameFormatter"
-                            [resultFormatter]="nameFormatter"
-                        />
-                        <div class="input-group-append">
-                            <button class="btn btn-success" (click)="addTagForSelected()">
-                                {{ 'i18n_add' | translate }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="input-group tag-input">
+                <input
+                    class="form-control"
+                    [ngbTypeahead]="listTags$"
+                    (selectItem)="setQuestionTag($event)"
+                    [inputFormatter]="nameFormatter"
+                    [resultFormatter]="nameFormatter"
+                />
+                <button class="btn btn-success" (click)="addTagForSelected()">
+                    {{ 'i18n_add' | translate }}
+                </button>
             </div>
         </div>
         <div class="modal-footer">
@@ -42,6 +36,11 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                 {{ 'i18n_close' | translate }}
             </button>
         </div>
+    `,
+    styles: `
+        .tag-input {
+            max-width: 14rem;
+        }
     `,
     imports: [NgbTypeaheadModule, TranslateModule],
 })

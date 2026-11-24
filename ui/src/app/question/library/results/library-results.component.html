@@ -4,258 +4,249 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row">
-    <div class="col-md-12">
-        <table class="table table-striped table-sm xm-data-table">
-            <thead>
+<!-- The table scrolls sideways when its columns do not fit -->
+<div class="table-responsive">
+    <table class="table table-striped table-sm xm-data-table">
+        <thead>
+            <tr>
+                <th>
+                    <input
+                        type="checkbox"
+                        [checked]="allSelected()"
+                        (change)="onSelectAll($event)"
+                        triggers="mouseenter:mouseleave"
+                        ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    />
+                </th>
+                <th class="question-column">
+                    <xm-table-sort
+                        by="id"
+                        text="i18n_question"
+                        [predicate]="questionsPredicate()"
+                        [reverse]="reverse()"
+                        (click)="setPredicate('id')"
+                    />
+                </th>
+                <th>
+                    <xm-table-sort
+                        by="creator"
+                        text="i18n_creator"
+                        [predicate]="questionsPredicate()"
+                        [reverse]="reverse()"
+                        (click)="setPredicate('creator')"
+                    />
+                </th>
+                <th>
+                    <xm-table-sort
+                        by="modified"
+                        text="i18n_modified"
+                        [predicate]="questionsPredicate()"
+                        [reverse]="reverse()"
+                        (click)="setPredicate('modified')"
+                    />
+                </th>
+                <th>
+                    <xm-table-sort
+                        by="displayedMaxScore"
+                        text="i18n_max_score"
+                        [predicate]="questionsPredicate()"
+                        [reverse]="reverse()"
+                        (click)="setPredicate('displayedMaxScore')"
+                    />
+                </th>
+                <th>
+                    <xm-table-sort
+                        by="typeOrd"
+                        text="i18n_question_type"
+                        [predicate]="questionsPredicate()"
+                        [reverse]="reverse()"
+                        (click)="setPredicate('typeOrd')"
+                    />
+                </th>
+                <th>
+                    <xm-table-sort
+                        by="attachment.fileName"
+                        text="i18n_attachment"
+                        [predicate]="questionsPredicate()"
+                        [reverse]="reverse()"
+                        (click)="setPredicate('attachment.fileName')"
+                    />
+                </th>
+                <th>{{ 'i18n_categories' | translate }}</th>
+                <th>
+                    <xm-table-sort
+                        by="ownerAggregate"
+                        text="i18n_owner"
+                        [predicate]="questionsPredicate()"
+                        [reverse]="reverse()"
+                        (click)="setPredicate('ownerAggregate')"
+                    />
+                </th>
+                <th>{{ 'i18n_remove' | translate }}</th>
+                <th>{{ 'i18n_copy' | translate }}</th>
+                <th>{{ 'i18n_used_in_exams' | translate }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (
+                question of fixedQuestions()
+                    | orderBy: questionsPredicate() : reverse()
+                    | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
+                track question
+            ) {
                 <tr>
-                    <th>
+                    <td class="question-table-checkbox">
                         <input
                             type="checkbox"
-                            [checked]="allSelected()"
-                            (change)="onSelectAll($event)"
-                            triggers="mouseenter:mouseleave"
-                            ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            [checked]="question.selected"
+                            (change)="onQuestionToggle(question, $event)"
+                            class="questionToUpdate"
+                            value="{{ question.id }}"
                         />
-                    </th>
-                    <th class="question-column">
-                        <xm-table-sort
-                            by="id"
-                            text="i18n_question"
-                            [predicate]="questionsPredicate()"
-                            [reverse]="reverse()"
-                            (click)="setPredicate('id')"
-                        />
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            by="creator"
-                            text="i18n_creator"
-                            [predicate]="questionsPredicate()"
-                            [reverse]="reverse()"
-                            (click)="setPredicate('creator')"
-                        />
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            by="modified"
-                            text="i18n_modified"
-                            [predicate]="questionsPredicate()"
-                            [reverse]="reverse()"
-                            (click)="setPredicate('modified')"
-                        />
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            by="displayedMaxScore"
-                            text="i18n_max_score"
-                            [predicate]="questionsPredicate()"
-                            [reverse]="reverse()"
-                            (click)="setPredicate('displayedMaxScore')"
-                        />
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            by="typeOrd"
-                            text="i18n_question_type"
-                            [predicate]="questionsPredicate()"
-                            [reverse]="reverse()"
-                            (click)="setPredicate('typeOrd')"
-                        />
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            by="attachment.fileName"
-                            text="i18n_attachment"
-                            [predicate]="questionsPredicate()"
-                            [reverse]="reverse()"
-                            (click)="setPredicate('attachment.fileName')"
-                        />
-                    </th>
-                    <th>{{ 'i18n_categories' | translate }}</th>
-                    <th>
-                        <xm-table-sort
-                            by="ownerAggregate"
-                            text="i18n_owner"
-                            [predicate]="questionsPredicate()"
-                            [reverse]="reverse()"
-                            (click)="setPredicate('ownerAggregate')"
-                        />
-                    </th>
-                    <th>{{ 'i18n_remove' | translate }}</th>
-                    <th>{{ 'i18n_copy' | translate }}</th>
-                    <th>{{ 'i18n_used_in_exams' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (
-                    question of fixedQuestions()
-                        | orderBy: questionsPredicate() : reverse()
-                        | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
-                    track question
-                ) {
-                    <tr>
-                        <td class="question-table-checkbox">
-                            <input
-                                type="checkbox"
-                                [checked]="question.selected"
-                                (change)="onQuestionToggle(question, $event)"
-                                class="questionToUpdate"
-                                value="{{ question.id }}"
-                            />
-                        </td>
-                        <td>
-                            @if (question.question) {
-                                <!-- Clamped in CSS; slicing the raw HTML cut markup mid-tag -->
-                                <span class="question-text-clamped" [xmRichText]="question.question"></span>
-                            }
-                            @if (!question.question) {
-                                <span class="text-danger">
-                                    {{ 'i18n_no_name' | translate }}
-                                </span>
-                            }
-                            <span class="d-block">
-                                @if (!disableLinks()) {
-                                    <a
-                                        class="pointer btn btn-link btn-sm"
-                                        [routerLink]="[question.id, 'edit']"
-                                        [queryParams]="{ nextState: 'questions' }"
-                                    >
-                                        {{ question.id }}
-                                    </a>
-                                }
-                                @if (disableLinks()) {
-                                    <span>#{{ question.id }}</span>
-                                }
-                                @if (question.questionOwners.length > 1) {
-                                    <i
-                                        class="bi-people ps-2 text-primary"
-                                        ngbPopover="{{ 'i18n_question_owners' | translate }}: {{
-                                            printOwners(question)
-                                        }}"
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        triggers="mouseenter:mouseleave"
-                                    ></i>
-                                }
+                    </td>
+                    <td>
+                        @if (question.question) {
+                            <!-- Clamped in CSS; slicing the raw HTML cut markup mid-tag -->
+                            <span class="question-text-clamped" [xmRichText]="question.question"></span>
+                        }
+                        @if (!question.question) {
+                            <span class="text-danger">
+                                {{ 'i18n_no_name' | translate }}
                             </span>
-                        </td>
-                        <td>
-                            <span>
-                                <small>{{ question.creator?.firstName }} {{ question.creator?.lastName }}</small>
-                            </span>
-                        </td>
-                        <td>
-                            @if (question.modified) {
-                                <span class="timestamp">
-                                    {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}
-                                    <br />
-                                    <small>{{ question.modifier?.firstName }} {{ question.modifier?.lastName }}</small>
-                                </span>
-                            }
-                        </td>
-                        <td class="td-center-align">{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
-                        <td>
-                            @if (question.type === 'MultipleChoiceQuestion') {
-                                <span>{{ 'i18n_question_mc' | translate }}</span>
-                            }
-                            @if (question.type === 'EssayQuestion') {
-                                <span>{{ 'i18n_essay' | translate }}</span>
-                            }
-                            @if (question.type === 'WeightedMultipleChoiceQuestion') {
-                                <span>{{ 'i18n_question_weighted_mc' | translate }} </span>
-                            }
-                            @if (question.type === 'ClozeTestQuestion') {
-                                <span>{{ 'i18n_toolbar_cloze_test_question' | translate }} </span>
-                            }
-                            @if (question.type === 'ClaimChoiceQuestion') {
-                                <span>
-                                    {{ 'i18n_toolbar_claim_choice_question' | translate }}
-                                </span>
-                            }
-                        </td>
-                        <td>
-                            @if (question.attachment) {
-                                <button
-                                    class="btn btn-link btn-sm"
-                                    (click)="downloadQuestionAttachment(question)"
-                                    [ariaLabel]="'i18n_download_attachment' | translate"
+                        }
+                        <div>
+                            @if (!disableLinks()) {
+                                <a
+                                    class="pointer btn btn-link btn-sm"
+                                    [routerLink]="[question.id, 'edit']"
+                                    [queryParams]="{ nextState: 'questions' }"
                                 >
-                                    <i class="bi-paperclip" aria-hidden="true"></i>{{ question.attachment.fileName }}
-                                </button>
+                                    {{ question.id }}
+                                </a>
                             }
-                        </td>
-                        <td>{{ printTags(question) }}</td>
-                        <td>
-                            <span>
-                                @for (
-                                    owner of getOwnersToDisplay(question);
-                                    track owner.id ?? owner;
-                                    let isLast = $last
-                                ) {
-                                    <a [href]="renderMailTo(owner)">{{ printOwner(owner, true) }}</a>
-                                    @if (!isLast) {
-                                        <span>, </span>
-                                    }
-                                }
-                            </span>
-                        </td>
-                        <td class="td-center-align">
-                            @if (question.allowedToRemove) {
-                                <button (click)="deleteQuestion(question)" class="btn btn-link text-black">
-                                    <i
-                                        class="bi-trash"
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        triggers="mouseenter:mouseleave"
-                                        ngbPopover="{{ 'i18n_exam_remove' | translate }}"
-                                    ></i>
-                                </button>
+                            @if (disableLinks()) {
+                                <span>#{{ question.id }}</span>
                             }
-                        </td>
-                        <td class="td-center-align">
-                            <button (click)="copyQuestion(question)" class="btn btn-link text-black">
+                            @if (question.questionOwners.length > 1) {
                                 <i
-                                    class="bi-files"
+                                    class="bi-people ps-2 text-primary"
+                                    ngbPopover="{{ 'i18n_question_owners' | translate }}: {{ printOwners(question) }}"
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'i18n_copy' | translate }}"
+                                ></i>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <span>
+                            <small>{{ question.creator?.firstName }} {{ question.creator?.lastName }}</small>
+                        </span>
+                    </td>
+                    <td>
+                        @if (question.modified) {
+                            <span class="timestamp">
+                                {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}
+                                <br />
+                                <small>{{ question.modifier?.firstName }} {{ question.modifier?.lastName }}</small>
+                            </span>
+                        }
+                    </td>
+                    <td class="td-center-align">{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
+                    <td>
+                        @if (question.type === 'MultipleChoiceQuestion') {
+                            <span>{{ 'i18n_question_mc' | translate }}</span>
+                        }
+                        @if (question.type === 'EssayQuestion') {
+                            <span>{{ 'i18n_essay' | translate }}</span>
+                        }
+                        @if (question.type === 'WeightedMultipleChoiceQuestion') {
+                            <span>{{ 'i18n_question_weighted_mc' | translate }} </span>
+                        }
+                        @if (question.type === 'ClozeTestQuestion') {
+                            <span>{{ 'i18n_toolbar_cloze_test_question' | translate }} </span>
+                        }
+                        @if (question.type === 'ClaimChoiceQuestion') {
+                            <span>
+                                {{ 'i18n_toolbar_claim_choice_question' | translate }}
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @if (question.attachment) {
+                            <button
+                                class="btn btn-link btn-sm"
+                                (click)="downloadQuestionAttachment(question)"
+                                [ariaLabel]="'i18n_download_attachment' | translate"
+                            >
+                                <i class="bi-paperclip" aria-hidden="true"></i>{{ question.attachment.fileName }}
+                            </button>
+                        }
+                    </td>
+                    <td>{{ printTags(question) }}</td>
+                    <td>
+                        <span>
+                            @for (owner of getOwnersToDisplay(question); track owner.id ?? owner; let isLast = $last) {
+                                <a [href]="renderMailTo(owner)">{{ printOwner(owner, true) }}</a>
+                                @if (!isLast) {
+                                    <span>, </span>
+                                }
+                            }
+                        </span>
+                    </td>
+                    <td class="td-center-align">
+                        @if (question.allowedToRemove) {
+                            <button (click)="deleteQuestion(question)" class="btn btn-link text-black">
+                                <i
+                                    class="bi-trash"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    ngbPopover="{{ 'i18n_exam_remove' | translate }}"
                                 ></i>
                             </button>
-                        </td>
-                        <td class="td-center-align">
-                            {{ question.examSectionQuestions.length }}
-                        </td>
-                    </tr>
-                }
-                <!--Fill if page not full-->
-                @for (r of [] | pageFill: fixedQuestions().length : currentPage() : pageSize; track r) {
-                    <tr>
-                        <td colspan="12">&nbsp;</td>
-                        @if (user.isAdmin) {
-                            <td></td>
                         }
-                    </tr>
-                }
-                @if (fixedQuestions().length === 0) {
-                    <tr>
-                        <td colspan="12">{{ 'i18n_exam_library_no_results' | translate }}</td>
-                        @if (user.isAdmin) {
-                            <td></td>
-                        }
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    @if (fixedQuestions().length > pageSize) {
-        <div class="col-md-12">
-            <xm-paginator
-                [items]="fixedQuestions()"
-                (pageSelected)="pageSelected($event)"
-                [pageSize]="pageSize"
-                [currentPage]="currentPage()"
-            >
-            </xm-paginator>
-        </div>
-    }
+                    </td>
+                    <td class="td-center-align">
+                        <button (click)="copyQuestion(question)" class="btn btn-link text-black">
+                            <i
+                                class="bi-files"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                                ngbPopover="{{ 'i18n_copy' | translate }}"
+                            ></i>
+                        </button>
+                    </td>
+                    <td class="td-center-align">
+                        {{ question.examSectionQuestions.length }}
+                    </td>
+                </tr>
+            }
+            <!--Fill if page not full-->
+            @for (r of [] | pageFill: fixedQuestions().length : currentPage() : pageSize; track r) {
+                <tr>
+                    <td colspan="12">&nbsp;</td>
+                    @if (user.isAdmin) {
+                        <td></td>
+                    }
+                </tr>
+            }
+            @if (fixedQuestions().length === 0) {
+                <tr>
+                    <td colspan="12">{{ 'i18n_exam_library_no_results' | translate }}</td>
+                    @if (user.isAdmin) {
+                        <td></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
+@if (fixedQuestions().length > pageSize) {
+    <xm-paginator
+        [items]="fixedQuestions()"
+        (pageSelected)="pageSelected($event)"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage()"
+    >
+    </xm-paginator>
+}

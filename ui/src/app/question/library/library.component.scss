@@ -4,6 +4,24 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+// Import and new question at the end of the page header
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--xm-space-3);
+    padding-inline-end: var(--xm-space-3);
+}
+
+// Search and the actions for the selected questions, above the results
+.library-tools {
+    padding: var(--xm-space-2) 1.75rem 0;
+}
+.library-results {
+    display: block;
+    margin-top: var(--xm-space-3);
+}
+
 .td-center-align {
     text-align: center;
 }

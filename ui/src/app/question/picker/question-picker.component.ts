@@ -20,40 +20,45 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         <div class="modal-header">
             <div class="xm-modal-title">{{ 'i18n_library_choose' | translate }}</div>
         </div>
-        <div class="modal-body pt-3">
+        <div class="modal-body xm-stack">
             <!-- search bar and search parameters -->
-            <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
-
-            <div class="row ms-3 mb-3">
-                <div class="col-md-12">
+            <div class="xm-stack xm-gap-2 picker-tools">
+                <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
+                <div>
                     <button class="btn btn-success" (click)="addQuestions()">
                         {{ 'i18n_add_chosen' | translate }} ({{ selections().length }})
                     </button>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <xm-library-results
-                        [questions]="questions()"
-                        (selected)="questionSelected($event)"
-                        (copied)="questionCopied()"
-                        (updated)="resultsUpdated($event)"
-                        [disableLinks]="true"
-                    ></xm-library-results>
-                </div>
-            </div>
+            <xm-library-results
+                [questions]="questions()"
+                (selected)="questionSelected($event)"
+                (copied)="questionCopied()"
+                (updated)="resultsUpdated($event)"
+                [disableLinks]="true"
+            ></xm-library-results>
         </div>
 
         <!-- Buttons -->
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="xm-cluster picker-actions">
+            <button class="btn btn-outline-secondary" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
             <button class="btn btn-success" (click)="addQuestions()">
                 {{ 'i18n_add_chosen' | translate }} ({{ selections().length }})
             </button>
-            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
-                {{ 'i18n_button_cancel' | translate }}
-            </button>
         </div>
+    `,
+    styles: `
+        .picker-tools {
+            padding-inline: 1.75rem;
+        }
+        .picker-actions {
+            justify-content: flex-end;
+            gap: var(--xm-space-3);
+            margin: var(--xm-space-3);
+        }
     `,
 })
 export class QuestionSelectorComponent {

@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div [formGroup]="questionBodyForm">
+<div [formGroup]="questionBodyForm" class="xm-stack question-body">
     <!-- Question Usage - Show which exams use this question -->
     <div [hidden]="newQuestion() && !questionType()">
         <xm-question-usage [examNames]="examNames()" />
@@ -19,22 +19,18 @@ SPDX-License-Identifier: EUPL-1.2
     ></xm-question-basic-info>
 
     <!-- Hide rest of form if new question and no type selected -->
-    <div [hidden]="newQuestion() && !questionType()">
-        <div class="row mt-2">
-            <div class="col-md-12">
-                @if (questionType() === 'EssayQuestion') {
-                    <!-- Evaluation -->
-                    <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
-                } @else if (
-                    questionType() === 'MultipleChoiceQuestion' ||
-                    questionType() === 'WeightedMultipleChoiceQuestion' ||
-                    questionType() === 'ClaimChoiceQuestion'
-                ) {
-                    <!-- Multiple choices -->
-                    <div class="xm-paragraph-title">{{ 'i18n_question_options' | translate }}</div>
-                }
-            </div>
-        </div>
+    <div class="xm-stack" [hidden]="newQuestion() && !questionType()">
+        @if (questionType() === 'EssayQuestion') {
+            <!-- Evaluation -->
+            <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
+        } @else if (
+            questionType() === 'MultipleChoiceQuestion' ||
+            questionType() === 'WeightedMultipleChoiceQuestion' ||
+            questionType() === 'ClaimChoiceQuestion'
+        ) {
+            <!-- Multiple choices -->
+            <div class="xm-paragraph-title">{{ 'i18n_question_options' | translate }}</div>
+        }
         @switch (questionType()) {
             @case ('EssayQuestion') {
                 <xm-essay [question]="question()" [lotteryOn]="lotteryOn()"></xm-essay>
@@ -68,19 +64,17 @@ SPDX-License-Identifier: EUPL-1.2
 
         <!-- Max score (not shown for WeightedMultipleChoiceQuestion and ClaimChoiceQuestion - calculated from options) -->
         @if (questionType() !== 'WeightedMultipleChoiceQuestion' && questionType() !== 'ClaimChoiceQuestion') {
-            <div class="row mt-3">
-                <div class="col-md-3">{{ 'i18n_max_score' | translate }}</div>
-                <div class="col-md-2">
-                    <input
-                        id="defaultMaxScore"
-                        name="defaultMaxScore"
-                        type="number"
-                        class="form-control"
-                        formControlName="defaultMaxScore"
-                        [min]="0"
-                        [max]="1000"
-                    />
-                </div>
+            <div class="xm-form-row">
+                <label for="defaultMaxScore">{{ 'i18n_max_score' | translate }}</label>
+                <input
+                    id="defaultMaxScore"
+                    name="defaultMaxScore"
+                    type="number"
+                    class="form-control max-score"
+                    formControlName="defaultMaxScore"
+                    [min]="0"
+                    [max]="1000"
+                />
             </div>
         }
 

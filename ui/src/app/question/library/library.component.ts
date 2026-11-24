@@ -28,23 +28,19 @@ type FileResult = { errorCount: number; successCount: number };
         <xm-page-header text="i18n_library_new" [appendWide]="true" [appendTemplate]="buttons" />
         <xm-page-content [content]="content" />
         <ng-template #buttons>
-            <div class="float-end pe-3">
-                <button (click)="import()" class="btn btn-success me-3 mb-3">
+            <div class="header-actions">
+                <button (click)="import()" class="btn btn-success">
                     {{ 'i18n_toolbar_import_questions' | translate }}
                 </button>
-                <button
-                    [routerLink]="['new']"
-                    [queryParams]="{ nextState: 'questions' }"
-                    class="btn btn-success align-top"
-                >
+                <button [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="btn btn-success">
                     {{ 'i18n_toolbar_new_question' | translate }}
                 </button>
             </div>
         </ng-template>
         <ng-template #content>
             <div class="xm-bordered-area">
-                <div class="row ms-4 mt-2">
-                    <div class="col-12">
+                <div class="xm-stack xm-gap-2 library-tools">
+                    <div>
                         <strong>{{ 'i18n_search' | translate }}:</strong>
                         <span
                             ngbPopover="{{ 'i18n_library_search_instructions' | translate }}"
@@ -56,15 +52,9 @@ type FileResult = { errorCount: number; successCount: number };
                             <img src="/assets/images/icon_tooltip.svg" alt="" />
                         </span>
                     </div>
-                </div>
-                <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
-                <div class="row ms-4 mb-1">
-                    <div class="col-12">
-                        <strong>{{ 'i18n_actions' | translate }}:</strong>
-                    </div>
-                </div>
-                <div class="row ms-4">
-                    <div class="col-12">
+                    <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
+                    <strong>{{ 'i18n_actions' | translate }}:</strong>
+                    <div class="xm-cluster">
                         <span ngbDropdown [autoClose]="'outside'">
                             <button
                                 class="btn btn-outline-secondary btn-sm"
@@ -115,25 +105,21 @@ type FileResult = { errorCount: number; successCount: number };
                             </ul>
                         </span>
                         @if (selections().length === 0) {
-                            <small class="ms-2 text-muted">{{ 'i18n_choose_atleast_one' | translate }}</small>
-                        }
-                        @if (selections().length > 0) {
-                            <small class="ms-2">
-                                {{ selections().length }} {{ 'i18n_questions_selected' | translate }}
-                            </small>
+                            <small class="text-muted">{{ 'i18n_choose_atleast_one' | translate }}</small>
+                        } @else {
+                            <small>{{ selections().length }} {{ 'i18n_questions_selected' | translate }}</small>
                         }
                     </div>
                 </div>
 
-                <div class="mt-3">
-                    <xm-library-results
-                        [questions]="questions()"
-                        (copied)="questionCopied($event)"
-                        (selected)="questionSelected($event)"
-                        (updated)="resultsUpdated($event)"
-                    >
-                    </xm-library-results>
-                </div>
+                <xm-library-results
+                    class="library-results"
+                    [questions]="questions()"
+                    (copied)="questionCopied($event)"
+                    (selected)="questionSelected($event)"
+                    (updated)="resultsUpdated($event)"
+                >
+                </xm-library-results>
             </div>
         </ng-template>
     `,

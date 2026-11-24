@@ -4,7 +4,84 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/breakpoints' as bp;
 @use '../../shared/definitions.scss' as shared;
+
+// Cancel and save at the end of the form
+.question-actions {
+    justify-content: flex-end;
+    margin-top: var(--xm-space-2);
+}
+
+// The question form in the exam's question dialog
+.exam-question-form {
+    padding-inline: 0.75rem;
+}
+
+// Option rows: the option box, the box for its correctness or points and the remove button take
+// a half, a sixth and a twelfth of the row, stacked on phones. The row reaches past the content
+// edge by the former grid gutter, so the option texts line up with the titles above them.
+.option-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: -0.75rem;
+
+    > .option-heading {
+        padding-inline: 0.75rem;
+    }
+
+    @include bp.up(md) {
+        grid-template-columns: 50% calc(100% / 6) calc(100% / 12);
+
+        > .option-heading:nth-child(2) {
+            grid-column: 2 / -1;
+        }
+    }
+}
+
+// Separate boxes for the option and its points
+.option-grid-spaced {
+    @include bp.up(md) {
+        grid-template-columns: calc(50% + var(--xm-space-3)) calc(100% / 6) calc(100% / 12);
+
+        > :first-child {
+            margin-inline-end: var(--xm-space-3);
+        }
+    }
+}
+.weighted-options {
+    padding-block: var(--xm-space-2);
+}
+
+.option-instructions {
+    margin-inline-start: var(--xm-space-2);
+}
+
+// Claim choice: instructions and options take half of the row on wider screens
+.claim-instructions,
+.claim-options {
+    @include bp.up(md) {
+        max-width: 50%;
+    }
+}
+.claim-options {
+    margin-inline-start: var(--xm-space-2);
+}
+// Claim text and its points side by side, the description of the option under them
+.claim-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 var(--xm-space-3);
+    align-items: start;
+
+    > .claim-choice-option-description {
+        grid-column: 1 / -1;
+        margin-top: var(--xm-space-2);
+    }
+}
+.claim-heading {
+    padding: 0 calc(10px + 0.75rem) var(--xm-space-2);
+}
 
 .btn-cancel {
     color: #fff !important;
@@ -37,6 +114,13 @@
 
     &.radiobut {
         width: 100%;
+    }
+
+    // A full-width option text needs no space after it: the margin only spilled out of the
+    // option box and widened the page on phones
+    &.radiobut,
+    &.form-control {
+        margin-right: 0;
     }
 
     &.points {
@@ -129,8 +213,7 @@
 .question-editor-claim-choice-option {
     border: 1px solid transparent;
     border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 1em;
+    padding: 10px calc(10px + 0.75rem);
     transition-duration: 0.2s;
 }
 
@@ -172,6 +255,10 @@
 
 .claim-choice-warning-wrapper {
     min-height: 40px;
+
+    @include bp.up(md) {
+        max-width: 75%;
+    }
 }
 .claim-choice-warning {
     background-color: rgba($color: red, $alpha: 0.1);

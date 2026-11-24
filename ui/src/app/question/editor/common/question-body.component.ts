@@ -29,6 +29,14 @@ import { UsageComponent } from './usage.component';
 @Component({
     selector: 'xm-question-body',
     templateUrl: './question-body.component.html',
+    styles: `
+        .question-body {
+            margin-top: var(--xm-space-3);
+        }
+        .max-score {
+            max-width: 9.5rem;
+        }
+    `,
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [
         ReactiveFormsModule,
