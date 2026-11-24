@@ -16,57 +16,53 @@ import { groupBy } from 'src/app/shared/miscellaneous/helpers';
     template: `
         @if (queryParams()) {
             @if (grouped()) {
-                <div class="row">
-                    <div class="col-12">
-                        <table class="table table-striped table-sm">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>{{ 'i18n_faculty_name' | translate }}</th>
-                                    <th>{{ 'i18n_outbound_reservations' | translate }}</th>
-                                    <th>
-                                        {{ 'i18n_outbound_reservations' | translate }} -
-                                        {{ 'i18n_unused_reservation' | translate }}
-                                    </th>
-                                    <th>{{ 'i18n_inbound_reservations' | translate }}</th>
-                                    <th>
-                                        {{ 'i18n_inbound_reservations' | translate }} -
-                                        {{ 'i18n_unused_reservation' | translate }}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (rg of grouped() | keyvalue; track rg.key) {
-                                    <tr>
-                                        <td>{{ rg.key }}</td>
-                                        <td>{{ outgoingTo(rg.key) }}</td>
-                                        <td>{{ outgoingNoShowsTo(rg.key) }}</td>
-                                        <td>{{ incomingFrom(rg.key) }}</td>
-                                        <td>{{ incomingNoShowsFrom(rg.key) }}</td>
-                                    </tr>
-                                }
-                            </tbody>
-                            <tfoot class="table-light">
-                                <tr>
-                                    <td>
-                                        <strong>{{ 'i18n_total' | translate }}</strong>
-                                    </td>
-                                    <td>
-                                        <strong>{{ totalOutgoing() }}</strong>
-                                    </td>
-                                    <td>
-                                        <strong>{{ totalOutgoingNoShows() }}</strong>
-                                    </td>
-                                    <td>
-                                        <strong>{{ totalIncoming() }}</strong>
-                                    </td>
-                                    <td>
-                                        <strong>{{ totalIncomingNoShows() }}</strong>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
+                <table class="table table-striped table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{{ 'i18n_faculty_name' | translate }}</th>
+                            <th>{{ 'i18n_outbound_reservations' | translate }}</th>
+                            <th>
+                                {{ 'i18n_outbound_reservations' | translate }} -
+                                {{ 'i18n_unused_reservation' | translate }}
+                            </th>
+                            <th>{{ 'i18n_inbound_reservations' | translate }}</th>
+                            <th>
+                                {{ 'i18n_inbound_reservations' | translate }} -
+                                {{ 'i18n_unused_reservation' | translate }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (rg of grouped() | keyvalue; track rg.key) {
+                            <tr>
+                                <td>{{ rg.key }}</td>
+                                <td>{{ outgoingTo(rg.key) }}</td>
+                                <td>{{ outgoingNoShowsTo(rg.key) }}</td>
+                                <td>{{ incomingFrom(rg.key) }}</td>
+                                <td>{{ incomingNoShowsFrom(rg.key) }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td>
+                                <strong>{{ 'i18n_total' | translate }}</strong>
+                            </td>
+                            <td>
+                                <strong>{{ totalOutgoing() }}</strong>
+                            </td>
+                            <td>
+                                <strong>{{ totalOutgoingNoShows() }}</strong>
+                            </td>
+                            <td>
+                                <strong>{{ totalIncoming() }}</strong>
+                            </td>
+                            <td>
+                                <strong>{{ totalIncomingNoShows() }}</strong>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
             }
         }
     `,

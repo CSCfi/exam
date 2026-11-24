@@ -12,24 +12,14 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 @Component({
     template: `
         @if (queryParams()) {
-            <div class="row">
-                <div class="col-3">
-                    <strong>{{ 'i18n_assessed_exams' | translate }}:</strong>
-                </div>
-                <div class="col-9">{{ data().assessed }}</div>
-            </div>
-            <div class="row">
-                <div class="col-3">
-                    <strong>{{ 'i18n_unassessed_exams' | translate }}:</strong>
-                </div>
-                <div class="col-9">{{ data().unassessed }}</div>
-            </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <strong>{{ 'i18n_aborted_exams' | translate }}:</strong>
-                </div>
-                <div class="col-9">{{ data().aborted }}</div>
-            </div>
+            <dl class="xm-details">
+                <dt class="fw-bold">{{ 'i18n_assessed_exams' | translate }}:</dt>
+                <dd>{{ data().assessed }}</dd>
+                <dt class="fw-bold">{{ 'i18n_unassessed_exams' | translate }}:</dt>
+                <dd>{{ data().unassessed }}</dd>
+                <dt class="fw-bold">{{ 'i18n_aborted_exams' | translate }}:</dt>
+                <dd>{{ data().aborted }}</dd>
+            </dl>
         }
     `,
     selector: 'xm-response-statistics',

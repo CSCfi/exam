@@ -8,6 +8,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="input-group">
         <input
             ngbDatepicker
+            [attr.id]="inputId() ?? null"
             class="form-control"
             [disabled]="disabled()"
             [required]="!optional()"

@@ -12,18 +12,12 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 @Component({
     template: `
         @if (queryParams()) {
-            <div class="row">
-                <div class="col-3">
-                    <strong>{{ 'i18n_total_reservations' | translate }}:</strong>
-                </div>
-                <div class="col-9">{{ data().appearances }}</div>
-            </div>
-            <div class="row">
-                <div class="col-3">
-                    <strong>{{ 'i18n_total_no_shows' | translate }}:</strong>
-                </div>
-                <div class="col-9">{{ data().noShows }}</div>
-            </div>
+            <dl class="xm-details">
+                <dt class="fw-bold">{{ 'i18n_total_reservations' | translate }}:</dt>
+                <dd>{{ data().appearances }}</dd>
+                <dt class="fw-bold">{{ 'i18n_total_no_shows' | translate }}:</dt>
+                <dd>{{ data().noShows }}</dd>
+            </dl>
         }
     `,
     selector: 'xm-reservation-statistics',

@@ -17,11 +17,11 @@ import { Option } from './select.model';
             type="button"
             [ariaHasPopup]="true"
             [ariaExpanded]="d.isOpen()"
-            [id]="menuTriggerId"
+            [id]="buttonId()"
         >
             {{ selected()?.label || placeholder() | translate }}
         </button>
-        <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" [attr.aria-labelledby]="menuTriggerId">
+        <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" [attr.aria-labelledby]="buttonId()">
             @if (!noSearch()) {
                 <div class="input-group p-1">
                     <input
@@ -75,7 +75,9 @@ export class DropdownSelectComponent<V, I> {
     /** Emits when the dropdown opens or closes (payload is open: boolean). Use to load data on open. */
     readonly dropdownOpenChange = output<boolean>();
 
-    readonly menuTriggerId = `xm-dropdown-select-${++DropdownSelectComponent.instanceCount}`;
+    /** id of the toggle button, for <label for="…">; generated when not given */
+    readonly triggerId = input<string | undefined>(undefined);
+    readonly buttonId = computed(() => this.triggerId() ?? this.generatedId);
     readonly searchFilter = signal('');
     readonly selected = linkedSignal<Option<V, I> | undefined>(() => this.initial());
 
@@ -94,6 +96,8 @@ export class DropdownSelectComponent<V, I> {
             return filtered.slice(0, limitToValue);
         }
     });
+
+    private readonly generatedId = `xm-dropdown-select-${++DropdownSelectComponent.instanceCount}`;
 
     onSearchFilterInput = (event: Event) => this.setSearchFilter((event.target as HTMLInputElement).value);
 

@@ -13,10 +13,10 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 @Component({
     template: `
         @if (queryParams()) {
-            <div class="row">
-                <div class="col-12 table-responsive">
-                    <table class="table table-sm table-bordered table-striped">
-                        <thead>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-striped">
+                    <thead>
+                        <tr>
                             <th>
                                 <strong>{{ 'i18n_year' | translate }}</strong>
                             </th>
@@ -29,40 +29,40 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                             <th>
                                 <strong>{{ 'i18n_total' | translate }}</strong>
                             </th>
-                        </thead>
-                        <tbody>
-                            @for (month of months(); track month.toISOString()) {
-                                <tr>
-                                    <td>
-                                        <strong>{{ month | date: 'yyyy' }}</strong>
-                                    </td>
-                                    <td>
-                                        <strong>{{ month | date: 'M' }}</strong>
-                                    </td>
-                                    @for (room of rooms(); track room) {
-                                        <td>{{ totalParticipations(month, room) }}</td>
-                                    }
-                                    <td>
-                                        <strong>{{ totalParticipations(month) }}</strong>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (month of months(); track month.toISOString()) {
                             <tr>
-                                <td colspan="2">
-                                    <strong>{{ 'i18n_total' | translate }}</strong>
+                                <td>
+                                    <strong>{{ month | date: 'yyyy' }}</strong>
+                                </td>
+                                <td>
+                                    <strong>{{ month | date: 'M' }}</strong>
                                 </td>
                                 @for (room of rooms(); track room) {
-                                    <td>{{ totalParticipations(undefined, room) }}</td>
+                                    <td>{{ totalParticipations(month, room) }}</td>
                                 }
                                 <td>
-                                    <b>{{ totalParticipations() }}</b>
+                                    <strong>{{ totalParticipations(month) }}</strong>
                                 </td>
                             </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2">
+                                <strong>{{ 'i18n_total' | translate }}</strong>
+                            </td>
+                            @for (room of rooms(); track room) {
+                                <td>{{ totalParticipations(undefined, room) }}</td>
+                            }
+                            <td>
+                                <b>{{ totalParticipations() }}</b>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
         }
     `,

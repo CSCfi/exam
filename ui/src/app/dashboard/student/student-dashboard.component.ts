@@ -18,25 +18,21 @@ import { StudentDashboardService } from './student-dashboard.service';
     template: `<xm-page-header text="i18n_user_enrolled_exams_title" />
         <xm-page-content [content]="content"></xm-page-content>
         <ng-template #content>
-            @for (enrolment of sortedEnrolments(); track enrolment.id) {
-                <div class="row mb-2">
-                    <div class="col-12">
-                        <xm-active-enrolment
-                            [enrolment]="enrolment"
-                            (removed)="enrolmentRemoved($event)"
-                            (reservationRemoved)="reservationRemoved($event)"
-                            (eventConfigSelected)="eventConfigSelected(enrolment.id, $event)"
-                        ></xm-active-enrolment>
-                    </div>
-                </div>
-            } @empty {
-                <div class="row">
-                    <div class="col-12" role="note">
-                        <img src="/assets/images/icon_info.png" alt="" />&nbsp;
+            <div class="xm-stack xm-gap-2">
+                @for (enrolment of sortedEnrolments(); track enrolment.id) {
+                    <xm-active-enrolment
+                        [enrolment]="enrolment"
+                        (removed)="enrolmentRemoved($event)"
+                        (reservationRemoved)="reservationRemoved($event)"
+                        (eventConfigSelected)="eventConfigSelected(enrolment.id, $event)"
+                    ></xm-active-enrolment>
+                } @empty {
+                    <p class="xm-cluster" role="note">
+                        <img src="/assets/images/icon_info.png" alt="" />
                         {{ 'i18n_no_enrolments' | translate }}
-                    </div>
-                </div>
-            }
+                    </p>
+                }
+            </div>
         </ng-template>`,
 })
 export class StudentDashboardComponent {

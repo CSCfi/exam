@@ -18,9 +18,13 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         </div>
         <div class="modal-body mx-4">
             <label for="archive-download-start">{{ 'i18n_begin' | translate }}:</label>
-            <xm-date-picker id="archive-download-start" (updated)="startDateChanged($event)" autofocus></xm-date-picker>
+            <xm-date-picker
+                inputId="archive-download-start"
+                (updated)="startDateChanged($event)"
+                autofocus
+            ></xm-date-picker>
             <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
-            <xm-date-picker id="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
+            <xm-date-picker inputId="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn btn-success" (click)="ok()">

@@ -34,12 +34,16 @@ $border-green: 3px solid shared.$exam-dark-green;
 
     .hidden-mobile {
         display: block;
-        @include mobile { display: none; }
+        @include mobile {
+            display: none;
+        }
     }
 
     .visible-mobile {
         display: none;
-        @include mobile { display: block; }
+        @include mobile {
+            display: block;
+        }
     }
 
     .nav-container {
@@ -53,7 +57,9 @@ $border-green: 3px solid shared.$exam-dark-green;
         }
     }
 
-    i { vertical-align: middle; }
+    i {
+        vertical-align: middle;
+    }
 
     .logo img {
         margin: 1.07em 3.57em 0 2.5em;
@@ -105,12 +111,16 @@ $border-green: 3px solid shared.$exam-dark-green;
     li {
         list-style: none;
         margin-bottom: 2.5em;
-        @include mobile { margin-bottom: 0; }
+        @include mobile {
+            margin-bottom: 0;
+        }
     }
 
     ul {
         padding: 0;
-        @include mobile { margin: 0; }
+        @include mobile {
+            margin: 0;
+        }
     }
 
     .nav-header {
@@ -127,7 +137,9 @@ $border-green: 3px solid shared.$exam-dark-green;
             background: none;
             border: none;
 
-            img { padding-top: 30px; }
+            img {
+                padding-top: 30px;
+            }
         }
     }
 
@@ -137,7 +149,9 @@ $border-green: 3px solid shared.$exam-dark-green;
         overscroll-behavior: contain;
         background-color: $nav-bg;
         padding-top: 4px;
-        @include mobile { display: none; }
+        @include mobile {
+            display: none;
+        }
     }
 
     .nav-body-mobile {
@@ -154,12 +168,18 @@ $border-green: 3px solid shared.$exam-dark-green;
 
     .nav-footer {
         background-color: shared.$exam-medium-green;
-        &.button { height: 25px; }
-        @include mobile { display: none; }
+        &.button {
+            height: 25px;
+        }
+        @include mobile {
+            display: none;
+        }
     }
 
     .nav-user {
-        @include mobile { display: none; }
+        @include mobile {
+            display: none;
+        }
     }
 
     .menu-item {
@@ -190,7 +210,9 @@ $border-green: 3px solid shared.$exam-dark-green;
         text-align: left;
     }
 
-    .user { color: white; }
+    .user {
+        color: white;
+    }
 
     .user-name {
         background-color: $nav-bg;
@@ -233,7 +255,9 @@ $border-green: 3px solid shared.$exam-dark-green;
     }
 
     @media print {
-        .nav-container { display: none !important; }
+        .nav-container {
+            display: none !important;
+        }
     }
 
     .user-logo {
@@ -266,7 +290,9 @@ $border-green: 3px solid shared.$exam-dark-green;
             font-weight: 400;
             color: inherit;
             padding-left: 1em;
-            @include mobile { margin: 0; }
+            @include mobile {
+                margin: 0;
+            }
 
             &.selected {
                 font-weight: 700;
@@ -278,7 +304,9 @@ $border-green: 3px solid shared.$exam-dark-green;
             }
         }
 
-        li { margin-bottom: 15px; }
+        li {
+            margin-bottom: 15px;
+        }
 
         div {
             padding-left: 28px;
@@ -298,7 +326,9 @@ $border-green: 3px solid shared.$exam-dark-green;
             opacity: 1;
         }
 
-        @include mobile { margin-top: 10px; }
+        @include mobile {
+            margin-top: 10px;
+        }
     }
 }
 

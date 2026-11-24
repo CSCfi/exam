@@ -18,6 +18,12 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
 @Component({
     selector: 'xm-teacher-dashboard',
     templateUrl: './teacher-dashboard.component.html',
+    styles: `
+        /* New exam / new question, at the end of the page header */
+        .dashboard-actions {
+            justify-content: flex-end;
+        }
+    `,
     imports: [
         RouterLink,
         NgbNavModule,
