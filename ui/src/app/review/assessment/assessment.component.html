@@ -9,9 +9,11 @@ SPDX-License-Identifier: EUPL-1.2
     <xm-page-content [content]="content" />
 }
 <ng-template #printButton>
-    <button (click)="print()" class="btn btn-success float-end">
-        {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
-    </button>
+    <div class="header-actions">
+        <button (click)="print()" class="btn btn-success">
+            {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
+        </button>
+    </div>
 </ng-template>
 <ng-template #content>
     <h3>
@@ -29,14 +31,12 @@ SPDX-License-Identifier: EUPL-1.2
         </button>
     </h3>
     <!-- General Information -->
-    <div class="row" [ngbCollapse]="hideGeneralInfo()">
-        <div class="col-12">
-            <xm-r-general-info
-                [participation]="participation()!"
-                [exam]="exam()!"
-                [collaborative]="collaborative"
-            ></xm-r-general-info>
-        </div>
+    <div [ngbCollapse]="hideGeneralInfo()">
+        <xm-r-general-info
+            [participation]="participation()!"
+            [exam]="exam()!"
+            [collaborative]="collaborative"
+        ></xm-r-general-info>
     </div>
 
     <!-- Sections -->
@@ -56,41 +56,37 @@ SPDX-License-Identifier: EUPL-1.2
     }
 
     <!-- Grading -->
-    <h4 class="row mt-2">
-        <div class="col-12">
-            {{ 'i18n_grading_info' | translate }}
-            <button class="btn btn-link" (click)="hideGradeInfo.set(!hideGradeInfo())">
-                @if (hideGradeInfo()) {
-                    <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                }
-                <img [hidden]="hideGradeInfo()" src="/assets/images/icon_list_show_down.svg" alt="" />
-            </button>
-        </div>
+    <h4 class="grading-heading">
+        {{ 'i18n_grading_info' | translate }}
+        <button class="btn btn-link" (click)="hideGradeInfo.set(!hideGradeInfo())">
+            @if (hideGradeInfo()) {
+                <img src="/assets/images/icon_list_show_right.svg" alt="" />
+            }
+            <img [hidden]="hideGradeInfo()" src="/assets/images/icon_list_show_down.svg" alt="" />
+        </button>
     </h4>
 
-    <div class="row" [ngbCollapse]="hideGradeInfo()">
-        <div class="col-12">
-            @if (exam() && !exam()!.subjectToLanguageInspection) {
-                <xm-r-grading
-                    [exam]="exam()!"
-                    [questionSummary]="questionSummary()"
-                    [participation]="participation()!"
-                    [collaborative]="collaborative"
-                    [user]="user"
-                    (updated)="gradingUpdated()"
-                >
-                </xm-r-grading>
-            }
-            @if (exam() && exam()!.executionType.type === 'MATURITY' && exam()!.subjectToLanguageInspection) {
-                <xm-r-maturity-grading
-                    (updated)="gradingUpdated()"
-                    [user]="user"
-                    [exam]="exam()!"
-                    [questionSummary]="questionSummary()"
-                >
-                </xm-r-maturity-grading>
-            }
-        </div>
+    <div class="grading-area" [ngbCollapse]="hideGradeInfo()">
+        @if (exam() && !exam()!.subjectToLanguageInspection) {
+            <xm-r-grading
+                [exam]="exam()!"
+                [questionSummary]="questionSummary()"
+                [participation]="participation()!"
+                [collaborative]="collaborative"
+                [user]="user"
+                (updated)="gradingUpdated()"
+            >
+            </xm-r-grading>
+        }
+        @if (exam() && exam()!.executionType.type === 'MATURITY' && exam()!.subjectToLanguageInspection) {
+            <xm-r-maturity-grading
+                (updated)="gradingUpdated()"
+                [user]="user"
+                [exam]="exam()!"
+                [questionSummary]="questionSummary()"
+            >
+            </xm-r-maturity-grading>
+        }
     </div>
 
     <!-- Floating feedback window -->

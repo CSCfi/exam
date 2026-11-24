@@ -12,39 +12,59 @@ import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-question-flow-category',
-    template: `<div class="row me-2 mb-2 mt-2">
-            <span class="col-10">
+    template: `<div class="xm-split flow-category-header">
+            <span>
                 <strong>{{ categoryTitle() | translate | uppercase }}</strong
                 >&nbsp;
                 <span class="badge bg-danger">{{ reviews().length }}</span>
             </span>
-            <div class="col-2" [hidden]="reviews().length === 0">
-                <a (click)="toggleHideCategory()" class="pointer-hand float-end">
-                    @if (hideCategory()) {
-                        <img src="/assets/images/icon_list_show_right.svg" />
-                    } @else {
-                        <img src="/assets/images/icon_list_show_down.svg" />
-                    }
-                </a>
-            </div>
+            <button
+                type="button"
+                class="btn btn-link p-0"
+                [hidden]="reviews().length === 0"
+                (click)="toggleHideCategory()"
+                [ariaExpanded]="!hideCategory()"
+                [ariaLabel]="categoryTitle() | translate"
+            >
+                @if (hideCategory()) {
+                    <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                } @else {
+                    <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                }
+            </button>
         </div>
         <div class="question-flow-category-questions">
             @for (r of reviews(); track r) {
-                <div [ngbCollapse]="hideCategory()" class="row">
-                    <div class="col-md-1">
-                        <input type="radio" [checked]="r.selected" (change)="selectQuestion(r)" />
-                    </div>
-                    <div class="col-md-9">
-                        <div [innerHtml]="r.question.question | slice: 0 : 50"></div>
-                    </div>
-                    <div class="col-md-2">
-                        <div [class.text-success]="isFinalized(r)" [class.text-danger]="!isFinalized(r)">
-                            {{ r.answers.length - getAssessedAnswerCount(r) }} / {{ r.answers.length }}
-                        </div>
+                <div [ngbCollapse]="hideCategory()" class="flow-question">
+                    <input
+                        type="radio"
+                        [checked]="r.selected"
+                        (change)="selectQuestion(r)"
+                        [attr.aria-labelledby]="'flow-question-' + r.question.id"
+                    />
+                    <div
+                        [id]="'flow-question-' + r.question.id"
+                        [innerHtml]="r.question.question | slice: 0 : 50"
+                    ></div>
+                    <div [class.text-success]="isFinalized(r)" [class.text-danger]="!isFinalized(r)">
+                        {{ r.answers.length - getAssessedAnswerCount(r) }} / {{ r.answers.length }}
                     </div>
                 </div>
             }
         </div>`,
+    styles: `
+        .flow-category-header {
+            margin-block: var(--xm-space-2);
+            padding-inline-end: 1.25rem;
+        }
+        // Radio, question and the count of answers left, side by side also on phones
+        .flow-question {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            column-gap: var(--xm-space-3);
+            align-items: baseline;
+        }
+    `,
     imports: [UpperCasePipe, SlicePipe, TranslateModule, NgbCollapse],
 })
 export class QuestionFlowCategoryComponent {

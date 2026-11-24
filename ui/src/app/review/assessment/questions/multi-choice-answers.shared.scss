@@ -45,3 +45,21 @@
     color: #2c2c2c;
     font-size: 0.875rem;
 }
+
+// An answer option: its icon, text and points on one line
+.answer-item {
+    padding-inline-start: var(--xm-space-2);
+    margin-bottom: var(--xm-space-2);
+}
+.answer-option {
+    display: flex;
+    align-items: center;
+    gap: var(--xm-space-2);
+
+    > img {
+        flex-shrink: 0;
+    }
+    > .exam-question-option-text {
+        flex-grow: 1;
+    }
+}

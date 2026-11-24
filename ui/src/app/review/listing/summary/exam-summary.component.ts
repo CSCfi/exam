@@ -24,6 +24,46 @@ import { ExamSummaryService } from './exam-summary.service';
 @Component({
     selector: 'xm-exam-summary',
     templateUrl: './exam-summary.component.html',
+    styles: `
+        @use '../../../shared/breakpoints' as bp;
+
+        // Inset from the page content as under the former grid (margin + column padding)
+        .exam-summary {
+            padding: var(--xm-space-3) 1.25rem 0;
+        }
+
+        // Figures of the exam: the label beside its value from md up, above it on phones
+        .summary-facts {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            column-gap: var(--xm-space-4);
+
+            > dt {
+                font-weight: inherit;
+            }
+            > dd {
+                margin: 0 0 var(--xm-space-3);
+            }
+            > dd:last-child {
+                margin-bottom: 0;
+            }
+
+            @include bp.up(md) {
+                grid-template-columns: calc(25% - var(--xm-space-4)) minmax(0, 1fr);
+                row-gap: var(--xm-space-3);
+
+                > dd {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        .summary-chart-half {
+            @include bp.up(md) {
+                width: 50%;
+            }
+        }
+    `,
     imports: [NgbPopover, DecimalPipe, DatePipe, KeyValuePipe, TranslateModule],
 })
 export class ExamSummaryComponent {

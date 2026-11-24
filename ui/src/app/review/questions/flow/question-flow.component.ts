@@ -11,11 +11,7 @@ import { QuestionFlowCategoryComponent } from './question-flow-category.componen
 
 @Component({
     selector: 'xm-question-flow',
-    template: `<div class="row mt-3">
-            <div class="col-md-12 mb-3">
-                <div class="question-flow-title">{{ 'i18n_question_flow' | translate }}</div>
-            </div>
-        </div>
+    template: `<div class="question-flow-title">{{ 'i18n_question_flow' | translate }}</div>
         @if (unfinished().length > 0) {
             <xm-question-flow-category
                 categoryTitle="i18n_in_progress"

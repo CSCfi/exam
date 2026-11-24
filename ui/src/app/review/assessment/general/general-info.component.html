@@ -5,131 +5,130 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 @let s = student();
-<div class="row">
-    <div class="col-md-2">{{ 'i18n_name' | translate }}:</div>
-    <div class="col-md-4">
-        {{ studentName() }}
-        @if (s?.userIdentifier) {
-            <span>&nbsp;({{ s?.userIdentifier }})</span>
-        }
-    </div>
-    <div class="col-md-2">{{ 'i18n_email' | translate }}:</div>
-    <div class="col-md-4 xm-link">
-        @if (s?.email) {
-            <a href="mailto:{{ s?.email }}">{{ s?.email }}</a>
-        }
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-2">{{ 'i18n_exam_reservation' | translate }}:</div>
-    @if (!participation().examinationEvent) {
-        <div class="col-md-4">
-            {{ participation().started | date: 'dd.MM.yyyy HH:mm' }} -
-            {{ participation().ended | date: 'HH:mm' }}
+<div class="info">
+    <div class="info-row">
+        <div>{{ 'i18n_name' | translate }}:</div>
+        <div>
+            {{ studentName() }}
+            @if (s?.userIdentifier) {
+                <span>&nbsp;({{ s?.userIdentifier }})</span>
+            }
         </div>
-    }
-    @if (participation().examinationEvent) {
-        <div class="col-md-4">
-            {{ participation().started | date: 'dd.MM.yyyy HH:mm' }} - {{ participation().ended | date: 'HH:mm' }}
+        <div>{{ 'i18n_email' | translate }}:</div>
+        <div class="xm-link">
+            @if (s?.email) {
+                <a href="mailto:{{ s?.email }}">{{ s?.email }}</a>
+            }
         </div>
-    }
-    <div class="col-md-2">{{ 'i18n_time_of_exam_participation' | translate }}:</div>
-    <div class="col-md-4">{{ duration() }}</div>
-</div>
-@let enrolmentVal = enrolment();
-@let reservationVal = reservation();
-@if (enrolmentVal?.information) {
-    <div class="row">
-        <div class="col-md-2">{{ 'i18n_student_enrolment_info' | translate }}:</div>
-        <div class="col-md-10">{{ enrolmentVal?.information }}</div>
     </div>
-}
-@if (reservationVal) {
-    <div class="row">
-        <div class="col-md-2">{{ 'i18n_examination_location' | translate }}:</div>
-        @if (reservationVal.machine?.room) {
-            <div class="col-md-4">
-                {{ reservationVal.machine.room.name }} ({{ reservationVal.machine.room.roomCode }})
+    <div class="info-row">
+        <div>{{ 'i18n_exam_reservation' | translate }}:</div>
+        @if (!participation().examinationEvent) {
+            <div>
+                {{ participation().started | date: 'dd.MM.yyyy HH:mm' }} -
+                {{ participation().ended | date: 'HH:mm' }}
             </div>
         }
-        @if (!reservationVal?.machine?.room) {
-            <div class="col-md-4">N/A</div>
-        }
-        <div class="col-md-2">{{ 'i18n_exam_machine' | translate }}:</div>
-        @if (reservationVal?.machine) {
-            <div class="col-md-4">
-                {{ reservationVal.machine.name }}
+        @if (participation().examinationEvent) {
+            <div>
+                {{ participation().started | date: 'dd.MM.yyyy HH:mm' }} - {{ participation().ended | date: 'HH:mm' }}
             </div>
         }
-        @if (!reservationVal?.machine) {
-            <div class="col-md-4">N/A</div>
-        }
+        <div>{{ 'i18n_time_of_exam_participation' | translate }}:</div>
+        <div>{{ duration() }}</div>
     </div>
-}
-@if (enrolmentVal?.examinationEventConfiguration) {
-    <div class="row">
-        <div class="col-md-2">{{ 'i18n_examination_event' | translate }}:</div>
-        <div class="col-md-4">
-            {{ $safeNavigationMigration(enrolmentVal?.examinationEventConfiguration?.examinationEvent?.start) | date }}
+    @let enrolmentVal = enrolment();
+    @let reservationVal = reservation();
+    @if (enrolmentVal?.information) {
+        <div class="info-row">
+            <div>{{ 'i18n_student_enrolment_info' | translate }}:</div>
+            <div class="info-wide">{{ enrolmentVal?.information }}</div>
         </div>
-        <div class="col-md-2">{{ 'i18n_instructions' | translate }}:</div>
-        <div class="col-md-4">
-            {{ enrolmentVal?.examinationEventConfiguration?.examinationEvent?.description }}
+    }
+    @if (reservationVal) {
+        <div class="info-row">
+            <div>{{ 'i18n_examination_location' | translate }}:</div>
+            @if (reservationVal.machine?.room) {
+                <div>{{ reservationVal.machine.room.name }} ({{ reservationVal.machine.room.roomCode }})</div>
+            }
+            @if (!reservationVal?.machine?.room) {
+                <div>N/A</div>
+            }
+            <div>{{ 'i18n_exam_machine' | translate }}:</div>
+            @if (reservationVal?.machine) {
+                <div>
+                    {{ reservationVal.machine.name }}
+                </div>
+            }
+            @if (!reservationVal?.machine) {
+                <div>N/A</div>
+            }
         </div>
-    </div>
-}
-@if (participations().length === 0 && noShows().length === 0) {
-    <div class="row mt-2">
-        <div class="col-md-2">{{ 'i18n_previous_exam_participations' | translate }}:</div>
-        <div class="col-md-10">
-            {{ 'i18n_exam_no_previous_participations' | translate }}
+    }
+    @if (enrolmentVal?.examinationEventConfiguration) {
+        <div class="info-row">
+            <div>{{ 'i18n_examination_event' | translate }}:</div>
+            <div>
+                {{
+                    $safeNavigationMigration(enrolmentVal?.examinationEventConfiguration?.examinationEvent?.start)
+                        | date
+                }}
+            </div>
+            <div>{{ 'i18n_instructions' | translate }}:</div>
+            <div>
+                {{ enrolmentVal?.examinationEventConfiguration?.examinationEvent?.description }}
+            </div>
         </div>
-    </div>
-}
-@if (participations().length > 0 || noShows().length > 0) {
-    <div class="row mt-2">
-        <div class="col-md-12">{{ 'i18n_previous_exam_participations' | translate }}:</div>
-    </div>
-}
-@for (participation of participations(); track participation) {
-    <div [hidden]="participations().length === 0">
+    }
+    @if (participations().length === 0 && noShows().length === 0) {
+        <div class="info-row info-row-spaced">
+            <div>{{ 'i18n_previous_exam_participations' | translate }}:</div>
+            <div class="info-wide">
+                {{ 'i18n_exam_no_previous_participations' | translate }}
+            </div>
+        </div>
+    }
+    @if (participations().length > 0 || noShows().length > 0) {
+        <div class="info-row info-row-spaced">
+            <div class="info-full">{{ 'i18n_previous_exam_participations' | translate }}:</div>
+        </div>
+    }
+    @for (participation of participations(); track participation) {
         <xm-r-participation
-            class="row"
+            class="info-row"
             [participation]="participation"
             [collaborative]="collaborative()"
             [gradeScale]="gradeScale()"
         ></xm-r-participation>
-    </div>
-}
-@for (noShow of noShows(); track noShow) {
-    <div [hidden]="noShows().length === 0">
-        <xm-r-no-show class="row" [enrolment]="noShow" [collaborative]="collaborative()"></xm-r-no-show>
-    </div>
-}
+    }
+    @for (noShow of noShows(); track noShow) {
+        <xm-r-no-show class="info-row" [enrolment]="noShow" [collaborative]="collaborative()"></xm-r-no-show>
+    }
 
-@if (exam().instruction) {
-    <div class="row mt-3">
-        <div class="col-md-2" role="note">
-            <img src="/assets/images/icon_info.svg" alt="" />
-            <span class="ps-2 notice-text">{{ 'i18n_exam_instruction' | translate }}:</span>
+    @if (exam().instruction) {
+        <div class="info-row info-row-spaced-more">
+            <div role="note">
+                <img src="/assets/images/icon_info.svg" alt="" />
+                <span class="ps-2 notice-text">{{ 'i18n_exam_instruction' | translate }}:</span>
+            </div>
+            <div class="info-wide">
+                <p [xmRichText]="exam().instruction"></p>
+            </div>
         </div>
-        <div class="col-md-10">
-            <p [xmRichText]="exam().instruction"></p>
+    }
+    @if (exam().attachment) {
+        <div class="info-row info-row-spaced-more">
+            <div>{{ 'i18n_exam_attachment' | translate }}:</div>
+            <div class="info-wide xm-link">
+                <button
+                    type="button"
+                    class="btn btn-link"
+                    (click)="downloadExamAttachment()"
+                    [ariaLabel]="'i18n_download_attachment' | translate"
+                >
+                    {{ exam()?.attachment?.fileName }}
+                </button>
+            </div>
         </div>
-    </div>
-}
-@if (exam().attachment) {
-    <div class="row mt-3">
-        <div class="col-md-2">{{ 'i18n_exam_attachment' | translate }}:</div>
-        <div class="col-md-10 xm-link">
-            <button
-                type="button"
-                class="btn btn-link"
-                (click)="downloadExamAttachment()"
-                [ariaLabel]="'i18n_download_attachment' | translate"
-            >
-                {{ exam()?.attachment?.fileName }}
-            </button>
-        </div>
-    </div>
-}
+    }
+</div>

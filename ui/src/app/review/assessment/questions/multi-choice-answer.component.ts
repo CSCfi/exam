@@ -10,35 +10,32 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-r-multi-choice-answer',
     template: `@for (option of sectionQuestion().options | orderBy: 'id'; track option) {
-        <div class="ps-2 mb-2" [hidden]="!reviewExpanded()">
+        <div class="answer-item" [hidden]="!reviewExpanded()">
             @if (option.answered) {
                 @if (option.option.correctOption) {
-                    <div class="exam-answered-correct d-flex align-items-center gap-2">
+                    <div class="exam-answered-correct answer-option">
                         <img
-                            class="flex-shrink-0"
                             src="/assets/images/icon_correct_answer_radio.svg"
                             [ariaLabel]="'i18n_correct_answer' | translate"
                             alt=""
                         />
-                        <span class="exam-question-option-text flex-grow-1 text-break">{{ option.option.option }}</span>
+                        <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
                     </div>
                 }
                 @if (!option.option.correctOption) {
-                    <div class="exam-answered-wrong d-flex align-items-center gap-2">
+                    <div class="exam-answered-wrong answer-option">
                         <img
-                            class="flex-shrink-0"
                             src="/assets/images/icon_wrong_answer_radio.svg"
                             [ariaLabel]="'i18n_incorrect_answer' | translate"
                             alt=""
                         />
-                        <span class="exam-question-option-text flex-grow-1 text-break">{{ option.option.option }}</span>
+                        <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
                     </div>
                 }
             } @else {
-                <div class="exam-not-answered d-flex align-items-center gap-2">
+                <div class="exam-not-answered answer-option">
                     @if (option.option.correctOption) {
                         <img
-                            class="flex-shrink-0"
                             src="/assets/images/icon_correct_answer_radio.svg"
                             [ariaLabel]="'i18n_correct_answer' | translate"
                             alt=""
@@ -46,13 +43,12 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                     }
                     @if (!option.option.correctOption) {
                         <img
-                            class="flex-shrink-0"
                             src="/assets/images/icon_wrong_answer.png"
                             [ariaLabel]="'i18n_incorrect_answer' | translate"
                             alt=""
                         />
                     }
-                    <span class="exam-question-option-text flex-grow-1 text-break">{{ option.option.option }}</span>
+                    <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
                 </div>
             }
         </div>

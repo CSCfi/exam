@@ -17,27 +17,36 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
         <div class="modal-header">
             <div class="xm-modal-title">{{ 'i18n_give_feedback' | translate }}</div>
         </div>
-        <div class="modal-body ms-2">
-            <div class="row">
-                @if (exam()) {
-                    <div class="col-md-12 ps-0">
-                        <xm-ckeditor
-                            [data]="exam()?.examFeedback?.comment ?? ''"
-                            (dataChange)="commentChanged($event)"
-                            autofocus
-                        ></xm-ckeditor>
-                    </div>
-                }
-            </div>
+        <div class="modal-body feedback-body">
+            @if (exam()) {
+                <xm-ckeditor
+                    [data]="exam()?.examFeedback?.comment ?? ''"
+                    (dataChange)="commentChanged($event)"
+                    autofocus
+                ></xm-ckeditor>
+            }
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn btn-success" (click)="ok()">
-                {{ 'i18n_save' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+        <div class="dialog-actions">
+            <button class="btn btn-outline-secondary" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
+            <button class="btn btn-success" (click)="ok()">
+                {{ 'i18n_save' | translate }}
+            </button>
         </div>
+    `,
+    styles: `
+        // The editor starts a quarter rem left of the dialog body padding, as under the former grid
+        .feedback-body {
+            padding-inline-start: 0.75rem;
+        }
+        .dialog-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: var(--xm-space-3);
+            margin: var(--xm-space-3);
+        }
     `,
 })
 export class SpeedReviewFeedbackComponent {

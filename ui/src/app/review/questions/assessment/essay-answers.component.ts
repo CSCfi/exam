@@ -11,31 +11,38 @@ import { EssayAnswerComponent } from './essay-answer.component';
 @Component({
     selector: 'xm-essay-answers',
     template: `
-        <div class="row mt-3">
+        <div class="xm-stack essay-answers">
             @for (answer of answers(); track answer) {
-                <div class="col-md-12 mb-3">
-                    <xm-essay-answer
-                        [answer]="answer"
-                        [editable]="editable()"
-                        [action]="actionText()"
-                        (selected)="assessEssay(answer)"
-                    ></xm-essay-answer>
-                </div>
+                <xm-essay-answer
+                    [answer]="answer"
+                    [editable]="editable()"
+                    [action]="actionText()"
+                    (selected)="assessEssay(answer)"
+                ></xm-essay-answer>
             } @empty {
-                <div class="col-md-12">
-                    <div class="mt-4 p-5 bg-primary text-white rounded">
-                        <p class="lead">{{ 'i18n_no_answers_to_assess' | translate }}</p>
-                    </div>
+                <div class="no-answers p-5 bg-primary text-white rounded">
+                    <p class="lead">{{ 'i18n_no_answers_to_assess' | translate }}</p>
                 </div>
             }
             @if (answers().length > 0) {
-                <div class="col-md-12 mt-2 mb-3">
+                <div class="assess-selected">
                     <button class="btn btn-success" (click)="assessSelected()">
                         {{ actionText() | translate }} ({{ countSelected() }})
                     </button>
                 </div>
             }
         </div>
+    `,
+    styles: `
+        .essay-answers {
+            margin-block: var(--xm-space-3);
+        }
+        .no-answers {
+            margin-top: var(--xm-space-4);
+        }
+        .assess-selected {
+            margin-top: var(--xm-space-2);
+        }
     `,
     imports: [EssayAnswerComponent, TranslateModule],
 })

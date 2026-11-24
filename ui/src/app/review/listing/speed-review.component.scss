@@ -24,3 +24,26 @@
     font-weight: bold;
     color: shared.$exam-blue;
 }
+
+// The table's bottom margin stays inside its scroll box, so the space under it is set here
+.speed-review-results {
+    margin: var(--xm-space-2) 0 var(--xm-space-3);
+
+    > .table {
+        margin-bottom: 0;
+    }
+}
+
+// Grade import links on the left, return and save on the right
+.speed-review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    column-gap: var(--xm-space-3);
+}
+.speed-review-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--xm-space-3);
+    padding: var(--xm-space-2);
+}

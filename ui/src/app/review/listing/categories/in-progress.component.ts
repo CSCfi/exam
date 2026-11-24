@@ -24,6 +24,7 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-in-progress',
     templateUrl: './in-progress.component.html',
+    styleUrl: '../review-list.component.scss',
     imports: [
         NgbPopover,
         RouterLink,

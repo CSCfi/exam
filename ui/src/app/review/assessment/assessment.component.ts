@@ -32,6 +32,20 @@ import { ExamSectionComponent } from './sections/section.component';
 @Component({
     selector: 'xm-assessment',
     templateUrl: './assessment.component.html',
+    styles: `
+        .header-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .grading-heading {
+            margin-top: var(--xm-space-2);
+        }
+        // The margins inside stay inside, as they did in the former grid column (the collapse
+        // rule hiding the area is more specific)
+        .grading-area {
+            display: flow-root;
+        }
+    `,
     imports: [
         CourseCodeComponent,
         NgbCollapse,

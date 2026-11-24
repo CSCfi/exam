@@ -5,102 +5,98 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <div class="xm-study-item-container review-view">
-    <div class="row">
-        <div class="col-md-12">
-            <!-- question text -->
-            <div class="d-flex justify-content-between align-items-start">
-                <div [xmRichText]="sectionQuestion().question.question"></div>
-                <!-- points + toggle grouped on the right -->
-                <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-3">
-                    <span class="text-nowrap text-muted small">
-                        <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
-                        {{ sectionQuestion().clozeTestAnswer?.score?.correctAnswers }} /
-                        {{
-                            (sectionQuestion().clozeTestAnswer?.score?.correctAnswers || 0) +
-                                (sectionQuestion().clozeTestAnswer?.score?.incorrectAnswers || 0)
-                        }}
-                        &nbsp;<strong>{{ 'i18n_word_points' | translate }}:</strong>
-                        <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
-                            {{ displayAchievedScore() }}
-                        </span>
-                        @if (hasForcedScore()) {
-                            <span class="text-danger">{{ sectionQuestion().forcedScore }}</span>
-                        }
-                        / {{ sectionQuestion().maxScore }}
+    <div>
+        <!-- question text -->
+        <div class="xm-split question-header">
+            <div [xmRichText]="sectionQuestion().question.question"></div>
+            <!-- points + toggle grouped on the right -->
+            <div class="question-score">
+                <span class="text-nowrap text-muted small">
+                    <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
+                    {{ sectionQuestion().clozeTestAnswer?.score?.correctAnswers }} /
+                    {{
+                        (sectionQuestion().clozeTestAnswer?.score?.correctAnswers || 0) +
+                            (sectionQuestion().clozeTestAnswer?.score?.incorrectAnswers || 0)
+                    }}
+                    &nbsp;<strong>{{ 'i18n_word_points' | translate }}:</strong>
+                    <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
+                        {{ displayAchievedScore() }}
                     </span>
-                    <button class="btn btn-link p-0" (click)="toggleReviewExpanded()" [ariaExpanded]="reviewExpanded()">
-                        @if (!reviewExpanded()) {
-                            <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                        }
-                        @if (reviewExpanded()) {
-                            <img src="/assets/images/icon_list_show_down.svg" alt="" />
-                        }
-                    </button>
-                </div>
-            </div>
-
-            <!-- question attachment -->
-            @if (reviewExpanded() && sectionQuestion().question.attachment) {
-                <div class="ps-0 mt-2 mb-3 notice-text">
-                    {{ 'i18n_question_attachment' | translate }}:
-                    <button
-                        type="button"
-                        class="btn btn-link"
-                        (click)="downloadQuestionAttachment()"
-                        [ariaLabel]="'i18n_download_attachment' | translate"
-                    >
-                        {{ sectionQuestion().question.attachment?.fileName }}
-                    </button>
-                </div>
-            }
-
-            <!-- question instructions -->
-            @if (reviewExpanded() && sectionQuestion().answerInstructions) {
-                <div class="ps-0 mt-2 mb-3 notice-text" role="note">
-                    <img src="/assets/images/icon_info.svg" alt="" />
-                    <span class="ps-2">{{ 'i18n_instructions' | translate }}:</span>
-                    <span [innerHtml]="sectionQuestion().answerInstructions"></span>
-                </div>
-            }
-
-            <!-- answer -->
-            @if (reviewExpanded()) {
-                <div class="mt-2">
-                    <hr />
-                </div>
-            }
-
-            @if (reviewExpanded()) {
-                <div class="mb-2">
-                    {{ 'i18n_exam_answer' | translate | uppercase }}
-                    <div [xmRichText]="$safeNavigationMigration(sectionQuestion().clozeTestAnswer?.question)"></div>
-                    @if (participation().exam.executionType.type !== 'MATURITY') {
-                        <div class="make-inline pe-3 mt-2">
-                            <span class="text text-danger"
-                                >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
-                                <small>[0 &hellip; {{ sectionQuestion().maxScore.toFixed(2) }}]</small></span
-                            >
-                            <input
-                                type="number"
-                                lang="en"
-                                class="form-control"
-                                [formControl]="scoreControl"
-                                xmFixedPrecision
-                                onclick="this.focus()"
-                                [min]="0"
-                                [max]="sectionQuestion().maxScore"
-                            />
-                            @if (scoreControl.invalid) {
-                                <small class="alert-danger">
-                                    <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                        'i18n_error_score_input' | translate
-                                    }}
-                                </small>
-                            }
-                        </div>
+                    @if (hasForcedScore()) {
+                        <span class="text-danger">{{ sectionQuestion().forcedScore }}</span>
                     }
-                </div>
-            }
+                    / {{ sectionQuestion().maxScore }}
+                </span>
+                <button class="btn btn-link p-0" (click)="toggleReviewExpanded()" [ariaExpanded]="reviewExpanded()">
+                    @if (!reviewExpanded()) {
+                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                    }
+                    @if (reviewExpanded()) {
+                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                    }
+                </button>
+            </div>
         </div>
+
+        <!-- question attachment -->
+        @if (reviewExpanded() && sectionQuestion().question.attachment) {
+            <div class="question-note notice-text">
+                {{ 'i18n_question_attachment' | translate }}:
+                <button
+                    type="button"
+                    class="btn btn-link"
+                    (click)="downloadQuestionAttachment()"
+                    [ariaLabel]="'i18n_download_attachment' | translate"
+                >
+                    {{ sectionQuestion().question.attachment?.fileName }}
+                </button>
+            </div>
+        }
+
+        <!-- question instructions -->
+        @if (reviewExpanded() && sectionQuestion().answerInstructions) {
+            <div class="question-note notice-text" role="note">
+                <img src="/assets/images/icon_info.svg" alt="" />
+                <span class="ps-2">{{ 'i18n_instructions' | translate }}:</span>
+                <span [innerHtml]="sectionQuestion().answerInstructions"></span>
+            </div>
+        }
+
+        <!-- answer -->
+        @if (reviewExpanded()) {
+            <div class="question-spaced">
+                <hr />
+            </div>
+        }
+
+        @if (reviewExpanded()) {
+            <div class="question-answer">
+                {{ 'i18n_exam_answer' | translate | uppercase }}
+                <div [xmRichText]="$safeNavigationMigration(sectionQuestion().clozeTestAnswer?.question)"></div>
+                @if (participation().exam.executionType.type !== 'MATURITY') {
+                    <div class="make-inline question-grade">
+                        <span class="text text-danger"
+                            >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
+                            <small>[0 &hellip; {{ sectionQuestion().maxScore.toFixed(2) }}]</small></span
+                        >
+                        <input
+                            type="number"
+                            lang="en"
+                            class="form-control"
+                            [formControl]="scoreControl"
+                            xmFixedPrecision
+                            onclick="this.focus()"
+                            [min]="0"
+                            [max]="sectionQuestion().maxScore"
+                        />
+                        @if (scoreControl.invalid) {
+                            <small class="alert-danger">
+                                <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
+                            </small>
+                        }
+                    </div>
+                }
+            </div>
+        }
     </div>
 </div>

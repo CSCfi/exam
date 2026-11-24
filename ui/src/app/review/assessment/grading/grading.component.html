@@ -4,61 +4,60 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row">
-    <div class="col-md-2">{{ 'i18n_total_score' | translate }}:</div>
-    <div class="col-md-4">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
-    <div class="col-md-2">{{ 'i18n_grading_inspector' | translate }}:</div>
-    <div class="col-md-4">
-        @for (inspection of exam().examInspections; track inspection) {
-            <xm-r-inspection
-                [inspection]="inspection"
-                [user]="user()"
-                [disabled]="isGraded() || isReadOnly()"
-                (inspected)="inspectionDone()"
-            >
-            </xm-r-inspection>
-        }
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-2">{{ 'i18n_approved' | translate }} / {{ 'i18n_rejected' | translate }}:</div>
-    <div class="col-md-4">{{ questionSummary().accepted }} / {{ questionSummary().rejected }}</div>
-    <div class="col-md-2">&nbsp;</div>
-    <div class="col-md-4">&nbsp;</div>
-</div>
-<div class="row mt-3">
-    <div class="col-md-2">{{ 'i18n_exam_owners' | translate }}:</div>
-    <div class="col-md-4">
-        @if (!collaborative()) {
-            @for (teacher of exam().parent?.examOwners; track teacher; let last = $last) {
-                <span>{{ teacher.firstName }} {{ teacher.lastName }}{{ last ? '' : ', ' }}</span>
+<div class="info">
+    <div class="info-row">
+        <div>{{ 'i18n_total_score' | translate }}:</div>
+        <div>{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
+        <div>{{ 'i18n_grading_inspector' | translate }}:</div>
+        <div>
+            @for (inspection of exam().examInspections; track inspection) {
+                <xm-r-inspection
+                    [inspection]="inspection"
+                    [user]="user()"
+                    [disabled]="isGraded() || isReadOnly()"
+                    (inspected)="inspectionDone()"
+                >
+                </xm-r-inspection>
             }
-        }
-        @if (collaborative()) {
-            @for (teacher of exam().examOwners; track teacher; let last = $last) {
-                <span>{{ teacher.email }}{{ last ? '' : ', ' }}</span>
-            }
-        }
-    </div>
-    <div class="col-md-2">{{ 'i18n_exam_instructor' | translate }}:</div>
-    <div class="col-md-4">
-        @for (inspection of exam().examInspections; track inspection; let last = $last) {
-            <span>{{ inspection.user.firstName }} {{ inspection.user.lastName }}{{ last ? '' : ', ' }}</span>
-        }
-    </div>
-</div>
-
-@if (exam().state === 'GRADED_LOGGED') {
-    <div class="row">
-        <div class="col-md-2">{{ 'i18n_assessment_date' | translate }}:</div>
-        <div class="col-md-10">
-            {{ exam().gradedTime | date: 'dd.MM.yyyy' }}
         </div>
     </div>
-}
+    <div class="info-row">
+        <div>{{ 'i18n_approved' | translate }} / {{ 'i18n_rejected' | translate }}:</div>
+        <div>{{ questionSummary().accepted }} / {{ questionSummary().rejected }}</div>
+    </div>
+    <div class="info-row info-row-spaced-more">
+        <div>{{ 'i18n_exam_owners' | translate }}:</div>
+        <div>
+            @if (!collaborative()) {
+                @for (teacher of exam().parent?.examOwners; track teacher; let last = $last) {
+                    <span>{{ teacher.firstName }} {{ teacher.lastName }}{{ last ? '' : ', ' }}</span>
+                }
+            }
+            @if (collaborative()) {
+                @for (teacher of exam().examOwners; track teacher; let last = $last) {
+                    <span>{{ teacher.email }}{{ last ? '' : ', ' }}</span>
+                }
+            }
+        </div>
+        <div>{{ 'i18n_exam_instructor' | translate }}:</div>
+        <div>
+            @for (inspection of exam().examInspections; track inspection; let last = $last) {
+                <span>{{ inspection.user.firstName }} {{ inspection.user.lastName }}{{ last ? '' : ', ' }}</span>
+            }
+        </div>
+    </div>
+    @if (exam().state === 'GRADED_LOGGED') {
+        <div class="info-row">
+            <div>{{ 'i18n_assessment_date' | translate }}:</div>
+            <div class="info-wide">
+                {{ exam().gradedTime | date: 'dd.MM.yyyy' }}
+            </div>
+        </div>
+    }
+</div>
 
-<div class="row mt-3 align-items-center">
-    <div class="col-md-2">
+<div class="info-field">
+    <label for="infoForRegistry">
         {{ 'i18n_additional_info_for_registry' | translate }}:
         <sup
             ngbPopover="{{ 'i18n_additional_info_for_registry_description' | translate }}"
@@ -66,9 +65,10 @@ SPDX-License-Identifier: EUPL-1.2
             triggers="mouseenter:mouseleave"
             ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
-    </div>
-    <div class="col-md-8">
+    </label>
+    <div>
         <textarea
+            id="infoForRegistry"
             class="form-control"
             [value]="exam().additionalInfo ?? ''"
             (input)="onAdditionalInfoInput($event)"
@@ -78,8 +78,8 @@ SPDX-License-Identifier: EUPL-1.2
         </textarea>
     </div>
 </div>
-<div class="row mt-3 align-items-center" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
-    <div class="col-md-2">
+<div class="info-field" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
+    <label for="infoForStudent">
         {{ 'i18n_additional_info_for_student' | translate }}:
         <sup
             ngbPopover="{{ 'i18n_additional_info_for_student_description' | translate }}"
@@ -87,23 +87,24 @@ SPDX-License-Identifier: EUPL-1.2
             triggers="mouseenter:mouseleave"
             ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
-    </div>
-    <div class="col-md-8">
+    </label>
+    <div>
         <textarea
+            id="infoForStudent"
             class="form-control"
             [value]="exam().assessmentInfo ?? ''"
             (input)="onAssessmentInfoInput($event)"
             rows="3"
         ></textarea>
     </div>
-    <div class="col-md-2">
+    <div>
         <button class="btn btn-success" [disabled]="!exam().assessmentInfo" (click)="saveAssessmentInfo()">
             {{ 'i18n_save' | translate }}
         </button>
     </div>
 </div>
-<div class="row mt-3 align-items-center" [hidden]="getTeacherCount() === 0">
-    <div class="col-md-2">
+<div class="info-field" [hidden]="getTeacherCount() === 0">
+    <label for="messageToReviewers">
         {{ 'i18n_send_to_other_reviewers' | translate }}:
         <sup
             ngbPopover="{{ 'i18n_send_to_other_reviewers_description' | translate }}"
@@ -111,9 +112,10 @@ SPDX-License-Identifier: EUPL-1.2
             triggers="mouseenter:mouseleave"
             ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
-    </div>
-    <div class="col-md-8">
+    </label>
+    <div>
         <textarea
+            id="messageToReviewers"
             class="form-control"
             [value]="message()"
             (input)="onMessageTextInput($event)"
@@ -121,14 +123,14 @@ SPDX-License-Identifier: EUPL-1.2
             cols="120"
         ></textarea>
     </div>
-    <div class="col-md-2">
+    <div>
         <button class="btn btn-success" (click)="sendEmailMessage()">
             {{ 'i18n_send' | translate }}
         </button>
     </div>
 </div>
-<div class="row mt-2" [hidden]="!isReadOnly()">
-    <div class="col-md-2">
+<div class="info info-row-spaced" [hidden]="!isReadOnly()">
+    <div>
         {{ 'i18n_teachers_comment' | translate }}
         @if (!!isCommentRead()) {
             <span>({{ 'i18n_teachers_comment_read' | translate | lowercase }})</span>
@@ -140,13 +142,13 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     @if (exam()?.examFeedback?.comment) {
         <div
-            class="col-md-10"
+            class="info-wide"
             [class.text-danger]="!isCommentRead()"
             [xmRichText]="$safeNavigationMigration(exam()?.examFeedback?.comment)"
         ></div>
     }
     @if (exam()?.examFeedback?.attachment) {
-        <div class="col-md-offset-2 col-md-10">
+        <div class="info-wide">
             <button
                 type="button"
                 class="btn btn-link"
@@ -158,84 +160,65 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
 </div>
-<div class="row mt-3">
-    <div class="col-md-12">
-        <div [formGroup]="gradingForm">
-            <div class="row">
-                <div class="col-md-3">
-                    <label for="examGrade" class="form-label grading-title">
-                        {{ 'i18n_exam_grade' | translate | uppercase }} </label
-                    >&nbsp;<sup
-                        ngbPopover="{{ 'i18n_grade_selection_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                        ><img src="/assets/images/icon_tooltip.svg" alt=""
-                    /></sup>
-                    <select id="examGrade" formControlName="grade" class="form-select" required (change)="setGrade()">
-                        <option [ngValue]="null">{{ 'i18n_choose' | translate }}</option>
-                        @for (grade of grades(); track grade) {
-                            <option [ngValue]="grade">{{ grade.name }}</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="creditType" class="form-label grading-title">
-                        {{ 'i18n_exam_choose_credit_type' | translate | uppercase }}
-                    </label>
-                    @if (exam().gradingType !== 'POINT_GRADED') {
-                        <select
-                            id="creditType"
-                            formControlName="type"
-                            class="form-select"
-                            required
-                            (change)="setCreditType()"
-                        >
-                            @for (type of creditTypes(); track type) {
-                                <option [ngValue]="type">{{ type.name }}</option>
-                            }
-                        </select>
-                    } @else {
-                        <input
-                            type="text"
-                            class="form-control"
-                            disabled
-                            value="{{ 'i18n_exam_credit_type_partial' | translate }}"
-                        />
-                    }
-                </div>
-                <div class="col-md-3">
-                    <label for="answerLanguage" class="form-label grading-title">
-                        {{ 'i18n_exam_record_language' | translate | uppercase }}
-                    </label>
-                    <select
-                        id="answerLanguage"
-                        formControlName="language"
-                        class="form-select"
-                        required
-                        (change)="setLanguage()"
-                    >
-                        @for (lang of languages(); track lang) {
-                            <option [ngValue]="lang">{{ lang.name }}</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="customCredit" class="form-label grading-title">
-                        {{ 'i18n_exam_credit' | translate | uppercase }}
-                    </label>
-                    <input
-                        id="customCredit"
-                        formControlName="customCredit"
-                        type="number"
-                        lang="en"
-                        class="form-control"
-                        maxlength="3"
-                        required
-                        (change)="setCustomCredit()"
-                    />
-                </div>
-            </div>
-        </div>
+<div [formGroup]="gradingForm" class="grade-fields">
+    <div>
+        <label for="examGrade" class="form-label grading-title"> {{ 'i18n_exam_grade' | translate | uppercase }} </label
+        >&nbsp;<sup
+            ngbPopover="{{ 'i18n_grade_selection_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
+        /></sup>
+        <select id="examGrade" formControlName="grade" class="form-select" required (change)="setGrade()">
+            <option [ngValue]="null">{{ 'i18n_choose' | translate }}</option>
+            @for (grade of grades(); track grade) {
+                <option [ngValue]="grade">{{ grade.name }}</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label for="creditType" class="form-label grading-title">
+            {{ 'i18n_exam_choose_credit_type' | translate | uppercase }}
+        </label>
+        @if (exam().gradingType !== 'POINT_GRADED') {
+            <select id="creditType" formControlName="type" class="form-select" required (change)="setCreditType()">
+                @for (type of creditTypes(); track type) {
+                    <option [ngValue]="type">{{ type.name }}</option>
+                }
+            </select>
+        } @else {
+            <input
+                type="text"
+                class="form-control"
+                disabled
+                value="{{ 'i18n_exam_credit_type_partial' | translate }}"
+            />
+        }
+    </div>
+    <div>
+        <label for="answerLanguage" class="form-label grading-title">
+            {{ 'i18n_exam_record_language' | translate | uppercase }}
+        </label>
+        <select id="answerLanguage" formControlName="language" class="form-select" required (change)="setLanguage()">
+            @for (lang of languages(); track lang) {
+                <option [ngValue]="lang">{{ lang.name }}</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label for="customCredit" class="form-label grading-title">
+            {{ 'i18n_exam_credit' | translate | uppercase }}
+        </label>
+        <input
+            id="customCredit"
+            formControlName="customCredit"
+            type="number"
+            lang="en"
+            class="form-control"
+            maxlength="3"
+            required
+            (change)="setCustomCredit()"
+        />
     </div>
 </div>
 

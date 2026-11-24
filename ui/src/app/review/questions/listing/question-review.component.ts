@@ -12,13 +12,13 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
 
 @Component({
     selector: 'xm-question-review',
-    template: `<div class="xm-study-item-container mx-0">
-        <div class="review-points-exam d-flex justify-content-between">
+    template: `<div class="xm-study-item-container">
+        <div class="review-points-exam review-header">
             @if (getAssessedAnswerCount() === review().answers.length) {
-                <img src="/assets/images/icon_question_type_ready.png" />
+                <img src="/assets/images/icon_question_type_ready.png" alt="" />
             }
             @if (getAssessedAnswerCount() !== review().answers.length) {
-                <img src="/assets/images/icon_question_type_ready_grey.png" />
+                <img src="/assets/images/icon_question_type_ready_grey.png" alt="" />
             }
 
             <span class="ms-2">
@@ -26,7 +26,7 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
                 {{ 'i18n_graded' | translate | lowercase }}
             </span>
 
-            <span class="d-block float-end">
+            <span>
                 <input
                     type="checkbox"
                     class="questionToUpdate"
@@ -51,17 +51,23 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
         }
 
         <!-- Question -->
-        <div class="ms-2">
+        <div class="review-question-text">
             <div [xmRichText]="review().question.question"></div>
             @if (review().question.defaultAnswerInstructions) {
-                <a (click)="toggleExpanded()" class="pointer-hand">
+                <button
+                    type="button"
+                    class="btn btn-link p-0"
+                    (click)="toggleExpanded()"
+                    [ariaExpanded]="!!review().expanded"
+                    [ariaLabel]="'i18n_instructions' | translate"
+                >
                     @if (!review().expanded) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
                     @if (review().expanded) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
-                </a>
+                </button>
             }
         </div>
 

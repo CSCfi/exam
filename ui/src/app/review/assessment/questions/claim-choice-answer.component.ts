@@ -12,20 +12,20 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-r-claim-choice-answer',
     template: `@if (reviewExpanded()) {
         @for (option of sectionQuestion().options | orderBy: 'option.id'; track option) {
-            <div class="ps-2 mb-2">
-                <div [class]="getSelectedOptionClass(option)" class="d-flex align-items-center gap-2">
+            <div class="answer-item">
+                <div [class]="getSelectedOptionClass(option)" class="answer-option">
                     @switch (determineClaimOptionType(option)) {
                         @case ('CorrectOption') {
-                            <img class="flex-shrink-0" src="/assets/images/icon_correct_answer_radio.png" alt="" />
+                            <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
                         }
                         @case ('IncorrectOption') {
-                            <img class="flex-shrink-0" src="/assets/images/icon_wrong_answer_radio.png" alt="" />
+                            <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
                         }
                         @case ('SkipOption') {
-                            <img class="flex-shrink-0" src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
+                            <img src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
                         }
                     }
-                    <span class="exam-question-option-text flex-grow-1 text-break">{{ option.option.option }}</span>
+                    <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
                     <span class="answer-score-text text-nowrap">
                         {{ option.score }} {{ 'i18n_unit_points' | translate }}
                     </span>

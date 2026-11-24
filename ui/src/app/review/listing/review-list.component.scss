@@ -4,7 +4,54 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/breakpoints' as bp;
 @use '../../shared/definitions.scss' as shared;
+
+// The review list: teachers and links on top, then a section per review state. The list is
+// inset from the page content as it was under the former grid (margin + column padding).
+.review-list {
+    padding: var(--xm-space-2) 1.25rem var(--xm-space-3);
+}
+
+// Teachers and exam period, aborted exams and no-shows: two columns from sm up
+.review-list-info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--xm-space-2) var(--xm-space-4);
+
+    @include bp.up(sm) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+// Search on the left, the section's actions on the right; the search takes the full row on phones
+.category-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--xm-space-2);
+    padding-block: var(--xm-space-4);
+}
+.category-search {
+    width: 25%;
+    min-width: min(14rem, 100%);
+}
+
+// Actions under the table (print, archive)
+.category-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--xm-space-2);
+    margin-bottom: var(--xm-space-3);
+}
+
+.category-pages {
+    display: block;
+    padding-inline-start: 1.25rem;
+}
 
 .unstyled-link,
 .unstyled-link:hover,
@@ -31,6 +78,7 @@
 .xm-paragraph-title-no-results {
     color: #555555;
     font-size: 1.25rem;
+    margin: var(--xm-space-3);
 }
 
 .table-column-checkbox {
@@ -55,4 +103,27 @@ th.dropdown {
 // Ensure dropdown menu appears above other content and can escape
 .dropdown-menu-show {
     z-index: 1050;
+}
+
+// Aborted exams and no-shows dialogs
+.dialog-title {
+    margin: var(--xm-space-3) 0 0 1.75rem;
+}
+.dialog-no-results {
+    display: flex;
+    align-items: center;
+    gap: var(--xm-space-4);
+    margin: var(--xm-space-3) 0;
+}
+// The table reaches past the dialog body padding by the former grid gutter
+.dialog-table {
+    width: calc(100% + 1.5rem);
+    margin-inline: -0.75rem;
+}
+.dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--xm-space-3);
+    margin: var(--xm-space-3);
 }

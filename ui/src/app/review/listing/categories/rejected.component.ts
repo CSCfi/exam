@@ -21,6 +21,7 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-rejected',
     templateUrl: './rejected.component.html',
+    styleUrl: '../review-list.component.scss',
     imports: [
         TableSortComponent,
         RouterLink,

@@ -14,8 +14,8 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 @Component({
     selector: 'xm-r-participation',
     template: `
-        <div class="col-md-2 ">{{ participation().started | date: 'dd.MM.yyyy' }}</div>
-        <div class="col-md-4 ">
+        <div>{{ participation().started | date: 'dd.MM.yyyy' }}</div>
+        <div>
             <span
                 [class.text-danger]="participation().exam.state === 'ABORTED'"
                 [class.text-success]="participation().exam.state !== 'ABORTED'"
@@ -23,11 +23,11 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
                 {{ 'i18n_exam_status_' + participation().exam.state | lowercase | translate }}
             </span>
         </div>
-        <div class="col-md-2 general-info-title" [hidden]="hideGrade()">
+        <div class="general-info-title" [hidden]="hideGrade()">
             {{ 'i18n_grade' | translate }}:<span class="text-success ms-2">{{ translateGrade() }}</span>
         </div>
         @if (!hideAnswerLink()) {
-            <div class="col-md-4 xm-link">
+            <div class="xm-link">
                 <button type="button" class="btn btn-link" (click)="viewAnswers()">
                     {{ 'i18n_view_answers' | translate }}
                 </button>

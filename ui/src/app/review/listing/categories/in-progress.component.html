@@ -25,15 +25,15 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 
     @if (view()!.items.length === 0) {
-        <div class="xm-paragraph-title-no-results m-3">
+        <div class="xm-paragraph-title-no-results">
             <i class="bi-exclamation-circle"></i>
             {{ 'i18n_exam_no_started' | translate }}
         </div>
     }
 
     <div [ngbCollapse]="!view()!.toggle" [hidden]="view()!.items.length === 0">
-        <div class="py-3 d-flex justify-content-between">
-            <div class="input-group my-2 w-25">
+        <div class="category-tools">
+            <div class="input-group category-search">
                 <input
                     [value]="view()!.filter"
                     (input)="onFreeSearchFilterInput($event)"
@@ -42,12 +42,14 @@ SPDX-License-Identifier: EUPL-1.2
                 />
                 <i class="input-group-text bi-search"></i>
             </div>
-            <div class="my-2 d-flex justify-content-end">
-                <div [hidden]="exam().executionType.type === 'MATURITY' || collaborative()" class="me-2">
-                    <a class="btn btn-success" [routerLink]="['/staff/assessments', exam().id, 'speedreview']">
-                        {{ 'i18n_speed_review' | translate }} ({{ view()!.filtered.length }})
-                    </a>
-                </div>
+            <div class="xm-cluster">
+                <a
+                    class="btn btn-success"
+                    [hidden]="exam().executionType.type === 'MATURITY' || collaborative()"
+                    [routerLink]="['/staff/assessments', exam().id, 'speedreview']"
+                >
+                    {{ 'i18n_speed_review' | translate }} ({{ view()!.filtered.length }})
+                </a>
                 @if (!collaborative()) {
                     <button
                         class="btn btn-success"
@@ -241,18 +243,15 @@ SPDX-License-Identifier: EUPL-1.2
                 </tbody>
             </table>
         </div>
-        <div class="row ms-2">
-            @if (view()!.filtered.length > view()!.pageSize) {
-                <div class="col-md-12">
-                    <xm-paginator
-                        [items]="view()!.filtered"
-                        [pageSize]="view()!.pageSize"
-                        (pageSelected)="pageSelected($event)"
-                        [currentPage]="view()!.page"
-                    >
-                    </xm-paginator>
-                </div>
-            }
-        </div>
+        @if (view()!.filtered.length > view()!.pageSize) {
+            <xm-paginator
+                class="category-pages"
+                [items]="view()!.filtered"
+                [pageSize]="view()!.pageSize"
+                (pageSelected)="pageSelected($event)"
+                [currentPage]="view()!.page"
+            >
+            </xm-paginator>
+        }
     </div>
 }

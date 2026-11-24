@@ -4,6 +4,96 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/breakpoints' as bp;
+
+// Width of a column taking $share of the row, with the 1.5rem gap between columns that the
+// former grid had: columns then start where the grid columns did.
+@function share($share) {
+    @return calc((100% + 1.5rem) * #{$share} - 1.5rem);
+}
+
+// Label and value pairs, two pairs per row on wider screens: a label takes a sixth of the row
+// and a value a third. Each row is a subgrid of the whole, so the rows line up; a row may be a
+// component of its own (participation, no-show).
+.info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 1.5rem;
+
+    @include bp.up(md) {
+        grid-template-columns: repeat(2, share(calc(1 / 6)) share(calc(1 / 3)));
+    }
+}
+.info-row {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+}
+// A value that takes the rest of the row
+@include bp.up(md) {
+    .info-wide {
+        grid-column: 2 / -1;
+    }
+}
+.info-full {
+    grid-column: 1 / -1;
+}
+.info-row-spaced {
+    margin-top: var(--xm-space-2);
+}
+.info-row-spaced-more {
+    margin-top: var(--xm-space-3);
+}
+
+// A label, a text field and an optional button beside it (a sixth, two thirds and a sixth)
+.info-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 1.5rem;
+    align-items: center;
+    margin-top: var(--xm-space-3);
+
+    @include bp.up(md) {
+        grid-template-columns: share(calc(1 / 6)) share(calc(2 / 3)) share(calc(1 / 6));
+    }
+}
+
+// The same with a wider label: a third, a half and a sixth; a field without a button takes the
+// rest of the row
+.info-field-wide {
+    @include bp.up(md) {
+        grid-template-columns: share(calc(1 / 3)) share(calc(1 / 2)) share(calc(1 / 6));
+
+        > :nth-child(2):last-child {
+            grid-column: 2 / -1;
+        }
+    }
+}
+
+// A comment beside its writer: a third and two thirds
+.info-comment {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 1.5rem;
+    margin-bottom: var(--xm-space-1);
+
+    @include bp.up(md) {
+        grid-template-columns: share(calc(1 / 3)) share(calc(2 / 3));
+    }
+}
+
+// The grading selects, four side by side on wider screens
+.grade-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 1.5rem;
+    margin-top: var(--xm-space-3);
+
+    @include bp.up(md) {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
 .notice-text {
     line-height: 1.5rem;
     vertical-align: bottom;
@@ -12,4 +102,59 @@
 }
 .grading-title {
     font-size: 0.875rem;
+}
+
+// Maturity grading
+.verdict {
+    margin-block: var(--xm-space-2) var(--xm-space-3);
+}
+.info-field-near {
+    margin-top: var(--xm-space-2);
+}
+.maturity-grade-fields {
+    margin-top: var(--xm-space-4);
+
+    // Titles on lines of their own, in their smaller font
+    label {
+        display: block;
+    }
+}
+.maturity-toolbar {
+    display: block;
+    margin-top: var(--xm-space-4);
+}
+
+// Question cards: the question text with its score and toggle at the end of the row; the score
+// moves under the text when the row runs out of room (phones)
+.question-header {
+    align-items: start;
+    column-gap: var(--xm-space-4);
+
+    // A short score stays beside the text on phones too
+    > :first-child {
+        flex-basis: 8rem;
+    }
+}
+.question-score {
+    display: flex;
+    align-items: center;
+    gap: var(--xm-space-2);
+}
+.question-note {
+    margin-block: var(--xm-space-2) var(--xm-space-3);
+}
+.question-answer {
+    margin-bottom: var(--xm-space-2);
+}
+.question-spaced {
+    margin-top: var(--xm-space-2);
+}
+// The score field, beside the answer length
+.question-grade {
+    padding-inline-end: var(--xm-space-3);
+    margin-top: var(--xm-space-2);
+}
+.forced-score-title,
+.recommendation {
+    display: block;
 }
