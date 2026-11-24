@@ -4,35 +4,32 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="toolbar-wrapper">
+<div class="toolbar-wrapper xm-stack xm-gap-4">
     <!-- USERNAME -->
-    <div class="right-column-box px-3 py-2 mb-4">
+    <div class="right-column-box px-3 py-2">
         <img src="/assets/images/icon_user.svg" alt="" />
         <span class="user-span">{{ displayUser() }}</span>
     </div>
 
     <!-- EXAM NAME -->
     @if (exam().course) {
-        <div class="right-title mb-3">{{ exam().name }}</div>
+        <div class="right-title">{{ exam().name }}</div>
     }
 
     <!-- INSTRUCTION BUTTONS + ATTACHMENT -->
-    <div class="d-flex flex-column gap-2 mb-4">
+    <div class="xm-stack xm-gap-2">
         @if (exam().attachment) {
-            <div>
+            <div class="xm-stack xm-gap-1 attachment">
                 <button class="btn btn-success btn-sm" (click)="downloadExamAttachment()">
                     {{ 'i18n_open_it' | translate }} {{ 'i18n_exam_attachment' | translate }}
                     <i class="bi bi-paperclip ps-2"></i>
                 </button>
-                <small
-                    class="d-block text-truncate text-muted mt-1"
-                    [title]="$safeNavigationMigration(exam().attachment?.fileName)"
-                >
+                <small class="text-truncate text-muted" [title]="$safeNavigationMigration(exam().attachment?.fileName)">
                     {{ $safeNavigationMigration(exam().attachment?.fileName) | uppercase | slice: 0 : 50 }}
                 </small>
             </div>
         }
-        <div class="d-flex flex-wrap gap-2">
+        <div class="xm-cluster">
             <button
                 class="btn btn-success btn-sm"
                 [class.notactive]="!activeSection()"
@@ -71,13 +68,10 @@ SPDX-License-Identifier: EUPL-1.2
 
     <!-- SECTIONS -->
     <a class="skip" [href]="getSkipLinkPath('#exam-actions')">{{ 'i18n_skip_to_exam_actions' | translate }}</a>
-    <div class="toolbar-sections d-flex flex-column gap-2">
+    <div class="toolbar-sections xm-stack xm-gap-2">
         @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section.id; let i = $index) {
-            <div
-                class="phase-box d-flex align-items-center gap-2"
-                [class.notactive]="activeSection()?.sequenceNumber !== i"
-            >
-                <div class="flex-shrink-0">
+            <div class="phase-box" [class.notactive]="activeSection()?.sequenceNumber !== i">
+                <div>
                     @if (
                         sectionAnswerCounts().get(section.id)?.answered === sectionAnswerCounts().get(section.id)?.total
                     ) {
@@ -92,7 +86,7 @@ SPDX-License-Identifier: EUPL-1.2
                         />
                     }
                 </div>
-                <div class="flex-grow-1 overflow-hidden">
+                <div class="phase-text">
                     <div class="fw-semibold text-truncate">
                         {{ 'i18n_exam_section' | translate }} {{ i + 1 }}: {{ section.name }}
                     </div>
@@ -102,7 +96,7 @@ SPDX-License-Identifier: EUPL-1.2
                         {{ sectionAnswerCounts().get(section.id)?.total }}
                     </div>
                 </div>
-                <div class="flex-shrink-0">
+                <div>
                     <button
                         class="btn btn-success btn-sm"
                         (click)="selectSection(section)"
@@ -118,7 +112,7 @@ SPDX-License-Identifier: EUPL-1.2
 
     <!-- EXIT PREVIEW -->
     @if (isPreview()) {
-        <div class="mt-4">
+        <div>
             <button
                 tabindex="0"
                 class="btn btn-outline-secondary"
@@ -133,7 +127,7 @@ SPDX-License-Identifier: EUPL-1.2
 
     <!-- RETURN / ABORT -->
     @if (!isPreview()) {
-        <div id="exam-actions" tabindex="-1" class="toolbar-actions d-flex flex-column gap-2 mt-4">
+        <div id="exam-actions" tabindex="-1" class="toolbar-actions xm-stack xm-gap-2">
             <button class="btn btn-success" (click)="turnExam()">
                 {{ 'i18n_save_and_return_exam' | translate }}
             </button>

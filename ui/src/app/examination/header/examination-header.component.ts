@@ -10,30 +10,28 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
 
 @Component({
     selector: 'xm-examination-header',
-    template: `<div class="row">
-        <div class="pe-0 ps-0">
-            <div class="exam-header">
-                <div class="exam-header-img-wrap">
-                    <img src="/assets/images/exam-logo-mobile.svg" alt="" />
-                </div>
-                <div class="exam-header-divider ms-2"></div>
-                <div class="exam-header-title ms-2  ">
-                    {{ exam().course?.name }}
-                    @if (exam().course) {
-                        <xm-course-code [course]="exam().course!"></xm-course-code>
-                    }
-                </div>
-                <div class="language-selector">
-                    <button class="btn btn-success btn-sm" (click)="switchLanguage('fi')">FI</button>
-                    <button class="btn btn-success btn-sm" (click)="switchLanguage('sv')">SV</button>
-                    <button class="btn btn-success btn-sm" (click)="switchLanguage('en')">EN</button>
-                </div>
-                @if (!isPreview()) {
-                    <xm-examination-clock [examHash]="exam().hash" (timedOut)="notifyTimeout()"></xm-examination-clock>
+    template: `
+        <div class="exam-header">
+            <div class="exam-header-img-wrap">
+                <img src="/assets/images/exam-logo-mobile.svg" alt="" />
+            </div>
+            <div class="exam-header-divider"></div>
+            <div class="exam-header-title">
+                {{ exam().course?.name }}
+                @if (exam().course) {
+                    <xm-course-code [course]="exam().course!"></xm-course-code>
                 }
             </div>
+            <div class="language-selector">
+                <button class="btn btn-success btn-sm" (click)="switchLanguage('fi')">FI</button>
+                <button class="btn btn-success btn-sm" (click)="switchLanguage('sv')">SV</button>
+                <button class="btn btn-success btn-sm" (click)="switchLanguage('en')">EN</button>
+            </div>
+            @if (!isPreview()) {
+                <xm-examination-clock [examHash]="exam().hash" (timedOut)="notifyTimeout()"></xm-examination-clock>
+            }
         </div>
-    </div>`,
+    `,
     imports: [CourseCodeComponent, ExaminationClockComponent],
     styleUrls: ['../examination.shared.scss', './examination-header.component.scss'],
 })

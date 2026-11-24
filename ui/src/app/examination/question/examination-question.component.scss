@@ -10,19 +10,37 @@
     padding-top: 0.5em;
 }
 
+/* Status icon, question text (takes the room) and the expand button at the end */
+/* Status icon in the top left corner, question text (takes the room), expand button at the end.
+   Top-aligned so a tall question (cloze inputs, formulas) does not pull the icon to its middle. */
+.question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--xm-space-2);
+
+    img {
+        display: block;
+    }
+    > .arrow {
+        order: 1;
+        flex-shrink: 0;
+    }
+}
+/* The icon is 30px and a text line 24px: start the text 3px lower so a one-line question sits
+   centred on the icon; a taller first line (input, formula) lines up with the icon's top */
+.question-title {
+    flex: 1;
+    min-width: 0;
+    padding-top: 3px;
+}
+
 .section-box-title {
-    float: left;
-    margin-left: 10px;
-    margin-top: 10px;
     color: #2c2c2c;
     font-size: 1rem;
     max-width: 100%;
 
     &.arrow {
-        margin-left: 0px;
         padding-left: 0px;
-        margin-top: 0px;
-        float: right;
     }
 
     // Collapsed state: clip the rendered content instead of truncating the HTML source.
@@ -57,4 +75,12 @@
     width: 33%;
     margin-left: 0px;
     color: #b1b1b1;
+}
+
+/* Download button with the file name under it, at the end of the card */
+.question-attachment {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--xm-space-1);
 }

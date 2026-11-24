@@ -10,31 +10,25 @@ import { ExaminationService } from 'src/app/examination/examination.service';
 
 @Component({
     selector: 'xm-examination-cloze-test',
-    template: `@if (!isPreview()) {
-            <div class="row">
-                <div class="col-md-12">
-                    @if (autosaved()) {
-                        <small class="autosave-text">
-                            {{ 'i18n_autosaved' | translate }}:&nbsp;{{ autosaved() | date: 'HH:mm' }}
-                        </small>
-                    } @else {
-                        <small class="autosave-text"> &nbsp; </small>
-                    }
-                </div>
-            </div>
-        }
-        <div class="row">
-            <div class="col-md-3 question-type-text">
-                {{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}
-            </div>
-        </div>
-        <div class="row mt-2">
-            <div class="col-md-12">
+    template: `
+        <div class="xm-stack xm-gap-2">
+            @if (!isPreview()) {
+                @if (autosaved()) {
+                    <small class="autosave-text">
+                        {{ 'i18n_autosaved' | translate }}:&nbsp;{{ autosaved() | date: 'HH:mm' }}
+                    </small>
+                } @else {
+                    <small class="autosave-text"> &nbsp; </small>
+                }
+            }
+            <div class="question-type-text">{{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
+            <div>
                 <button (click)="saveAnswer()" [disabled]="isPreview()" class="pointer btn btn-success">
                     {{ 'i18n_save' | translate }}
                 </button>
             </div>
-        </div>`,
+        </div>
+    `,
     imports: [DatePipe, TranslateModule],
     styleUrls: ['./question.shared.scss'],
 })

@@ -10,6 +10,7 @@ import { ExaminationService } from 'src/app/examination/examination.service';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive';
+import { clozePreview } from './cloze-preview';
 import { DynamicClozeTestComponent } from './dynamic-cloze-test.component';
 import { ExaminationClozeTestComponent } from './examination-cloze-test.component';
 import { ExaminationEssayQuestionComponent } from './examination-essay-question.component';
@@ -45,6 +46,11 @@ export class ExaminationQuestionComponent {
         return {};
     });
     readonly expanded = signal(true);
+    readonly isCloze = computed(() => this.sq().question.type === 'ClozeTestQuestion');
+    // Collapsed cloze card: the question with its blanks shown as the answers given so far
+    readonly clozePreviewHtml = computed(() =>
+        clozePreview(this.sq().clozeTestAnswer?.question ?? '', this.clozeAnswer()),
+    );
 
     readonly sq = computed(() => {
         // Return the original object directly – no spread – so child-component mutations

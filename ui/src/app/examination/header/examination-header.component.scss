@@ -6,6 +6,12 @@
 
 @use '../../shared/definitions.scss' as shared;
 
+/* Full width of the page: cancel the page's side padding (set by the app shell on #mainView) */
+:host {
+    display: block;
+    margin-inline: calc(-1 * var(--xm-page-gutter, 0px));
+}
+
 .exam-header {
     background-color: #212121;
     display: flex;

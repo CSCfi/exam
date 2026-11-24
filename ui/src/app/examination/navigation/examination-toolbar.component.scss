@@ -7,9 +7,12 @@
 @use '../../shared/definitions.scss' as shared;
 
 .toolbar-wrapper {
-    display: flex;
-    flex-direction: column;
     padding: 1rem;
+}
+
+/* Attachment button keeps its width, its file name below it */
+.attachment > .btn {
+    align-self: start;
 }
 
 .toolbar-sections {
@@ -43,7 +46,11 @@
     font-weight: 600;
 }
 
+/* Section row: status icon, name and progress (truncated), "move to" button */
 .phase-box {
+    display: flex;
+    align-items: center;
+    gap: var(--xm-space-2);
     border-radius: 4px;
     border: 2px solid #ededed;
     border-left: shared.$exam-medium-green 4px solid;
@@ -56,4 +63,12 @@
     &:hover {
         border-left-color: shared.$exam-medium-green;
     }
+}
+
+.phase-box > div {
+    flex-shrink: 0;
+}
+.phase-box > .phase-text {
+    flex: 1;
+    min-width: 0;
 }

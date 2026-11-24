@@ -23,5 +23,13 @@
 
 .autosave-text {
     color: #727272;
-    margin-top: 1em;
+}
+
+/* Points or save at the start, attachment actions at the end */
+.answer-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--xm-space-2);
 }

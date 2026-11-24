@@ -4,8 +4,36 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../shared/breakpoints' as bp;
+
+/* Exam content and the toolbar: stacked (content first) on phones, side by side 2:1 from md up.
+   Offsets as in the Bootstrap row this replaced: 0.5rem in on the left, out to the page edge on
+   the right, 0.75rem padding in each column and 1.5rem at the toolbar's outer edge. */
+.exam-layout {
+    display: grid;
+    grid-template-areas:
+        'main'
+        'sidebar';
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: var(--xm-space-2);
+    margin-inline: var(--xm-space-2) calc(-1 * var(--xm-page-gutter, 0px));
+
+    @include bp.up(md) {
+        grid-template-areas: 'main sidebar';
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+}
+
+.exam-main {
+    grid-area: main;
+    min-width: 0;
+    padding-inline: 0.75rem;
+}
+
 .exam-sidebar {
+    grid-area: sidebar;
+    padding-inline: 0.75rem 1.5rem;
     position: sticky;
     top: 0;
-    align-self: flex-start;
+    align-self: start;
 }

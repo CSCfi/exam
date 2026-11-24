@@ -4,147 +4,131 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="guide-wrapper" [class.active]="isAnswered()" [class.notactive]="!isAnswered()">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    @if (isAnswered()) {
-                        <div [ariaLabel]="'i18n_all_questions_answered' | translate">
-                            <img class="mt-05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
-                        </div>
-                    }
-                    @if (!isAnswered()) {
-                        <div [ariaLabel]="'i18n_questions_unanswered' | translate">
-                            <img class="mt-05" src="/assets/images/icon_question_type_waiting.svg" alt="" />
-                        </div>
-                    }
-                </div>
-                <!-- Expand button -->
-                <div class="col-auto order-2">
-                    <button
-                        tabindex="0"
-                        class="pointer section-box-title arrow border-none background-none"
-                        [ariaLabel]="parseAriaLabel(expanded() ? 'i18n_collapse' : 'i18n_expand')"
-                        [ariaExpanded]="expanded()"
-                        (click)="toggleExpanded()"
-                        (keydown.enter)="toggleExpanded()"
-                    >
-                        <i [class.bi-chevron-down]="expanded()" [class.bi-chevron-right]="!expanded()"></i>
-                    </button>
-                </div>
-                <!-- question text -->
-                <div class="col mt-3 order-1">
-                    @if (sq().question.type !== 'ClozeTestQuestion') {
-                        <!-- Collapsed questions are clamped in CSS; slicing the raw HTML cut markup mid-tag -->
-                        <div
-                            class="section-box-title"
-                            [class.clamped]="!expanded()"
-                            [xmRichText]="sq().question.question"
-                        ></div>
-                    } @else {
-                        <div class="section-box-title">
-                            <xm-dynamic-cloze-test
-                                [content]="sq().clozeTestAnswer?.question || ''"
-                                [answer]="clozeAnswer()"
-                                (answerChanged)="answered($event)"
-                            />
-                        </div>
-                    }
-                </div>
+<div class="guide-wrapper xm-stack xm-gap-2" [class.active]="isAnswered()" [class.notactive]="!isAnswered()">
+    <!-- status icon, question text and expand button; the button stays before the text in the DOM -->
+    <div class="question-header">
+        @if (isAnswered()) {
+            <div [ariaLabel]="'i18n_all_questions_answered' | translate">
+                <img src="/assets/images/icon_question_type_ready_grey.png" alt="" />
             </div>
-            <!-- instruction -->
-            @if (sq().answerInstructions && expanded()) {
-                <div class="row mt-2 mb-3">
-                    <div class="col-md-12">
-                        <p class="question-text question-type-text info" role="note">
-                            <img class="me-2" src="/assets/images/icon_info.svg" alt="" />
-                            {{ 'i18n_instructions' | translate }}:&nbsp;{{ sq().answerInstructions }}
-                        </p>
-                    </div>
-                </div>
-            }
-
-            <!-- attachment -->
-            @if (sq().question.attachment && expanded()) {
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <button
-                            class="btn btn-success float-end"
-                            tabindex="0"
-                            (click)="downloadQuestionAttachment()"
-                            (keydown.enter)="downloadQuestionAttachment()"
-                        >
-                            {{ 'i18n_download_section_question_attachment' | translate }}
-                            <img src="/assets/images/icon_attachment.svg" alt="" />
-                        </button>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="attachment-name float-end">
-                            {{ $safeNavigationMigration(sq().question.attachment?.fileName) | uppercase }}
-                        </div>
-                    </div>
-                </div>
-            }
-
-            <!-- answer -->
-            <div class="row">
-                <div class="col-md-12">
-                    @if (expanded()) {
-                        <div class="question">
-                            @switch (sq().question.type) {
-                                @case ('EssayQuestion') {
-                                    <xm-examination-essay-question
-                                        [sq]="sq()"
-                                        [exam]="exam()"
-                                        [isPreview]="isPreview()"
-                                    />
-                                }
-                                @case ('ClozeTestQuestion') {
-                                    <xm-examination-cloze-test
-                                        [sq]="sq()"
-                                        [examHash]="exam()?.hash || ''"
-                                        [isPreview]="isPreview()"
-                                        [isExternal]="exam()?.external || false"
-                                    />
-                                }
-                                @case ('MultipleChoiceQuestion') {
-                                    <xm-examination-multi-choice-question
-                                        [sq]="sq()"
-                                        [examHash]="exam()?.hash || ''"
-                                        [isPreview]="isPreview()"
-                                        [isExternal]="exam()?.external || false"
-                                        [orderOptions]="!exam()?.external"
-                                    >
-                                    </xm-examination-multi-choice-question>
-                                }
-                                @case ('ClaimChoiceQuestion') {
-                                    <xm-examination-multi-choice-question
-                                        [sq]="sq()"
-                                        [examHash]="exam()?.hash || ''"
-                                        [isPreview]="isPreview()"
-                                        [isExternal]="exam()?.external || false"
-                                        [orderOptions]="true"
-                                    >
-                                    </xm-examination-multi-choice-question>
-                                }
-                                @case ('WeightedMultipleChoiceQuestion') {
-                                    <xm-examination-weighted-multi-choice-question
-                                        [sq]="sq()"
-                                        [examHash]="exam()?.hash || ''"
-                                        [isPreview]="isPreview()"
-                                        [isExternal]="exam()?.external || false"
-                                        [orderOptions]="!exam()?.external"
-                                    >
-                                    </xm-examination-weighted-multi-choice-question>
-                                }
-                            }
-                        </div>
-                    }
-                </div>
+        }
+        @if (!isAnswered()) {
+            <div [ariaLabel]="'i18n_questions_unanswered' | translate">
+                <img src="/assets/images/icon_question_type_waiting.svg" alt="" />
             </div>
+        }
+        <!-- Expand button -->
+        <button
+            tabindex="0"
+            class="pointer section-box-title arrow border-none background-none"
+            [ariaLabel]="parseAriaLabel(expanded() ? 'i18n_collapse' : 'i18n_expand')"
+            [ariaExpanded]="expanded()"
+            (click)="toggleExpanded()"
+            (keydown.enter)="toggleExpanded()"
+        >
+            <i [class.bi-chevron-down]="expanded()" [class.bi-chevron-right]="!expanded()"></i>
+        </button>
+        <!-- question text -->
+        <div class="question-title">
+            @if (isCloze()) {
+                <!-- A cloze question's text is its answer: the card header names the question type and
+                     the text with its blanks goes below; collapsed, a read-only preview shows the answers -->
+                @if (expanded()) {
+                    <div class="section-box-title">{{ 'i18n_toolbar_cloze_test_question' | translate }}</div>
+                } @else {
+                    <div class="section-box-title clamped" [xmRichText]="clozePreviewHtml()"></div>
+                }
+            } @else {
+                <!-- Collapsed questions are clamped in CSS; slicing the raw HTML cut markup mid-tag -->
+                <div
+                    class="section-box-title"
+                    [class.clamped]="!expanded()"
+                    [xmRichText]="sq().question.question"
+                ></div>
+            }
         </div>
     </div>
+    <!-- instruction -->
+    @if (sq().answerInstructions && expanded()) {
+        <p class="question-text question-type-text info xm-icon-text" role="note">
+            <img src="/assets/images/icon_info.svg" alt="" />
+            <span>{{ 'i18n_instructions' | translate }}:&nbsp;{{ sq().answerInstructions }}</span>
+        </p>
+    }
+
+    <!-- attachment -->
+    @if (sq().question.attachment && expanded()) {
+        <div class="question-attachment">
+            <button
+                class="btn btn-success"
+                tabindex="0"
+                (click)="downloadQuestionAttachment()"
+                (keydown.enter)="downloadQuestionAttachment()"
+            >
+                {{ 'i18n_download_section_question_attachment' | translate }}
+                <img src="/assets/images/icon_attachment.svg" alt="" />
+            </button>
+            <div class="attachment-name">
+                {{ $safeNavigationMigration(sq().question.attachment?.fileName) | uppercase }}
+            </div>
+        </div>
+    }
+
+    <!-- answer -->
+    @if (isCloze()) {
+        <!-- Only hidden when collapsed, not removed: xm-examination-cloze-test runs the autosave -->
+        <div class="question xm-stack xm-gap-2" [hidden]="!expanded()">
+            <div class="section-box-title">
+                <xm-dynamic-cloze-test
+                    [content]="sq().clozeTestAnswer?.question || ''"
+                    [answer]="clozeAnswer()"
+                    (answerChanged)="answered($event)"
+                />
+            </div>
+            <xm-examination-cloze-test
+                [sq]="sq()"
+                [examHash]="exam()?.hash || ''"
+                [isPreview]="isPreview()"
+                [isExternal]="exam()?.external || false"
+            />
+        </div>
+    } @else if (expanded()) {
+        <div class="question">
+            @switch (sq().question.type) {
+                @case ('EssayQuestion') {
+                    <xm-examination-essay-question [sq]="sq()" [exam]="exam()" [isPreview]="isPreview()" />
+                }
+                @case ('MultipleChoiceQuestion') {
+                    <xm-examination-multi-choice-question
+                        [sq]="sq()"
+                        [examHash]="exam()?.hash || ''"
+                        [isPreview]="isPreview()"
+                        [isExternal]="exam()?.external || false"
+                        [orderOptions]="!exam()?.external"
+                    >
+                    </xm-examination-multi-choice-question>
+                }
+                @case ('ClaimChoiceQuestion') {
+                    <xm-examination-multi-choice-question
+                        [sq]="sq()"
+                        [examHash]="exam()?.hash || ''"
+                        [isPreview]="isPreview()"
+                        [isExternal]="exam()?.external || false"
+                        [orderOptions]="true"
+                    >
+                    </xm-examination-multi-choice-question>
+                }
+                @case ('WeightedMultipleChoiceQuestion') {
+                    <xm-examination-weighted-multi-choice-question
+                        [sq]="sq()"
+                        [examHash]="exam()?.hash || ''"
+                        [isPreview]="isPreview()"
+                        [isExternal]="exam()?.external || false"
+                        [orderOptions]="!exam()?.external"
+                    >
+                    </xm-examination-weighted-multi-choice-question>
+                }
+            }
+        </div>
+    }
 </div>

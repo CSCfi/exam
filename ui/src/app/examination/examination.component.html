@@ -8,9 +8,10 @@ SPDX-License-Identifier: EUPL-1.2
 @if (exam()) {
     <xm-examination-header [exam]="exam()!" (timedOut)="timedOut()" [isPreview]="isPreview()" />
 }
-<div class="row ms-2 mt-2">
+<!-- The toolbar comes first in the DOM (keyboard order) but is shown on the right -->
+<div class="exam-layout">
     <!-- RIGHT COLUMN -->
-    <div class="col-md-4 col-xs-4 pe-4 order-2 exam-sidebar">
+    <div class="exam-sidebar">
         <!-- TOOLBAR -->
         @if (exam()) {
             <xm-examination-toolbar
@@ -24,7 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
         }
     </div>
     <!-- LEFT COLUMN -->
-    <div class="col-md-8 col-xs-8 order-1">
+    <div class="exam-main">
         <!-- EXAM AREA -->
         <!-- EXAM SECTION -->
         @if (activeSection()) {
