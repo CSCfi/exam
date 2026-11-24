@@ -9,10 +9,20 @@ import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-r-no-show',
-    template: ` <div class="col-md-2 ">{{ started() | date: 'dd.MM.yyyy' }}</div>
-        <div class="col-md-10 text-danger">
+    template: ` <div>{{ started() | date: 'dd.MM.yyyy' }}</div>
+        <div class="status text-danger">
             {{ 'i18n_exam_status_no_show' | translate }}
         </div>`,
+    styles: `
+        @use '../../../shared/breakpoints' as bp;
+
+        // The status takes the rest of the row in the general info grid
+        @include bp.up(md) {
+            .status {
+                grid-column: 2 / -1;
+            }
+        }
+    `,
     imports: [DatePipe, TranslateModule],
 })
 export class NoShowComponent {

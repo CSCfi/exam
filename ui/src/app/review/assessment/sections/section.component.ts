@@ -19,6 +19,35 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-r-section',
     templateUrl: './section.component.html',
     styleUrls: ['../assessment.shared.scss'],
+    styles: `
+        .section {
+            margin-block: var(--xm-space-3);
+            padding: var(--xm-space-3);
+        }
+        // Spacing of the former header row: its padding less the grid gutter at the start
+        // The progress stays at the end also when it wraps under the name (phones)
+        .section-header {
+            align-items: start;
+            row-gap: 0; // the heading's margin spaces the lines
+
+            > :last-child {
+                margin-inline-start: auto;
+            }
+            padding: var(--xm-space-3) var(--xm-space-3) var(--xm-space-3) var(--xm-space-1);
+        }
+        .section-note {
+            margin-bottom: var(--xm-space-2);
+        }
+        // Padding, not margin: the space adds to the note's margin above, as in the former grid rows
+        .section-question {
+            padding-top: var(--xm-space-2);
+        }
+        // The former grid row's margin and its first column's margin together; padding, so that
+        // it does not merge with the margin of the question card above
+        .section-totals {
+            padding-top: calc(var(--xm-space-4) + var(--xm-space-2));
+        }
+    `,
     imports: [MultiChoiceQuestionComponent, EssayQuestionComponent, ClozeTestComponent, TranslateModule, OrderByPipe],
 })
 export class ExamSectionComponent implements OnInit {

@@ -26,15 +26,15 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 
     @if (view()!.items.length === 0) {
-        <div class="xm-paragraph-title-no-results m-3">
+        <div class="xm-paragraph-title-no-results">
             <i class="bi-exclamation-circle"></i>
             {{ 'i18n_exam_no_logged' | translate }}
         </div>
     }
 
     <div [ngbCollapse]="!view()!.toggle" [hidden]="view()!.items.length === 0">
-        <div class="pt-3 d-flex flex-wrap justify-content-between">
-            <div class="py-3 input-group my-2 w-25">
+        <div class="category-tools">
+            <div class="input-group category-search">
                 <input
                     [value]="view()!.filter"
                     (input)="onFreeSearchFilterInput($event)"
@@ -44,11 +44,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <i class="input-group-text bi-search"></i>
             </div>
             @if (view()!.toggle && view()!.filtered.length > 0) {
-                <div class="my-2">
-                    <button class="btn btn-success" (click)="sendSelectedToRegistry()">
-                        {{ 'i18n_send_results_to_registry' | translate }}
-                    </button>
-                </div>
+                <button class="btn btn-success" (click)="sendSelectedToRegistry()">
+                    {{ 'i18n_send_results_to_registry' | translate }}
+                </button>
             }
         </div>
         <div class="overflow-x-scroll">
@@ -56,7 +54,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <thead>
                     <tr>
                         <th class="dropdown" ngbDropdown placement="bottom-start">
-                            <button class="btn btn-sm btn-outline-secondary align-items-center" ngbDropdownToggle>
+                            <button class="btn btn-sm btn-outline-secondary" ngbDropdownToggle>
                                 <i class="bi-square"></i>
                             </button>
                             <ul ngbDropdownMenu role="menu" class="dropdown-menu-show">
@@ -280,18 +278,15 @@ SPDX-License-Identifier: EUPL-1.2
                 </tbody>
             </table>
         </div>
-        <div class="row ms-2">
-            @if (view()!.filtered.length > view()!.pageSize) {
-                <div class="col-md-12">
-                    <xm-paginator
-                        [items]="view()!.filtered"
-                        (pageSelected)="pageSelected($event)"
-                        [pageSize]="view()!.pageSize"
-                        [currentPage]="view()!.page"
-                    >
-                    </xm-paginator>
-                </div>
-            }
-        </div>
+        @if (view()!.filtered.length > view()!.pageSize) {
+            <xm-paginator
+                class="category-pages"
+                [items]="view()!.filtered"
+                (pageSelected)="pageSelected($event)"
+                [pageSize]="view()!.pageSize"
+                [currentPage]="view()!.page"
+            >
+            </xm-paginator>
+        }
     </div>
 }

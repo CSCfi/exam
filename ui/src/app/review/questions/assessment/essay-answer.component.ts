@@ -19,6 +19,28 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
     imports: [RouterLink, RichTextDirective, FormsModule, FormField, UpperCasePipe, NgbCollapse, TranslateModule],
+    styles: `
+        .question-differs {
+            margin: var(--xm-space-2) var(--xm-space-2) var(--xm-space-4);
+        }
+        .answer-body {
+            padding-inline: var(--xm-space-3);
+        }
+        // Titles of the answer's parts, with a little space around them
+        .answer-label {
+            margin-block: var(--xm-space-1);
+        }
+        // Keeps the answer's paragraph margins inside it, as the former grid column did
+        .answer-text {
+            display: flow-root;
+        }
+        .answer-label-spaced {
+            padding-bottom: var(--xm-space-1);
+        }
+        .points-form {
+            width: 5rem;
+        }
+    `,
 })
 export class EssayAnswerComponent {
     readonly answer = input.required<ReviewQuestion>();

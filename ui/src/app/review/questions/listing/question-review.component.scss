@@ -14,3 +14,12 @@
     padding-bottom: 10px;
     padding-left: 10px;
 }
+
+// Icon, graded count and the selection box spread over the row
+.review-header {
+    display: flex;
+    justify-content: space-between;
+}
+.review-question-text {
+    margin-inline-start: var(--xm-space-2);
+}

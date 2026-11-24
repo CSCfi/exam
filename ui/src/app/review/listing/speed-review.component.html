@@ -7,21 +7,20 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-header text="i18n_speed_review" [history]="true" />
 <xm-page-content [content]="content" />
 <ng-template #content>
-    <div class="col-md-12">
-        @if (examInfo()?.examOwners) {
-            <div class="speed-review-title">
-                {{ examInfo()?.title }}
-                <span class="speed-review-subtitle">({{ 'i18n_teachers' | translate }}: {{ ownerNames() }})</span>
-            </div>
-        }
-    </div>
+    @if (examInfo()?.examOwners) {
+        <div class="speed-review-title">
+            {{ examInfo()?.title }}
+            <span class="speed-review-subtitle">({{ 'i18n_teachers' | translate }}: {{ ownerNames() }})</span>
+        </div>
+    }
 
     @if (examReviews().length === 0) {
-        <div class="col-md-12 mt-2">
+        <p class="speed-review-results">
             {{ 'i18n_no_examinations_to_grade' | translate }}
-        </div>
+        </p>
     } @else {
-        <div class="col-md-12 mt-2">
+        <!-- The table scrolls sideways when its columns do not fit -->
+        <div class="table-responsive speed-review-results">
             <table class="table table-striped xm-data-table">
                 <thead>
                     <tr>
@@ -94,8 +93,7 @@ SPDX-License-Identifier: EUPL-1.2
                             </td>
                             <td>
                                 @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
-                                    <span
-                                        class="d-block"
+                                    <div
                                         [class.text-success]="inspection.ready"
                                         [class.text-danger]="!inspection.ready"
                                     >
@@ -114,7 +112,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                 <span>({{ 'i18n_in_progress' | translate }})</span>
                                             }
                                         </span>
-                                    </span>
+                                    </div>
                                 }
                             </td>
                             <td class="text-success">
@@ -191,7 +189,7 @@ SPDX-License-Identifier: EUPL-1.2
     }
 
     <!-- Buttons -->
-    <div class="d-flex justify-content-between">
+    <div class="speed-review-actions">
         <div class="speed-review-csv">
             <button type="button" class="btn btn-link" (click)="importGrades()">
                 {{ 'i18n_import_grades_from_csv' | translate }}
@@ -205,7 +203,7 @@ SPDX-License-Identifier: EUPL-1.2
             </sup>
         </div>
 
-        <div class="speed-review-csv ms-3">
+        <div class="speed-review-csv">
             <button type="button" class="btn btn-link" (click)="createGradingTemplate()">
                 {{ 'i18n_create_grading_template' | translate }}
             </button>
@@ -217,13 +215,13 @@ SPDX-License-Identifier: EUPL-1.2
                 <img src="/assets/images/icon_tooltip.svg" alt="" />
             </sup>
         </div>
-        <div class="d-flex flex-row-reverse p-2">
+        <div class="speed-review-buttons">
+            <a class="btn btn-outline-secondary" [routerLink]="['/staff/exams/', examId(), '5']">
+                {{ 'i18n_button_return' | translate }}
+            </a>
             <button class="btn btn-success" [disabled]="!hasModifications()" (click)="gradeExams()">
                 {{ 'i18n_grade_exams' | translate }}
             </button>
-            <a class="btn btn-outline-secondary me-3" [routerLink]="['/staff/exams/', examId(), '5']">
-                {{ 'i18n_button_return' | translate }}
-            </a>
         </div>
     </div>
 </ng-template>

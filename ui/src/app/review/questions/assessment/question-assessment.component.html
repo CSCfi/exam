@@ -4,13 +4,13 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row">
-    <div class="col-md-8 essay-question-review-column">
+<div class="question-assessment">
+    <div class="review-answers-column">
         <!-- answers column -->
         <xm-page-header text="i18n_question_based_review" [history]="true" [appendTemplate]="status" />
         <xm-page-content [content]="leftContent" />
     </div>
-    <div class="col-md-4">
+    <div class="review-flow-column">
         <!-- question flow column -->
         @if (reviews()) {
             <xm-question-flow [reviews]="reviews()" (selected)="questionSelected($event)"> </xm-question-flow>
@@ -31,136 +31,115 @@ SPDX-License-Identifier: EUPL-1.2
 </ng-template>
 
 <ng-template #leftContent>
-    <div class="row">
-        <div class="col-md-11 col-md-offset-1">
-            {{ getAssessedAnswerCount(true) }} / {{ selectedReview() && selectedReview()!.answers.length }}
-            {{ 'i18n_graded' | translate | lowercase }}
-        </div>
+    <div>
+        {{ getAssessedAnswerCount(true) }} / {{ selectedReview() && selectedReview()!.answers.length }}
+        {{ 'i18n_graded' | translate | lowercase }}
     </div>
     @if (selectedReview()) {
-        <div class="row">
-            @let hasAnswerInstructions = selectedReview()!.question.defaultAnswerInstructions;
-            <div
-                [class.col-md-10]="hasAnswerInstructions"
-                [class.col-md-11]="!hasAnswerInstructions"
-                [class.col-md-offset-1]="hasAnswerInstructions"
-            >
-                <div class="" [xmRichText]="selectedReview()!.question.question"></div>
-            </div>
-            @if (selectedReview() && selectedReview()!.question.defaultAnswerInstructions) {
-                <div class="col-md-1">
-                    <button type="button" class="btn btn-link" (click)="toggleSelectedReviewExpanded()">
-                        @if (!selectedReview()!.expanded) {
-                            <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                        }
-                        @if (selectedReview()!.expanded) {
-                            <img src="/assets/images/icon_list_show_down.svg" alt="" />
-                        }
-                    </button>
-                </div>
+        <div class="review-question">
+            <div [xmRichText]="selectedReview()!.question.question"></div>
+            @if (selectedReview()!.question.defaultAnswerInstructions) {
+                <button
+                    type="button"
+                    class="btn btn-link"
+                    (click)="toggleSelectedReviewExpanded()"
+                    [ariaExpanded]="!!selectedReview()!.expanded"
+                    [ariaLabel]="'i18n_instructions' | translate"
+                >
+                    @if (!selectedReview()!.expanded) {
+                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                    }
+                    @if (selectedReview()!.expanded) {
+                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                    }
+                </button>
             }
         </div>
     }
     @if (selectedReview() && selectedReview()!.expanded && selectedReview()!.question.defaultAnswerInstructions) {
-        <div class="row mt-2">
-            <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box" role="note">
-                <img src="/assets/images/icon_info.png" alt="" />
-                <span class="ps-2">{{ selectedReview()!.question.defaultAnswerInstructions }}</span>
-            </div>
+        <div class="essay-answer-instructions-box xm-icon-text" role="note">
+            <img src="/assets/images/icon_info.png" alt="" />
+            <span>{{ selectedReview()!.question.defaultAnswerInstructions }}</span>
         </div>
     }
     @if (selectedReview() && selectedReview()!.question.attachment) {
-        <div class="row mt-2">
-            <div class="col-md-10 col-md-offset-1">
-                <button
-                    type="button"
-                    class="btn btn-link"
-                    (click)="downloadQuestionAttachment()"
-                    [ariaLabel]="'i18n_download_attachment' | translate"
-                >
-                    <i class="bi-paperclip text-primary" aria-hidden="true"></i>&nbsp;{{
-                        selectedReview()!.question.attachment?.fileName
-                    }}
-                </button>
-            </div>
+        <div class="review-question-part">
+            <button
+                type="button"
+                class="btn btn-link"
+                (click)="downloadQuestionAttachment()"
+                [ariaLabel]="'i18n_download_attachment' | translate"
+            >
+                <i class="bi-paperclip text-primary" aria-hidden="true"></i>&nbsp;{{
+                    selectedReview()!.question.attachment?.fileName
+                }}
+            </button>
         </div>
     }
     @if (selectedReview()?.evaluationCriteria) {
-        <div class="row mt-2 pb-0">
-            <div class="col-md-11 col-md-offset-1">
-                {{ 'i18n_exam_evaluation_criteria' | translate }}
-            </div>
+        <div class="review-question-part">
+            {{ 'i18n_exam_evaluation_criteria' | translate }}
+        </div>
+        <div>
+            {{ selectedReview()!.evaluationCriteria }}
         </div>
     }
-    @if (selectedReview()?.evaluationCriteria) {
-        <div class="row">
-            <div class="col-md-11 col-md-offset-1">
-                <div class="">
-                    {{ selectedReview()!.evaluationCriteria }}
-                </div>
-            </div>
-        </div>
-    }
-    <div class="row p-0">
+    <div class="triangle-line-row">
         <div class="triangle-line"></div>
     </div>
-    <div class="row pt-4">
-        <div class="col-md-12">
-            <ul ngbNav #nav="ngbNav" class="nav-tabs" [keyboard]="false">
-                <li ngbNavItem>
-                    <a ngbNavLink>
-                        {{ 'i18n_unassessed_exams' | translate }}
-                        <span class="badge bg-danger">{{ getUnassessedAnswerCount() }}</span>
-                    </a>
-                    <ng-template ngbNavContent>
-                        <xm-essay-answers
-                            [answers]="unassessedAnswers()"
-                            [editable]="true"
-                            actionText="i18n_move_to_assessed"
-                            (assessed)="saveAssessments($event)"
-                        >
-                        </xm-essay-answers>
-                    </ng-template>
-                </li>
-                <li ngbNavItem>
-                    <a ngbNavLink>
-                        {{ 'i18n_assessed_exams' | translate }}
-                        <span class="badge bg-danger">{{ getAssessedAnswerCount(false) }}</span>
-                    </a>
-                    <ng-template ngbNavContent>
-                        <xm-essay-answers
-                            [answers]="assessedAnswers()"
-                            [editable]="true"
-                            actionText="i18n_grade_exams"
-                            (assessed)="saveAssessments($event)"
-                        >
-                        </xm-essay-answers>
-                    </ng-template>
-                </li>
-                <li ngbNavItem>
-                    <a ngbNavLink>
-                        {{ 'i18n_graded_logged_exams' | translate }}
-                        <span class="badge bg-danger">{{ getLockedAnswerCount() }}</span>
-                    </a>
-                    <ng-template ngbNavContent>
-                        <xm-essay-answers [answers]="lockedAnswers()" [editable]="false" actionText="i18n_grade_exams">
-                        </xm-essay-answers>
-                    </ng-template>
-                </li>
-            </ul>
-            <div class="row mb-3 mt-3">
-                <div class="col-md-12">
-                    <button class="btn btn-outline-secondary" (click)="toggleAllAnswers()">
-                        @if (allAnswersExpanded()) {
-                            {{ 'i18n_collapse_all' | translate }}
-                        } @else {
-                            {{ 'i18n_expand_all' | translate }}
-                        }
-                    </button>
-                </div>
-            </div>
-            <div [ngbNavOutlet]="nav"></div>
+    <div class="review-tabs">
+        <ul ngbNav #nav="ngbNav" class="nav-tabs" [keyboard]="false">
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ 'i18n_unassessed_exams' | translate }}
+                    <span class="badge bg-danger">{{ getUnassessedAnswerCount() }}</span>
+                </a>
+                <ng-template ngbNavContent>
+                    <xm-essay-answers
+                        [answers]="unassessedAnswers()"
+                        [editable]="true"
+                        actionText="i18n_move_to_assessed"
+                        (assessed)="saveAssessments($event)"
+                    >
+                    </xm-essay-answers>
+                </ng-template>
+            </li>
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ 'i18n_assessed_exams' | translate }}
+                    <span class="badge bg-danger">{{ getAssessedAnswerCount(false) }}</span>
+                </a>
+                <ng-template ngbNavContent>
+                    <xm-essay-answers
+                        [answers]="assessedAnswers()"
+                        [editable]="true"
+                        actionText="i18n_grade_exams"
+                        (assessed)="saveAssessments($event)"
+                    >
+                    </xm-essay-answers>
+                </ng-template>
+            </li>
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ 'i18n_graded_logged_exams' | translate }}
+                    <span class="badge bg-danger">{{ getLockedAnswerCount() }}</span>
+                </a>
+                <ng-template ngbNavContent>
+                    <xm-essay-answers [answers]="lockedAnswers()" [editable]="false" actionText="i18n_grade_exams">
+                    </xm-essay-answers>
+                </ng-template>
+            </li>
+        </ul>
+        <div class="review-tabs-actions">
+            <button class="btn btn-outline-secondary" (click)="toggleAllAnswers()">
+                @if (allAnswersExpanded()) {
+                    {{ 'i18n_collapse_all' | translate }}
+                } @else {
+                    {{ 'i18n_expand_all' | translate }}
+                }
+            </button>
         </div>
+        <div [ngbNavOutlet]="nav"></div>
     </div>
     <div class="ballast"></div>
 </ng-template>

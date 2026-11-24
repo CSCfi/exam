@@ -16,32 +16,7 @@ import { MaturityService } from './maturity.service';
     selector: 'xm-r-maturity-toolbar',
     template: `<!-- language inspection controls  -->
         @if (isOwnerOrAdmin() || isUnderLanguageInspection()) {
-            <div class="d-flex flex-row-reverse gap-2">
-                <span [hidden]="isUnderLanguageInspection()">
-                    @if (!isReadOnly()) {
-                        <button (click)="saveAssessment()" [disabled]="!valid()" class="btn btn-success">
-                            {{ 'i18n_save' | translate }}
-                        </button>
-                    } @else {
-                        <button
-                            class="btn btn-secondary"
-                            [routerLink]="['/staff/exams', $safeNavigationMigration(exam().parent?.id), '5']"
-                        >
-                            {{ 'i18n_close' | translate }}
-                        </button>
-                    }
-                </span>
-                @if (!isReadOnly() && !isDisabled()) {
-                    @let warn = getNextState().warn;
-                    <button
-                        class="btn"
-                        [class.btn-outline-danger]="warn"
-                        [class.btn-success]="!warn"
-                        (click)="proceed(false)"
-                    >
-                        {{ getNextState().text | translate }}
-                    </button>
-                }
+            <div class="xm-cluster actions">
                 @if (
                     !isReadOnly() &&
                     getNextState().alternateState &&
@@ -57,12 +32,37 @@ import { MaturityService } from './maturity.service';
                         {{ getAlternateState(getNextState().alternateState).text | translate }}
                     </button>
                 }
+                @if (!isReadOnly() && !isDisabled()) {
+                    @let warn = getNextState().warn;
+                    <button
+                        class="btn"
+                        [class.btn-outline-danger]="warn"
+                        [class.btn-success]="!warn"
+                        (click)="proceed(false)"
+                    >
+                        {{ getNextState().text | translate }}
+                    </button>
+                }
+                <span [hidden]="isUnderLanguageInspection()">
+                    @if (!isReadOnly()) {
+                        <button (click)="saveAssessment()" [disabled]="!valid()" class="btn btn-success">
+                            {{ 'i18n_save' | translate }}
+                        </button>
+                    } @else {
+                        <button
+                            class="btn btn-secondary"
+                            [routerLink]="['/staff/exams', $safeNavigationMigration(exam().parent?.id), '5']"
+                        >
+                            {{ 'i18n_close' | translate }}
+                        </button>
+                    }
+                </span>
             </div>
             @let hint = $safeNavigationMigration(getNextState()?.hint);
             @if (!isReadOnly() && hint) {
                 @let hintText = hint(exam()) || '';
                 @if (hintText) {
-                    <div class="d-flex justify-content-end mt-2">
+                    <div class="hint">
                         <small class="text-danger">
                             <i class="bi-exclamation-circle me-1"></i>{{ hintText | translate }}
                         </small>
@@ -70,6 +70,15 @@ import { MaturityService } from './maturity.service';
                 }
             }
         }`,
+    styles: `
+        .actions {
+            justify-content: flex-end;
+        }
+        .hint {
+            margin-top: var(--xm-space-2);
+            text-align: end;
+        }
+    `,
     imports: [RouterLink, TranslateModule],
 })
 export class MaturityToolbarComponent {

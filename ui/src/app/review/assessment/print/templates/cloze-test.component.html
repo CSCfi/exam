@@ -4,69 +4,46 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="top-padding-2 light-border-box">
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question' | translate }}:</div>
-        <div class="sub-content-row col-md-9">
-            <span [xmRichText]="sectionQuestion().question.question"></span>
-        </div>
-    </div>
+<dl class="light-border-box print-details">
+    <dt class="sub-header-row">{{ 'i18n_question' | translate }}:</dt>
+    <dd class="sub-content-row">
+        <span [xmRichText]="sectionQuestion().question.question"></span>
+    </dd>
     <!-- question attachment -->
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question_attachment' | translate }}:</div>
-        <div class="sub-content-row col-md-9">
-            <span [hidden]="sectionQuestion().question.attachment">N/A</span>
-            @if (sectionQuestion().question.attachment) {
-                <span> {{ sectionQuestion().question.attachment?.fileName || '' }}&nbsp; </span>
-            }
-        </div>
-    </div>
-
+    <dt class="sub-header-row">{{ 'i18n_question_attachment' | translate }}:</dt>
+    <dd class="sub-content-row">{{ sectionQuestion().question.attachment?.fileName || 'N/A' }}</dd>
     <!-- question instructions -->
-    <div class="row">
-        @if (sectionQuestion().answerInstructions) {
-            <div class="sub-header-row col-md-3 newRow">{{ 'i18n_instructions' | translate }}:</div>
-        }
-        @if (sectionQuestion().answerInstructions) {
-            <div class="sub-content-row col-md-9">
-                <div [innerHtml]="sectionQuestion().answerInstructions"></div>
-                &nbsp;
-            </div>
-        }
-    </div>
+    @if (sectionQuestion().answerInstructions) {
+        <dt class="sub-header-row">{{ 'i18n_instructions' | translate }}:</dt>
+        <dd class="sub-content-row">
+            <div [innerHtml]="sectionQuestion().answerInstructions"></div>
+            &nbsp;
+        </dd>
+    }
     <!-- answer -->
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_exam_answer' | translate }}:</div>
-        <div class="sub-content-row col-md-9">
-            <div [innerHtml]="$safeNavigationMigration(sectionQuestion().clozeTestAnswer?.question)"></div>
-        </div>
-    </div>
-
+    <dt class="sub-header-row">{{ 'i18n_exam_answer' | translate }}:</dt>
+    <dd class="sub-content-row">
+        <div [innerHtml]="$safeNavigationMigration(sectionQuestion().clozeTestAnswer?.question)"></div>
+    </dd>
     <!-- grade -->
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_multiplechoice_question_correct' | translate }}:</div>
-        <div class="sub-content-row col-md-9">
-            {{ sectionQuestion().clozeTestAnswer?.score?.correctAnswers }} /
-            {{
-                (sectionQuestion().clozeTestAnswer?.score?.correctAnswers || 0) +
-                    (sectionQuestion().clozeTestAnswer?.score?.incorrectAnswers || 0)
-            }}
-        </div>
-    </div>
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_word_points' | translate }}:</div>
-        <div class="sub-content-row col-md-9">
-            <span>
-                <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
-                    {{ displayAchievedScore() }}
-                </span>
-                @if (hasForcedScore()) {
-                    <span class="text text-danger">
-                        {{ sectionQuestion().forcedScore }}
-                    </span>
-                }
-                / {{ sectionQuestion().maxScore }}
+    <dt class="sub-header-row">{{ 'i18n_multiplechoice_question_correct' | translate }}:</dt>
+    <dd class="sub-content-row">
+        {{ sectionQuestion().clozeTestAnswer?.score?.correctAnswers }} /
+        {{
+            (sectionQuestion().clozeTestAnswer?.score?.correctAnswers || 0) +
+                (sectionQuestion().clozeTestAnswer?.score?.incorrectAnswers || 0)
+        }}
+    </dd>
+    <dt class="sub-header-row">{{ 'i18n_word_points' | translate }}:</dt>
+    <dd class="sub-content-row">
+        <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
+            {{ displayAchievedScore() }}
+        </span>
+        @if (hasForcedScore()) {
+            <span class="text text-danger">
+                {{ sectionQuestion().forcedScore }}
             </span>
-        </div>
-    </div>
-</div>
+        }
+        / {{ sectionQuestion().maxScore }}
+    </dd>
+</dl>

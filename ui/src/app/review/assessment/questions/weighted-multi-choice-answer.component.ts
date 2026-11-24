@@ -10,33 +10,33 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-r-weighted-multi-choice-answer',
     template: `@for (option of sectionQuestion().options | orderBy: 'id'; track option) {
-        <div class="ps-2 mb-2" [hidden]="!reviewExpanded()">
+        <div class="answer-item" [hidden]="!reviewExpanded()">
             @if (option.answered) {
                 @if (option.score >= 0) {
-                    <div class="exam-answered-correct d-flex align-items-center gap-2">
-                        <img class="flex-shrink-0" src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
-                        <span class="exam-question-option-text flex-grow-1 text-break">{{ option.option.option }}</span>
+                    <div class="exam-answered-correct answer-option">
+                        <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
+                        <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
                         <span class="text-success text-nowrap">
                             {{ option.score }} {{ 'i18n_unit_points' | translate }}
                         </span>
                     </div>
                 } @else {
-                    <div class="exam-answered-wrong d-flex align-items-center gap-2">
-                        <img class="flex-shrink-0" src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="" />
-                        <span class="exam-question-option-text flex-grow-1 text-break">{{ option.option.option }}</span>
+                    <div class="exam-answered-wrong answer-option">
+                        <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="" />
+                        <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
                         <span class="text-danger text-nowrap">
                             {{ option.score }} {{ 'i18n_unit_points' | translate }}
                         </span>
                     </div>
                 }
             } @else {
-                <div class="exam-not-answered d-flex align-items-center gap-2">
+                <div class="exam-not-answered answer-option">
                     @if (option.score >= 0) {
-                        <img class="flex-shrink-0" src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
+                        <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
                     } @else {
-                        <img class="flex-shrink-0" src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
+                        <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
                     }
-                    <span class="exam-question-option-text flex-grow-1 text-break">{{ option.option.option }}</span>
+                    <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
                     <span
                         class="text-nowrap"
                         [class.text-success]="option.score >= 0"

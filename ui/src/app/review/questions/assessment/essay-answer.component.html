@@ -6,26 +6,28 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="xm-study-item-container">
     @if (answer().question.question !== answer().question.parent?.question) {
-        <div class="row m-2">
-            <span class="col-12 alert alert-warning" role="alert">
-                <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'i18n_question_differs' | translate }}
-            </span>
+        <div class="alert alert-warning question-differs" role="alert">
+            <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'i18n_question_differs' | translate }}
         </div>
     }
-    <div class="row m-1 pb-1">
-        <div class="col-12">
+    <div class="answer-body">
+        <div class="answer-label answer-label-spaced">
             <strong>{{ 'i18n_assessee_information' | translate | uppercase }}</strong>
         </div>
-    </div>
-    <div class="row m-1 pb-1">
-        <div class="col-12">
+        <div class="answer-label answer-label-spaced">
             <a [routerLink]="['/staff/assessments', answer().examSection.exam.id]" target="_blank">
                 {{ name() }}
                 @if (answer().examSection.exam.creator?.userIdentifier) {
                     <span>({{ answer().examSection.exam.creator.userIdentifier }})</span>
                 }
             </a>
-            <button type="button" class="btn btn-link ms-1" (click)="toggleExpanded()">
+            <button
+                type="button"
+                class="btn btn-link ms-1"
+                (click)="toggleExpanded()"
+                [ariaExpanded]="!!answer().expanded"
+                [ariaLabel]="'i18n_exam_answer' | translate"
+            >
                 @if (answer().expanded) {
                     <img src="/assets/images/icon_list_show_down.svg" alt="" />
                 } @else {
@@ -33,85 +35,73 @@ SPDX-License-Identifier: EUPL-1.2
                 }
             </button>
         </div>
-    </div>
-    <div [ngbCollapse]="!answer().expanded">
-        <div class="row m-1">
-            <div class="col-12">
+        <div [ngbCollapse]="!answer().expanded">
+            <div class="answer-label">
                 <strong>{{ 'i18n_exam_answer' | translate | uppercase }}</strong>
             </div>
-        </div>
-        <div class="row ms-1"><div class="col-12" [xmRichText]="answer().essayAnswer.answer || ''"></div></div>
-        @if (answer().essayAnswer.attachment) {
-            <div class="row ms-1">
-                <div class="col-12">
+            <div class="answer-text" [xmRichText]="answer().essayAnswer.answer || ''"></div>
+            @if (answer().essayAnswer.attachment) {
+                <div>
                     <strong>{{ 'i18n_answer_attachment' | translate | uppercase }}</strong>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
+                <div>
                     <button
                         type="button"
-                        class="btn btn-link"
+                        class="btn btn-link px-0"
                         (click)="downloadAttachment()"
                         [ariaLabel]="'i18n_download_attachment' | translate"
                     >
                         {{ answer().essayAnswer.attachment.fileName | uppercase }}
                     </button>
                 </div>
-            </div>
-        }
-        <div class="row m-1">
-            <div class="col-12">
+            }
+            <div class="answer-label">
                 <strong>{{ 'i18n_answer_length' | translate | uppercase }}</strong>
             </div>
-        </div>
-        <div class="row ms-1">
-            <div class="col-12">
+            <div>
                 {{ getWordCount() }} {{ 'i18n_words' | translate }}, {{ 'i18n_approximately' | translate }}
                 {{ getCharacterCount() }} {{ 'i18n_characters' | translate }}
             </div>
-        </div>
-        @if ((answer().expectedWordCount || 0) > 0) {
-            <div class="row ms-1">
-                <div class="col-12">
+            @if ((answer().expectedWordCount || 0) > 0) {
+                <div>
                     {{ 'i18n_essay_length_recommendation' | translate }}: {{ answer().expectedWordCount }} ({{
                         'i18n_approximately' | translate
                     }}
                     {{ (answer().expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
                 </div>
-            </div>
-        }
-        <div class="row m-1">
-            <div class="col-12">
+            }
+            <div class="answer-label">
                 <strong
                     >{{ 'i18n_word_points' | translate | uppercase }} &nbsp;<small
                         >[{{ 0 }}-{{ displayMaxScore() }}]</small
                     >
                 </strong>
             </div>
-        </div>
-        <div class="row ms-1">
-            <div class="col-2">
-                @if (answer().evaluationType === 'Points') {
-                    <form>
-                        <input
-                            type="number"
-                            lang="en"
-                            class="form-control"
-                            [formField]="pointsForm.score"
-                            size="5"
-                            onclick="this.focus()"
-                        />
-                        @if (!isPointsScoreValid()) {
-                            <small class="alert-danger">
-                                <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
-                            </small>
-                        }
-                    </form>
-                }
-            </div>
+            @if (answer().evaluationType === 'Points') {
+                <form class="points-form">
+                    <input
+                        type="number"
+                        lang="en"
+                        class="form-control"
+                        [formField]="pointsForm.score"
+                        size="5"
+                        onclick="this.focus()"
+                        [ariaLabel]="'i18n_word_points' | translate"
+                    />
+                    @if (!isPointsScoreValid()) {
+                        <small class="alert-danger">
+                            <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
+                        </small>
+                    }
+                </form>
+            }
             @if (answer().evaluationType === 'Selection') {
-                <select class="form-select" [(ngModel)]="answer().essayAnswer.temporaryScore" [disabled]="!editable()">
+                <select
+                    class="form-select"
+                    [(ngModel)]="answer().essayAnswer.temporaryScore"
+                    [disabled]="!editable()"
+                    [ariaLabel]="'i18n_word_points' | translate"
+                >
                     <option [ngValue]="1">
                         {{ 'i18n_approved' | translate }}
                     </option>
@@ -120,10 +110,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </option>
                 </select>
             }
-        </div>
-
-        <div class="row m-1">
-            <div class="col-12">
+            <div class="answer-label">
                 <span class="checkbox">
                     <label>
                         <input

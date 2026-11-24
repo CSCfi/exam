@@ -4,110 +4,84 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="top-padding-2 light-border-box">
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question' | translate }}:</div>
-        <div class="sub-content-row col-md-9">
-            <span [xmRichText]="sectionQuestion().question.question"></span>
-        </div>
-    </div>
+<dl class="light-border-box print-details">
+    <dt class="sub-header-row">{{ 'i18n_question' | translate }}:</dt>
+    <dd class="sub-content-row">
+        <span [xmRichText]="sectionQuestion().question.question"></span>
+    </dd>
     <!-- question attachment -->
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question_attachment' | translate }}:</div>
-        <div class="sub-content-row col-md-9">
-            <span [hidden]="sectionQuestion().question.attachment">N/A</span>
-            @if (sectionQuestion().question.attachment) {
-                <span>{{ sectionQuestion().question.attachment?.fileName }}</span>
-            }
-        </div>
-    </div>
+    <dt class="sub-header-row">{{ 'i18n_question_attachment' | translate }}:</dt>
+    <dd class="sub-content-row">{{ sectionQuestion().question.attachment?.fileName || 'N/A' }}</dd>
     <!-- answer -->
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_exam_answer' | translate }}:</div>
-
-        <div class="sub-content-row col-md-9">
+    <dt class="sub-header-row">{{ 'i18n_exam_answer' | translate }}:</dt>
+    <dd class="sub-content-row">
+        <ul class="print-options">
             @for (o of sectionQuestion().options; track o) {
-                <div class="row" [hidden]="sectionQuestion().question.type !== 'MultipleChoiceQuestion'">
-                    <div class="col-md-12">
-                        <span>
+                @switch (sectionQuestion().question.type) {
+                    @case ('MultipleChoiceQuestion') {
+                        <li>
                             <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
-                        </span>
-                        <span [class.bold]="o.option.correctOption" class="ps-2">
-                            {{ o.option.option }}
-                        </span>
-                    </div>
-                </div>
-            }
-            @for (o of sectionQuestion().options; track o) {
-                <div class="row" [hidden]="sectionQuestion().question.type !== 'WeightedMultipleChoiceQuestion'">
-                    <div class="col-md-3">
-                        <span>
+                            <span [class.fw-bold]="o.option.correctOption" class="ps-2">{{ o.option.option }}</span>
+                        </li>
+                    }
+                    @case ('WeightedMultipleChoiceQuestion') {
+                        <li class="print-weighted-option">
+                            <span>
+                                <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
+                                <span [class.font-bold]="o.score > 0"
+                                    >&nbsp;&nbsp;{{ o.score }} {{ 'i18n_unit_points' | translate }}</span
+                                >
+                            </span>
+                            <span>{{ o.option.option }}</span>
+                        </li>
+                    }
+                    @case ('ClaimChoiceQuestion') {
+                        <li>
                             <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
-                        </span>
-                        <span [class.font-bold]="o.score > 0"
-                            >&nbsp;&nbsp;{{ o.score }} {{ 'i18n_unit_points' | translate }}</span
-                        >
-                    </div>
-                    <div class="col-md-9 ps-2">
-                        <div class="text">{{ o.option.option }}</div>
-                    </div>
-                </div>
-            }
-            @for (o of sectionQuestion().options; track o) {
-                <div class="row" [hidden]="sectionQuestion().question.type !== 'ClaimChoiceQuestion'">
-                    <div class="col-md-12">
-                        <span>
-                            <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
-                        </span>
-                        <span [class.fw-bold]="o.option.claimChoiceType === 'CorrectOption'" class="ps-2">
-                            {{ o.option.option }}
-                        </span>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-    <!-- grade -->
-    <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_word_points' | translate }}:</div>
-        @if (sectionQuestion().question.type === 'MultipleChoiceQuestion') {
-            <div class="sub-content-row col-md-9">
-                <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
-                    {{ scoreMultipleChoiceAnswer(true) }}
-                </span>
-                @if (hasForcedScore()) {
-                    <span class="text text-danger">
-                        {{ sectionQuestion().forcedScore }}
-                    </span>
+                            <span [class.fw-bold]="o.option.claimChoiceType === 'CorrectOption'" class="ps-2">{{
+                                o.option.option
+                            }}</span>
+                        </li>
+                    }
                 }
-                / {{ calculateMultiChoiceMaxPoints() }} {{ 'i18n_unit_points' | translate }}
-            </div>
+            }
+        </ul>
+    </dd>
+    <!-- grade -->
+    <dt class="sub-header-row">{{ 'i18n_word_points' | translate }}:</dt>
+    <dd class="sub-content-row">
+        @if (sectionQuestion().question.type === 'MultipleChoiceQuestion') {
+            <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
+                {{ scoreMultipleChoiceAnswer(true) }}
+            </span>
+            @if (hasForcedScore()) {
+                <span class="text text-danger">
+                    {{ sectionQuestion().forcedScore }}
+                </span>
+            }
+            / {{ calculateMultiChoiceMaxPoints() }} {{ 'i18n_unit_points' | translate }}
         }
         @if (sectionQuestion().question.type === 'WeightedMultipleChoiceQuestion') {
-            <div class="sub-content-row col-md-9">
-                <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
-                    {{ scoreWeightedMultipleChoiceAnswer(true) }}
+            <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
+                {{ scoreWeightedMultipleChoiceAnswer(true) }}
+            </span>
+            @if (hasForcedScore()) {
+                <span class="text text-danger">
+                    {{ sectionQuestion().forcedScore }}
                 </span>
-                @if (hasForcedScore()) {
-                    <span class="text text-danger">
-                        {{ sectionQuestion().forcedScore }}
-                    </span>
-                }
-                / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
-            </div>
+            }
+            / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
         }
         @if (sectionQuestion().question.type === 'ClaimChoiceQuestion') {
-            <div class="sub-content-row col-md-9">
-                <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
-                    {{ scoreClaimChoiceAnswer(true) }}
+            <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
+                {{ scoreClaimChoiceAnswer(true) }}
+            </span>
+            @if (hasForcedScore()) {
+                <span class="text text-danger">
+                    {{ sectionQuestion().forcedScore }}
                 </span>
-                @if (hasForcedScore()) {
-                    <span class="text text-danger">
-                        {{ sectionQuestion().forcedScore }}
-                    </span>
-                }
-                / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
-            </div>
+            }
+            / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
         }
-    </div>
-</div>
+    </dd>
+</dl>

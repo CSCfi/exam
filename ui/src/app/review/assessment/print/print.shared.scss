@@ -4,71 +4,96 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@media print {
-    [class*='col-md-'] {
-        float: left;
+@use '../../../shared/breakpoints' as bp;
+
+// Labels and values side by side from md up, and always on paper: a printed page is narrower
+// than md but has room for the columns
+@mixin side-by-side {
+    @include bp.up(md) {
+        @content;
+    }
+    @media print {
+        @content;
+    }
+}
+
+#exam-print {
+    padding-block: var(--xm-space-3);
+}
+
+// Section headings of the printout. The title keeps the space the former grid rows gave it.
+.print-title {
+    margin-bottom: var(--xm-space-4);
+}
+.print-heading {
+    margin-top: var(--xm-space-3);
+}
+
+// Label/value pairs: a label column of a fourth, or two pairs per row (.print-info)
+.print-details {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--xm-space-3);
+    margin: 0;
+
+    > dd {
+        min-width: 0;
+        margin-inline-start: 0;
+        margin-bottom: 0;
     }
 
-    #mainView {
-        width: 100%;
+    @include side-by-side {
+        grid-template-columns: 25% minmax(0, 1fr);
     }
-    .col-md-1,
-    .col-md-2,
-    .col-md-3,
-    .col-md-4,
-    .col-md-5,
-    .col-md-6,
-    .col-md-7,
-    .col-md-8,
-    .col-md-9,
-    .col-md-10,
-    .col-md-11,
-    .col-md-12 {
-        float: left;
-    }
-    .col-md-12 {
-        width: 100%;
-    }
-    .col-md-11 {
-        width: 91.66666666666666%;
-    }
-    .col-md-10 {
-        width: 83.33333333333334%;
-    }
-    .col-md-9 {
-        width: 75%;
-    }
-    .col-md-8 {
-        width: 66.66666666666666%;
-    }
-    .col-md-7 {
-        width: 58.333333333333336%;
-    }
-    .col-md-6 {
-        width: 50%;
-    }
-    .col-md-5 {
-        width: 41.66666666666667%;
-    }
-    .col-md-4 {
-        width: 33.33333333333333%;
-    }
-    .col-md-3 {
-        width: 25%;
-    }
-    .col-md-2 {
-        width: 16.666666666666664%;
-    }
-    .col-md-1 {
-        width: 8.333333333333332%;
-    }
-    .newRow {
-        float: left;
-        clear: left;
-    }
+}
+.print-info {
+    @include side-by-side {
+        grid-template-columns: 1fr 2fr 1fr 2fr;
 
-    .review-question-option-name {
-        line-height: 2em;
+        // A long value (enrolment information) takes the rest of the row
+        > .print-info-wide {
+            grid-column: span 3;
+        }
+    }
+}
+
+// Earlier participations: date, state and grade
+.print-participations {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    > li {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        column-gap: var(--xm-space-3);
+
+        @include side-by-side {
+            grid-template-columns: 1fr 2fr 3fr;
+        }
+    }
+}
+
+// Padding rather than margin, so the space does not merge with the heading's margin above
+.print-section {
+    display: block;
+    padding-top: var(--xm-space-2);
+}
+
+// Answer options of a question
+.print-options {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+// Weighted option: the box and its points, the option text beside them
+.print-weighted-option {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--xm-space-2);
+
+    @include side-by-side {
+        grid-template-columns: 25% minmax(0, 1fr);
     }
 }
 
@@ -112,11 +137,4 @@ blockquote {
     border: 0;
     border-left: 2px solid #999;
     padding-left: 1em;
-}
-
-@-moz-document url-prefix() {
-    .firefox-print-fix {
-        overflow: visible !important;
-        display: block !important;
-    }
 }

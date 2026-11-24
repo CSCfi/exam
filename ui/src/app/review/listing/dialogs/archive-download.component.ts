@@ -16,7 +16,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         <div class="modal-header">
             <div class="xm-modal-title">{{ 'i18n_exam_validity' | translate }}</div>
         </div>
-        <div class="modal-body mx-4">
+        <div class="modal-body archive-download-body">
             <label for="archive-download-start">{{ 'i18n_begin' | translate }}:</label>
             <xm-date-picker
                 inputId="archive-download-start"
@@ -26,14 +26,26 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
             <xm-date-picker inputId="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn btn-success" (click)="ok()">
-                {{ 'i18n_search' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+        <div class="dialog-actions">
+            <button class="btn btn-outline-secondary" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
+            <button class="btn btn-success" (click)="ok()">
+                {{ 'i18n_search' | translate }}
+            </button>
         </div>
+    `,
+    styles: `
+        .archive-download-body {
+            margin-inline: var(--xm-space-4);
+        }
+        .dialog-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: var(--xm-space-3);
+            margin: var(--xm-space-3);
+        }
     `,
 })
 export class ArchiveDownloadComponent {

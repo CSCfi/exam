@@ -17,7 +17,7 @@ import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';
         </blockquote>
         <p>{{ section().description }}</p>
         @for (sectionQuestion of section().sectionQuestions | orderBy: 'sequenceNumber'; track sectionQuestion) {
-            <div class="sub-content-row col-md-12">
+            <div class="sub-content-row">
                 @if (
                     sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
                     sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion' ||

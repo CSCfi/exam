@@ -17,9 +17,9 @@ type InspectionComment = { comment: string; creator: User; created: Date };
 
 @Component({
     selector: 'xm-r-inspection-comments',
-    template: `<div class="row mb-3 mt-2 align-items-center">
-            <div class="col-md-2 ">{{ 'i18n_inspector_comments' | translate }}:</div>
-            <div class="col-md-10">
+    template: `<div class="info comments-heading">
+            <div>{{ 'i18n_inspector_comments' | translate }}:</div>
+            <div class="info-wide">
                 @if (addingVisible()) {
                     <button class="btn btn-sm btn-outline-secondary me-2" (click)="addInspectionComment()">
                         {{ 'i18n_inspection_comment_title' | translate }}
@@ -36,8 +36,8 @@ type InspectionComment = { comment: string; creator: User; created: Date };
         </div>
 
         @for (comment of allComments(); track comment) {
-            <div class="row mb-1">
-                <div class="col-md-4">
+            <div class="info-comment">
+                <div>
                     <small>
                         {{ comment.creator.firstName }} {{ comment.creator.lastName }}
                         &middot;
@@ -46,11 +46,18 @@ type InspectionComment = { comment: string; creator: User; created: Date };
                     <br />
                     <small class="text-muted">{{ comment.creator.email }}</small>
                 </div>
-                <div class="col-md-8">
+                <div>
                     {{ comment.comment }}
                 </div>
             </div>
         } `,
+    styleUrl: '../assessment.shared.scss',
+    styles: `
+        .comments-heading {
+            align-items: center;
+            margin-block: var(--xm-space-2) var(--xm-space-3);
+        }
+    `,
     imports: [NgbPopover, DatePipe, TranslateModule],
 })
 export class InspectionCommentsComponent {

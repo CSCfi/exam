@@ -19,14 +19,16 @@ SPDX-License-Identifier: EUPL-1.2
 
     <div [ngbCollapse]="!view()!.toggle" [hidden]="view()!.items.length === 0">
         <div class="overflow-x-scroll">
-            <div class="col-lg-6 input-group my-2">
-                <input
-                    [value]="view()!.filter"
-                    (input)="onFreeSearchFilterInput($event)"
-                    class="form-control"
-                    placeholder="{{ 'i18n_search' | translate }}"
-                />
-                <i class="input-group-text bi-search"></i>
+            <div class="category-tools">
+                <div class="input-group category-search">
+                    <input
+                        [value]="view()!.filter"
+                        (input)="onFreeSearchFilterInput($event)"
+                        class="form-control"
+                        placeholder="{{ 'i18n_search' | translate }}"
+                    />
+                    <i class="input-group-text bi-search"></i>
+                </div>
             </div>
             <table class="table table-striped xm-data-table">
                 <thead>
@@ -184,17 +186,14 @@ SPDX-License-Identifier: EUPL-1.2
                 </tbody>
             </table>
         </div>
-        <div class="row ms-2">
-            @if (view()!.filtered.length > view()!.pageSize) {
-                <div class="col-md-12">
-                    <xm-paginator
-                        [items]="view()!.filtered"
-                        (pageSelected)="pageSelected($event)"
-                        [pageSize]="view()!.pageSize"
-                        [currentPage]="view()!.page"
-                    ></xm-paginator>
-                </div>
-            }
-        </div>
+        @if (view()!.filtered.length > view()!.pageSize) {
+            <xm-paginator
+                class="category-pages"
+                [items]="view()!.filtered"
+                (pageSelected)="pageSelected($event)"
+                [pageSize]="view()!.pageSize"
+                [currentPage]="view()!.page"
+            ></xm-paginator>
+        }
     </div>
 }

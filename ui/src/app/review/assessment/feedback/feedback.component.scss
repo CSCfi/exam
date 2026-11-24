@@ -36,13 +36,31 @@
     min-height: 0;
 }
 
+// The toggle in a twelfth of the panel, the title beside it, as in the former grid
+.header {
+    display: grid;
+    grid-template-columns: calc((100% + 1.5rem) / 12 - 1.5rem) minmax(0, 1fr);
+    column-gap: 1.5rem;
+    align-items: center;
+}
+
 // The editor is the only part that scrolls; header, attachment row and buttons stay put.
 .editor-area {
+    margin-block: var(--xm-space-2) var(--xm-space-1);
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
 }
 
+.attachment {
+    display: flex;
+    justify-content: flex-end;
+}
+
+// Attach at the start, save at the end
 .footer {
     flex: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--xm-space-2);
 }

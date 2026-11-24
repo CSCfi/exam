@@ -16,18 +16,34 @@ import { TranslateModule } from '@ngx-translate/core';
         </div>
         <div class="modal-body">
             <form id="infoForm" novalidate>
-                <label for="infoForm">{{ 'i18n_inspection_comment_description' | translate }}</label>
-                <textarea rows="10" class="w-100" [formField]="commentForm.comment" autofocus> </textarea>
+                <label for="inspectionComment">{{ 'i18n_inspection_comment_description' | translate }}</label>
+                <textarea
+                    id="inspectionComment"
+                    rows="10"
+                    class="comment"
+                    [formField]="commentForm.comment"
+                    autofocus
+                ></textarea>
             </form>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="xm-cluster dialog-actions">
+            <button class="btn btn-outline-secondary" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
             <button class="btn btn-success" [disabled]="commentForm.comment().invalid()" (click)="ok()">
                 {{ 'i18n_add' | translate }}
             </button>
-            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
-                {{ 'i18n_button_cancel' | translate }}
-            </button>
         </div>
+    `,
+    styles: `
+        .comment {
+            width: 100%;
+        }
+        .dialog-actions {
+            justify-content: flex-end;
+            gap: var(--xm-space-3);
+            margin: var(--xm-space-3);
+        }
     `,
 })
 export class InspectionCommentDialogComponent {
