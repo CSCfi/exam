@@ -67,6 +67,8 @@ describe('ReportsV2Component', () => {
                     useValue: {
                         getScaleDisplayName: () => '0-5',
                         getExamGradeDisplayName: (g: string) => `grade ${g}`,
+                        resolveGradeScale: (e?: Partial<Exam> | null) =>
+                            e?.gradeScale ?? e?.parent?.gradeScale ?? e?.course?.gradeScale,
                         getExamImplementationTranslation: () => 'i18n_aquarium',
                     },
                 },

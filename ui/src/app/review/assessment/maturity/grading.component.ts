@@ -81,7 +81,13 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
         this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
             this.initCreditTypes();
             this.grades.update((gs) =>
-                gs.map((g) => ({ ...g, name: this.CommonExam.getExamGradeDisplayName(g.type) })),
+                gs.map((g) => ({
+                    ...g,
+                    name: this.CommonExam.getExamGradeDisplayName(
+                        g.type,
+                        this.CommonExam.resolveGradeScale(this.getExam()),
+                    ),
+                })),
             );
         });
     }

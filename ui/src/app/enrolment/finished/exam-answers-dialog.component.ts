@@ -6,7 +6,7 @@ import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { Exam } from 'src/app/exam/exam.model';
+import { Exam, GradeScale } from 'src/app/exam/exam.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AnsweredQuestion } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -23,6 +23,8 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
 export class ExamAnswersDialogComponent {
     // Regular properties for programmatic access (set by modal service)
     readonly exam = signal<Exam | null>(null);
+    // The answers response carries no scale, so the opener passes the one of the assessed exam
+    readonly gradeScale = signal<GradeScale | undefined>(undefined);
     readonly participationTime = signal('');
     readonly participationDuration = signal<number | string>(0);
 
@@ -50,7 +52,7 @@ export class ExamAnswersDialogComponent {
     }
 
     getGradeName(grade: string): string {
-        return this.CommonExam.getExamGradeDisplayName(grade);
+        return this.CommonExam.getExamGradeDisplayName(grade, this.gradeScale());
     }
 
     countWords(answer: ExamSectionQuestion) {

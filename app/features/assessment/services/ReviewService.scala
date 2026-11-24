@@ -134,6 +134,7 @@ class ReviewService @Inject() (
         |examLanguages(*),
         |parent(*,
         |  course(*),
+        |  gradeScale(*),
         |  examOwners(*),
         |  examInspections(*, user(*))
         |),
