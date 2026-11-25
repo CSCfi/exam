@@ -64,7 +64,14 @@ describe('AutoEvaluationComponent', () => {
             providers: [
                 provideZonelessChangeDetection(),
                 { provide: ExamService, useValue: { getMaxScore: vi.fn().mockReturnValue(100) } },
-                { provide: CommonExamService, useValue: { getExamGradeDisplayName: vi.fn((n: string) => n) } },
+                {
+                    provide: CommonExamService,
+                    useValue: {
+                        getExamGradeDisplayName: vi.fn((n: string) => n),
+                        resolveGradeScale: (e?: Partial<Exam> | null) =>
+                            e?.gradeScale ?? e?.parent?.gradeScale ?? e?.course?.gradeScale,
+                    },
+                },
             ],
         }).compileComponents();
 

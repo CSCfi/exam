@@ -91,7 +91,12 @@ export class ExamParticipationComponent {
         this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
             const participation = this.participation();
             if (participation.exam.grade) {
-                this.gradeDisplayName.set(this.Exam.getExamGradeDisplayName(participation.exam.grade.name));
+                this.gradeDisplayName.set(
+                    this.Exam.getExamGradeDisplayName(
+                        participation.exam.grade.name,
+                        this.Exam.resolveGradeScale(this.reviewedExam()),
+                    ),
+                );
             }
         });
     }
@@ -140,10 +145,13 @@ export class ExamParticipationComponent {
             exam.grade!.displayName = this.translate.instant(
                 exam.languageInspection.approved ? 'i18n_approved' : 'i18n_rejected',
             );
-            exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade!.name);
+            exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade!.name, this.Exam.resolveGradeScale(exam));
             exam.gradedTime = exam.languageInspection.finishedAt;
         } else {
-            exam.grade!.displayName = this.Exam.getExamGradeDisplayName(exam.grade!.name);
+            exam.grade!.displayName = this.Exam.getExamGradeDisplayName(
+                exam.grade!.name,
+                this.Exam.resolveGradeScale(exam),
+            );
         }
         const credit = this.Exam.getCredit(exam);
         exam.credit = credit;

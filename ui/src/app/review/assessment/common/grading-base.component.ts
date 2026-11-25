@@ -79,7 +79,7 @@ export abstract class GradingBaseComponent {
         this.grades.set(
             scale.grades.map((grade) => ({
                 ...grade,
-                name: this.CommonExam.getExamGradeDisplayName(grade.name),
+                name: this.CommonExam.getExamGradeDisplayName(grade.name, scale),
                 type: grade.name,
             })),
         );
@@ -153,15 +153,11 @@ export abstract class GradingBaseComponent {
 
     private resolveGradeScale = (): GradeScale => {
         const exam: Exam = this.getExam();
-        if (exam.gradeScale) {
-            return exam.gradeScale;
-        } else if (exam.parent?.gradeScale) {
-            return exam.parent.gradeScale;
-        } else if (exam?.course?.gradeScale) {
-            return exam.course.gradeScale;
-        } else {
+        const scale = this.CommonExam.resolveGradeScale(exam);
+        if (!scale) {
             throw Error('No GradeScale for Assessment!');
         }
+        return scale;
     };
 
     protected abstract getExam(): Exam;

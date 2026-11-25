@@ -66,6 +66,9 @@ class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions
     "getting exam reviews as teacher" should:
       "return reviews with grade scale information" in:
         val (user, session) = loginAsTeacherWithExamInspection()
+        val parent          = exam.get.parent
+        parent.gradeScale = exam.get.gradeScale
+        parent.update()
         // Execute
         val result = runIO(get(s"/app/reviews/$examParentId", session = session))
 
@@ -75,6 +78,9 @@ class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions
         json.mustBe(a[JsArray])
         val participationArray = json.as[JsArray]
         participationArray.value must have size 1
+        // The parent's scale is needed in full to name grades of copies without their own scale
+        (participationArray.value.head \ "exam" \ "parent" \ "gradeScale" \ "description")
+          .as[String] must be(parent.gradeScale.description)
 
         val participation  = participationArray.value.head
         val examGradeScale = (participation \ "exam" \ "gradeScale").as[JsObject]

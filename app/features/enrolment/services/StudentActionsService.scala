@@ -50,6 +50,8 @@ class StudentActionsService @Inject() (
       .fetch("grade")
       .fetch("creditType", "id, type, deprecated")
       .fetch("gradeScale")
+      .fetch("parent.gradeScale")
+      .fetch("course.gradeScale")
       .fetch("executionType")
       .fetch("examFeedback")
       .fetch("examFeedback.attachment")

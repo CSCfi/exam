@@ -7,6 +7,7 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { GradeScale } from 'src/app/exam/exam.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
@@ -39,6 +40,8 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 export class ParticipationComponent {
     readonly participation = input.required<ExamParticipation>();
     readonly collaborative = input(false);
+    // Scale of the exam under review: earlier participations of the same exam share it
+    readonly gradeScale = input<GradeScale>();
 
     private readonly route = inject(ActivatedRoute);
     private readonly Exam = inject(CommonExamService);
@@ -67,6 +70,7 @@ export class ParticipationComponent {
         if (!participationValue.exam?.grade) {
             return;
         }
-        return this.Exam.getExamGradeDisplayName(participationValue.exam.grade.name);
+        const scale = this.Exam.resolveGradeScale(participationValue.exam) ?? this.gradeScale();
+        return this.Exam.getExamGradeDisplayName(participationValue.exam.grade.name, scale);
     };
 }
