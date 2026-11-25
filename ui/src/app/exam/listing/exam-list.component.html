@@ -7,11 +7,9 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-header text="i18n_exams" [appendTemplate]="button" />
 <xm-page-content [content]="content" />
 <ng-template #button>
-    <div class="header-actions">
-        <button class="btn btn-success" (click)="newExam()">
-            {{ 'i18n_toolbar_new_exam' | translate }}
-        </button>
-    </div>
+    <button class="btn btn-success" (click)="newExam()">
+        {{ 'i18n_toolbar_new_exam' | translate }}
+    </button>
 </ng-template>
 <ng-template #content>
     <div class="xm-stack">

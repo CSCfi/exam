@@ -33,19 +33,21 @@ interface RoomWithAddressVisibility extends ExamRoom {
     selector: 'xm-opening-hours',
     templateUrl: './opening-hours.component.html',
     styles: `
+        @use '../../shared/grid';
+
         /* Weekday, hours and actions in 2/12, 8/12 and 2/12 of the row (5/12, 5/12, 2/12 for a new row) */
         .hours-row {
             display: grid;
             grid-template-columns: minmax(0, 2fr) minmax(0, 8fr) minmax(0, 2fr);
             align-items: center;
-            column-gap: 1.5rem;
+            column-gap: grid.$gutter;
             margin-top: var(--xm-space-1);
         }
         /* The new row's time pickers need more room: it wraps instead (the add button below) */
         .new-hours {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--xm-space-2) 1.5rem;
+            gap: var(--xm-space-2) grid.$gutter;
         }
         /* Start time at the start, end time at the end */
         .hours-range {

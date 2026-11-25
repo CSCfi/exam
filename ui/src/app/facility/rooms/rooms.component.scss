@@ -5,6 +5,7 @@
  */
 
 @use '../../shared/breakpoints' as bp;
+@use '../../shared/grid';
 
 .selected {
     background-color: #d3e7a8;
@@ -57,7 +58,7 @@
 .field-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    column-gap: 1.5rem;
+    column-gap: grid.$gutter;
 
     @include bp.up(md) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -67,7 +68,7 @@
 .field-row-4 {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    column-gap: 1.5rem;
+    column-gap: grid.$gutter;
 
     @include bp.up(md) {
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -128,7 +129,7 @@
 /* Opening hours beside the exceptions and starting times from md up */
 .room-schedule {
     display: grid;
-    gap: var(--xm-space-3) 1.5rem;
+    gap: var(--xm-space-3) grid.$gutter;
 
     @include bp.up(md) {
         grid-template-columns: repeat(2, minmax(0, 1fr));

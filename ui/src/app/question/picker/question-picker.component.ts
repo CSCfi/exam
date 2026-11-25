@@ -51,8 +51,10 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
         </div>
     `,
     styles: `
+        @use '../../shared/grid';
+
         .picker-tools {
-            padding-inline: 1.75rem;
+            padding-inline: calc(var(--xm-space-3) + #{grid.$col-padding});
         }
         .picker-actions {
             justify-content: flex-end;

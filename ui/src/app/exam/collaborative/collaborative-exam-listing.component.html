@@ -8,11 +8,9 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-content [content]="content" />
 <ng-template #button>
     @if (user.isAdmin) {
-        <div class="header-actions">
-            <a class="btn btn-success" (click)="createExam()">
-                {{ 'i18n_toolbar_new_exam' | translate }}
-            </a>
-        </div>
+        <a class="btn btn-success" (click)="createExam()">
+            {{ 'i18n_toolbar_new_exam' | translate }}
+        </a>
     }
 </ng-template>
 <ng-template #content>

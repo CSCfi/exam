@@ -9,11 +9,9 @@ SPDX-License-Identifier: EUPL-1.2
     <xm-page-content [content]="content" />
 }
 <ng-template #printButton>
-    <div class="header-actions">
-        <button (click)="print()" class="btn btn-success">
-            {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
-        </button>
-    </div>
+    <button (click)="print()" class="btn btn-success">
+        {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
+    </button>
 </ng-template>
 <ng-template #content>
     <h3>

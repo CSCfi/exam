@@ -22,7 +22,7 @@ import { TranslateModule } from '@ngx-translate/core';
                 </h1>
             </div>
             @if (appendTemplate()) {
-                <div>
+                <div class="header-actions">
                     <ng-container [ngTemplateOutlet]="appendTemplate()"></ng-container>
                 </div>
             }
@@ -30,6 +30,8 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
     styles: [
         `
+            @use '../grid';
+
             @use '../breakpoints' as bp;
 
             // Title (with an optional back button) and an optional area for actions beside it, which
@@ -41,7 +43,7 @@ import { TranslateModule } from '@ngx-translate/core';
                 display: grid;
                 grid-template-columns: minmax(0, 1fr);
                 align-items: center;
-                column-gap: 1.5rem;
+                column-gap: grid.$gutter;
                 margin-block: var(--xm-space-4) var(--xm-space-2);
                 padding-inline: var(--xm-page-inset);
 
@@ -50,12 +52,20 @@ import { TranslateModule } from '@ngx-translate/core';
                 }
 
                 @include bp.up(md) {
-                    grid-template-columns: minmax(0, 1fr) calc(25% - 1.125rem);
+                    grid-template-columns: minmax(0, 1fr) grid.share(0.25);
 
                     &.append-wide {
-                        grid-template-columns: minmax(0, 1fr) calc(50% - 0.75rem);
+                        grid-template-columns: minmax(0, 1fr) grid.share(0.5);
                     }
                 }
+            }
+            // Buttons and status at the end of the row (also on phones, under the title)
+            .header-actions {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: flex-end;
+                gap: var(--xm-space-3);
             }
             .title-row {
                 display: flex;

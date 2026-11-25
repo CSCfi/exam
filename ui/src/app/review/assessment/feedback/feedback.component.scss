@@ -5,6 +5,7 @@
  */
 
 @use '../../../shared/definitions.scss' as shared;
+@use '../../../shared/grid';
 
 .wrapper {
     padding: 1em;
@@ -39,8 +40,8 @@
 // The toggle in a twelfth of the panel, the title beside it, as in the former grid
 .header {
     display: grid;
-    grid-template-columns: calc((100% + 1.5rem) / 12 - 1.5rem) minmax(0, 1fr);
-    column-gap: 1.5rem;
+    grid-template-columns: grid.share(calc(1 / 12)) minmax(0, 1fr);
+    column-gap: grid.$gutter;
     align-items: center;
 }
 

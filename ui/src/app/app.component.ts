@@ -37,6 +37,9 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
     `,
     styles: [
         `
+            @use './shared/grid';
+            @use './shared/definitions.scss' as shared;
+
             .app-initializing {
                 padding: 2rem;
                 text-align: center;
@@ -44,7 +47,7 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
             #mainView {
                 /* The page's side padding, also for full-width parts such as the exam header that
                    cancel it with a negative margin */
-                --xm-page-gutter: 0.75rem;
+                --xm-page-gutter: #{grid.$col-padding};
                 padding-inline: var(--xm-page-gutter);
                 @media print {
                     margin: 0 15px;
@@ -53,10 +56,9 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
             }
             .vmenu-on {
                 width: auto;
-                margin-left: 17.025em !important;
+                margin-left: shared.$nav-width !important;
 
-                /* Keep in sync with definitions.scss $mobile-width */
-                @media (max-width: 1024px) {
+                @media (max-width: shared.$mobile-width) {
                     margin-left: 0 !important;
                 }
 
@@ -66,7 +68,7 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
             }
             /* No side padding on narrow screens with the menu (same condition as above) */
             #mainView.vmenu-on {
-                @media (max-width: 1024px) {
+                @media (max-width: shared.$mobile-width) {
                     --xm-page-gutter: 0px;
                 }
             }

@@ -51,11 +51,13 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
         }
     `,
     styles: `
+        @use '../../shared/grid';
+
         /* Time, status and remove button: the col / col / col-3 split of the row */
         .exception {
             display: grid;
             grid-template-columns: minmax(0, 3fr) minmax(0, 3fr) minmax(0, 2fr);
-            column-gap: 1.5rem;
+            column-gap: grid.$gutter;
             margin-bottom: var(--xm-space-2);
         }
         .add-exception {

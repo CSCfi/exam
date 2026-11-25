@@ -7,14 +7,12 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-header text="i18n_dashboard" [appendTemplate]="buttons" />
 <xm-page-content [content]="content" />
 <ng-template #buttons>
-    <div class="xm-cluster dashboard-actions">
-        <a [routerLink]="['/staff/exams']" class="btn btn-success">
-            {{ 'i18n_toolbar_new_exam' | translate }}
-        </a>
-        <a [routerLink]="['/staff/questions/new']" [queryParams]="{ nextState: 'teacher' }" class="btn btn-success">
-            {{ 'i18n_toolbar_new_question' | translate }}
-        </a>
-    </div>
+    <a [routerLink]="['/staff/exams']" class="btn btn-success">
+        {{ 'i18n_toolbar_new_exam' | translate }}
+    </a>
+    <a [routerLink]="['/staff/questions/new']" [queryParams]="{ nextState: 'teacher' }" class="btn btn-success">
+        {{ 'i18n_toolbar_new_question' | translate }}
+    </a>
 </ng-template>
 <ng-template #content>
     <div class="xm-stack">

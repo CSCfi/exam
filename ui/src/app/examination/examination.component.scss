@@ -5,6 +5,7 @@
  */
 
 @use '../shared/breakpoints' as bp;
+@use '../shared/grid';
 
 /* Exam content and the toolbar: stacked (content first) on phones, side by side 2:1 from md up.
    Offsets as in the Bootstrap row this replaced: 0.5rem in on the left, out to the page edge on
@@ -27,12 +28,12 @@
 .exam-main {
     grid-area: main;
     min-width: 0;
-    padding-inline: 0.75rem;
+    padding-inline: grid.$col-padding;
 }
 
 .exam-sidebar {
     grid-area: sidebar;
-    padding-inline: 0.75rem 1.5rem;
+    padding-inline: grid.$col-padding grid.$gutter;
     position: sticky;
     top: 0;
     align-self: start;

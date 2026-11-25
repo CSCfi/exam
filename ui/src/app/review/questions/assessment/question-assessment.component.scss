@@ -5,6 +5,7 @@
  */
 
 @use '../../../shared/breakpoints' as bp;
+@use '../../../shared/grid';
 
 // The answers take two thirds of the page and the question flow the rest, one under the other
 // on phones. The columns reach over the page's side padding like the former grid row did.
@@ -14,7 +15,7 @@
 
     > .review-flow-column {
         // On phones, in line with the page content above it
-        padding-inline: 1.75rem;
+        padding-inline: calc(var(--xm-space-3) + #{grid.$col-padding});
     }
 
     @include bp.up(md) {
@@ -23,7 +24,7 @@
 
         > .review-answers-column,
         > .review-flow-column {
-            padding-inline: 0.75rem;
+            padding-inline: grid.$col-padding;
         }
         > .review-answers-column {
             border-right: 1px solid lightgrey;
@@ -41,7 +42,7 @@
     margin-top: var(--xm-space-2);
 }
 .triangle-line-row {
-    margin-inline: -0.75rem;
+    margin-inline: -1 * grid.$col-padding;
 }
 .review-tabs {
     padding-top: var(--xm-space-4);
@@ -79,7 +80,7 @@
 }
 .essay-answer-instructions-box {
     margin-top: var(--xm-space-2);
-    padding-inline: 0.75rem;
+    padding-inline: grid.$col-padding;
     border-top: 1px solid lightgrey;
     border-bottom: 1px solid lightgrey;
     padding-top: 1em;
@@ -107,7 +108,7 @@
     padding-inline: 1.25rem;
 }
 .question-reviews-info {
-    margin: var(--xm-space-2) -0.75rem 0;
+    margin: var(--xm-space-2) -1 * grid.$col-padding 0;
     padding: var(--xm-space-2);
 }
 .question-reviews-empty {

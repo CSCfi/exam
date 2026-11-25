@@ -64,11 +64,13 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
         </div>
     </div>`,
     styles: `
+        @use '../../shared/grid';
+
         /* Label in half the row, the minutes field in the next 2/12 */
         .offset-row {
             display: grid;
             grid-template-columns: minmax(0, 6fr) minmax(0, 2fr) minmax(0, 4fr);
-            column-gap: 1.5rem;
+            column-gap: grid.$gutter;
         }
         /* Save (and the unsaved-changes warning) at the start, select-all at the end */
         .starting-actions {

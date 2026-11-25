@@ -24,7 +24,7 @@ $border-green: 3px solid shared.$exam-dark-green;
     z-index: 2;
     padding: 0;
     position: fixed;
-    width: 17.125em;
+    width: shared.$nav-width;
 
     @include mobile {
         position: relative;

@@ -33,10 +33,6 @@ import { ExamSectionComponent } from './sections/section.component';
     selector: 'xm-assessment',
     templateUrl: './assessment.component.html',
     styles: `
-        .header-actions {
-            display: flex;
-            justify-content: flex-end;
-        }
         .grading-heading {
             margin-top: var(--xm-space-2);
         }
