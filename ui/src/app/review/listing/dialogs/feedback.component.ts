@@ -36,9 +36,11 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
         </div>
     `,
     styles: `
+        @use '../../../shared/grid';
+
         // The editor starts a quarter rem left of the dialog body padding, as under the former grid
         .feedback-body {
-            padding-inline-start: 0.75rem;
+            padding-inline-start: grid.$col-padding;
         }
     `,
 })

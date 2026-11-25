@@ -28,14 +28,12 @@ type FileResult = { errorCount: number; successCount: number };
         <xm-page-header text="i18n_library_new" [appendWide]="true" [appendTemplate]="buttons" />
         <xm-page-content [content]="content" />
         <ng-template #buttons>
-            <div class="header-actions">
-                <button (click)="import()" class="btn btn-success">
-                    {{ 'i18n_toolbar_import_questions' | translate }}
-                </button>
-                <button [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="btn btn-success">
-                    {{ 'i18n_toolbar_new_question' | translate }}
-                </button>
-            </div>
+            <button (click)="import()" class="btn btn-success">
+                {{ 'i18n_toolbar_import_questions' | translate }}
+            </button>
+            <button [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="btn btn-success">
+                {{ 'i18n_toolbar_new_question' | translate }}
+            </button>
         </ng-template>
         <ng-template #content>
             <div class="xm-bordered-area">

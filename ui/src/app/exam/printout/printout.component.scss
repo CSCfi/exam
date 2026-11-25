@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/grid';
+
 .ptoolbar {
     position: relative;
     top: 15px;
@@ -15,8 +17,8 @@
 .prow {
     margin: 0;
     /* includes the 0.75rem the Bootstrap columns inside used to add */
-    padding-left: calc(1em + 0.75rem);
-    padding-right: calc(1em + 0.75rem);
+    padding-left: calc(1em + #{grid.$col-padding});
+    padding-right: calc(1em + #{grid.$col-padding});
 }
 .pinstructions {
     margin-bottom: 1rem;

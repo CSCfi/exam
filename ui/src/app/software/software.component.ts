@@ -16,9 +16,11 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     templateUrl: './software.component.html',
     imports: [FormsModule, FormField, TranslateModule, OrderByPipe],
     styles: `
+        @use '../shared/grid';
+
         // The form and the list are indented under the title, as under the former grid
         .software-body {
-            margin-inline-start: 1.75rem;
+            margin-inline-start: calc(var(--xm-space-3) + #{grid.$col-padding});
         }
         .add-button {
             margin-top: var(--xm-space-2);

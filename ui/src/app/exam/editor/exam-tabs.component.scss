@@ -7,8 +7,6 @@
 @use '../../shared/definitions.scss' as shared;
 
 .exam-status {
-    display: block;
-    text-align: end;
     color: shared.$exam-blue;
     font-size: 1.375rem;
     letter-spacing: 1.05px;

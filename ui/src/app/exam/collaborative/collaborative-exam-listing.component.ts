@@ -47,10 +47,6 @@ interface ListedCollaborativeExam extends Exam {
     selector: 'xm-collaborative-exam-listing',
     templateUrl: './collaborative-exam-listing.component.html',
     styles: `
-        .header-actions {
-            display: flex;
-            justify-content: flex-end;
-        }
         .list-search {
             flex: 0 1 26rem;
         }

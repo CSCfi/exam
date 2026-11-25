@@ -12,11 +12,13 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
 
 @Component({
     styles: `
+        @use '../../shared/grid';
+
         /* Begin and end side by side */
         .dates {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            column-gap: 1.5rem;
+            column-gap: grid.$gutter;
         }
     `,
     imports: [FormField, TranslateModule, DateTimePickerComponent],

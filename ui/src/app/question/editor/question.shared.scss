@@ -6,6 +6,7 @@
 
 @use '../../shared/breakpoints' as bp;
 @use '../../shared/definitions.scss' as shared;
+@use '../../shared/grid';
 
 // Cancel and save at the end of the form
 .question-actions {
@@ -15,7 +16,7 @@
 
 // The question form in the exam's question dialog
 .exam-question-form {
-    padding-inline: 0.75rem;
+    padding-inline: grid.$col-padding;
 }
 
 // Option rows: the option box, the box for its correctness or points and the remove button take
@@ -24,10 +25,10 @@
 .option-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    margin-inline: -0.75rem;
+    margin-inline: -1 * grid.$col-padding;
 
     > .option-heading {
-        padding-inline: 0.75rem;
+        padding-inline: grid.$col-padding;
     }
 
     @include bp.up(md) {
@@ -80,7 +81,7 @@
     }
 }
 .claim-heading {
-    padding: 0 calc(10px + 0.75rem) var(--xm-space-2);
+    padding: 0 calc(10px + #{grid.$col-padding}) var(--xm-space-2);
 }
 
 .btn-cancel {
@@ -213,7 +214,7 @@
 .question-editor-claim-choice-option {
     border: 1px solid transparent;
     border-radius: 4px;
-    padding: 10px calc(10px + 0.75rem);
+    padding: 10px calc(10px + #{grid.$col-padding});
     transition-duration: 0.2s;
 }
 

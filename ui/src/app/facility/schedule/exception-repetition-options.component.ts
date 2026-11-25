@@ -50,6 +50,8 @@ interface MonthOfYear {
     templateUrl: './exception-repetition-options.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
     styles: `
+        @use '../../shared/grid';
+
         .blue-shadow-hover:hover {
             box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1);
         }
@@ -59,12 +61,12 @@ interface MonthOfYear {
             grid-auto-flow: column;
             grid-auto-columns: minmax(0, 1fr);
             align-items: center;
-            column-gap: 1.5rem;
+            column-gap: grid.$gutter;
         }
         .dates {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            column-gap: 1.5rem;
+            column-gap: grid.$gutter;
             margin-top: var(--xm-space-2);
         }
         .mode-title {

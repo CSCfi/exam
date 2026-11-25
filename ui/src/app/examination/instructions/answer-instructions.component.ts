@@ -36,6 +36,8 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
     imports: [CourseCodeComponent, RichTextDirective, TranslateModule],
     styleUrls: ['../examination.shared.scss'],
     styles: `
+        @use '../../shared/grid';
+
         @use '../../shared/breakpoints' as bp;
 
         .guide {
@@ -45,17 +47,17 @@ import { RichTextDirective } from 'src/app/shared/rich-text/rich-text.directive'
         /* Labels in the first third of the row from md up, stacked below that; rows without gaps */
         .guide-list {
             grid-template-columns: minmax(0, 1fr);
-            column-gap: 1.5rem;
+            column-gap: grid.$gutter;
             padding-inline: 22px;
             /* reaches into the column's padding on the right, as the old row did */
-            margin-inline-end: -0.75rem;
+            margin-inline-end: -1 * grid.$col-padding;
 
             > dd {
                 margin: 0;
             }
 
             @include bp.up(md) {
-                grid-template-columns: calc((100% + 1.5rem) / 3 - 1.5rem) minmax(0, 1fr);
+                grid-template-columns: grid.share(calc(1 / 3)) minmax(0, 1fr);
             }
         }
     `,

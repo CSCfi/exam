@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../grid';
+
 .attachment-input {
     position: absolute;
     width: 1px;
@@ -38,8 +40,8 @@
 // of the former grid)
 .file-row {
     display: grid;
-    grid-template-columns: calc(25% - 1.125rem) minmax(0, 1fr);
-    column-gap: 1.5rem;
+    grid-template-columns: grid.share(0.25) minmax(0, 1fr);
+    column-gap: grid.$gutter;
 }
 .file-notes {
     padding-top: var(--xm-space-2);

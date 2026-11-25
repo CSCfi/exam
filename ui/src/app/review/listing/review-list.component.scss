@@ -6,6 +6,7 @@
 
 @use '../../shared/breakpoints' as bp;
 @use '../../shared/definitions.scss' as shared;
+@use '../../shared/grid';
 
 // The review list: teachers and links on top, then a section per review state. The list is
 // inset from the page content as it was under the former grid (margin + column padding).
@@ -107,7 +108,7 @@ th.dropdown {
 
 // Aborted exams and no-shows dialogs
 .dialog-title {
-    margin: var(--xm-space-3) 0 0 1.75rem;
+    margin: var(--xm-space-3) 0 0 calc(var(--xm-space-3) + #{grid.$col-padding});
 }
 .dialog-no-results {
     display: flex;
@@ -117,6 +118,6 @@ th.dropdown {
 }
 // The table reaches past the dialog body padding by the former grid gutter
 .dialog-table {
-    width: calc(100% + 1.5rem);
-    margin-inline: -0.75rem;
+    width: calc(100% + #{grid.$gutter});
+    margin-inline: -1 * grid.$col-padding;
 }

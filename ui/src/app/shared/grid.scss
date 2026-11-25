@@ -1,0 +1,21 @@
+/*
+ * SPDX-FileCopyrightText: The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+// The geometry of the former Bootstrap grid. Converted pages keep it so that they look as they
+// did; naming it here lets a redesign find every place that still copies it.
+//   @use '…/shared/grid';  column-gap: grid.$gutter;
+
+// Gap between two columns
+$gutter: 1.5rem;
+
+// Padding inside a column, and how far a row reached past its container
+$col-padding: $gutter * 0.5;
+
+// Width of a column taking $share of the row (e.g. calc(1 / 3)) when columns are $gutter apart:
+// the column then starts and ends where a grid column of the same share did.
+@function share($share) {
+    @return calc((100% + #{$gutter}) * #{$share} - #{$gutter});
+}

@@ -8,6 +8,7 @@
 // utilities (d-flex, gap-*, m*-/p*-). Loaded once globally from styles.scss.
 // Primitives only arrange their direct children; they set no colours or typography.
 @use './breakpoints' as bp;
+@use './grid';
 
 :root {
     --xm-space-1: 0.25rem;
@@ -18,7 +19,7 @@
 
     // Distance of the page header and the page content from the edges of the main view. Both
     // use it, so the header (back button included) never starts right of the content.
-    --xm-page-inset: 1.75rem;
+    --xm-page-inset: calc(var(--xm-space-3) + #{grid.$col-padding});
 }
 
 // Vertical flow with even spacing between children.

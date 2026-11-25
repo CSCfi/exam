@@ -5,6 +5,7 @@
  */
 
 @use '../shared/breakpoints' as bp;
+@use '../shared/grid';
 
 .reservation-search-form-label {
     font-size: 0.75rem;
@@ -35,7 +36,7 @@ xm-dropdown-select {
 
     @include bp.up(md) {
         grid-template-columns: repeat(12, minmax(0, 1fr));
-        column-gap: 1.5rem;
+        column-gap: grid.$gutter;
 
         > .span-2 {
             grid-column: span 2;

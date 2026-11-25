@@ -5,6 +5,7 @@
  */
 
 @use '../shared/breakpoints' as bp;
+@use '../shared/grid';
 
 .maturity-input-label {
     font-size: 0.75rem;
@@ -28,7 +29,7 @@
 .filters {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--xm-space-2) 1.5rem;
+    gap: var(--xm-space-2) grid.$gutter;
     align-items: end;
     margin-bottom: var(--xm-space-3);
 

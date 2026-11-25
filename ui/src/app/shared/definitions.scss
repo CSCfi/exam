@@ -7,6 +7,10 @@
 // common definitions
 /* Include ~980px legacy/desktop viewport widths on phones so mobile layout still applies */
 $mobile-width: 1024px;
+/* Width of the fixed vertical menu, and so the left margin the main view needs to clear it.
+   Originally 230px, converted to em against the ~13.4px body font of the time; it is kept at
+   that length rather than rounded so the menu keeps the width it has always had. */
+$nav-width: 17.125rem;
 $exam-medium-green: #238635;
 $exam-dark-green: #2c7639;
 $exam-dark-grey: #4c4c4c;
