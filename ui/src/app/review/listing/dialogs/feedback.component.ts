@@ -26,7 +26,7 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                 ></xm-ckeditor>
             }
         </div>
-        <div class="dialog-actions">
+        <div class="xm-dialog-actions">
             <button class="btn btn-outline-secondary" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
@@ -39,13 +39,6 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
         // The editor starts a quarter rem left of the dialog body padding, as under the former grid
         .feedback-body {
             padding-inline-start: 0.75rem;
-        }
-        .dialog-actions {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            gap: var(--xm-space-3);
-            margin: var(--xm-space-3);
         }
     `,
 })

@@ -11,16 +11,16 @@ SPDX-License-Identifier: EUPL-1.2
 }
 <xm-page-content [content]="content" />
 <ng-template #content>
-    <div class="row">
-        <div class="col-md-2 pt-1 reservation-search-form-label">
+    <div class="search-row">
+        <div class="span-2 date-field reservation-search-form-label">
             <label for="start-date-picker" class="reservation-search-form-label">{{ 'i18n_begin' | translate }}</label>
             <xm-date-picker inputId="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
         </div>
-        <div class="col-md-2 pt-1 reservation-search-form-label">
+        <div class="span-2 date-field reservation-search-form-label">
             <label for="end-date-picker" class="reservation-search-form-label">{{ 'i18n_end' | translate }}</label>
             <xm-date-picker inputId="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
-        <div class="col-md-2">
+        <div class="span-2">
             <label for="student-search" class="reservation-search-form-label">{{ 'i18n_student' | translate }}</label>
             <div class="input-group">
                 <input
@@ -40,7 +40,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </button>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="span-3">
             <label for="exam-search" class="reservation-search-form-label">{{ 'i18n_exam' | translate }}</label>
             <div class="input-group">
                 <input
@@ -60,7 +60,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </button>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="span-3">
             <label for="state-search" class="reservation-search-form-label">{{ 'i18n_exam_state' | translate }}</label>
             <xm-dropdown-select
                 triggerId="state-search"
@@ -75,8 +75,8 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <!-- 2nd row of controls for admin only -->
     @if (isAdminView || isSupportView) {
-        <div class="row mt-2 align-items-center">
-            <div class="col-md-3">
+        <div class="search-row search-row-admin">
+            <div class="span-3">
                 <label for="owner-search" class="reservation-search-form-label">{{
                     'i18n_exam_owners' | translate
                 }}</label>
@@ -98,7 +98,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </button>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="span-3">
                 <label for="room-search" class="reservation-search-form-label">{{ 'i18n_room' | translate }}</label>
                 @if (roomOptions().length > 0) {
                     <xm-dropdown-select
@@ -112,7 +112,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </xm-dropdown-select>
                 }
             </div>
-            <div class="col-md-3">
+            <div class="span-3">
                 <label for="machine-search" class="reservation-search-form-label">{{
                     'i18n_exam_machine' | translate
                 }}</label>
@@ -128,7 +128,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </xm-dropdown-select>
                 }
             </div>
-            <div class="col-md-3">
+            <div class="span-3">
                 <div class="checkbox">
                     <label>
                         <input
@@ -167,7 +167,7 @@ SPDX-License-Identifier: EUPL-1.2
         >
         </xm-reservation-details>
     } @else {
-        <div class="mt-3" aria-live="polite">
+        <div class="no-results" aria-live="polite">
             {{ 'i18n_no_reservations_found' | translate }}
         </div>
     }

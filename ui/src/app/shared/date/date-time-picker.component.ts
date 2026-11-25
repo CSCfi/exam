@@ -10,8 +10,8 @@ import { DatePickerComponent } from './date-picker.component';
 @Component({
     selector: 'xm-date-time-picker',
     template: `
-        <div class="row align-items-center">
-            <div class="col-auto" [class.disable-gray-out]="disableDate()">
+        <div class="date-time">
+            <div [class.disable-gray-out]="disableDate()">
                 <xm-date-picker
                     [disabled]="disabled()"
                     [initialDate]="initialTime()"
@@ -21,7 +21,7 @@ import { DatePickerComponent } from './date-picker.component';
                     [maxDate]="maxDate()"
                 ></xm-date-picker>
             </div>
-            <div class="col" [class.disable-gray-out]="disableTime()">
+            <div [class.disable-gray-out]="disableTime()">
                 <ngb-timepicker
                     name="timepicker"
                     [disabled]="disabled()"

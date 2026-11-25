@@ -14,12 +14,12 @@ import { TranslateModule } from '@ngx-translate/core';
             <div class="xm-modal-title">{{ title() | translate }}</div>
         </div>
         <div class="modal-body" [innerHTML]="description()"></div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="xm-dialog-actions">
+            <button class="btn btn-secondary" (click)="activeModal.dismiss(false)">
+                {{ cancelButtonText() | translate }}
+            </button>
             <button class="btn btn-success" (click)="activeModal.close(true)" autofocus>
                 {{ confirmButtonText() | translate }}
-            </button>
-            <button class="btn btn-secondary me-3" (click)="activeModal.dismiss(false)">
-                {{ cancelButtonText() | translate }}
             </button>
         </div>
     `,

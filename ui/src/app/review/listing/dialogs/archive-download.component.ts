@@ -26,7 +26,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
             <xm-date-picker inputId="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
-        <div class="dialog-actions">
+        <div class="xm-dialog-actions">
             <button class="btn btn-outline-secondary" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
@@ -38,13 +38,6 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     styles: `
         .archive-download-body {
             margin-inline: var(--xm-space-4);
-        }
-        .dialog-actions {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            gap: var(--xm-space-3);
-            margin: var(--xm-space-3);
         }
     `,
 })

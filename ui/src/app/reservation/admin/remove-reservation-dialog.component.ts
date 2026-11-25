@@ -19,8 +19,9 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             </h4>
         </div>
         <div class="modal-body">
-            <strong>{{ 'i18n_message' | translate }}</strong>
+            <label for="removal-message" class="fw-bold">{{ 'i18n_message' | translate }}</label>
             <textarea
+                id="removal-message"
                 class="form-control"
                 [value]="message().text"
                 (input)="onMessageTextInput($event)"
@@ -29,11 +30,11 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             >
             </textarea>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
-            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+        <div class="xm-dialog-actions">
+            <button class="btn btn-outline-secondary" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
+            <button class="btn btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
         </div>
     `,
 })

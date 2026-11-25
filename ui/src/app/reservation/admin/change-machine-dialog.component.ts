@@ -40,38 +40,41 @@ interface MachineChoice {
             </h4>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-                <label for="room">{{ 'i18n_examination_location' | translate }}</label>
-                <xm-dropdown-select
-                    #roomSelection
-                    triggerId="room"
-                    [initial]="room()"
-                    [options]="availableRoomOptions()"
-                    [limitTo]="0"
-                    [allowClearing]="false"
-                    (optionSelected)="roomChanged($event)"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                ></xm-dropdown-select>
-            </div>
-            <div class="form-group mt-2">
-                <label for="room">{{ 'i18n_exam_machine' | translate }}</label>
-                <xm-dropdown-select
-                    #machineSelection
-                    [options]="availableMachineOptions()"
-                    [limitTo]="0"
-                    [allowClearing]="false"
-                    (optionSelected)="machineChanged($event)"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                    autofocus
-                ></xm-dropdown-select>
+            <div class="xm-stack xm-gap-2">
+                <div>
+                    <label for="room">{{ 'i18n_examination_location' | translate }}</label>
+                    <xm-dropdown-select
+                        #roomSelection
+                        triggerId="room"
+                        [initial]="room()"
+                        [options]="availableRoomOptions()"
+                        [limitTo]="0"
+                        [allowClearing]="false"
+                        (optionSelected)="roomChanged($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    ></xm-dropdown-select>
+                </div>
+                <div>
+                    <label for="machine">{{ 'i18n_exam_machine' | translate }}</label>
+                    <xm-dropdown-select
+                        #machineSelection
+                        triggerId="machine"
+                        [options]="availableMachineOptions()"
+                        [limitTo]="0"
+                        [allowClearing]="false"
+                        (optionSelected)="machineChanged($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                        autofocus
+                    ></xm-dropdown-select>
+                </div>
             </div>
 
-            <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <div class="xm-dialog-actions">
+                <button class="btn btn-outline-secondary" (click)="cancel()">
+                    {{ 'i18n_button_cancel' | translate }}
+                </button>
                 <button class="btn btn-success" (click)="ok()" [disabled]="!choice()">
                     {{ 'i18n_button_save' | translate }}
-                </button>
-                <button class="btn btn-outline-secondary me-3" (click)="cancel()">
-                    {{ 'i18n_button_cancel' | translate }}
                 </button>
             </div>
         </div>

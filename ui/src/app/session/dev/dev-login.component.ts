@@ -13,39 +13,46 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 @Component({
     selector: 'xm-dev-login',
     template: `
-        <div class="container-fluid">
-            <xm-page-header text="i18n_login" />
-            <xm-page-content [content]="content" />
-        </div>
+        <xm-page-header text="i18n_login" />
+        <xm-page-content [content]="content" />
         <ng-template #content>
-            <form (submit)="login($event, false)">
-                <div class="mb-3">
+            <form class="xm-stack" (submit)="login($event, false)">
+                <div>
                     <label class="form-label" for="uname">{{ 'i18n_username' | translate }}</label>
                     <input
                         id="uname"
-                        class="form-control w-25"
+                        class="form-control login-field"
                         type="text"
                         placeholder="{{ 'i18n_username' | translate }}"
                         [formField]="loginForm.username"
                         (keydown.enter)="login($event, true)"
                     />
                 </div>
-                <div class="mb-3">
+                <div>
                     <label class="form-label" for="pwd">{{ 'i18n_password' | translate }}</label>
                     <input
                         id="pwd"
-                        class="form-control w-25"
+                        class="form-control login-field"
                         type="password"
                         placeholder="{{ 'i18n_password' | translate }}"
                         [formField]="loginForm.password"
                         (keydown.enter)="login($event, true)"
                     />
                 </div>
-                <button type="submit" class="btn btn-success" id="submit">
+                <button type="submit" class="btn btn-success login-button" id="submit">
                     {{ 'i18n_login' | translate }}
                 </button>
             </form>
         </ng-template>
+    `,
+    styles: `
+        // About as wide as the former quarter of a wide screen, the full width on phones
+        .login-field {
+            max-width: 20.5rem;
+        }
+        .login-button {
+            align-self: start;
+        }
     `,
     imports: [FormField, TranslateModule, PageHeaderComponent, PageContentComponent],
 })

@@ -29,7 +29,7 @@ const ICONS: Record<ToastType, string> = {
                         (mouseenter)="hovered.set(t.id)"
                         (mouseleave)="hovered.set(undefined)"
                     >
-                        <div class="d-flex gap-3 align-items-center">
+                        <div class="xm-toast-body">
                             <i class="bi bi-{{ icons[t.type] }} xm-toast-icon" aria-hidden="true"></i>
                             <div>
                                 @if (t.title) {
@@ -48,6 +48,12 @@ const ICONS: Record<ToastType, string> = {
     `,
     styles: [
         `
+            // Icon beside the title and message
+            .xm-toast-body {
+                display: flex;
+                align-items: center;
+                gap: var(--xm-space-3);
+            }
             .xm-toast-container {
                 position: fixed;
                 z-index: 1090;

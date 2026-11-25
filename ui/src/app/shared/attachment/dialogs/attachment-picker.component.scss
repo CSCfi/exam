@@ -33,3 +33,14 @@
 .btn-file {
     overflow: hidden;
 }
+
+// The choose button in a quarter of the row, the chosen file's name beside it (the column widths
+// of the former grid)
+.file-row {
+    display: grid;
+    grid-template-columns: calc(25% - 1.125rem) minmax(0, 1fr);
+    column-gap: 1.5rem;
+}
+.file-notes {
+    padding-top: var(--xm-space-2);
+}

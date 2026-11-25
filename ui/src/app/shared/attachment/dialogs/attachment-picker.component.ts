@@ -25,8 +25,8 @@ import { FileService } from 'src/app/shared/file/file.service';
             <h2 class="xm-modal-title">{{ title() | translate }}</h2>
         </div>
         <div class="modal-body">
-            <div class="row">
-                <div class="col-3">
+            <div class="file-row">
+                <div>
                     <label for="file-select" class="btn btn-success btn-file" aria-hidden="true"
                         >{{ 'i18n_choose' | translate }}
                     </label>
@@ -41,24 +41,20 @@ import { FileService } from 'src/app/shared/file/file.service';
                         ariaLabel="{{ 'i18n_choose_file' | translate }}"
                     />
                 </div>
-                <div class="col-9 attachment-file">
+                <div class="attachment-file">
                     {{ fileObject()?.name }}
                     @if (fileObject()) {
                         <span class="text-muted small">({{ getFileSize() }})</span>
                     }
                 </div>
             </div>
-            <div class="row pt-2">
+            <div class="file-notes">
                 @if (isTeacherModal()) {
-                    <div class="col-12">
+                    <div>
                         {{ 'i18n_check_file_accessible' | translate }}
                     </div>
                 }
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    {{ 'i18n_max_file_size' | translate }} {{ (maxFileSize() || 0) / 1000000 }} MB.
-                </div>
+                <div>{{ 'i18n_max_file_size' | translate }} {{ (maxFileSize() || 0) / 1000000 }} MB.</div>
             </div>
         </div>
         <div class="modal-footer">

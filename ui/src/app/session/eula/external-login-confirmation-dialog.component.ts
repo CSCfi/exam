@@ -18,12 +18,12 @@ import { User } from 'src/app/session/session.model';
         <div class="modal-body">
             {{ 'i18n_external_organisation_login_description' | translate }}: {{ user()!.externalUserOrg }}?
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
+        <div class="xm-dialog-actions">
+            <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_decline' | translate }}
+            </button>
             <button class="btn btn-success" (click)="activeModal.close()" autofocus>
                 {{ 'i18n_button_accept' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
-                {{ 'i18n_button_decline' | translate }}
             </button>
         </div>
     `,
