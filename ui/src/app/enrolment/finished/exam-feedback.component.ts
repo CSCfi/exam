@@ -12,6 +12,7 @@ import { Exam } from 'src/app/exam/exam.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 
 @Component({
@@ -36,6 +37,7 @@ export class ExamFeedbackComponent {
     );
 
     private readonly modal = inject(ModalService);
+    private readonly CommonExam = inject(CommonExamService);
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
 
@@ -56,6 +58,7 @@ export class ExamFeedbackComponent {
     showAnswers() {
         const modal = this.modal.openRef(ExamAnswersDialogComponent, { size: 'xl' });
         modal.componentInstance.exam.set(this.assessmentWithAnswers());
+        modal.componentInstance.gradeScale.set(this.CommonExam.resolveGradeScale(this.assessment()));
         modal.componentInstance.participationTime.set(this.participationTime());
         modal.componentInstance.participationDuration.set(this.participationDuration());
     }

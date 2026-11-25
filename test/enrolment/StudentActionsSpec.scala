@@ -9,7 +9,7 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.AutoEvaluationConfig
 import models.enrolment.*
-import models.exam.{Exam, ExamImplementation, ExamState}
+import models.exam.*
 import models.user.User
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import play.api.http.Status
@@ -104,6 +104,20 @@ class StudentActionsSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
         val result = get(s"/app/feedback/exams/${copy.id}", session)
         statusOf(result) must be(Status.OK)
         (contentAsJsonOf(result) \ "id").as[Long] must be(copy.id)
+
+      "carry the scales of the parent exam and the course, so the grade can be named" in:
+        val (student, session) = runIO(loginAsStudent())
+        val copy               = attempt(student, ExamState.GRADED_LOGGED)
+        def scale(description: String) =
+          DB.find(classOf[GradeScale]).where().eq("description", description).find.get
+        copy.parent.gradeScale = scale("LATIN")
+        copy.parent.update()
+        copy.course.gradeScale = scale("ZERO_TO_FIVE")
+        copy.course.update()
+
+        val json = contentAsJsonOf(get(s"/app/feedback/exams/${copy.id}", session))
+        (json \ "parent" \ "gradeScale" \ "description").as[String] must be("LATIN")
+        (json \ "course" \ "gradeScale" \ "description").as[String] must be("ZERO_TO_FIVE")
 
       "get it from an automatically graded exam once notified" in:
         val (student, session) = runIO(loginAsStudent())

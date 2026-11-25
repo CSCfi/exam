@@ -293,7 +293,10 @@ export class ReportsV2Component {
                                         assessmentStatus: this.Reservation.printExamState(r),
                                         gradeScale: this.CommonExam.getScaleDisplayName(exam?.gradeScale),
                                         grade: exam?.grade?.name
-                                            ? this.CommonExam.getExamGradeDisplayName(exam.grade.name)
+                                            ? this.CommonExam.getExamGradeDisplayName(
+                                                  exam.grade.name,
+                                                  this.CommonExam.resolveGradeScale(exam),
+                                              )
                                             : '',
                                         assessmentDate: exam?.gradedTime
                                             ? DateTime.fromISO(exam.gradedTime as unknown as string).toFormat(
