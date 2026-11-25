@@ -29,7 +29,7 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
         }
         @if (user()) {
             <xm-navigation [hidden]="hideNavBar()"></xm-navigation>
-            <main id="mainView" class="container-fluid" [class.vmenu-on]="!hideNavBar()">
+            <main id="mainView" [class.vmenu-on]="!hideNavBar()">
                 <router-outlet></router-outlet>
             </main>
         }
@@ -42,10 +42,10 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
                 text-align: center;
             }
             #mainView {
-                width: auto !important;
-                /* The page's side padding (container-fluid's gutter), for full-width parts such as
-                   the exam header that cancel it with a negative margin */
-                --xm-page-gutter: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+                /* The page's side padding, also for full-width parts such as the exam header that
+                   cancel it with a negative margin */
+                --xm-page-gutter: 0.75rem;
+                padding-inline: var(--xm-page-gutter);
                 @media print {
                     margin: 0 15px;
                     max-width: 1000px;
@@ -58,15 +58,13 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
                 /* Keep in sync with definitions.scss $mobile-width */
                 @media (max-width: 1024px) {
                     margin-left: 0 !important;
-                    padding-left: 0;
-                    padding-right: 0;
                 }
 
                 @media print {
                     overflow-x: visible;
                 }
             }
-            /* Same condition as the padding removal above */
+            /* No side padding on narrow screens with the menu (same condition as above) */
             #mainView.vmenu-on {
                 @media (max-width: 1024px) {
                     --xm-page-gutter: 0px;

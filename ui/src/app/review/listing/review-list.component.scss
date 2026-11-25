@@ -120,10 +120,3 @@ th.dropdown {
     width: calc(100% + 1.5rem);
     margin-inline: -0.75rem;
 }
-.dialog-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: var(--xm-space-3);
-    margin: var(--xm-space-3);
-}

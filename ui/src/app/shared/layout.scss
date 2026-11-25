@@ -143,6 +143,16 @@
     }
 }
 
+// Buttons at the end of a dialog, aligned right, written in the order they are shown (Cancel
+// first), so the tab order follows the screen.
+.xm-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--xm-space-3);
+    margin: var(--xm-space-3);
+}
+
 // Gap modifiers, combine with xm-stack / xm-cluster / xm-split: class="xm-stack xm-gap-1".
 // Defined after the primitives so they win at equal specificity. They set gap itself rather
 // than a custom property, which would inherit into nested primitives.

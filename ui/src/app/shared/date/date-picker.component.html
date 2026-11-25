@@ -39,11 +39,12 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </form>
 <ng-template #footerTemplate>
-    <hr class="my-0" />
-    <button class="btn btn-primary btn-sm m-2 float-start" (click)="setDate(today()); d.close()">
-        {{ 'i18n_today' | translate }}
-    </button>
-    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="dateCleared(); d.close()">
-        {{ 'i18n_clear' | translate }}
-    </button>
+    <div class="date-picker-footer">
+        <button class="btn btn-primary btn-sm" (click)="setDate(today()); d.close()">
+            {{ 'i18n_today' | translate }}
+        </button>
+        <button class="btn btn-secondary btn-sm" (click)="dateCleared(); d.close()">
+            {{ 'i18n_clear' | translate }}
+        </button>
+    </div>
 </ng-template>

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../shared/breakpoints' as bp;
+
 .reservation-search-form-label {
     font-size: 0.75rem;
     color: #777777;
@@ -14,13 +16,42 @@ label.reservation-search-form-label {
     display: block;
 }
 
-.row > div > .input-group,
-.row > div > xm-dropdown-select,
-.row > div > xm-date-picker {
+.search-row > div > .input-group,
+.search-row > div > xm-dropdown-select,
+.search-row > div > xm-date-picker {
     width: 100%;
     max-width: 100%;
 }
 
 xm-dropdown-select {
     display: block;
+}
+
+// Search fields in a row of twelve columns from md up, each field spanning some of them; stacked
+// on phones. A 1.5rem gap between twelve equal columns gives the widths of the former grid.
+.search-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+
+    @include bp.up(md) {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        column-gap: 1.5rem;
+
+        > .span-2 {
+            grid-column: span 2;
+        }
+        > .span-3 {
+            grid-column: span 3;
+        }
+    }
+}
+.search-row-admin {
+    align-items: center;
+    margin-top: var(--xm-space-2);
+}
+.date-field {
+    padding-top: var(--xm-space-1);
+}
+.no-results {
+    margin-top: var(--xm-space-3);
 }

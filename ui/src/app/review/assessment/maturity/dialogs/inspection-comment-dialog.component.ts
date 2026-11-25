@@ -26,7 +26,7 @@ import { TranslateModule } from '@ngx-translate/core';
                 ></textarea>
             </form>
         </div>
-        <div class="xm-cluster dialog-actions">
+        <div class="xm-dialog-actions">
             <button class="btn btn-outline-secondary" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
@@ -38,11 +38,6 @@ import { TranslateModule } from '@ngx-translate/core';
     styles: `
         .comment {
             width: 100%;
-        }
-        .dialog-actions {
-            justify-content: flex-end;
-            gap: var(--xm-space-3);
-            margin: var(--xm-space-3);
         }
     `,
 })

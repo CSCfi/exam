@@ -4,6 +4,25 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+// Date picker, then the time picker in the rest of the row; the time picker wraps under the date
+// when it does not fit beside it (in narrow dialogs). The gap is that of the former grid columns.
+.date-time {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1.5rem;
+
+    > * {
+        max-width: 100%;
+    }
+    > :first-child {
+        flex: none;
+    }
+    > :last-child {
+        flex: 1 0 0;
+    }
+}
+
 .disable-gray-out {
     user-select: none;
     pointer-events: none;

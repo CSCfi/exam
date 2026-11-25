@@ -15,6 +15,26 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     selector: 'xm-software',
     templateUrl: './software.component.html',
     imports: [FormsModule, FormField, TranslateModule, OrderByPipe],
+    styles: `
+        // The form and the list are indented under the title, as under the former grid
+        .software-body {
+            margin-inline-start: 1.75rem;
+        }
+        .add-button {
+            margin-top: var(--xm-space-2);
+        }
+        .software-table {
+            margin-top: var(--xm-space-3);
+        }
+        // Edit and remove: just the icon, as the former links
+        .icon-button {
+            padding: 0;
+            border: 0;
+            background: none;
+            color: inherit;
+            line-height: inherit;
+        }
+    `,
 })
 export class SoftwareComponent implements OnInit {
     readonly software = signal<(Software & { showName: boolean })[]>([]);

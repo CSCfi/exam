@@ -34,7 +34,14 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         OrderByPipe,
         NgbDropdownModule,
     ],
-    styles: '.wrap { white-space: wrap !important }',
+    styles: `
+        .wrap {
+            white-space: wrap !important;
+        }
+        .reservation-table {
+            margin-top: var(--xm-space-4);
+        }
+    `,
 })
 export class ReservationDetailsComponent {
     readonly reservations = input<AnyReservation[]>([]);

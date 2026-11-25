@@ -60,6 +60,15 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         { provide: NgbDatepickerI18n, useClass: DatePickerI18n },
     ],
     imports: [FormField, NgbInputDatepicker, TranslateModule],
+    styles: `
+        // Today at the start and Clear at the end of the calendar popup, under a dividing line
+        .date-picker-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--xm-space-2);
+            border-top: var(--bs-border-width) solid color-mix(in srgb, currentColor 25%, transparent);
+        }
+    `,
 })
 export class DatePickerComponent {
     readonly initialDate = input<Date | string | number | null>(null);
