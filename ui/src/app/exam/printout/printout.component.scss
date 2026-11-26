@@ -40,12 +40,12 @@
     padding-left: 29px;
 }
 .pinfotable {
-    border: 1px solid black;
+    border: 1px solid var(--xm-black);
     width: 100%;
 
     > tbody > tr > td {
         padding: 1em;
-        border: 1px solid black;
+        border: 1px solid var(--xm-black);
 
         > div > p:first-child {
             padding-top: 15px;

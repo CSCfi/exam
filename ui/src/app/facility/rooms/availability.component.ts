@@ -22,7 +22,7 @@ type ExceptionHour = ExceptionWorkingHours & { start: string; end: string; descr
     styles: [
         `
             .black-event-text span {
-                color: black !important;
+                color: var(--xm-color-text) !important;
             }
         `,
     ],

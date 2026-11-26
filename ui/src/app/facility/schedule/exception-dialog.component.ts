@@ -20,7 +20,7 @@ import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetitio
     styleUrls: ['../rooms/rooms.component.scss'],
     styles: `
         .blue-shadow-hover:hover {
-            box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1);
+            box-shadow: 0 0 1px 3px var(--xm-color-focus);
         }
         .whole-day {
             margin-top: var(--xm-space-4);

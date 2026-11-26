@@ -16,7 +16,7 @@
         top: 0;
     }
     .header-wrapper {
-        background-color: #212121;
+        background-color: var(--xm-color-surface-inverse);
         min-width: 20em;
         min-height: 57px;
         display: flex;
@@ -35,7 +35,7 @@
     .exam-clock {
         font-size: 1.75rem;
         letter-spacing: 1.5px;
-        color: #e7e7e7;
+        color: var(--xm-grey-100);
         font-weight: bold;
         margin-left: 10px;
         font-variant-numeric: tabular-nums;
@@ -43,7 +43,7 @@
     .exam-clock-text {
         font-size: 1.125rem;
         letter-spacing: 1.5px;
-        color: #e7e7e7;
+        color: var(--xm-grey-100);
         margin-left: 20px;
     }
 

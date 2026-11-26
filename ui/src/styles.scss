@@ -12,6 +12,7 @@
 
 @use './app/shared/definitions.scss' as shared;
 @use './app/shared/layout.scss';
+@use './app/shared/colors.scss';
 
 /* fonts */
 @font-face {
@@ -53,7 +54,7 @@ small,
     display: none;
 }
 .fc .fc-col-header-cell-cushion {
-    color: black;
+    color: var(--xm-color-text);
     text-decoration: none;
 }
 .fc-timegrid-event-harness-inset .fc-timegrid-event {
@@ -68,7 +69,7 @@ xm-booking-calendar .fc .fc-view-harness {
     overflow-y: auto;
 }
 xm-booking-calendar .fc .fc-view-harness:focus-visible {
-    outline: 2px solid var(--bs-focus-ring-color, #0d6efd);
+    outline: 2px solid var(--bs-focus-ring-color, var(--xm-blue-500));
     outline-offset: 2px;
 }
 /* cloze test styles, need to be defined here because of view encapsulation */
@@ -98,7 +99,7 @@ xm-booking-calendar .fc .fc-view-harness:focus-visible {
         font-weight: bold;
     }
     a {
-        color: #555555;
+        color: var(--xm-color-text-muted);
     }
 }
 /* bootstrap dropdown toggle without caret */
@@ -114,16 +115,16 @@ xm-booking-calendar .fc .fc-view-harness:focus-visible {
 
 /* form validation overrides */
 input.ng-invalid {
-    border: 1px solid red;
+    border: 1px solid var(--xm-color-danger);
 }
 select.ng-invalid {
-    border: 1px solid red;
+    border: 1px solid var(--xm-color-danger);
 }
 textarea.ng-invalid {
-    border: 1px solid red;
+    border: 1px solid var(--xm-color-danger);
 }
 .ng-invalid > .cke {
-    border: 1px solid red;
+    border: 1px solid var(--xm-color-danger);
 }
 
 /* dropdown menu that scrolls */
@@ -134,8 +135,8 @@ textarea.ng-invalid {
 }
 /* cloze test gap — rendered outside editor */
 .cloze-test-wrapper {
-    background-color: rgba(255, 213, 0, 0.3);
-    border-bottom: 2px solid rgba(255, 180, 0, 0.7);
+    background-color: color-mix(in srgb, var(--xm-amber-300) 30%, transparent);
+    border-bottom: 2px solid color-mix(in srgb, var(--xm-amber-300) 70%, transparent);
     border-radius: 2px;
     padding: 0 3px 1px;
 }
@@ -146,15 +147,15 @@ textarea.ng-invalid {
 /* paragraph title */
 .xm-paragraph-title {
     font-size: 1.5rem;
-    color: #2c2c2c;
+    color: var(--xm-color-text);
     padding-bottom: 0.25rem;
-    border-bottom: 1px solid #b1b1b1;
+    border-bottom: 1px solid var(--xm-color-border-strong);
 }
 /* basically the list item box that's green, grey or red on the left side */
 .xm-study-item-container {
     border-radius: 4px;
-    border: 2px solid #ededed;
-    border-left: #238635 4px solid;
+    border: 2px solid var(--xm-grey-100);
+    border-left: var(--xm-color-success) 4px solid;
     padding: 16px 20px;
     @media (max-width: shared.$mobile-width) {
         padding: 5px;
@@ -163,16 +164,16 @@ textarea.ng-invalid {
 }
 .xm-study-item-container--warning {
     @extend .xm-study-item-container;
-    border-left: red 4px solid;
+    border-left: var(--xm-color-danger) 4px solid;
 }
 .xm-study-item-container--inactive {
     @extend .xm-study-item-container;
-    border-left: #b1b1b1 4px solid;
+    border-left: var(--xm-color-border-strong) 4px solid;
 }
 
 /* Standard bordered box */
 .xm-bordered-area {
-    border: 1px solid #c3c3c3;
+    border: 1px solid var(--xm-grey-300);
     border-radius: 4px;
 }
 /* Generic table styling */
@@ -237,9 +238,9 @@ textarea.ng-invalid {
     z-index: -999;
     margin: 5px;
     white-space: nowrap;
-    background-color: black;
-    border: #e7e7e7;
-    color: white;
+    background-color: var(--xm-black);
+    border: var(--xm-color-border);
+    color: var(--xm-color-text-inverse);
 }
 .skip:focus,
 .skip:active {
@@ -253,7 +254,7 @@ textarea.ng-invalid {
         0px 0px 0px 4px rgb(68, 120, 247) !important;
 }
 .search-append {
-    border: #dee2e6 1px solid;
+    border: var(--xm-color-border) 1px solid;
     border-radius: 5px;
     padding: 6px;
 }
@@ -265,13 +266,13 @@ textarea.ng-invalid {
     }
 }
 /* CKEditor-style blockquote, code and table */
-$xm-code-bg: #f2f3f5;
-$xm-code-border: 1px solid #e0e0e0;
+$xm-code-bg: var(--xm-grey-100);
+$xm-code-border: 1px solid var(--xm-color-border);
 blockquote {
-    border-left: 3px solid #d0d0d0;
+    border-left: 3px solid var(--xm-grey-300);
     margin: 0.25rem 0;
     padding: 0.25rem 0 0.25rem 1rem;
-    color: #555;
+    color: var(--xm-color-text-muted);
 }
 code {
     font-family: 'Courier New', Courier, monospace;
@@ -280,7 +281,7 @@ code {
     border: $xm-code-border;
     border-radius: 3px;
     padding: 0.1em 0.35em;
-    color: #333;
+    color: var(--xm-color-text);
 }
 pre {
     background: $xm-code-bg;
@@ -307,14 +308,14 @@ figure.table {
 figure.table table {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid #d0d0d0;
+    border: 1px solid var(--xm-grey-300);
     border-radius: 4px;
     overflow: hidden;
     font-size: 0.9em;
     th,
     td {
         padding: 0.5rem 0.75rem;
-        border-right: 1px solid #d0d0d0;
+        border-right: 1px solid var(--xm-grey-300);
         &:last-child {
             border-right: none;
         }
@@ -322,23 +323,23 @@ figure.table table {
     th {
         background: $xm-code-bg;
         font-weight: 600;
-        border-bottom: 2px solid #c0c0c0;
+        border-bottom: 2px solid var(--xm-color-border-strong);
     }
     td {
         padding-top: 0.45rem;
         padding-bottom: 0.45rem;
-        border-bottom: 1px solid #e5e5e5;
-        border-right-color: #e5e5e5;
+        border-bottom: 1px solid var(--xm-color-border);
+        border-right-color: var(--xm-color-border);
         vertical-align: top;
     }
     tr:last-child td {
         border-bottom: none;
     }
     tbody tr:nth-child(even) {
-        background: #fafafa;
+        background: var(--xm-color-surface-muted);
     }
     tbody tr:hover {
-        background: #f0f4ff;
+        background: var(--xm-blue-50);
     }
 }
 /* Ckeditor content markup */
@@ -388,13 +389,13 @@ ul.todo-list {
         height: 16px;
         margin: 0 6px 0 -22px;
         vertical-align: middle;
-        border: 1px solid #333;
+        border: 1px solid var(--xm-grey-900);
         border-radius: 2px;
-        background: #fff;
+        background: var(--xm-color-surface);
 
         &:checked {
-            border-color: #26ab33;
-            background: #26ab33
+            border-color: var(--xm-green-700);
+            background: var(--xm-green-700)
                 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M3 8.5l3.5 3.5L13 5'/%3E%3C/svg%3E")
                 center / 12px no-repeat;
         }

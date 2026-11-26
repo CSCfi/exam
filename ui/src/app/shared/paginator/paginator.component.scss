@@ -22,20 +22,20 @@
         a:focus {
             text-decoration: none;
             padding: 8px;
-            color: black;
+            color: var(--xm-color-text);
             width: 32px;
             height: 32px;
             cursor: pointer;
         }
         a:hover {
-            color: white;
+            color: var(--xm-color-text-inverse);
             background: shared.$exam-medium-green;
             border-radius: 50%;
         }
         &.active {
             a,
             a:focus {
-                color: white;
+                color: var(--xm-color-text-inverse);
                 background: shared.$exam-medium-green;
                 border-radius: 50%;
             }

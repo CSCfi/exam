@@ -9,9 +9,9 @@
 }
 .question-flow-title {
     font-size: 1.375rem;
-    color: #2c2c2c;
+    color: var(--xm-color-text);
     padding-bottom: 5px;
     margin-block: var(--xm-space-3) calc(20px + var(--xm-space-4));
     padding-top: 5px;
-    border-bottom: 1px solid #b1b1b1;
+    border-bottom: 1px solid var(--xm-color-border-strong);
 }

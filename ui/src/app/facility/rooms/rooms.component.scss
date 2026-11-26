@@ -8,20 +8,20 @@
 @use '../../shared/grid';
 
 .selected {
-    background-color: #d3e7a8;
+    background-color: var(--xm-green-200);
     border-top: none;
     border-bottom: none;
 }
 .toggleMessage {
     padding: 18px;
-    border: 1px solid #dfdfdf;
+    border: 1px solid var(--xm-color-border);
     margin-left: 10px;
     margin-right: 10px;
 }
 
 .toggleMessage:before {
     font-size: 0.8125rem;
-    color: #777;
+    color: var(--xm-color-text-subtle);
     float: right;
     margin-left: 10px;
 }
@@ -38,7 +38,7 @@
     font-size: 1.5rem;
 }
 .facility-info-text {
-    color: #727272;
+    color: var(--xm-color-text-subtle);
     margin-top: 1em;
 }
 .background-gray {

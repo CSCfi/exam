@@ -121,14 +121,14 @@ type ExamChoice = { type: string; examinationType: string };
     styles: [
         `
             .selected-type {
-                color: black;
+                color: var(--xm-color-text);
                 font-weight: bold;
                 text-decoration: none;
             }
             button.btn-link:focus-visible {
                 outline: none;
                 font-weight: bold;
-                color: black;
+                color: var(--xm-color-text);
             }
             :host ::ng-deep .accordion-body button.btn-link {
                 display: block;

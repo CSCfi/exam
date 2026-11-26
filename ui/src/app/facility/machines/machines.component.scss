@@ -10,16 +10,16 @@
     letter-spacing: 1px;
     font-size: 0.9em;
     padding: 0.2em 0.5em;
-    color: white;
+    color: var(--xm-color-text-inverse);
     border-radius: 5px;
 }
 
 .status_red {
-    background-color: red;
+    background-color: var(--xm-color-danger);
 }
 
 .status_green {
-    background-color: green;
+    background-color: var(--xm-color-success);
 }
 li {
     list-style: none;

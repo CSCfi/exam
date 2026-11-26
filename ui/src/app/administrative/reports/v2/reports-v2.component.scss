@@ -12,8 +12,8 @@
     font-size: 0.875rem;
 
     th {
-        background-color: #f8f9fa;
-        border-bottom: 2px solid #dee2e6;
+        background-color: var(--xm-color-surface-muted);
+        border-bottom: 2px solid var(--xm-color-border);
         position: sticky;
         top: 0;
         z-index: 1;
@@ -24,12 +24,12 @@
             user-select: none;
 
             &.sorted {
-                background-color: #e2e6ea;
-                color: #000;
+                background-color: var(--xm-grey-100);
+                color: var(--xm-color-text);
             }
 
             &:hover {
-                background-color: #e9ecef;
+                background-color: var(--xm-grey-100);
             }
 
             i {

@@ -13,7 +13,7 @@
 }
 
 .exam-header {
-    background-color: #212121;
+    background-color: var(--xm-color-surface-inverse);
     display: flex;
     align-items: center;
     padding: 8px 420px 8px 0; // right padding reserves space for the fixed-position clock (~20em wide at right: 3em)
@@ -23,7 +23,7 @@
     }
 }
 .exam-mobile-header {
-    background-color: #212121;
+    background-color: var(--xm-color-surface-inverse);
     button {
         max-height: 45px;
     }
@@ -56,13 +56,13 @@
     flex-shrink: 0;
     width: 1px;
     height: 40px;
-    background-color: #e7e7e7;
+    background-color: var(--xm-grey-100);
 }
 
 .exam-header-title {
     flex: 1;
     min-width: 0;
-    color: #e7e7e7;
+    color: var(--xm-grey-100);
     font-size: 1.25rem;
 
     span {
@@ -85,7 +85,7 @@
 
     a {
         cursor: pointer;
-        color: #e7e7e7;
+        color: var(--xm-grey-100);
         text-decoration: none;
     }
 }

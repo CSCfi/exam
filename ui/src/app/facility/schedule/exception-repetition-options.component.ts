@@ -53,7 +53,7 @@ interface MonthOfYear {
         @use '../../shared/grid';
 
         .blue-shadow-hover:hover {
-            box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1);
+            box-shadow: 0 0 1px 3px var(--xm-color-focus);
         }
         /* Begin and end on the left, the repetition settings beside them (equal columns) */
         .repetition {

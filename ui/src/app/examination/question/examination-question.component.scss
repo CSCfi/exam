@@ -5,7 +5,7 @@
  */
 
 .exam-question-container {
-    border-left: 1px solid #7ab3bc;
+    border-left: 1px solid color-mix(in srgb, var(--xm-blue-700) 50%, var(--xm-white));
     padding-left: 0.5em;
     padding-top: 0.5em;
 }
@@ -35,7 +35,7 @@
 }
 
 .section-box-title {
-    color: #2c2c2c;
+    color: var(--xm-color-text);
     font-size: 1rem;
     max-width: 100%;
 
@@ -60,7 +60,7 @@
     margin: 0;
     line-height: 1.5em;
     font-size: 1.375rem;
-    color: #2c2c2c;
+    color: var(--xm-color-text);
 
     p {
         margin: 0;
@@ -69,12 +69,12 @@
 }
 .attachment-name {
     font-size: 0.75rem;
-    color: #555555;
+    color: var(--xm-color-text-muted);
 }
 .info-question-separator {
     width: 33%;
     margin-left: 0px;
-    color: #b1b1b1;
+    color: var(--xm-grey-300);
 }
 
 /* Download button with the file name under it, at the end of the card */

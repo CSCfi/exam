@@ -78,8 +78,8 @@ import { TranslateModule } from '@ngx-translate/core';
             }
             .xm-page-header-title {
                 font-size: 1.75rem;
-                color: #2c2c2c;
-                border-bottom: 2px solid #2c7639;
+                color: var(--xm-color-text);
+                border-bottom: 2px solid var(--xm-color-brand);
                 padding-bottom: 7px;
                 width: fit-content;
             }

@@ -110,7 +110,7 @@ const ICONS: Record<ToastType, string> = {
                 bottom: 0;
                 left: 0;
                 height: 4px;
-                background-color: #000;
+                background-color: var(--xm-black);
                 opacity: 0.4;
                 animation-name: xm-toast-countdown;
                 animation-timing-function: linear;

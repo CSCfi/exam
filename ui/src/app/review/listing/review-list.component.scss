@@ -73,11 +73,11 @@
 .review-list-subtitle {
     font-family: Arimo, Helvetica-Neue, Helvetica;
     font-size: 1rem;
-    color: #2c2c2c;
+    color: var(--xm-color-text);
 }
 
 .xm-paragraph-title-no-results {
-    color: #555555;
+    color: var(--xm-color-text-muted);
     font-size: 1.25rem;
     margin: var(--xm-space-3);
 }

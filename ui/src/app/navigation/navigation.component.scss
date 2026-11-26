@@ -6,8 +6,8 @@
 
 @use '../shared/definitions.scss' as shared;
 
-$nav-bg: #212121;
-$nav-text: #e7e7e7;
+$nav-bg: var(--xm-color-surface-inverse);
+$nav-text: var(--xm-grey-100);
 $border-dark: 3px solid $nav-bg;
 $border-green: 3px solid shared.$exam-dark-green;
 
@@ -94,7 +94,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         &:hover {
             border-left: $border-green;
             @include mobile {
-                border: 3px solid white;
+                border: 3px solid var(--xm-color-surface);
                 border-radius: 50px;
             }
         }
@@ -227,7 +227,7 @@ $border-green: 3px solid shared.$exam-dark-green;
             padding-left: 0;
         }
         font-size: 0.875rem;
-        color: white;
+        color: var(--xm-color-text-inverse);
         letter-spacing: 0.27px;
         line-height: 1.125rem;
         text-align: left;
@@ -239,7 +239,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         background-color: $nav-bg;
         padding: 1.5em 1em 1em;
         font-size: 1em;
-        color: white;
+        color: var(--xm-color-text-inverse);
         font-weight: 300;
         letter-spacing: 1px;
     }
@@ -256,7 +256,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         letter-spacing: 1px;
         display: inline-block;
         height: auto;
-        color: white;
+        color: var(--xm-color-text-inverse);
         padding: 0.5em;
         margin-left: 1.5em;
         border: 0;
@@ -274,7 +274,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         &:hover {
             @include mobile {
                 border-radius: 50px;
-                border: 3px solid white;
+                border: 3px solid var(--xm-color-surface);
             }
         }
     }
@@ -298,9 +298,9 @@ $border-green: 3px solid shared.$exam-dark-green;
         margin-left: 1.75em;
         padding: 0 0.65em 0 0.75em;
         border: 0;
-        border-left: 2px solid rgba(255, 255, 255, 0.15);
+        border-left: 2px solid color-mix(in srgb, var(--xm-color-surface) 15%, transparent);
         font-size: 0.875rem;
-        color: rgba(231, 231, 231, 0.82);
+        color: color-mix(in srgb, var(--xm-grey-100) 82%, transparent);
         letter-spacing: 0.22px;
         line-height: 1.25;
         text-align: left;
@@ -371,10 +371,10 @@ $border-green: 3px solid shared.$exam-dark-green;
 
 button.skip-main {
     @extend %skip-base;
-    background-color: #e6e6e6;
-    border: #4c4c4c;
+    background-color: var(--xm-grey-100);
+    border: var(--xm-grey-700);
     border-radius: 4px;
-    color: black;
+    color: var(--xm-color-text);
 
     &:focus,
     &:active {
@@ -390,10 +390,10 @@ a.skip-main {
     margin: 20px;
     padding: 0 5px !important;
     white-space: nowrap;
-    background-color: black;
-    border: #e7e7e7;
+    background-color: var(--xm-black);
+    border: var(--xm-color-border);
     border-radius: 4px;
-    color: white;
+    color: var(--xm-color-text-inverse);
 
     &:focus,
     &:active {

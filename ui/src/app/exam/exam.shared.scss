@@ -7,15 +7,15 @@
 @use '../shared/breakpoints' as bp;
 
 @mixin selection-button($pl, $pr) {
-    color: #2c2c2c;
-    background-color: white;
-    border-color: #00a34b;
+    color: var(--xm-color-text);
+    background-color: var(--xm-color-surface);
+    border-color: var(--xm-green-700);
     height: 40px;
     padding-left: $pl;
     padding-right: $pr;
     &.btn-primary {
-        background-color: #7fd28e;
-        border-color: #25622f;
+        background-color: var(--xm-green-200);
+        border-color: var(--xm-green-700);
     }
 }
 .selection-button-wide {
@@ -29,7 +29,7 @@
     text-transform: uppercase;
 }
 .hover-grey:hover {
-    background: #dedede !important;
+    background: var(--xm-grey-100) !important;
 }
 
 /* Editor inputs that should not run the full width of the control column. A width, not a
@@ -65,7 +65,7 @@
     justify-content: space-between;
     gap: var(--xm-space-2);
     padding-top: var(--xm-space-3);
-    border-top: 1px solid #c3c3c3;
+    border-top: 1px solid var(--xm-grey-300);
 }
 
 /* Message textarea with the add button at its bottom edge */

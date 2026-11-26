@@ -36,9 +36,9 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     styles: [
         `
             .warning-no-hover {
-                background-color: white;
-                border: #e3162e 1px solid;
-                color: #e3162e;
+                background-color: var(--xm-color-surface);
+                border: var(--xm-color-danger) 1px solid;
+                color: var(--xm-color-danger);
             }
         `,
     ],

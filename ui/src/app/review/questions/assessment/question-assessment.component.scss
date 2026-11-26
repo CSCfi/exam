@@ -27,7 +27,7 @@
             padding-inline: grid.$col-padding;
         }
         > .review-answers-column {
-            border-right: 1px solid lightgrey;
+            border-right: 1px solid var(--xm-grey-300);
         }
     }
 }
@@ -52,9 +52,9 @@
 }
 
 .triangle-line {
-    border-top: 2px solid lightgrey;
+    border-top: 2px solid var(--xm-grey-300);
     position: relative;
-    background: white;
+    background: var(--xm-color-surface);
     margin-top: 10px;
     transform: rotate(180deg);
     margin-right: -15px;
@@ -70,19 +70,19 @@
     height: 0;
     border-style: solid;
     border-width: 0 20px 20px 20px;
-    border-color: transparent transparent white transparent;
+    border-color: transparent transparent var(--xm-color-surface) transparent;
 }
 .triangle-line:before {
     right: 68px;
     top: -22px;
     border-width: 0 22px 22px 22px;
-    border-bottom-color: lightgrey;
+    border-bottom-color: var(--xm-grey-300);
 }
 .essay-answer-instructions-box {
     margin-top: var(--xm-space-2);
     padding-inline: grid.$col-padding;
-    border-top: 1px solid lightgrey;
-    border-bottom: 1px solid lightgrey;
+    border-top: 1px solid var(--xm-grey-300);
+    border-bottom: 1px solid var(--xm-grey-300);
     padding-top: 1em;
     padding-bottom: 1em;
 
@@ -96,7 +96,7 @@
 }
 .question-review-title {
     font-size: 1.375rem;
-    color: #2c2c2c;
+    color: var(--xm-color-text);
 }
 .question-review-toolbar-text {
     line-height: 2.2;

@@ -7,42 +7,42 @@
 @use '../../../shared/definitions.scss' as shared;
 .exam-answered-correct {
     border: 1px solid shared.$exam-dark-green;
-    background-color: #f3fff5;
+    background-color: var(--xm-color-success-bg);
     padding: 5px;
     border-radius: 4px;
 
     .answer-score-text {
-        color: #3c763d;
+        color: var(--xm-green-700);
     }
 }
 
 .exam-answered-wrong {
-    border: 1px solid red;
-    background-color: #fff6f7;
+    border: 1px solid var(--xm-color-danger);
+    background-color: var(--xm-color-danger-bg);
     padding: 5px;
     border-radius: 4px;
 
     .answer-score-text {
-        color: #a94442;
+        color: var(--xm-red-500);
     }
 }
 
 .exam-answered-skip {
-    border: 1px solid #7f7f7f;
-    background-color: rgb(238, 238, 238);
+    border: 1px solid var(--xm-grey-500);
+    background-color: var(--xm-grey-100);
     padding: 5px;
     border-radius: 4px;
 }
 
 .exam-not-answered {
-    border: 1px solid white;
-    background-color: white;
+    border: 1px solid var(--xm-color-surface);
+    background-color: var(--xm-color-surface);
     padding: 5px;
     border-radius: 4px;
 }
 
 .exam-question-option-text {
-    color: #2c2c2c;
+    color: var(--xm-color-text);
     font-size: 0.875rem;
 }
 

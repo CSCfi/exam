@@ -5,14 +5,14 @@
  */
 
 .question-type-text {
-    color: #2c2c2c;
+    color: var(--xm-color-text);
     font-size: 1rem;
     font-weight: 400;
 
     display: inline-block;
 
     &.info {
-        color: #555555;
+        color: var(--xm-color-text-muted);
         font-size: 0.875rem;
     }
 }
@@ -22,7 +22,7 @@
 }
 
 .autosave-text {
-    color: #727272;
+    color: var(--xm-color-text-subtle);
 }
 
 /* Points or save at the start, attachment actions at the end */

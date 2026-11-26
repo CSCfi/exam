@@ -8,14 +8,14 @@
     display: none;
 }
 .config-info {
-    color: #555555;
+    color: var(--xm-color-text-muted);
     font-size: 1.125rem;
     line-height: 1.625rem;
 }
 .feature-not-in-use {
-    background-color: #7f7f7f;
-    color: #ffffff;
-    border: 1px solid black;
+    background-color: var(--xm-grey-500);
+    color: var(--xm-color-text-inverse);
+    border: 1px solid var(--xm-black);
     cursor: not-allowed;
 }
 

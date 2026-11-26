@@ -1,0 +1,65 @@
+/*
+ * SPDX-FileCopyrightText: The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+// Colour tokens. Loaded once globally from styles.scss.
+//
+// Two layers: the palette names every colour the app uses, and the roles below it say what a
+// colour is for. Components use a role when one fits (text, border, danger…) and a palette
+// colour otherwise. A redesign changes the values here, not the components.
+//
+// Bootstrap's own components (buttons, alerts, badges) still take Bootstrap's colours, which are
+// fixed when its CSS is built; they follow these tokens only once Bootstrap is configured from
+// them. Tints of a token: color-mix(in srgb, var(--xm-color-danger) 10%, transparent).
+
+:root {
+    // Palette
+    --xm-white: #fff;
+    --xm-black: #000;
+
+    --xm-grey-50: #f8f9fa;
+    --xm-grey-100: #ededed;
+    --xm-grey-300: #c8c8c8;
+    --xm-grey-500: #777;
+    --xm-grey-700: #555;
+    --xm-grey-900: #2c2c2c;
+    --xm-grey-950: #212121;
+
+    --xm-green-50: #f3fff5;
+    --xm-green-200: #a6e9b2;
+    --xm-green-700: #2c7639;
+
+    --xm-blue-50: #f0f4ff;
+    --xm-blue-500: #0d6efd;
+    --xm-blue-700: #266b99;
+
+    --xm-red-50: #fde8ea;
+    --xm-red-500: #dc3545;
+
+    --xm-amber-300: #ffd500;
+
+    // Roles
+    --xm-color-text: var(--xm-grey-900);
+    --xm-color-text-muted: var(--xm-grey-700);
+    --xm-color-text-subtle: var(--xm-grey-500);
+    --xm-color-text-inverse: var(--xm-white);
+
+    --xm-color-surface: var(--xm-white);
+    --xm-color-surface-muted: var(--xm-grey-50);
+    --xm-color-surface-inverse: var(--xm-grey-950);
+
+    --xm-color-border: var(--xm-grey-100);
+    --xm-color-border-strong: var(--xm-grey-300);
+
+    --xm-color-brand: var(--xm-green-700);
+    --xm-color-info: var(--xm-blue-700);
+    --xm-color-focus: var(--xm-blue-500);
+
+    --xm-color-success: var(--xm-green-700);
+    --xm-color-success-bg: var(--xm-green-50);
+    --xm-color-danger: var(--xm-red-500);
+    --xm-color-danger-bg: var(--xm-red-50);
+    --xm-color-highlight: var(--xm-amber-300);
+}

@@ -6,7 +6,7 @@
 
 .attachment-name {
     font-size: 0.75rem;
-    color: #555555;
+    color: var(--xm-color-text-muted);
     margin-top: 10px;
 
     @media (max-width: 1050px) {

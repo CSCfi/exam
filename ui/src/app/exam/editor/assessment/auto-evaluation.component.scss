@@ -5,7 +5,7 @@
  */
 
 .autoevaluation-info {
-    color: #555555;
+    color: var(--xm-color-text-muted);
     font-size: 1.125rem;
     line-height: 1.625rem;
 }
@@ -14,7 +14,7 @@
 .grade-limits {
     th {
         font-size: 0.75rem;
-        color: #777777;
+        color: var(--xm-color-text-subtle);
         text-transform: uppercase;
         font-weight: normal;
         padding-bottom: 10px;
@@ -45,7 +45,7 @@
 
 // Form validation border
 .form-invalid {
-    border: 1px solid red;
+    border: 1px solid var(--xm-color-danger);
 }
 
 // Make uniqueness error less intrusive

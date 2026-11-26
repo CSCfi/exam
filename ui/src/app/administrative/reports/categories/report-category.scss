@@ -7,7 +7,7 @@
 /* Shared by the report categories through their styleUrl: each one is a bordered box */
 :host {
     display: block;
-    border: 1px solid lightgrey;
+    border: 1px solid var(--xm-grey-300);
     border-radius: 4pt;
     padding: 1em;
 }

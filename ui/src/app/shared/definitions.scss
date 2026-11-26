@@ -11,7 +11,7 @@ $mobile-width: 1024px;
    Originally 230px, converted to em against the ~13.4px body font of the time; it is kept at
    that length rather than rounded so the menu keeps the width it has always had. */
 $nav-width: 17.125rem;
-$exam-medium-green: #238635;
-$exam-dark-green: #2c7639;
-$exam-dark-grey: #4c4c4c;
-$exam-blue: #266b99;
+$exam-medium-green: var(--xm-color-success);
+$exam-dark-green: var(--xm-color-brand);
+$exam-dark-grey: var(--xm-grey-700);
+$exam-blue: var(--xm-color-info);
