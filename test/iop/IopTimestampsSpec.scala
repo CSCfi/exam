@@ -4,13 +4,19 @@
 
 package iop
 
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import org.apache.pekko.util.ByteString
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.http.HttpEntity
+import play.api.http.{HttpChunk, HttpEntity}
 import play.api.libs.json.*
 import play.api.mvc.Results
 import services.iop.IopTimestamps
+
+import scala.concurrent.Await
+import scala.concurrent.duration.*
 
 class IopTimestampsSpec extends AnyWordSpec with Matchers:
 
@@ -73,5 +79,36 @@ class IopTimestampsSpec extends AnyWordSpec with Matchers:
     "leave other responses alone" in {
       val text = Results.Ok("2026-01-15T09:00:00Z")
       IopTimestamps.normalise(text) mustBe text
+    }
+    "rewrite a chunked JSON response chunk by chunk" in {
+      val system         = ActorSystem("IopTimestampsSpec")
+      given Materializer = Materializer(system)
+      try
+        val pages = Source(List("[", """{"t":"2026-01-15T09:00:00Z"}""", ",", """{"t":"x"}""", "]"))
+        val result =
+          IopTimestamps.normalise(
+            Results.Ok.chunked(pages.map(ByteString(_))).as("application/json")
+          )
+        result.body match
+          case HttpEntity.Chunked(chunks, _) =>
+            val body = Await.result(
+              chunks.collect { case HttpChunk.Chunk(d) => d.utf8String }.runWith(Sink.seq),
+              5.seconds
+            )
+            body.mkString mustBe """[{"t":"2026-01-15T09:00:00.000Z"},{"t":"x"}]"""
+          case other => fail(s"unexpected body $other")
+      finally Await.result(system.terminate(), 5.seconds)
+    }
+  }
+
+  "normalise text" should {
+    "rewrite whole timestamp strings in a JSON fragment" in {
+      IopTimestamps.normaliseText(
+        """{"a":"2026-01-15T09:00:00Z","b":"2026-01-15T09:00:00.123456Z"},{"c":1}"""
+      ) mustBe """{"a":"2026-01-15T09:00:00.000Z","b":"2026-01-15T09:00:00.123Z"},{"c":1}"""
+    }
+    "leave timestamps inside longer strings alone" in {
+      val text = """{"a":"at \"2026-01-15T09:00:00Z\" ok","b":"x 2026-01-15T09:00:00Z"}"""
+      IopTimestamps.normaliseText(text) mustBe text
     }
   }

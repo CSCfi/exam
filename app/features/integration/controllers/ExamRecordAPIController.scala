@@ -6,6 +6,7 @@ package features.integration.controllers
 
 import features.integration.services.ExamRecordAPIService
 import models.assessment.ExamScore
+import org.apache.pekko.util.ByteString
 import play.api.libs.json.*
 import play.api.mvc.*
 import security.Auth.subjectNotPresent
@@ -54,6 +55,12 @@ class ExamRecordAPIController @Inject() (
 
   def getNewRecords(startDate: String): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
-      val scores = examRecordAPIService.getNewRecords(startDate)
-      Ok(JsArray(scores.map(ExamRecordAPIController.toJson)))
+      val json = examRecordAPIService
+        .getNewRecords(startDate)
+        .filter(_.nonEmpty)
+        .map(page =>
+          ByteString(page.map(s => Json.stringify(ExamRecordAPIController.toJson(s))).mkString(","))
+        )
+        .intersperse(ByteString("["), ByteString(","), ByteString("]"))
+      Ok.chunked(json).as(JSON)
     }

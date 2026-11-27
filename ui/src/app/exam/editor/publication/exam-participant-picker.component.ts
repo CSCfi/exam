@@ -47,10 +47,10 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     {{ 'i18n_exam_not_published' | translate }}
                 }
             </p>
-            @if (examEnrolments().length > 0) {
+            @if (activeEnrolments().length > 0) {
                 <div>{{ 'i18n_exam_participants' | translate }}:</div>
                 <!-- Students not having finished the exam, sorted alphabetically -->
-                @for (enrolment of examEnrolments(); track enrolment) {
+                @for (enrolment of activeEnrolments(); track enrolment) {
                     <div class="person-row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
                         <small>
                             {{ renderParticipantLabel(enrolment) }}
@@ -94,6 +94,8 @@ export class ExamParticipantSelectorComponent {
     readonly participantsChange = output<ExamEnrolment[]>();
 
     readonly examEnrolments = linkedSignal(() => this.exam().examEnrolments);
+    // No-shows of private exams get a fresh enrolment, keep the old ones out of the participant list
+    readonly activeEnrolments = computed(() => this.examEnrolments().filter((ee) => !ee.noShow));
     readonly newParticipantData = signal<{ id?: number }>({});
     readonly participants = computed(() => {
         const currentExam = this.exam();

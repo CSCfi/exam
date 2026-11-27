@@ -128,7 +128,7 @@ class ReservationController @Inject() (
           end,
           user
         )
-        Ok(enrolments.asJson)
+        Ok(enrolments.asJsonText).as(JSON)
     }
 
   def listReservations(
@@ -157,5 +157,5 @@ class ReservationController @Inject() (
           externalRef,
           user
         )
-        Ok(reservations.asJson)
+        Ok.chunked(reservations.asJsonArray).as(JSON)
     }

@@ -258,16 +258,18 @@ describe('SectionComponent', () => {
             expect(emitted).toEqual([]);
         });
 
-        it('should copy a question through the backend and add it', () => {
+        it('should copy a question through the backend and add it below the original', () => {
             create();
 
             component.copyQuestion(sq(1));
             http.expectOne('/app/question/10').flush({ id: 99 });
             const insert = http.expectOne('/app/exams/7/sections/2/questions/99');
-            expect(insert.request.body).toEqual({ sequenceNumber: 0, question: undefined });
-            insert.flush({ sectionQuestions: [{ id: 50, question: { id: 99 } }] });
+            expect(insert.request.body).toEqual({ sequenceNumber: 1, question: undefined });
+            insert.flush({ sectionQuestions: [{ id: 50, sequenceNumber: 1, question: { id: 99 } }] });
 
-            expect(emitted.at(-1)?.sectionQuestions.map((q) => q.id)).toEqual([1, 2, 3, 50]);
+            const questions = emitted.at(-1)?.sectionQuestions;
+            expect(questions?.map((q) => q.id)).toEqual([1, 50, 2, 3]);
+            expect(questions?.map((q) => q.sequenceNumber)).toEqual([0, 1, 2, 3]);
             expect(toast.info).toHaveBeenCalledWith('i18n_question_copied');
         });
 
@@ -282,9 +284,10 @@ describe('SectionComponent', () => {
                 question: '<p>**COPY**</p><p>Q1</p>',
                 attachment: undefined,
             });
-            insert.flush({ id: 51, question: { id: 51 } });
+            expect(insert.request.body.sequenceNumber).toBe(1);
+            insert.flush({ id: 51, sequenceNumber: 1, question: { id: 51 } });
 
-            expect(emitted.at(-1)?.sectionQuestions.map((q) => q.id)).toEqual([1, 2, 3, 51]);
+            expect(emitted.at(-1)?.sectionQuestions.map((q) => q.id)).toEqual([1, 51, 2, 3]);
             expect(files.upload$).not.toHaveBeenCalled();
         });
 
