@@ -7,8 +7,8 @@ import { FormField, form } from '@angular/forms/signals';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
-import { from } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
+import { from, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
 import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import { ToastService } from 'src/app/shared/toast/toast.service';
@@ -64,7 +64,13 @@ export class CoursePickerComponent {
             }),
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap((term) => (term.trim().length < 2 ? from([]) : this.Course.getCourses$(category, term))),
+            exhaustMap((term) =>
+                term.trim().length < 2
+                    ? from([])
+                    : // A failed search must not error the typeahead stream, that would leave the loader on
+                      // and stop all further searches
+                      this.Course.getCourses$(category, term).pipe(catchError(() => of([] as Course[]))),
+            ),
             tap((courses) => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
