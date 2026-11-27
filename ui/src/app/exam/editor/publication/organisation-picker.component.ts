@@ -2,13 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam } from 'src/app/exam/exam.model';
-import { ExamService } from 'src/app/exam/exam.service';
 
 type Organisation = {
     _id: string;
@@ -34,17 +33,17 @@ type Organisation = {
             <div class="col-md-9" ngbDropdown>
                 <button
                     ngbDropdownToggle
-                    [disabled]="exam.state === 'PUBLISHED'"
+                    [disabled]="exam().state === 'PUBLISHED'"
                     class="btn btn-outline-dark"
                     type="button"
-                    id="dropDownMenu21"
+                    id="dd1"
                     aria-haspopup="true"
                     aria-expanded="true"
                 >
                     {{ 'i18n_faculty_name' | translate }}&nbsp;
                 </button>
-                <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
-                    @for (org of organisations; track org) {
+                <ul ngbDropdownMenu role="menu" aria-labelledby="dd1">
+                    @for (org of organisations(); track org) {
                         <li role="presentation">
                             <button
                                 [disabled]="org.filtered"
@@ -59,75 +58,92 @@ type Organisation = {
                 </ul>
             </div>
         </div>
-        @if (selectedOrganisations.length > 0) {
+        @if (selectedOrganisations().length > 0) {
             <div class="row mt-2">
                 <div class="col-md-9 offset-md-3">
-                    @for (org of selectedOrganisations; track org) {
+                    @for (org of selectedOrganisations(); track org) {
                         {{ org.name }} ({{ org.code }})
                         <button
                             class="btn btn-sm btn-link px-0"
-                            [disabled]="exam.state === 'PUBLISHED'"
+                            [disabled]="exam().state === 'PUBLISHED'"
                             (click)="removeOrganisation(org)"
+                            [ariaLabel]="'i18n_remove' | translate"
                             title="{{ 'i18n_remove' | translate }}"
                         >
                             <i
                                 class="bi bi-x-lg"
-                                [ngClass]="exam.state === 'PUBLISHED' ? 'text-danger' : 'text-success'"
+                                [class.text-danger]="exam().state === 'PUBLISHED'"
+                                [class.text-success]="exam().state !== 'PUBLISHED'"
+                                aria-hidden="true"
                             ></i>
                         </button>
                     }
                 </div>
             </div>
         }`,
-    imports: [NgClass, NgbPopover, NgbDropdownModule, TranslateModule],
+    imports: [NgbPopover, NgbDropdownModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrganisationSelectorComponent implements OnInit {
-    @Input() exam!: Exam;
+export class OrganisationSelectorComponent {
+    readonly exam = input.required<Exam>();
 
-    organisations: Organisation[] = [];
-    selectedOrganisations: Organisation[] = [];
+    readonly selectedOrganisations = linkedSignal<Organisation[]>(() => {
+        const all = this.allOrganisations();
+        const exam = this.exam();
+        return all.filter((o) => exam.organisations?.split(';').includes(o._id));
+    });
+    readonly organisations = linkedSignal<Organisation[]>(() => {
+        const all = this.allOrganisations();
+        const selectedIds = new Set(this.exam().organisations?.split(';') ?? []);
+        return all.map((o) => ({ ...o, filtered: selectedIds.has(o._id) }));
+    });
 
-    private http = inject(HttpClient);
-    private Exam = inject(ExamService);
+    private readonly allOrganisations = signal<Organisation[]>([]);
+    private readonly http = inject(HttpClient);
+    private readonly examTabService = inject(ExamTabService);
 
-    ngOnInit() {
+    constructor() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {
-            const organisations = resp.filter((org) => !org.homeOrg);
-            this.selectedOrganisations = organisations.filter(
-                (o) => this.exam.organisations && this.exam.organisations.split(';').includes(o._id),
-            );
-            const filtered = this.selectedOrganisations.map((o) => o._id);
-            this.organisations = organisations.map((o) => ({ ...o, filtered: filtered.includes(o._id) }));
+            this.allOrganisations.set(resp.filter((org) => !org.homeOrg));
         });
     }
 
-    addOrganisation = (organisation: Organisation) => {
-        if (!this.exam.organisations) {
-            this.exam.organisations = organisation._id;
-        } else if (!this.exam.organisations.includes(organisation._id)) {
-            this.exam.organisations = `${this.exam.organisations};${organisation._id}`;
+    addOrganisation(organisation: Organisation) {
+        const currentExam = this.exam();
+        let newOrganisations: string;
+        if (!currentExam.organisations) {
+            newOrganisations = organisation._id;
+        } else if (!currentExam.organisations.includes(organisation._id)) {
+            newOrganisations = `${currentExam.organisations};${organisation._id}`;
         } else {
             return;
         }
-        this.Exam.updateExam$(this.exam, {}, true).subscribe(() => {
-            this.selectedOrganisations.push(organisation);
-            organisation.filtered = true;
+        this.examTabService.saveExam$({ organisations: newOrganisations }, true).subscribe(() => {
+            this.selectedOrganisations.update((selected) => [...selected, organisation]);
+            this.organisations.update((orgs) =>
+                orgs.map((o) => (o._id === organisation._id ? { ...o, filtered: true } : o)),
+            );
         });
-    };
+    }
 
-    removeOrganisation = (organisation: Organisation) => {
-        if (!this.exam.organisations || !this.exam.organisations.includes(organisation._id)) {
+    removeOrganisation(organisation: Organisation) {
+        const currentExam = this.exam();
+        if (!currentExam.organisations || !currentExam.organisations.includes(organisation._id)) {
             return;
-        } else if (this.exam.organisations.includes(';' + organisation._id)) {
-            this.exam.organisations = this.exam.organisations.replace(';' + organisation._id, '');
-        } else if (this.exam.organisations.includes(organisation._id)) {
-            this.exam.organisations = this.exam.organisations.replace(organisation._id, '');
+        }
+        let newOrganisations: string;
+        if (currentExam.organisations.includes(';' + organisation._id)) {
+            newOrganisations = currentExam.organisations.replace(';' + organisation._id, '');
+        } else if (currentExam.organisations.includes(organisation._id)) {
+            newOrganisations = currentExam.organisations.replace(organisation._id, '');
         } else {
             return;
         }
-        this.Exam.updateExam$(this.exam, {}, true).subscribe(() => {
-            this.selectedOrganisations.splice(this.selectedOrganisations.indexOf(organisation), 1);
-            organisation.filtered = false;
+        this.examTabService.saveExam$({ organisations: newOrganisations }, true).subscribe(() => {
+            this.selectedOrganisations.update((selected) => selected.filter((o) => o._id !== organisation._id));
+            this.organisations.update((orgs) =>
+                orgs.map((o) => (o._id === organisation._id ? { ...o, filtered: false } : o)),
+            );
         });
-    };
+    }
 }

@@ -1,0 +1,282 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package features.iop.collaboration.services
+
+import com.fasterxml.jackson.databind.node.ObjectNode
+import database.EbeanJsonExtensions
+import features.iop.transfer.services.ExternalAttachmentLoaderService
+import io.ebean.text.PathProperties
+import io.ebean.{DB, Model}
+import models.enrolment.ExamParticipation
+import models.exam.Exam
+import models.iop.CollaborativeExam
+import models.user.User
+import org.joda.time.DateTime
+import play.api.Logging
+import play.api.http.Status.*
+import play.api.libs.json.*
+import play.api.libs.ws.{WSBodyWritables, WSClient}
+import play.api.mvc.{Result, Results}
+import security.BlockingIOExecutionContext
+import services.config.ConfigReader
+import services.json.EbeanMapper
+
+import java.net.{URI, URL}
+import javax.inject.Inject
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
+
+/** Service for loading and uploading collaborative exams and assessments
+  *
+  * Handles communication with external exam management systems.
+  */
+class CollaborativeExamLoaderService @Inject() (
+    wsClient: WSClient,
+    configReader: ConfigReader,
+    externalAttachmentLoader: ExternalAttachmentLoaderService
+)(implicit ec: BlockingIOExecutionContext)
+    extends EbeanJsonExtensions
+    with WSBodyWritables
+    with Logging:
+
+  private def parseUrl(examRef: Option[String] = None): Option[URL] =
+    val urlString = examRef match
+      case Some(ref) => s"${configReader.getIopHost}/api/exams/$ref"
+      case None      => s"${configReader.getIopHost}/api/exams"
+
+    Try(URI.create(urlString).toURL).toOption match
+      case None =>
+        logger.error(s"Malformed URL: $urlString")
+        None
+      case some => some
+
+  private def parseAssessmentUrl(examRef: String): Option[URL] =
+    val urlString = s"${configReader.getIopHost}/api/exams/$examRef/assessments"
+    Try(URI.create(urlString).toURL).toOption match
+      case None =>
+        logger.error(s"Malformed URL: $urlString")
+        None
+      case some => some
+
+  private def parseUrl(examRef: String, assessmentRef: String): Option[URL] =
+    val urlString = s"${configReader.getIopHost}/api/exams/$examRef/assessments/$assessmentRef"
+    Try(URI.create(urlString).toURL).toOption match
+      case None =>
+        logger.error(s"Malformed URL: $urlString")
+        None
+      case some => some
+
+  private def serializeForUpdate(exam: Exam, revision: String): JsValue =
+    Try {
+      // Use jackson because it serializes the entire object.
+      // TODO: maybe some other mapper can do this too?
+      val mapper     = EbeanMapper.create()
+      val jsonString = mapper.writeValueAsString(exam)
+      val node       = mapper.readTree(jsonString)
+      // CouchDB expects "rev" (not "_rev") when uploading
+      val result = node.asInstanceOf[ObjectNode].put("rev", revision)
+      // Convert back to Play JsValue
+      Json.parse(mapper.writeValueAsString(result))
+    } match
+      case Success(value) => value
+      case Failure(e) =>
+        logger.error("Unable to serialize exam", e)
+        throw new RuntimeException(e)
+
+  def getAssessmentPath: PathProperties =
+    val path = """(*,
+                  |user(*),
+                  |exam(*,
+                  |  executionType(*),
+                  |  examLanguages(*),
+                  |  attachment(*),
+                  |  autoEvaluationConfig(*, gradeEvaluations(*, grade(*))),
+                  |  creditType(*),
+                  |  examType(*),
+                  |  gradeScale(*, grades(*)),
+                  |  examSections(*,
+                  |    sectionQuestions(*,
+                  |      question(*, attachment(*), options(*)),
+                  |      options(*, option(*)),
+                  |      essayAnswer(*, attachment(*)),
+                  |      clozeTestAnswer(*)
+                  |    )
+                  |  ),
+                  |  examEnrolments(*,
+                  |    user(*),
+                  |    reservation(*,
+                  |      machine(*, room(*))
+                  |    )
+                  |  )
+                  |)
+                  |)""".stripMargin
+    PathProperties.parse(path)
+
+  def createAssessmentWithAttachments(participation: ExamParticipation): Future[Boolean] =
+    val ref = participation.collaborativeExam.externalRef
+    logger.debug(s"Sending back collaborative assessment for exam $ref")
+
+    parseAssessmentUrl(ref) match
+      case None => Future.successful(false)
+      case Some(_) =>
+        externalAttachmentLoader
+          .uploadAssessmentAttachments(participation.exam)
+          .flatMap(_ => createAssessment(participation))
+
+  def createAssessment(participation: ExamParticipation): Future[Boolean] =
+    val ref = participation.collaborativeExam.externalRef
+    logger.debug(s"Sending back collaborative assessment for exam $ref")
+
+    parseAssessmentUrl(ref) match
+      case None => Future.successful(false)
+      case Some(url) =>
+        val request =
+          wsClient.url(url.toString).withHttpHeaders("Content-Type" -> "application/json")
+        val json = DB.json().toJson(participation, getAssessmentPath)
+
+        request
+          .post(json)
+          .map { response =>
+            if response.status != CREATED then
+              logger.error(s"Failed in sending assessment for exam $ref")
+              false
+            else
+              participation.sentForReview = DateTime.now()
+              participation.update()
+              logger.info(s"Assessment for exam $ref processed successfully")
+              true
+          }
+          .recover { case t =>
+            logger.error(s"Could not send assessment to xm! [id=${participation.id}]", t)
+            false
+          }
+
+  def uploadAssessment(
+      ce: CollaborativeExam,
+      ref: String,
+      payload: JsValue
+  ): Future[Option[String]] =
+    parseUrl(ce.externalRef, ref) match
+      case None => Future.successful(None)
+      case Some(url) =>
+        val updatedPayload = payload.as[JsObject] match
+          case p if (p \ "_rev").asOpt[JsValue].isDefined =>
+            p - "_rev" + ("rev" -> (p \ "_rev").as[JsValue])
+          case p => p
+        val request =
+          wsClient.url(url.toString).withHttpHeaders("Content-Type" -> "application/json")
+
+        request.put(updatedPayload).map { response =>
+          if response.status != OK then
+            val root = response.json
+            logger.error((root \ "message").asOpt[String].getOrElse("Unknown error"))
+            None
+          else (response.json \ "rev").asOpt[String]
+        }
+
+  def downloadExam(ce: CollaborativeExam): Future[Option[Exam]] =
+    parseUrl(Some(ce.externalRef)) match
+      case None => Future.successful(None)
+      case Some(url) =>
+        val request = wsClient.url(url.toString)
+
+        request.get().map { response =>
+          val root = response.json
+          if response.status != OK then
+            logger.warn(
+              s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}"
+            )
+            None
+          else
+            // Set revision if present (CouchDB revision field can be _rev or rev)
+            val revision = (root \ "_rev").asOpt[String].orElse((root \ "rev").asOpt[String])
+            revision.foreach(v => ce.revision = v)
+
+            // Convert JsValue to Jackson JsonNode for exam
+            val jacksonNode = play.libs.Json.parse(Json.stringify(root))
+            val exam        = ce.getExam(jacksonNode)
+
+            // Save certain informative properties locally
+            ce.name = exam.name
+            ce.periodStart = exam.periodStart
+            ce.periodEnd = exam.periodEnd
+            ce.enrollInstruction = exam.enrollInstruction
+            ce.duration = exam.duration
+            ce.hash = exam.hash
+            ce.state = exam.state
+            ce.anonymous = exam.anonymous
+            ce.update()
+
+            Some(exam)
+        }
+
+  def downloadExamJson(ce: CollaborativeExam): Future[Option[JsValue]] =
+    parseUrl(Some(ce.externalRef)) match
+      case None => Future.successful(None)
+      case Some(url) =>
+        val request = wsClient.url(url.toString)
+        request.get().map { response =>
+          val root = response.json
+          if response.status != OK then
+            logger.warn(
+              s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}"
+            )
+            None
+          else
+            val revision = (root \ "_rev").asOpt[String].orElse((root \ "rev").asOpt[String])
+            revision.foreach(v => ce.revision = v)
+            Some(root)
+        }
+
+  def downloadAssessment(examRef: String, assessmentRef: String): Future[Option[JsValue]] =
+    parseUrl(examRef, assessmentRef) match
+      case None => Future.successful(None)
+      case Some(url) =>
+        val request = wsClient.url(url.toString)
+
+        request.get().map { response =>
+          val root = response.json
+          if response.status != OK then
+            logger.warn(
+              s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}"
+            )
+            None
+          else Some(root)
+        }
+
+  def uploadExam(
+      ce: CollaborativeExam,
+      content: Exam,
+      sender: User,
+      resultModel: Model,
+      pp: PathProperties
+  ): Future[Result] =
+    parseUrl(Some(ce.externalRef)) match
+      case None => Future.successful(Results.InternalServerError)
+      case Some(url) =>
+        val request = wsClient.url(url.toString)
+        val payload = serializeForUpdate(content, ce.revision)
+        request.put(payload).map { response =>
+          if response.status != OK then
+            val root    = response.json
+            val message = (root \ "message").asOpt[String].getOrElse("Unknown error")
+            Results.InternalServerError(message)
+          else if resultModel == null then Results.Ok
+          else ok(resultModel, pp)
+        }
+
+  def uploadExam(ce: CollaborativeExam, content: Exam, sender: User): Future[Result] =
+    uploadExam(ce, content, sender, null, null)
+
+  def deleteExam(ce: CollaborativeExam): Future[Result] =
+    parseUrl(Some(ce.externalRef)) match
+      case None => Future.successful(Results.InternalServerError)
+      case Some(url) =>
+        val request = wsClient.url(url.toString)
+        request.delete().map(response => Results.Status(response.status))
+
+  private def ok(obj: Any, pp: PathProperties): Result =
+    val body = Option(pp).map(p => DB.json().toJson(obj, p)).getOrElse(DB.json().toJson(obj))
+    Results.Ok(body).as("application/json")

@@ -13,8 +13,13 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-12">
         <form role="form">
             <label for="new-software-name" class="form-label">{{ 'i18n_software_name' | translate }}</label>
-            <input type="text" id="new-software-name" name="name" class="form-control" [(ngModel)]="newSoftware.name" />
-            <button (click)="addSoftware()" [disabled]="!newSoftware.name" class="btn btn-primary mt-2" type="button">
+            <input type="text" id="new-software-name" class="form-control" [formField]="newSoftwareForm.name" />
+            <button
+                (click)="addSoftware()"
+                [disabled]="newSoftwareForm.name().invalid()"
+                class="btn btn-primary mt-2"
+                type="button"
+            >
                 {{ 'i18n_create_new' | translate }}
             </button>
         </form>
@@ -31,35 +36,33 @@ SPDX-License-Identifier: EUPL-1.2
                 </tr>
             </thead>
             <tbody>
-                @for (sw of software | orderBy: 'name'; track sw.id) {
+                @for (sw of software() | orderBy: 'name'; track sw.id) {
                     <tr scope="row">
                         <td>
                             <div [hidden]="sw.showName">
                                 {{ sw.name }}
                             </div>
                             @if (sw.showName) {
-                                <div>
-                                    <form role="form">
-                                        <div class="input-group">
-                                            <input
-                                                type="text"
-                                                class="form-control input-sm"
-                                                name="accessibility-name"
-                                                [(ngModel)]="sw.name"
-                                                autofocus
-                                            />
-                                            <span
-                                                class="input-group-text pointer"
-                                                (click)="sw.showName = !sw.showName; updateSoftware(sw)"
-                                                >{{ 'i18n_add' | translate }}</span
-                                            >
-                                        </div>
-                                    </form>
-                                </div>
+                                <form role="form">
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control input-sm"
+                                            name="accessibility-name"
+                                            [(ngModel)]="sw.name"
+                                            autofocus
+                                        />
+                                        <span
+                                            class="input-group-text pointer"
+                                            (click)="toggleShowName(sw); updateSoftware(sw)"
+                                            >{{ 'i18n_add' | translate }}</span
+                                        >
+                                    </div>
+                                </form>
                             }
                         </td>
                         <td>
-                            <a (click)="sw.showName = !sw.showName">
+                            <a (click)="toggleShowName(sw)">
                                 <i class="bi-pencil"></i>
                             </a>
                         </td>

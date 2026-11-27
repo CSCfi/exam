@@ -3,9 +3,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { combineLatestWith, filter, switchMap } from 'rxjs';
 import { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationQuestionComponent } from 'src/app/examination/question/examination-question.component';
 import { Question } from 'src/app/question/question.model';
@@ -15,10 +17,10 @@ import { Question } from 'src/app/question/question.model';
         <div class="modal-header">
             <h4 class="xm-modal-title">{{ 'i18n_preview_question' | translate }}</h4>
         </div>
-        @if (preview) {
+        @if (preview()) {
             <div class="modal-body">
                 <xm-examination-question
-                    [question]="preview"
+                    [question]="preview()!"
                     [isPreview]="true"
                     [isCollaborative]="false"
                 ></xm-examination-question>
@@ -34,20 +36,26 @@ import { Question } from 'src/app/question/question.model';
     `,
     imports: [ExaminationQuestionComponent, TranslateModule],
 })
-export class QuestionPreviewDialogComponent implements OnInit {
-    @Input() question!: ExaminationQuestion | Question;
-    @Input() isExamQuestion = false;
+export class QuestionPreviewDialogComponent {
+    readonly question = signal<ExaminationQuestion | Question | undefined>(undefined);
+    readonly isExamQuestion = signal(false);
+    readonly preview = signal<ExaminationQuestion | undefined>(undefined);
 
-    preview?: ExaminationQuestion;
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
 
-    activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-
-    ngOnInit() {
-        const urlSuffix = this.isExamQuestion ? 'exam' : 'library';
-        const id = this.question.id;
-        this.http.get<ExaminationQuestion>(`/app/questions/${id}/preview/${urlSuffix}`).subscribe({
-            next: (res) => (this.preview = res),
-        });
+    constructor() {
+        toObservable(this.question)
+            .pipe(
+                combineLatestWith(toObservable(this.isExamQuestion)),
+                filter(([q]) => !!q?.id),
+                switchMap(([q, isExam]) =>
+                    this.http.get<ExaminationQuestion>(
+                        `/app/questions/${q!.id}/preview/${isExam ? 'exam' : 'library'}`,
+                    ),
+                ),
+                takeUntilDestroyed(),
+            )
+            .subscribe((res) => this.preview.set(res));
     }
 }

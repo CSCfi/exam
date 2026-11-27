@@ -2,62 +2,49 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subject, forkJoin, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    finalize,
-    map,
-    switchMap,
-    takeUntil,
-    tap,
-} from 'rxjs/operators';
-import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
-import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap, tap } from 'rxjs/operators';
+import type { EnrolmentInfo, ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
 
 interface LoadingState {
     loading: boolean;
-    error?: string;
 }
 
 @Component({
     selector: 'xm-exam-search',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <span class="col-12 align-items-center mt-3">
                 <img src="/assets/images/icon_info.png" class="pe-1" alt="" />
                 &nbsp;
-                @if (permissionCheck.active === false) {
+                @if (permissionCheck().active === false) {
                     {{ 'i18n_exam_search_description' | translate }}
                 }
-                @if (permissionCheck.active === true) {
+                @if (permissionCheck().active === true) {
                     {{ 'i18n_search_restricted' | translate }}
                 }
             </span>
         </div>
-        @if (permissionCheck.active === false) {
+        @if (permissionCheck().active === false) {
             <div class="row mt-3">
                 <div class="col-5">
                     <div class="input-group">
                         <input
-                            (ngModelChange)="search($event)"
-                            [(ngModel)]="filter.text"
+                            [value]="filterText"
+                            (input)="onFilterTextInput($event)"
                             type="text"
                             class="form-control"
-                            [attr.aria-label]="'i18n_search' | translate"
+                            [ariaLabel]="'i18n_search' | translate"
                             placeholder="{{ 'i18n_search' | translate }}"
-                            [disabled]="loader.loading"
                         />
                         <div class="input-group-append bi-search search-append"></div>
                     </div>
@@ -65,18 +52,18 @@ interface LoadingState {
                 <div class="col-7" ngbDropdown>
                     <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
                         {{ 'i18n_set_ordering' | translate }}:
-                        @switch (filter.ordering) {
+                        @switch (filter().ordering) {
                             @case ('name') {
                                 {{
-                                    (filter.reverse ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending')
+                                    (filter().reverse ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending')
                                         | translate
                                 }}
                             }
                             @case ('periodStart') {
-                                Tenttiperiodi alkaa (nouseva)
+                                {{ 'i18n_exam_period_start_ascending' | translate }}
                             }
                             @case ('periodEnd') {
-                                Tenttiperiodi päättyy (nouseva)
+                                {{ 'i18n_exam_period_end_ascending' | translate }}
                             }
                             @default {
                                 <!-- empty -->
@@ -91,10 +78,10 @@ interface LoadingState {
                             {{ 'i18n_exam_name_descending' | translate }}
                         </button>
                         <button ngbDropdownItem role="presentation" (click)="updateSorting('periodStart', false)">
-                            Tenttiperiodi alkaa (nouseva)
+                            {{ 'i18n_exam_period_start_ascending' | translate }}
                         </button>
                         <button ngbDropdownItem role="presentation" (click)="updateSorting('periodEnd', false)">
-                            Tenttiperiodi päättyy (nouseva)
+                            {{ 'i18n_exam_period_end_ascending' | translate }}
                         </button>
                     </div>
                 </div>
@@ -102,7 +89,7 @@ interface LoadingState {
         }
 
         <!-- Loading State -->
-        @if (loader.loading) {
+        @if (loader().loading) {
             <div class="row mt-3">
                 <div class="col-12">
                     <div class="d-flex align-items-center">
@@ -113,21 +100,10 @@ interface LoadingState {
             </div>
         }
 
-        <!-- Error State -->
-        @if (loader.error) {
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="alert alert-danger" role="alert">
-                        {{ loader.error }}
-                    </div>
-                </div>
-            </div>
-        }
-
-        @if (searchDone && !loader.loading) {
+        @if (searchDone() && !loader().loading) {
             <div class="row my-2">
                 <div class="col-12" aria-live="polite">
-                    {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+                    {{ 'i18n_student_exam_search_result' | translate }} {{ exams().length }}
                     {{ 'i18n_student_exam_search_result_continues' | translate }}
                 </div>
             </div>
@@ -135,77 +111,75 @@ interface LoadingState {
 
         <div class="row mt-3">
             <div class="col-12">
-                @for (exam of exams | orderBy: filter.ordering : filter.reverse; track exam.id) {
+                @for (exam of exams() | orderBy: filter().ordering : filter().reverse; track exam.id) {
                     <div class="row mb-3">
                         <div class="col-12">
-                            <xm-exam-search-result [exam]="exam" />
+                            <xm-exam-search-result [exam]="exam" (enrolmentChanged)="refreshEnrolment(exam)" />
                         </div>
                     </div>
                 }
             </div>
         </div>
     `,
-    imports: [
-        FormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        ExamSearchResultComponent,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [NgbDropdownModule, ExamSearchResultComponent, TranslateModule, OrderByPipe],
 })
-export class ExamSearchComponent implements OnInit, OnDestroy {
-    exams: EnrolmentInfo[] = [];
-    filterChanged = new Subject<string>();
-    filter = { text: '', ordering: 'name', reverse: false };
-    searchDone = false;
-    loader: LoadingState = { loading: false };
-    permissionCheck = { active: false };
+export class ExamSearchComponent {
+    readonly exams = signal<EnrolmentInfo[]>([]);
+    readonly filter = signal<{ text: string; ordering: string; reverse: boolean }>({
+        text: '',
+        ordering: 'name',
+        reverse: false,
+    });
+    readonly searchDone = signal(false);
+    readonly loader = signal<LoadingState>({ loading: false });
+    readonly permissionCheck = signal<{ active: boolean }>({ active: false });
 
-    private readonly ngUnsubscribe = new Subject<void>();
-    private toast = inject(ToastrService);
-    private Search = inject(ExamSearchService);
+    private readonly filterChanged = new Subject<string>();
 
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private http = inject(HttpClient);
-    private Enrolment = inject(EnrolmentService);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly toast = inject(ToastrService);
+    private readonly Search = inject(ExamSearchService);
 
     constructor() {
-        this.setupSearchHandler();
-    }
-
-    ngOnInit() {
         this.setupSearchHandler();
         this.loadStoredFilters();
         this.loadPermissionCheck();
     }
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
+    get filterText(): string {
+        return this.filter().text;
+    }
+    set filterText(value: string) {
+        this.filter.update((f) => ({ ...f, text: value }));
     }
 
-    search = (text: string) => {
-        this.filter.text = text;
+    onFilterTextInput = (event: Event) => this.search((event.target as HTMLInputElement).value);
+
+    search(text: string) {
+        this.filter.update((f) => ({ ...f, text }));
         this.storeFilters();
         this.filterChanged.next(text);
-    };
+    }
 
-    updateSorting = (ordering: string, reverse: boolean) => {
-        this.filter.ordering = ordering;
-        this.filter.reverse = reverse;
+    refreshEnrolment(exam: EnrolmentInfo) {
+        this.checkEnrolmentStatus(exam)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((updated) =>
+                this.exams.update((exams) => exams.map((e) => (e.id === updated.id ? updated : e))),
+            );
+    }
+
+    updateSorting(ordering: string, reverse: boolean) {
+        this.filter.update((f) => ({ ...f, ordering, reverse }));
         this.storeFilters();
-    };
+    }
 
     private setupSearchHandler() {
         this.filterChanged
-            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
             .subscribe((text) => {
-                if (this.permissionCheck.active === false) {
-                    this.exams = [];
+                if (this.permissionCheck().active === false) {
+                    this.exams.set([]);
                     if (text) {
                         this.doSearch();
                     } else {
@@ -218,59 +192,61 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     private loadStoredFilters() {
         const storedData = this.Search.loadFilters('regular');
         if (storedData.filters) {
-            this.filter = {
+            this.filter.set({
                 text: storedData.filters.text || '',
                 ordering: storedData.filters.ordering || 'name',
                 reverse: storedData.filters.reverse || false,
-            };
+            });
 
             // If there are stored filters, trigger search
-            if (this.filter.text) {
-                this.filterChanged.next(this.filter.text);
+            if (this.filter().text) {
+                this.filterChanged.next(this.filter().text);
             }
         }
-        this.loader = { loading: false };
-        this.permissionCheck = { active: false };
+        this.loader.set({ loading: false });
+        this.permissionCheck.set({ active: false });
     }
 
     private storeFilters() {
-        this.Search.storeFilters(this.filter, 'regular');
+        this.Search.storeFilters(this.filter(), 'regular');
     }
 
     private loadPermissionCheck() {
-        this.Search.getEnrolmentPermissionCheckStatus$().subscribe({
-            next: (setting) => {
-                this.permissionCheck = setting;
-                if (setting.active === true) {
-                    this.doSearch();
-                }
-            },
-            error: (err) => this.handleError(err),
-        });
+        this.Search.getEnrolmentPermissionCheckStatus$()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (setting) => {
+                    this.permissionCheck.set(setting);
+                    if (setting.active === true) {
+                        this.doSearch();
+                    }
+                },
+                error: (err) => this.toast.error(err),
+            });
     }
 
     private resetSearch() {
-        this.searchDone = false;
-        this.loader = { loading: false };
+        this.searchDone.set(false);
+        this.loader.set({ loading: false });
     }
 
     private doSearch = () => {
-        this.loader = { loading: true };
-        this.searchDone = false;
+        this.loader.set({ loading: true });
+        this.searchDone.set(false);
 
-        this.Search.listExams$(this.filter.text)
+        this.Search.listExams$(this.filter().text)
             .pipe(
                 tap((exams) => this.processExams(exams)),
                 switchMap((exams) => this.batchCheckEnrolmentStatus(exams)),
-                finalize(() => (this.loader = { loading: false })),
-                takeUntil(this.ngUnsubscribe),
+                finalize(() => this.loader.set({ loading: false })),
+                takeUntilDestroyed(this.destroyRef),
             )
             .subscribe({
                 next: (exams) => {
-                    this.exams = exams;
-                    this.searchDone = true;
+                    this.exams.set(exams);
+                    this.searchDone.set(true);
                 },
-                error: (err) => this.handleError(err),
+                error: (err) => this.toast.error(err),
             });
     };
 
@@ -293,31 +269,16 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
         return forkJoin(enrolmentChecks);
     }
 
+    // Returns a copy, the result is bound to an OnPush card that only reacts to a new reference
     private checkEnrolmentStatus(exam: EnrolmentInfo): Observable<EnrolmentInfo> {
+        const withStatus = (enrolments: ExamEnrolment[]): EnrolmentInfo => ({
+            ...exam,
+            alreadyEnrolled: enrolments.length > 0,
+            reservationMade: enrolments.some((e) => e.reservation || e.examinationEventConfiguration),
+        });
         return this.Search.checkEnrolmentStatus$(exam.id).pipe(
-            map((enrolments) => {
-                if (enrolments.length > 0) {
-                    exam.alreadyEnrolled = true;
-                    exam.reservationMade = enrolments.some((e) => e.reservation || e.examinationEventConfiguration);
-                } else {
-                    exam.alreadyEnrolled = false;
-                    exam.reservationMade = false;
-                }
-                return exam;
-            }),
-            catchError(() => {
-                exam.alreadyEnrolled = false;
-                exam.reservationMade = false;
-                return of(exam);
-            }),
+            map(withStatus),
+            catchError(() => of(withStatus([]))),
         );
-    }
-
-    private handleError(error: unknown) {
-        const errorMessage =
-            error instanceof Error ? error.message : typeof error === 'string' ? error : 'An error occurred';
-
-        this.loader = { loading: false, error: errorMessage };
-        this.toast.error(errorMessage);
     }
 }

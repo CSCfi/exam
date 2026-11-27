@@ -3,11 +3,20 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { switchMap } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { MaturityService } from 'src/app/review/assessment/maturity/maturity.service';
@@ -18,26 +27,28 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-statement',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './feedback.template.html',
-    imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
+    imports: [CdkDrag, NgbPopover, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
 export class StatementComponent {
-    @Input() exam!: Exam;
+    readonly exam = input.required<Exam>();
 
-    hideEditor = false;
+    readonly saved = output<void>();
 
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
-    private Maturity = inject(MaturityService);
-    private Assessment = inject(AssessmentService);
+    readonly hideEditor = signal(true);
+    readonly shouldHide = computed(() => !!this.exam().languageInspection?.finishedAt);
+    readonly attachment = linkedSignal<Attachment | undefined>(
+        () => this.exam().languageInspection?.statement?.attachment,
+    );
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
+    private readonly Maturity = inject(MaturityService);
+    private readonly Assessment = inject(AssessmentService);
 
     get fixPosition() {
         return this.Assessment.fixPosition;
-    }
-
-    get shouldHide() {
-        return !!this.exam.languageInspection?.finishedAt;
     }
 
     get title() {
@@ -45,36 +56,48 @@ export class StatementComponent {
     }
 
     get editorContent() {
-        return this.exam.languageInspection.statement.comment || '';
-    }
-
-    get attachment() {
-        return this.exam.languageInspection?.statement?.attachment;
+        return this.exam().languageInspection.statement.comment || '';
     }
 
     set editorContent(value: string) {
-        this.exam.languageInspection.statement.comment = value;
+        this.exam().languageInspection.statement.comment = value;
     }
 
-    toggleVisibility = () => (this.hideEditor = !this.hideEditor);
-
-    save = () => this.Maturity.saveInspectionStatement$(this.exam).subscribe();
-
-    downloadAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
-
-    removeAttachment = () => this.Attachment.removeStatementAttachment(this.exam);
-
-    selectFile = () => {
-        this.Attachment.selectFile(false, {}).then((res: FileResult) =>
-            this.Maturity.saveInspectionStatement$(this.exam).subscribe(() => {
-                this.Files.upload<Attachment>(
-                    `/app/attachment/exam/${this.exam.id}/statement`,
-                    res.$value.attachmentFile,
-                    { examId: this.exam.id.toString() },
-                ).then((resp) => {
-                    this.exam.languageInspection.statement.attachment = resp;
-                });
-            }),
-        );
+    commentChanged = (event: string) => {
+        this.exam().languageInspection.statement.comment = event;
     };
+
+    hasGoneThroughLanguageInspection = () => this.exam().languageInspection?.finishedAt;
+
+    toggleVisibility = () => this.hideEditor.update((value) => !value);
+
+    save = () => this.Maturity.saveInspectionStatement$(this.exam()).subscribe({ next: () => this.saved.emit() });
+
+    downloadAttachment = () => this.Attachment.downloadStatementAttachment(this.exam());
+
+    removeAttachment = () =>
+        this.Attachment.removeStatementAttachment(this.exam()).subscribe({
+            next: () => this.attachment.set(undefined),
+        });
+
+    selectFile = () =>
+        this.Attachment.selectFile$(false, {})
+            .pipe(
+                switchMap((res: FileResult) => {
+                    const examValue = this.exam();
+                    return this.Maturity.saveInspectionStatement$(examValue).pipe(
+                        switchMap(() =>
+                            this.Files.upload$<Attachment>(
+                                `/app/attachment/exam/${examValue.id}/statement`,
+                                res.$value.attachmentFile,
+                                { examId: examValue.id.toString() },
+                            ),
+                        ),
+                    );
+                }),
+            )
+            .subscribe((resp) => {
+                this.exam().languageInspection.statement.attachment = resp;
+                this.attachment.set(resp);
+            });
 }

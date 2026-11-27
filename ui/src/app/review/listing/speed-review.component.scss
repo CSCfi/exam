@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/definitions.scss' as shared;
+
 .speed-review-title {
-    font-size: 22px;
+    font-size: 1.375rem;
     font-weight: normal;
     color: #2c2c2c;
     padding-bottom: 5px;
@@ -13,12 +15,12 @@
 }
 
 .speed-review-subtitle {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #2c2c2c;
 }
 
 .speed-review-csv {
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: bold;
-    color: #266b99;
+    color: shared.$exam-blue;
 }

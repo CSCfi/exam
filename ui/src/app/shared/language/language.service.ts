@@ -18,7 +18,7 @@ interface IsoLangMap {
 
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     private isoLangs: IsoLangMap = {
         en: { name: 'English', nativeName: 'English' },

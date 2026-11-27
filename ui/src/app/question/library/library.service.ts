@@ -4,21 +4,21 @@
 
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { LibraryQuestion, Tag } from 'src/app/question/question.model';
 import { User } from 'src/app/session/session.model';
+import { StorageService } from 'src/app/shared/storage/storage.service';
 import { UserService } from 'src/app/shared/user/user.service';
 
 @Injectable({ providedIn: 'root' })
 export class LibraryService {
-    private http = inject(HttpClient);
-    private webStorageService = inject<WebStorageService>(SESSION_STORAGE);
-    private QuestionScore = inject(QuestionScoringService);
-    private User = inject(UserService);
+    private readonly http = inject(HttpClient);
+    private readonly Storage = inject(StorageService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly User = inject(UserService);
 
     listExams$ = (
         courseIds: number[],
@@ -63,15 +63,15 @@ export class LibraryService {
         this.http.post<void>('/app/tags/questions', { questionIds: questionIds, tagId: tagId });
 
     loadFilters = (category: string) => {
-        const entry = this.webStorageService.get('questionFilters');
+        const entry = this.Storage.get<{ [key: string]: string }>('questionFilters');
         return entry && entry[category] ? JSON.parse(entry[category]) : {};
     };
 
     storeFilters = (filters: unknown, category: string) => {
         const data = { filters: filters };
-        const filter = this.webStorageService.get('questionFilters') || {};
+        const filter = this.Storage.get<{ [key: string]: string }>('questionFilters') || {};
         filter[category] = JSON.stringify(data);
-        this.webStorageService.set('questionFilters', filter);
+        this.Storage.set('questionFilters', filter);
     };
 
     applyFreeSearchFilter = (text: string | undefined, questions: LibraryQuestion[]) => {
@@ -206,9 +206,9 @@ export class LibraryService {
         } else if (q.defaultEvaluationType === 'Selection') {
             return 'i18n_evaluation_select';
         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
-            return this.QuestionScore.calculateDefaultMaxPoints(q);
+            return this.QuestionScore.calculateDefaultMaxPoints(q.options);
         } else if (q.type === 'ClaimChoiceQuestion') {
-            return this.QuestionScore.getCorrectClaimChoiceOptionDefaultScore(q);
+            return this.QuestionScore.getCorrectClaimChoiceOptionDefaultScore(q.options);
         }
         return '';
     };

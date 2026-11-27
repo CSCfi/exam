@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { NgClass } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import type { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Examination } from 'src/app/examination/examination.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
@@ -20,114 +21,125 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-feedback',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './feedback.template.html',
-    imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
+    imports: [CdkDrag, NgbPopover, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
-export class FeedbackComponent implements OnInit {
-    @Input() exam!: Examination;
-    @Input() collaborative = false;
-    @Input() participation?: ExamParticipation;
-    @Input() hidden = false;
+export class FeedbackComponent {
+    readonly exam = input.required<Examination>();
+    readonly collaborative = input(false);
+    readonly participation = input<ExamParticipation>();
+    readonly hidden = input(false);
 
-    hideEditor = true;
-    private id = 0;
-    private ref = '';
+    readonly saved = output<void>();
 
-    private route = inject(ActivatedRoute);
-    private Assessment = inject(AssessmentService);
-    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
+    readonly hideEditor = linkedSignal<string, boolean>({
+        source: () => this.exam().executionType.type,
+        computation: (type, previous) => {
+            if (!previous || previous.source !== type) return type !== 'MATURITY';
+            return previous.value;
+        },
+    });
+    readonly shouldHide = computed(() => this.hidden());
+    readonly attachment = linkedSignal<Attachment | undefined>(() => this.exam().examFeedback?.attachment);
+
+    private readonly id: number;
+    private readonly ref: string;
+
+    private readonly route = inject(ActivatedRoute);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
+
+    constructor() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+    }
 
     get fixPosition() {
         return this.Assessment.fixPosition;
     }
 
-    get shouldHide() {
-        return this.hidden;
-    }
-
     get title() {
-        return 'i18n_give_feedback';
+        return this.exam().executionType.type === 'MATURITY' ? 'i18n_give_content_statement' : 'i18n_give_feedback';
     }
 
     get editorContent() {
-        return this.exam.examFeedback.comment || '';
-    }
-
-    get attachment() {
-        return this.exam.examFeedback?.attachment;
+        return this.exam().examFeedback.comment || '';
     }
 
     set editorContent(value: string) {
-        this.exam.examFeedback.comment = value;
+        this.exam().examFeedback.comment = value;
     }
 
-    ngOnInit() {
-        this.id = this.route.snapshot.params.id;
-        this.ref = this.route.snapshot.params.ref;
-        if (this.exam.executionType.type === 'MATURITY') {
-            this.hideEditor = false;
-        }
-    }
-
-    toggleVisibility = () => (this.hideEditor = !this.hideEditor);
+    toggleVisibility = () => this.hideEditor.update((value) => !value);
 
     save = () => {
-        if (this.collaborative) {
-            this._saveCollaborativeFeedback$().subscribe();
+        if (this.collaborative()) {
+            this._saveCollaborativeFeedback$().subscribe({ next: () => this.saved.emit() });
         } else {
-            this._saveFeedback$().subscribe();
+            this._saveFeedback$().subscribe({ next: () => this.saved.emit() });
         }
     };
 
     downloadAttachment = () => {
-        const attachment = this.exam.examFeedback?.attachment;
-        if (!attachment) {
+        const attachmentValue = this.attachment();
+        if (!attachmentValue) {
             return;
         }
-        if (this.collaborative && attachment.externalId)
-            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-        else this.Attachment.downloadFeedbackAttachment(this.exam);
+        const examValue = this.exam();
+        if (this.collaborative() && attachmentValue.externalId)
+            this.Attachment.downloadCollaborativeAttachment(attachmentValue.externalId, attachmentValue.fileName);
+        else this.Attachment.downloadFeedbackAttachment(examValue);
     };
 
     removeAttachment = () => {
-        if (this.collaborative) {
-            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation!);
-        } else {
-            this.Attachment.removeFeedbackAttachment(this.exam);
-        }
+        const examValue = this.exam();
+        const participationValue = this.participation();
+        const removal$ = this.collaborative()
+            ? this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, participationValue!)
+            : this.Attachment.removeFeedbackAttachment(examValue);
+        removal$.subscribe({ next: () => this.attachment.set(undefined) });
+    };
+
+    commentChanged = (event: string) => {
+        this.exam().examFeedback.comment = event;
     };
 
     selectFile = () => {
-        this.Attachment.selectFile(false, {}).then((res: FileResult) => {
-            if (this.collaborative) {
-                this._saveCollaborativeFeedback$().subscribe(() =>
-                    this._upload(res, `/app/iop/collab/attachment/exam/${this.id}/${this.ref}/feedback`),
-                );
-            } else {
-                this._saveFeedback$().subscribe(() =>
-                    this._upload(res, `/app/attachment/exam/${this.exam.id}/feedback`),
-                );
-            }
+        this.Attachment.selectFile$(false, {}).subscribe((res: FileResult) => {
+            const examValue = this.exam();
+            const participationValue = this.participation();
+            const save$: Observable<unknown> = this.collaborative()
+                ? this._saveCollaborativeFeedback$()
+                : this._saveFeedback$();
+            const url = this.collaborative()
+                ? `/app/iop/collab/attachment/exam/${this.id}/${this.ref}/feedback`
+                : `/app/attachment/exam/${examValue.id}/feedback`;
+
+            save$
+                .pipe(
+                    switchMap(() =>
+                        this.Files.upload$<Attachment>(url, res.$value.attachmentFile, {
+                            examId: examValue.id.toString(),
+                        }),
+                    ),
+                )
+                .subscribe((resp) => {
+                    if (participationValue) {
+                        participationValue._rev = resp.rev;
+                        delete resp.rev;
+                    }
+                    examValue.examFeedback.attachment = resp;
+                    this.attachment.set(resp);
+                });
         });
     };
 
-    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
+    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam());
 
     private _saveCollaborativeFeedback$ = () =>
-        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation!);
-
-    private _upload = (res: FileResult, url: string) =>
-        this.Files.upload<Attachment>(url, res.$value.attachmentFile, { examId: this.exam.id.toString() }).then(
-            (resp) => {
-                this.exam.examFeedback.attachment = resp;
-                // kinda hacky, but let's do this mangling for time being
-                if (this.participation) {
-                    this.participation._rev = this.exam.examFeedback?.attachment?.rev;
-                    delete this.exam.examFeedback?.attachment?.rev;
-                }
-            },
-        );
+        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation()!);
 }

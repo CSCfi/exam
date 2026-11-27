@@ -2,19 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-logout',
     template: '<div></div>',
-    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LogoutComponent implements OnInit {
-    private Session = inject(SessionService);
+export class LogoutComponent {
+    private readonly Session = inject(SessionService);
 
-    ngOnInit() {
+    constructor() {
         this.Session.logout();
     }
 }

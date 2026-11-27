@@ -3,14 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { SlicePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, OnDestroy, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { ParticipationLike } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -21,13 +20,11 @@ import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-exam-participations',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participations.component.html',
+    styleUrl: './exam-participations.component.scss',
     imports: [
-        FormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
         ExamParticipationComponent,
         PaginatorComponent,
         SlicePipe,
@@ -37,49 +34,63 @@ import { ExamParticipationComponent } from './exam-participation.component';
         PageContentComponent,
     ],
 })
-export class ExamParticipationsComponent implements OnInit, OnDestroy {
-    filter = { ordering: 'ended', reverse: true, text: '' };
-    pageSize = 10;
-    currentPage = 0;
-    participations: ParticipationLike[] = [];
-    collaborative = false;
-    filterChanged: Subject<string> = new Subject<string>();
-    ngUnsubscribe = new Subject();
-    searchDone = false;
+export class ExamParticipationsComponent {
+    readonly filter = signal({ ordering: 'ended' as 'exam.name' | 'ended', reverse: true, text: '' });
+    readonly pageSize = 10;
+    readonly currentPage = signal(0);
+    readonly searchDone = signal(false);
+    readonly collaborative = false;
 
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
+    // Reactive search with debouncing - automatically cleans up on destroy
+    readonly participations = toSignal(
+        toObservable(computed(() => this.filter().text)).pipe(
+            debounceTime(500),
+            distinctUntilChanged(),
+            switchMap((text) => {
+                return this.Enrolment.loadParticipations$(text).pipe(
+                    map((data) => {
+                        // Normalize ended dates
+                        data.filter((p) => !p.ended).forEach(
+                            (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
+                        );
+                        // Filter to only participations with ended dates
+                        return data.filter((d) => d.ended);
+                    }),
+                    tap(() => this.searchDone.set(true)),
+                    catchError((err) => {
+                        this.toast.error(err);
+                        return EMPTY;
+                    }),
+                );
+            }),
+        ),
+        { initialValue: [] as ParticipationLike[] },
+    );
+
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {
-        this.filterChanged
-            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
-            .subscribe(this._search);
+        // Trigger initial search with empty string
+        this.filterText = '';
     }
 
-    ngOnInit() {
-        this.search('');
+    get filterText(): string {
+        return this.filter().text;
+    }
+    set filterText(value: string) {
+        this.filter.update((f) => ({ ...f, text: value }));
     }
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
-        this.ngUnsubscribe.complete();
-    }
-
-    search = (text: string) => this.filterChanged.next(text);
-
-    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
-
-    private _search = (text: string) => {
-        this.filter.text = text;
-        this.Enrolment.loadParticipations$(text).subscribe({
-            next: (data) => {
-                data.filter((p) => !p.ended).forEach(
-                    (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
-                );
-                this.participations = data.filter((d) => d.ended);
-                this.searchDone = true;
-            },
-            error: (err) => this.toast.error(err),
-        });
+    onFilterInput = (event: Event) => {
+        this.filterText = (event.target as HTMLInputElement).value;
     };
+
+    pageSelected($event: { page: number }) {
+        this.currentPage.set($event.page);
+    }
+
+    updateFilterOrdering(ordering: 'exam.name' | 'ended', reverse: boolean) {
+        this.filter.update((f) => ({ ...f, ordering, reverse }));
+    }
 }

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../shared/definitions.scss' as shared;
+
 .student-enrolment-date-box {
     // waitinroom, active-enrolment
     border: 2px solid #ededed;
@@ -12,12 +14,21 @@
     vertical-align: top;
     padding: 3px;
     font-weight: bold;
-    font-size: 20px;
-    width: 46px;
-    line-height: 16px;
+    font-size: 1.25rem;
+    width: 2.875rem;
+    line-height: 1rem;
     margin-right: 15px;
 
     .month-name {
-        font-size: 14px;
+        font-size: 0.875rem;
     }
+}
+
+.exam-title-link {
+    font-size: 1rem;
+    font-weight: 500;
+    color: shared.$exam-blue;
+    padding: 8px 0px; 
+    display: inline-flex;
+    align-items: center;
 }

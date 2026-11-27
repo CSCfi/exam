@@ -1,0 +1,32 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package models.enrolment
+
+import jakarta.persistence.*
+import models.base.GeneratedIdentityModel
+import models.exam.Exam
+import org.joda.time.{DateTime, Interval}
+
+import scala.compiletime.uninitialized
+
+@Entity
+class ExaminationEvent extends GeneratedIdentityModel:
+  @OneToOne(mappedBy = "examinationEvent")
+  var examinationEventConfiguration: ExaminationEventConfiguration = uninitialized
+
+  @Temporal(TemporalType.TIMESTAMP)
+  var start: DateTime = uninitialized
+
+  var description: String = uninitialized
+  var capacity: Int       = 0
+
+  def toInterval(exam: Exam): Interval =
+    new Interval(start, start.plusMinutes(exam.duration))
+
+  override def equals(o: Any): Boolean = o match
+    case e: ExaminationEvent => this.id == e.id
+    case _                   => false
+
+  override def hashCode: Int = id.toInt

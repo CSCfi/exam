@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+node_modules
+target
+dist
+.git
+.idea
+*.log
+data/attachments
+public
+ui/target
+project/target
+project/project
+

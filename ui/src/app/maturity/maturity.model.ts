@@ -15,7 +15,7 @@ export interface LanguageInspection {
     modifier: User;
     creator: User;
     created: Date;
-    statement: { attachment?: Attachment; comment?: string };
+    statement: { attachment?: Attachment; comment: string };
 }
 
 export interface LanguageInspectionData extends LanguageInspection {

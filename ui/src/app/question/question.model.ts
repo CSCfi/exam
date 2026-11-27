@@ -10,7 +10,8 @@ export interface ReverseExamSectionQuestion extends ExamSectionQuestion {
     examSection: ReverseExamSection;
 }
 
-export interface ReverseQuestion extends Question {
+export interface ReverseQuestion extends Omit<Question, 'id'> {
+    id?: number; // Optional to support drafts (new questions without id)
     examSectionQuestions: ReverseExamSectionQuestion[];
 }
 
@@ -35,6 +36,7 @@ export interface Question {
     defaultMaxScore?: number;
     modifier?: User;
     modified?: Date;
+    created?: Date;
     shared?: boolean;
     defaultAnswerInstructions?: string;
     defaultEvaluationCriteria?: string;
@@ -44,7 +46,9 @@ export interface Question {
     defaultOptionShufflingOn: boolean;
 }
 
-export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
+// QuestionDraft is now just ReverseQuestion with id: undefined
+// Keeping the type alias for backward compatibility, but it's essentially the same
+export type QuestionDraft = ReverseQuestion & { id: undefined };
 export type QuestionAmounts = {
     accepted: number;
     rejected: number;
@@ -62,7 +66,7 @@ export interface LibraryQuestion extends ReverseQuestion {
 export interface EssayAnswer {
     id?: number;
     evaluatedScore?: number;
-    answer?: string;
+    answer: string | null;
     objectVersion?: number;
     attachment?: Attachment;
 }
@@ -112,7 +116,6 @@ export interface ExamSectionQuestion {
     negativeScoreAllowed: boolean;
     optionShufflingOn: boolean;
     sequenceNumber: number;
-    expanded: boolean;
     derivedMaxScore?: number;
     derivedAssessedScore?: number;
 }

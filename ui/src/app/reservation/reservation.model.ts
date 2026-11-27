@@ -73,8 +73,6 @@ export interface ExamMachine {
         name: string;
     }[];
     otherIdentifier: string;
-    accessibilityInfo: string;
-    accessible: boolean;
     surveillanceCamera: string;
     videoRecordings: string;
     ipAddress: string;
@@ -116,6 +114,7 @@ type ReservationDisplay = Omit<Reservation, 'machine' | 'enrolment'> & {
     machine: Partial<MachineDisplay>;
     userAggregate: string;
     stateOrd: number;
+    startOrd: number;
     enrolment: ExamEnrolmentDisplay;
 };
 export type LocalTransferExamEnrolment = Omit<ExamEnrolmentDisplay, 'exam'> & {
@@ -136,10 +135,7 @@ type CollaborativeExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
 };
 
 export type AnyReservation =
-    | ReservationDisplay
-    | LocalTransferExamReservation
-    | RemoteTransferExamReservation
-    | CollaborativeExamReservation;
+    ReservationDisplay | LocalTransferExamReservation | RemoteTransferExamReservation | CollaborativeExamReservation;
 
 // Transfer examination taking place here
 export function isLocalTransfer(reservation: AnyReservation): reservation is LocalTransferExamReservation {

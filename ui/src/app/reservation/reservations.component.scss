@@ -5,7 +5,22 @@
  */
 
 .reservation-search-form-label {
-    font-size: 12px;
+    font-size: 0.75rem;
     color: #777777;
     text-transform: uppercase;
+}
+
+label.reservation-search-form-label {
+    display: block;
+}
+
+.row > div > .input-group,
+.row > div > xm-dropdown-select,
+.row > div > xm-date-picker {
+    width: 100%;
+    max-width: 100%;
+}
+
+xm-dropdown-select {
+    display: block;
 }

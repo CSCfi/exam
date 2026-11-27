@@ -6,32 +6,29 @@ import type { HttpParams } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { InspectionStatementDialogComponent } from './dialogs/inspection-statement-dialog.component';
 import type { LanguageInspection, QueryParams } from './maturity.model';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageInspectionService {
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private modal = inject(NgbModal);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private dialogs = inject(ConfirmationDialogService);
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly dialogs = inject(ConfirmationDialogService);
 
     query = (params: QueryParams | { month?: string }): Observable<LanguageInspection[]> =>
         this.http.get<LanguageInspection[]>('/app/inspections', { params: params as HttpParams });
 
     showStatement = (statement: { comment: string }) => {
-        const modalRef = this.modal.open(InspectionStatementDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-        });
-        modalRef.componentInstance.statement = statement.comment;
+        const modalRef = this.modal.openRef(InspectionStatementDialogComponent, { size: 'lg' });
+        modalRef.componentInstance.statement.set(statement.comment);
     };
 
     assignInspection = (inspection: LanguageInspection) =>

@@ -13,4 +13,5 @@ data
 logs
 .angular
 dist
-ui/src/assets/components/vendor/mathjax
+.env
+docker/ssl

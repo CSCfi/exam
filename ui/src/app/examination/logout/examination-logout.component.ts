@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
@@ -17,8 +17,10 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
                     <div class="container-fluid py-5">
                         <h1 class="display-5 fw-bold">{{ 'i18n_end_of_exam' | translate }}</h1>
                         <p class="fs-4" aria-live="polite">{{ reasonPhrase | translate }}</p>
-                        @if (quitLink) {
-                            <a [href]="quitLink" class="btn btn-primary btn-lg">{{ 'i18n_quit_seb' | translate }} </a>
+                        @if (quitLink()) {
+                            <a [href]="quitLink()!" class="btn btn-primary btn-lg"
+                                >{{ 'i18n_quit_seb' | translate }}
+                            </a>
                         }
                     </div>
                 </div>
@@ -26,34 +28,37 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
         </div>
     `,
     imports: [TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationLogoutComponent implements OnInit {
-    quitLinkEnabled = false;
-    reasonPhrase = '';
-    quitLink?: string;
+export class ExaminationLogoutComponent {
+    readonly quitLink = signal<string | undefined>(undefined);
+    readonly reasonPhrase: string;
 
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private ExaminationStatus = inject(ExaminationStatusService);
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly ExaminationStatus = inject(ExaminationStatusService);
 
-    ngOnInit() {
-        this.reasonPhrase =
+    constructor() {
+        const reason =
             this.route.snapshot.queryParamMap.get('reason') === 'aborted' ? 'i18n_exam_aborted' : 'i18n_exam_returned';
-        this.quitLinkEnabled = this.route.snapshot.queryParamMap.get('quitLinkEnabled') === 'true';
+        this.reasonPhrase = reason;
+        const quitLinkEnabled = this.route.snapshot.queryParamMap.get('quitLinkEnabled') === 'true';
 
-        if (this.quitLinkEnabled) {
-            this.http
-                .get<{ quitLink: string }>('/app/settings/examinationQuitLink')
-                .subscribe({ next: (resp) => (this.quitLink = resp.quitLink), error: () => this.logout() });
+        if (quitLinkEnabled) {
+            this.http.get<{ quitLink: string }>('/app/settings/examinationQuitLink').subscribe({
+                next: (resp) => this.quitLink.set(resp.quitLink),
+                error: () => this.logout(),
+            });
         } else {
             this.logout();
         }
     }
 
-    private logout = () =>
+    private logout() {
         window.setTimeout(() => {
             this.ExaminationStatus.notifyEndOfExamination();
             this.router.navigate(['/logout']);
         }, 8000);
+    }
 }

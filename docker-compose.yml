@@ -1,0 +1,88 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: exam-postgres
+    environment:
+      POSTGRES_USER: exam
+      POSTGRES_PASSWORD: exam
+      POSTGRES_DB: exam
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exam"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - exam-network
+
+  exam:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: exam-app:latest
+    container_name: exam-app
+    environment:
+      - APP_HOSTNAME=http://localhost
+      - SMTP_HOST=${SMTP_HOST:-smtp.example.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SSL=${SMTP_SSL:-no}
+      - SMTP_TLS=${SMTP_TLS:-yes}
+      - SMTP_USER=${SMTP_USER:-user}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-password}
+    expose:
+      - "9000"
+    volumes:
+      - ./data/attachments:/app/data/attachments
+      - ./conf/docker.conf:/app/conf/docker.conf:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - exam-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000/app/attributes"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: exam-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/${NGINX_CONFIG:-nginx.conf}:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+      # No need to mount public/ - backend serves assets from JAR
+    depends_on:
+      exam:
+        condition: service_healthy
+    networks:
+      - exam-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  postgres_data:
+    driver: local
+  # pgadmin_data:
+  #   driver: local
+
+networks:
+  exam-network:
+    driver: bridge
+

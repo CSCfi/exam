@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/definitions.scss' as shared;
+
 .unstyled-link,
 .unstyled-link:hover,
 .unstyled-link:active {
@@ -14,21 +16,21 @@
 .review-list-link {
     font-family: Arimo, Helvetica-Neue, Helvetica;
     font-weight: bold;
-    color: #266b99;
-    font-size: 16px;
+    color: shared.$exam-blue;
+    font-size: 1rem;
     text-decoration: none;
     cursor: pointer;
 }
 
 .review-list-subtitle {
     font-family: Arimo, Helvetica-Neue, Helvetica;
-    font-size: 16px;
+    font-size: 1rem;
     color: #2c2c2c;
 }
 
 .xm-paragraph-title-no-results {
     color: #555555;
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 
 .table-column-checkbox {
@@ -36,4 +38,21 @@
     text-align: center;
 }
 
+// Fix dropdown clipping in table headers with overflow
+// Make the table cell a positioning context but allow overflow
+th.dropdown {
+    position: relative;
+    overflow: visible !important;
+}
 
+// Ensure dropdown menu can escape overflow containers
+// Note: overflow-x-scroll creates a clipping context, but we can
+// allow the dropdown menu to escape by ensuring proper z-index and positioning
+.overflow-x-scroll {
+    position: relative;
+}
+
+// Ensure dropdown menu appears above other content and can escape
+.dropdown-menu-show {
+    z-index: 1050;
+}

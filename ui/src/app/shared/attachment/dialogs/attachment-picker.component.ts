@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -23,7 +22,7 @@ import { FileService } from 'src/app/shared/file/file.service';
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
-            <h2 class="xm-modal-title">{{ title | translate }}</h2>
+            <h2 class="xm-modal-title">{{ title() | translate }}</h2>
         </div>
         <div class="modal-body">
             <div class="row">
@@ -39,60 +38,77 @@ import { FileService } from 'src/app/shared/file/file.service';
                         autofocus
                         #file
                         (change)="onFilesAdded()"
-                        attr.aria-label="{{ 'i18n_choose_file' | translate }}"
+                        ariaLabel="{{ 'i18n_choose_file' | translate }}"
                     />
                 </div>
                 <div class="col-9 attachment-file">
-                    {{ fileObject?.name }}
+                    {{ fileObject()?.name }}
+                    @if (fileObject()) {
+                        <span class="text-muted small">({{ getFileSize() }})</span>
+                    }
                 </div>
             </div>
             <div class="row pt-2">
-                @if (isTeacherModal) {
+                @if (isTeacherModal()) {
                     <div class="col-12">
                         {{ 'i18n_check_file_accessible' | translate }}
                     </div>
                 }
             </div>
             <div class="row">
-                <div class="col-12">{{ 'i18n_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.</div>
+                <div class="col-12">
+                    {{ 'i18n_max_file_size' | translate }} {{ (maxFileSize() || 0) / 1000000 }} MB.
+                </div>
             </div>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-success " (click)="confirmed()" [disabled]="!fileObject">
-                {{ 'i18n_button_save' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
                 {{ 'i18n_button_cancel' | translate }}
+            </button>
+            <button class="btn btn-success" (click)="confirmed()" [disabled]="!fileObject()">
+                {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     `,
     styleUrls: ['./attachment-picker.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AttachmentSelectorComponent implements OnInit {
-    @ViewChild('file', { static: false }) file!: ElementRef;
-    @Input() title = '';
-    @Input() isTeacherModal = false;
-    fileObject!: File;
-    maxFileSize = 0;
+export class AttachmentSelectorComponent {
+    readonly fileObject = signal<File | undefined>(undefined);
+    readonly maxFileSize = signal(0);
+    readonly title = signal('');
+    readonly isTeacherModal = signal(false);
 
-    activeModal = inject(NgbActiveModal);
-    private Files = inject(FileService);
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly file = viewChild.required<ElementRef>('file');
+    private readonly Files = inject(FileService);
 
-    ngOnInit() {
-        this.Files.getMaxFilesize$().subscribe((data) => (this.maxFileSize = data.filesize));
+    constructor() {
+        this.Files.getMaxFilesize$().subscribe((data) => this.maxFileSize.set(data.filesize));
     }
 
     confirmed() {
-        this.activeModal.close({ $value: { attachmentFile: this.fileObject } });
+        const currentFile = this.fileObject();
+        if (currentFile) {
+            this.activeModal.close({ $value: { attachmentFile: currentFile } });
+        }
     }
 
     onFilesAdded() {
-        const files: { [key: string]: File } = this.file.nativeElement.files;
+        const files: { [key: string]: File } = this.file().nativeElement.files;
         for (const key in files) {
             if (!isNaN(parseInt(key))) {
-                this.fileObject = files[key];
+                this.fileObject.set(files[key]);
                 break;
             }
         }
+    }
+
+    getFileSize(): string {
+        const size = this.fileObject()?.size ?? 0;
+        if (size < 1000) {
+            return size + ' B';
+        }
+        return size < 1_000_000 ? Math.round(size / 1000) + ' kB' : Math.round(size / 1_000_000) + ' MB';
     }
 }

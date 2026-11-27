@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 
@@ -31,36 +31,40 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveDownloadComponent {
-    params: { startDate: Date | null; endDate: Date | null } = { startDate: new Date(), endDate: new Date() };
+    readonly startDate = signal<Date | null>(new Date());
+    readonly endDate = signal<Date | null>(new Date());
 
-    private modal = inject(NgbActiveModal);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly modal = inject(NgbActiveModal);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
-    startDateChanged = (event: { date: Date | null }) => (this.params.startDate = event.date);
+    startDateChanged(event: { date: Date | null }) {
+        this.startDate.set(event.date);
+    }
 
-    endDateChanged = (event: { date: Date | null }) => (this.params.endDate = event.date);
+    endDateChanged(event: { date: Date | null }) {
+        this.endDate.set(event.date);
+    }
 
-    ok = () => {
-        let start, end;
-        if (this.params.startDate) {
-            start = this.params.startDate;
-        }
-        if (this.params.endDate) {
-            end = this.params.endDate;
-        }
+    ok() {
+        const start = this.startDate();
+        const end = this.endDate();
         if (start && end && end < start) {
             this.toast.error(this.translate.instant('i18n_endtime_before_starttime'));
         } else if (start && end) {
             this.modal.close({
                 $value: {
-                    start: format(start, 'dd.MM.yyyy'),
-                    end: format(end, 'dd.MM.yyyy'),
+                    start: DateTime.fromJSDate(start).toFormat('dd.MM.yyyy'),
+                    end: DateTime.fromJSDate(end).toFormat('dd.MM.yyyy'),
                 },
             });
         }
-    };
-    cancel = () => this.modal.dismiss();
+    }
+
+    cancel() {
+        this.modal.dismiss();
+    }
 }

@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { map } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -29,8 +29,8 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                             <tr>
                                 <th>
                                     <xm-table-sort
-                                        [reverse]="reverse"
-                                        [predicate]="predicate"
+                                        [reverse]="reverse()"
+                                        [predicate]="predicate()"
                                         by="examinationDatesAggregate"
                                         text="i18n_examination_dates"
                                         (click)="setPredicate('examinationDatesAggregate')"
@@ -38,8 +38,8 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                                 </th>
                                 <th>
                                     <xm-table-sort
-                                        [reverse]="reverse"
-                                        [predicate]="predicate"
+                                        [reverse]="reverse()"
+                                        [predicate]="predicate()"
                                         by="course.code"
                                         text="i18n_examcode"
                                         (click)="setPredicate('course.code')"
@@ -47,8 +47,8 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                                 </th>
                                 <th>
                                     <xm-table-sort
-                                        [reverse]="reverse"
-                                        [predicate]="predicate"
+                                        [reverse]="reverse()"
+                                        [predicate]="predicate()"
                                         by="name"
                                         text="i18n_exam_name"
                                         (click)="setPredicate('name')"
@@ -56,8 +56,8 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                                 </th>
                                 <th>
                                     <xm-table-sort
-                                        [reverse]="reverse"
-                                        [predicate]="predicate"
+                                        [reverse]="reverse()"
+                                        [predicate]="predicate()"
                                         by="ownerAggregate"
                                         text="i18n_teachers"
                                         (click)="setPredicate('ownerAggregate')"
@@ -66,7 +66,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                             </tr>
                         </thead>
                         <tbody>
-                            @for (exam of printouts | orderBy: predicate : reverse; track exam) {
+                            @for (exam of printouts() | orderBy: predicate() : reverse(); track exam) {
                                 <tr>
                                     <td>{{ exam.examinationDatesAggregate }}</td>
                                     <td>
@@ -100,15 +100,16 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         PageHeaderComponent,
         PageContentComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrintoutListingComponent implements OnInit {
-    printouts: (Exam & { examinationDatesAggregate: string })[] = [];
-    predicate = 'examinationDatesAggregate';
-    reverse = true;
+export class PrintoutListingComponent {
+    readonly printouts = signal<(Exam & { examinationDatesAggregate: string })[]>([]);
+    readonly predicate = signal('examinationDatesAggregate');
+    readonly reverse = signal(true);
 
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
-    ngOnInit() {
+    constructor() {
         this.http
             .get<Exam[]>('/app/exam/printouts')
             .pipe(
@@ -117,18 +118,20 @@ export class PrintoutListingComponent implements OnInit {
                         const dates = p.examinationDates.map((ed) => ed.date).sort();
                         return {
                             ...p,
-                            examinationDatesAggregate: dates.map((d) => format(parseISO(d), 'DD.MM.YYYY')).join(', '),
+                            examinationDatesAggregate: dates
+                                .map((d) => DateTime.fromISO(d).toFormat('dd.MM.yyyy'))
+                                .join(', '),
                         };
                     });
                 }),
             )
-            .subscribe((printouts) => (this.printouts = printouts));
+            .subscribe((printouts) => this.printouts.set(printouts));
     }
 
-    setPredicate = (predicate: string) => {
-        if (this.predicate === predicate) {
-            this.reverse = !this.reverse;
+    setPredicate(predicate: string) {
+        if (this.predicate() === predicate) {
+            this.reverse.update((v) => !v);
         }
-        this.predicate = predicate;
-    };
+        this.predicate.set(predicate);
+    }
 }

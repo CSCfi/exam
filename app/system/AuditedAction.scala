@@ -5,7 +5,8 @@
 package system
 
 import play.api.Logging
-import play.api.mvc._
+import play.api.libs.json.{JsString, JsValue}
+import play.api.mvc.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,7 +14,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuditedAction @Inject() (parser: BodyParsers.Default)(implicit ec: ExecutionContext)
     extends ActionBuilderImpl(parser)
     with Logging:
-  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
+  override def invokeBlock[A](
+      request: Request[A],
+      block: Request[A] => Future[Result]
+  ): Future[Result] =
     log(request)
     block(request)
 
@@ -28,6 +32,11 @@ class AuditedAction @Inject() (parser: BodyParsers.Default)(implicit ec: Executi
       val logEntry = s"$userString $method $uri"
       // Do not log body of data import request to avoid logs getting unreadable.
       if method == "POST" || method == "PUT" && request.path != "/integration/iop/import" then
-        val json = if !request.hasBody then None else request.body.asInstanceOf[AnyContent].asJson
+        val json = request.body match
+          case ac: AnyContent => ac.asJson
+          case jv: JsValue    => Some(jv)
+          case mp: MultipartFormData[?] =>
+            mp.files.headOption.map(f => JsString(s"file: ${f.filename}"))
+          case _ => None
         logger.debug(s"$logEntry data: ${json.getOrElse("")}")
       else logger.debug(logEntry)

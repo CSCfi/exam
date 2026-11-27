@@ -5,8 +5,7 @@
 package system.modules
 
 import com.google.inject.AbstractModule
-import miscellaneous.config.ConfigReader
-import miscellaneous.config.ConfigReaderImpl
+import services.config.{ConfigReader, ConfigReaderImpl}
 
 class ConfigReaderModule extends AbstractModule:
   override def configure(): Unit = bind(classOf[ConfigReader]).to(classOf[ConfigReaderImpl])

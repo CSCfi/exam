@@ -5,33 +5,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, HostListener, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
+import { Toast } from 'ngx-toastr';
 
 @Component({
-    selector: `xm-session-expire-warning`,
     template: `
-        <b>{{ title }}.</b>
-        {{ message }}
+        <b>{{ title() }}.</b>
+        {{ message() }}
     `,
-    standalone: true,
 })
 export class SessionExpireWarningComponent extends Toast {
-    public override toastPackage: ToastPackage;
-    protected override toastrService: ToastrService;
-
-    private http = inject(HttpClient);
-    private i18n = inject(TranslateService);
-
-    // constructor is only necessary when not using AoT
-    constructor() {
-        const toastrService = inject(ToastrService);
-        const toastPackage = inject(ToastPackage);
-
-        super(toastrService, toastPackage);
-
-        this.toastrService = toastrService;
-        this.toastPackage = toastPackage;
-    }
+    private readonly http = inject(HttpClient);
+    private readonly i18n = inject(TranslateService);
 
     @HostListener('window:keydown', ['$event'])
     handleKeyDown(event: KeyboardEvent) {
@@ -40,7 +24,7 @@ export class SessionExpireWarningComponent extends Toast {
         }
     }
 
-    continue = () => {
+    continue() {
         this.toastrService.clear();
         this.http.put<void>('/app/session', {}).subscribe({
             next: () => {
@@ -50,5 +34,5 @@ export class SessionExpireWarningComponent extends Toast {
             },
             error: (resp) => this.toastrService.error(resp),
         });
-    };
+    }
 }

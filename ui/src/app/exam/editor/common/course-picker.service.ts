@@ -8,7 +8,7 @@ import type { Course } from 'src/app/exam/exam.model';
 
 @Injectable({ providedIn: 'root' })
 export class CoursePickerService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     getCourses$ = (filter: string, criteria: string) =>
         this.http.get<Course[]>('/app/courses', { params: { filter: filter, q: criteria.trim() } });

@@ -2,32 +2,32 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, NgTemplateOutlet } from '@angular/common';
-import { Component, Input, TemplateRef } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input, TemplateRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 
 @Component({
     selector: 'xm-page-header',
-    imports: [NgTemplateOutlet, NgClass, TranslateModule, HistoryBackComponent],
+    imports: [NgTemplateOutlet, TranslateModule, HistoryBackComponent],
     template: `
         <div class="row mx-3 mt-4 mb-2 align-items-center">
-            <div [ngClass]="appendWide ? 'col-md-6' : 'col-md-9'" class="col-s-3">
+            <div [class.col-md-6]="appendWide()" [class.col-md-9]="!appendWide()" class="col-s-3">
                 <div class="d-flex">
-                    @if (history) {
+                    @if (history()) {
                         <span class="pe-4"><xm-history-back></xm-history-back></span>
                     }
-                    @if (prependTemplate) {
-                        <ng-container [ngTemplateOutlet]="prependTemplate"></ng-container>
+                    @if (prependTemplate()) {
+                        <ng-container [ngTemplateOutlet]="prependTemplate()"></ng-container>
                     }
                     <h1 class="xm-page-header-title">
-                        {{ text | translate }}
+                        {{ text() | translate }}
                     </h1>
                 </div>
             </div>
-            @if (appendTemplate) {
-                <div [ngClass]="appendWide ? 'col-md-6' : 'col-md-3'">
-                    <ng-container [ngTemplateOutlet]="appendTemplate"></ng-container>
+            @if (appendTemplate()) {
+                <div [class.col-md-6]="appendWide()" [class.col-md-3]="!appendWide()">
+                    <ng-container [ngTemplateOutlet]="appendTemplate()"></ng-container>
                 </div>
             }
         </div>
@@ -43,11 +43,12 @@ import { HistoryBackComponent } from 'src/app/shared/history/history-back.compon
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageHeaderComponent {
-    @Input() text = ''; // header title text
-    @Input() history = false; // show history back component
-    @Input() appendWide = false; // reserve extra horizontal space for appendTemplate
-    @Input() prependTemplate!: TemplateRef<unknown>; // template to appear before title text
-    @Input() appendTemplate!: TemplateRef<unknown>; // template to appear after title text
+    readonly text = input(''); // header title text
+    readonly history = input(false); // show history back component
+    readonly appendWide = input(false); // reserve extra horizontal space for appendTemplate
+    readonly prependTemplate = input<TemplateRef<unknown>>(); // template to appear before title text
+    readonly appendTemplate = input<TemplateRef<unknown>>(); // template to appear after title text
 }

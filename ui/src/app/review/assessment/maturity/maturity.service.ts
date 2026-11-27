@@ -41,13 +41,13 @@ type States = {
 
 @Injectable({ providedIn: 'root' })
 export class MaturityService {
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Assessment = inject(AssessmentService);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly Session = inject(SessionService);
 
     isMissingStatement = (exam: Exam) => {
         if (!this.isUnderLanguageInspection(exam)) {
@@ -111,7 +111,7 @@ export class MaturityService {
             warn: true,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: () => 'i18n_missing_statement',
+            hint: (exam) => (this.isMissingStatement(exam) ? 'i18n_missing_statement' : ''),
         },
         [StateName.APPROVE_LANGUAGE]: {
             id: 6,
@@ -121,7 +121,7 @@ export class MaturityService {
             warn: false,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: () => 'i18n_missing_statement',
+            hint: (exam) => (this.isMissingStatement(exam) ? 'i18n_missing_statement' : ''),
             alternateState: StateName.REJECT_LANGUAGE,
         },
         [StateName.MISSING_STATEMENT]: {

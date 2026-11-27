@@ -4,15 +4,21 @@
 
 package system
 
+import com.typesafe.config.Config
 import org.apache.pekko.stream.Materializer
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.mvc.{Filter, RequestHeader, Result}
+import services.iop.IopProtocol
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter:
+class SystemFilter @Inject() (config: Config)(implicit val mat: Materializer, ec: ExecutionContext)
+    extends Filter:
+
+  // Tells XM which protocol version answered a proxied IOP request
+  private val iopHeaders = IopProtocol.responseHeaders(config)
 
   val Headers: Seq[(String, String)] = Seq(
     ("x-exam-start-exam", "ongoingExamHash"),
@@ -51,8 +57,10 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
         request.path match
           case path if path == "/app/session" && request.method == "GET" =>
             s.get("upcomingExamHash") match {
-              case Some(_) => // Don't let session expire when awaiting exam to start
-                response.withSession(s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
+              case Some(_) => // Don't let the session expire when awaiting the exam to start
+                response.withSession(
+                  s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now))
+                )
               case _ => response.withSession(s)
             }
           case path if path.contains("logout") => response.withSession(s)
@@ -62,7 +70,16 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
     rh.path match
       case "/app/logout" => next.apply(rh)
-      // Disable caching for index page so that CSRF cookie can be injected without worries
+      case p if p.startsWith("/integration/iop/") =>
+        next.apply(rh).map(processResult(_)(using rh).withHeaders(iopHeaders*))
+      // Disable caching for the index page so that CSRF cookie can be injected without worries
       case p if p.startsWith("/app") | p.startsWith("/integration") =>
-        next.apply(rh).map(processResult(_)(rh))
-      case _ => next.apply(rh).map(_.withHeaders(("Cache-Control", "no-cache")))
+        next.apply(rh).map(processResult(_)(using rh))
+      case _ =>
+        next.apply(rh).map(
+          _.withHeaders(
+            ("Cache-Control", "no-cache, no-store, must-revalidate"),
+            ("Pragma", "no-cache"),
+            ("Expires", "0")
+          )
+        )

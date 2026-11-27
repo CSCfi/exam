@@ -8,7 +8,7 @@ import type { Permission, PermissionType, Role, User } from 'src/app/session/ses
 
 @Injectable({ providedIn: 'root' })
 export class UserManagementService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     usersApi = () => '/app/users';
     permissionsApi = () => '/app/permissions';

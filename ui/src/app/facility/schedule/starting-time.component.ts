@@ -2,10 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
+import { FormField, form, max, min } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -30,14 +28,11 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                             <input
                                 class="form-control"
                                 id="hourOffset"
-                                name="hourOffset"
                                 type="number"
                                 lang="en"
-                                [min]="0"
-                                [max]="59"
-                                [(ngModel)]="examStartingHourOffset"
-                                (change)="setStartingHourOffset()"
-                                (click)="unsavedProgress = true"
+                                [formField]="hourOffsetForm.hourOffset"
+                                (change)="onHourOffsetChange()"
+                                (click)="setUnsavedProgress(true)"
                             />
                         </div>
                     </div>
@@ -46,12 +41,12 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
         </div>
         <div class="row mt-2">
             <div class="col-12">
-                @for (hour of examStartingHours; track hour) {
+                @for (hour of examStartingHours(); track hour) {
                     <span
-                        class="badge pointer"
-                        [ngClass]="hour.selected ? 'bg-success' : 'bg-secondary'"
-                        (click)="hour.selected = !hour.selected; unsavedProgress = true"
-                        style="margin: 0.2em"
+                        class="badge pointer m-1"
+                        [class.bg-success]="hour.selected"
+                        [class.bg-secondary]="!hour.selected"
+                        (click)="toggleHourSelected(hour)"
                         >{{ hour.startingHour }}</span
                     >
                 }
@@ -61,7 +56,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
             <div class="col-6">
                 <button
                     class="btn btn-sm btn-outline-dark"
-                    (click)="updateStartingHours(); unsavedProgress = false"
+                    (click)="updateStartingHours()"
                     [disabled]="!anyStartingHoursSelected()"
                 >
                     {{ 'i18n_save' | translate }}
@@ -70,72 +65,103 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                     class="bi-exclamation-triangle-fill text-warning ms-3"
                     triggers="mouseenter:mouseleave"
                     ngbPopover="{{ 'i18n_unsaved_changes' | translate }}"
-                    [hidden]="!unsavedProgress"
+                    [hidden]="!unsavedProgress()"
                 ></i>
             </div>
             <div class="col-6">
-                <button
-                    class="btn btn-outline-dark float-end"
-                    (click)="toggleAllExamStartingHours(); unsavedProgress = true"
-                >
+                <button class="btn btn-outline-dark float-end" (click)="toggleAllExamStartingHours()">
                     {{ 'i18n_add_remove_all' | translate }}
                 </button>
             </div>
         </div>`,
-    imports: [FormsModule, NgClass, TranslateModule, NgbPopover],
+    imports: [FormField, TranslateModule, NgbPopover],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StartingTimeComponent implements OnInit {
-    @Input() roomIds: number[] = [];
-    @Input() startingHours: WorkingHour[] = [];
+export class StartingTimeComponent {
+    readonly roomIds = input<number[]>([]);
+    readonly startingHours = input<WorkingHour[]>([]);
 
-    examStartingHours: WorkingHour[] = [];
-    examStartingHourOffset = 0;
-    unsavedProgress = false;
-
-    private Room = inject(RoomService);
-
-    ngOnInit() {
-        this.examStartingHours = [...Array(24)].map(function (x, i) {
-            return { startingHour: i + ':00', selected: true };
+    readonly examStartingHourOffset = linkedSignal<number>(() => {
+        const hours = this.startingHours();
+        if (!hours || hours.length === 0) return 0;
+        return DateTime.fromISO(hours[0].startingHour).minute;
+    });
+    readonly examStartingHours = linkedSignal<WorkingHour[]>(() => {
+        const hours = this.startingHours();
+        const initialHours = [...Array(24)].map((_, i) => ({ startingHour: `${i}:00`, selected: true }));
+        if (!hours || hours.length === 0) return initialHours;
+        const startingHourDates = hours.map((h) => DateTime.fromISO(h.startingHour));
+        const offset = startingHourDates[0].minute;
+        const formattedStartingHours = startingHourDates.map((h) => h.toFormat('H:mm'));
+        return initialHours.map((hour) => {
+            const withOffset = hour.startingHour.split(':')[0] + ':' + this.zeropad(offset);
+            return { startingHour: withOffset, selected: formattedStartingHours.includes(withOffset) };
         });
-        if (this.startingHours && this.startingHours.length > 0) {
-            const startingHourDates = this.startingHours.map((hour) => DateTime.fromISO(hour.startingHour));
+    });
+    readonly unsavedProgress = signal(false);
+    readonly hourOffsetForm = form(
+        linkedSignal<{ hourOffset: number | null }>(() => ({ hourOffset: this.examStartingHourOffset() })),
+        (path) => {
+            min(path.hourOffset, 0);
+            max(path.hourOffset, 59);
+        },
+    );
 
-            this.examStartingHourOffset = startingHourDates[0].minute;
-            const startingHours = startingHourDates.map((hour) => hour.toFormat('H:mm'));
+    private readonly Room = inject(RoomService);
 
-            this.setStartingHourOffset();
-            this.examStartingHours.forEach((hour) => {
-                hour.selected = startingHours.indexOf(hour.startingHour) !== -1;
-            });
-        }
+    updateStartingHours() {
+        this.Room.updateStartingHours$(
+            this.examStartingHours(),
+            this.examStartingHourOffset(),
+            this.roomIds(),
+        ).subscribe({
+            next: () => {
+                this.unsavedProgress.set(false);
+            },
+        });
     }
 
-    updateStartingHours = () => {
-        this.Room.updateStartingHours(this.examStartingHours, this.examStartingHourOffset, this.roomIds).then(() => {
-            if (this.startingHours) {
-                this.startingHours = this.examStartingHours;
-            }
-        });
-    };
+    toggleAllExamStartingHours() {
+        const currentHours = this.examStartingHours();
+        const anySelected = currentHours.some((hours) => hours.selected);
+        this.examStartingHours.set(currentHours.map((hours) => ({ ...hours, selected: !anySelected })));
+        this.unsavedProgress.set(true);
+    }
 
-    toggleAllExamStartingHours = () => {
-        const anySelected = this.examStartingHours.some((hours) => {
-            return hours.selected;
-        });
-        this.examStartingHours.forEach((hours) => {
-            hours.selected = !anySelected;
-        });
-    };
+    setStartingHourOffset() {
+        const offset = this.examStartingHourOffset() || 0;
+        this.examStartingHours.update((hours) =>
+            hours.map((hour) => ({
+                ...hour,
+                startingHour: hour.startingHour.split(':')[0] + ':' + this.zeropad(offset),
+            })),
+        );
+    }
 
-    setStartingHourOffset = () => {
-        this.examStartingHourOffset = this.examStartingHourOffset || 0;
-        this.examStartingHours.forEach((hours) => {
-            hours.startingHour = hours.startingHour.split(':')[0] + ':' + this.zeropad(this.examStartingHourOffset);
-        });
-    };
+    setExamStartingHourOffset(value: number) {
+        this.examStartingHourOffset.set(value);
+    }
 
-    anyStartingHoursSelected = () => this.examStartingHours.some((hours) => hours.selected);
+    onHourOffsetChange() {
+        const value = this.hourOffsetForm.hourOffset().value();
+        this.setExamStartingHourOffset(value ?? 0);
+        this.setStartingHourOffset();
+    }
 
-    private zeropad = (n: number) => (String(n).length > 1 ? n : '0' + n);
+    toggleHourSelected(hour: WorkingHour) {
+        this.examStartingHours.update((hours) => hours.map((h) => (h === hour ? { ...h, selected: !h.selected } : h)));
+        this.unsavedProgress.set(true);
+    }
+
+    anyStartingHoursSelected() {
+        return this.examStartingHours().some((hours) => hours.selected);
+    }
+
+    setUnsavedProgress(value: boolean) {
+        this.unsavedProgress.set(value);
+    }
+
+    private zeropad(n: number) {
+        return String(n).length > 1 ? n : '0' + n;
+    }
 }

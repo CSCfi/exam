@@ -2,13 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-// This file is required by karma.conf.js and loads recursively all the .spec and framework files
+// This file is required by Vitest and loads recursively all the .spec and framework files
+
+/// <reference types="vitest/globals" />
 
 import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import 'zone.js/testing';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 
 // First, initialize the Angular testing environment.
-getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting(), {
+getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting(), {
     teardown: { destroyAfterEach: false },
 });

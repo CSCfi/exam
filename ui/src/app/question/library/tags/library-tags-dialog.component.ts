@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -45,22 +44,22 @@ import { Tag } from 'src/app/question/question.model';
         </div>
     `,
     imports: [NgbTypeaheadModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LibraryTagsDialogComponent implements OnInit {
-    @Input() selections: number[] = [];
+export class LibraryTagsDialogComponent {
+    readonly selections = signal<number[]>([]);
+    readonly tags = signal<Tag[]>([]);
+    readonly newTags = signal<number[]>([]);
+    readonly selectedTagId = signal<number | undefined>(undefined);
 
-    tags: Tag[] = [];
-    newTags: number[] = [];
-    selectedTagId?: number;
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Library = inject(LibraryService);
 
-    activeModal = inject(NgbActiveModal);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Library = inject(LibraryService);
-
-    ngOnInit() {
+    constructor() {
         this.Library.listAllTags$().subscribe((tags: Tag[]) => {
-            this.tags = tags;
+            this.tags.set(tags);
         });
     }
 
@@ -68,7 +67,7 @@ export class LibraryTagsDialogComponent implements OnInit {
         criteria$.pipe(
             debounceTime(100),
             distinctUntilChanged(),
-            map((text) => (text.length < 1 ? [] : this.filterByName(this.tags, text))),
+            map((text) => (text.length < 1 ? [] : this.filterByName(this.tags(), text))),
             take(8),
             catchError((err) => {
                 this.toast.error(err.data);
@@ -78,19 +77,19 @@ export class LibraryTagsDialogComponent implements OnInit {
 
     nameFormatter = (data: { name: string; email: string }) => `${data.name}${data.email ? ' ' + data.email : ''}`;
 
-    setQuestionTag = (event: NgbTypeaheadSelectItemEvent) => (this.selectedTagId = event.item.id);
+    setQuestionTag = (event: NgbTypeaheadSelectItemEvent) => this.selectedTagId.set(event.item.id);
 
     addTagForSelected = () => {
-        // check that atleast one has been selected
-        if (!this.selectedTagId) {
+        const tagId = this.selectedTagId();
+        if (!tagId) {
             this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
             return;
         }
 
-        this.Library.addTagForQuestions$(this.selectedTagId, this.selections).subscribe({
+        this.Library.addTagForQuestions$(tagId, this.selections()).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_question_associated_with_tag'));
-                this.newTags.push(this.selectedTagId as number);
+                this.newTags.update((ids) => [...ids, tagId]);
             },
             error: () => this.toast.error(this.translate.instant('i18n_update_failed')),
         });
@@ -98,8 +97,8 @@ export class LibraryTagsDialogComponent implements OnInit {
 
     close = () =>
         this.activeModal.close({
-            questions: this.selections,
-            tags: this.tags.filter((t) => this.newTags.includes(t.id as number)),
+            questions: this.selections(),
+            tags: this.tags().filter((t) => this.newTags().includes(t.id as number)),
         });
 
     private filterByName = (src: Tag[], q: string): Tag[] => {

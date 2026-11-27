@@ -43,18 +43,21 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'waitingroom/:id/:hash',
+        data: { hideNav: true },
         loadComponent: () =>
             import('./enrolment/waiting-room/waiting-room.component').then((mod) => mod.WaitingRoomComponent),
         title: () => buildTitle('i18n_waiting_room_title'),
     },
     {
         path: 'waitingroom',
+        data: { hideNav: true },
         loadComponent: () =>
             import('./enrolment/waiting-room/waiting-room.component').then((mod) => mod.WaitingRoomComponent),
         title: () => buildTitle('i18n_waiting_room_title'),
     },
     {
         path: 'early/:id/:hash',
+        data: { hideNav: true },
         loadComponent: () =>
             import('./enrolment/waiting-room/waiting-room-early.component').then(
                 (mod) => mod.WaitingRoomEarlyComponent,
@@ -63,26 +66,23 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'unknownlocation/:eid',
+        data: { hideNav: true },
         loadComponent: () =>
             import('./enrolment/wrong-location/unknown-location.component').then((mod) => mod.UnknownLocationComponent),
         title: () => buildTitle('i18n_wrong_machine_title'),
     },
     {
         path: 'wrongroom/:eid/:mid',
+        data: { hideNav: true, cause: 'room' },
         loadComponent: () =>
             import('./enrolment/wrong-location/wrong-location.component').then((mod) => mod.WrongLocationComponent),
-        data: {
-            cause: 'room',
-        },
         title: () => buildTitle('i18n_wrong_room_title'),
     },
     {
         path: 'wrongmachine/:eid/:mid',
+        data: { hideNav: true, cause: 'machine' },
         loadComponent: () =>
             import('./enrolment/wrong-location/wrong-location.component').then((mod) => mod.WrongLocationComponent),
-        data: {
-            cause: 'machine',
-        },
         title: () => buildTitle('i18n_wrong_machine_title'),
     },
     {

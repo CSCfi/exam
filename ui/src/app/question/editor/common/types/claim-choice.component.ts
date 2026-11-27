@@ -1,0 +1,210 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { UpperCasePipe } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import {
+    ControlContainer,
+    FormArray,
+    FormControl,
+    FormGroup,
+    FormGroupDirective,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { skip } from 'rxjs';
+import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
+import { MultipleChoiceOption } from 'src/app/question/question.model';
+import { QuestionService } from 'src/app/question/question.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
+import { claimChoiceFormValidator } from './claim-choice-validators';
+
+@Component({
+    selector: 'xm-claim-choice',
+    templateUrl: './claim-choice.component.html',
+    styleUrls: ['../../question.shared.scss'],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
+    imports: [ReactiveFormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ClaimChoiceComponent implements OnInit, AfterViewInit {
+    readonly question = input.required<ReverseQuestion | QuestionDraft>();
+    readonly lotteryOn = input(false);
+    readonly showWarning = input(false);
+
+    readonly missingOption = signal('');
+    readonly claimChoiceForm: FormGroup;
+
+    private readonly translate = inject(TranslateService);
+    private readonly Question = inject(QuestionService);
+    private readonly parentForm = inject(FormGroupDirective);
+
+    constructor() {
+        this.claimChoiceForm = new FormGroup(
+            {
+                options: new FormArray<FormGroup>([]),
+            },
+            { validators: [claimChoiceFormValidator()] },
+        );
+
+        toObservable(this.lotteryOn)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((lotteryOn) => {
+                const optionsArray = this.claimChoiceForm.get('options') as FormArray;
+                optionsArray.controls.forEach((control) => {
+                    const group = control as FormGroup;
+                    const isSkipOption = group.get('isSkipOption')?.value;
+                    if (lotteryOn || isSkipOption) {
+                        group.get('optionText')?.disable({ emitEvent: false });
+                        group.get('score')?.disable({ emitEvent: false });
+                    } else {
+                        group.get('optionText')?.enable({ emitEvent: false });
+                        group.get('score')?.enable({ emitEvent: false });
+                    }
+                });
+            });
+    }
+
+    get optionsFormArray(): FormArray {
+        return this.claimChoiceForm.get('options') as FormArray;
+    }
+
+    private get defaultOptions() {
+        return {
+            correct: {
+                option: this.translate.instant('i18n_claim_choice_default_correct'),
+                defaultScore: 1,
+                correctOption: true,
+                claimChoiceType: 'CorrectOption',
+            },
+            wrong: {
+                option: this.translate.instant('i18n_claim_choice_default_incorrect'),
+                defaultScore: -1,
+                correctOption: false,
+                claimChoiceType: 'IncorrectOption',
+            },
+            skip: {
+                option: this.translate.instant('i18n_question_claim_skip'),
+                defaultScore: 0,
+                correctOption: false,
+                claimChoiceType: 'SkipOption',
+            },
+        };
+    }
+
+    ngOnInit() {
+        const questionValue = this.question();
+        if (!questionValue.options || questionValue.options.length === 0) {
+            const { correct, wrong, skip: skipOpt } = this.defaultOptions;
+            questionValue.options = [correct, wrong, skipOpt];
+        }
+        this.updateFormArray(questionValue.options);
+    }
+
+    ngAfterViewInit() {
+        // Add to parent form - parent form is guaranteed to be initialized at this point
+        this.parentForm.form.addControl('claimChoice', this.claimChoiceForm);
+
+        // Propagate dirty and valid state from claimChoice form to parent form
+        this.claimChoiceForm.valueChanges.subscribe(() => {
+            if (this.claimChoiceForm.dirty) {
+                this.parentForm.form.markAsDirty();
+            }
+        });
+
+        // Propagate valid state changes
+        this.claimChoiceForm.statusChanges.subscribe(() => {
+            if (this.claimChoiceForm.invalid) {
+                this.parentForm.form.markAsTouched();
+            }
+        });
+    }
+
+    getOptionDescriptionTranslation(option: MultipleChoiceOption, index: number): string {
+        const effectiveType = this.getEffectiveClaimChoiceType(option, index);
+        return this.Question.determineOptionDescriptionTranslation(effectiveType);
+    }
+
+    getOptionClass(option: MultipleChoiceOption, index: number) {
+        const effectiveType = this.getEffectiveClaimChoiceType(option, index);
+        return this.Question.determineClaimChoiceOptionClass(effectiveType);
+    }
+
+    /** Matches persisted mapping: score sign drives correct vs incorrect; skip row stays skip. */
+    private getEffectiveClaimChoiceType(option: MultipleChoiceOption, index: number): string {
+        if (option.claimChoiceType === 'SkipOption') {
+            return 'SkipOption';
+        }
+        const rawScore = this.optionsFormArray.at(index)?.get('score')?.value ?? option.defaultScore ?? 0;
+        const score = typeof rawScore === 'number' ? rawScore : Number(rawScore);
+        return score > 0 ? 'CorrectOption' : 'IncorrectOption';
+    }
+
+    private updateFormArray(options: MultipleChoiceOption[]) {
+        const optionsArray = this.optionsFormArray;
+        const currentLength = optionsArray.length;
+        const newLength = options.length;
+
+        // Add or remove form groups to match options length
+        if (newLength > currentLength) {
+            for (let i = currentLength; i < newLength; i++) {
+                const option = options[i];
+                const isSkipOption = option.claimChoiceType === 'SkipOption';
+                optionsArray.push(
+                    new FormGroup({
+                        optionText: new FormControl(
+                            { value: option.option || '', disabled: this.lotteryOn() || isSkipOption },
+                            [Validators.required],
+                        ),
+                        score: new FormControl(
+                            { value: option.defaultScore || 0, disabled: this.lotteryOn() || isSkipOption },
+                            [Validators.required],
+                        ),
+                        isSkipOption: new FormControl(isSkipOption),
+                    }),
+                );
+            }
+        } else if (newLength < currentLength) {
+            for (let i = currentLength - 1; i >= newLength; i--) {
+                optionsArray.removeAt(i);
+            }
+        }
+
+        // Update existing form group values
+        options.forEach((option, index) => {
+            const formGroup = optionsArray.at(index) as FormGroup;
+            if (formGroup) {
+                const isSkipOption = option.claimChoiceType === 'SkipOption';
+                formGroup.patchValue(
+                    {
+                        optionText: option.option || '',
+                        score: option.defaultScore || 0,
+                        isSkipOption: isSkipOption,
+                    },
+                    { emitEvent: false },
+                );
+
+                // Update disabled state
+                const optionTextControl = formGroup.get('optionText');
+                const scoreControl = formGroup.get('score');
+                if (this.lotteryOn() || isSkipOption) {
+                    optionTextControl?.disable({ emitEvent: false });
+                    scoreControl?.disable({ emitEvent: false });
+                } else {
+                    optionTextControl?.enable({ emitEvent: false });
+                    scoreControl?.enable({ emitEvent: false });
+                }
+            }
+        });
+
+        // Update missingOption signal
+        const missingOptionValue = this.Question.getInvalidClaimOptionTypes(options)
+            .filter((type) => type !== 'SkipOption')
+            .map((type) => this.Question.getOptionTypeTranslation(type))[0];
+        this.missingOption.set(missingOptionValue || '');
+        this.claimChoiceForm.updateValueAndValidity({ emitEvent: false });
+    }
+}

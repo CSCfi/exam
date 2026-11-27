@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -11,32 +11,25 @@ import { TranslateModule } from '@ngx-translate/core';
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
-            <div class="xm-modal-title">{{ title | translate }}</div>
+            <div class="xm-modal-title">{{ title() | translate }}</div>
         </div>
-        <div class="modal-body" [innerHTML]="description"></div>
+        <div class="modal-body" [innerHTML]="description()"></div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="activeModal.close(true)" autofocus>
-                {{ getConfirmButtonText() | translate }}
+                {{ confirmButtonText() | translate }}
             </button>
             <button class="btn btn-secondary me-3" (click)="activeModal.dismiss(false)">
-                {{ getCancelButtonText() | translate }}
+                {{ cancelButtonText() | translate }}
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmationDialogComponent {
-    activeModal = inject(NgbActiveModal);
+    readonly title = signal('');
+    readonly description = signal('');
+    readonly confirmButtonText = signal('i18n_button_accept');
+    readonly cancelButtonText = signal('i18n_button_decline');
 
-    title = '';
-    description = '';
-    confirmButtonText?: string;
-    cancelButtonText?: string;
-
-    getConfirmButtonText(): string {
-        return this.confirmButtonText || 'i18n_button_accept';
-    }
-
-    getCancelButtonText(): string {
-        return this.cancelButtonText || 'i18n_button_decline';
-    }
+    protected readonly activeModal = inject(NgbActiveModal);
 }

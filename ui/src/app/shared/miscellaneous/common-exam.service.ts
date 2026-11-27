@@ -8,10 +8,21 @@ import { ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import type { Exam, GradeScale, Implementation } from 'src/app/exam/exam.model';
 import { isNumber } from './helpers';
 
+const LATIN_GRADES: Record<string, string> = {
+    I: 'Improbatur',
+    A: 'Approbatur',
+    B: 'Lubenter approbatur',
+    N: 'Non sine laude approbatur',
+    C: 'Cum laude approbatur',
+    M: 'Magna cum laude approbatur',
+    E: 'Eximia cum laude approbatur',
+    L: 'Laudatur',
+};
+
 @Injectable({ providedIn: 'root' })
 export class CommonExamService {
-    private document = inject<Document>(DOCUMENT);
-    private translate = inject(TranslateService);
+    private readonly document = inject<Document>(DOCUMENT);
+    private readonly translate = inject(TranslateService);
 
     getExamTypeDisplayName = (type: string): string => {
         let name = '';
@@ -50,50 +61,24 @@ export class CommonExamService {
         return name;
     };
 
-    getExamGradeDisplayName = (grade: string): string => {
-        let name;
+    // Same order as grading uses: the exam's own scale, then the parent exam's, then the course's
+    resolveGradeScale = (exam?: Pick<Exam, 'gradeScale' | 'parent' | 'course'> | null): GradeScale | undefined =>
+        exam?.gradeScale ?? exam?.parent?.gradeScale ?? exam?.course?.gradeScale;
+
+    // Latin names apply only to the Latin scale: other scales may use the same letters (e.g. E)
+    getExamGradeDisplayName = (grade: string, scale?: GradeScale): string => {
         switch (grade) {
             case 'POINT_GRADED':
-                name = this.translate.instant('i18n_point_graded');
-                break;
+                return this.translate.instant('i18n_point_graded');
             case 'NOT_GRADED':
-                name = this.translate.instant('i18n_no_grading');
-                break;
-            case 'I':
-                name = 'Improbatur';
-                break;
-            case 'A':
-                name = 'Approbatur';
-                break;
-            case 'B':
-                name = 'Lubenter approbatur';
-                break;
-            case 'N':
-                name = 'Non sine laude approbatur';
-                break;
-            case 'C':
-                name = 'Cum laude approbatur';
-                break;
-            case 'M':
-                name = 'Magna cum laude approbtur';
-                break;
-            case 'E':
-                name = 'Eximia cum laude approbatur';
-                break;
-            case 'L':
-                name = 'Laudatur approbatur';
-                break;
+                return this.translate.instant('i18n_no_grading');
             case 'REJECTED':
-                name = this.translate.instant('i18n_rejected');
-                break;
+                return this.translate.instant('i18n_rejected');
             case 'APPROVED':
-                name = this.translate.instant('i18n_approved');
-                break;
+                return this.translate.instant('i18n_approved');
             default:
-                name = grade;
-                break;
+                return (scale?.description === 'LATIN' && LATIN_GRADES[grade]) || grade;
         }
-        return name;
     };
 
     getCredit = (exam: Exam | ReviewedExam) => {

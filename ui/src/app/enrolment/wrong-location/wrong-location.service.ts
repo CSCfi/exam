@@ -9,8 +9,8 @@ import { ToastrService } from 'ngx-toastr';
 
 @Injectable({ providedIn: 'root' })
 export class WrongLocationService {
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     display = (data: string[]) => {
         const [campus, building, room, machine, start, zone] = data;

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,12 +19,11 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
         </div>
         <div class="modal-body ms-2">
             <div class="row">
-                @if (exam.examFeedback !== null) {
+                @if (exam()) {
                     <div class="col-md-12 ps-0">
                         <xm-ckeditor
-                            rows="10"
-                            #ck="ngModel"
-                            [(ngModel)]="exam.examFeedback.comment"
+                            [data]="exam()?.examFeedback?.comment ?? ''"
+                            (dataChange)="commentChanged($event)"
                             autofocus
                         ></xm-ckeditor>
                     </div>
@@ -40,25 +39,29 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SpeedReviewFeedbackComponent implements OnInit {
-    @Input() exam!: Exam;
+export class SpeedReviewFeedbackComponent {
+    readonly exam = signal<Exam | undefined>(undefined);
 
-    private modal = inject(NgbActiveModal);
-    private Assessment = inject(AssessmentService);
+    private readonly modal = inject(NgbActiveModal);
+    private readonly Assessment = inject(AssessmentService);
 
-    ngOnInit() {
-        if (!this.exam.examFeedback) {
-            this.exam.examFeedback = { comment: '' };
-        }
+    commentChanged(event: string) {
+        const exam = this.exam()!;
+        exam.examFeedback ??= { comment: '' };
+        exam.examFeedback.comment = event;
     }
 
-    ok = () => {
-        if (!this.exam.examFeedback) {
-            this.exam.examFeedback = { comment: '', feedbackStatus: false };
+    ok() {
+        const examValue = this.exam()!;
+        if (!examValue.examFeedback) {
+            examValue.examFeedback = { comment: '', feedbackStatus: false };
         }
-        this.Assessment.saveFeedback$(this.exam).subscribe(this.modal.close);
-    };
+        this.Assessment.saveFeedback$(examValue).subscribe(this.modal.close);
+    }
 
-    cancel = () => this.modal.dismiss();
+    cancel() {
+        this.modal.dismiss();
+    }
 }

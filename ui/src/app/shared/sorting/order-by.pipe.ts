@@ -3,46 +3,37 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { PipeTransform } from '@angular/core';
-import { Injectable, Pipe } from '@angular/core';
-import { path } from 'ramda';
+import { Pipe } from '@angular/core';
+import { path as getPath } from 'src/app/shared/miscellaneous/helpers';
 
 @Pipe({
     name: 'orderBy',
-    standalone: true,
 })
-@Injectable({ providedIn: 'root' })
 export class OrderByPipe implements PipeTransform {
-    transform<T>(input: T[], path: string, reverse = false, lowercase = true): T[] {
-        return input.length < 2 ? input : input.sort((a, b) => this.compare(reverse, lowercase, a, b, path));
+    transform<T>(input: T[] | null | undefined, predicate: string, reverse = false, lowercase = true): T[] {
+        if (!input || input.length < 2) return input ?? [];
+        const keys = predicate.split('.');
+        return [...input].sort((a, b) => this.compare(reverse, lowercase, a, b, keys));
     }
 
-    compare<T>(reverse: boolean, lowercase: boolean, a: T, b: T, property: string): number {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const f1 = path<any>(property.split('.'), a);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const f2 = path<any>(property.split('.'), b);
-        if (typeof f1 === 'number' && typeof f2 === 'string') {
-            return reverse ? -1 : 1;
-        }
-        if (typeof f1 === 'string' && typeof f2 === 'number') {
-            return reverse ? 1 : -1;
-        }
+    compare<T>(reverse: boolean, lowercase: boolean, a: T, b: T, keys: string[]): number {
+        const f1 = getPath(keys, a);
+        const f2 = getPath(keys, b);
+
+        if (f1 == null && f2 == null) return 0;
+        if (f1 == null) return reverse ? -1 : 1;
+        if (f2 == null) return reverse ? 1 : -1;
+
+        if (typeof f1 === 'number' && typeof f2 === 'string') return reverse ? 1 : -1;
+        if (typeof f1 === 'string' && typeof f2 === 'number') return reverse ? -1 : 1;
+
         if (lowercase && typeof f1 === 'string' && typeof f2 === 'string') {
-            const order = f1.toLowerCase() < f2.toLowerCase() ? -1 : 1;
+            const order = f1.toLowerCase().localeCompare(f2.toLowerCase());
             return reverse ? -order : order;
         }
-        if (f1 < f2 && reverse === false) {
-            return -1;
-        }
-        if (f1 > f2 && reverse === false) {
-            return 1;
-        }
-        if (f1 < f2 && reverse === true) {
-            return 1;
-        }
-        if (f1 > f2 && reverse === true) {
-            return -1;
-        }
+
+        if (f1 < f2) return reverse ? 1 : -1;
+        if (f1 > f2) return reverse ? -1 : 1;
         return 0;
     }
 }

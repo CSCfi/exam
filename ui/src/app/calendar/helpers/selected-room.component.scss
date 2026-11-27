@@ -1,0 +1,18 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+/* Long room names: use horizontal space, break only when needed */
+.selected-room-title {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+.selected-room-address {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    min-width: 0;
+}

@@ -4,8 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -20,44 +19,55 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 @Component({
     selector: 'xm-unknown-location',
     templateUrl: './unknown-location.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
-export class UnknownLocationComponent implements OnInit {
-    enrolment!: ExamEnrolment;
-    reservation!: Reservation;
-    roomInstructions = '';
-    occasion = { startAt: '', endAt: '' };
+export class UnknownLocationComponent {
+    readonly enrolment = signal<ExamEnrolment | undefined>(undefined);
+    readonly reservation = signal<Reservation | undefined>(undefined);
+    readonly roomInstructions = signal('');
+    readonly occasion = signal({ startAt: '', endAt: '' });
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
-    private DateTimeService = inject(DateTimeService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
+    private readonly DateTimeService = inject(DateTimeService);
 
-    ngOnInit() {
-        if (this.route.snapshot.params.eid) {
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.eid}`).subscribe({
+    constructor() {
+        const eid = this.route.snapshot.params['eid'];
+        if (eid) {
+            this.http.get<ExamEnrolment>(`/app/student/enrolments/${eid}`).subscribe({
                 next: (enrolment) => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
                     }
                     this.setOccasion(enrolment.reservation);
-                    this.enrolment = enrolment;
-                    this.reservation = enrolment.reservation;
-                    const room = this.reservation.machine.room;
-                    const code = this.translate.getCurrentLang().toUpperCase();
-                    this.roomInstructions = this.getRoomInstructions(code, room);
+                    this.enrolment.set(enrolment);
+                    this.reservation.set(enrolment.reservation);
+                    const room = enrolment.reservation.machine.room;
+                    const code = this.translate.currentLang.toUpperCase();
+                    this.roomInstructions.set(this.getRoomInstructions(code, room));
                 },
                 error: (err) => this.toast.error(err),
             });
         }
     }
 
-    printExamDuration = () => this.DateTimeService.printExamDuration(this.enrolment.exam);
-    showInstructions = () => this.Enrolment.showInstructions(this.enrolment);
+    printExamDuration() {
+        const enrolment = this.enrolment();
+        if (!enrolment) return '';
+        return this.DateTimeService.formatDuration(enrolment.exam.duration);
+    }
 
-    private getRoomInstructions = (lang: string, room: ExamRoom) => {
+    showInstructions() {
+        const enrolment = this.enrolment();
+        if (!enrolment) return;
+        this.Enrolment.showInstructions(enrolment);
+    }
+
+    private getRoomInstructions(lang: string, room: ExamRoom) {
         switch (lang) {
             case 'FI':
                 return room.roomInstruction;
@@ -66,15 +76,15 @@ export class UnknownLocationComponent implements OnInit {
             default:
                 return room.roomInstructionEN;
         }
-    };
+    }
 
-    private setOccasion = (reservation: Reservation) => {
+    private setOccasion(reservation: Reservation) {
         const tz = reservation.machine.room.localTimezone;
         const start = DateTime.fromISO(reservation.startAt, { zone: tz });
         const end = DateTime.fromISO(reservation.endAt, { zone: tz });
-        this.occasion = {
+        this.occasion.set({
             startAt: start.minus({ hour: start.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
             endAt: end.minus({ hour: end.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
-        };
-    };
+        });
+    }
 }

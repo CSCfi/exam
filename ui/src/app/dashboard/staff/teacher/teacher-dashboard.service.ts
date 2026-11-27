@@ -14,9 +14,9 @@ import { ReservationService } from 'src/app/reservation/reservation.service';
 
 @Injectable({ providedIn: 'root' })
 export class TeacherDashboardService {
-    private http = inject(HttpClient);
-    private Exam = inject(ExamService);
-    private Reservation = inject(ReservationService);
+    private readonly http = inject(HttpClient);
+    private readonly Exam = inject(ExamService);
+    private readonly Reservation = inject(ReservationService);
 
     populate$ = (): Observable<Dashboard> =>
         forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(

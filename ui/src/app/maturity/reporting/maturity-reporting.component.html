@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-header text="i18n_monthly_language_inspection_report" [appendTemplate]="print" />
 <xm-page-content [content]="content" />
 <ng-template #print>
-    <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
+    <span class="print-only compact-header-text">{{ getMonthDate() | date: 'MM/yyyy' }}</span>
     <div class="float-end me-2 no-print">
         <button (click)="printReport()" class="btn btn-success">
             {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
@@ -17,13 +17,13 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <div class="row">
         <div class="col-md-12 mb-3 no-print">
-            <form class="row form-group">
+            <div class="row form-group">
                 <div class="col-auto">
                     <xm-dropdown-select
                         id="month"
                         class="input-group me-2"
                         placeholder="i18n_month"
-                        [options]="months"
+                        [options]="months()"
                         [noSearch]="true"
                         (optionSelected)="monthChanged($event)"
                     ></xm-dropdown-select>
@@ -34,11 +34,11 @@ SPDX-License-Identifier: EUPL-1.2
                         class="input-group"
                         placeholder="i18n_year"
                         [noSearch]="true"
-                        [options]="years"
+                        [options]="years()"
                         (optionSelected)="yearChanged($event)"
                     ></xm-dropdown-select>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -67,7 +67,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </thead>
 
                 <tbody>
-                    @for (inspection of processedInspections | orderBy: 'finishedAt'; track inspection) {
+                    @for (inspection of processedInspections() | orderBy: 'finishedAt'; track inspection) {
                         <tr>
                             <td>
                                 @if (inspection.exam.course) {
@@ -107,15 +107,19 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                             }
                             <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
-                            <td [ngClass]="inspection.approved ? 'text-success' : 'text-danger'">
+                            <td [class.text-success]="inspection.approved" [class.text-danger]="!inspection.approved">
                                 <strong>{{
                                     (inspection.approved ? 'i18n_approved' : 'i18n_rejected') | translate
                                 }}</strong>
                             </td>
                             <td class="no-print">
-                                <a class="pointer" (click)="showStatement(inspection.statement)">{{
-                                    'i18n_view' | translate
-                                }}</a>
+                                <button
+                                    type="button"
+                                    class="btn btn-link"
+                                    (click)="showStatement(inspection.statement)"
+                                >
+                                    {{ 'i18n_view' | translate }}
+                                </button>
                             </td>
                         </tr>
                     }

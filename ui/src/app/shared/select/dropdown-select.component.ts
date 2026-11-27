@@ -2,120 +2,132 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import type { OnChanges, OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Option } from './select.model';
 
 @Component({
     selector: 'xm-dropdown-select',
-    template: `<div ngbDropdown #d="ngbDropdown" autoClose="outside">
+    template: `<div ngbDropdown #d="ngbDropdown" autoClose="outside" (openChange)="dropdownOpenChange.emit($event)">
         <button
             ngbDropdownToggle
             class="btn btn-outline-secondary"
-            [ngClass]="{ 'dropdown-select-full-width': fullWidth }"
+            [class.dropdown-select-full-width]="fullWidth()"
             type="button"
-            aria-haspopup="true"
-            aria-expanded="true"
-            id="dd1"
+            [ariaHasPopup]="true"
+            [ariaExpanded]="d.isOpen()"
+            [id]="menuTriggerId"
         >
-            {{ selected?.label || placeholder | translate }}
+            {{ selected()?.label || placeholder() | translate }}
         </button>
-        <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" aria-labelledby="dd1">
-            @if (!noSearch) {
+        <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" [attr.aria-labelledby]="menuTriggerId">
+            @if (!noSearch()) {
                 <div class="input-group p-1">
                     <input
                         type="text"
-                        [(ngModel)]="searchFilter"
+                        [value]="searchFilter()"
+                        (input)="onSearchFilterInput($event)"
                         class="form-control"
-                        (input)="filterOptions()"
-                        placeholder="{{ placeholder | translate }}"
+                        placeholder="{{ placeholder() | translate }}"
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </div>
             }
-            @if (allowClearing) {
+            @if (allowClearing()) {
                 <button type="button" ngbDropdownItem (click)="clearSelection(); d.close()">
                     <i class="bi-x text text-danger"></i>
                 </button>
             }
-            @for (opt of filteredOptions; track $index) {
+            @for (opt of filteredOptions(); track $index) {
                 <button
                     type="button"
                     ngbDropdownItem
-                    [ngClass]="getClasses(opt)"
+                    [class]="getClasses(opt)"
+                    [disabled]="!!opt.isHeader"
                     (click)="selectOption(opt); d.close()"
                 >
                     @if (!opt.isHeader) {
-                        <span>
-                            {{ opt.label || '' | translate }}
-                        </span>
-                    }
-                    @if (opt.isHeader) {
-                        <span>{{ opt.label }}</span>
+                        {{ opt.label || '' | translate }}
+                    } @else {
+                        {{ opt.label }}
                     }
                 </button>
             }
         </div>
     </div>`,
-    imports: [NgbDropdown, NgbDropdownToggle, NgClass, NgbDropdownMenu, FormsModule, NgbDropdownItem, TranslateModule],
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
     styleUrl: './dropdown-select.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
-    @Input() options: Option<V, I>[] = []; // everything
-    @Input() initial?: Option<V, I>;
-    @Input() placeholder = 'i18n_choose';
-    @Input() limitTo?: number;
-    @Input() fullWidth = false;
-    @Input() noSearch = false;
-    @Input() allowClearing = true;
-    @Output() optionSelected = new EventEmitter<Option<V, I> | undefined>();
-    filteredOptions: Option<V, I>[] = []; // filtered
-    searchFilter = '';
-    selected?: Option<V, I>;
+export class DropdownSelectComponent<V, I> {
+    private static instanceCount = 0;
 
-    ngOnInit() {
-        this.filterOptions();
-        this.selected = this.initial;
-    }
+    readonly options = input<Option<V, I>[]>([]);
+    readonly initial = input<Option<V, I> | undefined>(undefined);
+    readonly placeholder = input('i18n_choose');
+    readonly limitTo = input<number | undefined>(undefined);
+    readonly fullWidth = input(false);
+    readonly noSearch = input(false);
+    readonly allowClearing = input(true);
+    /** When true, selection is cleared after each option select (for filter-style multi-select). */
+    readonly clearAfterSelect = input(false);
+    readonly optionSelected = output<Option<V, I> | undefined>();
+    /** Emits when the dropdown opens or closes (payload is open: boolean). Use to load data on open. */
+    readonly dropdownOpenChange = output<boolean>();
 
-    ngOnChanges() {
-        this.filterOptions();
-    }
+    readonly menuTriggerId = `xm-dropdown-select-${++DropdownSelectComponent.instanceCount}`;
+    readonly searchFilter = signal('');
+    readonly selected = linkedSignal<Option<V, I> | undefined>(() => this.initial());
 
-    labelFilter = (option: Option<V, I>): boolean =>
-        option.label != null && option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
+    readonly filteredOptions = computed(() => {
+        const optionsValue = this.options();
+        const searchFilterValue = this.searchFilter();
+        const limitToValue = this.limitTo();
 
-    filterOptions = () => {
-        // Show all options, if limit is set to 0
-        if (!this.limitTo || this.limitTo === 0) {
-            this.filteredOptions = this.options.filter(this.labelFilter);
+        const filtered = optionsValue.filter(
+            (option) => option.label != null && option.label.toLowerCase().includes(searchFilterValue.toLowerCase()),
+        );
+
+        if (!limitToValue) {
+            return filtered;
         } else {
-            this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
+            return filtered.slice(0, limitToValue);
         }
-    };
+    });
 
-    selectOption = (option: Option<V, I>) => {
-        this.selected = option;
+    onSearchFilterInput = (event: Event) => this.setSearchFilter((event.target as HTMLInputElement).value);
+
+    setSearchFilter(value: string) {
+        this.searchFilter.set(value);
+    }
+
+    selectOption(option: Option<V, I>) {
+        if (option.isHeader) {
+            return; // Headers are not selectable
+        }
+        this.selected.set(option);
         this.optionSelected.emit(option);
-    };
+        if (this.clearAfterSelect()) {
+            this.selected.set(undefined);
+            this.searchFilter.set('');
+        }
+    }
 
-    getClasses = (option: Option<V, I>): string[] => {
+    getClasses(option: Option<V, I>): string[] {
         const classes: string[] = [];
-        if (this.selected && this.selected.id === option.id && !option.isHeader) {
+        const selected = this.selected();
+        if (selected && selected.id === option.id && !option.isHeader) {
             classes.push('active');
         }
         if (option.isHeader) {
             classes.push('dropdown-header');
         }
         return classes;
-    };
+    }
 
-    clearSelection = () => {
-        delete this.selected;
-        this.optionSelected.emit();
-    };
+    clearSelection() {
+        this.selected.set(undefined);
+        this.optionSelected.emit(undefined);
+    }
 }

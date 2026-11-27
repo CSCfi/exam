@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
 import { NgbActiveModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -13,54 +13,68 @@ import type { ExamMaterial } from 'src/app/exam/exam.model';
 @Component({
     selector: 'xm-exam-material',
     templateUrl: './exam-material.component.html',
-    standalone: true,
-    imports: [FormsModule, TranslateModule, NgbPopoverModule],
+    imports: [FormField, TranslateModule, NgbPopoverModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamMaterialComponent implements OnInit {
-    materials: ExamMaterial[] = [];
-    filteredMaterials: ExamMaterial[] = [];
-    newMaterial: Partial<ExamMaterial> = {};
-    filter = '';
-    materialsChanged = false;
+export class ExamMaterialComponent {
+    readonly materials = signal<ExamMaterial[]>([]);
+    readonly filter = signal('');
+    readonly materialForm = form(signal({ name: '', author: '', isbn: '' }), (path) => {
+        required(path.name);
+    });
+    readonly filteredMaterials = computed(() => {
+        const filterValue = this.filter();
+        if (!filterValue) {
+            return this.materials();
+        }
+        return this.materials().filter(
+            (m) =>
+                m.name.startsWith(filterValue) || m.author?.startsWith(filterValue) || m.isbn?.startsWith(filterValue),
+        );
+    });
 
-    private activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
 
-    ngOnInit() {
-        this.http
-            .get<ExamMaterial[]>('/app/materials')
-            .subscribe((resp) => (this.materials = this.filteredMaterials = resp));
+    constructor() {
+        this.http.get<ExamMaterial[]>('/app/materials').subscribe({
+            next: (resp) => this.materials.set(resp),
+            error: (err) => this.toast.error(err),
+        });
     }
 
-    filterMaterials = () =>
-        (this.filteredMaterials = this.materials.filter(
-            (m) =>
-                m.name.startsWith(this.filter) || m.author?.startsWith(this.filter) || m.isbn?.startsWith(this.filter),
-        ));
+    onFilterInput = (event: Event) => this.filter.set((event.target as HTMLInputElement).value);
 
-    createMaterial = () => {
-        this.http.post<ExamMaterial>('/app/materials', this.newMaterial).subscribe({
-            next: (resp) => {
-                this.materials.push(resp);
-                this.filterMaterials();
-                this.newMaterial = {};
-                this.materialsChanged = true;
-            },
-            error: (err) => this.toast.error(err),
-        });
-    };
+    createMaterial() {
+        const { name, author, isbn } = this.materialForm;
+        this.http
+            .post<ExamMaterial>('/app/materials', {
+                name: name().value(),
+                author: author().value(),
+                isbn: isbn().value(),
+            })
+            .subscribe({
+                next: (resp) => {
+                    this.materials.update((materials) => [...materials, resp]);
+                    name().value.set('');
+                    author().value.set('');
+                    isbn().value.set('');
+                },
+                error: (err) => this.toast.error(err),
+            });
+    }
 
-    removeMaterial = (material: ExamMaterial) => {
+    removeMaterial(material: ExamMaterial) {
         this.http.delete(`/app/materials/${material.id}`).subscribe({
             next: () => {
-                this.materials.splice(this.materials.indexOf(material), 1);
-                this.filterMaterials();
-                this.materialsChanged = true;
+                this.materials.update((materials) => materials.filter((m) => m.id !== material.id));
             },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 
-    ok = () => this.activeModal.close();
+    ok() {
+        this.activeModal.close();
+    }
 }

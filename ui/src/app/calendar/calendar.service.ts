@@ -22,9 +22,9 @@ type WeekdayNames = Record<string, { ord: number; name: string }>;
 
 @Injectable({ providedIn: 'root' })
 export class CalendarService {
-    private http = inject(HttpClient);
-    private DateTimeService = inject(DateTimeService);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly DateTimeService = inject(DateTimeService);
+    private readonly Session = inject(SessionService);
 
     reserve$(
         examId: number,
@@ -117,20 +117,20 @@ export class CalendarService {
         return room.calendarExceptionEvents.map((e) => this.formatExceptionEvent(e, room.localTimezone));
     }
 
+    // Exception openings are read in the room's zone, like the calendar shows them
     getEarliestOpening(room: ExamRoom, start: string, end: string): Date {
         const dayBegins = DateTime.now().startOf('day').toJSDate();
         // if we have an extra opening that spans midnight then it's 24h
-        if (this.hasMultiDayExceptionalOpeningDuring(room.calendarExceptionEvents, start, end)) {
+        if (this.hasMultiDayExceptionalOpeningDuring(room, start, end)) {
             return dayBegins;
         }
         const tz = room.localTimezone;
         const regularOpenings = room.defaultWorkingHours.map((dwh) =>
             this.normalize(DateTime.fromISO(dwh.startTime, { zone: tz })),
         );
-        const extraOpenings = room.calendarExceptionEvents
-            .filter((e) => !e.outOfService && e.startDate >= start && e.endDate <= end)
-            .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
-            .map((d) => this.normalize(d.start as DateTime));
+        const extraOpenings = this.extraOpeningDaysWithin(room, start, end).map((d) =>
+            this.normalize(d.start as DateTime),
+        );
 
         return DateTime.min(...regularOpenings.concat(extraOpenings))?.toJSDate() || dayBegins;
     }
@@ -138,17 +138,16 @@ export class CalendarService {
     getLatestClosing(room: ExamRoom, start: string, end: string): Date {
         const dayEnds = DateTime.now().endOf('day').toJSDate();
         // if we have an extra opening that spans midnight then it's 24h
-        if (this.hasMultiDayExceptionalOpeningDuring(room.calendarExceptionEvents, start, end)) {
+        if (this.hasMultiDayExceptionalOpeningDuring(room, start, end)) {
             return dayEnds;
         }
         const tz = room.localTimezone;
         const regularClosings = room.defaultWorkingHours.map((dwh) =>
             this.normalize(DateTime.fromISO(dwh.endTime, { zone: tz })),
         );
-        const extraClosings = room.calendarExceptionEvents
-            .filter((e) => !e.outOfService && e.startDate >= start && e.endDate <= end)
-            .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
-            .map((d) => this.normalize(d.end as DateTime));
+        const extraClosings = this.extraOpeningDaysWithin(room, start, end).map((d) =>
+            this.normalize(d.end as DateTime),
+        );
 
         return DateTime.max(...regularClosings.concat(extraClosings))?.toJSDate() || dayEnds;
     }
@@ -156,9 +155,9 @@ export class CalendarService {
     getClosedWeekdays(room: ExamRoom, start: string, end: string): number[] {
         const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
         const regularDays = room.defaultWorkingHours.map((d) => weekdays.indexOf(d.weekday));
-        const extraDays = room.calendarExceptionEvents
-            .filter((e) => !e.outOfService && this.weeksOverlap(e.startDate, e.endDate, start, end))
-            .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
+        const extraDays = this.extraOpenings(room)
+            .filter((e) => this.weeksOverlap(e, start, end, room.localTimezone))
+            .flatMap((e) => this.daysBetween(e))
             .map((d) => (d.start?.weekday === 7 ? 0 : (d.start as DateTime).weekday)); // locale nuisances
         const closedDays = new Set(
             [0, 1, 2, 3, 4, 5, 6].filter((x) => regularDays.concat(extraDays).indexOf(x) === -1),
@@ -195,20 +194,35 @@ export class CalendarService {
     getExamInfo$ = (collaborative: boolean, id: number) =>
         this.http.get<ExamInfo>(collaborative ? `/app/iop/exams/${id}/info` : `/app/student/exam/${id}/info`);
 
-    private daysBetween = (start: DateTime, end: DateTime) => Interval.fromDateTimes(start, end).splitBy({ day: 1 });
+    private daysBetween = (e: { start: DateTime; end: DateTime }) =>
+        Interval.fromDateTimes(e.start, e.end).splitBy({ day: 1 });
     private normalize = (d: DateTime) => DateTime.now().set({ hour: d.hour, minute: d.minute, second: d.second });
     private adjustBack(date: DateTime): string {
         const offset = date.isInDST ? 1 : 0;
         return date.toUTC().plus({ hour: offset }).toISO() as string;
     }
-    private weeksOverlap = (w1d1: string, w1d2: string, w2d1: string, w2d2: string) =>
-        DateTime.fromISO(w1d1).weekNumber <= DateTime.fromISO(w2d1).weekNumber &&
-        DateTime.fromISO(w1d2).weekNumber >= DateTime.fromISO(w2d2).weekNumber;
+    private extraOpenings = (room: ExamRoom) =>
+        room.calendarExceptionEvents
+            .filter((e) => !e.outOfService)
+            .map((e) => ({
+                start: DateTime.fromISO(e.startDate, { zone: room.localTimezone }),
+                end: DateTime.fromISO(e.endDate, { zone: room.localTimezone }),
+            }));
 
-    private hasMultiDayExceptionalOpeningDuring = (exceptions: ExceptionWorkingHours[], start: string, end: string) =>
-        exceptions
-            .filter((e) => !e.outOfService && this.weeksOverlap(e.startDate, e.endDate, start, end))
-            .some((e) => DateTime.fromISO(e.startDate).ordinal !== DateTime.fromISO(e.endDate).ordinal);
+    private extraOpeningDaysWithin = (room: ExamRoom, start: string, end: string) =>
+        this.extraOpenings(room)
+            .filter((e) => e.start >= DateTime.fromISO(start) && e.end <= DateTime.fromISO(end))
+            .flatMap((e) => this.daysBetween(e));
+
+    // Week numbers alone would match the same week of any year
+    private weeksOverlap = (e: { start: DateTime; end: DateTime }, start: string, end: string, tz: string) =>
+        e.start.startOf('week') <= DateTime.fromISO(end, { zone: tz }) &&
+        e.end.endOf('week') >= DateTime.fromISO(start, { zone: tz });
+
+    private hasMultiDayExceptionalOpeningDuring = (room: ExamRoom, start: string, end: string) =>
+        this.extraOpenings(room)
+            .filter((e) => this.weeksOverlap(e, start, end, room.localTimezone))
+            .some((e) => !e.start.hasSame(e.end, 'day'));
 
     private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
         slot.aids = accs.map((item) => item.id);

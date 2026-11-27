@@ -2,9 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { combineLatest } from 'rxjs';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 
@@ -12,9 +14,9 @@ import { ExaminationService } from 'src/app/examination/examination.service';
     selector: 'xm-examination-multi-choice-question',
     template: `
         <div class="pb-3">
-            <fieldset [attr.aria-label]="questionTitle">
+            <fieldset [ariaLabel]="questionTitle()">
                 <legend [hidden]="true">answer options for multiple choice question</legend>
-                @for (sqo of sq.options; track sqo) {
+                @for (sqo of sq().options; track sqo) {
                     <div class="exam-answer-options">
                         <label>
                             <input
@@ -23,8 +25,8 @@ import { ExaminationService } from 'src/app/examination/examination.service';
                                 type="radio"
                                 [checked]="sqo.answered"
                                 [value]="sqo.id"
-                                [(ngModel)]="sq.selectedOption"
-                                (change)="saveOption()"
+                                [ngModel]="sq().selectedOption"
+                                (ngModelChange)="sq().selectedOption = $event; saveOption()"
                             />
                             {{ sqo.option.option }}
                         </label>
@@ -32,49 +34,60 @@ import { ExaminationService } from 'src/app/examination/examination.service';
                 }
             </fieldset>
         </div>
-        @if (sq.question.type !== 'ClaimChoiceQuestion') {
-            <div class="ps-0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
+        @if (sq().question.type !== 'ClaimChoiceQuestion') {
+            <div class="ps-0 question-type-text">{{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
         }
-        @if (sq.question.type === 'ClaimChoiceQuestion' && sq.derivedMinScore !== null) {
+        @if (sq().question.type === 'ClaimChoiceQuestion' && sq().derivedMinScore !== null) {
             <div class="ps-0 question-type-text">
-                {{ 'i18n_max_points' | translate }} {{ sq.derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
-                {{ sq.derivedMinScore }}
+                {{ 'i18n_max_points' | translate }} {{ sq().derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
+                {{ sq().derivedMinScore }}
             </div>
         }
     `,
     imports: [FormsModule, TranslateModule],
     styleUrls: ['./question.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationMultiChoiceComponent implements OnInit {
-    @Input() sq!: ExaminationQuestion;
-    @Input() examHash = '';
-    @Input() isPreview = false;
-    @Input() orderOptions = false;
+export class ExaminationMultiChoiceComponent {
+    readonly sq = input.required<ExaminationQuestion>();
+    readonly examHash = input('');
+    readonly isPreview = input(false);
+    readonly isExternal = input(false);
+    readonly orderOptions = input(false);
 
-    questionTitle!: string;
-
-    private Examination = inject(ExaminationService);
-
-    ngOnInit() {
-        if (this.sq.question.type === 'ClaimChoiceQuestion' && this.orderOptions) {
-            this.sq.options.sort((a, b) => (a.option.id || 0) - (b.option.id || 0));
-        } else if (this.orderOptions) {
-            this.sq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
-        }
-
-        const answered = this.sq.options.filter((o) => o.answered);
-        if (answered.length > 1) {
-            console.warn('several answered options for mcq');
-        }
-        if (answered.length === 1) {
-            this.sq.selectedOption = answered[0].id as number;
-        }
-        const html = this.sq.question.question;
+    readonly questionTitle = computed(() => {
+        // Extract plain text from HTML for aria-label (screen readers need plain text, not HTML)
+        const html = this.sq().question.question;
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        const decodedString = doc.documentElement.innerText;
-        this.questionTitle = decodedString;
+        return doc.documentElement.innerText;
+    });
+
+    private readonly Examination = inject(ExaminationService);
+
+    constructor() {
+        combineLatest([toObservable(this.sq), toObservable(this.orderOptions)])
+            .pipe(takeUntilDestroyed())
+            .subscribe(([sq, orderOptions]) => {
+                if (sq.question.type === 'ClaimChoiceQuestion' && orderOptions) {
+                    sq.options.sort((a, b) => (a.option.id || 0) - (b.option.id || 0));
+                } else if (orderOptions) {
+                    sq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
+                }
+                const answered = sq.options.filter((o) => o.answered);
+                if (answered.length > 1) {
+                    console.warn('several answered options for mcq');
+                }
+                if (answered.length === 1) {
+                    sq.selectedOption = answered[0].id as number;
+                }
+            });
     }
 
-    saveOption = () => this.Examination.saveOption(this.examHash, this.sq, this.isPreview);
+    saveOption() {
+        this.Examination.saveOption(this.examHash(), this.sq(), {
+            preview: this.isPreview(),
+            external: this.isExternal(),
+        });
+    }
 }

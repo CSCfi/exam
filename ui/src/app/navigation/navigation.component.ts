@@ -2,110 +2,147 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnDestroy, OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, forkJoin } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, forkJoin, of } from 'rxjs';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
-import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import type { Link } from './navigation.model';
 import { NavigationService } from './navigation.service';
+
+/** Collapsed state keyed by parent route; avoids mutating link graphs from computed `links()` (they may be recreated). */
+type SubmenuCollapsedMap = Readonly<Record<string, boolean>>;
 
 @Component({
     selector: 'xm-navigation',
     templateUrl: './navigation.component.html',
     imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
     styleUrl: './navigation.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavigationComponent implements OnInit, OnDestroy {
-    appVersion = '';
-    links: Link[] = [];
-    mobileMenuOpen = false;
-    user?: User;
-    stateInitialized = false;
+export class NavigationComponent {
+    readonly appVersion = signal('');
+    readonly mobileMenuOpen = signal(false);
+    readonly featureFlags = signal({ iop: false, byod: false });
+    readonly links = computed(() => {
+        // Track a bunch of signals to establish reactive dependencies
+        this.user();
+        this.ExaminationStatus.combinedStatusSignal();
+        const { iop, byod } = this.featureFlags();
+        return this.Navigation.getLinks(iop, byod, this.hideNav());
+    });
 
-    private toast = inject(ToastrService);
-    private Navigation = inject(NavigationService);
-    private Session = inject(SessionService);
-    private ExaminationStatus = inject(ExaminationStatusService);
+    private readonly submenuCollapsedByRoute = signal<SubmenuCollapsedMap>({});
 
-    private ngUnsubscribe = new Subject();
+    private readonly toast = inject(ToastrService);
+    private readonly router = inject(Router);
+    private readonly routerUrl = toSignal(
+        this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),
+    );
+    private readonly hideNav = computed(() => {
+        this.routerUrl();
+        let route = this.router.routerState.snapshot.root;
+        while (route.firstChild) route = route.firstChild;
+        return route.data['hideNav'] === true;
+    });
+    private readonly Navigation = inject(NavigationService);
+    private readonly Session = inject(SessionService);
+    private readonly ExaminationStatus = inject(ExaminationStatusService);
 
     constructor() {
-        this.user = this.Session.getUser();
-        this.ExaminationStatus.examinationStarting$
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(() => this.getLinks(false, false));
-        this.ExaminationStatus.upcomingExam$
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(() => this.getLinks(false, false));
-        this.ExaminationStatus.wrongLocation$
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(() => this.getLinks(false, false));
-        this.ExaminationStatus.aquariumLoggedIn$
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(() => this.getLinks(false, false));
-        this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user: User | undefined) => {
-            this.user = user;
-            this.getLinks(true);
+        // Load app version for admins
+        const currentUser = this.user();
+        if (currentUser?.isAdmin) {
+            this.Navigation.getAppVersion$().subscribe({
+                next: (resp) => this.appVersion.set(resp.appVersion),
+                error: (err) => this.toast.error(err),
+            });
+        }
+
+        // Load feature flags if user exists (links computed will react to user changes)
+        if (currentUser) {
+            this.loadLinksWithFeatures(true, currentUser.isAdmin);
+        }
+    }
+
+    // Use SessionService's user signal directly
+    get user() {
+        return this.Session.userChange;
+    }
+
+    isActive(link: Link) {
+        return window.location.href.includes(link.route);
+    }
+
+    getSkipLinkPath(skipTarget: string) {
+        return window.location.href.split('#')[0] + skipTarget;
+    }
+
+    openMenu() {
+        this.mobileMenuOpen.update((v) => !v);
+    }
+
+    /** `true` when submenu should be collapsed (ngbCollapse input). */
+    submenuCollapsed(link: Link): boolean {
+        if (link.submenu.items.length === 0) {
+            return false;
+        }
+        const map = this.submenuCollapsedByRoute();
+        return link.route in map ? map[link.route] : link.submenu.hidden;
+    }
+
+    toggleSubmenu(link: Link): void {
+        if (link.submenu.items.length === 0) {
+            return;
+        }
+        const key = link.route;
+        this.submenuCollapsedByRoute.update((m) => {
+            const collapsed = key in m ? m[key] : link.submenu.hidden;
+            return { ...m, [key]: !collapsed };
         });
     }
 
-    ngOnInit() {
-        // Add a small timeout because there is some race condition/view update problem with initial link
-        // loading if there is an examination starting or started. To be fixed properly if solution found.
-        window.setTimeout(() => {
-            this.user = this.Session.getUser();
-            if (this.user?.isAdmin) {
-                this.Navigation.getAppVersion$().subscribe({
-                    next: (resp) => (this.appVersion = resp.appVersion),
-                    error: (err) => this.toast.error(err),
-                });
-                this.getLinks(true, true);
-            } else if (this.user) {
-                this.getLinks(true);
-            } else {
-                this.getLinks(false);
-            }
-        }, 200);
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
-        this.ngUnsubscribe.complete();
-    }
-
-    isActive = (link: Link) => window.location.href.includes(link.route);
-
-    getSkipLinkPath = (skipTarget: string) =>
-        window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
-
-    openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
-
-    switchLanguage = (key: string) => this.Session.switchLanguage(key);
-
-    private getLinks = (checkInteroperability: boolean, checkByod = false) => {
-        if (checkInteroperability && checkByod) {
-            forkJoin([this.Navigation.getInteroperability$(), this.Navigation.getByodSupport$()]).subscribe({
-                next: ([iop, byod]) =>
-                    (this.links = this.Navigation.getLinks(
-                        iop.isExamCollaborationSupported,
-                        byod.sebExaminationSupported || byod.homeExaminationSupported,
-                    )),
-                error: (err) => this.toast.error(err),
-            });
-        } else if (checkInteroperability) {
-            this.Navigation.getInteroperability$().subscribe({
-                next: (resp) => (this.links = this.Navigation.getLinks(resp.isExamCollaborationSupported, false)),
-                error: (err) => this.toast.error(err),
-            });
-        } else {
-            this.links = this.Navigation.getLinks(false, false);
+    /** Parents with submenus: avoid RouterLink on the same control as toggle (ordering/CD conflicts with reopen). */
+    onParentNavClick(link: Link): void {
+        if (link.submenu.items.length === 0) {
+            return;
         }
-    };
+        this.toggleSubmenu(link);
+        const path = link.route.startsWith('/') ? link.route : `/${link.route}`;
+        void this.router.navigateByUrl(path);
+    }
+
+    parentAriaExpanded(link: Link): boolean | null {
+        return link.submenu.items.length > 0 ? !this.submenuCollapsed(link) : null;
+    }
+
+    switchLanguage(key: string) {
+        this.Session.switchLanguage(key);
+    }
+
+    private loadLinksWithFeatures(checkInteroperability: boolean, checkByod = false) {
+        if (!checkInteroperability && !checkByod) return;
+
+        const interoperability$ = checkInteroperability
+            ? this.Navigation.getInteroperability$()
+            : of({ isExamCollaborationSupported: false });
+
+        const byod$ = checkByod
+            ? this.Navigation.getByodSupport$()
+            : of({ sebExaminationSupported: false, homeExaminationSupported: false });
+
+        forkJoin([interoperability$, byod$]).subscribe({
+            next: ([iop, byod]) => {
+                this.featureFlags.set({
+                    iop: iop.isExamCollaborationSupported,
+                    byod: byod.sebExaminationSupported || byod.homeExaminationSupported,
+                });
+            },
+            error: (err) => this.toast.error(err),
+        });
+    }
 }

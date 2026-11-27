@@ -4,29 +4,56 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-[![Build](https://github.com/CSCfi/exam/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/CSCfi/exam/actions) 
+[![Build](https://github.com/CSCfi/exam/actions/workflows/build.yml/badge.svg?branch=cke5)](https://github.com/CSCfi/exam/actions)
 
-EXAM Quickstart for developers
-=====================================
+# EXAM Quickstart for developers
 
-1.  Prerequisites: install SBT, Java (25), Node (>= 18) and PostgreSQL (>= 9.4).
+1.  Prerequisites: install SBT, Java (25), Node (>= 22) and PostgreSQL (>= 9.4).
 
 2.  Create PostgreSQL database
+
+    **Option A: Using Docker (recommended for development):**
+
+        $ docker compose up -d postgres
+
+    Or with the provided Makefile:
+
+        $ make db-start
+
+    See [DOCKER.md](DOCKER.md) for detailed Docker setup instructions.
+
+    **Option B: Using local PostgreSQL installation:**
 
         $ createuser -SPRD exam
         $ createdb exam --owner=exam
 
-    For tests
+    For tests:
 
         $ createdb exam_test --owner=exam
 
-    Requires that you have pg_hba.conf set up to accept local connections etc.  
+    Requires that you have pg_hba.conf set up to accept local connections etc.
     Note that you can configure database related parameters (and others) in the dev config file (/conf/dev.conf)
 
-3.  Get frontend dependencies and start frontend application in development mode
+3.  Setup frontend tooling and start frontend application in development mode
 
-        $ npm install
-        $ npm start
+    Install pnpm:
+
+        $ npm install -g pnpm
+
+    Optionally install scalafmt for fast Scala formatting in the pre-commit hook. Requires a separate
+    [Coursier installation](https://get-coursier.io/docs/cli-installation) — ensure its bin directory is on your PATH.
+    Without it, the pre-commit hook will fail on Scala files; you can also run formatting manually via `sbt scalafmtAll`.
+
+        $ cs install scalafmt
+
+    Then install dependencies and start the frontend:
+
+        $ pnpm install
+        $ pnpm start
+
+    We use `lefthook` for git hooks. They should install automatically via `postinstall`, but pnpm may skip this if dependencies haven't changed. If your hooks aren't firing, run:
+
+        $ pnpm run postinstall
 
 4.  In another tab or window start sbt console and run backend application in development mode
 
@@ -35,9 +62,26 @@ EXAM Quickstart for developers
 
     This opens up a debug port at 9999 and allocates 2 Gb of heap memory for the JVM.
 
-5.  Open http://localhost:4200 in your browser. 
-    Accept the database migrations in case you see a prompt.
+5.  Open http://localhost:4200 in your browser. App should be accessible from browser shortly (backend compilation might take some seconds)
+
+6.  Instead of steps 3 to 5 you can also use Docker if you prefer. See [DOCKER.md](DOCKER.md).
+
+## Dependency scanning
+
+Dependabot alerts cover both npm and sbt dependencies (Security and quality → Dependabot). The sbt dependency tree is
+submitted to GitHub by the `dependency-submission` CI job on pushes to `master`. Alerts that don't apply are dismissed
+with a reason and comment rather than left open.
+
+To check a branch locally before merging, scan the runtime jars and the frontend lockfile with [Trivy](https://trivy.dev):
+
+    $ sbt stage
+    $ trivy rootfs --scanners vuln target/universal/stage/lib
+    $ trivy fs --scanners vuln pnpm-lock.yaml
+
+Use `rootfs` for the jars; `fs` mode reads only lockfiles and silently finds nothing there. For the frontend,
+`pnpm audit --prod` gives the same results as the Trivy lockfile scan. To see why a library is
+on the classpath, use `sbt "dependencyTree"` or `sbt "whatDependsOn <org> <artifact>"`.
 
 ## More information
-For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)
 
+For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)

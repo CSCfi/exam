@@ -4,43 +4,32 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import { of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, shareReplay, tap } from 'rxjs/operators';
+import { StorageService } from 'src/app/shared/storage/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class CourseCodeService {
-    private storageService = inject<WebStorageService>(SESSION_STORAGE);
-    private http = inject(HttpClient);
-    private loadingPrefix = false;
+    private readonly storageService = inject(StorageService);
+    private readonly http = inject(HttpClient);
+
+    private readonly prefix$ = this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
+        tap((data) => this.storageService.set('COURSE_CODE_PREFIX', data.prefix)),
+        catchError(() => of(undefined)),
+        shareReplay(1),
+    );
 
     formatCode = (code: string): string => {
-        const prefix = this.storageService.get('COURSE_CODE_PREFIX');
-        if (prefix !== null && prefix !== undefined) {
-            const parts = code.split(prefix);
-            return parts.length > 1 ? parts.slice(0, parts.length - 1).join(prefix) : parts[0];
-        } else if (!this.loadingPrefix) {
-            // Lazy load prefix if not available and not already loading
-            this.loadPrefixLazily();
+        const prefix = this.storageService.get<string>('COURSE_CODE_PREFIX');
+        if (prefix === null || prefix === undefined) {
+            this.prefix$.subscribe();
+            return code;
         }
-        return code;
-    };
-
-    private loadPrefixLazily = () => {
-        this.loadingPrefix = true;
-        this.http
-            .get<{ prefix: string }>('/app/settings/coursecodeprefix')
-            .pipe(
-                tap((data) => {
-                    this.storageService.set('COURSE_CODE_PREFIX', data.prefix);
-                    this.loadingPrefix = false;
-                }),
-                catchError(() => {
-                    // If it fails, continue without prefix (not critical)
-                    this.loadingPrefix = false;
-                    return of(undefined);
-                }),
-            )
-            .subscribe();
+        // An empty prefix means nothing is to be stripped; splitting by it would chop off the last character
+        if (prefix === '') {
+            return code;
+        }
+        const parts = code.split(prefix);
+        return parts.length > 1 ? parts.slice(0, parts.length - 1).join(prefix) : parts[0];
     };
 }

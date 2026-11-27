@@ -187,8 +187,8 @@ export interface ExamImpl {
     enrollInstruction: string;
     anonymous: boolean;
     implementation: Implementation;
-    assessmentInfo: string;
-    internalRef: string;
+    assessmentInfo?: string;
+    internalRef?: string;
     objectVersion: number;
     examFeedback: Feedback;
     grade?: SelectableGrade;
@@ -202,7 +202,7 @@ export interface ExamImpl {
     maxScore: number;
     approvedAnswerCount: number;
     rejectedAnswerCount: number;
-    additionalInfo: string;
+    additionalInfo?: string;
     instruction: string;
     autoEvaluationNotified: boolean;
     languageInspection: LanguageInspection;

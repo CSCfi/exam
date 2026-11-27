@@ -10,12 +10,10 @@ import { map } from 'rxjs/operators';
 import { DashboardEnrolment, Occasion } from 'src/app/dashboard/dashboard.model';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
-import { DateTimeService } from 'src/app/shared/date/date.service';
 
 @Injectable({ providedIn: 'root' })
 export class StudentDashboardService {
-    private http = inject(HttpClient);
-    private DateTime = inject(DateTimeService);
+    private readonly http = inject(HttpClient);
 
     listEnrolments$ = (): Observable<DashboardEnrolment[]> =>
         this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(

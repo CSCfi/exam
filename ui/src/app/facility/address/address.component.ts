@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, ViewChild, inject } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
+import { FormField, form, required } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -12,20 +12,13 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
 
 @Component({
     selector: 'xm-room-address',
-    template: `<div>
-        <form
-            role="form"
-            #addressForm="ngForm"
-            name="addressForm"
-            novalidate
-            id="roomAddress"
-            (ngSubmit)="validateAndUpdateAddress()"
-        >
+    template: `
+        <form role="form" novalidate id="roomAddress" (submit)="validateAndUpdateAddress()">
             <div class="row">
                 <div class="col-md-6">
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_street' | translate }}</div>
                     <div class="input-group">
-                        <input type="text" name="street" class="form-control" [(ngModel)]="address.street" required />
+                        <input type="text" class="form-control" [formField]="addressForm.street" />
                         <span class="input-group-append">
                             <span class="input-group-text">
                                 <i
@@ -42,7 +35,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 <div class="col-md-6">
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_zip' | translate }}</div>
                     <div class="input-group">
-                        <input type="text" name="zip" class="form-control" [(ngModel)]="address.zip" required />
+                        <input type="text" class="form-control" [formField]="addressForm.zip" />
                         <span class="input-group-append">
                             <span class="input-group-text">
                                 <i
@@ -60,7 +53,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 <div class="col-md-6">
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_city' | translate }}</div>
                     <div class="input-group">
-                        <input type="text" name="city" class="form-control" [(ngModel)]="address.city" required />
+                        <input type="text" class="form-control" [formField]="addressForm.city" />
                         <span class="input-group-append">
                             <span class="input-group-text">
                                 <i
@@ -76,33 +69,63 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
             </div>
             <div class="row mt-4">
                 <div class="col-md-12">
-                    <button type="submit" [disabled]="addressForm.invalid" class="btn btn-success">
+                    <button
+                        type="submit"
+                        [disabled]="
+                            addressForm.street().invalid() ||
+                            addressForm.zip().invalid() ||
+                            addressForm.city().invalid()
+                        "
+                        class="btn btn-success"
+                    >
                         {{ 'i18n_save' | translate }}
                     </button>
                 </div>
             </div>
         </form>
-    </div> `,
+    `,
     styleUrls: ['../rooms/rooms.component.scss'],
-    imports: [FormsModule, NgbPopover, TranslateModule],
+    imports: [FormField, NgbPopover, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddressComponent {
-    @Input() address!: Address;
-    @ViewChild('addressForm', { static: false }) addressForm?: NgForm;
+    readonly address = input.required<Address>();
 
-    private room = inject(RoomService);
-    private toast = inject(ToastrService);
-    private translate = inject(TranslateService);
+    readonly addressForm = form(
+        linkedSignal(() => ({
+            street: this.address().street || '',
+            zip: this.address().zip || '',
+            city: this.address().city || '',
+        })),
+        (path) => {
+            required(path.street);
+            required(path.zip);
+            required(path.city);
+        },
+    );
 
-    validateAndUpdateAddress = () => {
-        if (this.addressForm?.valid) {
+    private readonly room = inject(RoomService);
+    private readonly toast = inject(ToastrService);
+    private readonly translate = inject(TranslateService);
+
+    validateAndUpdateAddress() {
+        if (
+            !this.addressForm.street().invalid() &&
+            !this.addressForm.zip().invalid() &&
+            !this.addressForm.city().invalid()
+        ) {
+            const currentAddress = this.address();
+            currentAddress.street = this.addressForm.street().value();
+            currentAddress.zip = this.addressForm.zip().value();
+            currentAddress.city = this.addressForm.city().value();
             this.updateAddress();
         }
-    };
+    }
 
-    updateAddress = () =>
-        this.room.updateAddress$(this.address).subscribe({
+    updateAddress() {
+        this.room.updateAddress$(this.address()).subscribe({
             next: () => this.toast.info(this.translate.instant('i18n_room_address_updated')),
             error: (err) => this.toast.error(err),
         });
+    }
 }

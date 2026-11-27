@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+:host {
+    display: inline-block;
+}
+
 .dropdown-select-full-width {
     display: flex !important;
     width: 100%;

@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamSection } from 'src/app/exam/exam.model';
 import { LibraryResultsComponent } from 'src/app/question/library/results/library-results.component';
 import { LibrarySearchComponent } from 'src/app/question/library/search/library-search.component';
-import { Question } from 'src/app/question/question.model';
+import { LibraryQuestion } from 'src/app/question/question.model';
 
 @Component({
     selector: 'xm-question-selector',
@@ -27,7 +27,7 @@ import { Question } from 'src/app/question/question.model';
             <div class="row ms-3 mb-3">
                 <div class="col-md-12">
                     <button class="btn btn-success" (click)="addQuestions()">
-                        {{ 'i18n_add_chosen' | translate }} ({{ selections.length }})
+                        {{ 'i18n_add_chosen' | translate }} ({{ selections().length }})
                     </button>
                 </div>
             </div>
@@ -35,9 +35,10 @@ import { Question } from 'src/app/question/question.model';
             <div class="row">
                 <div class="col-md-12">
                     <xm-library-results
-                        [questions]="questions"
+                        [questions]="questions()"
                         (selected)="questionSelected($event)"
                         (copied)="questionCopied()"
+                        (updated)="resultsUpdated($event)"
                         [disableLinks]="true"
                     ></xm-library-results>
                 </div>
@@ -47,7 +48,7 @@ import { Question } from 'src/app/question/question.model';
         <!-- Buttons -->
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="addQuestions()">
-                {{ 'i18n_add_chosen' | translate }} ({{ selections.length }})
+                {{ 'i18n_add_chosen' | translate }} ({{ selections().length }})
             </button>
             <button class="btn btn-outline-secondary me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
@@ -56,25 +57,27 @@ import { Question } from 'src/app/question/question.model';
     `,
 })
 export class QuestionSelectorComponent {
-    @Input() questionCount = 0;
-    @Input() sectionId = 0;
-    @Input() examId = 0;
-    questions: Question[] = [];
-    selections: number[] = [];
+    readonly questionCount = model(0);
+    readonly sectionId = model(0);
+    readonly examId = model(0);
 
-    private modal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    readonly questions = signal<LibraryQuestion[]>([]);
+    readonly selections = signal<number[]>([]);
 
-    resultsUpdated = (event: Question[]) => (this.questions = event);
-    questionSelected = (event: number[]) => (this.selections = event);
+    private readonly modal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+
+    resultsUpdated = (event: LibraryQuestion[]) => this.questions.set(event);
+    questionSelected = (event: number[]) => this.selections.set(event);
     questionCopied = () => this.toast.info(this.translate.instant('i18n_question_copied'));
     cancel = () => this.modal.dismiss();
 
     addQuestions = () => {
+        const selectionsValue = this.selections();
         // check that at least one has been selected
-        if (this.selections.length === 0) {
+        if (selectionsValue.length === 0) {
             this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
             return;
         }
@@ -83,12 +86,12 @@ export class QuestionSelectorComponent {
             this.http
                 .post<ExamSection>(`/app/exams/${examId}/sections/${sectionId}/questions`, {
                     sequenceNumber: to,
-                    questions: this.selections.join(),
+                    questions: selectionsValue.join(),
                 })
                 .subscribe({
                     next: (resp) => {
                         const insertedSectionQuestions = resp.sectionQuestions.filter((esq) =>
-                            this.selections.includes(esq.question.id),
+                            selectionsValue.includes(esq.question.id),
                         );
                         this.toast.info(this.translate.instant('i18n_question_added'));
                         this.modal.close(insertedSectionQuestions);
@@ -103,7 +106,7 @@ export class QuestionSelectorComponent {
         // calculate the new order number for question sequence
         // always add question to last spot, because dragndrop
         // is not in use here
-        const to = this.questionCount + 1;
-        insertQuestion(this.sectionId, to, this.examId);
+        const to = this.questionCount() + 1;
+        insertQuestion(this.sectionId(), to, this.examId());
     };
 }

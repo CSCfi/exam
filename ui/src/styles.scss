@@ -8,6 +8,11 @@
 @use 'bootstrap/scss/bootstrap';
 @use 'ngx-toastr/toastr';
 @use 'bootstrap-icons/font/bootstrap-icons.css';
+@use 'ckeditor5/dist/ckeditor5-content.css';
+@use 'highlight.js/styles/github.css';
+
+@use './app/shared/definitions.scss' as shared;
+
 /* fonts */
 @font-face {
     font-family: Arimo;
@@ -17,10 +22,36 @@
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff2') format('woff2'),
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff') format('woff');
 }
+/* Root type size deliberately inherits the reader's browser font-size setting rather than
+   pinning a px value, so readers who raise their default get larger text. Every font-size
+   below is expressed in rem/em so it scales with this. Do not reintroduce a px value here. */
+html {
+    font-size: 100%;
+}
 * {
     font-family: Arimo, Helvetica-Neue, Helvetica;
 }
+/* Minimum type sizes. Bootstrap sizes these three in em, so they shrink again for every
+   nesting level inside an already-reduced container (a .badge inside .small inside a
+   de-emphasised row compounds down fast). max() keeps the intended "smaller than my
+   context" behaviour where there is room for it, but never renders below the floor. */
+small,
+.small,
+.form-text {
+    font-size: max(0.875em, 0.8125rem);
+}
+.badge {
+    font-size: max(0.75em, 0.75rem);
+}
+:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
 /* fullcalendar overrides, need to be defined here because of view encapsulation */
+/* timeGridDay: toolbar title duplicates the column date / shows odd ranges in fi */
+.fc .fc-timeGridDay-view .fc-toolbar-title {
+    display: none;
+}
 .fc .fc-col-header-cell-cushion {
     color: black;
     text-decoration: none;
@@ -28,14 +59,18 @@
 .fc-timegrid-event-harness-inset .fc-timegrid-event {
     cursor: pointer;
 }
+.fc .fc-timegrid-slot {
+    height: var(--xm-fc-slot-height, 1.8em);
+}
 /* cloze test styles, need to be defined here because of view encapsulation */
 @mixin xm-cloze-test($bc, $bgc) {
     margin-right: 3px;
     padding-right: 3px;
+    padding-left: 3px;
     border-radius: 3px;
     min-width: 30px;
     display: inline-block;
-    box-shadow: 4px 4px 9px 0px rgba(0, 0, 0, 0.75);
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.25);
     border: 1px solid $bc;
     background: $bgc;
 }
@@ -88,9 +123,12 @@ textarea.ng-invalid {
     max-height: 400px;
     overflow-y: scroll;
 }
-/* to highlight ck-editor (cloze test) content marked with this class */
-.marker {
-    background-color: yellow;
+/* cloze test gap — rendered outside editor */
+.cloze-test-wrapper {
+    background-color: rgba(255, 213, 0, 0.3);
+    border-bottom: 2px solid rgba(255, 180, 0, 0.7);
+    border-radius: 2px;
+    padding: 0 3px 1px;
 }
 /* modal title */
 .xm-modal-title {
@@ -108,8 +146,8 @@ textarea.ng-invalid {
     border-radius: 4px;
     border: 2px solid #ededed;
     border-left: #238635 4px solid;
-    padding: 30px;
-    @media (max-width: 920px) {
+    padding: 16px 20px;
+    @media (max-width: shared.$mobile-width) {
         padding: 5px;
         margin-bottom: 5px;
     }
@@ -122,10 +160,6 @@ textarea.ng-invalid {
     @extend .xm-study-item-container;
     border-left: #b1b1b1 4px solid;
 }
-.xm-study-item-container--unseen {
-    @extend .xm-study-item-container;
-    border-color: #238635;
-}
 
 /* Standard bordered box */
 .xm-bordered-area {
@@ -133,13 +167,20 @@ textarea.ng-invalid {
     border-radius: 4px;
 }
 /* Generic table styling */
+/* The wide listings (language inspections, review categories, question library) run to 9-12
+   columns, and in those the uppercase header row rather than the data sets the table width,
+   so the headers are allowed to wrap to keep them inside their .table-responsive container. */
 .xm-data-table {
-    font-size: 14px;
+    font-size: 0.875rem;
     th {
         border: 0;
         font-weight: bold;
         text-transform: uppercase;
-        white-space: nowrap;
+        /* Wrapping only engages when a column is actually squeezed, so narrow tables are
+           unaffected. xm-table-sort keeps its icon glued to the last word, so the sort
+           affordance cannot be stranded on a line of its own. .with-space is now the default
+           and is kept only so existing templates that set it keep working. */
+        white-space: normal;
 
         &.with-space {
             white-space: normal;
@@ -149,44 +190,18 @@ textarea.ng-invalid {
         }
     }
     td > a {
-        color: #267b99;
+        color: shared.$exam-blue;
         font-weight: bold;
     }
 }
 /* commonly used link styling, let's see if it's needed for long */
 .xm-link {
-    color: #266b99;
+    color: shared.$exam-blue;
     font-weight: bold;
     text-decoration: none;
     cursor: pointer;
 }
-.exam-title-button {
-    font-size: 16px;
-    font-weight: 500;
-    color: #266b99;
-    background: transparent;
-    border: none;
-    padding: 8px 12px;
-    display: inline-flex;
-    align-items: center;
-    transition: all 0.3s ease;
-    border-radius: 6px;
-    
-    &:hover, &:focus {
-        color: white;
-        background-color: #266b99;
-    }
-    
-    .arrow_icon {
-        margin-left: 8px;
-        filter: invert(42%) sepia(40%) saturate(459%) hue-rotate(166deg) brightness(89%) contrast(85%);
-        transition: all 0.3s ease;
-    }
 
-    &:hover .arrow_icon, &:focus .arrow_icon {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
-    }
-}
 /* numeric input */
 .xm-numeric-input {
     max-width: 7em;
@@ -222,21 +237,80 @@ textarea.ng-invalid {
     left: auto;
     z-index: 999;
 }
-.important-clear-focus:focus,
-.btn:focus {
+.important-clear-focus:focus-visible,
+.btn:focus-visible {
     box-shadow:
         0px 0px 0px 1.5px rgb(255, 255, 255),
         0px 0px 0px 4px rgb(68, 120, 247) !important;
-    -webkit-box-shadow:
-        0px 0px 0px 1.5px rgb(255, 255, 255),
-        0px 0px 0px 4px rgb(68, 120, 247) !important;
-    -moz-box-shadow:
-        0px 0px 0px 1.5px rgb(255, 255, 255),
-        0px 0px 0px 4px rgb(68, 120, 247) !important;
 }
-.search-append{
-  border: #dee2e6 1px solid;
-  border-radius: 5px;
-  padding: 6px;
+.search-append {
+    border: #dee2e6 1px solid;
+    border-radius: 5px;
+    padding: 6px;
 }
+/* Link-like buttons alignment */
+.btn-link {
+    vertical-align: baseline;
+    &:focus-visible {
+        color: shared.$exam-blue !important;
+    }
+}
+/* CKEditor-style blockquote, code and table */
+$xm-code-bg: #f2f3f5;
+$xm-code-border: 1px solid #e0e0e0;
+blockquote { border-left: 3px solid #d0d0d0; margin: 0.25rem 0; padding: 0.25rem 0 0.25rem 1rem; color: #555; }
+code { font-family: 'Courier New', Courier, monospace; font-size: 0.9em; background: $xm-code-bg; border: $xm-code-border; border-radius: 3px; padding: 0.1em 0.35em; color: #333; }
+pre { background: $xm-code-bg; border: $xm-code-border; border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto;
+    code { background: none; border: none; padding: 0; font-size: 0.875em; }
+    /* The highlight.js theme paints its own white block; only its token colors are wanted here */
+    code.hljs { background: none; padding: 0; }
+}
+figure.table {
+    max-width: 100%;
+    overflow-x: auto;
+}
+figure.table table {
+    width: 100%; border-collapse: collapse; border: 1px solid #d0d0d0; border-radius: 4px; overflow: hidden; font-size: 0.9em;
+    th, td { padding: 0.5rem 0.75rem; border-right: 1px solid #d0d0d0; &:last-child { border-right: none; } }
+    th { background: $xm-code-bg; font-weight: 600; border-bottom: 2px solid #c0c0c0; }
+    td { padding-top: 0.45rem; padding-bottom: 0.45rem; border-bottom: 1px solid #e5e5e5; border-right-color: #e5e5e5; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    tbody tr:hover { background: #f0f4ff; }
+}
+/* Ckeditor content markup */
+/* Colors come from CKEditor's own :root vars so content looks identical in and out of the editor */
+.marker-green { background-color: var(--ck-content-highlight-marker-green); }
+.marker-yellow { background-color: var(--ck-content-highlight-marker-yellow); }
+.marker-pink { background-color: var(--ck-content-highlight-marker-pink); }
+.marker-blue { background-color: var(--ck-content-highlight-marker-blue); }
+/* Pens color the text only, so Bootstrap's <mark> background and padding need clearing */
+.pen-red { color: var(--ck-content-highlight-pen-red); background-color: transparent; padding: 0; }
+.pen-green { color: var(--ck-content-highlight-pen-green); background-color: transparent; padding: 0; }
 
+/* Todo lists. CKEditor scopes its own rules under .ck-content, which read-only views don't use.
+   The checkbox is drawn here rather than left native because the markup is always disabled, and
+   browsers grey a disabled checkbox down until the checked state is hard to make out. */
+ul.todo-list {
+    list-style: none;
+    li { margin-bottom: 5px; }
+    li .todo-list { margin-top: 5px; }
+    .todo-list__label__description { vertical-align: middle; }
+    input[type='checkbox'] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        margin: 0 6px 0 -22px;
+        vertical-align: middle;
+        border: 1px solid #333;
+        border-radius: 2px;
+        background: #fff;
+
+        &:checked {
+            border-color: #26ab33;
+            background: #26ab33 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M3 8.5l3.5 3.5L13 5'/%3E%3C/svg%3E")
+                center / 12px no-repeat;
+        }
+    }
+}

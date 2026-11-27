@@ -18,10 +18,10 @@ type Selection = { [k: string]: boolean };
 
 @Injectable({ providedIn: 'root' })
 export class ReviewListService {
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private CommonExam = inject(CommonExamService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly CommonExam = inject(CommonExamService);
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
         if (review.user) return `${review.user.lastName} ${review.user.firstName}`;
@@ -99,7 +99,7 @@ export class ReviewListService {
         items
             .filter(
                 (i) =>
-                    ids.indexOf(i.examParticipation.id.toString()) > -1 ||
+                    (i.examParticipation.id != null && ids.indexOf(i.examParticipation.id.toString()) > -1) ||
                     (i.examParticipation._id && ids.indexOf(i.examParticipation._id) > -1),
             )
             .forEach((pi) => (pi.selected = !pi.selected || override));
@@ -125,7 +125,7 @@ export class ReviewListService {
 
     translateGrade = (exam: Exam) => {
         if (exam.gradingType === 'GRADED' && exam.grade?.name) {
-            return this.CommonExam.getExamGradeDisplayName(exam.grade.name);
+            return this.CommonExam.getExamGradeDisplayName(exam.grade.name, this.CommonExam.resolveGradeScale(exam));
         } else if (exam.gradingType === 'NOT_GRADED') {
             return this.translate.instant('i18n_no_grading');
         } else if (exam.gradingType === 'POINT_GRADED') {

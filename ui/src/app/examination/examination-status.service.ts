@@ -2,34 +2,44 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { computed, Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationStatusService {
-    public examinationEnding$: Observable<void>;
-    public wrongLocation$: Observable<void>;
-    public upcomingExam$: Observable<void>;
-    public examinationStarting$: Observable<void>;
-    public aquariumLoggedIn$: Observable<boolean>;
-    private examinationEndingSubscription = new Subject<void>();
-    private wrongLocationSubscription = new Subject<void>();
-    private upcomingExamSubscription = new Subject<void>();
-    private examinationStartingSubscription = new Subject<void>();
-    private aquariumLoggedInSubscription = new BehaviorSubject<boolean>(true);
+    // Bundles all status signals into one so consumers only need a single subscription
+    readonly combinedStatusSignal = computed(() => ({
+        starting: this.examinationStartingSignal(),
+        upcoming: this.upcomingExamSignal(),
+        wrongLocation: this.wrongLocationSignal(),
+        aquarium: this.aquariumLoggedInSignal(),
+    }));
 
-    constructor() {
-        this.examinationEnding$ = this.examinationEndingSubscription.asObservable();
-        this.wrongLocation$ = this.wrongLocationSubscription.asObservable();
-        this.upcomingExam$ = this.upcomingExamSubscription.asObservable();
-        this.examinationStarting$ = this.examinationStartingSubscription.asObservable();
-        this.aquariumLoggedIn$ = this.aquariumLoggedInSubscription.asObservable();
+    // number signals carry a timestamp so repeated notifications always produce a new value
+    private readonly examinationEnding = signal<number | undefined>(undefined);
+    private readonly wrongLocation = signal<number | undefined>(undefined);
+    private readonly upcomingExam = signal<number | undefined>(undefined);
+    private readonly examinationStarting = signal<number | undefined>(undefined);
+    private readonly aquariumLoggedIn = signal<number | undefined>(undefined);
+
+    get examinationEndingSignal() {
+        return this.examinationEnding.asReadonly();
+    }
+    get wrongLocationSignal() {
+        return this.wrongLocation.asReadonly();
+    }
+    get upcomingExamSignal() {
+        return this.upcomingExam.asReadonly();
+    }
+    get examinationStartingSignal() {
+        return this.examinationStarting.asReadonly();
+    }
+    get aquariumLoggedInSignal() {
+        return this.aquariumLoggedIn.asReadonly();
     }
 
-    notifyEndOfExamination = () => this.examinationEndingSubscription.next();
-    notifyWrongLocation = () => this.wrongLocationSubscription.next();
-    notifyUpcomingExamination = () => this.upcomingExamSubscription.next();
-    notifyStartOfExamination = () => this.examinationStartingSubscription.next();
-    notifyAquariumLogin = () => this.aquariumLoggedInSubscription.next(true);
+    notifyEndOfExamination = () => this.examinationEnding.set(Date.now());
+    notifyWrongLocation = () => this.wrongLocation.set(Date.now());
+    notifyUpcomingExamination = () => this.upcomingExam.set(Date.now());
+    notifyStartOfExamination = () => this.examinationStarting.set(Date.now());
+    notifyAquariumLogin = () => this.aquariumLoggedIn.set(Date.now());
 }

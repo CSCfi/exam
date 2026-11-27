@@ -1,0 +1,49 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+.xm-answers-meta {
+    font-size: 0.9375rem;
+    color: #444;
+}
+
+.xm-answers-meta-label {
+    color: #5c5c5c;
+    font-weight: 500;
+    margin-right: 0.25rem;
+}
+
+.xm-answers-question-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-bottom: 0.25rem;
+}
+
+.xm-answers-question-text {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.xm-answers-field {
+    margin-top: 0.375rem;
+}
+
+.xm-answers-score-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.75rem;
+    padding-top: 0.625rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.xm-answers-score {
+    font-weight: 600;
+    color: #1a1a1a;
+}

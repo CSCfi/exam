@@ -11,7 +11,7 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionReviewService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     questionsApi = (id: number) => `/app/exam/${id}/questions`;
 

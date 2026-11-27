@@ -1,0 +1,308 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package features.enrolment.services
+
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import io.ebean.DB
+import io.ebean.text.PathProperties
+import models.calendar.MaintenancePeriod
+import models.enrolment.{ExaminationEvent, ExaminationEventConfiguration}
+import models.exam.*
+import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.{DateTime, Interval, LocalDate}
+import play.api.Logging
+import security.BlockingIOExecutionContext
+import services.config.{ByodConfigHandler, ConfigReader}
+import validation.exam.ExaminationEventDTO
+
+import java.util.UUID
+import javax.inject.Inject
+import scala.util.Try
+
+class ExaminationEventService @Inject() (
+    private val byodConfigHandler: ByodConfigHandler,
+    private val configReader: ConfigReader,
+    implicit private val ec: BlockingIOExecutionContext
+) extends EbeanQueryExtensions
+    with EbeanJsonExtensions
+    with Logging:
+
+  def insertExaminationDate(
+      examId: Long,
+      date: LocalDate
+  ): Either[ExaminationEventError, ExaminationDate] =
+    Option(DB.find(classOf[Exam], examId)) match
+      case None => Left(ExaminationEventError.ExamNotFound)
+      case Some(exam) =>
+        val ed = new ExaminationDate()
+        ed.date = date.toDate
+        ed.exam = exam
+        ed.save()
+        Right(ed)
+
+  def removeExaminationDate(dateId: Long): Either[ExaminationEventError, Unit] =
+    Option(DB.find(classOf[ExaminationDate], dateId)) match
+      case None => Left(ExaminationEventError.ExaminationDateNotFound)
+      case Some(ed) =>
+        ed.delete()
+        Right(())
+
+  private def getEventEnding(ee: ExaminationEvent): DateTime =
+    Option(ee.examinationEventConfiguration) match
+      case None         => ee.start
+      case Some(config) => ee.start.plusMinutes(config.exam.duration)
+
+  private def getParticipantUpperBound(start: DateTime, end: DateTime, id: Option[Long]): Int =
+    val baseQuery = DB.find(classOf[ExaminationEvent]).where().le("start", end)
+    val query     = id.fold(baseQuery) { i => baseQuery.ne("id", i) }
+
+    query.distinct
+      .filter(ee => !getEventEnding(ee).isBefore(start))
+      .map(_.capacity)
+      .sum
+
+  private def isWithinMaintenancePeriod(interval: Interval): Boolean =
+    DB.find(classOf[MaintenancePeriod])
+      .distinct
+      .exists { p =>
+        val maintenanceInterval = new Interval(p.startsAt, p.endsAt)
+        maintenanceInterval.overlaps(interval)
+      }
+
+  def insertExaminationEvent(
+      examId: Long,
+      dto: ExaminationEventDTO
+  ): Either[ExaminationEventError, ExaminationEventConfiguration] =
+    Option(DB.find(classOf[Exam], examId)) match
+      case None => Left(ExaminationEventError.ExamNotFound)
+      case Some(exam) =>
+        val start = dto.start
+
+        if start.isBeforeNow then Left(ExaminationEventError.EventInThePast)
+        else
+          val end = start.plusMinutes(exam.duration)
+          if isWithinMaintenancePeriod(new Interval(start, end)) then
+            Left(ExaminationEventError.ConflictsWithMaintenancePeriod)
+          else
+            val ub       = getParticipantUpperBound(start, end, None)
+            val capacity = dto.capacity
+            if capacity + ub > configReader.getMaxByodExaminationParticipantCount then
+              Left(ExaminationEventError.MaxCapacityExceeded)
+            else
+              val quitPassword = dto.quitPassword
+              if exam.implementation == ExamImplementation.CLIENT_AUTH && quitPassword.isEmpty
+              then
+                Left(ExaminationEventError.NoQuitPasswordProvided)
+              else
+                val settingsPassword = dto.settingsPassword
+                if exam.implementation == ExamImplementation.CLIENT_AUTH && settingsPassword.isEmpty
+                then
+                  Left(ExaminationEventError.NoSettingsPasswordProvided)
+                else
+                  val eec = new ExaminationEventConfiguration()
+                  val ee  = new ExaminationEvent()
+                  ee.start = start
+                  ee.description = dto.description
+                  ee.capacity = dto.capacity
+                  ee.save()
+                  eec.examinationEvent = ee
+                  eec.exam = exam
+                  eec.hash = UUID.randomUUID().toString
+
+                  (quitPassword, settingsPassword) match
+                    case (Some(qPwd), Some(sPwd)) =>
+                      (for
+                        _ <- encryptQuitPassword(eec, qPwd)
+                        _ <- encryptSettingsPassword(eec, sPwd, qPwd)
+                      yield
+                        // Pass back the plaintext password, so it can be shown to the user
+                        eec.quitPassword = qPwd
+                        eec.settingsPassword = sPwd
+                      ) match
+                        case Left(error) => Left(error)
+                        case Right(_) =>
+                          eec.save()
+                          Right(eec)
+                    case _ =>
+                      eec.save()
+                      Right(eec)
+
+  def updateExaminationEvent(
+      examId: Long,
+      configId: Long,
+      dto: ExaminationEventDTO
+  ): Either[ExaminationEventError, ExaminationEventConfiguration] =
+    val examOpt = Option(DB.find(classOf[Exam], examId))
+    val eecOpt = DB
+      .find(classOf[ExaminationEventConfiguration])
+      .where()
+      .idEq(configId)
+      .eq("exam.id", examId)
+      .find
+
+    (examOpt, eecOpt) match
+      case (Some(exam), Some(eec)) =>
+        val hasEnrolments = !eec.examEnrolments.isEmpty
+        val ee            = eec.examinationEvent
+        val quitPassword  = dto.quitPassword
+
+        if eec.exam.implementation == ExamImplementation.CLIENT_AUTH && quitPassword.isEmpty
+        then
+          Left(ExaminationEventError.NoQuitPasswordProvided)
+        else
+          val settingsPassword = dto.settingsPassword
+          if eec.exam.implementation == ExamImplementation.CLIENT_AUTH && settingsPassword.isEmpty
+          then
+            Left(ExaminationEventError.NoSettingsPasswordProvided)
+          else
+            val start = dto.start
+            if !hasEnrolments && start.isBeforeNow then Left(ExaminationEventError.EventInThePast)
+            else
+              if !hasEnrolments then ee.start = start
+
+              val end = start.plusMinutes(exam.duration)
+              if isWithinMaintenancePeriod(new Interval(start, end)) then
+                Left(ExaminationEventError.ConflictsWithMaintenancePeriod)
+              else
+                val ub       = getParticipantUpperBound(start, end, Some(ee.id))
+                val capacity = dto.capacity
+                if capacity + ub > configReader.getMaxByodExaminationParticipantCount then
+                  Left(ExaminationEventError.MaxCapacityExceeded)
+                else
+                  ee.capacity = capacity
+                  ee.description = dto.description
+                  ee.update()
+
+                  (quitPassword, settingsPassword) match
+                    case (Some(qPwd), Some(sPwd)) if !hasEnrolments =>
+                      (for
+                        _ <- encryptQuitPassword(eec, qPwd)
+                        _ <- encryptSettingsPassword(eec, sPwd, qPwd)
+                      yield
+                        eec.save()
+                        // Pass back the plaintext passwords
+                        eec.quitPassword = qPwd
+                        eec.settingsPassword = sPwd
+                      ) match
+                        case Left(error) => Left(error)
+                        case Right(_)    => Right(eec)
+                    case (Some(_), Some(_)) =>
+                      // Disallow changing password if enrolments exist - pass back original unchanged passwords
+                      eec.quitPassword =
+                        byodConfigHandler
+                          .getPlaintextPassword(
+                            eec.encryptedQuitPassword,
+                            eec.quitPasswordSalt
+                          )
+
+                      eec.settingsPassword =
+                        byodConfigHandler.getPlaintextPassword(
+                          eec.encryptedSettingsPassword,
+                          eec.settingsPasswordSalt
+                        )
+
+                    case _ => ()
+
+                  Right(eec)
+      case _ => Left(ExaminationEventError.EventNotFound)
+
+  def removeExaminationEvent(examId: Long, configId: Long): Either[ExaminationEventError, Unit] =
+    val eecOpt = DB.find(classOf[ExaminationEventConfiguration]).where().idEq(configId).eq(
+      "exam.id",
+      examId
+    ).find
+    val examOpt = Option(DB.find(classOf[Exam], examId))
+
+    (eecOpt, examOpt) match
+      case (Some(eec), Some(_)) =>
+        if !eec.examEnrolments.isEmpty then Left(ExaminationEventError.EventHasEnrolments)
+        else
+          eec.delete()
+          // Check if we can delete the event altogether (in case no configs are using it)
+          val configs = DB
+            .find(classOf[ExaminationEventConfiguration])
+            .where()
+            .eq("examinationEvent", eec.examinationEvent)
+            .distinct
+
+          if configs.isEmpty then eec.examinationEvent.delete()
+          Right(())
+      case _ => Left(ExaminationEventError.EventNotFound)
+
+  private def encryptSettingsPassword(
+      eec: ExaminationEventConfiguration,
+      password: String,
+      quitPassword: String
+  ): Either[ExaminationEventError, Unit] =
+    Try {
+      val oldPwd = Option(eec.encryptedSettingsPassword).map { encrypted =>
+        byodConfigHandler.getPlaintextPassword(encrypted, eec.settingsPasswordSalt)
+      }
+
+      if !oldPwd.contains(password) then
+        val newSalt = UUID.randomUUID().toString
+        eec.encryptedSettingsPassword = byodConfigHandler.getEncryptedPassword(password, newSalt)
+        eec.settingsPasswordSalt = newSalt
+        // Pre-calculate the config key
+        eec.configKey = byodConfigHandler.calculateConfigKey(eec.hash, quitPassword)
+      Right(())
+    }.recover { case e: Exception =>
+      logger.error("unable to set settings password", e)
+      Left(ExaminationEventError.PasswordEncryptionFailed)
+    }.get
+
+  private def encryptQuitPassword(
+      eec: ExaminationEventConfiguration,
+      password: String
+  ): Either[ExaminationEventError, Unit] =
+    Try {
+      val oldPwd = Option(eec.encryptedQuitPassword).map { encrypted =>
+        byodConfigHandler.getPlaintextPassword(encrypted, eec.quitPasswordSalt)
+      }
+
+      if !oldPwd.contains(password) then
+        val newSalt = UUID.randomUUID().toString
+        eec.encryptedQuitPassword = byodConfigHandler.getEncryptedPassword(password, newSalt)
+        eec.quitPasswordSalt = newSalt
+        // Pre-calculate the config key
+        eec.configKey = byodConfigHandler.calculateConfigKey(eec.hash, password)
+      Right(())
+    }.recover { case e: Exception =>
+      logger.error("unable to set quit password", e)
+      Left(ExaminationEventError.PasswordEncryptionFailed)
+    }.get
+
+  def listExaminationEvents(
+      start: Option[String],
+      end: Option[String]
+  ): List[ExaminationEventConfiguration] =
+    val pp = PathProperties.parse(
+      "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
+    )
+    val baseQuery = DB.find(classOf[ExaminationEventConfiguration]).apply(pp).where()
+
+    val withStartFilter = start.fold(baseQuery) { s =>
+      val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
+      baseQuery.ge("examinationEvent.start", startDate.toDate)
+    }
+
+    val withEndFilter = end.fold(withStartFilter) { e =>
+      val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
+      withStartFilter.lt("examinationEvent.start", endDate.toDate)
+    }
+
+    withEndFilter.eq("exam.state", ExamState.PUBLISHED).distinct.toList
+
+  def listOverlappingExaminationEvents(start: String, duration: Int): List[ExaminationEvent] =
+    val startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser())
+    val endDate   = startDate.plusMinutes(duration)
+    val pp        = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))")
+
+    DB.find(classOf[ExaminationEvent])
+      .where()
+      .le("start", endDate)
+      .distinct
+      .filter(ee => !getEventEnding(ee).isBefore(startDate))
+      .toList

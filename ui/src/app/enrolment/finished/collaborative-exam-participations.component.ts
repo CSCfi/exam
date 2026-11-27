@@ -3,10 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { SlicePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { AfterViewInit, ChangeDetectorRef, Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { CollaborativeParticipation } from 'src/app/enrolment/enrolment.model';
@@ -19,13 +17,10 @@ import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-collaborative-exam-participations',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participations.component.html',
     imports: [
-        FormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
         ExamParticipationComponent,
         PaginatorComponent,
         SlicePipe,
@@ -35,46 +30,59 @@ import { ExamParticipationComponent } from './exam-participation.component';
         PageContentComponent,
     ],
 })
-export class CollaborativeParticipationsComponent implements OnInit, AfterViewInit {
-    collaborative = true;
-    originals: CollaborativeParticipation[] = [];
-    participations: CollaborativeParticipation[] = [];
-    pageSize = 10;
-    currentPage = 0;
-    filter = { ordering: 'ended', reverse: true, text: '' };
-    searchDone = false;
+export class CollaborativeParticipationsComponent {
+    readonly originals = signal<CollaborativeParticipation[]>([]);
+    readonly participations = signal<CollaborativeParticipation[]>([]);
+    readonly currentPage = signal(0);
+    readonly filter = signal({ ordering: 'ended' as 'exam.name' | 'ended', reverse: true, text: '' });
+    readonly searchDone = signal(false);
+    readonly collaborative = true;
+    readonly pageSize = 10;
 
-    private changeDetector = inject(ChangeDetectorRef);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
 
-    ngOnInit() {
+    constructor() {
         this.Enrolment.listStudentParticipations$().subscribe({
             next: (participations: CollaborativeParticipation[]) => {
                 participations
                     .filter((p) => typeof p.ended == 'number')
                     .forEach((p) => (p.ended = new Date(p.ended).toISOString()));
-                this.originals = participations;
+                this.originals.set(participations);
                 this.search('');
             },
             error: (err) => this.toast.error(err),
         });
     }
 
-    ngAfterViewInit() {
-        this.changeDetector.detectChanges();
+    get filterText(): string {
+        return this.filter().text;
+    }
+    set filterText(value: string) {
+        this.filter.update((f) => ({ ...f, text: value }));
     }
 
-    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
+    onFilterInput = (event: Event) => {
+        this.filterText = (event.target as HTMLInputElement).value;
+    };
+
+    pageSelected = ($event: { page: number }) => this.currentPage.set($event.page);
 
     search(text: string) {
         if (!text || text.length < 1) {
-            this.participations = this.originals;
+            this.participations.set(this.originals());
         } else {
-            this.participations = this.originals.filter((participation) => {
-                const exam = participation.exam;
-                return exam.name && exam.name.indexOf(text) > -1;
-            });
+            this.participations.set(
+                this.originals().filter((participation) => {
+                    const exam = participation.exam;
+                    return exam.name?.toLowerCase().includes(text.toLowerCase());
+                }),
+            );
         }
+        this.searchDone.set(true);
+    }
+
+    updateFilterOrdering(ordering: 'exam.name' | 'ended', reverse: boolean) {
+        this.filter.update((f) => ({ ...f, ordering, reverse }));
     }
 }

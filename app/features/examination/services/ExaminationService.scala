@@ -1,0 +1,442 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package features.examination.services
+
+import database.EbeanQueryExtensions
+import features.examination.services.ExaminationError.*
+import features.iop.transfer.services.ExternalAttachmentLoaderService
+import io.ebean.DB
+import io.ebean.text.PathProperties
+import models.enrolment.{ExamEnrolment, ExamParticipation}
+import models.exam.{Exam, ExamImplementation, ExamState}
+import models.iop.CollaborativeExam
+import models.questions.{ClozeTestAnswer, EssayAnswer}
+import models.sections.ExamSectionQuestion
+import models.user.User
+import org.joda.time.DateTime
+import play.api.{Environment, Logging, Mode}
+import repository.ExaminationRepository
+import security.BlockingIOExecutionContext
+import services.config.{ByodConfigHandler, ConfigReader}
+import services.datetime.{AppClock, DateTimeHandler}
+import services.exam.AutoEvaluationHandler
+import services.mail.EmailComposer
+import validation.answer.{ClozeTestAnswerDTO, EssayAnswerDTO}
+
+import javax.inject.Inject
+import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+import scala.jdk.CollectionConverters.*
+import scala.util.Try
+
+class ExaminationService @Inject() (
+    private val examinationRepository: ExaminationRepository,
+    private val autoEvaluationHandler: AutoEvaluationHandler,
+    private val emailComposer: EmailComposer,
+    private val externalAttachmentLoader: ExternalAttachmentLoaderService,
+    private val byodConfigHandler: ByodConfigHandler,
+    private val configReader: ConfigReader,
+    private val environment: Environment,
+    private val clock: AppClock,
+    private val dateTimeHandler: DateTimeHandler,
+    implicit private val ec: BlockingIOExecutionContext
+) extends EbeanQueryExtensions
+    with Logging:
+
+  def prepareExam(
+      hash: String,
+      user: User,
+      requestData: RequestData
+  ): Future[Either[ExaminationError, Exam]] =
+    examinationRepository
+      .getCollaborativeExam(hash)
+      .flatMap { oce =>
+        val pp = ExaminationService.getPath(false)
+        examinationRepository
+          .getPrototype(hash, oce.orNull, pp)
+          .flatMap { optionalPrototype =>
+            examinationRepository
+              .getPossibleClone(hash, user, oce.orNull, pp)
+              .flatMap { possibleClone =>
+                (optionalPrototype, possibleClone) match
+                  case (None, None)            => Future.successful(Left(ExamNotFound))
+                  case (Some(prototype), None) =>
+                    // Exam is not started yet, create a new one for the student
+                    createClone(prototype, user, oce, requestData, isInitialization = false)
+                  case (_, Some(clone)) =>
+                    // Exam started already
+                    postProcessExisting(clone, user, oce, requestData)
+              }
+          }
+      }
+
+  def initializeExam(
+      hash: String,
+      user: User,
+      requestData: RequestData
+  ): Future[Either[ExaminationError, Unit]] =
+    val pp = ExaminationService.getPath(false)
+    examinationRepository
+      .getCollaborativeExam(hash)
+      .flatMap { oce =>
+        examinationRepository
+          .getPrototype(hash, oce.orNull, pp)
+          .flatMap {
+            case None => Future.successful(Right(()))
+            case Some(exam) =>
+              examinationRepository
+                .getPossibleClone(hash, user, oce.orNull, pp)
+                .flatMap {
+                  case Some(_) => Future.successful(Right(()))
+                  case None => createClone(
+                      exam,
+                      user,
+                      oce,
+                      requestData,
+                      isInitialization = true
+                    ).map(_.map(_ => ()))
+                }
+          }
+      }
+
+  def turnExam(
+      hash: String,
+      user: User,
+      requestData: RequestData
+  ): Either[ExaminationError, (Exam, ExamParticipation)] =
+    DB.find(classOf[Exam])
+      .fetch("examSections.sectionQuestions.question")
+      .where()
+      .eq("creator", user)
+      .eq("hash", hash)
+      .find match
+      case None => Left(ExamNotFound)
+      case Some(exam) =>
+        findParticipation(exam, user) match
+          case None => Left(ParticipationNotFound)
+          case Some(ep) =>
+            setDurations(ep)
+
+            val settings = configReader.getOrCreateSettings(
+              "review_deadline",
+              None,
+              Some("14")
+            )
+            val deadlineDays = Integer.parseInt(settings.value)
+            val deadline     = ep.ended.plusDays(deadlineDays)
+            ep.deadline = deadline
+            ep.save()
+            exam.state = ExamState.REVIEW
+            exam.update()
+            if exam.isPrivate then notifyTeachers(exam)
+            autoEvaluationHandler.autoEvaluate(exam)
+            Right((exam, ep))
+
+  def abortExam(
+      hash: String,
+      user: User,
+      requestData: RequestData
+  ): Either[ExaminationError, (Exam, ExamParticipation)] =
+    DB.find(classOf[Exam])
+      .where()
+      .eq("creator", user)
+      .eq("hash", hash)
+      .find match
+      case None => Left(ExamNotFound)
+      case Some(exam) =>
+        findParticipation(exam, user) match
+          case None => Left(ParticipationNotFound)
+          case Some(ep) =>
+            setDurations(ep)
+            ep.save()
+            exam.state = ExamState.ABORTED
+            exam.update()
+            if exam.isPrivate then notifyTeachers(exam)
+            Right((exam, ep))
+
+  def answerEssay(
+      hash: String,
+      questionId: Long,
+      user: User,
+      answerDTO: EssayAnswerDTO,
+      requestData: RequestData
+  ): Future[Either[ExaminationError, EssayAnswer]] =
+    validateEnrolment(hash, user, requestData).flatMap {
+      case Left(error) => Future.successful(Left(error))
+      case Right(_) =>
+        findOwnSectionQuestion(questionId, hash, user) match
+          case None => Future.successful(Left(QuestionNotFound))
+          case Some(question) =>
+            val answer = Option(question.essayAnswer) match
+              case None =>
+                new EssayAnswer()
+              case Some(existingAnswer) =>
+                answerDTO.objectVersion.foreach(ov => existingAnswer.objectVersion = ov)
+                existingAnswer
+            answer.answer = answerDTO.answer
+            answer.save()
+            question.essayAnswer = answer
+            question.save()
+            Future.successful(Right(answer))
+    }
+
+  def answerMultiChoice(
+      hash: String,
+      questionId: Long,
+      user: User,
+      optionIds: Seq[Long],
+      requestData: RequestData
+  ): Future[Either[ExaminationError, Unit]] =
+    validateEnrolment(hash, user, requestData).map {
+      case Left(error) => Left(error)
+      case Right(_) =>
+        findOwnSectionQuestion(questionId, hash, user) match
+          case None => Left(QuestionNotFound)
+          case Some(question) =>
+            question.options.asScala.foreach { o =>
+              o.answered = optionIds.contains(o.id)
+              o.update()
+            }
+            Right(())
+    }
+
+  def answerClozeTest(
+      hash: String,
+      questionId: Long,
+      user: User,
+      answerDTO: ClozeTestAnswerDTO,
+      requestData: RequestData
+  ): Future[Either[ExaminationError, ClozeTestAnswer]] =
+    validateEnrolment(hash, user, requestData).flatMap {
+      case Left(error) => Future.successful(Left(error))
+      case Right(_) =>
+        findOwnSectionQuestion(questionId, hash, user) match
+          case None => Future.successful(Left(QuestionNotFound))
+          case Some(esq) =>
+            val objectVersion = answerDTO.objectVersion.getOrElse(0L)
+            val answer = Option(esq.clozeTestAnswer).getOrElse {
+              new ClozeTestAnswer()
+            }
+            answer.objectVersion = objectVersion
+            answer.answer = answerDTO.answer
+            answer.save()
+            Future.successful(Right(answer))
+    }
+
+  // Private helper methods
+
+  private def postProcessClone(
+      enrolment: ExamEnrolment,
+      exam: Exam
+  ): Future[Either[ExaminationError, Exam]] =
+    Option(enrolment.collaborativeExam) match
+      case None =>
+        // No collaborative exam, proceed synchronously
+        exam.cloned = true
+        exam.setDerivedMaxScores()
+        examinationRepository.processClozeTestQuestions(exam)
+        Future.successful(Right(exam))
+      case Some(_) =>
+        // Fetch external attachments asynchronously, then process
+        externalAttachmentLoader
+          .fetchExternalAttachmentsAsLocal(exam)
+          .map { _ =>
+            exam.cloned = true
+            exam.setDerivedMaxScores()
+            examinationRepository.processClozeTestQuestions(exam)
+            Right(exam)
+          }
+          .recover { case e =>
+            logger.error("Could not fetch external attachments!", e)
+            // Continue anyway - attachments are optional
+            exam.cloned = true
+            exam.setDerivedMaxScores()
+            examinationRepository.processClozeTestQuestions(exam)
+            Right(exam)
+          }
+
+  private def postProcessExisting(
+      clone: Exam,
+      user: User,
+      ce: Option[CollaborativeExam],
+      requestData: RequestData
+  ): Future[Either[ExaminationError, Exam]] =
+    // sanity check
+    if !clone.hasState(ExamState.INITIALIZED, ExamState.STUDENT_STARTED) then
+      Future.successful(Left(InvalidExamState))
+    else
+      examinationRepository
+        .findEnrolment(user, clone, ce.orNull, false)
+        .flatMap {
+          case None => Future.successful(Left(EnrolmentNotFound))
+          case Some(enrolment) =>
+            validateEnrolment(enrolment, requestData).flatMap {
+              case Left(error) => Future.successful(Left(error))
+              case Right(_) =>
+                examinationRepository
+                  .createFinalExam(clone, user, enrolment)
+                  .map(e => Right(e))
+            }
+        }
+
+  private def createClone(
+      prototype: Exam,
+      user: User,
+      ce: Option[CollaborativeExam],
+      requestData: RequestData,
+      isInitialization: Boolean
+  ): Future[Either[ExaminationError, Exam]] =
+    examinationRepository
+      .findEnrolment(user, prototype, ce.orNull, isInitialization)
+      .flatMap {
+        case None => Future.successful(Left(EnrolmentNotFound))
+        case Some(enrolment) =>
+          validateEnrolment(enrolment, requestData).flatMap {
+            case Left(error) => Future.successful(Left(error))
+            case Right(_) =>
+              examinationRepository
+                .createExam(prototype, user, enrolment)
+                .flatMap {
+                  case None       => Future.successful(Left(FailedToCreateExam))
+                  case Some(exam) => postProcessClone(enrolment, exam)
+                }
+          }
+      }
+
+  // Enrolment validation only proves the caller owns the exam identified by `hash`; the answer
+  // methods still receive an arbitrary questionId. Scope the lookup to the caller's own exam so a
+  // student can't write answers into another student's exam instance by passing a foreign question id.
+  private def findOwnSectionQuestion(
+      questionId: Long,
+      hash: String,
+      user: User
+  ): Option[ExamSectionQuestion] =
+    DB.find(classOf[ExamSectionQuestion])
+      .where()
+      .idEq(questionId)
+      .eq("examSection.exam.hash", hash)
+      .eq("examSection.exam.creator", user)
+      .find
+
+  private def findParticipation(exam: Exam, user: User): Option[ExamParticipation] =
+    DB.find(classOf[ExamParticipation])
+      .where()
+      .eq("exam.id", exam.id)
+      .eq("user", user)
+      .isNull("ended")
+      .find
+
+  private def setDurations(ep: ExamParticipation): Unit =
+    ep.ended = Option(ep.examinationEvent) match
+      case Some(_) => clock.now()
+      case None    => dateTimeHandler.adjustDST(clock.now(), ep.reservation)
+    ep.duration = new DateTime(ep.ended.getMillis - ep.started.getMillis)
+
+  private def validateEnrolment(
+      hash: String,
+      user: User,
+      requestData: RequestData
+  ): Future[Either[ExaminationError, Unit]] =
+    val enrolment = DB
+      .find(classOf[ExamEnrolment])
+      .where()
+      .eq("exam.hash", hash)
+      .eq("exam.creator", user)
+      .eq("exam.state", ExamState.STUDENT_STARTED)
+      .findOne()
+    validateEnrolment(enrolment, requestData)
+
+  private def validateEnrolment(
+      enrolment: ExamEnrolment,
+      requestData: RequestData
+  ): Future[Either[ExaminationError, Unit]] =
+    // If this is null, it means someone is either trying to access an exam by wrong hash
+    // or the reservation is not in effect right now.
+    if Option(enrolment).isEmpty then Future.successful(Left(ReservationNotFound))
+    else
+      val exam        = enrolment.exam
+      val isByod      = Option(exam).exists(_.implementation == ExamImplementation.CLIENT_AUTH)
+      val isUnchecked = Option(exam).exists(_.implementation == ExamImplementation.WHATEVER)
+
+      if isByod then
+        Future.successful(
+          byodConfigHandler
+            .checkUserAgent(
+              requestData.headers,
+              requestData.uri,
+              requestData.host,
+              enrolment.examinationEventConfiguration.configKey
+            )
+            .map(error => Left(ValidationError(error.header.status.toString)))
+            .getOrElse(Right(()))
+        )
+      else if isUnchecked then Future.successful(Right(()))
+      // For regular exams, check if IP matches - if not, provide detailed error with room info
+      else if environment.mode != Mode.Dev &&
+        Option(enrolment.reservation)
+          .flatMap(r => Option(r.machine))
+          .exists(m => m.ipAddress != requestData.remoteAddress)
+      then
+        examinationRepository
+          .findRoom(enrolment)
+          .map {
+            case None => Left(RoomNotFound)
+            case Some(room) =>
+              Left(WrongExamMachine)
+          }
+      else
+        // For all other cases, use basic validation
+        validateBasicEnrolment(enrolment, requestData, skipIpCheck = true)
+
+  private def validateBasicEnrolment(
+      enrolment: ExamEnrolment,
+      requestData: RequestData,
+      skipIpCheck: Boolean = false
+  ): Future[Either[ExaminationError, Unit]] =
+    if Option(enrolment).isEmpty then Future.successful(Left(ReservationNotFound))
+    else if Option(enrolment.reservation).isEmpty then
+      Future.successful(Left(ReservationNotFound))
+    else if Option(enrolment.reservation.machine).isEmpty then
+      Future.successful(Left(ReservationMachineNotFound))
+    else if !skipIpCheck && environment.mode != Mode.Dev &&
+      !enrolment.reservation.machine.ipAddress.equals(requestData.remoteAddress)
+    then Future.successful(Left(WrongExamMachine))
+    else Future.successful(Right(()))
+
+  private def notifyTeachers(exam: Exam): Unit =
+    val recipients = exam.parent.examOwners.asScala.toSet ++
+      exam.examInspections.asScala.map(_.user).toSet
+
+    emailComposer.scheduleEmail(1.seconds) {
+      recipients.foreach { r =>
+        Try(emailComposer.composePrivateExamEnded(r, exam)).fold(
+          e => logger.error(s"Failed to send email to ${r.email}", e),
+          _ => logger.info(s"Email sent to ${r.email}")
+        )
+      }
+    }
+
+object ExaminationService:
+  def getPath(includeEnrolment: Boolean): PathProperties =
+    val path = """(*,
+                  |course(*),
+                  |examType(*),
+                  |executionType(*),
+                  |examParticipation(*),
+                  |examLanguages(*),
+                  |attachment(*),
+                  |examOwners(*),
+                  |examInspections(*, user(*)),
+                  |examSections(*,
+                  |  examMaterials(*),
+                  |  sectionQuestions(*,
+                  |    question(*, attachment(*)),
+                  |    options(*, option(*)),
+                  |    essayAnswer(*, attachment(*)),
+                  |    clozeTestAnswer(*)
+                  |  )
+                  |)
+                  |)""".stripMargin
+    PathProperties.parse(if includeEnrolment then s"(exam$path)" else path)

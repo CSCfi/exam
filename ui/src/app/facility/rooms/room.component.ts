@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,7 +29,6 @@ interface ExtendedRoom extends ExamRoom {
     templateUrl: './room.component.html',
     selector: 'xm-room',
     imports: [
-        NgClass,
         NgbPopover,
         RouterLink,
         OpenHoursComponent,
@@ -40,12 +38,14 @@ interface ExtendedRoom extends ExamRoom {
         TranslateModule,
     ],
     styleUrl: './rooms.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomComponent {
-    @Input({ required: true }) room!: ExtendedRoom;
+    readonly room = input.required<ExtendedRoom>();
+    readonly calendarExceptionEvents = linkedSignal(() => this.room().calendarExceptionEvents);
 
-    private timeDateService = inject(DateTimeService);
-    private roomService = inject(RoomService);
+    private readonly timeDateService = inject(DateTimeService);
+    private readonly roomService = inject(RoomService);
 
     switchVisibility(room: ExtendedRoom) {
         if (!room.activate) {
@@ -101,26 +101,24 @@ export class RoomComponent {
     };
 
     onDisableRoom() {
-        this.roomService.disableRoom(this.room);
+        this.roomService.disableRoom(this.room());
     }
 
     onEnableRoom() {
-        this.roomService.enableRoom(this.room);
+        this.roomService.enableRoom(this.room());
     }
 
     onAddExceptions(exceptions: ExceptionWorkingHours[]) {
-        this.roomService.addExceptions$([this.room.id], exceptions).subscribe((data) => {
-            const dataList: ExceptionWorkingHours[] = [];
-            data.forEach((d) => {
-                if (!dataList.map((e) => e.id).includes(d.id)) {
-                    dataList.push(d);
-                }
-            });
-            this.room.calendarExceptionEvents = [...dataList];
+        this.roomService.addExceptions$([this.room().id], exceptions).subscribe((data) => {
+            const seen = new Set<number>();
+            const dataList = data.filter((d) => !seen.has(d.id) && seen.add(d.id));
+            this.calendarExceptionEvents.set(dataList);
         });
     }
 
     onDeleteException(exception: ExceptionWorkingHours) {
-        this.roomService.deleteException$(this.room.id, exception.id).subscribe();
+        this.roomService.deleteException$(this.room().id, exception.id).subscribe(() => {
+            this.calendarExceptionEvents.update((events) => events.filter((e) => e.id !== exception.id));
+        });
     }
 }

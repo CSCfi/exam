@@ -5,7 +5,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime, WeekdayNumbers } from 'luxon';
-import { range } from 'ramda';
+import { range } from 'src/app/shared/miscellaneous/helpers';
 
 export enum REPEAT_OPTION {
     once = 'ONCE',
@@ -16,24 +16,20 @@ export enum REPEAT_OPTION {
 
 @Injectable({ providedIn: 'root' })
 export class DateTimeService {
-    private translate = inject(TranslateService);
+    private readonly translate = inject(TranslateService);
 
-    printExamDuration(exam: { duration: number }): string {
-        if (exam.duration) {
-            const h = Math.floor(exam.duration / 60);
-            const m = exam.duration % 60;
-            if (h === 0) {
-                return m + ' min';
-            } else if (m === 0) {
-                return h + ' h';
-            } else {
-                return h + ' h ' + m + ' min';
-            }
-        }
-        return '';
-    }
+    formatDuration = (minutes: number): string => {
+        if (minutes === 0) return '';
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        if (h === 0) return `${m} min`;
+        if (m === 0) return `${h} h`;
+        return `${h} h ${m} min`;
+    };
 
-    getDuration = (timestamp: string) => DateTime.fromISO(timestamp, { zone: 'UTC' }).toFormat('HH:mm');
+    // Rounded to the nearest minute, as the review listings (minuteDiff) do
+    formatDurationString = (timestamp: string) =>
+        DateTime.fromISO(timestamp, { zone: 'UTC' }).plus({ seconds: 30 }).startOf('minute').toFormat('HH:mm');
 
     formatInTimeZone = (date: Date, tz: string) => DateTime.fromJSDate(date, { zone: tz }).toISO();
 
@@ -54,8 +50,8 @@ export class DateTimeService {
         const lang = this.translate.getCurrentLang();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options: Intl.DateTimeFormatOptions = { weekday: length };
-        return range(1, 7)
-            .concat(0)
+        return range(1, 6) // range is inclusive: Monday-Saturday
+            .concat(0) // Sunday last
             .map(this.getDateForWeekday)
             .map((d) => d.toLocaleDateString(locale, options));
     };
@@ -82,10 +78,12 @@ export class DateTimeService {
     getMonthNames = (): string[] => {
         const lang = this.translate.getCurrentLang();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
-        return range(1, 12)
-            .concat(0)
-            .map((m) => this.getLocalizedDateForMonth(m, locale).monthLong as string);
+        return range(1, 12).map((m) => this.getLocalizedDateForMonth(m, locale).monthLong as string);
     };
+
+    // The wall clock EXAM shows for a reservation is one hour ahead of the stored instant during
+    // DST, so displayed times (and anything ordered by them) have to be corrected the same way.
+    applyDst = (date: DateTime): DateTime => (this.isDST(date.toJSDate()) ? date.minus({ hours: 1 }) : date);
 
     isDST = (date: Date | string | number): boolean => {
         const d = new Date(date);

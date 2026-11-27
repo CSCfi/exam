@@ -3,16 +3,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import type { OnDestroy } from '@angular/core';
-import { DOCUMENT, Injectable, inject } from '@angular/core';
+import type { Signal } from '@angular/core';
+import { DOCUMENT, DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
-import type { Observable, Unsubscribable } from 'rxjs';
-import { EMPTY, Subject, defer, from, interval, of, throwError } from 'rxjs';
-import { catchError, delay, map, switchMap, tap } from 'rxjs/operators';
+import type { Observable } from 'rxjs';
+import { EMPTY, Subscription, defer, interval, of, throwError } from 'rxjs';
+import { catchError, delay, map, switchMap, tap, throwIfEmpty } from 'rxjs/operators';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
+import { StorageService } from 'src/app/shared/storage/storage.service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
@@ -24,53 +24,58 @@ interface Env {
 }
 
 @Injectable({ providedIn: 'root' })
-export class SessionService implements OnDestroy {
-    public userChange$: Observable<User | undefined>;
-    public devLogoutChange$: Observable<void>;
+export class SessionService {
+    readonly userChange: Signal<User | undefined>;
+    readonly devLogoutChange: Signal<number | undefined>;
 
-    private http = inject(HttpClient);
-    private i18n = inject(TranslateService);
-    private router = inject(Router);
-    private webStorageService = inject<WebStorageService>(SESSION_STORAGE);
-    private document = inject<Document>(DOCUMENT);
-    private modal = inject(NgbModal);
-    private toast = inject(ToastrService);
+    private readonly PING_INTERVAL: number = 30 * 1000;
+    private sessionCheckSubscription: Subscription = Subscription.EMPTY;
+    private toastTapSubscription: Subscription = Subscription.EMPTY;
+    private readonly _userChange = signal<User | undefined>(undefined);
+    private readonly _devLogoutChange = signal<number | undefined>(undefined);
 
-    private PING_INTERVAL: number = 30 * 1000;
-    private sessionCheckSubscription?: Unsubscribable;
-    private userChangeSubscription = new Subject<User | undefined>();
-    private devLogoutSubscription = new Subject<void>();
-    private customSessionExpireWarning = SessionExpireWarningComponent;
+    private readonly http = inject(HttpClient);
+    private readonly i18n = inject(TranslateService);
+    private readonly router = inject(Router);
+    private readonly Storage = inject(StorageService);
+    private readonly document = inject<Document>(DOCUMENT);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
-        this.userChange$ = this.userChangeSubscription.asObservable();
-        this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
+        this.userChange = this._userChange.asReadonly();
+        this.devLogoutChange = this._devLogoutChange.asReadonly();
+        this._userChange.set(this.getOptionalUser());
+        inject(DestroyRef).onDestroy(() => this.disableSessionCheck());
     }
 
-    ngOnDestroy() {
-        this.disableSessionCheck();
-    }
+    getUser = (): User => {
+        if (this.Storage.has('EXAM_USER')) {
+            return this.Storage.get<User>('EXAM_USER') as User;
+        }
+        throw new Error('EXAM_USER not found');
+    };
 
-    getUser = (): User => this.webStorageService.get('EXAM_USER');
+    getOptionalUser = (): User | undefined => this.Storage.get<User>('EXAM_USER');
 
     getUserName = () => {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         return user ? user.firstName + ' ' + user.lastName : '';
     };
 
     getEnv$ = (): Observable<'DEV' | 'PROD'> =>
         this.http.get<Env>('/app/settings/environment').pipe(
-            tap((env) => this.webStorageService.set('EXAM-ENV', env)),
+            tap((env) => this.Storage.set('EXAM-ENV', env)),
             map((env) => (env.isProd ? 'PROD' : 'DEV')),
         );
 
-    getEnv = (): Env | undefined => this.webStorageService.get('EXAM-ENV');
+    getEnv = (): Env | undefined => this.Storage.get<Env>('EXAM-ENV');
 
     logout(): void {
         this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe({
             next: (resp) => {
-                this.webStorageService.remove('EXAM_USER');
-                // delete this.user;
+                this.Storage.remove('EXAM_USER');
+                this._userChange.set(undefined);
                 this.onLogoutSuccess(resp);
             },
             error: (err) => this.toast.error(err),
@@ -78,19 +83,20 @@ export class SessionService implements OnDestroy {
     }
 
     getLocale = () => {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         return user ? user.lang : 'en';
     };
 
     switchLanguage(lang: string) {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         if (!user) {
             this.translate$(lang).subscribe();
         } else {
             this.http.put('/app/user/lang', { lang: lang }).subscribe({
                 next: () => {
                     user.lang = lang;
-                    this.webStorageService.set('EXAM_USER', user);
+                    this.Storage.set('EXAM_USER', user);
+                    this._userChange.set(user);
                     this.translate$(lang).subscribe();
                 },
                 error: () => this.toast.error('failed to switch language'),
@@ -105,22 +111,23 @@ export class SessionService implements OnDestroy {
     }
 
     disableSessionCheck(): void {
-        if (this.sessionCheckSubscription) {
-            this.sessionCheckSubscription.unsubscribe();
-        }
+        this.sessionCheckSubscription.unsubscribe();
+        this.toastTapSubscription.unsubscribe();
+        this.toastTapSubscription = Subscription.EMPTY;
     }
 
     checkSession = () => {
         this.http.get('/app/session', { responseType: 'text' }).subscribe({
             next: (resp) => {
                 if (resp === 'alarm') {
-                    this.toast
+                    this.toastTapSubscription.unsubscribe();
+                    this.toastTapSubscription = this.toast
                         .warning(
                             this.i18n.instant('i18n_continue_session'),
                             this.i18n.instant('i18n_session_will_expire_soon'),
                             {
                                 timeOut: 30000,
-                                toastComponent: this.customSessionExpireWarning,
+                                toastComponent: SessionExpireWarningComponent,
                                 progressBar: true,
                             },
                         )
@@ -147,7 +154,7 @@ export class SessionService implements OnDestroy {
 
     loadCourseCodePrefix$ = (): Observable<void> =>
         this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
-            tap((data) => this.webStorageService.set('COURSE_CODE_PREFIX', data.prefix)),
+            tap((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix)),
             map(() => undefined),
             catchError(() => {
                 // If course code prefix fails (e.g., 403 due to session timing), continue without it
@@ -165,25 +172,24 @@ export class SessionService implements OnDestroy {
             .pipe(
                 switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
+                // A dismissed dialog (external login, role, user agreement) completes without a user.
+                // Turn that into the undefined error handled below, which logs out.
+                throwIfEmpty(() => undefined),
                 switchMap((u) =>
-                    // Add a small delay to ensure session cookie is fully established
                     of(u).pipe(
                         delay(100),
                         switchMap(() =>
                             this.loadCourseCodePrefix$().pipe(
                                 map(() => u),
-                                catchError(() => {
-                                    // If prefix fails, continue without it (not critical)
-                                    return of(u);
-                                }),
+                                catchError(() => of(u)),
                             ),
                         ),
                     ),
                 ),
                 tap((u) => {
-                    this.webStorageService.set('EXAM_USER', u);
+                    this.Storage.set('EXAM_USER', u);
                     this.restartSessionCheck();
-                    this.userChangeSubscription.next(u);
+                    this._userChange.set(u);
                     if (u) {
                         this.toast.success(this.i18n.instant('i18n_welcome'), `${u.firstName} ${u.lastName}`, {
                             timeOut: 2000,
@@ -215,11 +221,11 @@ export class SessionService implements OnDestroy {
     translate$ = (lang: string) => this.i18n.use(lang).pipe(tap(() => (this.document.documentElement.lang = lang)));
 
     private processLogin$ = (user: User): Observable<User> => {
-        const externalLoginConfirmation$ = (u: User): Observable<User> =>
-            defer(() => (u.externalUserOrg ? this.openExernalLoginConfirmationModal$(u) : of(u)));
-        const userAgreementConfirmation$ = (u: User): Observable<User> =>
+        const externalLoginConfirmation$ = (u: User) =>
+            defer(() => (u.externalUserOrg ? this.openExternalLoginConfirmationModal$(u) : of(u)));
+        const userAgreementConfirmation$ = (u: User) =>
             defer(() => (!u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
-        const roleSelectionConfirmation$ = (u: User): Observable<User> =>
+        const roleSelectionConfirmation$ = (u: User) =>
             defer(() => (!u.loginRole ? this.openRoleSelectModal$(u) : of(u)));
         return externalLoginConfirmation$(user).pipe(
             switchMap(roleSelectionConfirmation$),
@@ -227,38 +233,25 @@ export class SessionService implements OnDestroy {
         );
     };
 
-    private openExernalLoginConfirmationModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(ExternalLoginConfirmationDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
-        modalRef.componentInstance.user = user;
-        return from(modalRef.result).pipe(map(() => user));
+    private openExternalLoginConfirmationModal$(user: User): Observable<User> {
+        const modalRef = this.modal.openRef(ExternalLoginConfirmationDialogComponent, { size: 'lg' });
+        modalRef.componentInstance.user.set(user);
+        return this.modal.result$(modalRef).pipe(map(() => user));
     }
 
     private openUserAgreementModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(EulaDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
-        return from(modalRef.result).pipe(
+        return this.modal.open$(EulaDialogComponent, { size: 'lg' }).pipe(
             switchMap(() => this.http.put('/app/users/agreement', {})),
             map(() => ({ ...user, userAgreementAccepted: true })),
         );
     }
 
     private openRoleSelectModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(SelectRoleDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'm',
-        });
-        modalRef.componentInstance.user = user;
-        return from(modalRef.result).pipe(
-            switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
-            map((role: Role) => {
+        const modalRef = this.modal.openRef(SelectRoleDialogComponent, { size: 'm' });
+        modalRef.componentInstance.user.set(user);
+        return this.modal.result$<Role>(modalRef).pipe(
+            switchMap((role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
+            map((role) => {
                 user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';
                 user.isSupport = role.name === 'SUPPORT';
@@ -310,25 +303,29 @@ export class SessionService implements OnDestroy {
     }
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
-        this.userChangeSubscription.next(undefined);
-
         this.toast.success(this.i18n.instant('i18n_logout_success'));
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();
-        this.webStorageService.clear();
+        this.Storage.clear();
         if (data && data.logoutUrl) {
             location.href = `${localLogout}?return=${data.logoutUrl}`;
         } else if (!env || env.isProd) {
             // redirect to SP-logout directly
             location.href = localLogout;
         } else {
-            // DEV logout
-            this.devLogoutSubscription.next();
+            // DEV logout - notify subscribers
+            this._devLogoutChange.set(Date.now());
         }
     }
 
     private redirect(user: User): void {
+        // The examination interceptor may already be routing this user to an exam related view
+        // (waiting room, wrong machine, ...) based on the reservation headers carried by the
+        // requests made during login. Navigating to the default landing page here would cancel
+        // that pending navigation, leaving the student on the dashboard until the next session
+        // poll picks the headers up again one PING_INTERVAL later.
+        if (this.router.currentNavigation()) return;
         const url = this.router.url.startsWith('/?') ? '/' : this.router.url;
         if (url === '/' && user.isLanguageInspector) {
             this.router.navigate(['staff/inspections']);

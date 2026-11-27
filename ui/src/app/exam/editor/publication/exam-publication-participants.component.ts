@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-owner-picker.component';
 import { ExamParticipantSelectorComponent } from './exam-participant-picker.component';
@@ -14,7 +14,6 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
 
 @Component({
     imports: [
-        FormsModule,
         NgbPopoverModule,
         TranslateModule,
         ExamParticipantSelectorComponent,
@@ -23,6 +22,7 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
         OrganisationSelectorComponent,
     ],
     selector: 'xm-exam-publication-participants',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         @if (!collaborative()) {
             <div class="row mt-2">
@@ -33,9 +33,8 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
                     <label>
                         <input
                             type="radio"
-                            [ngModel]="visibleParticipantSelector()"
-                            (ngModelChange)="visibleParticipantSelector.set($event)"
-                            value="participant"
+                            [checked]="visibleParticipantSelector() === 'participant'"
+                            (change)="visibleParticipantSelector.set('participant')"
                         />
                         {{ 'i18n_exam_participant_selector_label' | translate }}
                         <sup
@@ -48,9 +47,8 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
                     <label class="ms-2">
                         <input
                             type="radio"
-                            [ngModel]="visibleParticipantSelector()"
-                            (ngModelChange)="visibleParticipantSelector.set($event)"
-                            value="pre-participant"
+                            [checked]="visibleParticipantSelector() === 'pre-participant'"
+                            (change)="visibleParticipantSelector.set('pre-participant')"
                         />
                         {{ 'i18n_exam_pre_participant_selector_label' | translate }}
                         <sup
@@ -64,12 +62,18 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
             </div>
             <!-- Exam participants -->
             @if (visibleParticipantSelector() === 'participant') {
-                <xm-exam-participant-selector [exam]="exam()"></xm-exam-participant-selector>
+                <xm-exam-participant-selector
+                    [exam]="exam()"
+                    (participantsChange)="participantsChanged($event)"
+                ></xm-exam-participant-selector>
             }
 
             <!-- Exam pre-participants -->
             @if (visibleParticipantSelector() === 'pre-participant') {
-                <xm-exam-pre-participant-selector [exam]="exam()"></xm-exam-pre-participant-selector>
+                <xm-exam-pre-participant-selector
+                    [exam]="exam()"
+                    (participantsChange)="participantsChanged($event)"
+                ></xm-exam-pre-participant-selector>
             }
         }
         @if (collaborative()) {
@@ -79,7 +83,12 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
     `,
 })
 export class ExamPublicationParticipantsComponent {
-    collaborative = input(false);
-    exam = input.required<Exam>();
-    visibleParticipantSelector = signal('participant');
+    readonly collaborative = input(false);
+    readonly exam = input.required<Exam>();
+    readonly participantsChange = output<ExamEnrolment[]>();
+    readonly visibleParticipantSelector = signal('participant');
+
+    participantsChanged(event: ExamEnrolment[]) {
+        this.participantsChange.emit(event);
+    }
 }

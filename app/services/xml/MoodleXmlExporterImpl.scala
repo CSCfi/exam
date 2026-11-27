@@ -1,0 +1,147 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package services.xml
+
+import models.questions.QuestionEvaluationType
+import models.questions.{MultipleChoiceOption, Question, Tag}
+import org.jsoup.Jsoup
+
+import java.io.{File, OutputStream, OutputStreamWriter}
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.util.Base64
+import scala.io.Source
+import scala.jdk.CollectionConverters.*
+import scala.xml.*
+import scala.xml.parsing.ConstructingParser
+
+class MoodleXmlExporterImpl extends MoodleXmlExporter:
+
+  private def moodleType(question: Question): String = question.`type`.toString match
+    case "EssayQuestion"     => "essay"
+    case "ClozeTestQuestion" => "cloze"
+    case _                   => "multichoice"
+
+  private def Essay: Node = <answer fraction="0"><text></text></answer>
+
+  private def convertMultiChoiceOption(option: MultipleChoiceOption): Node =
+    val fraction = if option.correctOption then 100 else 0
+    <answer fraction={fraction.toString}>
+        <text>{option.option}</text>
+    </answer>
+
+  private def convertWeightedMultiChoiceOption(
+      option: MultipleChoiceOption,
+      maxScore: Double
+  ): Node =
+    val fraction = option.defaultScore / maxScore * 100
+    <answer fraction={fraction.toString}>
+        <text>{option.option}</text>
+    </answer>
+
+  private def convertByType(question: Question): NodeBuffer = question.`type`.toString match
+    case "MultipleChoiceQuestion" =>
+      val config =
+        <shuffleanswers>1</shuffleanswers>
+        <single>true</single>
+        <answernumbering>none</answernumbering>
+      val options = question.options.asScala.map(convertMultiChoiceOption)
+      config ++= options
+    case "WeightedMultipleChoiceQuestion" =>
+      val config =
+        <shuffleanswers>1</shuffleanswers>
+        <single>false</single>
+        <answernumbering>none</answernumbering>
+      val options =
+        question.options.asScala.map(o =>
+          convertWeightedMultiChoiceOption(o, question.getMaxDefaultScore)
+        )
+      config ++= options
+    case "EssayQuestion" =>
+      val criteria = question.defaultEvaluationCriteria match
+        case ec if isEmpty(ec) => PCData("")
+        case ec                => PCData(ec)
+      val config =
+        <graderinfo format="html">
+          <text>
+            {criteria}
+          </text>
+        </graderinfo>
+        <attachments>1</attachments>
+      config ++= Essay
+
+  private def stripHtml(html: String): String = Jsoup.parse(html).text
+
+  private def isEmpty(x: String) = Option(x).forall(_.isEmpty)
+
+  private def convert(tag: Tag): Node = <tag><text>{tag.name}</text></tag>
+
+  private def maxScore(question: Question): Double =
+    if question.defaultEvaluationType == QuestionEvaluationType.Selection then 1
+    else question.getMaxDefaultScore
+
+  private def attachment(question: Question): Option[(String, Node)] =
+    Option(question.attachment).map { a =>
+      val file     = new File(a.filePath)
+      val data     = Files.readAllBytes(file.toPath)
+      val b64      = Base64.getEncoder.encodeToString(data)
+      val filename = a.fileName
+      val ref =
+        s"""<br />Attachment: <a href="@@PLUGINFILE@@/$filename">${filename.toUpperCase}</a>"""
+      (ref, <file name={a.fileName} path="/" encoding="base64">{b64}</file>)
+    }
+
+  private def convert(question: Question): Node =
+    val text = question.question.replace(" class=\"math-tex\"", "")
+    val instructions = question.defaultAnswerInstructions match
+      case i if isEmpty(i) => ""
+      case i               => s"<br />Answer instructions: $i"
+    val wc = Option(question.defaultExpectedWordCount)
+      .map(c => s"<br /> Expected word count: $c")
+      .getOrElse("")
+    val att          = attachment(question)
+    val ref          = att.map(_._1).getOrElse("")
+    val questionText = s"$text $instructions $wc $ref"
+    val name         = stripHtml(text)
+    <question type={moodleType(question)}>
+        <name>
+            <text>{name.take(30)}...</text>
+        </name>
+        <questiontext format="html">
+            <text>
+                {PCData(questionText)}
+            </text>
+            {att.map(_._2).getOrElse("")}
+        </questiontext>
+        <defaultgrade>{maxScore(question)}</defaultgrade>
+        <tags>
+            {question.tags.asScala.map(convert)}
+        </tags>
+        {convertByType(question)}
+    </question>
+
+  def convert(questions: Seq[Question]): String =
+    val quiz: Node =
+      <quiz>
+          {questions.map(convert)}
+      </quiz>
+    val pp = new PrettyPrinter(80, 4)
+    val doc = ConstructingParser
+      .fromSource(Source.fromString(pp.format(quiz)), preserveWS = true)
+      .document()
+      .docElem
+    val writer = new java.io.StringWriter
+    XML.write(writer, doc, "utf-8", xmlDecl = true, doctype = null)
+    writer.close()
+    writer.toString
+
+  override def writeToStream(questions: Seq[Question])(os: OutputStream): Unit =
+    val quiz: Node =
+      <quiz>
+          {questions.map(convert)}
+      </quiz>
+    val writer = new OutputStreamWriter(os, StandardCharsets.UTF_8)
+    XML.write(writer, quiz, "utf-8", xmlDecl = true, doctype = null)
+    writer.flush()
