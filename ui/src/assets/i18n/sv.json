@@ -619,6 +619,7 @@
     "i18n_autoevaluation_instructions": "Definiera bedömningskriterierna genom att ge procentandel av helhetspoängen som krävs för ett visst vitsord. För skalan Godkänd/underkänd räcker det att ge procentandelen för godkänt. Poängen är nedre gräns för vitsordet. Du kan inte ge samma procenttal för flera vitsord.  Observera att systemet inte tar ställning till vitsordsordens ordning, det måste du själv kontrollera.",
     "i18n_percentage": "Procent av vitsordets totalpoäng",
     "i18n_autoevaluation_percentages_not_unique": "Samma procenttal kan inte ges till två vitsord",
+    "i18n_value_must_be_between_0_and_100": "Värdet måste vara mellan 0 och 100",
     "i18n_autoevaluation_release_type": "Tidpunkten då den automatiska bedömningen delges studerande",
     "i18n_release_type_immediate": "Genast då tentamenstillfället är avslutat",
     "i18n_release_type_given_date": "Ett visst datum",
