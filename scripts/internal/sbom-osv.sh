@@ -5,7 +5,7 @@
 #
 # Checks the dependency SBOM of a branch or release against OSV.dev.
 #   scripts/internal/sbom-osv.sh                  # current branch
-#   scripts/internal/sbom-osv.sh release/7.0
+#   scripts/internal/sbom-osv.sh master
 #   scripts/internal/sbom-osv.sh 7.0.1            # SBOM attached to a release
 #   scripts/internal/sbom-osv.sh dev --format markdown
 # Branch SBOMs come from the latest successful Build run (CI keeps them for 7 days).
