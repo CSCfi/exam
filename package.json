@@ -56,21 +56,21 @@
     "@angular-eslint/eslint-plugin-template": "^21.4.0",
     "@angular-eslint/schematics": "^21.4.0",
     "@angular-eslint/template-parser": "^21.4.0",
-    "@angular/build": "^21.2.24",
-    "@angular/cli": "^21.2.24",
+    "@angular/build": "^21.2.31",
+    "@angular/cli": "^21.2.31",
     "@angular/compiler-cli": "^21.2.26",
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^10.0.1",
     "@types/luxon": "^3.7.5",
-    "@typescript-eslint/eslint-plugin": "^8.70.1",
-    "@typescript-eslint/parser": "^8.70.1",
-    "eslint": "^10.11.0",
+    "@typescript-eslint/eslint-plugin": "^8.74.0",
+    "@typescript-eslint/parser": "^8.74.0",
+    "eslint": "^10.15.0",
     "eslint-plugin-no-relative-import-paths": "^1.7.3",
     "jsdom": "^27.4.0",
     "lefthook": "^1.13.6",
     "prettier": "^3.9.9",
     "prettier-plugin-organize-imports": "^4.3.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   }
 }
