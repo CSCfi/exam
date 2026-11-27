@@ -14,13 +14,13 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
     template: `@if (inspection().user?.id !== user().id) {
             <span>
                 @if (inspection().ready) {
-                    <span class="text-success">
+                    <span class="xm-text-success">
                         {{ inspection().user.firstName }} {{ inspection().user.lastName }}
                         {{ 'i18n_ready' | translate }}</span
                     >
                 }
                 @if (!inspection().ready) {
-                    <span class="text-danger">
+                    <span class="xm-text-danger">
                         {{ inspection().user.firstName }} {{ inspection().user.lastName }}
                         {{ 'i18n_in_progress' | translate }}</span
                     >

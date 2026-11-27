@@ -12,34 +12,34 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="question-score">
             <!-- grade -->
             @if (sectionQuestion().question.type === 'MultipleChoiceQuestion') {
-                <span class="text-nowrap text-muted small">
+                <span class="text-nowrap xm-text-muted small">
                     <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                         {{ scoreMultipleChoiceAnswer(true) }}
                     </span>
                     @if (hasForcedScore()) {
-                        <span class="text-danger">{{ sectionQuestion().forcedScore }}</span>
+                        <span class="xm-text-danger">{{ sectionQuestion().forcedScore }}</span>
                     }
                     / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
                 </span>
             }
             @if (sectionQuestion().question.type === 'WeightedMultipleChoiceQuestion') {
-                <span class="text-nowrap text-muted small">
+                <span class="text-nowrap xm-text-muted small">
                     <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                         {{ scoreWeightedMultipleChoiceAnswer(true) }}
                     </span>
                     @if (hasForcedScore()) {
-                        <span class="text-danger">{{ sectionQuestion().forcedScore }}</span>
+                        <span class="xm-text-danger">{{ sectionQuestion().forcedScore }}</span>
                     }
                     / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
                 </span>
             }
             @if (sectionQuestion().question.type === 'ClaimChoiceQuestion') {
-                <span class="text-nowrap text-muted small">
+                <span class="text-nowrap xm-text-muted small">
                     <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                         {{ scoreClaimChoiceAnswer(true) }}
                     </span>
                     @if (hasForcedScore()) {
-                        <span class="text-danger">{{ sectionQuestion().forcedScore }}</span>
+                        <span class="xm-text-danger">{{ sectionQuestion().forcedScore }}</span>
                     }
                     / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
                 </span>
@@ -84,7 +84,7 @@ SPDX-License-Identifier: EUPL-1.2
             }
             @if (participation().exam.executionType.type !== 'MATURITY') {
                 <div class="make-inline question-grade">
-                    <span class="text text-danger forced-score-title"
+                    <span class="text xm-text-danger forced-score-title"
                         >{{ 'i18n_set_forced_score' | translate | uppercase }}
                         <small
                             >[{{ getMinimumOptionScore() }} &hellip;

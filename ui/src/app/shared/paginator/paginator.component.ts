@@ -14,7 +14,7 @@ import { range as _range } from 'src/app/shared/miscellaneous/helpers';
             </li>
             @for (n of range(); track $index) {
                 <li [class.active]="isCurrent(n)" (click)="setPage(n)" (keyup.enter)="setPage(n)">
-                    <a tabindex="0" class="fs-6 text badge">{{ n + 1 }}</a>
+                    <a tabindex="0" class="xm-text-md text badge">{{ n + 1 }}</a>
                 </li>
             }
             <li [class.disabled]="nextPageDisabled()">

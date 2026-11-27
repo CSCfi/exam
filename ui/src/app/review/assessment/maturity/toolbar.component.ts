@@ -63,7 +63,7 @@ import { MaturityService } from './maturity.service';
                 @let hintText = hint(exam()) || '';
                 @if (hintText) {
                     <div class="hint">
-                        <small class="text-danger">
+                        <small class="xm-text-danger">
                             <i class="bi-exclamation-circle me-1"></i>{{ hintText | translate }}
                         </small>
                     </div>

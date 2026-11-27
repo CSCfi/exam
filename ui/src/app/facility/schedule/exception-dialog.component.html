@@ -10,11 +10,11 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="modal-body xm-stack xm-gap-2">
     <div>
         @if (!outOfService()) {
-            <div class="text-success">
+            <div class="xm-text-success">
                 {{ 'i18n_making_room_available' | translate }}
             </div>
         } @else {
-            <div class="text-danger">
+            <div class="xm-text-danger">
                 {{ 'i18n_making_room_out_of_service' | translate }}
             </div>
         }

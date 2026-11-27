@@ -8,7 +8,7 @@
 @use '../shared/grid';
 
 .reservation-search-form-label {
-    font-size: 0.75rem;
+    font-size: var(--xm-font-size-xs);
     color: var(--xm-color-text-subtle);
     text-transform: uppercase;
 }

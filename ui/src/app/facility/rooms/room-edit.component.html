@@ -16,7 +16,7 @@ SPDX-License-Identifier: EUPL-1.2
                     {{ room()?.name || 'i18n_no_name' | translate }}
                     <button
                         type="button"
-                        class="btn btn-link btn-lg text-body width-auto"
+                        class="btn btn-link btn-lg xm-text-body width-auto"
                         (click)="toggleShowName()"
                         triggers="mouseenter:mouseleave"
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -32,7 +32,7 @@ SPDX-License-Identifier: EUPL-1.2
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                         ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
                     >
-                        <i class="text-danger bi-trash"></i>
+                        <i class="xm-text-danger bi-trash"></i>
                     </button>
                 </span>
                 <span [hidden]="showName()">

@@ -139,7 +139,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </td>
                 }
                 @if (r.enrolment.exam.external) {
-                    <td class="reservation-search text-primary">
+                    <td class="reservation-search xm-text-info">
                         {{ 'i18n_exam_status_external' | translate }}
                     </td>
                 }
@@ -151,7 +151,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </td>
                 }
                 @if (r.enrolment.exam.external) {
-                    <td class="reservation-search text-primary">
+                    <td class="reservation-search xm-text-info">
                         {{ 'i18n_exam_status_external' | translate }}
                     </td>
                 }
@@ -168,7 +168,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </td>
                 }
                 @if (r.enrolment.exam.external) {
-                    <td class="reservation-search text-primary">
+                    <td class="reservation-search xm-text-info">
                         {{ 'i18n_exam_status_external' | translate }}
                     </td>
                 }
@@ -196,7 +196,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <br />{{ r.machine?.name }}
                     }
                     @if (!r.externalUserRef && r.enrolment.exam.implementation !== 'AQUARIUM') {
-                        <span><strong class="text text-primary">BYOD</strong></span>
+                        <span><strong class="text xm-text-info">BYOD</strong></span>
                     }
                 </td>
                 <td class="reservation-search" [class]="getStateClass(r)">
@@ -216,7 +216,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 </button>
                                 <div ngbDropdownMenu [ariaLabelledByElements]="[actionsTrigger]">
                                     @if (isAdminView() && canRemoveReservation(r)) {
-                                        <button ngbDropdownItem class="text-danger" (click)="removeReservation(r)">
+                                        <button ngbDropdownItem class="xm-text-danger" (click)="removeReservation(r)">
                                             {{ 'i18n_remove_reservation' | translate }}
                                         </button>
                                     }
@@ -241,7 +241,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 </div>
                             </div>
                         } @else {
-                            <span class="text-muted">&ndash;</span>
+                            <span class="xm-text-muted">&ndash;</span>
                         }
                     </td>
                 }

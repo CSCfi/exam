@@ -36,7 +36,7 @@ export type CalendarReservationChoice = {
                     <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" [hidden]="!reservation()" />
                 </header>
                 @if (!reservation()) {
-                    <p class="reservation-confirm-pending-hint small text-muted" role="status">
+                    <p class="reservation-confirm-pending-hint small xm-text-muted" role="status">
                         {{ 'i18n_calendar_reservation_pending_hint' | translate }}
                     </p>
                 }

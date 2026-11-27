@@ -25,7 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="xm-stack xm-gap-2" id="attachment">
             @if (showWarning()) {
                 <div class="xm-icon-text">
-                    <i class="bi-exclamation-circle text-danger"></i>
+                    <i class="bi-exclamation-circle xm-text-danger"></i>
                     <span>{{ 'i18n_shared_question_property_info' | translate }}</span>
                 </div>
             }
@@ -68,12 +68,12 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             @if (attachment() && !attachment()?.removed && hasPendingUpload()) {
                 <div class="xm-icon-text">
-                    <i class="bi-info-circle text-primary" aria-hidden="true"></i>
+                    <i class="bi-info-circle xm-text-info" aria-hidden="true"></i>
                     <span>{{ 'i18n_attachment_pending_save' | translate }}</span>
                 </div>
             } @else if (attachment()?.removed) {
                 <div class="xm-cluster">
-                    <i class="bi-info-circle text-primary" aria-hidden="true"></i>
+                    <i class="bi-info-circle xm-text-info" aria-hidden="true"></i>
                     <span>{{ 'i18n_attachment_pending_removal' | translate }}</span>
                     <button type="button" class="btn btn-link p-0" (click)="undoRemoveQuestionAttachment()">
                         {{ 'i18n_undo_attachment_removal' | translate }}

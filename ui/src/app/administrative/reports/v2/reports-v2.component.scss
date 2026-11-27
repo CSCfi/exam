@@ -9,7 +9,7 @@
 
 .table {
     white-space: nowrap;
-    font-size: 0.875rem;
+    font-size: var(--xm-font-size-sm);
 
     th {
         background-color: var(--xm-color-surface-muted);
@@ -34,7 +34,7 @@
 
             i {
                 margin-left: 0.5rem;
-                font-size: 0.8rem;
+                font-size: var(--xm-font-size-xs);
             }
         }
     }
@@ -55,7 +55,7 @@
     .btn-link {
         text-decoration: none;
         font-weight: bold;
-        font-size: 0.8rem;
+        font-size: var(--xm-font-size-xs);
 
         &:hover {
             text-decoration: underline;

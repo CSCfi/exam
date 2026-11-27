@@ -94,8 +94,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <td>
                                 @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
                                     <div
-                                        [class.text-success]="inspection.ready"
-                                        [class.text-danger]="!inspection.ready"
+                                        [class.xm-text-success]="inspection.ready"
+                                        [class.xm-text-danger]="!inspection.ready"
                                     >
                                         <span
                                             [class.bold]="
@@ -115,7 +115,7 @@ SPDX-License-Identifier: EUPL-1.2
                                     </div>
                                 }
                             </td>
-                            <td class="text-success">
+                            <td class="xm-text-success">
                                 {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                             </td>
                             <td>

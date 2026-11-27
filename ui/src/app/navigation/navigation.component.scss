@@ -62,7 +62,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         padding-left: 1.5em;
         border-left: $border-dark;
         border-radius: 0;
-        font-size: 1rem;
+        font-size: var(--xm-font-size-md);
         color: $nav-text;
         letter-spacing: 0.27px;
         height: auto;
@@ -207,7 +207,7 @@ $border-green: 3px solid shared.$exam-dark-green;
 
     .menu-item {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--xm-font-size-md);
         color: $nav-text;
         letter-spacing: 0.27px;
         line-height: 1.125rem;
@@ -226,7 +226,7 @@ $border-green: 3px solid shared.$exam-dark-green;
             margin-left: 20px;
             padding-left: 0;
         }
-        font-size: 0.875rem;
+        font-size: var(--xm-font-size-sm);
         color: var(--xm-color-text-inverse);
         letter-spacing: 0.27px;
         line-height: 1.125rem;
@@ -299,7 +299,7 @@ $border-green: 3px solid shared.$exam-dark-green;
         padding: 0 0.65em 0 0.75em;
         border: 0;
         border-left: 2px solid color-mix(in srgb, var(--xm-color-surface) 15%, transparent);
-        font-size: 0.875rem;
+        font-size: var(--xm-font-size-sm);
         color: color-mix(in srgb, var(--xm-grey-100) 82%, transparent);
         letter-spacing: 0.22px;
         line-height: 1.25;

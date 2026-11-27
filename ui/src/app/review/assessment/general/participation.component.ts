@@ -17,14 +17,14 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
         <div>{{ participation().started | date: 'dd.MM.yyyy' }}</div>
         <div>
             <span
-                [class.text-danger]="participation().exam.state === 'ABORTED'"
-                [class.text-success]="participation().exam.state !== 'ABORTED'"
+                [class.xm-text-danger]="participation().exam.state === 'ABORTED'"
+                [class.xm-text-success]="participation().exam.state !== 'ABORTED'"
             >
                 {{ 'i18n_exam_status_' + participation().exam.state | lowercase | translate }}
             </span>
         </div>
         <div class="general-info-title" [hidden]="hideGrade()">
-            {{ 'i18n_grade' | translate }}:<span class="text-success ms-2">{{ translateGrade() }}</span>
+            {{ 'i18n_grade' | translate }}:<span class="xm-text-success ms-2">{{ translateGrade() }}</span>
         </div>
         @if (!hideAnswerLink()) {
             <div class="xm-link">

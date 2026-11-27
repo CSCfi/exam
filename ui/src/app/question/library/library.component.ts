@@ -103,7 +103,7 @@ type FileResult = { errorCount: number; successCount: number };
                             </ul>
                         </span>
                         @if (selections().length === 0) {
-                            <small class="text-muted">{{ 'i18n_choose_atleast_one' | translate }}</small>
+                            <small class="xm-text-muted">{{ 'i18n_choose_atleast_one' | translate }}</small>
                         } @else {
                             <small>{{ selections().length }} {{ 'i18n_questions_selected' | translate }}</small>
                         }

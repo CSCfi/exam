@@ -12,12 +12,12 @@ SPDX-License-Identifier: EUPL-1.2
         <header>
             <h4>{{ exam().name }}</h4>
             @if (!exam().reservationMade && exam().alreadyEnrolled && !exam().noTrialsLeft) {
-                <span class="text-danger">
+                <span class="xm-text-danger">
                     {{ 'i18n_state_needs_reservation_title' | translate }}
                 </span>
             }
             @if (exam().reservationMade) {
-                <span class="text-success">
+                <span class="xm-text-success">
                     {{ 'i18n_state_ready' | translate }}
                 </span>
             }
@@ -28,7 +28,7 @@ SPDX-License-Identifier: EUPL-1.2
                     {{ 'i18n_enroll_to_exam' | translate }}
                 </button>
                 @if (getExpiration()) {
-                    <span class="text-danger">
+                    <span class="xm-text-danger">
                         {{ 'i18n_exam_period_over' | translate }}
                     </span>
                 }

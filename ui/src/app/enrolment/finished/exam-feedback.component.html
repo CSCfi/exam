@@ -94,7 +94,7 @@ SPDX-License-Identifier: EUPL-1.2
         }
         @if (assessment().assessmentInfo) {
             <dt class="xm-details-wide">
-                <i class="bi-exclamation-circle text-danger"></i>
+                <i class="bi-exclamation-circle xm-text-danger"></i>
                 {{ 'i18n_additional_info_for_student' | translate }}:
             </dt>
             <dd class="xm-details-wide">{{ assessment().assessmentInfo }}</dd>
@@ -104,7 +104,7 @@ SPDX-License-Identifier: EUPL-1.2
             (assessment().state === 'GRADED_LOGGED' || assessment().state === 'ARCHIVED') &&
             assessment().gradingType !== 'NOT_GRADED'
         ) {
-            <dt class="xm-details-wide fw-bold">{{ 'i18n_examination_answer' | translate }}</dt>
+            <dt class="xm-details-wide xm-text-bold">{{ 'i18n_examination_answer' | translate }}</dt>
             <dd class="xm-details-wide">
                 @if (assessmentWithAnswers()) {
                     <button class="btn btn-outline-secondary" (keydown.enter)="showAnswers()" (click)="showAnswers()">

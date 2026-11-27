@@ -39,7 +39,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                 }
             </h2>
             @if (exam().alreadyEnrolled && !exam().reservationMade) {
-                <p class="text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</p>
+                <p class="xm-text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</p>
             }
             <dl class="xm-details">
                 @if (!collaborative() && exam().course) {

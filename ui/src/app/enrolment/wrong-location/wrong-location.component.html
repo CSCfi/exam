@@ -10,7 +10,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (enrolment() && reservation() && (cause() === 'unknown' || currentMachine())) {
         <div class="xm-stack xm-gap-4">
             <div class="alert alert-danger location-alert" role="alert">
-                <i class="bi bi-exclamation-triangle-fill fs-4 lh-1" aria-hidden="true"></i>
+                <i class="bi bi-exclamation-triangle-fill xm-text-2xl lh-1" aria-hidden="true"></i>
                 <div class="xm-stack xm-gap-2">
                     <table class="location-table">
                         <thead>
@@ -49,7 +49,7 @@ SPDX-License-Identifier: EUPL-1.2
                             </tr>
                         </tbody>
                     </table>
-                    <p class="fw-bold">{{ 'i18n_logout_and_login_elsewhere' | translate }}</p>
+                    <p class="xm-text-bold">{{ 'i18n_logout_and_login_elsewhere' | translate }}</p>
                     <button type="button" class="btn btn-danger logout" (click)="logout()">
                         <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>
                         {{ 'i18n_logout' | translate }}
@@ -58,27 +58,27 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
 
             <section class="xm-study-item-container--inactive xm-stack">
-                <h2 class="fs-5">
+                <h2 class="xm-text-xl">
                     {{ enrolment()!.exam.name }}
                     @if (enrolment()?.exam?.course) {
                         - <xm-course-code [course]="enrolment()!.exam.course!"></xm-course-code>
                     }
                 </h2>
                 <dl class="xm-details">
-                    <dt class="text-muted">{{ 'i18n_course_name' | translate }}:</dt>
+                    <dt class="xm-text-muted">{{ 'i18n_course_name' | translate }}:</dt>
                     <dd>{{ enrolment()!.exam.course?.name }}</dd>
 
-                    <dt class="text-muted">{{ 'i18n_exam_duration' | translate }}:</dt>
+                    <dt class="xm-text-muted">{{ 'i18n_exam_duration' | translate }}:</dt>
                     <dd>{{ printExamDuration() }}</dd>
 
-                    <dt class="text-muted">{{ 'i18n_reservation_time' | translate }}:</dt>
+                    <dt class="xm-text-muted">{{ 'i18n_reservation_time' | translate }}:</dt>
                     <dd>
                         {{ reservation()! | roomTime: 'startAt' : 'dd.MM.yyyy' }} {{ occasion().startAt }} -
                         {{ occasion().endAt }} ({{ reservation()!.machine.room.localTimezone }})
                     </dd>
 
                     @if (enrolment()!.exam.enrollInstruction) {
-                        <dt class="text-muted">{{ 'i18n_instructions' | translate }}:</dt>
+                        <dt class="xm-text-muted">{{ 'i18n_instructions' | translate }}:</dt>
                         <dd>
                             <button type="button" class="btn btn-link p-0 align-baseline" (click)="showInstructions()">
                                 {{ 'i18n_view' | translate }}
@@ -86,7 +86,7 @@ SPDX-License-Identifier: EUPL-1.2
                         </dd>
                     }
 
-                    <dt class="text-muted">{{ 'i18n_teachers' | translate }}:</dt>
+                    <dt class="xm-text-muted">{{ 'i18n_teachers' | translate }}:</dt>
                     <dd>
                         <xm-teacher-list [exam]="enrolment()!.exam"></xm-teacher-list>
                     </dd>

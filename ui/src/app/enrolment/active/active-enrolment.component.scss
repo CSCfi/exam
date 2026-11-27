@@ -25,7 +25,7 @@
     }
 
     a {
-        font-size: 1.25rem;
+        font-size: var(--xm-font-size-xl);
         color: shared.$exam-blue;
         text-decoration: none;
     }
@@ -33,7 +33,7 @@
 
 .exam-ready {
     color: var(--xm-color-brand); //green-new
-    font-size: 1rem !important; // TODO: remove importance
+    font-size: var(--xm-font-size-md) !important; // TODO: remove importance
 }
 
 /* Padding inside the collapsing element animates with its height, unlike margins outside it */

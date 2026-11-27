@@ -46,7 +46,7 @@ import { SessionService } from 'src/app/session/session.service';
                         [id]="'flow-question-' + r.question.id"
                         [innerHtml]="r.question.question | slice: 0 : 50"
                     ></div>
-                    <div [class.text-success]="isFinalized(r)" [class.text-danger]="!isFinalized(r)">
+                    <div [class.xm-text-success]="isFinalized(r)" [class.xm-text-danger]="!isFinalized(r)">
                         {{ r.answers.length - getAssessedAnswerCount(r) }} / {{ r.answers.length }}
                     </div>
                 </div>

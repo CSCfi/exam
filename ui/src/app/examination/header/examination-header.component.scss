@@ -63,10 +63,10 @@
     flex: 1;
     min-width: 0;
     color: var(--xm-grey-100);
-    font-size: 1.25rem;
+    font-size: var(--xm-font-size-xl);
 
     span {
-        font-size: 0.9375rem;
+        font-size: var(--xm-font-size-sm);
     }
 }
 

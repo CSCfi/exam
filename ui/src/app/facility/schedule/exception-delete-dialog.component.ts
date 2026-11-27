@@ -18,12 +18,12 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
                     {{ message() }}
                 </div>
                 @if (exception()?.outOfService) {
-                    <div class="text-danger">
+                    <div class="xm-text-danger">
                         {{ 'i18n_room_out_of_service' | translate }}
                     </div>
                 }
                 @if (!exception()?.outOfService) {
-                    <div class="text-info">
+                    <div class="xm-text-info">
                         {{ 'i18n_room_in_service' | translate }}
                     </div>
                 }

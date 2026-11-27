@@ -13,9 +13,9 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     template: `
         @if (queryParams()) {
             <dl class="xm-details">
-                <dt class="fw-bold">{{ 'i18n_total_reservations' | translate }}:</dt>
+                <dt class="xm-text-bold">{{ 'i18n_total_reservations' | translate }}:</dt>
                 <dd>{{ data().appearances }}</dd>
-                <dt class="fw-bold">{{ 'i18n_total_no_shows' | translate }}:</dt>
+                <dt class="xm-text-bold">{{ 'i18n_total_no_shows' | translate }}:</dt>
                 <dd>{{ data().noShows }}</dd>
             </dl>
         }

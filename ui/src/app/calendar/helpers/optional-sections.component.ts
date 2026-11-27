@@ -31,7 +31,7 @@ import type { ExamInfo, SelectableSection } from 'src/app/calendar/calendar.mode
                     }
                     @if (section.optional) {
                         <div class="xm-cluster section-choice">
-                            <div class="text text-success">
+                            <div class="text xm-text-success">
                                 {{ 'i18n_optional_section' | translate | uppercase }}
                             </div>
                             <div class="form-check mb-0">

@@ -36,7 +36,7 @@
 
 .section-box-title {
     color: var(--xm-color-text);
-    font-size: 1rem;
+    font-size: var(--xm-font-size-md);
     max-width: 100%;
 
     &.arrow {
@@ -59,7 +59,7 @@
     display: inline;
     margin: 0;
     line-height: 1.5em;
-    font-size: 1.375rem;
+    font-size: var(--xm-font-size-2xl);
     color: var(--xm-color-text);
 
     p {
@@ -68,7 +68,7 @@
     }
 }
 .attachment-name {
-    font-size: 0.75rem;
+    font-size: var(--xm-font-size-xs);
     color: var(--xm-color-text-muted);
 }
 .info-question-separator {

@@ -147,13 +147,13 @@ SPDX-License-Identifier: EUPL-1.2
                         {{ 'i18n_choose' | translate }}
                     </button>
                     <div ngbDropdownMenu class="xm-scrollable-menu" style="max-height: 300px; overflow-y: auto">
-                        <div class="menu-row p-2 border-bottom sticky-top bg-white">
+                        <div class="menu-row p-2 border-bottom sticky-top xm-bg-surface">
                             <button type="button" class="btn btn-sm btn-link p-0" (click)="showAllColumns()">
                                 {{ 'i18n_show_all' | translate }}
                             </button>
                             <button
                                 type="button"
-                                class="btn btn-sm btn-link p-0 text-danger"
+                                class="btn btn-sm btn-link p-0 xm-text-danger"
                                 (click)="hideAllColumns()"
                             >
                                 {{ 'i18n_hide_all' | translate }}
@@ -163,7 +163,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <button type="button" ngbDropdownItem (click)="toggleColumn(opt.id)" class="menu-row">
                                 <span>{{ opt.label || '' | translate }}</span>
                                 @if (visibleColumns().includes(opt.id || '')) {
-                                    <i class="bi-check text-primary"></i>
+                                    <i class="bi-check xm-text-info"></i>
                                 }
                             </button>
                         }

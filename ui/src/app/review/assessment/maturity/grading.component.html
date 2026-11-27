@@ -10,8 +10,8 @@ SPDX-License-Identifier: EUPL-1.2
         <div>{{ 'i18n_language_inspections' | translate }}:</div>
         <div class="info-wide">
             <span
-                [class.text-success]="exam().languageInspection.approved"
-                [class.text-danger]="!exam().languageInspection.approved"
+                [class.xm-text-success]="exam().languageInspection.approved"
+                [class.xm-text-danger]="!exam().languageInspection.approved"
             >
                 @if (exam().languageInspection.approved) {
                     <span>

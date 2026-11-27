@@ -23,7 +23,7 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
         </div>
         <div class="modal-body xm-stack">
             @if (exam()) {
-                <p class="text-muted">
+                <p class="xm-text-muted">
                     {{ 'i18n_exam_duration' | translate }}: {{ exam()!.duration }}
                     {{ 'i18n_minutes' | translate }}
                 </p>
@@ -32,11 +32,11 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
                 @for (config of configs(); track config) {
                     <div class="list-group-item xm-split xm-gap-3">
                         <div class="xm-stack xm-gap-1">
-                            <div class="fw-semibold">
+                            <div class="xm-text-bold">
                                 {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}
                             </div>
                             @if (config.examinationEvent.description) {
-                                <small class="text-muted">{{ config.examinationEvent.description }}</small>
+                                <small class="xm-text-muted">{{ config.examinationEvent.description }}</small>
                             }
                             @if (config.id && reasons()[config.id]) {
                                 <div class="alert alert-warning py-1 px-2">

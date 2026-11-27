@@ -33,7 +33,7 @@ const ICONS: Record<ToastType, string> = {
                             <i class="bi bi-{{ icons[t.type] }} xm-toast-icon" aria-hidden="true"></i>
                             <div>
                                 @if (t.title) {
-                                    <div class="fw-bold">{{ t.title }}</div>
+                                    <div class="xm-text-bold">{{ t.title }}</div>
                                 }
                                 <div>{{ t.message }}</div>
                             </div>
@@ -102,7 +102,7 @@ const ICONS: Record<ToastType, string> = {
                 --bs-toast-bg: #f89406;
             }
             .xm-toast-icon {
-                font-size: 1.5rem;
+                font-size: var(--xm-font-size-2xl);
                 line-height: 1;
             }
             .xm-toast-progress {

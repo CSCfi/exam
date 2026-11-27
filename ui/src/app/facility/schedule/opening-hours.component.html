@@ -41,9 +41,9 @@ SPDX-License-Identifier: EUPL-1.2
             }
             @if (dwh.editing) {
                 <div class="xm-cluster xm-gap-1">
-                    <div class="bi-x-square-fill text-muted pointer" (click)="setEditing(dwh, false)"></div>
-                    <div class="bi-check-circle-fill text-success pointer" (click)="updateHours(dwh)"></div>
-                    <div class="bi-trash text-danger pointer" (click)="deleteHours(dwh)"></div>
+                    <div class="bi-x-square-fill xm-text-muted pointer" (click)="setEditing(dwh, false)"></div>
+                    <div class="bi-check-circle-fill xm-text-success pointer" (click)="updateHours(dwh)"></div>
+                    <div class="bi-trash xm-text-danger pointer" (click)="deleteHours(dwh)"></div>
                 </div>
             }
         </div>
@@ -88,6 +88,6 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <div>
-        <div class="bi-plus-circle-fill text-success pointer" (click)="updateHours(newTime())"></div>
+        <div class="bi-plus-circle-fill xm-text-success pointer" (click)="updateHours(newTime())"></div>
     </div>
 </div>

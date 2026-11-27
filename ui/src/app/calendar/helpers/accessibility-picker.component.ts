@@ -26,7 +26,7 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
                     }
                 </button>
             } @else {
-                <p class="text-muted">{{ 'i18n_calendar_room_accessibility_info' | translate }}</p>
+                <p class="xm-text-muted">{{ 'i18n_calendar_room_accessibility_info' | translate }}</p>
             }
             <div [ngbCollapse]="!showMenu()">
                 <div class="accs-group xm-stack xm-gap-1" role="group" aria-labelledby="accs-title">

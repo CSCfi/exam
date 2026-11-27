@@ -12,9 +12,9 @@ SPDX-License-Identifier: EUPL-1.2
         <!-- grade + toggle grouped on the right -->
         <div class="question-score">
             @if (sectionQuestion().evaluationType === 'Points') {
-                <span class="text-nowrap text-muted small">
+                <span class="text-nowrap xm-text-muted small">
                     @if (!!sectionQuestion().forcedScore) {
-                        <span class="text-danger">{{ sectionQuestion().forcedScore }}</span>
+                        <span class="xm-text-danger">{{ sectionQuestion().forcedScore }}</span>
                     }
                     @if (!sectionQuestion().forcedScore) {
                         {{ scoreControl.value || 0 }}
@@ -23,7 +23,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </span>
             }
             @if (sectionQuestion().evaluationType === 'Selection') {
-                <span class="text-nowrap text-muted small">
+                <span class="text-nowrap xm-text-muted small">
                     {{ 'i18n_evaluation_select' | translate }}:
                     @if (scoreControl.value === 1) {
                         {{ 'i18n_approved' | translate }}

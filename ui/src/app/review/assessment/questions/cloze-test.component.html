@@ -11,7 +11,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div [xmRichText]="sectionQuestion().question.question"></div>
             <!-- points + toggle grouped on the right -->
             <div class="question-score">
-                <span class="text-nowrap text-muted small">
+                <span class="text-nowrap xm-text-muted small">
                     <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
                     {{ sectionQuestion().clozeTestAnswer?.score?.correctAnswers }} /
                     {{
@@ -23,7 +23,7 @@ SPDX-License-Identifier: EUPL-1.2
                         {{ displayAchievedScore() }}
                     </span>
                     @if (hasForcedScore()) {
-                        <span class="text-danger">{{ sectionQuestion().forcedScore }}</span>
+                        <span class="xm-text-danger">{{ sectionQuestion().forcedScore }}</span>
                     }
                     / {{ sectionQuestion().maxScore }}
                 </span>
@@ -75,7 +75,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div [xmRichText]="$safeNavigationMigration(sectionQuestion().clozeTestAnswer?.question)"></div>
                 @if (participation().exam.executionType.type !== 'MATURITY') {
                     <div class="make-inline question-grade">
-                        <span class="text text-danger"
+                        <span class="text xm-text-danger"
                             >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
                             <small>[0 &hellip; {{ sectionQuestion().maxScore.toFixed(2) }}]</small></span
                         >

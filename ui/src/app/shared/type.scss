@@ -1,0 +1,35 @@
+/*
+ * SPDX-FileCopyrightText: The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+// Type tokens. Loaded once globally from styles.scss.
+//
+// One size scale for the app's own styles: font-size: var(--xm-font-size-lg). Sizes are in rem,
+// so they follow the reader's browser font size. Sizes relative to their surroundings (0.9em on
+// an icon) stay in em. Bootstrap's headings (h1–h6 without a class) and components still use
+// Bootstrap's sizes until Bootstrap is configured from these tokens.
+
+:root {
+    --xm-font-family: Arimo, Helvetica-Neue, Helvetica, sans-serif;
+    --xm-font-family-mono: 'Courier New', Courier, monospace;
+
+    --xm-font-size-xs: 0.75rem; // 12px: uppercase captions, column headings, small print
+    --xm-font-size-sm: 0.875rem; // 14px: secondary text, hints
+    --xm-font-size-md: 1rem; // 16px: body text
+    --xm-font-size-lg: 1.125rem; // 18px: emphasised text, small titles
+    --xm-font-size-xl: 1.25rem; // 20px: card and block titles
+    --xm-font-size-2xl: 1.5rem; // 24px: section and dialog titles
+    --xm-font-size-3xl: 1.75rem; // 28px: page titles
+}
+
+// Type helpers for a single element in a template: <p class="xm-text-xl">.
+@each $step in xs, sm, md, lg, xl, 2xl, 3xl {
+    .xm-text-#{$step} {
+        font-size: var(--xm-font-size-#{$step}) !important;
+    }
+}
+.xm-text-bold {
+    font-weight: 700 !important;
+}

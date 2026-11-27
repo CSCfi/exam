@@ -59,7 +59,7 @@ import { TranslateModule } from '@ngx-translate/core';
             @if (showWarning()) {
                 <div class="xm-paragraph-title edit-warning-container">
                     {{ 'i18n_exam_basic_information_tab' | translate }}
-                    <i class="bi-exclamation-circle ps-4 text-danger"></i>
+                    <i class="bi-exclamation-circle ps-4 xm-text-danger"></i>
                     <span class="warning-text-small ps-2">
                         {{ 'i18n_shared_question_property_info' | translate }}
                     </span>

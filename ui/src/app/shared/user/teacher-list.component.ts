@@ -11,7 +11,7 @@ type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
     selector: 'xm-teacher-list',
     template: `
         <span>
-            <span class="fw-bold">{{ owners }}</span>
+            <span class="xm-text-bold">{{ owners }}</span>
             @if (inspectors) {
                 <span>, {{ inspectors }}</span>
             }

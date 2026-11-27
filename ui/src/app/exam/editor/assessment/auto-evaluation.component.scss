@@ -6,14 +6,14 @@
 
 .autoevaluation-info {
     color: var(--xm-color-text-muted);
-    font-size: 1.125rem;
+    font-size: var(--xm-font-size-lg);
     line-height: 1.625rem;
 }
 
 /* Grade, percentage and point limit columns */
 .grade-limits {
     th {
-        font-size: 0.75rem;
+        font-size: var(--xm-font-size-xs);
         color: var(--xm-color-text-subtle);
         text-transform: uppercase;
         font-weight: normal;
@@ -52,5 +52,5 @@
 .alert-danger {
     margin-bottom: 0.5rem !important;
     padding: 0.5rem 0.75rem !important;
-    font-size: 0.875rem;
+    font-size: var(--xm-font-size-sm);
 }

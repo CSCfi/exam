@@ -61,14 +61,14 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                                     }}<i class="bi-pencil ms-1"></i>
                                 </span>
                                 @if (!config.examEnrolments?.length) {
-                                    <span (click)="removeExaminationEvent(config)" class="text text-danger pointer">
+                                    <span (click)="removeExaminationEvent(config)" class="text xm-text-danger pointer">
                                         <i
                                             title="{{ 'i18n_remove' | translate }}"
                                             class="bi-x rounded-end background-gray p-1"
                                         ></i
                                     ></span>
                                 } @else {
-                                    <span class="rounded-end text text-muted background-gray p-1">
+                                    <span class="rounded-end text xm-text-muted background-gray p-1">
                                         <i title="{{ 'i18n_event_enrolments_exist' | translate }}" class="bi-x"></i>
                                     </span>
                                 }

@@ -61,5 +61,42 @@
     --xm-color-success-bg: var(--xm-green-50);
     --xm-color-danger: var(--xm-red-500);
     --xm-color-danger-bg: var(--xm-red-50);
+    --xm-color-warning: var(--xm-amber-300);
     --xm-color-highlight: var(--xm-amber-300);
+}
+
+// Text and background colour helpers, for a single element in a template:
+// <span class="xm-text-danger">. Like Bootstrap's helpers they win over component styles.
+.xm-text-body {
+    color: var(--xm-color-text) !important;
+}
+.xm-text-muted {
+    color: var(--xm-color-text-muted) !important;
+}
+.xm-text-inverse {
+    color: var(--xm-color-text-inverse) !important;
+}
+.xm-text-info {
+    color: var(--xm-color-info) !important;
+}
+.xm-text-success {
+    color: var(--xm-color-success) !important;
+}
+.xm-text-warning {
+    color: var(--xm-color-warning) !important;
+}
+.xm-text-danger {
+    color: var(--xm-color-danger) !important;
+}
+.xm-bg-surface {
+    background-color: var(--xm-color-surface) !important;
+}
+.xm-bg-muted {
+    background-color: var(--xm-color-surface-muted) !important;
+}
+.xm-bg-info {
+    background-color: var(--xm-color-info) !important;
+}
+.xm-bg-success {
+    background-color: var(--xm-color-success) !important;
 }

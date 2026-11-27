@@ -36,7 +36,7 @@ import { Option } from './select.model';
             }
             @if (allowClearing()) {
                 <button type="button" ngbDropdownItem (click)="clearSelection(); d.close()">
-                    <i class="bi-x text text-danger"></i>
+                    <i class="bi-x text xm-text-danger"></i>
                 </button>
             }
             @for (opt of filteredOptions(); track $index) {

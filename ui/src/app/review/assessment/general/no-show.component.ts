@@ -10,7 +10,7 @@ import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 @Component({
     selector: 'xm-r-no-show',
     template: ` <div>{{ started() | date: 'dd.MM.yyyy' }}</div>
-        <div class="status text-danger">
+        <div class="status xm-text-danger">
             {{ 'i18n_exam_status_no_show' | translate }}
         </div>`,
     styles: `

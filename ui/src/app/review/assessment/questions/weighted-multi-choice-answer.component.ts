@@ -16,7 +16,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                     <div class="exam-answered-correct answer-option">
                         <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
                         <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
-                        <span class="text-success text-nowrap">
+                        <span class="xm-text-success text-nowrap">
                             {{ option.score }} {{ 'i18n_unit_points' | translate }}
                         </span>
                     </div>
@@ -24,7 +24,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                     <div class="exam-answered-wrong answer-option">
                         <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="" />
                         <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
-                        <span class="text-danger text-nowrap">
+                        <span class="xm-text-danger text-nowrap">
                             {{ option.score }} {{ 'i18n_unit_points' | translate }}
                         </span>
                     </div>
@@ -39,8 +39,8 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                     <span class="exam-question-option-text text-break">{{ option.option.option }}</span>
                     <span
                         class="text-nowrap"
-                        [class.text-success]="option.score >= 0"
-                        [class.text-danger]="option.score < 0"
+                        [class.xm-text-success]="option.score >= 0"
+                        [class.xm-text-danger]="option.score < 0"
                     >
                         {{ option.score }} {{ 'i18n_unit_points' | translate }}
                     </span>

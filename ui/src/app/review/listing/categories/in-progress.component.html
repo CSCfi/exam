@@ -196,10 +196,10 @@ SPDX-License-Identifier: EUPL-1.2
                                 @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
                                     @if (inspection.user) {
                                         <span
-                                            [class.text-success]="inspection.ready"
-                                            [class.text-danger]="!inspection.ready"
+                                            [class.xm-text-success]="inspection.ready"
+                                            [class.xm-text-danger]="!inspection.ready"
                                         >
-                                            <span [class.fw-bold]="isOwner(inspection.user)">
+                                            <span [class.xm-text-bold]="isOwner(inspection.user)">
                                                 {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                                             </span>
                                             <span>

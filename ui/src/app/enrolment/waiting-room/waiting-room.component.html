@@ -52,13 +52,13 @@ SPDX-License-Identifier: EUPL-1.2
                             }}</span>
                         </div>
                     }
-                    <strong class="fs-5">
+                    <strong class="xm-text-xl">
                         {{ enrolment()?.exam?.name }}
                         @if (enrolment()?.exam?.anonymous) {
                             <span>({{ 'i18n_anonymous_review' | translate }})</span>
                         }
                         <br />
-                        <span class="text-success">{{ 'i18n_state_ready' | translate }}</span>
+                        <span class="xm-text-success">{{ 'i18n_state_ready' | translate }}</span>
                     </strong>
                 </header>
                 <dl class="xm-details">
@@ -102,11 +102,11 @@ SPDX-License-Identifier: EUPL-1.2
                         <dd>{{ enrolment()!.exam.duration }} {{ 'i18n_minutes' | translate }}</dd>
                     }
                     @if (enrolment()?.reservation?.machine?.room?.roomInstruction) {
-                        <dt class="fw-bold">{{ 'i18n_room_guidance' | translate }}:</dt>
+                        <dt class="xm-text-bold">{{ 'i18n_room_guidance' | translate }}:</dt>
                         <dd>{{ getRoomInstructions() }}</dd>
                     }
                     @if (enrolment()?.exam?.enrollInstruction) {
-                        <dt class="fw-bold">{{ 'i18n_view_instructions' | translate }}:</dt>
+                        <dt class="xm-text-bold">{{ 'i18n_view_instructions' | translate }}:</dt>
                         <dd [xmRichText]="enrolment()!.exam.enrollInstruction"></dd>
                     }
                 </dl>

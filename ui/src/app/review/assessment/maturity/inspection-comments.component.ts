@@ -44,7 +44,7 @@ type InspectionComment = { comment: string; creator: User; created: Date };
                         {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
                     </small>
                     <br />
-                    <small class="text-muted">{{ comment.creator.email }}</small>
+                    <small class="xm-text-muted">{{ comment.creator.email }}</small>
                 </div>
                 <div>
                     {{ comment.comment }}

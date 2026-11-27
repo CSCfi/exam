@@ -20,7 +20,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         <div class="xm-stack xm-gap-3">
             <div class="room-heading">
                 <strong class="selected-room-title">{{ room().name }}</strong>
-                <span class="selected-room-address text-body-secondary">
+                <span class="selected-room-address xm-text-muted">
                     {{ room().mailAddress.street }} {{ room().mailAddress.zip }}
                     {{ room().mailAddress.city }}
                 </span>
@@ -28,7 +28,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             <dl class="xm-details">
                 <dt>
                     <span class="d-block">{{ 'i18n_room_default_working_hours' | translate }}</span>
-                    <small class="text-muted">({{ room().localTimezone }})</small>
+                    <small class="xm-text-muted">({{ room().localTimezone }})</small>
                 </dt>
                 <dd>
                     <dl class="opening-hours">
@@ -42,8 +42,8 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 <dd>
                     @for (eh of exceptionHours(); track eh.id) {
                         <div
-                            [class.text-danger]="eh.outOfService"
-                            [class.text-success]="!eh.outOfService"
+                            [class.xm-text-danger]="eh.outOfService"
+                            [class.xm-text-success]="!eh.outOfService"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ eh.description | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -62,7 +62,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                             {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
                             {{ period.description }}
                             @if (period.org) {
-                                <span class="text-danger">({{ period.org }})</span>
+                                <span class="xm-text-danger">({{ period.org }})</span>
                             }
                         </div>
                     } @empty {

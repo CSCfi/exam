@@ -31,7 +31,7 @@ SPDX-License-Identifier: EUPL-1.2
             </span>
             <div>
                 @for (eh of !oldExceptionsHidden() ? exceptionHours() : newExceptions(); track eh) {
-                    <div [class.text-danger]="eh.outOfService" [class.text-success]="!eh.outOfService">
+                    <div [class.xm-text-danger]="eh.outOfService" [class.xm-text-success]="!eh.outOfService">
                         {{ eh.start }} - {{ eh.end }} ({{ eh.description | translate }})
                         @if (isInFuture(eh.startDate)) {
                             <i

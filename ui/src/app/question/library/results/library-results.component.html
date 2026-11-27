@@ -111,7 +111,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <span class="question-text-clamped" [xmRichText]="question.question"></span>
                         }
                         @if (!question.question) {
-                            <span class="text-danger">
+                            <span class="xm-text-danger">
                                 {{ 'i18n_no_name' | translate }}
                             </span>
                         }
@@ -130,7 +130,7 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                             @if (question.questionOwners.length > 1) {
                                 <i
-                                    class="bi-people ps-2 text-primary"
+                                    class="bi-people ps-2 xm-text-info"
                                     ngbPopover="{{ 'i18n_question_owners' | translate }}: {{ printOwners(question) }}"
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
@@ -196,7 +196,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </td>
                     <td class="td-center-align">
                         @if (question.allowedToRemove) {
-                            <button (click)="deleteQuestion(question)" class="btn btn-link text-black">
+                            <button (click)="deleteQuestion(question)" class="btn btn-link xm-text-body">
                                 <i
                                     class="bi-trash"
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -207,7 +207,7 @@ SPDX-License-Identifier: EUPL-1.2
                         }
                     </td>
                     <td class="td-center-align">
-                        <button (click)="copyQuestion(question)" class="btn btn-link text-black">
+                        <button (click)="copyQuestion(question)" class="btn btn-link xm-text-body">
                             <i
                                 class="bi-files"
                                 popoverTitle="{{ 'i18n_instructions' | translate }}"

@@ -33,7 +33,7 @@
     }
 
     .exam-clock {
-        font-size: 1.75rem;
+        font-size: var(--xm-font-size-3xl);
         letter-spacing: 1.5px;
         color: var(--xm-grey-100);
         font-weight: bold;
@@ -41,14 +41,14 @@
         font-variant-numeric: tabular-nums;
     }
     .exam-clock-text {
-        font-size: 1.125rem;
+        font-size: var(--xm-font-size-lg);
         letter-spacing: 1.5px;
         color: var(--xm-grey-100);
         margin-left: 20px;
     }
 
     .clock-hide {
-        font-size: 0.875rem;
+        font-size: var(--xm-font-size-sm);
         white-space: nowrap;
     }
 }

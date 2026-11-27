@@ -33,7 +33,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (reviewedExam()) {
         <button
             type="button"
-            class="btn btn-link btn-sm text-body-secondary text-decoration-none p-0 exam-feedback-toggle"
+            class="btn btn-link btn-sm xm-text-muted text-decoration-none p-0 exam-feedback-toggle"
             (click)="toggleEvaluation()"
             (ngEnter)="toggleEvaluation()"
             [attr.aria-expanded]="showEvaluation()"
@@ -57,9 +57,9 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
     @if (participation().noShow) {
-        <p class="text-danger">{{ 'i18n_no_show' | translate }}</p>
+        <p class="xm-text-danger">{{ 'i18n_no_show' | translate }}</p>
     }
     @if (!participation().noShow && !reviewedExam()) {
-        <p class="text-muted">{{ 'i18n_no_comments' | translate }}</p>
+        <p class="xm-text-muted">{{ 'i18n_no_comments' | translate }}</p>
     }
 </article>

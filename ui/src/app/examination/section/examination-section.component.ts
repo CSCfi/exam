@@ -20,7 +20,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             >
                 <span class="exam-title">{{ index() ? index() + '. ' : '' }}{{ section().name }}</span>
                 @if (isPreview() && section().lotteryOn) {
-                    <span class="text-black">
+                    <span class="xm-text-body">
                         <small class="ms-3">({{ 'i18n_lottery_questions' | translate }})</small>
                     </span>
                 }
@@ -49,7 +49,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             <div>
                 @for (material of section().examMaterials; track material) {
                     <div class="xm-cluster material">
-                        <i class="text-muted bi-book" alt="exam materials"></i>
+                        <i class="xm-text-muted bi-book" alt="exam materials"></i>
                         <span>{{ material.name }}</span>
                         @if (material.author) {
                             <span> ({{ material.author }}) </span>

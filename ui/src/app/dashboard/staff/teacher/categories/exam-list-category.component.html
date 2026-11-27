@@ -103,14 +103,14 @@ SPDX-License-Identifier: EUPL-1.2
                             <td>
                                 @if (isOwner(exam)) {
                                     <a
-                                        class="text-danger"
+                                        class="xm-text-danger"
                                         [routerLink]="['/staff/exams', exam.id, '1']"
                                         [state]="{ collaborative: false }"
                                         >{{ 'i18n_no_name' | translate }}</a
                                     >
                                 }
                                 @if (!isOwner(exam)) {
-                                    <span class="text-danger">{{ 'i18n_no_name' | translate }}</span>
+                                    <span class="xm-text-danger">{{ 'i18n_no_name' | translate }}</span>
                                 }
                             </td>
                         }
@@ -142,7 +142,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 @if (
                                     !isOwner(exam) && column.checkOwnership && exam.executionType.type !== 'PRINTOUT'
                                 ) {
-                                    <span class="text-muted">{{ exam[column.property] }}</span>
+                                    <span class="xm-text-muted">{{ exam[column.property] }}</span>
                                 }
 
                                 @if (exam.executionType.type === 'PRINTOUT') {
@@ -160,7 +160,7 @@ SPDX-License-Identifier: EUPL-1.2
                                     class="pointer btn btn-link"
                                     [ariaLabel]="'i18n_exam_remove' | translate"
                                 >
-                                    <i class="bi-trash text-dark" aria-hidden="true"></i>
+                                    <i class="bi-trash xm-text-body" aria-hidden="true"></i>
                                 </button>
                             }
                         </td>
@@ -170,7 +170,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 (click)="copyExam(exam)"
                                 [ariaLabel]="'i18n_copy' | translate"
                             >
-                                <i class="bi-files text-dark" aria-hidden="true"></i>
+                                <i class="bi-files xm-text-body" aria-hidden="true"></i>
                             </button>
                         </td>
                     </tr>

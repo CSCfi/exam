@@ -131,7 +131,9 @@ SPDX-License-Identifier: EUPL-1.2
                     <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
                 @if (!questionPointsMatch()) {
-                    <span class="text text-danger ms-2">{{ 'i18n_error_lottery_points_not_match' | translate }}</span>
+                    <span class="text xm-text-danger ms-2">{{
+                        'i18n_error_lottery_points_not_match' | translate
+                    }}</span>
                 }
             </div>
             @if (section().lotteryOn) {

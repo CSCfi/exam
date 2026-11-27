@@ -8,7 +8,7 @@
     margin-bottom: 40px;
 }
 .question-flow-title {
-    font-size: 1.375rem;
+    font-size: var(--xm-font-size-2xl);
     color: var(--xm-color-text);
     padding-bottom: 5px;
     margin-block: var(--xm-space-3) calc(20px + var(--xm-space-4));

@@ -19,7 +19,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
             </h4>
         </div>
         <div class="modal-body">
-            <label for="removal-message" class="fw-bold">{{ 'i18n_message' | translate }}</label>
+            <label for="removal-message" class="xm-text-bold">{{ 'i18n_message' | translate }}</label>
             <textarea
                 id="removal-message"
                 class="form-control"

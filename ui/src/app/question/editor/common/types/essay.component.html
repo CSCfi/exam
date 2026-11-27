@@ -25,7 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         @if (essayForm.get('defaultExpectedWordCount')?.invalid && essayForm.get('defaultExpectedWordCount')?.touched) {
             <div class="xm-icon-text">
-                <i class="bi-exclamation-circle text-danger"></i>
+                <i class="bi-exclamation-circle xm-text-danger"></i>
                 <small>{{ 'i18n_essay_length_recommendation_bounds' | translate }}</small>
             </div>
         }

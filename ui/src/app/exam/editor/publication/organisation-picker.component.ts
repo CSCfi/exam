@@ -72,8 +72,8 @@ type Organisation = {
                             >
                                 <i
                                     class="bi bi-x-lg"
-                                    [class.text-danger]="exam().state === 'PUBLISHED'"
-                                    [class.text-success]="exam().state !== 'PUBLISHED'"
+                                    [class.xm-text-danger]="exam().state === 'PUBLISHED'"
+                                    [class.xm-text-success]="exam().state !== 'PUBLISHED'"
                                     aria-hidden="true"
                                 ></i>
                             </button>

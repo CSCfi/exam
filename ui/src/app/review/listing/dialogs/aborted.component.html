@@ -99,7 +99,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 }}&nbsp;min)
                             </td>
                         }
-                        <td class="text-danger">
+                        <td class="xm-text-danger">
                             {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                         </td>
                         @if (review.examParticipation.exam.executionType.type === 'PUBLIC') {
@@ -121,7 +121,7 @@ SPDX-License-Identifier: EUPL-1.2
                                     </button>
                                 }
                                 @if (!review.examParticipation.exam.trialCount) {
-                                    <div class="text-muted">
+                                    <div class="xm-text-muted">
                                         {{ 'i18n_unrestricted' | translate }}
                                     </div>
                                 }

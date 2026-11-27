@@ -13,11 +13,11 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     template: `
         @if (queryParams()) {
             <dl class="xm-details">
-                <dt class="fw-bold">{{ 'i18n_assessed_exams' | translate }}:</dt>
+                <dt class="xm-text-bold">{{ 'i18n_assessed_exams' | translate }}:</dt>
                 <dd>{{ data().assessed }}</dd>
-                <dt class="fw-bold">{{ 'i18n_unassessed_exams' | translate }}:</dt>
+                <dt class="xm-text-bold">{{ 'i18n_unassessed_exams' | translate }}:</dt>
                 <dd>{{ data().unassessed }}</dd>
-                <dt class="fw-bold">{{ 'i18n_aborted_exams' | translate }}:</dt>
+                <dt class="xm-text-bold">{{ 'i18n_aborted_exams' | translate }}:</dt>
                 <dd>{{ data().aborted }}</dd>
             </dl>
         }

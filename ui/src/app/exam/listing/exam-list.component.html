@@ -149,7 +149,7 @@ SPDX-License-Identifier: EUPL-1.2
                                             ><strong>{{ exam.name }}</strong></a
                                         >
                                     } @else {
-                                        <a class="text-danger" [routerLink]="['/staff/exams', exam.id, '1']">
+                                        <a class="xm-text-danger" [routerLink]="['/staff/exams', exam.id, '1']">
                                             <strong>{{ 'i18n_no_name' | translate }}</strong>
                                         </a>
                                     }
@@ -193,7 +193,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (views[activeId()].view === 'PUBLISHED' && !views[activeId()].showExpired) {
                 <p>
                     <strong>{{ 'i18n_published_exams' | translate }}: </strong>
-                    <em class="text-black"
+                    <em class="xm-text-body"
                         >{{ 'i18n_published_exams_info_main' | translate }}
                         {{ 'i18n_published_exams_info_other' | translate }}</em
                     >
@@ -202,7 +202,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (views[activeId()].view === 'SAVED') {
                 <p>
                     <strong>{{ 'i18n_saved_exams' | translate }}: </strong>
-                    <em class="text-black"
+                    <em class="xm-text-body"
                         >{{ 'i18n_saved_exams_info_main' | translate }}
                         {{ 'i18n_saved_exams_info_other' | translate }}</em
                     >

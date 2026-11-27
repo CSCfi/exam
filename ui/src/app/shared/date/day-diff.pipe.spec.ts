@@ -11,22 +11,22 @@ describe('DiffInDaysPipe', () => {
         pipe = new DiffInDaysPipe();
     });
 
-    it('should return a span without text-danger for a positive diff', () => {
+    it('should return a span without xm-text-danger for a positive diff', () => {
         const base = Date.now();
         const future = new Date(base + 3 * 24 * 60 * 60 * 1000).toISOString();
         const now = new Date(base).toISOString();
         const result = pipe.transform(future, now);
         expect(result).toContain('<span>');
-        expect(result).not.toContain('text-danger');
+        expect(result).not.toContain('xm-text-danger');
         expect(result).toContain('3');
     });
 
-    it('should return a span with text-danger for a negative diff', () => {
+    it('should return a span with xm-text-danger for a negative diff', () => {
         const base = Date.now();
         const past = new Date(base - 3 * 24 * 60 * 60 * 1000).toISOString();
         const now = new Date(base).toISOString();
         const result = pipe.transform(past, now);
-        expect(result).toContain('text-danger');
+        expect(result).toContain('xm-text-danger');
         expect(result).toContain('-3');
     });
 
@@ -34,7 +34,7 @@ describe('DiffInDaysPipe', () => {
         const future = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
         const result = pipe.transform(future);
         expect(result).toContain('<span>');
-        expect(result).not.toContain('text-danger');
+        expect(result).not.toContain('xm-text-danger');
     });
 
     it('should use Math.floor for fractional days (positive)', () => {

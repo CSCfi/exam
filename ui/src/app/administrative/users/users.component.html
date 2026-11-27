@@ -134,9 +134,9 @@ SPDX-License-Identifier: EUPL-1.2
                                                 [disabled]="user.availableRoles.length === 0"
                                             >
                                                 @if (user.availableRoles.length > 0) {
-                                                    <i class="text-success bi-plus"></i>
+                                                    <i class="xm-text-success bi-plus"></i>
                                                 } @else {
-                                                    <i class="text-muted bi-plus"></i>
+                                                    <i class="xm-text-muted bi-plus"></i>
                                                 }
                                             </button>
                                             @if (user.availableRoles.length > 0) {
@@ -165,10 +165,10 @@ SPDX-License-Identifier: EUPL-1.2
                                                 [disabled]="user.roles.length <= 1"
                                             >
                                                 @if (user.roles.length > 1) {
-                                                    <i class="text-danger bi-dash"></i>
+                                                    <i class="xm-text-danger bi-dash"></i>
                                                 } @else {
                                                     <i
-                                                        class="text-muted bi-dash"
+                                                        class="xm-text-muted bi-dash"
                                                         triggers="mouseenter:mouseleave"
                                                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                                                         ngbPopover="{{ 'i18n_at_least_one_role_required' | translate }}"
@@ -215,10 +215,10 @@ SPDX-License-Identifier: EUPL-1.2
                                                 [disabled]="user.availablePermissions.length === 0"
                                             >
                                                 @if (user.availablePermissions.length > 0) {
-                                                    <i class="text-success bi-plus"></i>
+                                                    <i class="xm-text-success bi-plus"></i>
                                                 }
                                                 @if (user.availablePermissions.length === 0) {
-                                                    <i class="text-muted bi-plus"></i>
+                                                    <i class="xm-text-muted bi-plus"></i>
                                                 }
                                             </button>
                                             @if (user.availablePermissions.length > 0) {
@@ -254,10 +254,10 @@ SPDX-License-Identifier: EUPL-1.2
                                                 [disabled]="user.removablePermissions.length === 0"
                                             >
                                                 @if (user.removablePermissions.length > 0) {
-                                                    <i class="text-danger bi-dash"></i>
+                                                    <i class="xm-text-danger bi-dash"></i>
                                                 }
                                                 @if (user.removablePermissions.length === 0) {
-                                                    <i class="text-muted bi-dash"></i>
+                                                    <i class="xm-text-muted bi-dash"></i>
                                                 }
                                             </button>
                                             @if (user.removablePermissions.length > 0) {

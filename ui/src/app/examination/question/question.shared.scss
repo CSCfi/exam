@@ -6,14 +6,14 @@
 
 .question-type-text {
     color: var(--xm-color-text);
-    font-size: 1rem;
+    font-size: var(--xm-font-size-md);
     font-weight: 400;
 
     display: inline-block;
 
     &.info {
         color: var(--xm-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--xm-font-size-sm);
     }
 }
 

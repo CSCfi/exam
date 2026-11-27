@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<article class="room" [class.text-muted]="room().state === 'INACTIVE'">
+<article class="room" [class.xm-text-muted]="room().state === 'INACTIVE'">
     <h4>
         {{ room().name || 'i18n_no_name' | translate }}
         <a
@@ -14,7 +14,7 @@ SPDX-License-Identifier: EUPL-1.2
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
         >
-            <i class="bi-trash ms-2 text-danger pointer"></i>
+            <i class="bi-trash ms-2 xm-text-danger pointer"></i>
         </a>
         <a
             [hidden]="room().state !== 'INACTIVE'"
@@ -23,7 +23,7 @@ SPDX-License-Identifier: EUPL-1.2
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'i18n_activate_room' | translate }}"
         >
-            <i class="bi-plus text-success pointer"></i>
+            <i class="bi-plus xm-text-success pointer"></i>
         </a>
     </h4>
     <div class="toggleMessage">
@@ -96,7 +96,7 @@ SPDX-License-Identifier: EUPL-1.2
                     @for (timetable of getWorkingHoursDisplayFormat(room().defaultWorkingHours); track timetable) {
                         <div class="timetable-row">
                             @if (timetable.length > 0) {
-                                <div class="bg-success custom-green-dot"></div>
+                                <div class="xm-bg-success custom-green-dot"></div>
                             }
                             <div>{{ timetable }}</div>
                         </div>
@@ -116,11 +116,11 @@ SPDX-License-Identifier: EUPL-1.2
             @for (exception of getNextExceptionEvent(calendarExceptionEvents()); track exception.id) {
                 <div class="exception-row">
                     @if (exception?.outOfService) {
-                        <div class="text-danger bi-exclamation-triangle-fill">
+                        <div class="xm-text-danger bi-exclamation-triangle-fill">
                             {{ 'i18n_room_out_of_service' | translate }}
                         </div>
                     } @else {
-                        <div class="text-success">
+                        <div class="xm-text-success">
                             {{ 'i18n_room_in_service' | translate }}
                         </div>
                     }
@@ -132,7 +132,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (getFutureExceptionEvent(calendarExceptionEvents()).length > 2) {
                 <div class="more-exceptions">
                     <i class="bi-three-dots pointer" (click)="room().availabilityVisible = true"></i>
-                    <div class="text-danger">({{ getFutureExceptionEvent(calendarExceptionEvents()).length }})</div>
+                    <div class="xm-text-danger">({{ getFutureExceptionEvent(calendarExceptionEvents()).length }})</div>
                 </div>
             }
         </div>

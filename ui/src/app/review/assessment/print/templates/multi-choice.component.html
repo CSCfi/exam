@@ -21,7 +21,9 @@ SPDX-License-Identifier: EUPL-1.2
                     @case ('MultipleChoiceQuestion') {
                         <li>
                             <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
-                            <span [class.fw-bold]="o.option.correctOption" class="ps-2">{{ o.option.option }}</span>
+                            <span [class.xm-text-bold]="o.option.correctOption" class="ps-2">{{
+                                o.option.option
+                            }}</span>
                         </li>
                     }
                     @case ('WeightedMultipleChoiceQuestion') {
@@ -38,7 +40,7 @@ SPDX-License-Identifier: EUPL-1.2
                     @case ('ClaimChoiceQuestion') {
                         <li>
                             <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
-                            <span [class.fw-bold]="o.option.claimChoiceType === 'CorrectOption'" class="ps-2">{{
+                            <span [class.xm-text-bold]="o.option.claimChoiceType === 'CorrectOption'" class="ps-2">{{
                                 o.option.option
                             }}</span>
                         </li>
@@ -55,7 +57,7 @@ SPDX-License-Identifier: EUPL-1.2
                 {{ scoreMultipleChoiceAnswer(true) }}
             </span>
             @if (hasForcedScore()) {
-                <span class="text text-danger">
+                <span class="text xm-text-danger">
                     {{ sectionQuestion().forcedScore }}
                 </span>
             }
@@ -66,7 +68,7 @@ SPDX-License-Identifier: EUPL-1.2
                 {{ scoreWeightedMultipleChoiceAnswer(true) }}
             </span>
             @if (hasForcedScore()) {
-                <span class="text text-danger">
+                <span class="text xm-text-danger">
                     {{ sectionQuestion().forcedScore }}
                 </span>
             }
@@ -77,7 +79,7 @@ SPDX-License-Identifier: EUPL-1.2
                 {{ scoreClaimChoiceAnswer(true) }}
             </span>
             @if (hasForcedScore()) {
-                <span class="text text-danger">
+                <span class="text xm-text-danger">
                     {{ sectionQuestion().forcedScore }}
                 </span>
             }

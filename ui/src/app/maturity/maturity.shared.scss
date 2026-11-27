@@ -8,11 +8,11 @@
 @use '../shared/grid';
 
 .maturity-input-label {
-    font-size: 0.75rem;
+    font-size: var(--xm-font-size-xs);
     text-transform: uppercase;
 }
 .maturity-paragraph-title {
-    font-size: 1.375rem;
+    font-size: var(--xm-font-size-2xl);
     color: var(--xm-color-text);
     padding-bottom: 5px;
 }

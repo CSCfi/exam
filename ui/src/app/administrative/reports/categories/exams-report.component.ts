@@ -28,7 +28,7 @@ import { ToastService } from 'src/app/shared/toast/toast.service';
                     }
                 </div>
                 <button class="btn btn-success btn-sm xm-fields-action" (click)="getExams()">
-                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                    <i class="bi-file-earmark-excel xm-text-inverse pe-2"></i>{{ 'i18n_download' | translate }}
                 </button>
             </div>
         </section>

@@ -15,12 +15,12 @@ import { Subject, filter, interval, map, startWith, switchMap, take, timer } fro
         <div class="header-wrapper">
             <div class="clock-content">
                 @if (showRemainingTime()) {
-                    <span class="text-white">{{ 'i18n_exam_time_left' | translate }}: </span>
-                    <span class="exam-clock" role="region" [class.text-warning]="isTimeScarce()">{{
+                    <span class="xm-text-inverse">{{ 'i18n_exam_time_left' | translate }}: </span>
+                    <span class="exam-clock" role="region" [class.xm-text-warning]="isTimeScarce()">{{
                         remainingTime()
                     }}</span>
                 } @else {
-                    <span class="clock-hide text-muted">{{ 'i18n_clock_hidden' | translate }}</span>
+                    <span class="clock-hide xm-text-muted">{{ 'i18n_clock_hidden' | translate }}</span>
                 }
                 @if (ariaLiveTime()) {
                     <span class="exam-clock skip" role="region" [ariaLive]="'polite'">{{
@@ -37,7 +37,7 @@ import { Subject, filter, interval, map, startWith, switchMap, take, timer } fro
                 <i
                     [class.bi-eye-slash]="showRemainingTime()"
                     [class.bi-eye]="!showRemainingTime()"
-                    class="bi text-white"
+                    class="bi xm-text-inverse"
                     aria-hidden="true"
                 ></i>
             </button>

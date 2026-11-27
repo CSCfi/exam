@@ -69,9 +69,9 @@ SPDX-License-Identifier: EUPL-1.2
                 @for (software of software(); track software) {
                     <span
                         class="badge pointer"
-                        [class.bg-success]="software.active"
-                        [class.bg-light]="!software.active"
-                        [class.text-dark]="!software.active"
+                        [class.xm-bg-success]="software.active"
+                        [class.xm-bg-muted]="!software.active"
+                        [class.xm-text-body]="!software.active"
                         (click)="toggleSoftware(software)"
                     >
                         {{ software.name }}

@@ -55,7 +55,7 @@ const durationMinutes = (event: EventInput): number => {
     template: `
         @if (visible() && (passwordVerified() || isAdmin())) {
             @if (otherZone(); as zone) {
-                <p class="small text-body-secondary mb-2" role="note">
+                <p class="small xm-text-muted mb-2" role="note">
                     <i class="bi bi-clock me-1" aria-hidden="true"></i
                     >{{ 'i18n_calendar_room_time' | translate: { zone } }}
                 </p>

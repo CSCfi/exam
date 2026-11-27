@@ -60,13 +60,13 @@ SPDX-License-Identifier: EUPL-1.2
                 }
             </div>
             @if ((exam?.state === 'PUBLISHED' || collabExam?.state === 'PUBLISHED') && (reservation || eventConfig)) {
-                <span class="text-success">{{ 'i18n_state_ready' | translate }}</span>
+                <span class="xm-text-success">{{ 'i18n_state_ready' | translate }}</span>
             }
             @if ((exam?.state === 'PUBLISHED' || collabExam?.state === 'PUBLISHED') && !reservation && !eventConfig) {
-                <span class="text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</span>
+                <span class="xm-text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</span>
             }
             @if (exam?.state === 'STUDENT_STARTED') {
-                <span class="text-success">{{ 'i18n_state_started' | translate }}</span>
+                <span class="xm-text-success">{{ 'i18n_state_started' | translate }}</span>
             }
         </div>
     </header>
@@ -87,7 +87,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-teacher-list [exam]="exam"></xm-teacher-list>
             </dd>
             <dd>
-                <button class="btn btn-link text-secondary p-0" (click)="addEnrolmentInformation()">
+                <button class="btn btn-link xm-text-muted p-0" (click)="addEnrolmentInformation()">
                     <i class="bi bi-envelope"></i>
                     {{ 'i18n_student_edit' | translate }}
                 </button>
@@ -151,7 +151,7 @@ SPDX-License-Identifier: EUPL-1.2
         }
     </dl>
     @if (!reservation && enrolment().reservationCanceled) {
-        <p class="text-danger">{{ 'i18n_exam_reservation_canceled' | translate }}</p>
+        <p class="xm-text-danger">{{ 'i18n_exam_reservation_canceled' | translate }}</p>
     }
     @if (reservation && enrolment().optionalSections.length > 0) {
         <xm-optional-sections [selectedSections]="enrolment().optionalSections" [allSections]="exam.examSections" />
@@ -159,7 +159,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (exam?.enrollInstruction || collabExam?.enrollInstruction) {
         <div>
             <button
-                class="btn btn-sm btn-link text-secondary p-0"
+                class="btn btn-sm btn-link xm-text-muted p-0"
                 (click)="showInstructions.set(!showInstructions())"
                 [ariaExpanded]="showInstructions()"
                 [attr.aria-controls]="'instructions-' + enrolment().id"

@@ -5,7 +5,7 @@
  */
 
 .xm-answers-meta {
-    font-size: 0.9375rem;
+    font-size: var(--xm-font-size-sm);
     color: var(--xm-grey-700);
 }
 
@@ -16,7 +16,7 @@
 }
 
 .xm-answers-question-label {
-    font-size: 0.75rem;
+    font-size: var(--xm-font-size-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;

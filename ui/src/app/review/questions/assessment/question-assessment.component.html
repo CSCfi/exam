@@ -22,10 +22,10 @@ SPDX-License-Identifier: EUPL-1.2
         <!-- Assessment status in progress / done -->
         <span class="inspection-title">{{ 'i18n_inspection_status' | translate }}:</span>
         @if (selectedReview() && isFinalized(selectedReview()!)) {
-            <span class="text-success">{{ 'i18n_exam_status_graded' | translate | lowercase }} </span>
+            <span class="xm-text-success">{{ 'i18n_exam_status_graded' | translate | lowercase }} </span>
         }
         @if (selectedReview() && !isFinalized(selectedReview()!)) {
-            <span class="text-danger">{{ 'i18n_in_progress' | translate | lowercase }} </span>
+            <span class="xm-text-danger">{{ 'i18n_in_progress' | translate | lowercase }} </span>
         }
     </div>
 </ng-template>
@@ -70,7 +70,7 @@ SPDX-License-Identifier: EUPL-1.2
                 (click)="downloadQuestionAttachment()"
                 [ariaLabel]="'i18n_download_attachment' | translate"
             >
-                <i class="bi-paperclip text-primary" aria-hidden="true"></i>&nbsp;{{
+                <i class="bi-paperclip xm-text-info" aria-hidden="true"></i>&nbsp;{{
                     selectedReview()!.question.attachment?.fileName
                 }}
             </button>

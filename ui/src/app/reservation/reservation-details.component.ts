@@ -65,9 +65,9 @@ export class ReservationDetailsComponent {
     getStateClass(reservation: Reservation) {
         const state = this.printExamState(reservation);
         if (state === 'NO_SHOW') {
-            return 'text-danger';
+            return 'xm-text-danger';
         }
-        return state === 'REVIEW' ? 'text-success' : '';
+        return state === 'REVIEW' ? 'xm-text-success' : '';
     }
 
     removeReservation(reservation: ReservationDetail) {

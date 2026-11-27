@@ -20,8 +20,8 @@ import { EssayAnswerComponent } from './essay-answer.component';
                     (selected)="assessEssay(answer)"
                 ></xm-essay-answer>
             } @empty {
-                <div class="no-answers p-5 bg-primary text-white rounded">
-                    <p class="lead">{{ 'i18n_no_answers_to_assess' | translate }}</p>
+                <div class="no-answers p-5 xm-bg-info xm-text-inverse rounded">
+                    <p class="xm-text-xl">{{ 'i18n_no_answers_to_assess' | translate }}</p>
                 </div>
             }
             @if (answers().length > 0) {

@@ -62,23 +62,23 @@
 }
 
 .review-list-link {
-    font-family: Arimo, Helvetica-Neue, Helvetica;
+    font-family: var(--xm-font-family);
     font-weight: bold;
     color: shared.$exam-blue;
-    font-size: 1rem;
+    font-size: var(--xm-font-size-md);
     text-decoration: none;
     cursor: pointer;
 }
 
 .review-list-subtitle {
-    font-family: Arimo, Helvetica-Neue, Helvetica;
-    font-size: 1rem;
+    font-family: var(--xm-font-family);
+    font-size: var(--xm-font-size-md);
     color: var(--xm-color-text);
 }
 
 .xm-paragraph-title-no-results {
     color: var(--xm-color-text-muted);
-    font-size: 1.25rem;
+    font-size: var(--xm-font-size-xl);
     margin: var(--xm-space-3);
 }
 

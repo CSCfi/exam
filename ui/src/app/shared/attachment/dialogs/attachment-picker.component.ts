@@ -44,7 +44,7 @@ import { FileService } from 'src/app/shared/file/file.service';
                 <div class="attachment-file">
                     {{ fileObject()?.name }}
                     @if (fileObject()) {
-                        <span class="text-muted small">({{ getFileSize() }})</span>
+                        <span class="xm-text-muted small">({{ getFileSize() }})</span>
                     }
                 </div>
             </div>

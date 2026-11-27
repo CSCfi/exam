@@ -35,7 +35,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
             @for (hour of examStartingHours(); track hour) {
                 <span
                     class="badge pointer"
-                    [class.bg-success]="hour.selected"
+                    [class.xm-bg-success]="hour.selected"
                     [class.bg-secondary]="!hour.selected"
                     (click)="toggleHourSelected(hour)"
                     >{{ hour.startingHour }}</span
@@ -52,7 +52,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                     {{ 'i18n_save' | translate }}
                 </button>
                 <i
-                    class="bi-exclamation-triangle-fill text-warning ms-3"
+                    class="bi-exclamation-triangle-fill xm-text-warning ms-3"
                     triggers="mouseenter:mouseleave"
                     ngbPopover="{{ 'i18n_unsaved_changes' | translate }}"
                     [hidden]="!unsavedProgress()"

@@ -24,7 +24,10 @@ SPDX-License-Identifier: EUPL-1.2
                     {{ 'i18n_open_it' | translate }} {{ 'i18n_exam_attachment' | translate }}
                     <i class="bi bi-paperclip ps-2"></i>
                 </button>
-                <small class="text-truncate text-muted" [title]="$safeNavigationMigration(exam().attachment?.fileName)">
+                <small
+                    class="text-truncate xm-text-muted"
+                    [title]="$safeNavigationMigration(exam().attachment?.fileName)"
+                >
                     {{ $safeNavigationMigration(exam().attachment?.fileName) | uppercase | slice: 0 : 50 }}
                 </small>
             </div>
@@ -87,10 +90,10 @@ SPDX-License-Identifier: EUPL-1.2
                     }
                 </div>
                 <div class="phase-text">
-                    <div class="fw-semibold text-truncate">
+                    <div class="xm-text-bold text-truncate">
                         {{ 'i18n_exam_section' | translate }} {{ i + 1 }}: {{ section.name }}
                     </div>
-                    <div class="small text-muted">
+                    <div class="small xm-text-muted">
                         {{ 'i18n_number_of_answered_questions' | translate }}
                         {{ sectionAnswerCounts().get(section.id)?.answered }} /
                         {{ sectionAnswerCounts().get(section.id)?.total }}

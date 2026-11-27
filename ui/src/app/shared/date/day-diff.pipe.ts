@@ -14,7 +14,7 @@ export class DiffInDaysPipe implements PipeTransform {
         const end = to ? new Date(to) : new Date();
         const diff = (new Date(from).getTime() - end.getTime()) / msInDay;
         if (diff < 0) {
-            return '<span class="text-danger">' + Math.floor(diff) + '</span>';
+            return '<span class="xm-text-danger">' + Math.floor(diff) + '</span>';
         }
         return '<span>' + Math.floor(diff) + '</span>';
     }

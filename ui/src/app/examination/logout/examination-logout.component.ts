@@ -11,10 +11,10 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
 @Component({
     selector: 'xm-examination-logout',
     template: `
-        <div class="logout-panel p-5 bg-body-secondary rounded-3">
+        <div class="logout-panel p-5 xm-bg-muted rounded-3">
             <div class="py-5">
-                <h1 class="display-5 fw-bold">{{ 'i18n_end_of_exam' | translate }}</h1>
-                <p class="fs-4" aria-live="polite">{{ reasonPhrase | translate }}</p>
+                <h1 class="display-5 xm-text-bold">{{ 'i18n_end_of_exam' | translate }}</h1>
+                <p class="xm-text-2xl" aria-live="polite">{{ reasonPhrase | translate }}</p>
                 @if (quitLink()) {
                     <a [href]="quitLink()!" class="btn btn-primary btn-lg">{{ 'i18n_quit_seb' | translate }} </a>
                 }

@@ -30,11 +30,11 @@ import { ExamSection } from 'src/app/exam/exam.model';
                                 <strong
                                     >{{ 'i18n_exam_section' | translate }}
                                     @if (section.optional) {
-                                        <small class="text text-success"
+                                        <small class="text xm-text-success"
                                             >({{ 'i18n_optional' | translate | lowercase }})</small
                                         >
                                     } @else {
-                                        <small class="text text-danger"
+                                        <small class="text xm-text-danger"
                                             >({{ 'i18n_required' | translate | lowercase }})</small
                                         >
                                     }

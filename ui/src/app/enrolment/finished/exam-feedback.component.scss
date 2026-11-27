@@ -6,7 +6,7 @@
 
 /* Stacked fields: works inside narrow cards (e.g. max-width list items), not viewport breakpoints */
 .exam-feedback-meta {
-    font-size: 0.9375rem;
+    font-size: var(--xm-font-size-sm);
 
     > dt {
         color: var(--xm-color-text-muted);

@@ -13,6 +13,7 @@
 @use './app/shared/definitions.scss' as shared;
 @use './app/shared/layout.scss';
 @use './app/shared/colors.scss';
+@use './app/shared/type.scss';
 
 /* fonts */
 @font-face {
@@ -30,7 +31,7 @@ html {
     font-size: 100%;
 }
 * {
-    font-family: Arimo, Helvetica-Neue, Helvetica;
+    font-family: var(--xm-font-family);
 }
 /* Minimum type sizes. Bootstrap sizes these three in em, so they shrink again for every
    nesting level inside an already-reduced container (a .badge inside .small inside a
@@ -142,11 +143,11 @@ textarea.ng-invalid {
 }
 /* modal title */
 .xm-modal-title {
-    font-size: 1.5rem;
+    font-size: var(--xm-font-size-2xl);
 }
 /* paragraph title */
 .xm-paragraph-title {
-    font-size: 1.5rem;
+    font-size: var(--xm-font-size-2xl);
     color: var(--xm-color-text);
     padding-bottom: 0.25rem;
     border-bottom: 1px solid var(--xm-color-border-strong);
@@ -181,7 +182,7 @@ textarea.ng-invalid {
    columns, and in those the uppercase header row rather than the data sets the table width,
    so the headers are allowed to wrap to keep them inside their .table-responsive container. */
 .xm-data-table {
-    font-size: 0.875rem;
+    font-size: var(--xm-font-size-sm);
     th {
         border: 0;
         font-weight: bold;
@@ -275,7 +276,7 @@ blockquote {
     color: var(--xm-color-text-muted);
 }
 code {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: var(--xm-font-family-mono);
     font-size: 0.9em;
     background: $xm-code-bg;
     border: $xm-code-border;

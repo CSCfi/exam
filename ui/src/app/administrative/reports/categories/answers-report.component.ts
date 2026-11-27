@@ -26,7 +26,7 @@ import { FileService } from 'src/app/shared/file/file.service';
                     <xm-date-picker inputId="answers-report-end" (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
                 <button class="btn btn-success btn-sm xm-fields-action" (click)="getExamAnswerReport()">
-                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                    <i class="bi-file-earmark-excel xm-text-inverse pe-2"></i>{{ 'i18n_download' | translate }}
                 </button>
             </div>
         </section>

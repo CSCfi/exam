@@ -89,7 +89,7 @@ SPDX-License-Identifier: EUPL-1.2
                             </td>
                         }
                         <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
-                        <td [class.text-success]="inspection.approved" [class.text-danger]="!inspection.approved">
+                        <td [class.xm-text-success]="inspection.approved" [class.xm-text-danger]="!inspection.approved">
                             <strong>{{ (inspection.approved ? 'i18n_approved' : 'i18n_rejected') | translate }}</strong>
                         </td>
                         <td class="no-print">

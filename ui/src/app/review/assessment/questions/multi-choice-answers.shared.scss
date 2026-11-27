@@ -43,7 +43,7 @@
 
 .exam-question-option-text {
     color: var(--xm-color-text);
-    font-size: 0.875rem;
+    font-size: var(--xm-font-size-sm);
 }
 
 // An answer option: its icon, text and points on one line

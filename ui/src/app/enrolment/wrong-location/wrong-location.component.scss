@@ -11,7 +11,7 @@
     thead th {
         font-weight: normal;
         text-transform: uppercase;
-        font-size: 0.8rem;
+        font-size: var(--xm-font-size-xs);
         letter-spacing: 0.03em;
     }
     .mismatch {
